@@ -8,9 +8,12 @@ const PLATFORM_NAME = 'enphaseEnvoy';
 let Service, Characteristic;
 
 module.exports = (api) => {
-  Service = homebridge.hap.Service;
-  Characteristic = homebridge.hap.Characteristic;
-  api.registerAccessory(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform);
+  Accessory = api.platformAccessory;
+  Service = api.hap.Service;
+  Characteristic = api.hap.Characteristic;
+  Categories = api.hap.Categories;
+	UUID = api.hap.uuid;
+  api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform);
 }
 
 class envoyPlatform {
