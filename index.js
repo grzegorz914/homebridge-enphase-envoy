@@ -1,19 +1,21 @@
 'use strict';
 
+const fs = require('fs');
 const axios = require('axios');
+const path = require('path');
 
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
-let Service, Characteristic;
+let Accessory, Characteristic, Service, Categories, UUID;
 
 module.exports = (api) => {
-  Accessory = api.platformAccessory;
-  Service = api.hap.Service;
-  Characteristic = api.hap.Characteristic;
-  Categories = api.hap.Categories;
+	Accessory = api.platformAccessory;
+	Characteristic = api.hap.Characteristic;
+	Service = api.hap.Service;
+	Categories = api.hap.Categories;
 	UUID = api.hap.uuid;
-  api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform);
+	api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform, true);
 }
 
 class envoyPlatform {
@@ -173,7 +175,7 @@ class envoyDevice {
     const accessoryName = this.name;
     const accessoryUUID = UUID.generate(accessoryName);
     this.accessory = new Accessory(accessoryName, accessoryUUID);
-    this.accessory.category = Categories.AUDIO_RECEIVER;
+    //this.accessory.category = Categories.AUDIO_RECEIVER;
 
     this.accessory.getService(Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
@@ -181,15 +183,10 @@ class envoyDevice {
       .setCharacteristic(Characteristic.SerialNumber, this.serialNumber)
       .setCharacteristic(Characteristic.FirmwareRevision, this.firmwareRevision);
 
-    this.envoyService = new Service.ServiceLabel(accessoryName, 'envoyService');
-    this.envoyService.setCharacteristic(Characteristic.ConfiguredName, accessoryName);
-    this.envoyService.setCharacteristic(Characteristic.SleepDiscoveryMode, Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
+    this.envoyService = new Service.CarbonDioxideSensor(accessoryName, 'envoyService');
 
-    this.envoyService.getCharacteristic(Characteristic.CarbonDioxideLevel)
-      .on('get', this.getPower.bind(this));
-
-    this.envoyService.getCharacteristic(Characteristic.CarbonDioxideDetected)
-      .on('get', this.getCo2Detected.bind(this));
+    this.envoyService.getCharacteristic(Characteristic.CarbonDioxideSensor)
+      .on('get', this.getProductionPower.bind(this));
 
     this.accessory.addService(this.envoyService);
 
