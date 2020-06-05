@@ -25,6 +25,20 @@
               "default": "192.168.1.35",
               "required": true,
               "format": "hostname"
+            },
+            "refreshInterval": {
+              "title": "Refresh interval (sec)",
+              "type": "integer",
+              "default": 30,
+              "maximum": 3600,
+              "required": true
+            },
+            "maxPowerDetected": {
+              "title": "Max power detected (W)",
+              "type": "integer",
+              "default": 0,
+              "maximum": 65535,
+              "required": true
             }
           }
         }
