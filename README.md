@@ -14,9 +14,9 @@ Homebridge plugin to control Photovoltaik Installation basis on Enphase devices 
 </span>
 
 ## Info
-1. The plugin is present as C02(ppm) sensor and the power is report in watt.
-2. Current Level - is the current production power in Watt.
-3. Peak Level - is the current maximum consumption level in Watt.
+1. The plugin is present as C02(ppm) sensor and the PV Power is report in Watt.
+2. Current Level - is the current production Power in Watt.
+3. Peak Level - is the current maximum production Power in Watt.
 
 ## Package
 1. [Homebridge](https://github.com/homebridge/homebridge)
@@ -30,7 +30,7 @@ Homebridge plugin to control Photovoltaik Installation basis on Enphase devices 
 ## Configuration
 1. Use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) to configure the plugin (strongly recomended), or update your configuration file manually. See `sample-config.json` in this repository for a sample or add the bottom example to Your config.json file.
 2. In `refreshInterval` You can set the data refresh time in seconds.
-3. If `maxPowerDetected` You can set the maximum power in Watt, if the production Power will be => `maxPowerDetected` then You get notyfication from HomeKit.
+3. If `maxPowerDetected` You can set the maximum Power in Watt, if the production Power will be => `maxPowerDetected` then You get notyfication from HomeKit.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
