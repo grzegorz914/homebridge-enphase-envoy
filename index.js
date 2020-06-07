@@ -77,27 +77,10 @@ class envoyDevice {
     //setup variables
     this.connectionStatus = false;
     this.currentProductionPower = 0;
+    this.maxProductionPower = 0;
     this.totalConsumptionPower = 0;
     this.netConsumptionPower = 0;
-    this.prefDir = path.join(api.user.storagePath(), 'envoy');
-    this.devInfoFile = this.prefDir + '/' + 'devInfo_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
-
-    //check if prefs directory ends with a /, if not then add it
-    if (this.prefDir.endsWith('/') === false) {
-      this.prefDir = this.prefDir + '/';
-    }
-
-    //check if the directory exists, if not then create it
-    if (fs.existsSync(this.prefDir) === false) {
-      fs.mkdir(this.prefDir, { recursive: false }, (error) => {
-        if (error) {
-          this.log.error('Device: %s %s, create directory: %s, error: %s', this.host, this.name, this.prefDir, error);
-        } else {
-          this.log.debug('Device: %s %s, create directory successful: %s', this.host, this.name, this.prefDir);
-        }
-      });
-    }
 
     //Check net state
     setInterval(function () {
@@ -141,8 +124,12 @@ class envoyDevice {
     let productionPower = response.data.production[1].wNow;
     let totalConsumptionPower = response.data.consumption[0].wNow;
     let netConsumptionPower = response.data.consumption[1].wNow;
+    if (productionPower > me.maxProductionPower) {
+       me.maxProductionPower = productionPower;
+      }
 
     me.log.debug('Device: %s %s, get production Power successful: %s kW', me.host, me.name, productionPower / 1000);
+    me.log.debug('Device: %s %s, get max production Power successful: %s kW', me.host, me.name, me.maxProductionPower / 1000);
     me.log.debug('Device: %s %s, get total consumption Power successful: %s kW', me.host, me.name, totalConsumptionPower / 1000);
     me.log.debug('Device: %s %s, get net consumption Power successful: %s kW', me.host, me.name, netConsumptionPower / 1000);
     me.currentProductionPower = Math.round(parseFloat(productionPower));
@@ -173,7 +160,7 @@ class envoyDevice {
       .on('get', this.getProductionPower.bind(this));
 
     this.envoyService.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
-      .on('get', this.getTotalConsumptionPower.bind(this));
+      .on('get', this.getMaxProductionPower.bind(this));
 
     this.accessory.addService(this.envoyService);
 
@@ -198,10 +185,10 @@ class envoyDevice {
     callback(null, power);
   }
 
-  getTotalConsumptionPower(callback) {
+  getMaxProductionPower(callback) {
     var me = this;
-    let power = me.totalConsumptionPower;
-    me.log.info('Device: %s %s, get total consumption Power successful: %s kW', me.host, me.name, power / 1000);
+    let power = me.maxProductionPower;
+    me.log.info('Device: %s %s, get max production Power successful: %s kW', me.host, me.name, power / 1000);
     callback(null, power);
   }
 
@@ -212,4 +199,3 @@ class envoyDevice {
     callback(null, power);
   }
 }
-
