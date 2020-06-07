@@ -122,11 +122,14 @@ class envoyDevice {
     var me = this;
     let response = me.deviceStatusInfo;
     let productionPower = response.data.production[1].wNow;
-    let totalConsumptionPower = response.data.consumption[0].wNow;
-    let netConsumptionPower = response.data.consumption[1].wNow;
+        if (productionPower < 0) {
+        productionPower = 0;
+    }
     if (productionPower > me.maxProductionPower) {
        me.maxProductionPower = productionPower;
       }
+    let totalConsumptionPower = response.data.consumption[0].wNow;
+    let netConsumptionPower = response.data.consumption[1].wNow;
 
     me.log.debug('Device: %s %s, get production Power successful: %s kW', me.host, me.name, productionPower / 1000);
     me.log.debug('Device: %s %s, get max production Power successful: %s kW', me.host, me.name, me.maxProductionPower / 1000);
