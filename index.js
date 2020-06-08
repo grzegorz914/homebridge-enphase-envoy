@@ -210,6 +210,7 @@ class envoyDevice {
 
   getProductionPower(callback) {
     var me = this;
+    let wNow = me.wNow;
     let whToday = me.whToday;
     let whLastSevenDays = me.whLastSevenDays;
     let whLifetime = me.whLifetime;
