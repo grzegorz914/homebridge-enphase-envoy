@@ -3,6 +3,7 @@
 const fs = require('fs');
 const axios = require('axios');
 const path = require('path');
+const parseStringPromise = require('xml2js').parseStringPromise;
 
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
@@ -76,7 +77,10 @@ class envoyDevice {
 
     //setup variables
     this.connectionStatus = false;
-    this.currentProductionPower = 0;
+    this.wNow = 0;
+    this.whToday = 0;
+    this.whLastSevenDays = 0;
+    this.whLifetime = 0;
     this.maxProductionPower = 0;
     this.totalConsumptionPower = 0;
     this.netConsumptionPower = 0;
@@ -108,36 +112,58 @@ class envoyDevice {
   getDeviceInfo() {
     var me = this;
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
-    let response = me.deviceStatusInfo;
-    let inverters = response.data.production[0].activeCount;
-    me.log('-------- %s --------', me.name);
-    me.log('Manufacturer: %s', me.manufacturer);
-    me.log('Model: %s', me.modelName);
-    me.log('Firmware: %s', me.firmwareRevision);
-    me.log('Inverters: %s', inverters);
-    me.log('----------------------------------');
+    axios.get(this.url + '/info.xml').then(response => {
+      parseStringPromise(response.data).then(result => {
+        me.log.debug('Device: %s %s, get Device info successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
+        let response = result;
+        let serialNumber = response.envoy_info.device[0].sn[0];
+        let firmware = response.envoy_info.device[0].software[0];
+        let inverters = me.deviceStatusInfo.data.production[0].activeCount;
+        me.log('-------- %s --------', me.name);
+        me.log('Manufacturer: %s', me.manufacturer);
+        me.log('Model: %s', me.modelName);
+        me.log('Serial: %s', serialNumber);
+        me.log('Firmware: %s', firmware);
+        me.log('Inverters: %s', inverters);
+        me.log('----------------------------------');
+        me.serialNumber = serialNumber;
+        me.firmwareRevision = firmware;
+      }).catch(error => {
+        me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
+      });
+    }).catch(error => {
+      me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
+    });
   }
 
   getDeviceState() {
     var me = this;
     let response = me.deviceStatusInfo;
-    let productionPower = response.data.production[1].wNow;
-        if (productionPower < 0) {
-        productionPower = 0;
+    let wNow = response.data.production[1].wNow;
+    let whToday = response.data.production[1].whToday;
+    let whLastSevenDays = response.data.production[1].whLastSevenDays;
+    let whLifetime = response.data.production[1].whLifetime;
+    if (wNow < 0) {
+      wNow = 0;
     }
-    if (productionPower > me.maxProductionPower) {
-       me.maxProductionPower = productionPower;
-      }
+    if (wNow > me.maxProductionPower) {
+      me.maxProductionPower = wNow;
+    }
     let totalConsumptionPower = response.data.consumption[0].wNow;
     let netConsumptionPower = response.data.consumption[1].wNow;
-
-    me.log.debug('Device: %s %s, get production Power successful: %s kW', me.host, me.name, productionPower / 1000);
+    me.log.debug('Device: %s %s, get production Power successful: %s kW', me.host, me.name, wNow / 1000);
+    me.log.debug('Device: %s %s, get energy Today successful: %s kW', me.host, me.name, whToday / 1000);
+    me.log.debug('Device: %s %s, get energy last seven Days successful: %s kW', me.host, me.name, whLastSevenDays / 1000);
+    me.log.debug('Device: %s %s, get energy Total successful: %s kW', me.host, me.name, whLifetime / 1000);
     me.log.debug('Device: %s %s, get max production Power successful: %s kW', me.host, me.name, me.maxProductionPower / 1000);
     me.log.debug('Device: %s %s, get total consumption Power successful: %s kW', me.host, me.name, totalConsumptionPower / 1000);
     me.log.debug('Device: %s %s, get net consumption Power successful: %s kW', me.host, me.name, netConsumptionPower / 1000);
-    me.currentProductionPower = Math.round(parseFloat(productionPower));
-    me.totalConsumptionPower = Math.round(parseFloat(totalConsumptionPower));
-    me.netConsumptionPower = Math.round(parseFloat(netConsumptionPower));
+    me.wNow = parseFloat(wNow);
+    me.whToday = parseFloat(whToday);
+    me.whLastSevenDays = parseFloat(whLastSevenDays);
+    me.whLifetime = parseFloat(whLifetime);
+    me.totalConsumptionPower = parseFloat(totalConsumptionPower);
+    me.netConsumptionPower = parseFloat(netConsumptionPower);
   }
 
   //Prepare TV service 
@@ -146,7 +172,8 @@ class envoyDevice {
     const accessoryName = this.name;
     const accessoryUUID = UUID.generate(accessoryName);
     this.accessory = new Accessory(accessoryName, accessoryUUID);
-    //this.accessory.category = Categories.AUDIO_RECEIVER;
+    this.accessory.context.myData = this.maxProductionPower;
+    this.accessory.category = Categories.Sensor;
 
     this.accessory.getService(Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
@@ -174,7 +201,7 @@ class envoyDevice {
   getDetected(callback) {
     var me = this;
     let state = 0;
-    if (me.currentProductionPower >= me.maxPowerDetected) {
+    if (me.wNow >= me.maxPowerDetected) {
       state = 1;
     }
     me.log.info('Device: %s %s, max Power detected successful: %s', me.host, me.name, state);
@@ -183,22 +210,28 @@ class envoyDevice {
 
   getProductionPower(callback) {
     var me = this;
-    let power = me.currentProductionPower;
-    me.log.info('Device: %s %s, get current production Power successful: %s kW', me.host, me.name, power / 1000);
-    callback(null, power);
+    let whToday = me.whToday;
+    let whLastSevenDays = me.whLastSevenDays;
+    let whLifetime = me.whLifetime;
+    me.log.info('Device: %s %s, get current power production: %s kW', me.host, me.name, wNow / 1000);
+    me.log.info('Device: %s %s, get energy production Today: %s kW', me.host, me.name, whToday / 1000);
+    me.log.info('Device: %s %s, get energy production Last 7 Days: %s kW', me.host, me.name, whLastSevenDays / 1000);
+    me.log.info('Device: %s %s, get energy production Total: %s kW', me.host, me.name, whLifetime / 1000);
+    callback(null, wNow);
   }
 
   getMaxProductionPower(callback) {
     var me = this;
     let power = me.maxProductionPower;
-    me.log.info('Device: %s %s, get max production Power successful: %s kW', me.host, me.name, power / 1000);
+    me.log.info('Device: %s %s, get max Power production successful: %s kW', me.host, me.name, power / 1000);
     callback(null, power);
   }
 
   getNetConsumptionPower(callback) {
     var me = this;
     let power = me.netConsumptionPower;
-    me.log.info('Device: %s %s, get net consumption Power successful: %s kW', me.host, me.name, power / 1000);
+    me.log.info('Device: %s %s, get net Power consumption successful: %s kW', me.host, me.name, power / 1000);
     callback(null, power);
   }
 }
+
