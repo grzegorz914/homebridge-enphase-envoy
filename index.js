@@ -155,7 +155,7 @@ class envoyDevice {
     });
   }
 
-	getDeviceState() {
+  getDeviceState() {
     var me = this;
     let response = me.deviceStatusInfo;
     me.log.debug(response.data);
@@ -188,27 +188,28 @@ class envoyDevice {
     }
 
     let maxPowerDetectedState = 0;
-    if (me.wNow >= me.maxPowerDetected / 1000) {
-       naxPowerDetectedState = 1;
-     }
+    if (wNow >= me.maxPowerDetected / 1000) {
+      maxPowerDetectedState = 1;
+    }
 
     let whToday = parseFloat(response.data.production[1].whToday / 1000).toFixed(3);
     let whLastSevenDays = parseFloat(response.data.production[1].whLastSevenDays / 1000).toFixed(3);
     let whLifetime = parseFloat(response.data.production[1].whLifetime / 1000).toFixed(3);
     let totalPowerConsumption = parseFloat(response.data.consumption[0].wNow / 1000).toFixed(3);
     let netPowerConsumption = parseFloat(response.data.consumption[1].wNow / 1000).toFixed(3);
-    if  (me.envoyService) {
-         me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedState);
-	  me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideLevel, wNow * 1000);
-          me.envoyService.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPower * 1000);
-	}
-    me.log.debug('Device: %s %s, get production Power successful: %s kW', me.host, me.name, wNow);
-    me.log.debug('Device: %s %s, get energy Today successful: %s kW', me.host, me.name, whToday);
-    me.log.debug('Device: %s %s, get energy last seven Days successful: %s kW', me.host, me.name, whLastSevenDays);
-    me.log.debug('Device: %s %s, get energy Total successful: %s kW', me.host, me.name, whLifetime);
-    me.log.debug('Device: %s %s, get max production Power successful: %s kW', me.host, me.name, me.maxPowerProduction);
-    me.log.debug('Device: %s %s, get total consumption Power successful: %s kW', me.host, me.name, totalPowerConsumption);
-    me.log.debug('Device: %s %s, get net consumption Power successful: %s kW', me.host, me.name, netPowerConsumption);
+    if (me.envoyService) {
+      me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedState);
+      me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideLevel, wNow * 1000);
+      me.envoyService.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPower * 1000);
+    }
+    me.log.debug('Device: %s %s, get current Power production: %s kW', me.host, me.name, wNow);
+    me.log.debug('Device: %s %s, get max Power production: %s kW', me.host, me.name, me.maxPowerProduction);
+    me.log.debug('Device: %s %s, get max Power detected: %s', me.host, me.name, maxPowerDetectedState ? 'Yes' : 'No');
+    me.log.debug('Device: %s %s, get total Power consumption : %s kW', me.host, me.name, totalPowerConsumption);
+    me.log.debug('Device: %s %s, get net Power consumption: %s kW', me.host, me.name, netPowerConsumption);
+    me.log.debug('Device: %s %s, get energy Today: %s kW', me.host, me.name, whToday);
+    me.log.debug('Device: %s %s, get energy last seven Days: %s kW', me.host, me.name, whLastSevenDays);
+    me.log.debug('Device: %s %s, get energy Total: %s kW', me.host, me.name, whLifetime);
     me.wNow = wNow;
     me.whToday = whToday;
     me.whLastSevenDays = whLastSevenDays;
@@ -253,7 +254,7 @@ class envoyDevice {
   getMaxPowerDetected(callback) {
     var me = this;
     let state = me.maxPowerDetectedState
-    me.log.info('Device: %s %s, max Power detected successful: %s', me.host, me.name, state);
+    me.log.info('Device: %s %s, get max Power detected: %s', me.host, me.name, state ? 'Yes' : 'No');
     callback(null, state);
   }
 
