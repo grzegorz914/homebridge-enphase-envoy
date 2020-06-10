@@ -30,8 +30,9 @@ Homebridge plugin to control Photovoltaik Installation basis on Enphase devices 
 
 ## Configuration
 1. Use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) to configure the plugin (strongly recomended), or update your configuration file manually. See `sample-config.json` in this repository for a sample or add the bottom example to Your config.json file.
-2. In `refreshInterval` You can set the data refresh time in seconds.
-3. If `maxPowerDetected` You can set the maximum power in Watt, if the production Power will be => `maxPowerDetected` then You get notyfication from HomeKit.
+2. In `host` You can set the adress iP or leave empy(will use default path `envoy.local`).
+3. In `refreshInterval` You can set the data refresh time in seconds.
+4. If `maxPowerDetected` You can set the maximum power in Watt, if the production Power will be => `maxPowerDetected` then You get notyfication from HomeKit.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>

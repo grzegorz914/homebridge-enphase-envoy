@@ -1,6 +1,8 @@
 'use strict';
 
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 const parseStringPromise = require('xml2js').parseStringPromise;
 
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
@@ -63,7 +65,7 @@ class envoyDevice {
 
     //device configuration
     this.name = config.name;
-    this.host = config.host;
+    this.host = config.host || 'envoy.local';
     this.refreshInterval = config.refreshInterval || 30;
     this.maxPowerDetected = config.maxPowerDetected;
 
@@ -79,10 +81,28 @@ class envoyDevice {
     this.whToday = 0;
     this.whLastSevenDays = 0;
     this.whLifetime = 0;
-    this.maxProductionPower = 0;
-    this.totalConsumptionPower = 0;
-    this.netConsumptionPower = 0;
+    this.maxPowerProduction = 0;
+    this.totalPowerConsumption = 0;
+    this.netPowerConsumption = 0;
+    this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
+    this.maxPowerFile = this.prefDir + '/' + 'maxPower_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
+
+    //check if prefs directory ends with a /, if not then add it
+    if (this.prefDir.endsWith('/') === false) {
+      this.prefDir = this.prefDir + '/';
+    }
+
+    //check if the directory exists, if not then create it
+    if (fs.existsSync(this.prefDir) === false) {
+      fs.mkdir(this.prefDir, { recursive: false }, (error) => {
+        if (error) {
+          this.log.error('Device: %s %s, create directory: %s, error: %s', this.host, this.name, this.prefDir, error);
+        } else {
+          this.log.debug('Device: %s %s, create directory successful: %s', this.host, this.name, this.prefDir);
+        }
+      });
+    }
 
     //Check net state
     setInterval(function () {
@@ -91,10 +111,10 @@ class envoyDevice {
         this.deviceStatusInfo = response;
         if (!this.connectionStatus) {
           this.log.info('Device: %s %s, state: Online.', this.host, this.name);
-          this.connectionStatus = true;
           setTimeout(this.getDeviceInfo.bind(this), 300);
+          this.connectionStatus = true;
         } else {
-          this.getDeviceState();
+          setTimeout(this.getDeviceState.bind(this), 300);
         }
       }).catch(error => {
         this.log.debug('Device: %s %s, state: Offline.', this.host, this.name);
@@ -126,7 +146,6 @@ class envoyDevice {
         me.log('----------------------------------');
         me.serialNumber = serialNumber;
         me.firmwareRevision = firmware;
-        me.getDeviceState();
       }).catch(error => {
         me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
       });
@@ -138,31 +157,54 @@ class envoyDevice {
   getDeviceState() {
     var me = this;
     let response = me.deviceStatusInfo;
+    me.log.debug(response.data);
     let wNow = parseFloat(response.data.production[1].wNow / 1000).toFixed(3);
     if (wNow < 0) {
       wNow = 0;
     }
-    if (wNow > me.maxProductionPower / 1000) {
-      me.maxProductionPower = wNow;
+
+    //save and read maxPowerProduction
+    let savedMaxPower;
+    try {
+      savedMaxPower = fs.readFileSync(me.maxPowerFile);
+    } catch (error) {
+      me.log.debug('Device: %s %s, maxPowerFile file does not exist', me.host, me.name);
     }
+
+    let maxPower = me.maxPowerProduction;
+    if (savedMaxPower) {
+      maxPower = savedMaxPower;
+    }
+
+    if (wNow > maxPower) {
+      fs.writeFile(me.maxPowerFile, (wNow), (error) => {
+        if (error) {
+          me.log.error('Device: %s %s, could not write maxPowerFile, error: %s', me.host, me.name, error);
+        } else {
+          me.log.debug('Device: %s %s, maxPowerFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, wNow);
+        }
+      });
+    }
+
     let whToday = parseFloat(response.data.production[1].whToday / 1000).toFixed(3);
     let whLastSevenDays = parseFloat(response.data.production[1].whLastSevenDays / 1000).toFixed(3);
     let whLifetime = parseFloat(response.data.production[1].whLifetime / 1000).toFixed(3);
-    let totalConsumptionPower = parseFloat(response.data.consumption[0].wNow / 1000).toFixed(3);
-    let netConsumptionPower = parseFloat(response.data.consumption[1].wNow / 1000).toFixed(3);
+    let totalPowerConsumption = parseFloat(response.data.consumption[0].wNow / 1000).toFixed(3);
+    let netPowerConsumption = parseFloat(response.data.consumption[1].wNow / 1000).toFixed(3);
     me.log.debug('Device: %s %s, get production Power successful: %s kW', me.host, me.name, wNow);
     me.log.debug('Device: %s %s, get energy Today successful: %s kW', me.host, me.name, whToday);
     me.log.debug('Device: %s %s, get energy last seven Days successful: %s kW', me.host, me.name, whLastSevenDays);
     me.log.debug('Device: %s %s, get energy Total successful: %s kW', me.host, me.name, whLifetime);
-    me.log.debug('Device: %s %s, get max production Power successful: %s kW', me.host, me.name, me.maxProductionPower);
-    me.log.debug('Device: %s %s, get total consumption Power successful: %s kW', me.host, me.name, totalConsumptionPower);
-    me.log.debug('Device: %s %s, get net consumption Power successful: %s kW', me.host, me.name, netConsumptionPower);
+    me.log.debug('Device: %s %s, get max production Power successful: %s kW', me.host, me.name, me.maxPowerProduction);
+    me.log.debug('Device: %s %s, get total consumption Power successful: %s kW', me.host, me.name, totalPowerConsumption);
+    me.log.debug('Device: %s %s, get net consumption Power successful: %s kW', me.host, me.name, netPowerConsumption);
     me.wNow = wNow;
     me.whToday = whToday;
     me.whLastSevenDays = whLastSevenDays;
     me.whLifetime = whLifetime;
-    me.totalConsumptionPower = totalConsumptionPower;
-    me.netConsumptionPower = netConsumptionPower;
+    me.maxPowerProduction = maxPower;
+    me.totalPowerConsumption = totalPowerConsumption;
+    me.netPowerConsumption = netPowerConsumption;
   }
 
   //Prepare TV service 
@@ -171,7 +213,6 @@ class envoyDevice {
     const accessoryName = this.name;
     const accessoryUUID = UUID.generate(accessoryName);
     this.accessory = new Accessory(accessoryName, accessoryUUID);
-    this.accessory.context.myData = this.maxProductionPower;
     this.accessory.category = Categories.Sensor;
 
     this.accessory.getService(Service.AccessoryInformation)
@@ -186,10 +227,10 @@ class envoyDevice {
       .on('get', this.getDetected.bind(this));
 
     this.envoyService.getCharacteristic(Characteristic.CarbonDioxideLevel)
-      .on('get', this.getProductionPower.bind(this));
+      .on('get', this.getPowerProduction.bind(this));
 
     this.envoyService.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
-      .on('get', this.getMaxProductionPower.bind(this));
+      .on('get', this.getMaxPowerProduction.bind(this));
 
     this.accessory.addService(this.envoyService);
 
@@ -207,7 +248,7 @@ class envoyDevice {
     callback(null, state);
   }
 
-  getProductionPower(callback) {
+  getPowerProduction(callback) {
     var me = this;
     let wNow = me.wNow;
     let whToday = me.whToday;
@@ -220,16 +261,16 @@ class envoyDevice {
     callback(null, wNow * 1000);
   }
 
-  getMaxProductionPower(callback) {
+  getMaxPowerProduction(callback) {
     var me = this;
-    let power = me.maxProductionPower;
+    let power = me.maxPowerProduction;
     me.log.info('Device: %s %s, get max Power production successful: %s kW', me.host, me.name, power);
     callback(null, power * 1000);
   }
 
-  getNetConsumptionPower(callback) {
+  getNetPowerConsumption(callback) {
     var me = this;
-    let power = me.netConsumptionPower;
+    let power = me.netPowerConsumption;
     me.log.info('Device: %s %s, get net Power consumption successful: %s kW', me.host, me.name, power);
     callback(null, power * 1000);
   }
