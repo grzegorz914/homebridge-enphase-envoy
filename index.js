@@ -112,10 +112,10 @@ class envoyDevice {
         this.deviceStatusInfo = response;
         if (!this.connectionStatus) {
           this.log.info('Device: %s %s, state: Online.', this.host, this.name);
-          setTimeout(this.getDeviceInfo.bind(this), 300);
+          setTimeout(this.getDeviceInfo.bind(this), 350);
           this.connectionStatus = true;
         } else {
-          setTimeout(this.getDeviceState.bind(this), 300);
+          this.getDeviceState();
         }
       }).catch(error => {
         this.log.debug('Device: %s %s, state: Offline.', this.host, this.name);
@@ -125,7 +125,7 @@ class envoyDevice {
     }.bind(this), this.refreshInterval * 1000);
 
     //Delay to wait for device info before publish
-    setTimeout(this.prepareEnvoyService.bind(this), 500);
+    setTimeout(this.prepareEnvoyService.bind(this), 1500);
   }
 
   getDeviceInfo() {
@@ -152,6 +152,7 @@ class envoyDevice {
     }).catch(error => {
       me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
     });
+    me.getDeviceState();
   }
 
   getDeviceState() {
