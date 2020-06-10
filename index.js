@@ -131,12 +131,11 @@ class envoyDevice {
   getDeviceInfo() {
     var me = this;
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
-    axios.get(this.url + '/info.xml').then(response => {
+    axios.get(me.url + '/info.xml').then(response => {
       parseStringPromise(response.data).then(result => {
         me.log.debug('Device: %s %s, get Device info successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
-        let response = result;
-        let serialNumber = response.envoy_info.device[0].sn[0];
-        let firmware = response.envoy_info.device[0].software[0];
+        let serialNumber = result.envoy_info.device[0].sn[0];
+        let firmware = result.envoy_info.device[0].software[0];
         let inverters = me.deviceStatusInfo.data.production[0].activeCount;
         me.log('-------- %s --------', me.name);
         me.log('Manufacturer: %s', me.manufacturer);
@@ -157,9 +156,9 @@ class envoyDevice {
 
   getDeviceState() {
     var me = this;
-    let response = me.deviceStatusInfo;
-    me.log.debug(response.data);
-    let wNow = parseFloat(response.data.production[1].wNow / 1000).toFixed(3);
+    let result = me.deviceStatusInfo.data;
+    me.log.debug(result);
+    let wNow = parseFloat(result.production[1].wNow / 1000).toFixed(3);
     if (wNow < 0) {
       wNow = 0;
     }
@@ -192,11 +191,11 @@ class envoyDevice {
       maxPowerDetectedState = 1;
     }
 
-    let whToday = parseFloat(response.data.production[1].whToday / 1000).toFixed(3);
-    let whLastSevenDays = parseFloat(response.data.production[1].whLastSevenDays / 1000).toFixed(3);
-    let whLifetime = parseFloat(response.data.production[1].whLifetime / 1000).toFixed(3);
-    let totalPowerConsumption = parseFloat(response.data.consumption[0].wNow / 1000).toFixed(3);
-    let netPowerConsumption = parseFloat(response.data.consumption[1].wNow / 1000).toFixed(3);
+    let whToday = parseFloat(result.production[1].whToday / 1000).toFixed(3);
+    let whLastSevenDays = parseFloat(result.production[1].whLastSevenDays / 1000).toFixed(3);
+    let whLifetime = parseFloat(result.production[1].whLifetime / 1000).toFixed(3);
+    let totalPowerConsumption = parseFloat(result.consumption[0].wNow / 1000).toFixed(3);
+    let netPowerConsumption = parseFloat(result.consumption[1].wNow / 1000).toFixed(3);
     if (me.envoyService) {
       me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedState);
       me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideLevel, wNow * 1000);
