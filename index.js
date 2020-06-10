@@ -193,7 +193,7 @@ class envoyDevice {
     let netPowerConsumption = parseFloat(response.data.consumption[1].wNow / 1000).toFixed(3);
     let maxPowerDetectedNow = (wNow => me.maxPowerDetected / 1000);
     if  (me.envoyService) {
-         me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedNow ? 1 : );
+         me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedNow ? 1 : 0);
 	  me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideLevel, wNow * 1000);
           me.envoyService.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPower * 1000);
 	}
