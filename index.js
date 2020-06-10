@@ -192,8 +192,8 @@ class envoyDevice {
     let totalPowerConsumption = parseFloat(response.data.consumption[0].wNow / 1000).toFixed(3);
     let netPowerConsumption = parseFloat(response.data.consumption[1].wNow / 1000).toFixed(3);
     if  (me.envoyService) {
-      	  me.envoyService.updateCharacteristic(Characteristic.CarbonDioxydeLevel, wNow * 1000);
-          me.envoyService.updateCharacteristic(Characteristic.CarbonDioxydePeakLevel, maxPower * 1000);
+      	  me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideLevel, wNow * 1000);
+          me.envoyService.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPower * 1000);
     	}
     me.log.debug('Device: %s %s, get production Power successful: %s kW', me.host, me.name, wNow);
     me.log.debug('Device: %s %s, get energy Today successful: %s kW', me.host, me.name, whToday);
