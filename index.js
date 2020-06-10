@@ -84,6 +84,7 @@ class envoyDevice {
     this.maxPowerProduction = 0;
     this.totalPowerConsumption = 0;
     this.netPowerConsumption = 0;
+    this.maxPowerDetectedState = 0;
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
     this.maxPowerFile = this.prefDir + '/' + 'maxPower_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
@@ -154,7 +155,7 @@ class envoyDevice {
     });
   }
 
-  getDeviceState() {
+	getDeviceState() {
     var me = this;
     let response = me.deviceStatusInfo;
     me.log.debug(response.data);
@@ -186,14 +187,18 @@ class envoyDevice {
       });
     }
 
+    let maxPowerDetectedState = 0;
+    if (me.wNow >= me.maxPowerDetected / 1000) {
+       naxPowerDetectedState = 1;
+     }
+
     let whToday = parseFloat(response.data.production[1].whToday / 1000).toFixed(3);
     let whLastSevenDays = parseFloat(response.data.production[1].whLastSevenDays / 1000).toFixed(3);
     let whLifetime = parseFloat(response.data.production[1].whLifetime / 1000).toFixed(3);
     let totalPowerConsumption = parseFloat(response.data.consumption[0].wNow / 1000).toFixed(3);
     let netPowerConsumption = parseFloat(response.data.consumption[1].wNow / 1000).toFixed(3);
-    let maxPowerDetectedNow = (wNow => me.maxPowerDetected / 1000);
     if  (me.envoyService) {
-         me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedNow ? 1 : 0);
+         me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedState);
 	  me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideLevel, wNow * 1000);
           me.envoyService.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPower * 1000);
 	}
@@ -211,8 +216,8 @@ class envoyDevice {
     me.maxPowerProduction = maxPower;
     me.totalPowerConsumption = totalPowerConsumption;
     me.netPowerConsumption = netPowerConsumption;
-    me.maxPowerDetectedNow = maxPowerDetectedNow ? 1 : 0;
-  }  
+    me.maxPowerDetectedState = maxPowerDetectedState;
+  }
 
   //Prepare TV service 
   prepareEnvoyService() {
@@ -231,7 +236,7 @@ class envoyDevice {
     this.envoyService = new Service.CarbonDioxideSensor(accessoryName, 'envoyService');
 
     this.envoyService.getCharacteristic(Characteristic.CarbonDioxideDetected)
-      .on('get', this.getDetected.bind(this));
+      .on('get', this.getMaxPowerDetected.bind(this));
 
     this.envoyService.getCharacteristic(Characteristic.CarbonDioxideLevel)
       .on('get', this.getPowerProduction.bind(this));
@@ -245,12 +250,9 @@ class envoyDevice {
     this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
   }
 
-  getDetected(callback) {
+  getMaxPowerDetected(callback) {
     var me = this;
-    let state = 0;
-    if (me.wNow >= me.maxPowerDetected / 1000) {
-      state = 1;
-    }
+    let state = me.maxPowerDetectedState
     me.log.info('Device: %s %s, max Power detected successful: %s', me.host, me.name, state);
     callback(null, state);
   }
