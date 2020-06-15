@@ -159,7 +159,7 @@ class envoyDevice {
     var me = this;
     let result = me.deviceStatusInfo.data;
     me.log.debug(result);
-    let wNow = parseFloat(result.production[1].wNow / 1000).toFixed(3);
+    let wNow = parseFloat(result.production[0].wNow / 1000).toFixed(3);
     if (wNow < 0) {
       wNow = 0;
     }
