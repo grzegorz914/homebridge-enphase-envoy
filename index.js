@@ -66,6 +66,7 @@ class envoyDevice {
     //device configuration
     this.name = config.name;
     this.host = config.host || 'envoy.local';
+    this.productionPowerMeter = config.productionPowerMeter || 0;
     this.refreshInterval = config.refreshInterval || 30;
     this.maxPowerDetected = config.maxPowerDetected;
 
@@ -159,7 +160,7 @@ class envoyDevice {
     var me = this;
     let result = me.deviceStatusInfo.data;
     me.log.debug(result);
-    let wNow = parseFloat(result.production[1].wNow / 1000).toFixed(3);
+    let wNow = parseFloat(result.production[me.productionPowerMeter].wNow / 1000).toFixed(3);
     if (wNow < 0) {
       wNow = 0;
     }
@@ -194,7 +195,7 @@ class envoyDevice {
 
     let whToday = parseFloat(result.production[1].whToday / 1000).toFixed(3);
     let whLastSevenDays = parseFloat(result.production[1].whLastSevenDays / 1000).toFixed(3);
-    let whLifetime = parseFloat(result.production[1].whLifetime / 1000).toFixed(3);
+    let whLifetime = parseFloat(result.production[me.productionPowerMeter].whLifetime / 1000).toFixed(3);
     let totalPowerConsumption = parseFloat(result.consumption[0].wNow / 1000).toFixed(3);
     let netPowerConsumption = parseFloat(result.consumption[1].wNow / 1000).toFixed(3);
     if (me.envoyService) {

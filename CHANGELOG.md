@@ -1,5 +1,8 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## 0.3.0 (15.06.2020)
+- added possibility to select production meter
+
 ## 0.2.0 (010.06.2020)
 - stored max. Power Production too the file
 - config.host noe use 'envoy.local' path or Your configured iP adress

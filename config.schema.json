@@ -26,6 +26,28 @@
               "required": true,
               "format": "hostname"
             },
+            "productionPowerMeter": {
+              "title": "Production power meter",
+              "type": "integer",
+              "default": 0,
+              "maximum": 1,
+              "description": "Here select Power production meter.",
+              "oneOf": [
+                {
+                  "title": "Microinverters",
+                  "enum": [
+                    0
+                  ]
+                },
+                {
+                  "title": "Productions CT",
+                  "enum": [
+                    1
+                  ]
+                }
+              ],
+              "required": true
+            },
             "refreshInterval": {
               "title": "Refresh interval (sec)",
               "type": "integer",
