@@ -16,7 +16,7 @@
             "name": {
               "title": "Device name",
               "type": "string",
-              "default": "Envoy",
+              "default": "Envoy-S",
               "required": true
             },
             "host": {
@@ -31,7 +31,7 @@
               "type": "integer",
               "default": 0,
               "maximum": 1,
-              "description": "Here select Power production meter.",
+              "description": "Here select used Power production meter.",
               "oneOf": [
                 {
                   "title": "Microinverters",

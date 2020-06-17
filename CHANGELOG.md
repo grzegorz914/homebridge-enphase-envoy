@@ -1,5 +1,8 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## 0.3.5 (17.06.2020)
+- corrections in config.schema.json
+
 ## 0.3.0 (15.06.2020)
 - added possibility to select production meter
 
