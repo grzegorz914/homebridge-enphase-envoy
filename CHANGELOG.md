@@ -1,20 +1,28 @@
-# Change Log
+# Changelog
 All notable changes to this project will be documented in this file.
-## 0.3.5 (17.06.2020)
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.3.5] - (17.06.2020)
+### Fixed
 - corrections in config.schema.json
 
-## 0.3.0 (15.06.2020)
+## [0.3.0] - (15.06.2020)
+### Added
 - added possibility to select production meter
 
-## 0.2.0 (010.06.2020)
+## [0.2.0] - (010.06.2020)
+### Added
 - stored max. Power Production too the file
-- config.host noe use 'envoy.local' path or Your configured iP adress
+- config.host now use 'envoy.local' path or Your configured iP adress
 
-## 0.1.1 (08.06.2020)
+## [0.1.1] - (08.06.2020)
+### Fixed
 - many fixes and more info in log
 
-## 0.0.30 (05.06.2020)
+## [0.0.30] - (05.06.2020)
 - working release
 
-## 0.0.1 (05.06.2020)
+## [0.0.1] - (05.06.2020)
 - initial release
