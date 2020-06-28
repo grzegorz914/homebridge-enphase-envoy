@@ -10,7 +10,7 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/grzegorz914/homebridge-enphase-envoy.svg)](https://github.com/grzegorz914/homebridge-enphase-envoy/pulls)
 [![GitHub issues](https://img.shields.io/github/issues/grzegorz914/homebridge-enphase-envoy.svg)](https://github.com/grzegorz914/homebridge-enphase-envoy/issues)
 
-Homebridge plugin to control Photovoltaik Installation basis on Enphase devices (Envoy-S).
+Homebridge plugin to control Photovoltaic system basis on Enphase devices (Envoy-S).
 
 </span>
 
@@ -18,6 +18,7 @@ Homebridge plugin to control Photovoltaik Installation basis on Enphase devices 
 1. The plugin is present as C02(ppm) sensor and the Power is report in Watt.
 2. Current Level - is the current production power in Watt.
 3. Peak Level - is the current maximum consumption level in Watt.
+4. All other power and energy values are avilable in the log.
 
 ## Package
 1. [Homebridge](https://github.com/homebridge/homebridge)
