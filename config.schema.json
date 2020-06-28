@@ -26,6 +26,20 @@
               "required": true,
               "format": "hostname"
             },
+            "refreshInterval": {
+              "title": "Refresh interval (sec)",
+              "type": "integer",
+              "default": 30,
+              "maximum": 3600,
+              "required": true
+            },
+            "maxPowerDetected": {
+              "title": "Max power detected (W)",
+              "type": "integer",
+              "default": 0,
+              "maximum": 65535,
+              "required": true
+            },
             "productionPowerMeter": {
               "title": "Production power meter",
               "type": "integer",
@@ -48,18 +62,26 @@
               ],
               "required": true
             },
-            "refreshInterval": {
-              "title": "Refresh interval (sec)",
-              "type": "integer",
-              "default": 30,
-              "maximum": 3600,
-              "required": true
-            },
-            "maxPowerDetected": {
-              "title": "Max power detected (W)",
+            "consumptionPowerMeter": {
+              "title": "Consumption power meter",
               "type": "integer",
               "default": 0,
-              "maximum": 65535,
+              "maximum": 1,
+              "description": "Here select used Power consumption meter.",
+              "oneOf": [
+                {
+                  "title": "None",
+                  "enum": [
+                    0
+                  ]
+                },
+                {
+                  "title": "Consumption CT",
+                  "enum": [
+                    1
+                  ]
+                }
+              ],
               "required": true
             }
           }
