@@ -37,7 +37,7 @@ class envoyPlatform {
       for (let i = 0, len = this.devices.length; i < len; i++) {
         let deviceName = this.devices[i];
         if (!deviceName.name) {
-          this.log.warn('Device Name Missing')
+          this.log.warn('Device Name Missing');
         } else {
           this.accessories.push(new envoyDevice(this.log, deviceName, this.api));
         }
@@ -285,8 +285,19 @@ class envoyDevice {
   getMaxPowerDetected(callback) {
     var me = this;
     let state = me.maxPowerDetectedState;
-    me.log.info('Device: %s %s, get max Power detected: %s', me.host, me.name, state ? 'Yes' : 'No');
+    me.log.info('Device: %s %s, max power detected: %s', me.host, me.name, state ? 'Yes' : 'No');
     callback(null, state);
+  }
+
+  getMaxPowerProduction(callback) {
+    var me = this;
+    let power = me.maxPowerProduction;
+    me.log.info('Device: %s %s, max power production: %s kW', me.host, me.name, power);
+    callback(null, power * 1000);
+    if (me.consumptionPowerMeter == 1) {
+      me.getTotalConsumption();
+      me.getNetConsumption();
+    }
   }
 
   getPowerProduction(callback) {
@@ -300,17 +311,6 @@ class envoyDevice {
     me.log.info('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, whLastSevenDays);
     me.log.info('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, whLifetime);
     callback(null, wNow * 1000);
-  }
-
-  getMaxPowerProduction(callback) {
-    var me = this;
-    let power = me.maxPowerProduction;
-    me.log.info('Device: %s %s, max power production: %s kW', me.host, me.name, power);
-    callback(null, power * 1000);
-    if (me.consumptionPowerMeter == 1) {
-      me.getTotalConsumption();
-      me.getNetConsumption();
-    }
   }
 
   getTotalConsumption() {
