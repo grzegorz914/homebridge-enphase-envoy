@@ -199,21 +199,14 @@ class envoyDevice {
     if (productionwNow >= me.maxPowerDetected / 1000) {
       maxPowerDetectedState = 1;
     }
+    let productionwhLifetime = parseFloat(result.production[me.productionPowerMeter].whLifetime / 1000).toFixed(3);
     me.log.debug('Device: %s %s, max power production: %s kW', me.host, me.name, maxPower);
     me.log.debug('Device: %s %s, max power detected: %s', me.host, me.name, maxPowerDetectedState ? 'Yes' : 'No');
+    me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, productionwNow);
+    me.log.debug('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, productionwhLifetime);
     me.maxPowerProduction = maxPower;
     me.maxPowerDetectedState = maxPowerDetectedState;
-
-    let productionwhToday = parseFloat(result.production[1].whToday / 1000).toFixed(3);
-    let productionwhLastSevenDays = parseFloat(result.production[1].whLastSevenDays / 1000).toFixed(3);
-    let productionwhLifetime = parseFloat(result.production[me.productionPowerMeter].whLifetime / 1000).toFixed(3);
-    me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, productionwNow);
-    me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, productionwhToday);
-    me.log.debug('Device: %s %s, energy production last seven Days: %s kWh', me.host, me.name, productionwhLastSevenDays);
-    me.log.debug('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, productionwhLifetime);
     me.productionwNow = productionwNow;
-    me.productionwhToday = productionwhToday;
-    me.productionwhLastSevenDays = productionwhLastSevenDays;
     me.productionwhLifetime = productionwhLifetime;
 
     if (me.envoyService) {
@@ -222,15 +215,24 @@ class envoyDevice {
       me.envoyService.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPower * 1000);
     }
 
+    if (me.productionPowerMeter == 1) {
+      let productionwhToday = parseFloat(result.production[1].whToday / 1000).toFixed(3);
+      let productionwhLastSevenDays = parseFloat(result.production[1].whLastSevenDays / 1000).toFixed(3);
+      me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, productionwhToday);
+      me.log.debug('Device: %s %s, energy production last seven Days: %s kWh', me.host, me.name, productionwhLastSevenDays);
+      me.productionwhToday = productionwhToday;
+      me.productionwhLastSevenDays = productionwhLastSevenDays;
+    }
+
     if (me.consumptionPowerMeter == 1) {
       let totalConsumptionwNow = parseFloat(result.consumption[0].wNow / 1000).toFixed(3);
       let totalConsumptionwhToday = parseFloat(result.consumption[0].whToday / 1000).toFixed(3);
       let totalConsumptionwhLastSevenDays = parseFloat(result.consumption[0].whLastSevenDays / 1000).toFixed(3);
       let totalConsumptionwhLifetime = parseFloat(result.consumption[0].whLifetime / 1000).toFixed(3);
       me.log.debug('Device: %s %s, total power consumption : %s kW', me.host, me.name, totalConsumptionwNow);
+      me.log.debug('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, totalConsumptionwhLifetime);
       me.log.debug('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, totalConsumptionwhToday);
       me.log.debug('Device: %s %s, total energy consumption last seven Days: %s kWh', me.host, me.name, totalConsumptionwhLastSevenDays);
-      me.log.debug('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, totalConsumptionwhLifetime);
       me.totalConsumptionwNow = totalConsumptionwNow;
       me.totalConsumptionwhToday = totalConsumptionwhToday;
       me.totalConsumptionwhLastSevenDays = totalConsumptionwhLastSevenDays;
@@ -241,9 +243,9 @@ class envoyDevice {
       let netConsumptionwhLastSevenDays = parseFloat(result.consumption[1].whLastSevenDays / 1000).toFixed(3);
       let netConsumptionwhLifetime = parseFloat(result.consumption[1].whLifetime / 1000).toFixed(3);
       me.log.debug('Device: %s %s, net power consumption: %s kW', me.host, me.name, netConsumptionwNow);
+      me.log.debug('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, netConsumptionwhLifetime);
       me.log.debug('Device: %s %s, net energy consumption Today: %s kWh', me.host, me.name, netConsumptionwhToday);
       me.log.debug('Device: %s %s, net energy consumption last seven Days: %s kWh', me.host, me.name, netConsumptionwhLastSevenDays);
-      me.log.debug('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, netConsumptionwhLifetime);
       me.netConsumptionwNow = netConsumptionwNow;
       me.netConsumptionwhToday = netConsumptionwhToday;
       me.netConsumptionwhLastSevenDays = netConsumptionwhLastSevenDays;
@@ -303,13 +305,15 @@ class envoyDevice {
   getPowerProduction(callback) {
     var me = this;
     let wNow = me.productionwNow;
-    let whToday = me.productionwhToday;
-    let whLastSevenDays = me.productionwhLastSevenDays;
     let whLifetime = me.productionwhLifetime;
     me.log.info('Device: %s %s, power production: %s kW', me.host, me.name, wNow);
-    me.log.info('Device: %s %s, energy production Today: %s kWh', me.host, me.name, whToday);
-    me.log.info('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, whLastSevenDays);
     me.log.info('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, whLifetime);
+    if (me.productionPowerMeter == 1) {
+      let whToday = me.productionwhToday;
+      let whLastSevenDays = me.productionwhLastSevenDays;
+      me.log.info('Device: %s %s, energy production Today: %s kWh', me.host, me.name, whToday);
+      me.log.info('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, whLastSevenDays);
+    }
     callback(null, wNow * 1000);
   }
 
@@ -320,9 +324,9 @@ class envoyDevice {
     let whLastSevenDays = me.totalConsumptionwhLastSevenDays;
     let whLifetime = me.totalConsumptionwhLifetime;
     me.log('Device: %s %s, total power consumption : %s kW', me.host, me.name, wNow);
+    me.log('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, whLifetime);
     me.log('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, whToday);
     me.log('Device: %s %s, total energy consumption last seven Days: %s kWh', me.host, me.name, whLastSevenDays);
-    me.log('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, whLifetime);
   }
 
   getNetConsumption() {
@@ -332,9 +336,9 @@ class envoyDevice {
     let whLastSevenDays = me.netConsumptionwhLastSevenDays;
     let whLifetime = me.netConsumptionwhLifetime;
     me.log('Device: %s %s, net power consumption: %s kW', me.host, me.name, wNow);
+    me.log('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, whLifetime);
     me.log('Device: %s %s, net energy consumption Today: %s kWh', me.host, me.name, whToday);
     me.log('Device: %s %s, net energy consumption last seven Days: %s kWh', me.host, me.name, whLastSevenDays);
-    me.log('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, whLifetime);
   }
 }
 
