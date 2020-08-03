@@ -31,11 +31,11 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 
 ## Configuration
 1. Use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) to configure the plugin (strongly recomended), or update your configuration file manually. See `sample-config.json` in this repository for a sample or add the bottom example to Your config.json file.
-2. In `host` You can set the adress iP adress or leave empy(will use default path `envoy.local`).
-3. In `refreshInterval` You can set the data refresh time in seconds.
-4. In `maxPowerDetected` You can set the maximum Power in Watt, if the production Power will be >= `maxPowerDetected` then You get notyfication message from the HomeKit.
-5. In `productionPowerMeter` You can select which meter will be used to display production Power.
-6. In `consumptionPowerMeter` You can select which meter will be used to display consumption Power.
+2. In `host` set the iP adress or leave empy(will use default path `envoy.local`).
+3. In `refreshInterval` set the data refresh time in seconds.
+4. In `maxPowerDetected` set the maximum Power in Watt, if the production Power will be >= `maxPowerDetected` then You get notyfication message from the HomeKit.
+5. In `productionPowerMeter` select which meter will be used to display production Power.
+6. In `consumptionPowerMeter` select which meter will be used to display consumption Power.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
