@@ -113,144 +113,142 @@ class envoyDevice {
       });
     }
 
-    //Check net state
+    //Check device state
     setInterval(function () {
-      axios.get(this.url + '/production.json').then(response => {
-        this.log.debug('Device %s %s, get device status data: %s', this.host, this.name, response.data);
-        this.deviceStatusInfo = response;
-        if (!this.connectionStatus) {
-          this.log.info('Device: %s %s, state: Online.', this.host, this.name);
-          this.connectionStatus = true;
-          setTimeout(this.getDeviceInfo.bind(this), 350);
-        } else {
-          this.getDeviceState();
-        }
-      }).catch(error => {
-        this.log.debug('Device: %s %s, state: Offline.', this.host, this.name);
-        this.connectionStatus = false;
-        return;
-      });
+      if (this.connectionStatus) {
+        this.getDeviceState();
+      }
     }.bind(this), this.refreshInterval * 1000);
 
-    //Delay to wait for device info before publish
-    setTimeout(this.prepareEnvoyService.bind(this), 1500);
+    this.prepareEnvoyService();
   }
 
   getDeviceInfo() {
     var me = this;
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
-    axios.get(me.url + '/info.xml').then(response => {
-      parseStringPromise(response.data).then(result => {
-        me.log.debug('Device: %s %s, get Device info successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
-        let serialNumber = result.envoy_info.device[0].sn[0];
-        let firmware = result.envoy_info.device[0].software[0];
-        let inverters = me.deviceStatusInfo.data.production[0].activeCount;
-        me.log('-------- %s --------', me.name);
-        me.log('Manufacturer: %s', me.manufacturer);
-        me.log('Model: %s', me.modelName);
-        me.log('Serialnr: %s', serialNumber);
-        me.log('Firmware: %s', firmware);
-        me.log('Inverters: %s', inverters);
-        me.log('----------------------------------');
-        me.serialNumber = serialNumber;
-        me.firmwareRevision = firmware;
+    axios.get(me.url + '/production.json').then(response => {
+      me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
+      me.inverters = response.data.production[0].activeCount;
+      axios.get(me.url + '/info.xml').then(response => {
+        parseStringPromise(response.data).then(result => {
+          me.log.debug('Device: %s %s, get Device info successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
+          let serialNumber = result.envoy_info.device[0].sn[0];
+          let firmware = result.envoy_info.device[0].software[0];
+          let inverters = me.inverters
+          me.log('-------- %s --------', me.name);
+          me.log('Manufacturer: %s', me.manufacturer);
+          me.log('Model: %s', me.modelName);
+          me.log('Serialnr: %s', serialNumber);
+          me.log('Firmware: %s', firmware);
+          me.log('Inverters: %s', inverters);
+          me.log('----------------------------------');
+          me.serialNumber = serialNumber;
+          me.firmwareRevision = firmware;
+        }).catch(error => {
+          me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
+        });
       }).catch(error => {
-        me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
+        me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
       });
     }).catch(error => {
       me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
     });
-    me.getDeviceState();
   }
 
   getDeviceState() {
     var me = this;
-    let result = me.deviceStatusInfo.data;
-    me.log.debug(result);
-    let productionwNow = parseFloat(result.production[me.productionPowerMeter].wNow / 1000).toFixed(3);
-    if (productionwNow < 0) {
-      productionwNow = 0;
-    }
+    axios.get(me.url + '/production.json').then(response => {
+      me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
+      let result = response.data;
+      me.log.debug(result);
+      let productionwNow = parseFloat(result.production[me.productionPowerMeter].wNow / 1000).toFixed(3);
+      if (productionwNow < 0) {
+        productionwNow = 0;
+      }
 
-    //save and read maxPowerProduction
-    let savedMaxPower;
-    try {
-      savedMaxPower = fs.readFileSync(me.maxPowerFile);
-    } catch (error) {
-      me.log.debug('Device: %s %s, maxPowerFile file does not exist', me.host, me.name);
-    }
+      //save and read maxPowerProduction
+      let savedMaxPower;
+      try {
+        savedMaxPower = fs.readFileSync(me.maxPowerFile);
+      } catch (error) {
+        me.log.debug('Device: %s %s, maxPowerFile file does not exist', me.host, me.name);
+      }
 
-    let maxPower = me.maxPowerProduction;
-    if (savedMaxPower) {
-      maxPower = savedMaxPower;
-    }
+      let maxPower = me.maxPowerProduction;
+      if (savedMaxPower) {
+        maxPower = savedMaxPower;
+      }
 
-    if (productionwNow > maxPower) {
-      fs.writeFile(me.maxPowerFile, (productionwNow), (error) => {
-        if (error) {
-          me.log.error('Device: %s %s, could not write maxPowerFile, error: %s', me.host, me.name, error);
-        } else {
-          me.log.debug('Device: %s %s, maxPowerFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, productionwNow);
-        }
-      });
-    }
+      if (productionwNow > maxPower) {
+        fs.writeFile(me.maxPowerFile, (productionwNow), (error) => {
+          if (error) {
+            me.log.error('Device: %s %s, could not write maxPowerFile, error: %s', me.host, me.name, error);
+          } else {
+            me.log.debug('Device: %s %s, maxPowerFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, productionwNow);
+          }
+        });
+      }
 
-    let maxPowerDetectedState = 0;
-    if (productionwNow >= me.maxPowerDetected / 1000) {
-      maxPowerDetectedState = 1;
-    }
-    let productionwhLifetime = parseFloat(result.production[me.productionPowerMeter].whLifetime / 1000).toFixed(3);
-    me.log.debug('Device: %s %s, max power production: %s kW', me.host, me.name, maxPower);
-    me.log.debug('Device: %s %s, max power detected: %s', me.host, me.name, maxPowerDetectedState ? 'Yes' : 'No');
-    me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, productionwNow);
-    me.log.debug('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, productionwhLifetime);
-    me.maxPowerProduction = maxPower;
-    me.maxPowerDetectedState = maxPowerDetectedState;
-    me.productionwNow = productionwNow;
-    me.productionwhLifetime = productionwhLifetime;
+      let maxPowerDetectedState = 0;
+      if (productionwNow >= me.maxPowerDetected / 1000) {
+        maxPowerDetectedState = 1;
+      }
+      let productionwhLifetime = parseFloat(result.production[me.productionPowerMeter].whLifetime / 1000).toFixed(3);
+      me.log.debug('Device: %s %s, max power production: %s kW', me.host, me.name, maxPower);
+      me.log.debug('Device: %s %s, max power detected: %s', me.host, me.name, maxPowerDetectedState ? 'Yes' : 'No');
+      me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, productionwNow);
+      me.log.debug('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, productionwhLifetime);
+      me.maxPowerProduction = maxPower;
+      me.maxPowerDetectedState = maxPowerDetectedState;
+      me.productionwNow = productionwNow;
+      me.productionwhLifetime = productionwhLifetime;
 
-    if (me.envoyService) {
-      me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedState);
-      me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideLevel, productionwNow * 1000);
-      me.envoyService.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPower * 1000);
-    }
+      if (me.envoyService) {
+        me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerDetectedState);
+        me.envoyService.updateCharacteristic(Characteristic.CarbonDioxideLevel, productionwNow * 1000);
+        me.envoyService.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPower * 1000);
+      }
 
-    if (me.productionPowerMeter == 1) {
-      let productionwhToday = parseFloat(result.production[1].whToday / 1000).toFixed(3);
-      let productionwhLastSevenDays = parseFloat(result.production[1].whLastSevenDays / 1000).toFixed(3);
-      me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, productionwhToday);
-      me.log.debug('Device: %s %s, energy production last seven Days: %s kWh', me.host, me.name, productionwhLastSevenDays);
-      me.productionwhToday = productionwhToday;
-      me.productionwhLastSevenDays = productionwhLastSevenDays;
-    }
+      if (me.productionPowerMeter == 1) {
+        let productionwhToday = parseFloat(result.production[1].whToday / 1000).toFixed(3);
+        let productionwhLastSevenDays = parseFloat(result.production[1].whLastSevenDays / 1000).toFixed(3);
+        me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, productionwhToday);
+        me.log.debug('Device: %s %s, energy production last seven Days: %s kWh', me.host, me.name, productionwhLastSevenDays);
+        me.productionwhToday = productionwhToday;
+        me.productionwhLastSevenDays = productionwhLastSevenDays;
+      }
 
-    if (me.consumptionPowerMeter == 1) {
-      let totalConsumptionwNow = parseFloat(result.consumption[0].wNow / 1000).toFixed(3);
-      let totalConsumptionwhToday = parseFloat(result.consumption[0].whToday / 1000).toFixed(3);
-      let totalConsumptionwhLastSevenDays = parseFloat(result.consumption[0].whLastSevenDays / 1000).toFixed(3);
-      let totalConsumptionwhLifetime = parseFloat(result.consumption[0].whLifetime / 1000).toFixed(3);
-      me.log.debug('Device: %s %s, total power consumption : %s kW', me.host, me.name, totalConsumptionwNow);
-      me.log.debug('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, totalConsumptionwhLifetime);
-      me.log.debug('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, totalConsumptionwhToday);
-      me.log.debug('Device: %s %s, total energy consumption last seven Days: %s kWh', me.host, me.name, totalConsumptionwhLastSevenDays);
-      me.totalConsumptionwNow = totalConsumptionwNow;
-      me.totalConsumptionwhToday = totalConsumptionwhToday;
-      me.totalConsumptionwhLastSevenDays = totalConsumptionwhLastSevenDays;
-      me.totalConsumptionwhLifetime = totalConsumptionwhLifetime;
+      if (me.consumptionPowerMeter == 1) {
+        let totalConsumptionwNow = parseFloat(result.consumption[0].wNow / 1000).toFixed(3);
+        let totalConsumptionwhToday = parseFloat(result.consumption[0].whToday / 1000).toFixed(3);
+        let totalConsumptionwhLastSevenDays = parseFloat(result.consumption[0].whLastSevenDays / 1000).toFixed(3);
+        let totalConsumptionwhLifetime = parseFloat(result.consumption[0].whLifetime / 1000).toFixed(3);
+        me.log.debug('Device: %s %s, total power consumption : %s kW', me.host, me.name, totalConsumptionwNow);
+        me.log.debug('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, totalConsumptionwhLifetime);
+        me.log.debug('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, totalConsumptionwhToday);
+        me.log.debug('Device: %s %s, total energy consumption last seven Days: %s kWh', me.host, me.name, totalConsumptionwhLastSevenDays);
+        me.totalConsumptionwNow = totalConsumptionwNow;
+        me.totalConsumptionwhToday = totalConsumptionwhToday;
+        me.totalConsumptionwhLastSevenDays = totalConsumptionwhLastSevenDays;
+        me.totalConsumptionwhLifetime = totalConsumptionwhLifetime;
 
-      let netConsumptionwNow = parseFloat(result.consumption[1].wNow / 1000).toFixed(3);
-      let netConsumptionwhToday = parseFloat(result.consumption[1].whToday / 1000).toFixed(3);
-      let netConsumptionwhLastSevenDays = parseFloat(result.consumption[1].whLastSevenDays / 1000).toFixed(3);
-      let netConsumptionwhLifetime = parseFloat(result.consumption[1].whLifetime / 1000).toFixed(3);
-      me.log.debug('Device: %s %s, net power consumption: %s kW', me.host, me.name, netConsumptionwNow);
-      me.log.debug('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, netConsumptionwhLifetime);
-      me.log.debug('Device: %s %s, net energy consumption Today: %s kWh', me.host, me.name, netConsumptionwhToday);
-      me.log.debug('Device: %s %s, net energy consumption last seven Days: %s kWh', me.host, me.name, netConsumptionwhLastSevenDays);
-      me.netConsumptionwNow = netConsumptionwNow;
-      me.netConsumptionwhToday = netConsumptionwhToday;
-      me.netConsumptionwhLastSevenDays = netConsumptionwhLastSevenDays;
-      me.netConsumptionwhLifetime = netConsumptionwhLifetime;
-    }
+        let netConsumptionwNow = parseFloat(result.consumption[1].wNow / 1000).toFixed(3);
+        let netConsumptionwhToday = parseFloat(result.consumption[1].whToday / 1000).toFixed(3);
+        let netConsumptionwhLastSevenDays = parseFloat(result.consumption[1].whLastSevenDays / 1000).toFixed(3);
+        let netConsumptionwhLifetime = parseFloat(result.consumption[1].whLifetime / 1000).toFixed(3);
+        me.log.debug('Device: %s %s, net power consumption: %s kW', me.host, me.name, netConsumptionwNow);
+        me.log.debug('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, netConsumptionwhLifetime);
+        me.log.debug('Device: %s %s, net energy consumption Today: %s kWh', me.host, me.name, netConsumptionwhToday);
+        me.log.debug('Device: %s %s, net energy consumption last seven Days: %s kWh', me.host, me.name, netConsumptionwhLastSevenDays);
+        me.netConsumptionwNow = netConsumptionwNow;
+        me.netConsumptionwhToday = netConsumptionwhToday;
+        me.netConsumptionwhLastSevenDays = netConsumptionwhLastSevenDays;
+        me.netConsumptionwhLifetime = netConsumptionwhLifetime;
+      }
+    }).catch(error => {
+      me.log.debug('Device: %s %s, state: Offline.', me.host, me.name);
+      return;
+    });
   }
 
   //Prepare TV service 
@@ -279,6 +277,12 @@ class envoyDevice {
       .on('get', this.getMaxPowerProduction.bind(this));
 
     this.accessory.addService(this.envoyService);
+
+    if (!this.connectionStatus) {
+      this.log.info('Device: %s %s, state: Online.', this.host, this.name);
+      this.connectionStatus = true;
+      this.getDeviceInfo();
+    }
 
     this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
     this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
