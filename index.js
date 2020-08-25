@@ -127,8 +127,8 @@ class envoyDevice {
     var me = this;
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
     axios.get(me.url + '/production.json').then(response => {
-      me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
       me.log.info('Device: %s %s, state: Online.', me.host, me.name);
+      me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
       me.inverters = response.data.production[0].activeCount;
       axios.get(me.url + '/info.xml').then(response => {
         parseStringPromise(response.data).then(result => {
