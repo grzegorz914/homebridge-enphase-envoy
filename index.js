@@ -123,6 +123,41 @@ class envoyDevice {
     this.prepareEnvoyService();
   }
 
+  //Prepare TV service 
+  prepareEnvoyService() {
+    this.log.debug('prepareEnvoyService');
+    const accessoryName = this.name;
+    const accessoryUUID = UUID.generate(accessoryName);
+    this.accessory = new Accessory(accessoryName, accessoryUUID);
+    this.accessory.category = Categories.SENSOR;
+
+    this.accessory.getService(Service.AccessoryInformation)
+      .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
+      .setCharacteristic(Characteristic.Model, this.modelName)
+      .setCharacteristic(Characteristic.SerialNumber, this.serialNumber)
+      .setCharacteristic(Characteristic.FirmwareRevision, this.firmwareRevision);
+
+    this.envoyService = new Service.CarbonDioxideSensor(accessoryName, 'envoyService');
+
+    this.envoyService.getCharacteristic(Characteristic.CarbonDioxideDetected)
+      .on('get', this.getMaxPowerDetected.bind(this));
+
+    this.envoyService.getCharacteristic(Characteristic.CarbonDioxideLevel)
+      .on('get', this.getPowerProduction.bind(this));
+
+    this.envoyService.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
+      .on('get', this.getMaxPowerProduction.bind(this));
+
+    this.accessory.addService(this.envoyService);
+
+    if (!this.connectionStatus) {
+      this.getDeviceInfo();
+    }
+
+    this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
+    this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
+  }
+
   getDeviceInfo() {
     var me = this;
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
@@ -253,41 +288,6 @@ class envoyDevice {
     }).catch(error => {
       me.log.error('Device: %s %s, update Device state error: %s', me.host, me.name, error);
     });
-  }
-
-  //Prepare TV service 
-  prepareEnvoyService() {
-    this.log.debug('prepareEnvoyService');
-    const accessoryName = this.name;
-    const accessoryUUID = UUID.generate(accessoryName);
-    this.accessory = new Accessory(accessoryName, accessoryUUID);
-    this.accessory.category = Categories.SENSOR;
-
-    this.accessory.getService(Service.AccessoryInformation)
-      .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
-      .setCharacteristic(Characteristic.Model, this.modelName)
-      .setCharacteristic(Characteristic.SerialNumber, this.serialNumber)
-      .setCharacteristic(Characteristic.FirmwareRevision, this.firmwareRevision);
-
-    this.envoyService = new Service.CarbonDioxideSensor(accessoryName, 'envoyService');
-
-    this.envoyService.getCharacteristic(Characteristic.CarbonDioxideDetected)
-      .on('get', this.getMaxPowerDetected.bind(this));
-
-    this.envoyService.getCharacteristic(Characteristic.CarbonDioxideLevel)
-      .on('get', this.getPowerProduction.bind(this));
-
-    this.envoyService.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
-      .on('get', this.getMaxPowerProduction.bind(this));
-
-    this.accessory.addService(this.envoyService);
-
-    if (!this.connectionStatus) {
-      this.getDeviceInfo();
-    }
-
-    this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
-    this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
   }
 
   getMaxPowerDetected(callback) {
