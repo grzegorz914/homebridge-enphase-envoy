@@ -116,7 +116,7 @@ class envoyDevice {
     //Check device state
     setInterval(function () {
       if (this.connectionStatus) {
-        this.getDeviceState();
+        this.updateDeviceState();
       }
     }.bind(this), this.refreshInterval * 1000);
 
@@ -128,6 +128,7 @@ class envoyDevice {
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
     axios.get(me.url + '/production.json').then(response => {
       me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
+      me.log.info('Device: %s %s, state: Online.', me.host, me.name);
       me.inverters = response.data.production[0].activeCount;
       axios.get(me.url + '/info.xml').then(response => {
         parseStringPromise(response.data).then(result => {
@@ -150,12 +151,16 @@ class envoyDevice {
       }).catch(error => {
         me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
       });
+      me.updateDeviceState();
+      me.connectionStatus = true;
     }).catch(error => {
-      me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
+      me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
+      me.connectionStatus = false;
+      return;
     });
   }
 
-  getDeviceState() {
+  updateDeviceState() {
     var me = this;
     axios.get(me.url + '/production.json').then(response => {
       me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
@@ -246,8 +251,7 @@ class envoyDevice {
         me.netConsumptionwhLifetime = netConsumptionwhLifetime;
       }
     }).catch(error => {
-      me.log.debug('Device: %s %s, state: Offline.', me.host, me.name);
-      return;
+      me.log.error('Device: %s %s, update Device state error: %s', me.host, me.name, error);
     });
   }
 
@@ -279,8 +283,6 @@ class envoyDevice {
     this.accessory.addService(this.envoyService);
 
     if (!this.connectionStatus) {
-      this.log.info('Device: %s %s, state: Online.', this.host, this.name);
-      this.connectionStatus = true;
       this.getDeviceInfo();
     }
 
