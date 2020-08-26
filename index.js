@@ -78,7 +78,8 @@ class envoyDevice {
     this.firmwareRevision = config.firmwareRevision || 'FW0000005';
 
     //setup variables
-    this.connectionStatus = false;
+    this.checkDeviceInfo = false;
+    this.checkDeviceState = false;
     this.maxPowerProduction = 0;
     this.maxPowerDetectedState = 0;
     this.productionwNow = 0;
@@ -115,7 +116,10 @@ class envoyDevice {
 
     //Check device state
     setInterval(function () {
-      if (this.connectionStatus) {
+      if (this.checkDeviceInfo) {
+        this.getDeviceInfo();
+      }
+      if (this.checkDeviceState) {
         this.updateDeviceState();
       }
     }.bind(this), this.refreshInterval * 1000);
@@ -150,9 +154,7 @@ class envoyDevice {
 
     this.accessory.addService(this.envoyService);
 
-    if (!this.connectionStatus) {
-      this.getDeviceInfo();
-    }
+    this.checkDeviceInfo = true;
 
     this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
     this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
@@ -186,12 +188,12 @@ class envoyDevice {
       }).catch(error => {
         me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
       });
-      me.updateDeviceState();
-      me.connectionStatus = true;
+      me.checkDeviceInfo = false;
+      me.checkDeviceState = true;
     }).catch(error => {
       me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
-      me.connectionStatus = false;
-      return;
+      me.checkDeviceInfo = true;
+      me.checkDeviceState = false;
     });
   }
 
@@ -286,7 +288,7 @@ class envoyDevice {
         me.netConsumptionwhLifetime = netConsumptionwhLifetime;
       }
     }).catch(error => {
-      me.log.error('Device: %s %s, update Device state error: %s', me.host, me.name, error);
+      me.log.error('Device: %s %s, update Device state error: %s, state: Offline', me.host, me.name, error);
     });
   }
 
