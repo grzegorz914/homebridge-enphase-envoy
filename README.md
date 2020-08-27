@@ -33,9 +33,10 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 1. Use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) to configure the plugin (strongly recomended), or update your configuration file manually. See `sample-config.json` in this repository for a sample or add the bottom example to Your config.json file.
 2. In `host` set the iP adress or leave empy(will use default path `envoy.local`).
 3. In `refreshInterval` set the data refresh time in seconds.
-4. In `maxPowerDetected` set the maximum Power in Watt, if the production Power will be >= `maxPowerDetected` then You get notyfication message from the HomeKit.
-5. In `productionPowerMeter` select which meter will be used to display production Power.
+4. In `productionPowerMeter` select which meter will be used to display production Power.
+5. In `maxPowerProductionDetected` set the maximum Power in Watt, if the production Power will be >= `maxPowerProductionDetected` then You get notyfication message from the HomeKit.
 6. In `consumptionPowerMeter` select which meter will be used to display consumption Power.
+7. In `maxPowerConsumptionDetected` set the maximum total Consumption in Watt, if the consumption Power will be >= `maxPowerConsumptionDetected` then You get notyfication message from the HomeKit.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
@@ -49,9 +50,10 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
-                    "maxPowerDetected": 5400,
                     "productionPowerMeter": 0,
-                    "consumptionPowerMeter": 0
+                    "maxPowerProductionDetected": 5400,
+                    "consumptionPowerMeter": 0,
+                    "maxPowerConsumptionDetected": 10000,
                 }
             ]
         }

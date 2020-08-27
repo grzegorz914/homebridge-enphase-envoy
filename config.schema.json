@@ -33,13 +33,6 @@
               "maximum": 3600,
               "required": true
             },
-            "maxPowerDetected": {
-              "title": "Max power detected (W)",
-              "type": "integer",
-              "default": 0,
-              "maximum": 65535,
-              "required": true
-            },
             "productionPowerMeter": {
               "title": "Production power meter",
               "type": "integer",
@@ -62,6 +55,13 @@
               ],
               "required": true
             },
+            "maxPowerProductionDetected": {
+              "title": "Max power production detected (W)",
+              "type": "integer",
+              "default": 0,
+              "maximum": 65535,
+              "required": true
+            },
             "consumptionPowerMeter": {
               "title": "Consumption power meter",
               "type": "integer",
@@ -82,6 +82,13 @@
                   ]
                 }
               ],
+              "required": true
+            },
+            "maxPowerConsumptionDetected": {
+              "title": "Max power consumption detected (W)",
+              "type": "integer",
+              "default": 0,
+              "maximum": 65535,
               "required": true
             }
           }

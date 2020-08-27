@@ -22,9 +22,10 @@
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
-                    "maxPowerDetected": 5400,
                     "productionPowerMeter": 0,
-                    "consumptionPowerMeter": 0
+                    "maxPowerProductionDetected": 5400,
+                    "consumptionPowerMeter": 0,
+                    "maxPowerConsumptionDetected": 10000
                 }
             ]
         }
