@@ -16,8 +16,8 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 
 ## Info
 1. The plugin is present as C02(ppm) sensor and the Power is report in Watt.
-2. Current Level - is the current production power in Watt.
-3. Peak Level - is the maximum production power in Watt.
+2. Current Level - is the current production / total consumption power in Watt.
+3. Peak Level - is the maximum production / total consumption power in Watt.
 4. All other power and energy values are avilable in the log.
 
 ## Package
