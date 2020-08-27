@@ -38,8 +38,8 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 4. In `productionPowerMeter` select which meter will be used to display Power production.
 5. In `maxPowerProductionDetected` set the maximum Power production, if the Power production will be >= `maxPowerProductionDetected` then You get notyfication message from the HomeKit.
 6. In `consumptionPowerMeter` select which meter will be used to display Power consumption.
-7. In `maxTotalPowerConsumptionDetected` set the maximum total Power consumption, if the total consumption Power will be >= `maxTotalPowerConsumptionDetected` then You get notyfication message from the HomeKit.
-8. In `maxNetPowerConsumptionDetected` set the maximum net Consumption, if the Power consumption from net will be >= `maxNetPowerConsumptionDetected` then You get notyfication message from the HomeKit.
+7. In `maxTotalPowerConsumptionDetected` set the maximum total Power consumption, if the total Power consumption will be >= `maxTotalPowerConsumptionDetected` then You get notyfication message from the HomeKit.
+8. In `maxNetPowerConsumptionDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `maxNetPowerConsumptionDetected` then You get notyfication message from the HomeKit.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
