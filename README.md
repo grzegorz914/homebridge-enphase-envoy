@@ -16,9 +16,11 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 
 ## Info
 1. The plugin is present as C02(ppm) sensor and the Power is report in Watt.
-2. Current Level - is the current production / total and net consumption power in Watt.
-3. Peak Level - is the maximum production / total and net consumption power in Watt.
-4. All other power and energy values are avilable in the log.
+2. Power Production Current Level - is the current Power production in Watt. If the value is (< 0) and display (`-`values) then the PV consumed power from Net.
+3. Total Power Consumption Current Level - is the Total Power Consumption in Watt.
+4. Net Power Consumption Current Level - is the Net Power Consumption in Watt. If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
+5. Peak Level - is the maximum production / total and net consumption power in Watt.
+6. All other power and energy values are avilable in the Homebridge log.
 
 ## Package
 1. [Homebridge](https://github.com/homebridge/homebridge)
@@ -37,7 +39,7 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 5. In `maxPowerProductionDetected` set the maximum Power in Watt, if the production Power will be >= `maxPowerProductionDetected` then You get notyfication message from the HomeKit.
 6. In `consumptionPowerMeter` select which meter will be used to display consumption Power.
 7. In `maxTotalPowerConsumptionDetected` set the maximum total Consumption in Watt, if the total consumption Power will be >= `maxTotalPowerConsumptionDetected` then You get notyfication message from the HomeKit.
-8. In `maxNetPowerConsumptionDetected` set the maximum net Consumption in Watt, if the net consumption Power will be >= `maxNetPowerConsumptionDetected` then You get notyfication message from the HomeKit. If the net power is exporting to grid(netPower < 0) then the value is 0, right now the sensor do not display (`-`values).
+8. In `maxNetPowerConsumptionDetected` set the maximum net Consumption in Watt, if the net consumption Power will be >= `maxNetPowerConsumptionDetected` then You get notyfication message from the HomeKit.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>

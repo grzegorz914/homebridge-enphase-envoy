@@ -155,6 +155,10 @@ class envoyDevice {
       .on('get', this.getMaxPowerProductionDetected.bind(this));
 
     this.envoyServiceProduction.getCharacteristic(Characteristic.CarbonDioxideLevel)
+      .setProps({
+        minValue: -100000,
+        maxValue: 100000
+      })
       .on('get', this.getPowerProduction.bind(this));
 
     this.envoyServiceProduction.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
@@ -169,6 +173,10 @@ class envoyDevice {
         .on('get', this.getMaxTotalPowerConsumptionDetected.bind(this));
 
       this.envoyServiceTotalConsumption.getCharacteristic(Characteristic.CarbonDioxideLevel)
+        .setProps({
+          minValue: -100000,
+          maxValue: 100000
+        })
         .on('get', this.getTotalPowerConsumption.bind(this));
 
       this.envoyServiceTotalConsumption.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
@@ -184,6 +192,10 @@ class envoyDevice {
         .on('get', this.getMaxNetPowerConsumptionDetected.bind(this));
 
       this.envoyServiceNetConsumption.getCharacteristic(Characteristic.CarbonDioxideLevel)
+        .setProps({
+          minValue: -100000,
+          maxValue: 100000
+        })
         .on('get', this.getNetPowerConsumption.bind(this));
 
       this.envoyServiceNetConsumption.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
@@ -244,9 +256,6 @@ class envoyDevice {
 
       //production
       let productionwNow = parseFloat(result.production[me.productionPowerMeter].wNow / 1000).toFixed(3);
-      if (productionwNow < 0) {
-        productionwNow = 0;
-      }
 
       //save and read maxPowerProduction
       let savedMaxPowerProduction;
@@ -304,9 +313,6 @@ class envoyDevice {
       //consumption
       if (me.consumptionPowerMeter >= 1) {
         let totalConsumptionwNow = parseFloat(result.consumption[0].wNow / 1000).toFixed(3);
-        if (totalConsumptionwNow < 0) {
-          totalConsumptionwNow = 0;
-        }
 
         //save and read maxTotalPowerConsumption
         let savedMaxTotalPowerConsumption;
@@ -359,9 +365,6 @@ class envoyDevice {
 
       if (me.consumptionPowerMeter >= 2) {
         let netConsumptionwNow = parseFloat(result.consumption[1].wNow / 1000).toFixed(3);
-        if (netConsumptionwNow < 0) {
-          netConsumptionwNow = 0;
-        }
 
         //save and read maxTotalPowerConsumption
         let savedMaxNetPowerConsumption;
