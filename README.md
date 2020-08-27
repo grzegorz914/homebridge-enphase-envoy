@@ -16,8 +16,8 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 
 ## Info
 1. The plugin is present as C02(ppm) sensor and the Power is report in Watt.
-2. Current Level - is the current production / total consumption power in Watt.
-3. Peak Level - is the maximum production / total consumption power in Watt.
+2. Current Level - is the current production / total and net consumption power in Watt.
+3. Peak Level - is the maximum production / total and net consumption power in Watt.
 4. All other power and energy values are avilable in the log.
 
 ## Package
@@ -36,7 +36,8 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 4. In `productionPowerMeter` select which meter will be used to display production Power.
 5. In `maxPowerProductionDetected` set the maximum Power in Watt, if the production Power will be >= `maxPowerProductionDetected` then You get notyfication message from the HomeKit.
 6. In `consumptionPowerMeter` select which meter will be used to display consumption Power.
-7. In `maxPowerConsumptionDetected` set the maximum total Consumption in Watt, if the consumption Power will be >= `maxPowerConsumptionDetected` then You get notyfication message from the HomeKit.
+7. In `maxTotalPowerConsumptionDetected` set the maximum total Consumption in Watt, if the total consumption Power will be >= `maxTotalPowerConsumptionDetected` then You get notyfication message from the HomeKit.
+8. In `maxNetPowerConsumptionDetected` set the maximum net Consumption in Watt, if the net consumption Power will be >= `maxNetPowerConsumptionDetected` then You get notyfication message from the HomeKit. If the net power is exporting to grid(netPower < 0) then the value is 0, right now the sensor do not display (`-`values).
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
@@ -53,7 +54,8 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
                     "productionPowerMeter": 0,
                     "maxPowerProductionDetected": 5400,
                     "consumptionPowerMeter": 0,
-                    "maxPowerConsumptionDetected": 10000,
+                    "maxTotalPowerConsumptionDetected": 10000,
+                    "maxNetPowerConsumptionDetected": 10000
                 }
             ]
         }

@@ -25,7 +25,8 @@
                     "productionPowerMeter": 0,
                     "maxPowerProductionDetected": 5400,
                     "consumptionPowerMeter": 0,
-                    "maxPowerConsumptionDetected": 10000
+                    "maxTotalPowerConsumptionDetected": 10000,
+                    "maxNetPowerConsumptionDetected": 10000
                 }
             ]
         }

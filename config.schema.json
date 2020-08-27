@@ -76,16 +76,29 @@
                   ]
                 },
                 {
-                  "title": "Consumption CT",
+                  "title": "Total Consumption CT",
                   "enum": [
                     1
+                  ]
+                },
+                {
+                  "title": "Total and Net Consumption CT",
+                  "enum": [
+                    2
                   ]
                 }
               ],
               "required": true
             },
-            "maxPowerConsumptionDetected": {
-              "title": "Max power consumption detected (W)",
+            "maxTotalPowerConsumptionDetected": {
+              "title": "Max total power consumption detected (W)",
+              "type": "integer",
+              "default": 0,
+              "maximum": 65535,
+              "required": true
+            },
+            "maxNetPowerConsumptionDetected": {
+              "title": "Max net power consumption detected (W)",
               "type": "integer",
               "default": 0,
               "maximum": 65535,

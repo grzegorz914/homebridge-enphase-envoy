@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.3] - (27.08.2020)
+### Added
+- added extra accessory to present Total or Total and Net Consumption. Selectable in consumption power meter option.
+
 ## [2.0.6] - (27.08.2020)
 ### Added
-- added extra accessory to present net Power Consumption if consumption Power meter is selected
+- added extra accessory to present Total Power Consumption if consumption Power meter is selected
 
 ## [1.1.2] - (25.08.2020)
 ### Changes
