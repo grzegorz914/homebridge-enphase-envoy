@@ -15,12 +15,12 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 </span>
 
 ## Info
-1. The plugin is present as C02(ppm) sensor and the Power is report in Watt.
-2. Power Production Current Level - is the current Power production in Watt. If the value is (< 0) and display (`-`values) then the PV consumed power from Net.
-3. Total Power Consumption Current Level - is the Total Power Consumption in Watt.
-4. Net Power Consumption Current Level - is the Net Power Consumption in Watt. If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
-5. Peak Level - is the maximum production / total and net consumption power in Watt.
-6. All other power and energy values are avilable in the Homebridge log.
+1. The plugin is present as C02(ppm) sensor and the Power is displayed in Watt.
+2. Power Production Current Level - is the current Power production. If the value is (< 0) and display (`-`values) then the PV consumed power from Net.
+3. Total Power Consumption Current Level - is the Total Power Consumption.
+4. Net Power Consumption Current Level - is the Power Consumption from Net in Watt. If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
+5. Peak Level - display the maximum Power production, total Power consumption and consumption Power from net.
+6. All other power and energy data are displayed in the Homebridge log.
 
 ## Package
 1. [Homebridge](https://github.com/homebridge/homebridge)
@@ -35,11 +35,11 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 1. Use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) to configure the plugin (strongly recomended), or update your configuration file manually. See `sample-config.json` in this repository for a sample or add the bottom example to Your config.json file.
 2. In `host` set the iP adress or leave empy(will use default path `envoy.local`).
 3. In `refreshInterval` set the data refresh time in seconds.
-4. In `productionPowerMeter` select which meter will be used to display production Power.
-5. In `maxPowerProductionDetected` set the maximum Power in Watt, if the production Power will be >= `maxPowerProductionDetected` then You get notyfication message from the HomeKit.
-6. In `consumptionPowerMeter` select which meter will be used to display consumption Power.
-7. In `maxTotalPowerConsumptionDetected` set the maximum total Consumption in Watt, if the total consumption Power will be >= `maxTotalPowerConsumptionDetected` then You get notyfication message from the HomeKit.
-8. In `maxNetPowerConsumptionDetected` set the maximum net Consumption in Watt, if the net consumption Power will be >= `maxNetPowerConsumptionDetected` then You get notyfication message from the HomeKit.
+4. In `productionPowerMeter` select which meter will be used to display Power production.
+5. In `maxPowerProductionDetected` set the maximum Power production, if the Power production will be >= `maxPowerProductionDetected` then You get notyfication message from the HomeKit.
+6. In `consumptionPowerMeter` select which meter will be used to display Power consumption.
+7. In `maxTotalPowerConsumptionDetected` set the maximum total Power consumption, if the total consumption Power will be >= `maxTotalPowerConsumptionDetected` then You get notyfication message from the HomeKit.
+8. In `maxNetPowerConsumptionDetected` set the maximum net Consumption, if the Power consumption from net will be >= `maxNetPowerConsumptionDetected` then You get notyfication message from the HomeKit.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
