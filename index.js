@@ -525,9 +525,9 @@ class envoyDevice {
 
   getEnergyProductionLifetime(callback) {
     var me = this;
-    let wNow = me.productionwhLifetime;
-    me.log.info('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, wNow);
-    callback(null, Math.ceil(wNow));
+    let whLifetime = me.productionwhLifetime;
+    me.log.info('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, whLifetime);
+    callback(null, Math.ceil(whLifetime));
   }
 
   //production energy today
@@ -540,9 +540,9 @@ class envoyDevice {
 
   getEnergyProductionToday(callback) {
     var me = this;
-    let wNow = me.productionwhToday;
-    me.log.info('Device: %s %s, energy production Today: %s kWh', me.host, me.name, wNow);
-    callback(null, wNow * 1000);
+    let whToday = me.productionwhToday;
+    me.log.info('Device: %s %s, energy production Today: %s kWh', me.host, me.name, whToday);
+    callback(null, whToday * 1000);
   }
 
   //production energy last seven days
@@ -555,9 +555,9 @@ class envoyDevice {
 
   getEnergyProductionLastSevenDays(callback) {
     var me = this;
-    let wNow = me.productionwhLastSevenDays;
-    me.log.info('Device: %s %s, energy production last Seven Days: %s kWh', me.host, me.name, wNow);
-    callback(null, Math.ceil(wNow));
+    let whLastSevenDays = me.productionwhLastSevenDays;
+    me.log.info('Device: %s %s, energy production last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
+    callback(null, Math.ceil(whLastSevenDays));
   }
 
   //total consumption
@@ -592,9 +592,9 @@ class envoyDevice {
 
   getEnergyConsumptionLifetime(callback) {
     var me = this;
-    let wNow = me.consumptionwhLifetime;
-    me.log.info('Device: %s %s, energy consumption Lifetime: %s kWh', me.host, me.name, wNow);
-    callback(null, Math.ceil(wNow));
+    let whLifetime = me.totalConsumptionwhLifetime;
+    me.log.info('Device: %s %s, energy consumption Lifetime: %s kWh', me.host, me.name, whLifetime);
+    callback(null, Math.ceil(whLifetime));
   }
 
   //total consumption energy today
@@ -607,9 +607,9 @@ class envoyDevice {
 
   getEnergyConsumptionToday(callback) {
     var me = this;
-    let wNow = me.consumptionToday;
-    me.log.info('Device: %s %s, energy consumption Today: %s kWh', me.host, me.name, wNow);
-    callback(null, wNow * 1000);
+    let whToday = me.totalConsumptionwhToday;
+    me.log.info('Device: %s %s, energy consumption Today: %s kWh', me.host, me.name, whToday);
+    callback(null, whToday * 1000);
   }
 
   //total consumption energy last seven days
@@ -622,9 +622,9 @@ class envoyDevice {
 
   getEnergyConsumptionLastSevenDays(callback) {
     var me = this;
-    let wNow = me.consumptionwhLastSevenDays;
-    me.log.info('Device: %s %s, energy consumption last Seven Days: %s kWh', me.host, me.name, wNow);
-    callback(null, Math.ceil(wNow));
+    let whLastSevenDays = me.totalConsumptionwhLastSevenDays;
+    me.log.info('Device: %s %s, energy consumption last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
+    callback(null, Math.ceil(whLastSevenDays));
   }
 
   //net consumption
