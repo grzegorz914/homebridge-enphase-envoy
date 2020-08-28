@@ -149,59 +149,112 @@ class envoyDevice {
       .setCharacteristic(Characteristic.SerialNumber, this.serialNumber)
       .setCharacteristic(Characteristic.FirmwareRevision, this.firmwareRevision);
 
-    this.envoyServiceProduction = new Service.CarbonDioxideSensor('Power Production', 'envoyServiceProduction');
-
-    this.envoyServiceProduction.getCharacteristic(Characteristic.CarbonDioxideDetected)
+    this.envoyServicePowerProduction = new Service.CarbonDioxideSensor('Product. Watt', 'envoyServicePowerProduction');
+    this.envoyServicePowerProduction.getCharacteristic(Characteristic.CarbonDioxideDetected)
       .on('get', this.getMaxPowerProductionDetected.bind(this));
 
-    this.envoyServiceProduction.getCharacteristic(Characteristic.CarbonDioxideLevel)
+    this.envoyServicePowerProduction.getCharacteristic(Characteristic.CarbonDioxideLevel)
       .setProps({
         minValue: -100000,
         maxValue: 100000
       })
       .on('get', this.getPowerProduction.bind(this));
 
-    this.envoyServiceProduction.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
+    this.envoyServicePowerProduction.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
       .on('get', this.getMaxPowerProduction.bind(this));
 
-    this.accessory.addService(this.envoyServiceProduction);
+    this.accessory.addService(this.envoyServicePowerProduction);
+
+    this.envoyServiceEnergyProductionLifetime = new Service.CarbonDioxideSensor('Produkt. Lifetime kWh', 'envoyServiceEnergyProductionLifetime');
+    this.envoyServiceEnergyProductionLifetime.getCharacteristic(Characteristic.CarbonDioxideDetected)
+      .on('get', this.getMaxEnergyProductionLifetimeDetected.bind(this));
+
+    this.envoyServiceEnergyProductionLifetime.getCharacteristic(Characteristic.CarbonDioxideLevel)
+      .on('get', this.getEnergyProductionLifetime.bind(this));
+
+    this.accessory.addService(this.envoyServiceEnergyProductionLifetime);
+
+    if (this.productionPowerMeter == 1) {
+      this.envoyServiceEnergyProductionToday = new Service.CarbonDioxideSensor('Produkt. Today Wh', 'envoyServiceEnergyProductionToday');
+      this.envoyServiceEnergyProductionToday.getCharacteristic(Characteristic.CarbonDioxideDetected)
+        .on('get', this.getMaxEnergyProductionTodayDetected.bind(this));
+
+      this.envoyServiceEnergyProductionToday.getCharacteristic(Characteristic.CarbonDioxideLevel)
+        .on('get', this.getEnergyProductionToday.bind(this));
+
+      this.accessory.addService(this.envoyServiceEnergyProductionToday);
+
+      this.envoyServiceEnergyProductionLastSevenDays = new Service.CarbonDioxideSensor('Produkt. 7D kWh', 'envoyServiceEnergyProductionLastSevenDays');
+      this.envoyServiceEnergyProductionLastSevenDays.getCharacteristic(Characteristic.CarbonDioxideDetected)
+        .on('get', this.getMaxEnergyProductionLastSevenDaysDetected.bind(this));
+
+      this.envoyServiceEnergyProductionLastSevenDays.getCharacteristic(Characteristic.CarbonDioxideLevel)
+        .on('get', this.getEnergyProductionLastSevenDays.bind(this));
+
+      this.accessory.addService(this.envoyServiceEnergyProductionLastSevenDays);
+    }
 
     if (this.consumptionPowerMeter >= 1) {
-      this.envoyServiceTotalConsumption = new Service.CarbonDioxideSensor('Total Consumption', 'envoyServiceTotalConsumption');
-
-      this.envoyServiceTotalConsumption.getCharacteristic(Characteristic.CarbonDioxideDetected)
+      this.envoyServiceTotalPowerConsumption = new Service.CarbonDioxideSensor('Consumpt. Total Watt', 'envoyServiceTotalPowerConsumption');
+      this.envoyServiceTotalPowerConsumption.getCharacteristic(Characteristic.CarbonDioxideDetected)
         .on('get', this.getMaxTotalPowerConsumptionDetected.bind(this));
 
-      this.envoyServiceTotalConsumption.getCharacteristic(Characteristic.CarbonDioxideLevel)
+      this.envoyServiceTotalPowerConsumption.getCharacteristic(Characteristic.CarbonDioxideLevel)
         .setProps({
           minValue: -100000,
           maxValue: 100000
         })
         .on('get', this.getTotalPowerConsumption.bind(this));
 
-      this.envoyServiceTotalConsumption.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
+      this.envoyServiceTotalPowerConsumption.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
         .on('get', this.getMaxTotalPowerConsumption.bind(this));
 
-      this.accessory.addService(this.envoyServiceTotalConsumption);
+      this.accessory.addService(this.envoyServiceTotalPowerConsumption);
     }
 
     if (this.consumptionPowerMeter >= 2) {
-      this.envoyServiceNetConsumption = new Service.CarbonDioxideSensor('Net Consumption', 'envoyServiceNetConsumption');
-
-      this.envoyServiceNetConsumption.getCharacteristic(Characteristic.CarbonDioxideDetected)
+      this.envoyServiceNetPowerConsumption = new Service.CarbonDioxideSensor('Consumpt. Net Watt', 'envoyServiceNetPowerConsumption');
+      this.envoyServiceNetPowerConsumption.getCharacteristic(Characteristic.CarbonDioxideDetected)
         .on('get', this.getMaxNetPowerConsumptionDetected.bind(this));
 
-      this.envoyServiceNetConsumption.getCharacteristic(Characteristic.CarbonDioxideLevel)
+      this.envoyServiceNetPowerConsumption.getCharacteristic(Characteristic.CarbonDioxideLevel)
         .setProps({
           minValue: -100000,
           maxValue: 100000
         })
         .on('get', this.getNetPowerConsumption.bind(this));
 
-      this.envoyServiceNetConsumption.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
+      this.envoyServiceNetPowerConsumption.getCharacteristic(Characteristic.CarbonDioxidePeakLevel)
         .on('get', this.getMaxNetPowerConsumption.bind(this));
 
-      this.accessory.addService(this.envoyServiceNetConsumption);
+      this.accessory.addService(this.envoyServiceNetPowerConsumption);
+
+      this.envoyServiceEnergyConsumptionLifetime = new Service.CarbonDioxideSensor('Consumpt. Lifetime kWh', 'envoyServiceEnergyConsumptionLifetime');
+      this.envoyServiceEnergyConsumptionLifetime.getCharacteristic(Characteristic.CarbonDioxideDetected)
+        .on('get', this.getMaxEnergyConsumptionLifetimeDetected.bind(this));
+
+      this.envoyServiceEnergyConsumptionLifetime.getCharacteristic(Characteristic.CarbonDioxideLevel)
+        .on('get', this.getEnergyConsumptionLifetime.bind(this));
+
+      this.accessory.addService(this.envoyServiceEnergyConsumptionLifetime);
+
+      this.envoyServiceEnergyConsumptionToday = new Service.CarbonDioxideSensor('Consumpt. Today Wh', 'envoyServiceEnergyConsumptionToday');
+      this.envoyServiceEnergyConsumptionToday.getCharacteristic(Characteristic.CarbonDioxideDetected)
+        .on('get', this.getMaxEnergyConsumptionTodayDetected.bind(this));
+
+      this.envoyServiceEnergyConsumptionToday.getCharacteristic(Characteristic.CarbonDioxideLevel)
+        .on('get', this.getEnergyConsumptionToday.bind(this));
+
+      this.accessory.addService(this.envoyServiceEnergyConsumptionToday);
+
+      this.envoyServiceEnergyConsumptionLastSevenDays = new Service.CarbonDioxideSensor('Consumpt. 7D kWh', 'envoyServiceEnergyConsumptionLastSevenDays');
+      this.envoyServiceEnergyConsumptionLastSevenDays.getCharacteristic(Characteristic.CarbonDioxideDetected)
+        .on('get', this.getMaxEnergyConsumptionLastSevenDaysDetected.bind(this));
+
+      this.envoyServiceEnergyConsumptionLastSevenDays.getCharacteristic(Characteristic.CarbonDioxideLevel)
+        .on('get', this.getEnergyConsumptionLastSevenDays.bind(this));
+
+      this.accessory.addService(this.envoyServiceEnergyConsumptionLastSevenDays);
     }
 
     this.checkDeviceInfo = true;
@@ -287,10 +340,10 @@ class envoyDevice {
       me.maxPowerProduction = maxPowerProduction;
       me.maxPowerProductionDetectedState = maxPowerProductionDetectedState;
 
-      if (me.envoyServiceProduction) {
-        me.envoyServiceProduction.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerProductionDetectedState);
-        me.envoyServiceProduction.updateCharacteristic(Characteristic.CarbonDioxideLevel, productionwNow * 1000);
-        me.envoyServiceProduction.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPowerProduction * 1000);
+      if (me.envoyServicePowerProduction) {
+        me.envoyServicePowerProduction.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxPowerProductionDetectedState);
+        me.envoyServicePowerProduction.updateCharacteristic(Characteristic.CarbonDioxideLevel, productionwNow * 1000);
+        me.envoyServicePowerProduction.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxPowerProduction * 1000);
       }
 
       let productionwhLifetime = parseFloat(result.production[me.productionPowerMeter].whLifetime / 1000).toFixed(3);
@@ -301,13 +354,24 @@ class envoyDevice {
       me.productionwNow = productionwNow;
       me.productionwhLifetime = productionwhLifetime;
 
+      if (me.envoyServiceEnergyProductionLifetime) {
+        me.envoyServiceEnergyProductionLifetime.updateCharacteristic(Characteristic.CarbonDioxideLevel, productionwhLifetime);
+      }
+
       if (me.productionPowerMeter == 1) {
         let productionwhToday = parseFloat(result.production[1].whToday / 1000).toFixed(3);
         let productionwhLastSevenDays = parseFloat(result.production[1].whLastSevenDays / 1000).toFixed(3);
         me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, productionwhToday);
-        me.log.debug('Device: %s %s, energy production last seven Days: %s kWh', me.host, me.name, productionwhLastSevenDays);
+        me.log.debug('Device: %s %s, energy production last seven Days: %s kWh', me.host, me.name, Math.ceil(productionwhLastSevenDays));
         me.productionwhToday = productionwhToday;
         me.productionwhLastSevenDays = productionwhLastSevenDays;
+
+        if (me.envoyServiceEnergyProductionToday) {
+          me.envoyServiceEnergyProductionToday.updateCharacteristic(Characteristic.CarbonDioxideLevel, productionwhToday * 1000);
+        }
+        if (me.envoyServiceEnergyProductionLastSevenDays) {
+          me.envoyServiceEnergyProductionLastSevenDays.updateCharacteristic(Characteristic.CarbonDioxideLevel, Math.ceil(productionwhLastSevenDays));
+        }
       }
 
       //consumption
@@ -344,23 +408,33 @@ class envoyDevice {
         me.maxTotalPowerConsumption = maxTotalPowerConsumption;
         me.maxTotalPowerConsumptionDetectedState = maxTotalPowerConsumptionDetectedState;
 
-        if (me.envoyServiceTotalConsumption) {
-          me.envoyServiceTotalConsumption.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxTotalPowerConsumptionDetectedState);
-          me.envoyServiceTotalConsumption.updateCharacteristic(Characteristic.CarbonDioxideLevel, totalConsumptionwNow * 1000);
-          me.envoyServiceTotalConsumption.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxTotalPowerConsumption * 1000);
+        if (me.envoyServiceTotalPowerConsumption) {
+          me.envoyServiceTotalPowerConsumption.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxTotalPowerConsumptionDetectedState);
+          me.envoyServiceTotalPowerConsumption.updateCharacteristic(Characteristic.CarbonDioxideLevel, totalConsumptionwNow * 1000);
+          me.envoyServiceTotalPowerConsumption.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxTotalPowerConsumption * 1000);
         }
 
+        let totalConsumptionwhLifetime = parseFloat(result.consumption[0].whLifetime / 1000).toFixed(3);
         let totalConsumptionwhToday = parseFloat(result.consumption[0].whToday / 1000).toFixed(3);
         let totalConsumptionwhLastSevenDays = parseFloat(result.consumption[0].whLastSevenDays / 1000).toFixed(3);
-        let totalConsumptionwhLifetime = parseFloat(result.consumption[0].whLifetime / 1000).toFixed(3);
         me.log.debug('Device: %s %s, total power consumption : %s kW', me.host, me.name, totalConsumptionwNow);
         me.log.debug('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, totalConsumptionwhLifetime);
         me.log.debug('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, totalConsumptionwhToday);
         me.log.debug('Device: %s %s, total energy consumption last seven Days: %s kWh', me.host, me.name, totalConsumptionwhLastSevenDays);
         me.totalConsumptionwNow = totalConsumptionwNow;
+        me.totalConsumptionwhLifetime = totalConsumptionwhLifetime;
         me.totalConsumptionwhToday = totalConsumptionwhToday;
         me.totalConsumptionwhLastSevenDays = totalConsumptionwhLastSevenDays;
-        me.totalConsumptionwhLifetime = totalConsumptionwhLifetime;
+
+        if (me.envoyServiceEnergyConsumptionLifetime) {
+          me.envoyServiceEnergyConsumptionLifetime.updateCharacteristic(Characteristic.CarbonDioxideLevel, Math.ceil(totalConsumptionwhLifetime));
+        }
+        if (me.envoyServiceEnergyConsumptionToday) {
+          me.envoyServiceEnergyConsumptionToday.updateCharacteristic(Characteristic.CarbonDioxideLevel, totalConsumptionwhToday * 1000);
+        }
+        if (me.envoyServiceEnergyConsumptionLastSevenDays) {
+          me.envoyServiceEnergyConsumptionLastSevenDays.updateCharacteristic(Characteristic.CarbonDioxideLevel, Math.ceil(totalConsumptionwhLastSevenDays));
+        }
       }
 
       if (me.consumptionPowerMeter >= 2) {
@@ -396,10 +470,10 @@ class envoyDevice {
         me.maxNetPowerConsumption = maxNetPowerConsumption;
         me.maxNetPowerConsumptionDetectedState = maxNetPowerConsumptionDetectedState;
 
-        if (me.envoyServiceNetConsumption) {
-          me.envoyServiceNetConsumption.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxNetPowerConsumptionDetectedState);
-          me.envoyServiceNetConsumption.updateCharacteristic(Characteristic.CarbonDioxideLevel, netConsumptionwNow * 1000);
-          me.envoyServiceNetConsumption.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxNetPowerConsumption * 1000);
+        if (me.envoyServiceNetPowerConsumption) {
+          me.envoyServiceNetPowerConsumption.updateCharacteristic(Characteristic.CarbonDioxideDetected, maxNetPowerConsumptionDetectedState);
+          me.envoyServiceNetPowerConsumption.updateCharacteristic(Characteristic.CarbonDioxideLevel, netConsumptionwNow * 1000);
+          me.envoyServiceNetPowerConsumption.updateCharacteristic(Characteristic.CarbonDioxidePeakLevel, maxNetPowerConsumption * 1000);
         }
 
         let netConsumptionwhToday = parseFloat(result.consumption[1].whToday / 1000).toFixed(3);
@@ -419,7 +493,7 @@ class envoyDevice {
     });
   }
 
-  //production
+  //production power
   getMaxPowerProductionDetected(callback) {
     var me = this;
     let state = me.maxPowerDetectedState;
@@ -441,6 +515,51 @@ class envoyDevice {
     callback(null, wNow * 1000);
   }
 
+  //production energy lifetime
+  getMaxEnergyProductionLifetimeDetected(callback) {
+    var me = this;
+    let state = false;
+    me.log.info('Device: %s %s, max energy production Lifetime detected: %s', me.host, me.name, state ? 'Yes' : 'No');
+    callback(null, state);
+  }
+
+  getEnergyProductionLifetime(callback) {
+    var me = this;
+    let wNow = me.productionwhLifetime;
+    me.log.info('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, wNow);
+    callback(null, Math.ceil(wNow));
+  }
+
+  //production energy today
+  getMaxEnergyProductionTodayDetected(callback) {
+    var me = this;
+    let state = false;
+    me.log.info('Device: %s %s, max energy production Today detected: %s', me.host, me.name, state ? 'Yes' : 'No');
+    callback(null, state);
+  }
+
+  getEnergyProductionToday(callback) {
+    var me = this;
+    let wNow = me.productionwhToday;
+    me.log.info('Device: %s %s, energy production Today: %s kWh', me.host, me.name, wNow);
+    callback(null, wNow * 1000);
+  }
+
+  //production energy last seven days
+  getMaxEnergyProductionLastSevenDaysDetected(callback) {
+    var me = this;
+    let state = false;
+    me.log.info('Device: %s %s, max energy production last Seven Days detected: %s', me.host, me.name, state ? 'Yes' : 'No');
+    callback(null, state);
+  }
+
+  getEnergyProductionLastSevenDays(callback) {
+    var me = this;
+    let wNow = me.productionwhLastSevenDays;
+    me.log.info('Device: %s %s, energy production last Seven Days: %s kWh', me.host, me.name, wNow);
+    callback(null, Math.ceil(wNow));
+  }
+
   //total consumption
   getMaxTotalPowerConsumptionDetected(callback) {
     var me = this;
@@ -460,18 +579,52 @@ class envoyDevice {
     var me = this;
     let wNow = me.totalConsumptionwNow;
     me.log.info('Device: %s %s, total power consumption: %s kW', me.host, me.name, wNow);
-    me.getTotalConsumption();
     callback(null, wNow * 1000);
   }
 
-  getTotalConsumption() {
+  //total consumption energy lifetime
+  getMaxEnergyConsumptionLifetimeDetected(callback) {
     var me = this;
-    let whToday = me.totalConsumptionwhToday;
-    let whLastSevenDays = me.totalConsumptionwhLastSevenDays;
-    let whLifetime = me.totalConsumptionwhLifetime;
-    me.log('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, whLifetime);
-    me.log('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, whToday);
-    me.log('Device: %s %s, total energy consumption last seven Days: %s kWh', me.host, me.name, whLastSevenDays);
+    let state = false;
+    me.log.info('Device: %s %s, max energy consumption Lifetime detected: %s', me.host, me.name, state ? 'Yes' : 'No');
+    callback(null, state);
+  }
+
+  getEnergyConsumptionLifetime(callback) {
+    var me = this;
+    let wNow = me.consumptionwhLifetime;
+    me.log.info('Device: %s %s, energy consumption Lifetime: %s kWh', me.host, me.name, wNow);
+    callback(null, Math.ceil(wNow));
+  }
+
+  //total consumption energy today
+  getMaxEnergyConsumptionTodayDetected(callback) {
+    var me = this;
+    let state = false;
+    me.log.info('Device: %s %s, max energy consumption Today detected: %s', me.host, me.name, state ? 'Yes' : 'No');
+    callback(null, state);
+  }
+
+  getEnergyConsumptionToday(callback) {
+    var me = this;
+    let wNow = me.consumptionToday;
+    me.log.info('Device: %s %s, energy consumption Today: %s kWh', me.host, me.name, wNow);
+    callback(null, wNow * 1000);
+  }
+
+  //total consumption energy last seven days
+  getMaxEnergyConsumptionLastSevenDaysDetected(callback) {
+    var me = this;
+    let state = false;
+    me.log.info('Device: %s %s, max energy consumption last Seven Days detected: %s', me.host, me.name, state ? 'Yes' : 'No');
+    callback(null, state);
+  }
+
+  getEnergyConsumptionLastSevenDays(callback) {
+    var me = this;
+    let wNow = me.consumptionwhLastSevenDays;
+    me.log.info('Device: %s %s, energy consumption last Seven Days: %s kWh', me.host, me.name, wNow);
+    callback(null, Math.ceil(wNow));
   }
 
   //net consumption

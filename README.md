@@ -20,6 +20,8 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 3. Total Power Consumption Current Level - is the Total Power Consumption.
 4. Net Power Consumption Current Level - is the Power Consumption from Net in Watt. If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
 5. Peak Level - display the maximum Power production, total Power consumption and consumption Power from net.
+6. Energy Production Current Level - is the Energy production (Lifetime in kWh, Today in Wh, Last 7D in kWh).
+7. Total Energy Consumption Current Level - is the Total Energy Consumption (Lifetime in kWh, Today in Wh, Last 7D in kWh).
 6. All other power and energy data are displayed in the Homebridge log.
 
 ## Package
