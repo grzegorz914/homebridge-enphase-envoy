@@ -15,14 +15,13 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 </span>
 
 ## Info
-1. The plugin is present as C02(ppm) sensor and the Power is displayed in Watt.
-2. Power Production Current Level - is the current Power production. If the value is (< 0) and display (`-`values) then the PV consumed power from Net.
-3. Total Power Consumption Current Level - is the Total Power Consumption.
-4. Net Power Consumption Current Level - is the Power Consumption from Net in Watt. If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
-5. Peak Level - display the maximum Power production, total Power consumption and consumption Power from net.
-6. Energy Production Current Level - is the Energy production (Lifetime in kWh, Today in Wh, Last 7D in kWh).
-7. Total Energy Consumption Current Level - is the Total Energy Consumption (Lifetime in kWh, Today in Wh, Last 7D in kWh).
-6. All other power and energy data are displayed in the Homebridge log.
+1. The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
+2. Production Current Level (W) - is the current Power production in Watts. If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
+3. Consumption Current Level Total (W) - is the Total Power Consumption in Watts.
+4. Consumption Current Level Net (W) - is the Power Consumption from Grid in Watts. If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
+5. Peak Level (W) - display the maximum Power production/consumption.
+6. Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
+7. Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
 
 ## Package
 1. [Homebridge](https://github.com/homebridge/homebridge)
