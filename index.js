@@ -480,7 +480,7 @@ class envoyDevice {
       if (me.consumptionPowerMeter >= 2) {
         let netConsumptionwNow = parseFloat(result.consumption[1].wNow / 1000).toFixed(3);
 
-        //save and read maxTotalPowerConsumption
+        //save and read maxNetPowerConsumption
         let savedMaxNetPowerConsumption;
         try {
           savedMaxNetPowerConsumption = fs.readFileSync(me.maxNetPowerConsumptionFile);
