@@ -1,6 +1,6 @@
 {
     "name": "homebridge-enphase-envoy",
-    "version": "2.3.40",
+    "version": "2.3.99",
     "description": "Homebridge plugin (https://github.com/homebridge/homebridge) to read data from Enphase Envoy-S.",
     "license": "MIT",
     "author": "grzegorz914",
@@ -13,8 +13,8 @@
         "url": "https://github.com/grzegorz914/homebridge-enphase-envoy/issues"
     },
     "funding": {
-    "type" : "paypal",
-    "url" : "https://paypal.me/GrzegorzKaczor"
+        "type": "paypal",
+        "url": "https://paypal.me/GrzegorzKaczor"
     },
     "main": "index.js",
     "files": [
