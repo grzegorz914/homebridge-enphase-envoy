@@ -33,12 +33,18 @@
               "maximum": 3600,
               "required": true
             },
-            "productionPowerMeter": {
-              "title": "Production power meter",
+            "enchargeStorage": {
+              "title": "Encharge storage installed",
+              "type": "boolean",
+              "default": false,
+              "required": true
+            },
+            "powerProductionMeter": {
+              "title": "Power production meter",
               "type": "integer",
               "default": 0,
               "maximum": 1,
-              "description": "Here select used Power production meter.",
+              "description": "Here select installed Power production meter.",
               "oneOf": [
                 {
                   "title": "Microinverters",
@@ -47,7 +53,7 @@
                   ]
                 },
                 {
-                  "title": "Productions CT",
+                  "title": "Production CT",
                   "enum": [
                     1
                   ]
@@ -55,19 +61,28 @@
               ],
               "required": true
             },
-            "maxPowerProductionDetected": {
-              "title": "Max power production detected (W)",
+            "powerProductionMaxDetected": {
+              "title": "Power production max detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
+              "description": "Here set max Power production in (W)) at which You get notyfication message.",
               "required": true
             },
-            "consumptionPowerMeter": {
-              "title": "Consumption power meter",
+            "energyProductionLifetimeOffset": {
+              "title": "Energy production lifetime offset",
+              "type": "integer",
+              "default": 0,
+              "maximum": 100000,
+              "description": "Here set energy production offset in (Wh) for lifetime energy if nedded.",
+              "required": true
+            },
+            "powerConsumptionMeter": {
+              "title": "Power consumption meter",
               "type": "integer",
               "default": 0,
               "maximum": 1,
-              "description": "Here select used Power consumption meter.",
+              "description": "Here select installed Power consumption meter.",
               "oneOf": [
                 {
                   "title": "None",
@@ -76,32 +91,44 @@
                   ]
                 },
                 {
-                  "title": "Total Consumption CT",
+                  "title": "Consumption CT",
                   "enum": [
                     1
-                  ]
-                },
-                {
-                  "title": "Total and Net Consumption CT",
-                  "enum": [
-                    2
                   ]
                 }
               ],
               "required": true
             },
-            "maxTotalPowerConsumptionDetected": {
-              "title": "Max total power consumption detected (W)",
+            "powerConsumptionTotalMaxDetected": {
+              "title": "Total - Power consumption max detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
+              "description": "Here set max Power consumption Total in (W) at which You get notyfication message.",
               "required": true
             },
-            "maxNetPowerConsumptionDetected": {
-              "title": "Max net power consumption detected (W)",
+            "energyConsumptionTotalLifetimeOffset": {
+              "title": "Total - Energy consumption lifetime offset",
+              "type": "integer",
+              "default": 0,
+              "maximum": 100000,
+              "description": "Here set energy consumption offset in (Wh) for lifetime total energy if nedded.",
+              "required": true
+            },
+            "powerConsumptionNetMaxDetected": {
+              "title": "Net - Power consumption max detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
+              "description": "Here set max Power consumption from Net in (W) at which You get notyfication message.",
+              "required": true
+            },
+            "energyConsumptionNetLifetimeOffset": {
+              "title": "Net - Energy consumption lifetime offset",
+              "type": "integer",
+              "default": 0,
+              "maximum": 100000,
+              "description": "Here set energy consumption offset in (Wh)) for lifetime net energy if nedded.",
               "required": true
             }
           }
