@@ -64,8 +64,8 @@ module.exports = (api) => {
   inherits(Characteristic.EnergyToday, Characteristic);
   Characteristic.EnergyToday.UUID = '00000003-000B-1000-8000-0026BB765291';
 
-  Characteristic.EnergyLast7Days = function () {
-    Characteristic.call(this, 'Energy Last 7 Days', Characteristic.EnergyLast7Days.UUID);
+  Characteristic.EnergyLastSevenDays = function () {
+    Characteristic.call(this, 'Energy Last 7 Days', Characteristic.EnergyLastSevenDays.UUID);
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kWh',
@@ -76,8 +76,8 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.EnergyLast7Days, Characteristic);
-  Characteristic.EnergyLast7Days.UUID = '00000004-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.EnergyLastSevenDays, Characteristic);
+  Characteristic.EnergyLastSevenDays.UUID = '00000004-000B-1000-8000-0026BB765291';
 
   Characteristic.EnergyLifetime = function () {
     Characteristic.call(this, 'Energy Lifetime', Characteristic.EnergyLifetime.UUID);
@@ -101,7 +101,7 @@ module.exports = (api) => {
     // Optional Characteristics
     this.addOptionalCharacteristic(Characteristic.PowerMax);
     this.addOptionalCharacteristic(Characteristic.EnergyToday);
-    this.addOptionalCharacteristic(Characteristic.EnergyLast7Days);
+    this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
     this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
     // Optional Characteristics standard
     this.addOptionalCharacteristic(Characteristic.StatusActive);
@@ -188,19 +188,19 @@ class envoyDevice {
     this.powerProductionMaxDetectedState = 0;
     this.powerProduction = 0;
     this.energyProductionToday = 0;
-    this.energyProductionLast7Days = 0;
+    this.energyProductionLastSevenDays = 0;
     this.energyProductionLifetime = 0;
     this.powerConsumptionTotalMax = 0;
     this.powerConsumptionTotalMaxDetectedState = 0;
     this.powerConsumptionTotal = 0;
     this.energyConsumptionTodayTotal = 0;
-    this.energyConsumptionLast7DaysTotal = 0;
+    this.energyConsumptionLastSevenDaysTotal = 0;
     this.energyConsumptionLifetimeTotal = 0;
     this.powerConsumptionNetMax = 0;
     this.powerConsumptionNetMaxDetectedState = 0;
     this.powerConsumptionNet = 0;
     this.energyConsumptionTodayNet = 0;
-    this.energyConsumptionLast7DaysNet = 0;
+    this.energyConsumptionLastSevenDaysNet = 0;
     this.energyConsumptionLifetimeNet = 0;
     this.powerEnchargeStorage = 0;
     this.energyEnchargeStorage = 0;
@@ -263,8 +263,8 @@ class envoyDevice {
     if (this.powerProductionMeter == 1) {
       this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyToday)
         .on('get', this.getEnergyProductionToday.bind(this));
-      this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLast7Days)
-        .on('get', this.getEnergyProductionLast7Days.bind(this));
+      this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLastSevenDays)
+        .on('get', this.getEnergyProductionLastSevenDays.bind(this));
     }
 
     this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLifetime)
@@ -279,8 +279,8 @@ class envoyDevice {
         .on('get', this.getPowerConsumptionTotalMax.bind(this));
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyToday)
         .on('get', this.getEnergyConsumptionTodayTotal.bind(this));
-      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLast7Days)
-        .on('get', this.getEnergyConsumptionLast7DaysTotal.bind(this));
+      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLastSevenDays)
+        .on('get', this.getEnergyConsumptionLastSevenDaysTotal.bind(this));
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLifetime)
         .on('get', this.getEnergyConsumptionLifetimeTotal.bind(this));
 
@@ -291,8 +291,8 @@ class envoyDevice {
         .on('get', this.getPowerConsumptionNetMax.bind(this));
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyToday)
         .on('get', this.getEnergyConsumptionTodayNet.bind(this));
-      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLast7Days)
-        .on('get', this.getEnergyConsumptionLast7DaysNet.bind(this));
+      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLastSevenDays)
+        .on('get', this.getEnergyConsumptionLastSevenDaysNet.bind(this));
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLifetime)
         .on('get', this.getEnergyConsumptionLifetimeNet.bind(this));
 
@@ -407,15 +407,15 @@ class envoyDevice {
 
       if (me.powerProductionMeter == 1) {
         let energyProductionToday = parseFloat(result.production[1].whToday / 1000).toFixed(3);
-        let energyProductionLast7Days = parseFloat(result.production[1].whLast7Days / 1000).toFixed(3);
+        let energyProductionLastSevenDays = parseFloat(result.production[1].whLastSevenDays / 1000).toFixed(3);
         me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, energyProductionToday);
-        me.log.debug('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, energyProductionLast7Days);
+        me.log.debug('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, energyProductionLastSevenDays);
         me.energyProductionToday = energyProductionToday;
-        me.energyProductionLast7Days = energyProductionLast7Days;
+        me.energyProductionLastSevenDays = energyProductionLastSevenDays;
 
         if (me.envoyServiceProduction) {
           me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyToday, energyProductionToday);
-          me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyLast7Days, energyProductionLast7Days);
+          me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyProductionLastSevenDays);
         }
       }
 
@@ -455,23 +455,23 @@ class envoyDevice {
         me.powerConsumptionTotalMaxDetectedState = powerConsumptionTotalMaxDetectedState;
 
         let energyConsumptionTodayTotal = parseFloat(result.consumption[0].whToday / 1000).toFixed(3);
-        let energyConsumptionLast7DaysTotal = parseFloat(result.consumption[0].whLast7Days / 1000).toFixed(3);
+        let energyConsumptionLastSevenDaysTotal = parseFloat(result.consumption[0].whLastSevenDays / 1000).toFixed(3);
         let energyConsumptionLifetimeTotal = parseFloat((result.consumption[0].whLifetime + me.energyConsumptionTotalLifetimeOffset) / 1000).toFixed(3);
         me.log.debug('Device: %s %s, total power consumption : %s kW', me.host, me.name, powerConsumptionTotal);
         me.log.debug('Device: %s %s, total power consumption max: %s kW', me.host, me.name, powerConsumptionTotalMax);
         me.log.debug('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, energyConsumptionTodayTotal);
-        me.log.debug('Device: %s %s, total energy consumption last 7 Days: %s kWh', me.host, me.name, energyConsumptionLast7DaysTotal);
+        me.log.debug('Device: %s %s, total energy consumption last 7 Days: %s kWh', me.host, me.name, energyConsumptionLastSevenDaysTotal);
         me.log.debug('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, energyConsumptionLifetimeTotal);
         me.powerConsumptionTotal = powerConsumptionTotal;
         me.energyConsumptionTodayTotal = energyConsumptionTodayTotal;
-        me.energyConsumptionLast7DaysTotal = energyConsumptionLast7DaysTotal;
+        me.energyConsumptionLastSevenDaysTotal = energyConsumptionLastSevenDaysTotal;
         me.energyConsumptionLifetimeTotal = energyConsumptionLifetimeTotal;
 
         if (me.envoyServiceConsumptionTotal) {
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.Power, powerConsumptionTotal);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.PowerMax, powerConsumptionTotalMax);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyToday, energyConsumptionTodayTotal);
-          me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLast7Days, energyConsumptionLast7DaysTotal);
+          me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyConsumptionLastSevenDaysTotal);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionLifetimeTotal);
         }
 
@@ -509,23 +509,23 @@ class envoyDevice {
         me.powerConsumptionNetMaxDetectedState = powerConsumptionNetMaxDetectedState;
 
         let energyConsumptionTodayNet = parseFloat(result.consumption[1].whToday / 1000).toFixed(3);
-        let energyConsumptionLast7DaysNet = parseFloat(result.consumption[1].whLast7Days / 1000).toFixed(3);
+        let energyConsumptionLastSevenDaysNet = parseFloat(result.consumption[1].whLastSevenDays / 1000).toFixed(3);
         let energyConsumptionLifetimeNet = parseFloat((result.consumption[1].whLifetime + me.energyConsumptionNetLifetimeOffset) / 1000).toFixed(3);
         me.log.debug('Device: %s %s, net power consumption: %s kW', me.host, me.name, powerConsumptionNet);
         me.log.debug('Device: %s %s, net power consumption max: %s kW', me.host, me.name, powerConsumptionNetMax);
         me.log.debug('Device: %s %s, net energy consumption Today: %s kWh', me.host, me.name, energyConsumptionTodayNet);
-        me.log.debug('Device: %s %s, net energy consumption last 7 Days: %s kWh', me.host, me.name, energyConsumptionLast7DaysNet);
+        me.log.debug('Device: %s %s, net energy consumption last 7 Days: %s kWh', me.host, me.name, energyConsumptionLastSevenDaysNet);
         me.log.debug('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, energyConsumptionLifetimeNet);
         me.powerConsumptionNet = powerConsumptionNet;
         me.energyConsumptionTodayNet = energyConsumptionTodayNet;
-        me.energyConsumptionLast7DaysNet = energyConsumptionLast7DaysNet;
+        me.energyConsumptionLastSevenDaysNet = energyConsumptionLastSevenDaysNet;
         me.energyConsumptionLifetimeNet = energyConsumptionLifetimeNet;
 
         if (me.envoyServiceConsumptionNet) {
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.Power, powerConsumptionNet);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.PowerMax, powerConsumptionNetMax);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyToday, energyConsumptionTodayNet);
-          me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLast7Days, energyConsumptionLast7DaysNet);
+          me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyConsumptionLastSevenDaysNet);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionLifetimeNet);
         }
       }
@@ -569,11 +569,11 @@ class envoyDevice {
     callback(null, whToday);
   }
 
-  getEnergyProductionLast7Days(callback) {
+  getEnergyProductionLastSevenDays(callback) {
     var me = this;
-    let whLast7Days = me.energyProductionLast7Days;
-    me.log.info('Device: %s %s, energy production last Seven Days: %s kWh', me.host, me.name, whLast7Days);
-    callback(null, whLast7Days);
+    let whLastSevenDays = me.energyProductionLastSevenDays;
+    me.log.info('Device: %s %s, energy production last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
+    callback(null, whLastSevenDays);
   }
 
   getEnergyProductionLifetime(callback) {
@@ -605,11 +605,11 @@ class envoyDevice {
     callback(null, whToday);
   }
 
-  getEnergyConsumptionLast7DaysTotal(callback) {
+  getEnergyConsumptionLastSevenDaysTotal(callback) {
     var me = this;
-    let whLast7Days = me.energyConsumptionLast7DaysTotal;
-    me.log.info('Device: %s %s, energy consumption last Seven Days total: %s kWh', me.host, me.name, whLast7Days);
-    callback(null, whLast7Days);
+    let whLastSevenDays = me.energyConsumptionLastSevenDaysTotal;
+    me.log.info('Device: %s %s, energy consumption last Seven Days total: %s kWh', me.host, me.name, whLastSevenDays);
+    callback(null, whLastSevenDays);
   }
 
   getEnergyConsumptionLifetimeTotal(callback) {
@@ -641,11 +641,11 @@ class envoyDevice {
     callback(null, whToday);
   }
 
-  getEnergyConsumptionLast7DaysNet(callback) {
+  getEnergyConsumptionLastSevenDaysNet(callback) {
     var me = this;
-    let whLast7Days = me.energyConsumptionLast7DaysNet;
-    me.log.info('Device: %s %s, energy consumption last Seven Days net: %s kWh', me.host, me.name, whLast7Days);
-    callback(null, whLast7Days);
+    let whLastSevenDays = me.energyConsumptionLastSevenDaysNet;
+    me.log.info('Device: %s %s, energy consumption last Seven Days net: %s kWh', me.host, me.name, whLastSevenDays);
+    callback(null, whLastSevenDays);
   }
 
   getEnergyConsumptionLifetimeNet(callback) {
