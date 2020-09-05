@@ -16,9 +16,9 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 
 ## Important note - with version 3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. If U want to use old CO2 sensor style just still with 2.x.x version
 
-## Info v3.0.0
+## Info v3.x.x
 1. With release v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
-2. Right now Power Max notyfication is not supported.
+2. Max power detection is now supported.
 
 ## Info v2.3.x
 1. The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
