@@ -571,8 +571,8 @@ class envoyDevice {
 
   getPowerProductionMaxDetected(callback) {
     var me = this;
-    let status = me.powerProductionMaxDetected;
-    me.log.info('Device: %s %s, power production max detected: %s kW', me.host, me.name, status ? 'Yes' : 'No');
+    let status = me.powerProductionMaxDetectedState;
+    me.log.info('Device: %s %s, power production max detected: %s', me.host, me.name, status ? 'Yes' : 'No');
     callback(null, status);
   }
 
@@ -614,7 +614,7 @@ class envoyDevice {
 
   getPowerConsumptionTotalMaxDetected(callback) {
     var me = this;
-    let status = me.powerConsumptionTotalMaxDetected;
+    let status = me.powerConsumptionTotalMaxDetectedState;
     me.log.info('Device: %s %s, power consumption total max detected: %s', me.host, me.name, status ? 'Yes' : 'No');
     callback(null, status);
   }
@@ -657,7 +657,7 @@ class envoyDevice {
 
   getPowerConsumptionNetMaxDetected(callback) {
     var me = this;
-    let status = me.powerConsumptionNetMaxDetected;
+    let status = me.powerConsumptionNetMaxDetectedState;
     me.log.info('Device: %s %s, power consumption net max detected: %s', me.host, me.name, status ? 'Yes' : 'No');
     callback(null, status);
   }
