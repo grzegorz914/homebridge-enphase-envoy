@@ -94,12 +94,24 @@ module.exports = (api) => {
   inherits(Characteristic.EnergyLifetime, Characteristic);
   Characteristic.EnergyLifetime.UUID = '00000005-000B-1000-8000-0026BB765291';
 
+  Characteristic.PowerMaxDetected = function () {
+    Characteristic.call(this, 'Power Max Detected', Characteristic.PowerMaxDetected.UUID);
+    this.setProps({
+      format: Characteristic.Formats.BOOL,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.PowerMaxDetected, Characteristic);
+  Characteristic.PowerMaxDetected.UUID = '00000006-000B-1000-8000-0026BB765291';
+
   //custom service
   Service.PowerMeter = function (displayName, subtype) {
     Service.call(this, displayName, Service.PowerMeter.UUID, subtype);
     this.addCharacteristic(Characteristic.Power);
     // Optional Characteristics
     this.addOptionalCharacteristic(Characteristic.PowerMax);
+    this.addOptionalCharacteristic(Characteristic.PowerMaxDetected);
     this.addOptionalCharacteristic(Characteristic.EnergyToday);
     this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
     this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
@@ -256,9 +268,10 @@ class envoyDevice {
     this.envoyServiceProduction = new Service.PowerMeter('Production', 'envoyServiceProduction');
     this.envoyServiceProduction.getCharacteristic(Characteristic.Power)
       .on('get', this.getPowerProduction.bind(this));
-
     this.envoyServiceProduction.getCharacteristic(Characteristic.PowerMax)
       .on('get', this.getPowerProductionMax.bind(this));
+    this.envoyServiceProduction.getCharacteristic(Characteristic.PowerMaxDetected)
+      .on('get', this.getPowerProductionMaxDetected.bind(this));
 
     if (this.powerProductionMeter == 1) {
       this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyToday)
@@ -271,37 +284,34 @@ class envoyDevice {
       .on('get', this.getEnergyProductionLifetime.bind(this));
     this.accessory.addService(this.envoyServiceProduction);
 
-    this.envoyServiceProduction.getCharacteristic(Characteristic.StatusActive)
-      .on('get', this.getPowerProductionMaxDetected.bind(this));
-
     if (this.powerConsumptionMeter >= 1) {
       this.envoyServiceConsumptionTotal = new Service.PowerMeter('Consumption Total', 'envoyServiceConsumptionTotal');
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionTotal.bind(this));
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.PowerMax)
         .on('get', this.getPowerConsumptionTotalMax.bind(this));
+      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.PowerMaxDetected)
+        .on('get', this.getPowerConsumptionTotalMaxDetected.bind(this));
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyToday)
         .on('get', this.getEnergyConsumptionTotalToday.bind(this));
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLastSevenDays)
         .on('get', this.getEnergyConsumptionTotalLastSevenDays.bind(this));
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLifetime)
         .on('get', this.getEnergyConsumptionTotalLifetime.bind(this));
-      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.StatusActive)
-        .on('get', this.getPowerConsumptionTotalMaxDetected.bind(this));
 
       this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionNet.bind(this));
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.PowerMax)
         .on('get', this.getPowerConsumptionNetMax.bind(this));
+      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.PowerMaxDetected)
+        .on('get', this.getPowerConsumptionNetMaxDetected.bind(this));
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyToday)
         .on('get', this.getEnergyConsumptionNetToday.bind(this));
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLastSevenDays)
         .on('get', this.getEnergyConsumptionNetLastSevenDays.bind(this));
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLifetime)
         .on('get', this.getEnergyConsumptionNetLifetime.bind(this));
-      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.StatusActive)
-        .on('get', this.getPowerConsumptionNetMaxDetected.bind(this));
 
       this.accessory.addService(this.envoyServiceConsumptionTotal);
       this.accessory.addService(this.envoyServiceConsumptionNet);
@@ -409,7 +419,7 @@ class envoyDevice {
         me.envoyServiceProduction.updateCharacteristic(Characteristic.Power, powerProduction);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.PowerMax, powerProductionMax);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyLifetime, energyProductionLifetime);
-        me.envoyServiceProduction.updateCharacteristic(Characteristic.StatusActive, powerProductionMaxDetectedState);
+        me.envoyServiceProduction.updateCharacteristic(Characteristic.PowerMaxDetected, powerProductionMaxDetectedState);
       }
 
       if (me.powerProductionMeter == 1) {
@@ -479,7 +489,7 @@ class envoyDevice {
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyToday, energyConsumptionTotalToday);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyConsumptionTotalLastSevenDays);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionTotalLifetime);
-          me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.StatusActive, powerConsumptionTotalMaxDetectedState);
+          me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.PowerMaxDetected, powerConsumptionTotalMaxDetectedState);
         }
 
         //consumption net
@@ -533,7 +543,7 @@ class envoyDevice {
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyToday, energyConsumptionNetToday);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyConsumptionNetLastSevenDays);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionNetLifetime);
-          me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.StatusActive, powerConsumptionNetMaxDetectedState);
+          me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.PowerMaxDetected, powerConsumptionNetMaxDetectedState);
         }
       }
       if (me.enchargeStorage) {
