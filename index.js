@@ -24,8 +24,8 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -100000,
-      maxValue: 1000000,
+      minValue: -100,
+      maxValue: 100,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -39,8 +39,8 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -100000,
-      maxValue: 1000000,
+      minValue: -100,
+      maxValue: 100,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -392,10 +392,7 @@ class envoyDevice {
         });
       }
 
-      let powerProductionMaxDetectedState = 0;
-      if (powerProduction >= me.powerProductionMaxDetected / 1000) {
-        powerProductionMaxDetectedState = 1;
-      }
+      let powerProductionMaxDetectedState = (powerProduction >= me.powerProductionMaxDetected / 1000);
       me.powerProductionMax = powerProductionMax;
       me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
 
@@ -406,6 +403,7 @@ class envoyDevice {
       me.log.debug('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, energyProductionLifetime);
       me.powerProduction = powerProduction;
       me.energyProductionLifetime = energyProductionLifetime;
+      me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
 
       if (me.envoyServiceProduction) {
         me.envoyServiceProduction.updateCharacteristic(Characteristic.Power, powerProduction);
@@ -456,10 +454,7 @@ class envoyDevice {
           });
         }
 
-        let powerConsumptionTotalMaxDetectedState = 0;
-        if (powerConsumptionTotal >= me.powerConsumptionTotalMaxDetected / 1000) {
-          powerConsumptionTotalMaxDetectedState = 1;
-        }
+        let powerConsumptionTotalMaxDetectedState = (powerConsumptionTotal >= me.powerConsumptionTotalMaxDetected / 1000);
         me.powerConsumptionTotalMax = powerConsumptionTotalMax;
         me.powerConsumptionTotalMaxDetectedState = powerConsumptionTotalMaxDetectedState;
 
@@ -476,6 +471,7 @@ class envoyDevice {
         me.energyConsumptionTotalToday = energyConsumptionTotalToday;
         me.energyConsumptionTotalLastSevenDays = energyConsumptionTotalLastSevenDays;
         me.energyConsumptionTotalLifetime = energyConsumptionTotalLifetime;
+        me.powerConsumptionTotalMaxDetectedState = powerConsumptionTotalMaxDetectedState;
 
         if (me.envoyServiceConsumptionTotal) {
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.Power, powerConsumptionTotal);
@@ -512,10 +508,7 @@ class envoyDevice {
           });
         }
 
-        let powerConsumptionNetMaxDetectedState = 0;
-        if (powerConsumptionNet >= me.powerConsumptionNetMaxDetected / 1000) {
-          powerConsumptionNetMaxDetectedState = 1;
-        }
+        let powerConsumptionNetMaxDetectedState = (powerConsumptionNet >= me.powerConsumptionNetMaxDetected / 1000);
         me.powerConsumptionNetMax = powerConsumptionNetMax;
         me.powerConsumptionNetMaxDetectedState = powerConsumptionNetMaxDetectedState;
 
@@ -532,6 +525,7 @@ class envoyDevice {
         me.energyConsumptionNetToday = energyConsumptionNetToday;
         me.energyConsumptionNetLastSevenDays = energyConsumptionNetLastSevenDays;
         me.energyConsumptionNetLifetime = energyConsumptionNetLifetime;
+        me.powerConsumptionNetMaxDetectedState = powerConsumptionNetMaxDetectedState;
 
         if (me.envoyServiceConsumptionNet) {
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.Power, powerConsumptionNet);
