@@ -39,7 +39,7 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -100,
+      minValue: 0,
       maxValue: 100,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -63,6 +63,17 @@ module.exports = (api) => {
   };
   inherits(Characteristic.EnergyToday, Characteristic);
   Characteristic.EnergyToday.UUID = '00000003-000B-1000-8000-0026BB765291';
+
+  Characteristic.PowerMaxDetected = function () {
+    Characteristic.call(this, 'Power Max Detected', Characteristic.PowerMaxDetected.UUID);
+    this.setProps({
+      format: Characteristic.Formats.BOOL,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.PowerMaxDetected, Characteristic);
+  Characteristic.PowerMaxDetected.UUID = '00000006-000B-1000-8000-0026BB765291';
 
   Characteristic.EnergyLastSevenDays = function () {
     Characteristic.call(this, 'Energy Last 7 Days', Characteristic.EnergyLastSevenDays.UUID);
@@ -93,17 +104,6 @@ module.exports = (api) => {
   };
   inherits(Characteristic.EnergyLifetime, Characteristic);
   Characteristic.EnergyLifetime.UUID = '00000005-000B-1000-8000-0026BB765291';
-
-  Characteristic.PowerMaxDetected = function () {
-    Characteristic.call(this, 'Power Max Detected', Characteristic.PowerMaxDetected.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.PowerMaxDetected, Characteristic);
-  Characteristic.PowerMaxDetected.UUID = '00000006-000B-1000-8000-0026BB765291';
 
   //custom service
   Service.PowerMeter = function (displayName, subtype) {
@@ -418,8 +418,8 @@ class envoyDevice {
       if (me.envoyServiceProduction) {
         me.envoyServiceProduction.updateCharacteristic(Characteristic.Power, powerProduction);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.PowerMax, powerProductionMax);
-        me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyLifetime, energyProductionLifetime);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.PowerMaxDetected, powerProductionMaxDetectedState);
+        me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyLifetime, energyProductionLifetime);
       }
 
       if (me.powerProductionMeter == 1) {
@@ -486,10 +486,10 @@ class envoyDevice {
         if (me.envoyServiceConsumptionTotal) {
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.Power, powerConsumptionTotal);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.PowerMax, powerConsumptionTotalMax);
+          me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.PowerMaxDetected, powerConsumptionTotalMaxDetectedState);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyToday, energyConsumptionTotalToday);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyConsumptionTotalLastSevenDays);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionTotalLifetime);
-          me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.PowerMaxDetected, powerConsumptionTotalMaxDetectedState);
         }
 
         //consumption net
@@ -540,10 +540,10 @@ class envoyDevice {
         if (me.envoyServiceConsumptionNet) {
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.Power, powerConsumptionNet);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.PowerMax, powerConsumptionNetMax);
+          me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.PowerMaxDetected, powerConsumptionNetMaxDetectedState);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyToday, energyConsumptionNetToday);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyConsumptionNetLastSevenDays);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionNetLifetime);
-          me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.PowerMaxDetected, powerConsumptionNetMaxDetectedState);
         }
       }
       if (me.enchargeStorage) {
