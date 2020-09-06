@@ -6,8 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Important note - with version 3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. If U want to use old CO2 sensor style just still with 2.x.x version
 
+## [3.1.0] - (06.09.2020)
+## Changs
+- completly reconfigured config schema
+
 ## [3.0.15] - (05.09.2020)
-## Changed
+## Changs
 - changed Characteristic.StatusActive to custom Characteristic.PowerMaxDetected 
 
 ## [3.0.8] - (05.09.2020)

@@ -188,10 +188,10 @@ class envoyDevice {
     this.energyConsumptionNetLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
 
     //get Device info
-    this.manufacturer = config.manufacturer || 'Enphase';
-    this.modelName = config.modelName || 'Envoy-S';
-    this.serialNumber = config.serialNumber || 'SN0000005';
-    this.firmwareRevision = config.firmwareRevision || 'FW0000005';
+		this.manufacturer = config.manufacturer || 'Enphase';
+		this.modelName = config.modelName || 'Envoy-S';
+		this.serialNumber = config.serialNumber || 'SN0000005';
+		this.firmwareRevision = config.firmwareRevision || 'FW0000005';
 
     //setup variables
     this.checkDeviceInfo = false;
@@ -247,6 +247,10 @@ class envoyDevice {
         this.updateDeviceState();
       }
     }.bind(this), this.refreshInterval * 1000);
+
+    if (!this.checkDeviceInfo) {
+      this.getDeviceInfo();
+    }
 
     this.prepareEnvoyService();
   }
@@ -342,12 +346,14 @@ class envoyDevice {
       axios.get(me.url + '/info.xml').then(response => {
         parseStringPromise(response.data).then(result => {
           me.log.debug('Device: %s %s, get Device info successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
+          let manufacturer = me.manufacturer;
+          let modelName = me.modelName;
           let serialNumber = result.envoy_info.device[0].sn[0];
           let firmware = result.envoy_info.device[0].software[0];
-          let inverters = me.inverters
+          let inverters = me.inverters;
           me.log('-------- %s --------', me.name);
-          me.log('Manufacturer: %s', me.manufacturer);
-          me.log('Model: %s', me.modelName);
+          me.log('Manufacturer: %s', manufacturer);
+          me.log('Model: %s', modelName);
           me.log('Serialnr: %s', serialNumber);
           me.log('Firmware: %s', firmware);
           me.log('Inverters: %s', inverters);
