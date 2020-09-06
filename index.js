@@ -188,10 +188,10 @@ class envoyDevice {
     this.energyConsumptionNetLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
 
     //get Device info
-		this.manufacturer = config.manufacturer || 'Enphase';
-		this.modelName = config.modelName || 'Envoy';
-		this.serialNumber = config.serialNumber || 'Serial Number';
-		this.firmwareRevision = config.firmwareRevision || 'Firmware Revision';
+    this.manufacturer = config.manufacturer || 'Enphase';
+    this.modelName = config.modelName || 'Envoy';
+    this.serialNumber = config.serialNumber || 'Serial Number';
+    this.firmwareRevision = config.firmwareRevision || 'Firmware Revision';
 
     //setup variables
     this.checkDeviceInfo = false;
@@ -256,10 +256,10 @@ class envoyDevice {
     this.log.debug('prepareEnvoyService');
     const accessoryName = this.name;
     const accessoryUUID = UUID.generate(accessoryName);
-    this.accessory = new Accessory(accessoryName, accessoryUUID);
-    this.accessory.category = Categories.OTHER;
+    const accessoryCategory = Categories.OTHER;
+    const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
 
-    this.accessory.getService(Service.AccessoryInformation)
+    accessory.getService(Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
       .setCharacteristic(Characteristic.Model, this.modelName)
       .setCharacteristic(Characteristic.SerialNumber, this.serialNumber)
@@ -282,7 +282,7 @@ class envoyDevice {
 
     this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLifetime)
       .on('get', this.getEnergyProductionLifetime.bind(this));
-    this.accessory.addService(this.envoyServiceProduction);
+    accessory.addService(this.envoyServiceProduction);
 
     if (this.powerConsumptionMeter >= 1) {
       this.envoyServiceConsumptionTotal = new Service.PowerMeter('Consumption Total', 'envoyServiceConsumptionTotal');
@@ -298,6 +298,7 @@ class envoyDevice {
         .on('get', this.getEnergyConsumptionTotalLastSevenDays.bind(this));
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLifetime)
         .on('get', this.getEnergyConsumptionTotalLifetime.bind(this));
+      accessory.addService(this.envoyServiceConsumptionTotal);
 
       this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
@@ -312,9 +313,7 @@ class envoyDevice {
         .on('get', this.getEnergyConsumptionNetLastSevenDays.bind(this));
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLifetime)
         .on('get', this.getEnergyConsumptionNetLifetime.bind(this));
-
-      this.accessory.addService(this.envoyServiceConsumptionTotal);
-      this.accessory.addService(this.envoyServiceConsumptionNet);
+      accessory.addService(this.envoyServiceConsumptionNet);
     }
 
     if (this.enchargeStorage) {
@@ -323,11 +322,11 @@ class envoyDevice {
         .on('get', this.getPowerEnchargeStorage.bind(this));
       this.envoyServiceEnchargeStorage.getCharacteristic(Characteristic.EnergyToday)
         .on('get', this.getEnergyEnchargeStorage.bind(this));
-      this.accessory.addService(this.envoyServiceEnchargeStorage);
+      accessory.addService(this.envoyServiceEnchargeStorage);
     }
 
     this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
-    this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
+    this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
   }
 
   getDeviceInfo() {
