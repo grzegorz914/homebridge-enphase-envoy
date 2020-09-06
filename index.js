@@ -596,7 +596,7 @@ class envoyDevice {
   getEnergyProductionLastSevenDays(callback) {
     var me = this;
     let whLastSevenDays = me.energyProductionLastSevenDays;
-    me.log.info('Device: %s %s, energy production last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
+    me.log.info('Device: %s %s, energy production Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
     callback(null, whLastSevenDays);
   }
 
@@ -632,21 +632,21 @@ class envoyDevice {
   getEnergyConsumptionTotalToday(callback) {
     var me = this;
     let whToday = me.energyConsumptionTotalToday;
-    me.log.info('Device: %s %s, energy consumption Today total: %s kWh', me.host, me.name, whToday);
+    me.log.info('Device: %s %s, energy consumption total Today: %s kWh', me.host, me.name, whToday);
     callback(null, whToday);
   }
 
   getEnergyConsumptionTotalLastSevenDays(callback) {
     var me = this;
     let whLastSevenDays = me.energyConsumptionTotalLastSevenDays;
-    me.log.info('Device: %s %s, energy consumption last Seven Days total: %s kWh', me.host, me.name, whLastSevenDays);
+    me.log.info('Device: %s %s, energy consumption total Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
     callback(null, whLastSevenDays);
   }
 
   getEnergyConsumptionTotalLifetime(callback) {
     var me = this;
     let whLifetime = me.energyConsumptionTotalLifetime;
-    me.log.info('Device: %s %s, energy consumption Lifetime total: %s kWh', me.host, me.name, whLifetime);
+    me.log.info('Device: %s %s, energy consumption total Lifetime: %s kWh', me.host, me.name, whLifetime);
     callback(null, whLifetime);
   }
 
@@ -675,21 +675,21 @@ class envoyDevice {
   getEnergyConsumptionNetToday(callback) {
     var me = this;
     let whToday = me.energyConsumptionNetToday;
-    me.log.info('Device: %s %s, energy consumption Today net: %s kWh', me.host, me.name, whToday);
+    me.log.info('Device: %s %s, energy consumption net Today: %s kWh', me.host, me.name, whToday);
     callback(null, whToday);
   }
 
   getEnergyConsumptionNetLastSevenDays(callback) {
     var me = this;
     let whLastSevenDays = me.energyConsumptionNetLastSevenDays;
-    me.log.info('Device: %s %s, energy consumption last Seven Days net: %s kWh', me.host, me.name, whLastSevenDays);
+    me.log.info('Device: %s %s, energy consumption net Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
     callback(null, whLastSevenDays);
   }
 
   getEnergyConsumptionNetLifetime(callback) {
     var me = this;
     let whLifetime = me.energyConsumptionNetLifetime;
-    me.log.info('Device: %s %s, energy consumption Lifetime net: %s kWh', me.host, me.name, whLifetime);
+    me.log.info('Device: %s %s, energy consumption net Lifetime: %s kWh', me.host, me.name, whLifetime);
     callback(null, whLifetime);
   }
 
