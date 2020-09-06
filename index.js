@@ -189,9 +189,9 @@ class envoyDevice {
 
     //get Device info
 		this.manufacturer = config.manufacturer || 'Enphase';
-		this.modelName = config.modelName || 'Envoy-S';
-		this.serialNumber = config.serialNumber || 'SN0000005';
-		this.firmwareRevision = config.firmwareRevision || 'FW0000005';
+		this.modelName = config.modelName || 'Envoy';
+		this.serialNumber = config.serialNumber || 'Serial Number';
+		this.firmwareRevision = config.firmwareRevision || 'Firmware Revision';
 
     //setup variables
     this.checkDeviceInfo = false;

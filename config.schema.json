@@ -134,21 +134,21 @@
             "manufacturer": {
               "name": "Manufacturer",
               "type": "string",
-              "placeholder": "Enphase",
+              "placeholder": "Manufacturer",
               "description": "Set the manufacturer name.",
               "required": false
             },
             "modelName": {
               "name": "Model",
               "type": "string",
-              "placeholder": "Envoy-S",
-              "description": "Set the model.",
+              "placeholder": "Model",
+              "description": "Set the model name.",
               "required": false
             },
             "serialNumber": {
               "name": "Serial Number",
               "type": "string",
-              "placeholder": "SerialNumber",
+              "placeholder": "Serial Number",
               "description": "Set the serial number.",
               "required": false
             },
