@@ -49,6 +49,17 @@ module.exports = (api) => {
   inherits(Characteristic.PowerMax, Characteristic);
   Characteristic.PowerMax.UUID = '00000002-000B-1000-8000-0026BB765291';
 
+  Characteristic.PowerMaxDetected = function () {
+    Characteristic.call(this, 'Power Max Detected', Characteristic.PowerMaxDetected.UUID);
+    this.setProps({
+      format: Characteristic.Formats.BOOL,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.PowerMaxDetected, Characteristic);
+  Characteristic.PowerMaxDetected.UUID = '00000006-000B-1000-8000-0026BB765291';
+
   Characteristic.EnergyToday = function () {
     Characteristic.call(this, 'Energy Today', Characteristic.EnergyToday.UUID);
     this.setProps({
@@ -63,17 +74,6 @@ module.exports = (api) => {
   };
   inherits(Characteristic.EnergyToday, Characteristic);
   Characteristic.EnergyToday.UUID = '00000003-000B-1000-8000-0026BB765291';
-
-  Characteristic.PowerMaxDetected = function () {
-    Characteristic.call(this, 'Power Max Detected', Characteristic.PowerMaxDetected.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.PowerMaxDetected, Characteristic);
-  Characteristic.PowerMaxDetected.UUID = '00000006-000B-1000-8000-0026BB765291';
 
   Characteristic.EnergyLastSevenDays = function () {
     Characteristic.call(this, 'Energy Last 7 Days', Characteristic.EnergyLastSevenDays.UUID);
