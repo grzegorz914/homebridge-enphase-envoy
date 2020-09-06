@@ -72,7 +72,11 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
                     "powerConsumptionTotalMaxDetected": 10000,
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
-                    "energyConsumptionNetLifetimeOffset": 0
+                    "energyConsumptionNetLifetimeOffset": 0,
+                    "manufacturer": "Enphase",
+                    "modelName": "Envoy-S",
+                    "serialNumber": "Serial Number",
+                    "firmwareRevision": "Firmware Revision"
                 }
             ]
         }
