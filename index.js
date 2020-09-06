@@ -240,17 +240,13 @@ class envoyDevice {
 
     //Check device state
     setInterval(function () {
-      if (this.checkDeviceInfo) {
+      if (!this.checkDeviceInfo) {
         this.getDeviceInfo();
       }
       if (this.checkDeviceState) {
         this.updateDeviceState();
       }
     }.bind(this), this.refreshInterval * 1000);
-
-    if (!this.checkDeviceInfo) {
-      this.getDeviceInfo();
-    }
 
     this.prepareEnvoyService();
   }
@@ -330,8 +326,6 @@ class envoyDevice {
       this.accessory.addService(this.envoyServiceEnchargeStorage);
     }
 
-    this.checkDeviceInfo = true;
-
     this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
     this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
   }
@@ -349,28 +343,28 @@ class envoyDevice {
           let manufacturer = me.manufacturer;
           let modelName = me.modelName;
           let serialNumber = result.envoy_info.device[0].sn[0];
-          let firmware = result.envoy_info.device[0].software[0];
+          let firmwareRevision = result.envoy_info.device[0].software[0];
           let inverters = me.inverters;
           me.log('-------- %s --------', me.name);
           me.log('Manufacturer: %s', manufacturer);
           me.log('Model: %s', modelName);
           me.log('Serialnr: %s', serialNumber);
-          me.log('Firmware: %s', firmware);
+          me.log('Firmware: %s', firmwareRevision);
           me.log('Inverters: %s', inverters);
           me.log('----------------------------------');
           me.serialNumber = serialNumber;
-          me.firmwareRevision = firmware;
+          me.firmwareRevision = firmwareRevision;
         }).catch(error => {
           me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
         });
       }).catch(error => {
         me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
       });
-      me.checkDeviceInfo = false;
+      me.checkDeviceInfo = true;
       me.checkDeviceState = true;
     }).catch(error => {
       me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
-      me.checkDeviceInfo = true;
+      me.checkDeviceInfo = false;
       me.checkDeviceState = false;
     });
   }
