@@ -1,7 +1,8 @@
 'use strict';
 
-const axios = require('axios');
+const axios = require('axios').default;
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 const inherits = require('util').inherits;
 const parseStringPromise = require('xml2js').parseStringPromise;
@@ -329,53 +330,55 @@ class envoyDevice {
     this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
   }
 
-  getDeviceInfo() {
+  async getDeviceInfo() {
     var me = this;
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
-    axios.get(me.url + '/production.json').then(response => {
+    try {
+      const response = await axios.get(me.url + '/production.json');
       me.log.info('Device: %s %s, state: Online.', me.host, me.name);
       me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
-      me.inverters = response.data.production[0].activeCount;
-      axios.get(me.url + '/info.xml').then(response => {
-        parseStringPromise(response.data).then(result => {
-          me.log.debug('Device: %s %s, get Device info successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
-          if (typeof result.envoy_info.device[0].sn[0] !== 'undefined') {
-            var serialNumber = result.envoy_info.device[0].sn[0];
-            me.serialNumber = serialNumber;
-          } else {
-            serialNumber = me.serialNumber;
-          };
-          if (typeof result.envoy_info.device[0].software[0] !== 'undefined') {
-            var firmwareRevision = result.envoy_info.device[0].software[0];
-            me.firmwareRevision = firmwareRevision;
-          } else {
-            firmwareRevision = me.firmwareRevision;
-          };
-          me.log('-------- %s --------', me.name);
-          me.log('Manufacturer: %s', me.manufacturer);
-          me.log('Model: %s', me.modelName);
-          me.log('Serialnr: %s', serialNumber);
-          me.log('Firmware: %s', firmwareRevision);
-          me.log('Inverters: %s', me.inverters);
-          me.log('----------------------------------');
-        }).catch(error => {
-          me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
-        });
-      }).catch(error => {
-        me.log.error('Device: %s %s, getDeviceInfo eror: %s', me.host, me.name, error);
-      });
+
+      const response1 = await axios.get(me.url + '/info.xml');
+      const result = await parseStringPromise(response1.data);
+      me.log.debug('Device: %s %s, get Device info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
+
+      if (typeof result.envoy_info.device[0].sn[0] !== 'undefined') {
+        var serialNumber = result.envoy_info.device[0].sn[0];
+        me.serialNumber = serialNumber;
+      } else {
+        serialNumber = me.serialNumber;
+      };
+      if (typeof result.envoy_info.device[0].software[0] !== 'undefined') {
+        var firmwareRevision = result.envoy_info.device[0].software[0];
+        me.firmwareRevision = firmwareRevision;
+      } else {
+        firmwareRevision = me.firmwareRevision;
+      };
+      if (typeof response.data.production[0].activeCount !== 'undefined') {
+        var inverters = response.data.production[0].activeCount;
+      } else {
+        inverters = 'Undefined';
+      };
+      me.log('-------- %s --------', me.name);
+      me.log('Manufacturer: %s', me.manufacturer);
+      me.log('Model: %s', me.modelName);
+      me.log('Serialnr: %s', serialNumber);
+      me.log('Firmware: %s', firmwareRevision);
+      me.log('Inverters: %s', inverters);
+      me.log('----------------------------------');
       me.checkDeviceInfo = true;
       me.checkDeviceState = true;
-    }).catch(error => {
+    } catch (error) {
       me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
       me.checkDeviceInfo = false;
       me.checkDeviceState = false;
-    });
+    }
   }
 
-  updateDeviceState() {
+  async updateDeviceState() {
     var me = this;
-    axios.get(me.url + '/production.json').then(response => {
+    try {
+      const response = await axios.get(me.url + '/production.json');
       me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
       let result = response.data;
       me.log.debug(result);
@@ -384,9 +387,8 @@ class envoyDevice {
       let powerProduction = parseFloat(result.production[me.powerProductionMeter].wNow / 1000).toFixed(3);
 
       //save and read powerProductionMax
-      let savedPowerProductionMax;
       try {
-        savedPowerProductionMax = fs.readFileSync(me.powerProductionMaxFile);
+        var savedPowerProductionMax = await fsPromises.readFile(me.powerProductionMaxFile);
       } catch (error) {
         me.log.debug('Device: %s %s, powerProductionMaxFile file does not exist', me.host, me.name);
       }
@@ -397,13 +399,13 @@ class envoyDevice {
       }
 
       if (powerProduction > powerProductionMax) {
-        fs.writeFile(me.powerProductionMaxFile, (powerProduction), (error) => {
-          if (error) {
-            me.log.error('Device: %s %s, could not write powerProductionMaxFile, error: %s', me.host, me.name, error);
-          } else {
-            me.log.debug('Device: %s %s, powerProductionMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerProduction);
-          }
-        });
+        try {
+          await fsPromises.writeFile(me.powerProductionMaxFile, powerProduction);
+          me.log.debug('Device: %s %s, powerProductionMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerProduction);
+        } catch (error) {
+          me.log.error('Device: %s %s, could not write powerProductionMaxFile, error: %s', me.host, me.name, error);
+
+        }
       }
 
       let powerProductionMaxDetectedState = (powerProduction >= me.powerProductionMaxDetected / 1000);
@@ -446,9 +448,8 @@ class envoyDevice {
         let powerConsumptionTotal = parseFloat(result.consumption[0].wNow / 1000).toFixed(3);
 
         //save and read powerConsumptionTotalMax
-        let savedPowerConsumptionTotalMax;
         try {
-          savedPowerConsumptionTotalMax = fs.readFileSync(me.powerConsumptionTotalMaxFile);
+          var savedPowerConsumptionTotalMax = await fsPromises.readFile(me.powerConsumptionTotalMaxFile);
         } catch (error) {
           me.log.debug('Device: %s %s, powerConsumptionTotalMaxFile file does not exist', me.host, me.name);
         }
@@ -459,13 +460,12 @@ class envoyDevice {
         }
 
         if (powerConsumptionTotal > powerConsumptionTotalMax) {
-          fs.writeFile(me.powerConsumptionTotalMaxFile, (powerConsumptionTotal), (error) => {
-            if (error) {
-              me.log.error('Device: %s %s, could not write powerConsumptionTotalMaxFile, error: %s', me.host, me.name, error);
-            } else {
-              me.log.debug('Device: %s %s, powerConsumptionTotalMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerConsumptionTotal);
-            }
-          });
+          try {
+            await fsPromises.writeFile(me.powerConsumptionTotalMaxFile, powerConsumptionTotal);
+            me.log.debug('Device: %s %s, powerConsumptionTotalMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerConsumptionTotal);
+          } catch (error) {
+            me.log.error('Device: %s %s, could not write powerConsumptionTotalMaxFile, error: %s', me.host, me.name, error);
+          }
         }
 
         let powerConsumptionTotalMaxDetectedState = (powerConsumptionTotal >= me.powerConsumptionTotalMaxDetected / 1000);
@@ -500,9 +500,8 @@ class envoyDevice {
         let powerConsumptionNet = parseFloat(result.consumption[1].wNow / 1000).toFixed(3);
 
         //save and read powerConsumptionNetMax
-        let savedPowerConsumptionNetMax;
         try {
-          savedPowerConsumptionNetMax = fs.readFileSync(me.powerConsumptionNetMaxFile);
+          var savedPowerConsumptionNetMax = await fsPromises.readFile(me.powerConsumptionNetMaxFile);
         } catch (error) {
           me.log.debug('Device: %s %s, powerConsumptionNetMaxFile file does not exist', me.host, me.name);
         }
@@ -513,13 +512,12 @@ class envoyDevice {
         }
 
         if (powerConsumptionNet > powerConsumptionNetMax) {
-          fs.writeFile(me.powerConsumptionNetMaxFile, (powerConsumptionNet), (error) => {
-            if (error) {
-              me.log.error('Device: %s %s, could not write powerConsumptionNetMaxFile, error: %s', me.host, me.name, error);
-            } else {
-              me.log.debug('Device: %s %s, powerConsumptionNetMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerConsumptionNet);
-            }
-          });
+          try {
+            await fsPromises.writeFile(me.powerConsumptionNetMaxFile, powerConsumptionNet);
+            me.log.debug('Device: %s %s, powerConsumptionNetMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerConsumptionNet);
+          } catch (error) {
+            me.log.error('Device: %s %s, could not write powerConsumptionNetMaxFile, error: %s', me.host, me.name, error);
+          }
         }
 
         let powerConsumptionNetMaxDetectedState = (powerConsumptionNet >= me.powerConsumptionNetMaxDetected / 1000);
@@ -563,9 +561,9 @@ class envoyDevice {
           me.envoyServiceEnchargeStorage.updateCharacteristic(Characteristic.EnergyToday, energyEnchargeStorage);
         }
       }
-    }).catch(error => {
+    } catch (error) {
       me.log.error('Device: %s %s, update Device state error: %s, state: Offline', me.host, me.name, error);
-    });
+    }
   }
 
   //production power
