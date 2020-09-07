@@ -339,20 +339,25 @@ class envoyDevice {
       axios.get(me.url + '/info.xml').then(response => {
         parseStringPromise(response.data).then(result => {
           me.log.debug('Device: %s %s, get Device info successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
-          let manufacturer = me.manufacturer;
-          let modelName = me.modelName;
-          let serialNumber = result.envoy_info.device[0].sn[0];
-          let firmwareRevision = result.envoy_info.device[0].software[0];
-          let inverters = me.inverters;
+          if (typeof result.envoy_info.device[0].sn[0] !== 'undefined') {
+            var serialNumber = result.envoy_info.device[0].sn[0];
+            me.serialNumber = serialNumber;
+          } else {
+            serialNumber = me.serialNumber;
+          };
+          if (typeof result.envoy_info.device[0].software[0] !== 'undefined') {
+            var firmwareRevision = result.envoy_info.device[0].software[0];
+            me.firmwareRevision = firmwareRevision;
+          } else {
+            firmwareRevision = me.firmwareRevision;
+          };
           me.log('-------- %s --------', me.name);
-          me.log('Manufacturer: %s', manufacturer);
-          me.log('Model: %s', modelName);
+          me.log('Manufacturer: %s', me.manufacturer);
+          me.log('Model: %s', me.modelName);
           me.log('Serialnr: %s', serialNumber);
           me.log('Firmware: %s', firmwareRevision);
-          me.log('Inverters: %s', inverters);
+          me.log('Inverters: %s', me.inverters);
           me.log('----------------------------------');
-          me.serialNumber = serialNumber;
-          me.firmwareRevision = firmwareRevision;
         }).catch(error => {
           me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
         });

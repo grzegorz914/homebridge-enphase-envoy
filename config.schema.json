@@ -66,7 +66,7 @@
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set max Power production in (W)) at which You get notyfication message.",
+              "description": "Here set max Power production in (W) at which You get notyfication message.",
               "required": true
             },
             "energyProductionLifetimeOffset": {
@@ -111,7 +111,7 @@
               "title": "Total - Energy consumption lifetime offset",
               "type": "integer",
               "default": 0,
-              "maximum": 100000,
+              "maximum": 65535,
               "description": "Here set energy consumption offset in (Wh) for lifetime total energy if nedded.",
               "required": true
             },
@@ -127,8 +127,8 @@
               "title": "Net - Energy consumption lifetime offset",
               "type": "integer",
               "default": 0,
-              "maximum": 100000,
-              "description": "Here set energy consumption offset in (Wh)) for lifetime net energy if nedded.",
+              "maximum": 65535,
+              "description": "Here set energy consumption offset in (Wh) for lifetime net energy if nedded.",
               "required": true
             },
             "manufacturer": {
