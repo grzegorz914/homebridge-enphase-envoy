@@ -37,7 +37,7 @@
               "title": "Encharge storage installed",
               "type": "boolean",
               "default": false,
-              "required": true
+              "required": false
             },
             "powerProductionMeter": {
               "title": "Power production meter",
@@ -67,7 +67,7 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set max Power production in (W) at which You get notyfication message.",
-              "required": true
+              "required": false
             },
             "energyProductionLifetimeOffset": {
               "title": "Energy production lifetime offset",
@@ -75,7 +75,7 @@
               "default": 0,
               "maximum": 100000,
               "description": "Here set energy production offset in (Wh) for lifetime energy if nedded.",
-              "required": true
+              "required": false
             },
             "powerConsumptionMeter": {
               "title": "Power consumption meter",
@@ -105,7 +105,7 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set max Power consumption Total in (W) at which You get notyfication message.",
-              "required": true
+              "required": false
             },
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Total - Energy consumption lifetime offset",
@@ -113,7 +113,7 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set energy consumption offset in (Wh) for lifetime total energy if nedded.",
-              "required": true
+              "required": false
             },
             "powerConsumptionNetMaxDetected": {
               "title": "Net - Power consumption max detected",
@@ -121,7 +121,7 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set max Power consumption from Net in (W) at which You get notyfication message.",
-              "required": true
+              "required": false
             },
             "energyConsumptionNetLifetimeOffset": {
               "title": "Net - Energy consumption lifetime offset",
@@ -129,7 +129,7 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set energy consumption offset in (Wh) for lifetime net energy if nedded.",
-              "required": true
+              "required": false
             },
             "manufacturer": {
               "name": "Manufacturer",
