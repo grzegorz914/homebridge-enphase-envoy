@@ -337,41 +337,44 @@ class envoyDevice {
       const [response, response1] = await axios.all([axios.get(me.url + '/production.json'), axios.get(me.url + '/info.xml')]);
       me.log.info('Device: %s %s, state: Online.', me.host, me.name);
       me.log.debug('Device %s %s, get device status data response %s response1: %s', me.host, me.name, response.data, response1.data);
+      try {
+        const result = await parseStringPromise(response1.data);
+        me.log.debug('Device: %s %s, get Device info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
 
-      const result = await parseStringPromise(response1.data);
-      me.log.debug('Device: %s %s, get Device info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
-
-      if (typeof result.envoy_info.device[0].sn[0] !== 'undefined') {
-        var serialNumber = result.envoy_info.device[0].sn[0];
-        me.serialNumber = serialNumber;
-      } else {
-        serialNumber = me.serialNumber;
+        if (typeof result.envoy_info.device[0].sn[0] !== 'undefined') {
+          var serialNumber = result.envoy_info.device[0].sn[0];
+          me.serialNumber = serialNumber;
+        } else {
+          serialNumber = me.serialNumber;
+        };
+        if (typeof result.envoy_info.device[0].software[0] !== 'undefined') {
+          var firmwareRevision = result.envoy_info.device[0].software[0];
+          me.firmwareRevision = firmwareRevision;
+        } else {
+          firmwareRevision = me.firmwareRevision;
+        };
+        if (typeof response.data.production[0].activeCount !== 'undefined') {
+          var inverters = response.data.production[0].activeCount;
+        } else {
+          inverters = 'Undefined';
+        };
+        me.log('-------- %s --------', me.name);
+        me.log('Manufacturer: %s', me.manufacturer);
+        me.log('Model: %s', me.modelName);
+        me.log('Serialnr: %s', serialNumber);
+        me.log('Firmware: %s', firmwareRevision);
+        me.log('Inverters: %s', inverters);
+        me.log('----------------------------------');
+        me.checkDeviceInfo = true;
+        me.checkDeviceState = true;
+      } catch (error) {
+        me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
       };
-      if (typeof result.envoy_info.device[0].software[0] !== 'undefined') {
-        var firmwareRevision = result.envoy_info.device[0].software[0];
-        me.firmwareRevision = firmwareRevision;
-      } else {
-        firmwareRevision = me.firmwareRevision;
-      };
-      if (typeof response.data.production[0].activeCount !== 'undefined') {
-        var inverters = response.data.production[0].activeCount;
-      } else {
-        inverters = 'Undefined';
-      };
-      me.log('-------- %s --------', me.name);
-      me.log('Manufacturer: %s', me.manufacturer);
-      me.log('Model: %s', me.modelName);
-      me.log('Serialnr: %s', serialNumber);
-      me.log('Firmware: %s', firmwareRevision);
-      me.log('Inverters: %s', inverters);
-      me.log('----------------------------------');
-      me.checkDeviceInfo = true;
-      me.checkDeviceState = true;
     } catch (error) {
       me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
       me.checkDeviceInfo = false;
       me.checkDeviceState = false;
-    }
+    };
   }
 
   async updateDeviceState() {
