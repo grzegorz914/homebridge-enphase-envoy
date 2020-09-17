@@ -246,8 +246,6 @@ class envoyDevice {
       }
     }.bind(this), this.refreshInterval * 1000);
 
-    this.getDeviceInfo();
-    this.updateDeviceState();
     this.prepareEnvoyService();
   }
 
@@ -325,7 +323,8 @@ class envoyDevice {
       accessory.addService(this.envoyServiceEnchargeStorage);
     }
 
-    this.checkDeviceState = true;
+    this.getDeviceInfo();
+    this.updateDeviceState();
 
     this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
     this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
@@ -561,6 +560,7 @@ class envoyDevice {
     } catch (error) {
       me.log.error('Device: %s %s, update Device state error: %s, state: Offline', me.host, me.name, error);
     }
+    me.checkDeviceState = true;
   }
 
   //production power
