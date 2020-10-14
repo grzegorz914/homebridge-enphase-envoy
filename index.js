@@ -591,14 +591,14 @@ class envoyDevice {
   getPowerProduction(callback) {
     var me = this;
     let wNow = me.powerProduction;
-    me.log.info('Device: %s %s, power production: %s kW', me.host, me.name, wNow);
+    me.log.info('Device: %s %s, power production: %s kW', me.host, me.name, wNow.toFixed(3));
     callback(null, wNow);
   }
 
   getPowerProductionMax(callback) {
     var me = this;
     let wNow = me.powerProductionMax;
-    me.log.info('Device: %s %s, power production max: %s kW', me.host, me.name, wNow);
+    me.log.info('Device: %s %s, power production max: %s kW', me.host, me.name, wNow.toFixed(3));
     callback(null, wNow);
   }
 
@@ -612,21 +612,21 @@ class envoyDevice {
   getEnergyProductionToday(callback) {
     var me = this;
     let whToday = me.energyProductionToday;
-    me.log.info('Device: %s %s, energy production Today: %s kWh', me.host, me.name, whToday);
+    me.log.info('Device: %s %s, energy production Today: %s kWh', me.host, me.name, whToday.toFixed(3));
     callback(null, whToday);
   }
 
   getEnergyProductionLastSevenDays(callback) {
     var me = this;
     let whLastSevenDays = me.energyProductionLastSevenDays;
-    me.log.info('Device: %s %s, energy production Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
+    me.log.info('Device: %s %s, energy production Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays.toFixed(3));
     callback(null, whLastSevenDays);
   }
 
   getEnergyProductionLifetime(callback) {
     var me = this;
     let whLifetime = me.energyProductionLifetime;
-    me.log.info('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, whLifetime);
+    me.log.info('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, whLifetime.toFixed(3));
     callback(null, whLifetime);
   }
 
@@ -634,14 +634,14 @@ class envoyDevice {
   getPowerConsumptionTotal(callback) {
     var me = this;
     let wNow = me.powerConsumptionTotal;
-    me.log.info('Device: %s %s, power consumption total: %s kW', me.host, me.name, wNow);
+    me.log.info('Device: %s %s, power consumption total: %s kW', me.host, me.name, wNow.toFixed(3));
     callback(null, wNow);
   }
 
   getPowerConsumptionTotalMax(callback) {
     var me = this;
     let wNow = me.powerConsumptionTotalMax;
-    me.log.info('Device: %s %s, power consumption total max: %s kW', me.host, me.name, wNow);
+    me.log.info('Device: %s %s, power consumption total max: %s kW', me.host, me.name, wNow.toFixed(3));
     callback(null, wNow);
   }
 
@@ -655,21 +655,21 @@ class envoyDevice {
   getEnergyConsumptionTotalToday(callback) {
     var me = this;
     let whToday = me.energyConsumptionTotalToday;
-    me.log.info('Device: %s %s, energy consumption total Today: %s kWh', me.host, me.name, whToday);
+    me.log.info('Device: %s %s, energy consumption total Today: %s kWh', me.host, me.name, whToday.toFixed(3));
     callback(null, whToday);
   }
 
   getEnergyConsumptionTotalLastSevenDays(callback) {
     var me = this;
     let whLastSevenDays = me.energyConsumptionTotalLastSevenDays;
-    me.log.info('Device: %s %s, energy consumption total Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
+    me.log.info('Device: %s %s, energy consumption total Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays.toFixed(3));
     callback(null, whLastSevenDays);
   }
 
   getEnergyConsumptionTotalLifetime(callback) {
     var me = this;
     let whLifetime = me.energyConsumptionTotalLifetime;
-    me.log.info('Device: %s %s, energy consumption total Lifetime: %s kWh', me.host, me.name, whLifetime);
+    me.log.info('Device: %s %s, energy consumption total Lifetime: %s kWh', me.host, me.name, whLifetime.toFixed(3));
     callback(null, whLifetime);
   }
 
@@ -677,14 +677,14 @@ class envoyDevice {
   getPowerConsumptionNet(callback) {
     var me = this;
     let wNow = me.powerConsumptionNet;
-    me.log.info('Device: %s %s, power consumption net: %s kW', me.host, me.name, wNow);
+    me.log.info('Device: %s %s, power consumption net: %s kW', me.host, me.name, wNow.toFixed(3));
     callback(null, wNow);
   }
 
   getPowerConsumptionNetMax(callback) {
     var me = this;
     let wNow = me.powerConsumptionNetMax;
-    me.log.info('Device: %s %s, power consumption net max: %s kW', me.host, me.name, wNow);
+    me.log.info('Device: %s %s, power consumption net max: %s kW', me.host, me.name, wNow.toFixed(3));
     callback(null, wNow);
   }
 
@@ -698,21 +698,21 @@ class envoyDevice {
   getEnergyConsumptionNetToday(callback) {
     var me = this;
     let whToday = me.energyConsumptionNetToday;
-    me.log.info('Device: %s %s, energy consumption net Today: %s kWh', me.host, me.name, whToday);
+    me.log.info('Device: %s %s, energy consumption net Today: %s kWh', me.host, me.name, whToday.toFixed(3));
     callback(null, whToday);
   }
 
   getEnergyConsumptionNetLastSevenDays(callback) {
     var me = this;
     let whLastSevenDays = me.energyConsumptionNetLastSevenDays;
-    me.log.info('Device: %s %s, energy consumption net Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays);
+    me.log.info('Device: %s %s, energy consumption net Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays.toFixed(3));
     callback(null, whLastSevenDays);
   }
 
   getEnergyConsumptionNetLifetime(callback) {
     var me = this;
     let whLifetime = me.energyConsumptionNetLifetime;
-    me.log.info('Device: %s %s, energy consumption net Lifetime: %s kWh', me.host, me.name, whLifetime);
+    me.log.info('Device: %s %s, energy consumption net Lifetime: %s kWh', me.host, me.name, whLifetime.toFixed(3));
     callback(null, whLifetime);
   }
 
@@ -720,14 +720,14 @@ class envoyDevice {
   getPowerEnchargeStorage(callback) {
     var me = this;
     let wNow = me.powerEnchargeStorage;
-    me.log.info('Device: %s %s, power encharge storage: %s kW', me.host, me.name, wNow);
+    me.log.info('Device: %s %s, power encharge storage: %s kW', me.host, me.name, wNow.toFixed(3));
     callback(null, wNow);
   }
 
   getEnergyEnchargeStorage(callback) {
     var me = this;
     let whNow = me.energyEnchargeStorage;
-    me.log.info('Device: %s %s, energy encharge storage: %s kWh', me.host, me.name, whNow);
+    me.log.info('Device: %s %s, energy encharge storage: %s kWh', me.host, me.name, whNow.toFixed(3));
     callback(null, whNow);
   }
 }
