@@ -419,8 +419,9 @@ class envoyDevice {
       }
 
       if (powerProduction > powerProductionMax) {
+        let powerProductionMaxf = powerProduction.toString();
         try {
-          await fsPromises.writeFile(me.powerProductionMaxFile, powerProduction);
+          await fsPromises.writeFile(me.powerProductionMaxFile, powerProductionMaxf);
           me.log.debug('Device: %s %s, powerProductionMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerProduction);
         } catch (error) {
           me.log.error('Device: %s %s, could not write powerProductionMaxFile, error: %s', me.host, me.name, error);
@@ -480,8 +481,9 @@ class envoyDevice {
         }
 
         if (powerConsumptionTotal > powerConsumptionTotalMax) {
+          let powerConsumptionTotalMaxf = powerProduction.toString();
           try {
-            await fsPromises.writeFile(me.powerConsumptionTotalMaxFile, powerConsumptionTotal);
+            await fsPromises.writeFile(me.powerConsumptionTotalMaxFile, powerConsumptionTotalMaxf);
             me.log.debug('Device: %s %s, powerConsumptionTotalMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerConsumptionTotal);
           } catch (error) {
             me.log.error('Device: %s %s, could not write powerConsumptionTotalMaxFile, error: %s', me.host, me.name, error);
@@ -532,8 +534,9 @@ class envoyDevice {
         }
 
         if (powerConsumptionNet > powerConsumptionNetMax) {
+          let powerConsumptionNetMaxf = powerProduction.toString();
           try {
-            await fsPromises.writeFile(me.powerConsumptionNetMaxFile, powerConsumptionNet);
+            await fsPromises.writeFile(me.powerConsumptionNetMaxFile, powerConsumptionNetMaxf);
             me.log.debug('Device: %s %s, powerConsumptionNetMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerConsumptionNet);
           } catch (error) {
             me.log.error('Device: %s %s, could not write powerConsumptionNetMaxFile, error: %s', me.host, me.name, error);
