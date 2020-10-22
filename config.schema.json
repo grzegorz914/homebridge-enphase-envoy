@@ -92,7 +92,7 @@
               "title": "Power consumption meter",
               "type": "integer",
               "default": 0,
-              "maximum": 1,
+              "maximum": 2,
               "description": "Here select installed Power consumption meter.",
               "oneOf": [
                 {
