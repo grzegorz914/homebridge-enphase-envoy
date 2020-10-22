@@ -43,15 +43,16 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 2. In `host` set the iP adress or leave empy(will use default path `envoy.local`).
 3. In `refreshInterval` set the data refresh time in seconds.
 5. In `enchargeStorage` check ON if encharge storage is installed.
-5. In `powerProductionMeter` select which meter will be used to display Power production.
-6. In `powerProductionMaxDetected` set the maximum Power production, if the Power production will be >= `powerProductionMaxDetected` then You get notyfication message from the HomeKit.
-7. In `energyProductionLifetimeOffset` set the offset of lifetime energy production if nedded in (Wh),(+/-).
-8. In `powerConsumptionMeter` select which meter will be used to display Power consumption.
-9. In `powerConsumptionTotalMaxDetected` set the maximum total Power consumption, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit.
-10. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
-11. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
-12. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
-13. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app
+6. In `enchargeStorageOffset` set the offset of encharge storage energy if nedded in (Wh),(+/-).
+7. In `powerProductionMeter` select which meter will be used to display Power production.
+8. In `powerProductionMaxDetected` set the maximum Power production, if the Power production will be >= `powerProductionMaxDetected` then You get notyfication message from the HomeKit.
+9. In `energyProductionLifetimeOffset` set the offset of lifetime energy production if nedded in (Wh),(+/-).
+10. In `powerConsumptionMeter` select which meter will be used to display Power consumption.
+11. In `powerConsumptionTotalMaxDetected` set the maximum total Power consumption, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit.
+12. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
+13. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
+14. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
+15. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
@@ -66,6 +67,7 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
                     "enchargeStorage": false,
+                    "enchargeStorageOffset": 0,
                     "powerProductionMeter": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,

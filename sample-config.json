@@ -23,6 +23,7 @@
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
                     "enchargeStorage": false,
+                    "enchargeStorageOffset": 0,
                     "powerProductionMeter": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,

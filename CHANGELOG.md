@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Important note - with version 3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. If U want to use old CO2 sensor style just still with 2.x.x version
 
+## [3.3.5] - (22.10.2020)
+## Changs
+- added encharge storage energy offset
+- added possibility to select consumtion meter CT - Load only/Load with Solar production
+- update config.schema
+
 ## [3.2.0] - (08.09.2020)
 ## Changs
 - added async/await function to read deviceInfo and updateStatus

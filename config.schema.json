@@ -39,6 +39,17 @@
               "default": false,
               "required": false
             },
+            "enchargeStorageOffset": {
+              "title": "Encharge Storage energy offset",
+              "type": "integer",
+              "default": 0,
+              "maximum": 65535,
+              "description": "Here set energy offset in (Wh) for Encharge Storage if nedded.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enchargeStorage === true;"
+              }
+            },
             "powerProductionMeter": {
               "title": "Power production meter",
               "type": "integer",
@@ -91,9 +102,15 @@
                   ]
                 },
                 {
-                  "title": "Consumption CT",
+                  "title": "Consumption CT (Load Only)",
                   "enum": [
                     1
+                  ]
+                },
+                {
+                  "title": "Consumption CT (Load with Solar production)",
+                  "enum": [
+                    2
                   ]
                 }
               ],
@@ -105,7 +122,10 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set max Power consumption Total in (W) at which You get notyfication message.",
-              "required": false
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMeter >= 1;"
+              }
             },
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Total - Energy consumption lifetime offset",
@@ -113,7 +133,10 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set energy consumption offset in (Wh) for lifetime total energy if nedded.",
-              "required": false
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMeter >= 1;"
+              }
             },
             "powerConsumptionNetMaxDetected": {
               "title": "Net - Power consumption max detected",
@@ -121,7 +144,10 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set max Power consumption from Net in (W) at which You get notyfication message.",
-              "required": false
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMeter >= 2;"
+              }
             },
             "energyConsumptionNetLifetimeOffset": {
               "title": "Net - Energy consumption lifetime offset",
@@ -129,7 +155,10 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set energy consumption offset in (Wh) for lifetime net energy if nedded.",
-              "required": false
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMeter >= 2;"
+              }
             },
             "manufacturer": {
               "name": "Manufacturer",
@@ -174,6 +203,7 @@
         "devices[].host",
         "devices[].refreshInterval",
         "devices[].enchargeStorage",
+        "devices[].enchargeStorageOffset",
         {
           "key": "devices[]",
           "type": "section",

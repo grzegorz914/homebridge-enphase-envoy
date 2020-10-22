@@ -177,6 +177,7 @@ class envoyDevice {
     this.host = config.host || 'envoy.local';
     this.refreshInterval = config.refreshInterval || 10;
     this.enchargeStorage = config.enchargeStorage;
+    this.enchargeStorageOffset = config.enchargeStorageOffset || 0;
     this.powerProductionMeter = config.powerProductionMeter || 0;
     this.powerProductionMaxDetected = config.powerProductionMaxDetected;
     this.energyProductionLifetimeOffset = config.energyProductionLifetimeOffset || 0;
@@ -324,7 +325,9 @@ class envoyDevice {
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLifetime)
         .on('get', this.getEnergyConsumptionTotalLifetime.bind(this));
       this.accessory.addService(this.envoyServiceConsumptionTotal);
+    }
 
+    if (this.powerConsumptionMeter >= 2) {
       this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionNet.bind(this));
@@ -463,7 +466,7 @@ class envoyDevice {
         }
       }
 
-      //consumption
+      //consumption total
       if (me.powerConsumptionMeter >= 1) {
         //consumption total
         let powerConsumptionTotal = parseFloat(response.data.consumption[0].wNow / 1000);
@@ -517,8 +520,10 @@ class envoyDevice {
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyConsumptionTotalLastSevenDays);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionTotalLifetime);
         }
+      }
 
-        //consumption net
+      //consumption net
+      if (me.powerConsumptionMeter >= 2) {
         let powerConsumptionNet = parseFloat(response.data.consumption[1].wNow / 1000);
 
         //save and read powerConsumptionNetMax
@@ -573,7 +578,7 @@ class envoyDevice {
       }
       if (me.enchargeStorage) {
         let powerEnchargeStorage = parseFloat(response.data.storage[0].wNow / 1000);
-        let energyEnchargeStorage = parseFloat(response.data.storage[0].whNow / 1000);
+        let energyEnchargeStorage = parseFloat(response.data.storage[0].whNow + me.enchargeStorageOffset / 1000);
         me.log.debug('Device: %s %s, encharge storage power: %s kW', me.host, me.name, powerEnchargeStorage);
         me.log.debug('Device: %s %s, encharge storage energy: %s kWh', me.host, me.name, energyEnchargeStorage);
         me.powerEnchargeStorage = powerEnchargeStorage;
