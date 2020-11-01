@@ -40,7 +40,7 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: 0,
+      minValue: -100,
       maxValue: 100,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
