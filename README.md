@@ -14,6 +14,15 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 
 </span>
 
+## Package
+1. [Homebridge](https://github.com/homebridge/homebridge)
+2. [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x)
+
+## Installation
+1. Follow the step-by-step instructions on the [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) for how to install Homebridge.
+2. Follow the step-by-step instructions on the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) for how to install Homebridge Config UI X.
+3. Install homebridge-enphase-envoy using: `npm install -g homebridge-enphase-envoy` or search for `Enphase or Envoy` in Config UI X.
+
 ## HomeKit pairing
 1. Each accessories needs to be manually paired. 
 2. Open the Home <img src='https://user-images.githubusercontent.com/3979615/78010622-4ea1d380-738e-11ea-8a17-e6a465eeec35.png' height='16.42px'> app on your device. 
@@ -37,15 +46,6 @@ If U want to use old CO2 sensor style just still with 2.x.x version
 5. Peak Level (W) - display the maximum Power production/consumption.
 6. Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
 7. Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
-
-## Package
-1. [Homebridge](https://github.com/homebridge/homebridge)
-2. [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x)
-
-## Installation
-1. Follow the step-by-step instructions on the [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) for how to install Homebridge.
-2. Follow the step-by-step instructions on the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) for how to install Homebridge Config UI X.
-3. Install homebridge-enphase-envoy using: `npm install -g homebridge-enphase-envoy` or search for `Enphase or Envoy` in Config UI X.
 
 ## Configuration
 1. Use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) to configure the plugin (strongly recomended), or update your configuration file manually. See `sample-config.json` in this repository for a sample or add the bottom example to Your config.json file.
