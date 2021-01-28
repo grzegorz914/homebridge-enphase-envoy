@@ -10,17 +10,17 @@ const parseStringPromise = require('xml2js').parseStringPromise;
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
-const INFO = '/info.xml'
-const PRODUCTION_CT = '/production.json'
-const PRODUCTION_CT_DETAILS = '/production.json?details=1'
-const PRODUCTION = '/api/v1/production'
-const PRODUCTION_INVERTERS = '/api/v1/production/inverters'
-const CONSUMPTION = '/api/v1/consumption'
-const INVENTORY = '/inventory.json'
-const METERS = '/ivp/meters'
-const REPORET_SETTINGS = '/ivp/reportsettings'
-const INVERTERS_STATUS = '/installer/agf/inverters_status.json'
-const PCU_COMM_CHECK = '/installer/pcu_comm_check'
+const INFO_URL = '/info.xml'
+const PRODUCTION_CT_URL = '/production.json'
+const PRODUCTION_CT_DETAILS_URL = '/production.json?details=1'
+const PRODUCTION_SUMM_INVERTERS_URL = '/api/v1/production'
+const PRODUCTION_INVERTERS_URL = '/api/v1/production/inverters'
+const CONSUMPTION_SUMM_URL = '/api/v1/consumption'
+const INVENTORY_URL = '/inventory.json'
+const METERS_URL = '/ivp/meters'
+const REPORT_SETTINGS_URL = '/ivp/reportsettings'
+const INVERTERS_STATUS_URL = '/installer/agf/inverters_status.json'
+const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check'
 
 let Accessory, Characteristic, Service, Categories, UUID;
 
@@ -187,13 +187,9 @@ class envoyDevice {
     this.name = config.name;
     this.host = config.host || 'envoy.local';
     this.refreshInterval = config.refreshInterval || 10;
-    this.enchargeStorage = config.enchargeStorage || false;
-    this.powerConsumptionMetersInstalled = config.powerConsumptionMetersInstalled || false;
     this.enchargeStorageOffset = config.enchargeStorageOffset || 0;
-    this.powerProductionMeter = config.powerProductionMeter || 0;
     this.powerProductionMaxDetected = config.powerProductionMaxDetected || 0;
     this.energyProductionLifetimeOffset = config.energyProductionLifetimeOffset || 0;
-    this.powerConsumptionMeter = config.powerConsumptionMeter || 0;
     this.powerConsumptionTotalMaxDetected = config.powerConsumptionTotalMaxDetected || 0;
     this.energyConsumptionTotalLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
     this.powerConsumptionNetMaxDetected = config.powerConsumptionNetMaxDetected || 0;
@@ -233,14 +229,6 @@ class envoyDevice {
     this.powerConsumptionTotalMaxFile = this.prefDir + '/' + 'powerConsumptionTotalMax_' + this.host.split('.').join('');
     this.powerConsumptionNetMaxFile = this.prefDir + '/' + 'powerConsumptionNetMax_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
-    this.productionUrl = this.powerProductionMeter ? this.url + PRODUCTION : this.url + PRODUCTION_CT
-
-    this.meterConsumptionMeasurementType;
-    this.meterConsumptionState;
-    this.meterConsumptionPhaseMode;
-    this.meterConsumptionPhaseCount;
-    this.meterConsumptionMeteringStatus;
-    this.meterConsumptionStatusFlags;
 
     //check if prefs directory ends with a /, if not then add it
     if (this.prefDir.endsWith('/') === false) {
@@ -269,7 +257,7 @@ class envoyDevice {
     }.bind(this), this.refreshInterval * 1000);
 
     this.getDeviceInfo()
-    this.prepareAccessory();
+    //this.prepareAccessory();
   }
 
   //Prepare accessory
@@ -326,7 +314,7 @@ class envoyDevice {
       .on('get', this.getEnergyProductionLifetime.bind(this));
     this.accessory.addService(this.envoyServiceProduction);
 
-    if (this.powerConsumptionMetersInstalled && this.powerConsumptionMeter >= 0) {
+    if ((this.meterConsumptionState && this.meterConsumptionMeasurementType == 'total-consumption') || (this.meterConsumptionState && this.meterConsumptionMeasurementType == 'net-consumption')) {
       this.envoyServiceConsumptionTotal = new Service.PowerMeter('Consumption Total', 'envoyServiceConsumptionTotal');
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionTotal.bind(this));
@@ -343,7 +331,7 @@ class envoyDevice {
       this.accessory.addService(this.envoyServiceConsumptionTotal);
     }
 
-    if (this.powerConsumptionMetersInstalled && this.powerConsumptionMeter >= 1) {
+    if (this.meterConsumptionState && this.meterConsumptionMeasurementType == 'net-consumption') {
       this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionNet.bind(this));
@@ -360,7 +348,7 @@ class envoyDevice {
       this.accessory.addService(this.envoyServiceConsumptionNet);
     }
 
-    if (this.enchargeStorage) {
+    if (this.encharge > 0) {
       this.envoyServiceEnchargeStorage = new Service.PowerMeter('Encharge storage', 'envoyServiceEnchargeStorage');
       this.envoyServiceEnchargeStorage.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerEnchargeStorage.bind(this));
@@ -374,7 +362,7 @@ class envoyDevice {
     var me = this;
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
     try {
-      const [response, response1, response2] = await axios.all([axios.get(me.url + INVENTORY), axios.get(me.url + INFO), axios.get(me.url + METERS)]);
+      const [response, response1, response2] = await axios.all([axios.get(me.url + INVENTORY_URL), axios.get(me.url + INFO_URL), axios.get(me.url + METERS_URL)]);
       me.log.info('Device: %s %s, state: Online.', me.host, me.name);
       me.log.debug('Device %s %s, get device status data response %s response1: %s', me.host, me.name, response.data, response1.data);
       const result = await parseStringPromise(response1.data);
@@ -423,7 +411,7 @@ class envoyDevice {
       me.encharge = encharge;
       me.qrelays = qrelays;
       me.meters = meters;
-      if (encharge >= 1) {
+      if (encharge > 0) {
         if (typeof response.data[1].producing !== 'undefined') {
           var producing = response.data[1].devices[0].producing ? 'Yes' : 'No';
         } else {
@@ -566,7 +554,7 @@ class envoyDevice {
         me.log('Status flag: %s', statusFlags);
         me.log('----------------------------------');
         me.meterProductionMeasurementType = measurementType;
-        me.meterProductionState = state;
+        me.meterProductionState = (state == 'enabled');
         me.meterProductionPhaseMode = phaseMode;
         me.meterProductionPhaseCount = phaseCount;
         me.meterProductionMeteringStatus = meteringStatus;
@@ -611,12 +599,13 @@ class envoyDevice {
         me.log('Status flag: %s', statusFlags);
         me.log('----------------------------------');
         me.meterConsumptionMeasurementType = measurementType;
-        me.meterConsumptionState = state;
+        me.meterConsumptionState = (state == 'enabled');
         me.meterConsumptionPhaseMode = phaseMode;
         me.meterConsumptionPhaseCount = phaseCount;
         me.meterConsumptionMeteringStatus = meteringStatus;
         me.meterConsumptionStatusFlags = statusFlags;
       }
+      me.prepareAccessory();
       me.updateDeviceState()
     } catch (error) {
       me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
@@ -627,12 +616,12 @@ class envoyDevice {
   async updateDeviceState() {
     var me = this;
     try {
-      var powerProductionMeter = me.powerProductionMeter ? true : false;
-      const [response, response1] = await axios.all([axios.get(me.productionUrl), axios.get(me.url + PRODUCTION_CT)]);
-      me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
+      var productionUrl = me.meterProductionState ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
+      const [response, response1] = await axios.all([axios.get(productionUrl), axios.get(me.url + PRODUCTION_CT_URL)]);
+      me.log.debug('Device %s %s, get device status data: %s, data1 %s', me.host, me.name, response.data, response1.data);
 
       //production
-      var powerProduction = powerProductionMeter ? parseFloat(response.data.wattsNow / 1000) : parseFloat(response.data.production[1].wNow / 1000);
+      var powerProduction = me.meterProductionState ? parseFloat(response.data.production[1].wNow / 1000) : parseFloat(response.data.wattsNow / 1000);
 
       //save and read powerProductionMax
       try {
@@ -661,9 +650,9 @@ class envoyDevice {
       me.powerProductionMax = powerProductionMax;
       me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
 
-      var energyProductionToday = powerProductionMeter ? parseFloat(response.data.wattHoursToday / 1000) : parseFloat(response.data.production[1].whToday / 1000);
-      var energyProductionLastSevenDays = powerProductionMeter ? parseFloat(response.data.wattHoursSevenDays / 1000) : parseFloat(response.data.production[1].whLastSevenDays / 1000);
-      var energyProductionLifetime = powerProductionMeter ? parseFloat(response.data.wattHoursLifetime / 1000) : parseFloat((response.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000);
+      var energyProductionToday = me.meterProductionState ? parseFloat(response.data.production[1].whToday / 1000) : parseFloat(response.data.wattHoursToday / 1000);
+      var energyProductionLastSevenDays = me.meterProductionState ? parseFloat(response.data.production[1].whLastSevenDays / 1000) : parseFloat(response.data.wattHoursSevenDays / 1000);
+      var energyProductionLifetime = me.meterProductionState ? parseFloat((response.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000) : parseFloat(response.data.wattHoursLifetime / 1000);
       me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, powerProduction);
       me.log.debug('Device: %s %s, power production max: %s kW', me.host, me.name, powerProductionMax);
       me.log.debug('Device: %s %s, power production max detected: %s', me.host, me.name, powerProductionMaxDetectedState ? 'Yes' : 'No');
@@ -686,7 +675,7 @@ class envoyDevice {
       }
 
       //consumption total
-      if (me.powerConsumptionMetersInstalled && me.powerConsumptionMeter >= 0) {
+      if ((me.meterConsumptionState && me.meterConsumptionMeasurementType == 'total-consumption') || (me.meterConsumptionState && me.meterConsumptionMeasurementType == 'net-consumption')) {
         //consumption total
         var powerConsumptionTotal = parseFloat(response1.data.consumption[0].wNow / 1000);
 
@@ -742,7 +731,7 @@ class envoyDevice {
       }
 
       //consumption net
-      if (me.powerConsumptionMetersInstalled && me.powerConsumptionMeter >= 1) {
+      if (me.meterConsumptionState && me.meterConsumptionMeasurementType == 'net-consumption') {
         var powerConsumptionNet = parseFloat(response1.data.consumption[1].wNow / 1000);
 
         //save and read powerConsumptionNetMax
@@ -795,7 +784,7 @@ class envoyDevice {
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionNetLifetime);
         }
       }
-      if (me.enchargeStorage) {
+      if (me.encharge > 0) {
         var powerEnchargeStorage = parseFloat(response1.data.storage[0].wNow / 1000);
         var energyEnchargeStorage = parseFloat(response1.data.storage[0].whNow + me.enchargeStorageOffset / 1000);
         me.log.debug('Device: %s %s, encharge storage power: %s kW', me.host, me.name, powerEnchargeStorage);

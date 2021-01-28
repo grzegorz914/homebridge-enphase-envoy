@@ -33,7 +33,10 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 4. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*. 
 5. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
 
-## Important note!!!
+## Important note v3.5.0!!!
+Version 3.5.0 detect automatically all installed devices, please check Your config after update to this version.
+
+## Important note v3.0.0!!!
 Version 3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. 
 If U want to use old CO2 sensor style just still with 2.x.x version
 
@@ -54,13 +57,13 @@ If U want to use old CO2 sensor style just still with 2.x.x version
 1. Use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) to configure the plugin (strongly recomended), or update your configuration file manually. See `sample-config.json` in this repository for a sample or add the bottom example to Your config.json file.
 2. In `host` set the iP adress or leave empy(will use default path `envoy.local`).
 3. In `refreshInterval` set the data refresh time in seconds.
-5. In `enchargeStorage` check ON if encharge storage is installed.
+5. In `enchargeStorage` check ON if encharge storage is installed. (not available in v3.5.0)
 6. In `enchargeStorageOffset` set the offset of encharge storage energy if nedded in (Wh),(+/-).
-7. In `powerConsumptionMetersInstalled` check ON if consumption meters are installed.
-8. In `powerProductionMeter` select which meter will be used to display Power production.
+7. In `powerConsumptionMetersInstalled` check ON if consumption meters are installed. (not available in v3.5.0)
+8. In `powerProductionMeter` select which meter will be used to display Power production. (not available in v3.5.0)
 9. In `powerProductionMaxDetected` set the maximum Power production, if the Power production will be >= `powerProductionMaxDetected` then You get notyfication message from the HomeKit.
 10. In `energyProductionLifetimeOffset` set the offset of lifetime energy production if nedded in (Wh),(+/-).
-11. In `powerConsumptionMeter` select which meter will be used to display Power consumption.
+11. In `powerConsumptionMeter` select which meter will be used to display Power consumption. (not available in v3.5.0)
 12. In `powerConsumptionTotalMaxDetected` set the maximum total Power consumption, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit.
 13. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
 14. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.

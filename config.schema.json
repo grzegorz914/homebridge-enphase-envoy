@@ -33,50 +33,13 @@
               "maximum": 3600,
               "required": true
             },
-            "enchargeStorage": {
-              "title": "Encharge storage installed",
-              "type": "boolean",
-              "default": false,
-              "required": false
-            },
             "enchargeStorageOffset": {
               "title": "Encharge Storage energy offset",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
               "description": "Here set energy offset in (Wh) for Encharge Storage if nedded.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].enchargeStorage === true;"
-              }
-            },
-            "powerConsumptionMetersInstalled": {
-              "title": "Power consumption meters installed",
-              "type": "boolean",
-              "default": false,
               "required": false
-            },
-            "powerProductionMeter": {
-              "title": "Power production meter",
-              "type": "integer",
-              "default": 0,
-              "maximum": 1,
-              "description": "Here select installed Power production meter.",
-              "oneOf": [
-                {
-                  "title": "Microinverters",
-                  "enum": [
-                    0
-                  ]
-                },
-                {
-                  "title": "Production CT",
-                  "enum": [
-                    1
-                  ]
-                }
-              ],
-              "required": true
             },
             "powerProductionMaxDetected": {
               "title": "Power production max detected",
@@ -94,47 +57,13 @@
               "description": "Here set energy production offset in (Wh) for lifetime energy if nedded.",
               "required": false
             },
-            "info": {
-              "description": "To configure power consumption meters please enable it first.",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === false;"
-              }
-            },
-            "powerConsumptionMeter": {
-              "title": "Power consumption meter",
-              "type": "integer",
-              "default": 0,
-              "maximum": 1,
-              "description": "Here select installed Power consumption meter.",
-              "oneOf": [
-                {
-                  "title": "Consumption CT (Load Only)",
-                  "enum": [
-                    0
-                  ]
-                },
-                {
-                  "title": "Consumption CT (Load with Solar production)",
-                  "enum": [
-                    1
-                  ]
-                }
-              ],
-              "required": true,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
-              }
-            },
             "powerConsumptionTotalMaxDetected": {
               "title": "Total - Power consumption max detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
               "description": "Here set max Power consumption Total in (W) at which You get notyfication message.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
-              }
+              "required": false
             },
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Total - Energy consumption lifetime offset",
@@ -142,10 +71,7 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set energy consumption offset in (Wh) for lifetime total energy if nedded.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
-              }
+              "required": false
             },
             "powerConsumptionNetMaxDetected": {
               "title": "Net - Power consumption max detected",
@@ -153,10 +79,7 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set max Power consumption from Net in (W) at which You get notyfication message.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
-              }
+              "required": false
             },
             "energyConsumptionNetLifetimeOffset": {
               "title": "Net - Energy consumption lifetime offset",
@@ -164,10 +87,7 @@
               "default": 0,
               "maximum": 65535,
               "description": "Here set energy consumption offset in (Wh) for lifetime net energy if nedded.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
-              }
+              "required": false
             },
             "manufacturer": {
               "name": "Manufacturer",
@@ -187,14 +107,14 @@
               "name": "Serial Number",
               "type": "string",
               "placeholder": "Serial Number",
-              "description": "Set the serial number.",
+              "description": "Set the serial number if not detected automatically.",
               "required": false
             },
             "firmwareRevision": {
               "name": "Firmware Revision",
               "type": "string",
               "placeholder": "Firmware Revision",
-              "description": "Set the firmware revision.",
+              "description": "Set the firmware revision if not detected automatically.",
               "required": false
             }
           }
@@ -211,9 +131,16 @@
         "devices[].name",
         "devices[].host",
         "devices[].refreshInterval",
-        "devices[].enchargeStorage",
-        "devices[].enchargeStorageOffset",
-        "devices[].powerConsumptionMetersInstalled",
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "Encharge storage",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].enchargeStorageOffset"
+          ]
+        },
         {
           "key": "devices[]",
           "type": "section",
@@ -221,7 +148,6 @@
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].powerProductionMeter",
             "devices[].powerProductionMaxDetected",
             "devices[].energyProductionLifetimeOffset"
           ]
@@ -233,8 +159,6 @@
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].info",
-            "devices[].powerConsumptionMeter",
             "devices[].powerConsumptionTotalMaxDetected",
             "devices[].energyConsumptionTotalLifetimeOffset",
             "devices[].powerConsumptionNetMaxDetected",
