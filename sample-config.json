@@ -24,6 +24,7 @@
                     "refreshInterval": 30,
                     "enchargeStorage": false,
                     "enchargeStorageOffset": 0,
+                    "powerConsumptionMetersInstalled": false,
                     "powerProductionMeter": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,

@@ -50,6 +50,12 @@
                 "functionBody": "return model.devices[arrayIndices].enchargeStorage === true;"
               }
             },
+            "powerConsumptionMetersInstalled": {
+              "title": "Power consumption meters installed",
+              "type": "boolean",
+              "default": false,
+              "required": false
+            },
             "powerProductionMeter": {
               "title": "Power production meter",
               "type": "integer",
@@ -88,33 +94,36 @@
               "description": "Here set energy production offset in (Wh) for lifetime energy if nedded.",
               "required": false
             },
+            "info": {
+              "description": "To configure power consumption meters please enable it first.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === false;"
+              }
+            },
             "powerConsumptionMeter": {
               "title": "Power consumption meter",
               "type": "integer",
               "default": 0,
-              "maximum": 2,
+              "maximum": 1,
               "description": "Here select installed Power consumption meter.",
               "oneOf": [
                 {
-                  "title": "None",
+                  "title": "Consumption CT (Load Only)",
                   "enum": [
                     0
                   ]
                 },
                 {
-                  "title": "Consumption CT (Load Only)",
+                  "title": "Consumption CT (Load with Solar production)",
                   "enum": [
                     1
                   ]
-                },
-                {
-                  "title": "Consumption CT (Load with Solar production)",
-                  "enum": [
-                    2
-                  ]
                 }
               ],
-              "required": true
+              "required": true,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
+              }
             },
             "powerConsumptionTotalMaxDetected": {
               "title": "Total - Power consumption max detected",
@@ -124,7 +133,7 @@
               "description": "Here set max Power consumption Total in (W) at which You get notyfication message.",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMeter >= 1;"
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
               }
             },
             "energyConsumptionTotalLifetimeOffset": {
@@ -135,7 +144,7 @@
               "description": "Here set energy consumption offset in (Wh) for lifetime total energy if nedded.",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMeter >= 1;"
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
               }
             },
             "powerConsumptionNetMaxDetected": {
@@ -146,7 +155,7 @@
               "description": "Here set max Power consumption from Net in (W) at which You get notyfication message.",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMeter >= 2;"
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
               }
             },
             "energyConsumptionNetLifetimeOffset": {
@@ -157,7 +166,7 @@
               "description": "Here set energy consumption offset in (Wh) for lifetime net energy if nedded.",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionMeter >= 2;"
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionMetersInstalled === true;"
               }
             },
             "manufacturer": {
@@ -204,6 +213,7 @@
         "devices[].refreshInterval",
         "devices[].enchargeStorage",
         "devices[].enchargeStorageOffset",
+        "devices[].powerConsumptionMetersInstalled",
         {
           "key": "devices[]",
           "type": "section",
@@ -223,6 +233,7 @@
           "expandable": true,
           "expanded": false,
           "items": [
+            "devices[].info",
             "devices[].powerConsumptionMeter",
             "devices[].powerConsumptionTotalMaxDetected",
             "devices[].energyConsumptionTotalLifetimeOffset",

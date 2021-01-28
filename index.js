@@ -10,6 +10,18 @@ const parseStringPromise = require('xml2js').parseStringPromise;
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
+const INFO = '/info.xml'
+const PRODUCTION_CT = '/production.json'
+const PRODUCTION_CT_DETAILS = '/production.json?details=1'
+const PRODUCTION = '/api/v1/production'
+const PRODUCTION_INVERTERS = '/api/v1/production/inverters'
+const CONSUMPTION = '/api/v1/consumption'
+const INVENTORY = '/inventory.json'
+const METERS = '/ivp/meters'
+const REPORET_SETTINGS = '/ivp/reportsettings'
+const INVERTERS_STATUS = '/installer/agf/inverters_status.json'
+const PCU_COMM_CHECK = '/installer/pcu_comm_check'
+
 let Accessory, Characteristic, Service, Categories, UUID;
 
 module.exports = (api) => {
@@ -171,12 +183,12 @@ class envoyDevice {
     this.api = api;
     this.config = config;
 
-
     //device configuration
     this.name = config.name;
     this.host = config.host || 'envoy.local';
     this.refreshInterval = config.refreshInterval || 10;
     this.enchargeStorage = config.enchargeStorage || false;
+    this.powerConsumptionMetersInstalled = config.powerConsumptionMetersInstalled || false;
     this.enchargeStorageOffset = config.enchargeStorageOffset || 0;
     this.powerProductionMeter = config.powerProductionMeter || 0;
     this.powerProductionMaxDetected = config.powerProductionMaxDetected || 0;
@@ -221,6 +233,14 @@ class envoyDevice {
     this.powerConsumptionTotalMaxFile = this.prefDir + '/' + 'powerConsumptionTotalMax_' + this.host.split('.').join('');
     this.powerConsumptionNetMaxFile = this.prefDir + '/' + 'powerConsumptionNetMax_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
+    this.productionUrl = this.powerProductionMeter ? this.url + PRODUCTION : this.url + PRODUCTION_CT
+
+    this.meterConsumptionMeasurementType;
+    this.meterConsumptionState;
+    this.meterConsumptionPhaseMode;
+    this.meterConsumptionPhaseCount;
+    this.meterConsumptionMeteringStatus;
+    this.meterConsumptionStatusFlags;
 
     //check if prefs directory ends with a /, if not then add it
     if (this.prefDir.endsWith('/') === false) {
@@ -248,6 +268,7 @@ class envoyDevice {
       }
     }.bind(this), this.refreshInterval * 1000);
 
+    this.getDeviceInfo()
     this.prepareAccessory();
   }
 
@@ -269,7 +290,6 @@ class envoyDevice {
   //Prepare information service
   prepareInformationService() {
     this.log.debug('prepareInformationService');
-    this.getDeviceInfo();
 
     let manufacturer = this.manufacturer;
     let modelName = this.modelName;
@@ -298,19 +318,15 @@ class envoyDevice {
       .on('get', this.getPowerProductionMax.bind(this));
     this.envoyServiceProduction.getCharacteristic(Characteristic.PowerMaxDetected)
       .on('get', this.getPowerProductionMaxDetected.bind(this));
-
-    if (this.powerProductionMeter == 1) {
-      this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyToday)
-        .on('get', this.getEnergyProductionToday.bind(this));
-      this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLastSevenDays)
-        .on('get', this.getEnergyProductionLastSevenDays.bind(this));
-    }
-
+    this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyToday)
+      .on('get', this.getEnergyProductionToday.bind(this));
+    this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLastSevenDays)
+      .on('get', this.getEnergyProductionLastSevenDays.bind(this));
     this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLifetime)
       .on('get', this.getEnergyProductionLifetime.bind(this));
     this.accessory.addService(this.envoyServiceProduction);
 
-    if (this.powerConsumptionMeter >= 1) {
+    if (this.powerConsumptionMetersInstalled || this.powerConsumptionMeter >= 0) {
       this.envoyServiceConsumptionTotal = new Service.PowerMeter('Consumption Total', 'envoyServiceConsumptionTotal');
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionTotal.bind(this));
@@ -327,7 +343,7 @@ class envoyDevice {
       this.accessory.addService(this.envoyServiceConsumptionTotal);
     }
 
-    if (this.powerConsumptionMeter >= 2) {
+    if (this.powerConsumptionMetersInstalled || this.powerConsumptionMeter >= 1) {
       this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionNet.bind(this));
@@ -358,42 +374,250 @@ class envoyDevice {
     var me = this;
     me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
     try {
-      const [response, response1] = await axios.all([axios.get(me.url + '/production.json'), axios.get(me.url + '/info.xml')]);
+      const [response, response1, response2] = await axios.all([axios.get(me.url + INVENTORY), axios.get(me.url + INFO), axios.get(me.url + METERS)]);
       me.log.info('Device: %s %s, state: Online.', me.host, me.name);
       me.log.debug('Device %s %s, get device status data response %s response1: %s', me.host, me.name, response.data, response1.data);
-      try {
-        const result = await parseStringPromise(response1.data);
-        me.log.debug('Device: %s %s, get Device info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
-
-        if (typeof result.envoy_info.device[0].sn[0] !== 'undefined') {
-          var serialNumber = result.envoy_info.device[0].sn[0];
-          me.serialNumber = serialNumber;
-        } else {
-          serialNumber = me.serialNumber;
-        };
-        if (typeof result.envoy_info.device[0].software[0] !== 'undefined') {
-          var firmwareRevision = result.envoy_info.device[0].software[0];
-          me.firmwareRevision = firmwareRevision;
-        } else {
-          firmwareRevision = me.firmwareRevision;
-        };
-        if (typeof response.data.production[0].activeCount !== 'undefined') {
-          var inverters = response.data.production[0].activeCount;
-        } else {
-          inverters = 'Undefined';
-        };
-        me.log('-------- %s --------', me.name);
-        me.log('Manufacturer: %s', me.manufacturer);
-        me.log('Model: %s', me.modelName);
-        me.log('Serialnr: %s', serialNumber);
-        me.log('Firmware: %s', firmwareRevision);
-        me.log('Inverters: %s', inverters);
-        me.log('----------------------------------');
-        me.updateDeviceState();
-      } catch (error) {
-        me.log.error('Device %s %s, getDeviceInfo parse string error: %s', me.host, me.name, error);
-        me.checkDeviceInfo = true;
+      const result = await parseStringPromise(response1.data);
+      me.log.debug('Device: %s %s, get Device info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
+      if (typeof result.envoy_info.device[0].sn[0] !== 'undefined') {
+        var serialNumber = result.envoy_info.device[0].sn[0];
+      } else {
+        serialNumber = me.serialNumber;
       };
+      if (typeof result.envoy_info.device[0].software[0] !== 'undefined') {
+        var firmwareRevision = result.envoy_info.device[0].software[0];
+      } else {
+        firmwareRevision = me.firmwareRevision;
+      };
+      if (typeof response.data[0].devices.length !== 'undefined') {
+        var inverters = response.data[0].devices.length;
+      } else {
+        inverters = 0;
+      };
+      if (typeof response.data[1].devices.length !== 'undefined') {
+        var encharge = response.data[1].devices.length;
+      } else {
+        encharge = 0;
+      };
+      if (typeof response.data[2].devices.length !== 'undefined') {
+        var qrelays = response.data[2].devices.length;
+      } else {
+        qrelays = 0;
+      };
+      if (typeof response2.data.length !== 'undefined') {
+        var meters = response2.data.length;
+      } else {
+        meters = 0;
+      };
+      me.log('-------- %s --------', me.name);
+      me.log('Manufacturer: %s', me.manufacturer);
+      me.log('Model: %s', me.modelName);
+      me.log('Serialnr: %s', serialNumber);
+      me.log('Firmware: %s', firmwareRevision);
+      me.log('Inverters: %s', inverters);
+      me.log('Encharges: %s', encharge);
+      me.log('Q-Relays: %s', qrelays);
+      me.log('Meters: %s', meters);
+      me.log('----------------------------------');
+      me.serialNumber = serialNumber;
+      me.encharge = encharge;
+      me.qrelays = qrelays;
+      me.meters = meters;
+      if (encharge >= 1) {
+        if (typeof response.data[1].producing !== 'undefined') {
+          var producing = response.data[1].devices[0].producing ? 'Yes' : 'No';
+        } else {
+          producing = 'Undefined';
+        };
+        if (typeof response.data[1].devices[0].communicating !== 'undefined') {
+          var communicating = response.data[1].devices[0].communicating ? 'Yes' : 'No';
+        } else {
+          communicating = 'Undefined';
+        };
+        if (typeof response.data[1].devices[0].provisioned !== 'undefined') {
+          var provisioned = response.data[1].devices[0].provisioned ? 'Yes' : 'No';
+        } else {
+          provisioned = 'Undefined';
+        };
+        if (typeof response.data[1].devices[0].operating !== 'undefined') {
+          var operating = response.data[1].devices[0].operating ? 'Yes' : 'No';
+        } else {
+          operating = 'Undefined';
+        };
+        if (typeof response.data[1].devices[0].device_status !== 'undefined') {
+          var device_status = response.data[1].devices[0].device_status[0];
+        } else {
+          device_status = 'Undefined';
+        };
+        me.log('Encharge: %s', producing);
+        me.log('Communicating: %s', communicating);
+        me.log('Provisioned: %s', provisioned);
+        me.log('Operating: %s', operating);
+        me.log('Status: %s', device_status);
+        me.log('----------------------------------');
+        me.enchargeProducing = producing;
+        me.enchargeCommunicating = communicating;
+        me.enchargeProvisioned = provisioned;
+        me.enchargeOperating = operating;
+        me.enchargeDeviceStatus = device_status;
+      }
+      if (qrelays >= 1) {
+        if (typeof response.data[2].devices[0].communicating !== 'undefined') {
+          var communicating = response.data[2].devices[0].communicating ? 'Yes' : 'No';
+        } else {
+          communicating = 'Undefined';
+        };
+        if (typeof response.data[2].devices[0].provisioned !== 'undefined') {
+          var provisioned = response.data[2].devices[0].provisioned ? 'Yes' : 'No';
+        } else {
+          provisioned = 'Undefined';
+        };
+        if (typeof response.data[2].devices[0].operating !== 'undefined') {
+          var operating = response.data[2].devices[0].operating ? 'Yes' : 'No';
+        } else {
+          operating = 'Undefined';
+        };
+        if (typeof response.data[2].devices[0].device_status !== 'undefined') {
+          var device_status = response.data[2].devices[0].device_status[0];
+        } else {
+          device_status = 'Undefined';
+        };
+        if (typeof response.data[2].devices[0].relay !== 'undefined') {
+          var relay = response.data[2].devices[0].relay ? 'Closed' : 'Open';
+        } else {
+          relay = 'Undefined';
+        };
+        // if (typeof response.data[2].devices[0].line-count !== 'undefined') {
+        //   var linecount = response.data[2].devices[0].line-count;
+        // } else {
+        //   linecount = 'Undefined';
+        // };
+        // if (typeof response.data[2].devices[0].line1-connected !== 'undefined') {
+        //   var line1connected = response.data[2].devices[0].line1-connectedt ? 'Closed' : 'Open';
+        // } else {
+        //   line1connected = 'Undefined';
+        // };
+        // if (typeof response.data[2].devices[0].line2-connected !== 'undefined') {
+        //   var line2connected = response.data[2].devices[0].line2-connectedt ? 'Closed' : 'Open';
+        // } else {
+        //   line2connected = 'Undefined';
+        // };
+        // if (typeof response.data[2].devices[0].line3-connected !== 'undefined') {
+        //   var line3connected = response.data[2].devices[0].line3-connectedt ? 'Closed' : 'Open';
+        // } else {
+        //   line3connected = 'Undefined';
+        // };
+        me.log('Q-Relay: %s', relay);
+        me.log('Communicating: %s', communicating);
+        me.log('Provisioned: %s', provisioned);
+        me.log('Operating: %s', operating);
+        me.log('Status: %s', device_status);
+        //me.log('Line count: %s', linecount);
+        // me.log('Line 1: %s', line1connected);
+        // me.log('Line 2: %s', line2connected);
+        // me.log('Line 3: %s', line3connected);
+        me.log('----------------------------------');
+        me.qRelayCommunicating = communicating;
+        me.qRelayProvisioned = provisioned;
+        me.qRelayOperating = operating;
+        me.qRelayDeviceStatus = device_status;
+        me.qRelayRelay = relay;
+        //me.qRelayLinecount = linecount;
+        //me.qRelayLine1connected = line1connected;
+        //me.qRelayLine2connected = line2connected;
+        //me.qRelayLine3connected = line3connected;
+      }
+      if (meters >= 1) {
+        if (typeof response2.data[0].state !== 'undefined') {
+          var state = response2.data[0].state;
+        } else {
+          state = false;
+        };
+        if (typeof response2.data[0].measurementType !== 'undefined') {
+          var measurementType = response2.data[0].measurementType;
+        } else {
+          measurementType = 'Undefined';
+        };
+        if (typeof response2.data[0].phaseMode !== 'undefined') {
+          var phaseMode = response2.data[0].phaseMode;
+        } else {
+          phaseMode = 'Undefined';
+        };
+        if (typeof response2.data[0].phaseCount !== 'undefined') {
+          var phaseCount = response2.data[0].phaseCount;
+        } else {
+          phaseCount = 0;
+        };
+        if (typeof response2.data[0].meteringStatus !== 'undefined') {
+          var meteringStatus = response2.data[0].meteringStatus;
+        } else {
+          meteringStatus = 'Undefined';
+        };
+        if (typeof response2.data[0].statusFlags !== 'undefined') {
+          var statusFlags = response2.data[0].statusFlags;
+        } else {
+          statusFlags = 'Undefined';
+        };
+        me.log('Meter: %s', measurementType);
+        me.log('State: %s', state);
+        me.log('Phase mode: %s', phaseMode);
+        me.log('Phase count: %s', phaseCount);
+        me.log('Metering status: %s', meteringStatus);
+        me.log('Status flag: %s', statusFlags);
+        me.log('----------------------------------');
+        me.meterProductionMeasurementType = measurementType;
+        me.meterProductionState = state;
+        me.meterProductionPhaseMode = phaseMode;
+        me.meterProductionPhaseCount = phaseCount;
+        me.meterProductionMeteringStatus = meteringStatus;
+        me.meterProductionStatusFlags = statusFlags;
+      }
+      if (meters >= 2) {
+        if (typeof response2.data[1].state !== 'undefined') {
+          var state = response2.data[1].state;
+        } else {
+          state = false;
+        };
+        if (typeof response2.data[1].measurementType !== 'undefined') {
+          var measurementType = response2.data[1].measurementType;
+        } else {
+          measurementType = 'Undefined';
+        };
+        if (typeof response2.data[1].phaseMode !== 'undefined') {
+          var phaseMode = response2.data[1].phaseMode;
+        } else {
+          phaseMode = 'Undefined';
+        };
+        if (typeof response2.data[1].phaseCount !== 'undefined') {
+          var phaseCount = response2.data[1].phaseCount;
+        } else {
+          phaseCount = 0;
+        };
+        if (typeof response2.data[1].meteringStatus !== 'undefined') {
+          var meteringStatus = response2.data[1].meteringStatus;
+        } else {
+          meteringStatus = 'Undefined';
+        };
+        if (typeof response2.data[1].statusFlags !== 'undefined') {
+          var statusFlags = response2.data[1].statusFlags;
+        } else {
+          statusFlags = 'Undefined';
+        };
+        me.log('Meter: %s', measurementType);
+        me.log('State: %s', state);
+        me.log('Phase mode: %s', phaseMode);
+        me.log('Phase count: %s', phaseCount);
+        me.log('Metering status: %s', meteringStatus);
+        me.log('Status flag: %s', statusFlags);
+        me.log('----------------------------------');
+        me.meterConsumptionMeasurementType = measurementType;
+        me.meterConsumptionState = state;
+        me.meterConsumptionPhaseMode = phaseMode;
+        me.meterConsumptionPhaseCount = phaseCount;
+        me.meterConsumptionMeteringStatus = meteringStatus;
+        me.meterConsumptionStatusFlags = statusFlags;
+      }
+      me.updateDeviceState()
     } catch (error) {
       me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
       me.checkDeviceInfo = true;
@@ -403,11 +627,12 @@ class envoyDevice {
   async updateDeviceState() {
     var me = this;
     try {
-      var response = await axios.get(me.url + '/production.json');
+      var powermeter = me.powerProductionMeter ? 1 : 0;
+      const response = await axios.get(me.productionUrl);
       me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
 
       //production
-      var powerProduction = parseFloat(response.data.production[me.powerProductionMeter].wNow / 1000);
+      var powerProduction = powermeter ? parseFloat(response.data.wattsNow / 1000) : parseFloat(response.data.production[1].wNow / 1000);
 
       //save and read powerProductionMax
       try {
@@ -436,12 +661,18 @@ class envoyDevice {
       me.powerProductionMax = powerProductionMax;
       me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
 
-      var energyProductionLifetime = parseFloat((response.data.production[me.powerProductionMeter].whLifetime + me.energyProductionLifetimeOffset) / 1000);
+      var energyProductionToday = powermeter ? parseFloat(response.data.wattHoursToday / 1000) : parseFloat(response.data.production[1].whToday / 1000);
+      var energyProductionLastSevenDays = powermeter ? parseFloat(response.data.wattHoursSevenDays / 1000) : parseFloat(response.data.production[1].whLastSevenDays / 1000);
+      var energyProductionLifetime = powermeter ? parseFloat(response.data.wattHoursLifetime / 1000) : parseFloat((response.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000);
       me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, powerProduction);
       me.log.debug('Device: %s %s, power production max: %s kW', me.host, me.name, powerProductionMax);
       me.log.debug('Device: %s %s, power production max detected: %s', me.host, me.name, powerProductionMaxDetectedState ? 'Yes' : 'No');
+      me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, energyProductionToday);
+      me.log.debug('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, energyProductionLastSevenDays);
       me.log.debug('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, energyProductionLifetime);
       me.powerProduction = powerProduction;
+      me.energyProductionToday = energyProductionToday;
+      me.energyProductionLastSevenDays = energyProductionLastSevenDays;
       me.energyProductionLifetime = energyProductionLifetime;
       me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
 
@@ -449,25 +680,13 @@ class envoyDevice {
         me.envoyServiceProduction.updateCharacteristic(Characteristic.Power, powerProduction);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.PowerMax, powerProductionMax);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.PowerMaxDetected, powerProductionMaxDetectedState);
+        me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyToday, energyProductionToday);
+        me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyProductionLastSevenDays);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyLifetime, energyProductionLifetime);
       }
 
-      if (me.powerProductionMeter == 1) {
-        var energyProductionToday = parseFloat(response.data.production[1].whToday / 1000);
-        var energyProductionLastSevenDays = parseFloat(response.data.production[1].whLastSevenDays / 1000);
-        me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, energyProductionToday);
-        me.log.debug('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, energyProductionLastSevenDays);
-        me.energyProductionToday = energyProductionToday;
-        me.energyProductionLastSevenDays = energyProductionLastSevenDays;
-
-        if (me.envoyServiceProduction) {
-          me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyToday, energyProductionToday);
-          me.envoyServiceProduction.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyProductionLastSevenDays);
-        }
-      }
-
       //consumption total
-      if (me.powerConsumptionMeter >= 1) {
+      if (me.powerConsumptionMetersInstalled || me.powerConsumptionMeter >= 0) {
         //consumption total
         var powerConsumptionTotal = parseFloat(response.data.consumption[0].wNow / 1000);
 
@@ -523,7 +742,7 @@ class envoyDevice {
       }
 
       //consumption net
-      if (me.powerConsumptionMeter >= 2) {
+      if (me.powerConsumptionMetersInstalled || me.powerConsumptionMeter >= 1) {
         var powerConsumptionNet = parseFloat(response.data.consumption[1].wNow / 1000);
 
         //save and read powerConsumptionNetMax

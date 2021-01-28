@@ -56,15 +56,16 @@ If U want to use old CO2 sensor style just still with 2.x.x version
 3. In `refreshInterval` set the data refresh time in seconds.
 5. In `enchargeStorage` check ON if encharge storage is installed.
 6. In `enchargeStorageOffset` set the offset of encharge storage energy if nedded in (Wh),(+/-).
-7. In `powerProductionMeter` select which meter will be used to display Power production.
-8. In `powerProductionMaxDetected` set the maximum Power production, if the Power production will be >= `powerProductionMaxDetected` then You get notyfication message from the HomeKit.
-9. In `energyProductionLifetimeOffset` set the offset of lifetime energy production if nedded in (Wh),(+/-).
-10. In `powerConsumptionMeter` select which meter will be used to display Power consumption.
-11. In `powerConsumptionTotalMaxDetected` set the maximum total Power consumption, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit.
-12. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
-13. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
-14. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
-15. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app
+7. In `powerConsumptionMetersInstalled` check ON if consumption meters are installed.
+8. In `powerProductionMeter` select which meter will be used to display Power production.
+9. In `powerProductionMaxDetected` set the maximum Power production, if the Power production will be >= `powerProductionMaxDetected` then You get notyfication message from the HomeKit.
+10. In `energyProductionLifetimeOffset` set the offset of lifetime energy production if nedded in (Wh),(+/-).
+11. In `powerConsumptionMeter` select which meter will be used to display Power consumption.
+12. In `powerConsumptionTotalMaxDetected` set the maximum total Power consumption, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit.
+13. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
+14. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
+15. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
+16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
@@ -80,6 +81,7 @@ If U want to use old CO2 sensor style just still with 2.x.x version
                     "refreshInterval": 30,
                     "enchargeStorage": false,
                     "enchargeStorageOffset": 0,
+                    "powerConsumptionMetersInstalled": false,
                     "powerProductionMeter": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
