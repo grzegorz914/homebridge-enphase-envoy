@@ -326,7 +326,7 @@ class envoyDevice {
       .on('get', this.getEnergyProductionLifetime.bind(this));
     this.accessory.addService(this.envoyServiceProduction);
 
-    if (this.powerConsumptionMetersInstalled || this.powerConsumptionMeter >= 0) {
+    if (this.powerConsumptionMetersInstalled && this.powerConsumptionMeter >= 0) {
       this.envoyServiceConsumptionTotal = new Service.PowerMeter('Consumption Total', 'envoyServiceConsumptionTotal');
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionTotal.bind(this));
@@ -343,7 +343,7 @@ class envoyDevice {
       this.accessory.addService(this.envoyServiceConsumptionTotal);
     }
 
-    if (this.powerConsumptionMetersInstalled || this.powerConsumptionMeter >= 1) {
+    if (this.powerConsumptionMetersInstalled && this.powerConsumptionMeter >= 1) {
       this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
         .on('get', this.getPowerConsumptionNet.bind(this));
@@ -627,12 +627,12 @@ class envoyDevice {
   async updateDeviceState() {
     var me = this;
     try {
-      var powermeter = me.powerProductionMeter ? 1 : 0;
-      const response = await axios.get(me.productionUrl);
+      var powerProductionMeter = me.powerProductionMeter ? true : false;
+      const [response, response1] = await axios.all([axios.get(me.productionUrl), axios.get(me.url + PRODUCTION_CT)]);
       me.log.debug('Device %s %s, get device status data: %s', me.host, me.name, response.data);
 
       //production
-      var powerProduction = powermeter ? parseFloat(response.data.wattsNow / 1000) : parseFloat(response.data.production[1].wNow / 1000);
+      var powerProduction = powerProductionMeter ? parseFloat(response.data.wattsNow / 1000) : parseFloat(response.data.production[1].wNow / 1000);
 
       //save and read powerProductionMax
       try {
@@ -661,9 +661,9 @@ class envoyDevice {
       me.powerProductionMax = powerProductionMax;
       me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
 
-      var energyProductionToday = powermeter ? parseFloat(response.data.wattHoursToday / 1000) : parseFloat(response.data.production[1].whToday / 1000);
-      var energyProductionLastSevenDays = powermeter ? parseFloat(response.data.wattHoursSevenDays / 1000) : parseFloat(response.data.production[1].whLastSevenDays / 1000);
-      var energyProductionLifetime = powermeter ? parseFloat(response.data.wattHoursLifetime / 1000) : parseFloat((response.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000);
+      var energyProductionToday = powerProductionMeter ? parseFloat(response.data.wattHoursToday / 1000) : parseFloat(response.data.production[1].whToday / 1000);
+      var energyProductionLastSevenDays = powerProductionMeter ? parseFloat(response.data.wattHoursSevenDays / 1000) : parseFloat(response.data.production[1].whLastSevenDays / 1000);
+      var energyProductionLifetime = powerProductionMeter ? parseFloat(response.data.wattHoursLifetime / 1000) : parseFloat((response.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000);
       me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, powerProduction);
       me.log.debug('Device: %s %s, power production max: %s kW', me.host, me.name, powerProductionMax);
       me.log.debug('Device: %s %s, power production max detected: %s', me.host, me.name, powerProductionMaxDetectedState ? 'Yes' : 'No');
@@ -686,9 +686,9 @@ class envoyDevice {
       }
 
       //consumption total
-      if (me.powerConsumptionMetersInstalled || me.powerConsumptionMeter >= 0) {
+      if (me.powerConsumptionMetersInstalled && me.powerConsumptionMeter >= 0) {
         //consumption total
-        var powerConsumptionTotal = parseFloat(response.data.consumption[0].wNow / 1000);
+        var powerConsumptionTotal = parseFloat(response1.data.consumption[0].wNow / 1000);
 
         //save and read powerConsumptionTotalMax
         try {
@@ -716,9 +716,9 @@ class envoyDevice {
         me.powerConsumptionTotalMax = powerConsumptionTotalMax;
         me.powerConsumptionTotalMaxDetectedState = powerConsumptionTotalMaxDetectedState;
 
-        var energyConsumptionTotalToday = parseFloat(response.data.consumption[0].whToday / 1000);
-        var energyConsumptionTotalLastSevenDays = parseFloat(response.data.consumption[0].whLastSevenDays / 1000);
-        var energyConsumptionTotalLifetime = parseFloat((response.data.consumption[0].whLifetime + me.energyConsumptionTotalLifetimeOffset) / 1000);
+        var energyConsumptionTotalToday = parseFloat(response1.data.consumption[0].whToday / 1000);
+        var energyConsumptionTotalLastSevenDays = parseFloat(response1.data.consumption[0].whLastSevenDays / 1000);
+        var energyConsumptionTotalLifetime = parseFloat((response1.data.consumption[0].whLifetime + me.energyConsumptionTotalLifetimeOffset) / 1000);
         me.log.debug('Device: %s %s, total power consumption : %s kW', me.host, me.name, powerConsumptionTotal);
         me.log.debug('Device: %s %s, total power consumption max: %s kW', me.host, me.name, powerConsumptionTotalMax);
         me.log.debug('Device: %s %s, total power consumption max detected: %s', me.host, me.name, powerConsumptionTotalMaxDetectedState ? 'Yes' : 'No');
@@ -742,8 +742,8 @@ class envoyDevice {
       }
 
       //consumption net
-      if (me.powerConsumptionMetersInstalled || me.powerConsumptionMeter >= 1) {
-        var powerConsumptionNet = parseFloat(response.data.consumption[1].wNow / 1000);
+      if (me.powerConsumptionMetersInstalled && me.powerConsumptionMeter >= 1) {
+        var powerConsumptionNet = parseFloat(response1.data.consumption[1].wNow / 1000);
 
         //save and read powerConsumptionNetMax
         try {
@@ -771,9 +771,9 @@ class envoyDevice {
         me.powerConsumptionNetMax = powerConsumptionNetMax;
         me.powerConsumptionNetMaxDetectedState = powerConsumptionNetMaxDetectedState;
 
-        var energyConsumptionNetToday = parseFloat(response.data.consumption[1].whToday / 1000);
-        var energyConsumptionNetLastSevenDays = parseFloat(response.data.consumption[1].whLastSevenDays / 1000);
-        var energyConsumptionNetLifetime = parseFloat((response.data.consumption[1].whLifetime + me.energyConsumptionNetLifetimeOffset) / 1000);
+        var energyConsumptionNetToday = parseFloat(response1.data.consumption[1].whToday / 1000);
+        var energyConsumptionNetLastSevenDays = parseFloat(response1.data.consumption[1].whLastSevenDays / 1000);
+        var energyConsumptionNetLifetime = parseFloat((response1.data.consumption[1].whLifetime + me.energyConsumptionNetLifetimeOffset) / 1000);
         me.log.debug('Device: %s %s, net power consumption: %s kW', me.host, me.name, powerConsumptionNet);
         me.log.debug('Device: %s %s, net power consumption max: %s kW', me.host, me.name, powerConsumptionNetMax);
         me.log.debug('Device: %s %s, net power consumption max detected: %s', me.host, me.name, powerConsumptionNetMaxDetectedState ? 'Yes' : 'No');
@@ -796,8 +796,8 @@ class envoyDevice {
         }
       }
       if (me.enchargeStorage) {
-        var powerEnchargeStorage = parseFloat(response.data.storage[0].wNow / 1000);
-        var energyEnchargeStorage = parseFloat(response.data.storage[0].whNow + me.enchargeStorageOffset / 1000);
+        var powerEnchargeStorage = parseFloat(response1.data.storage[0].wNow / 1000);
+        var energyEnchargeStorage = parseFloat(response1.data.storage[0].whNow + me.enchargeStorageOffset / 1000);
         me.log.debug('Device: %s %s, encharge storage power: %s kW', me.host, me.name, powerEnchargeStorage);
         me.log.debug('Device: %s %s, encharge storage energy: %s kWh', me.host, me.name, energyEnchargeStorage);
         me.powerEnchargeStorage = powerEnchargeStorage;
