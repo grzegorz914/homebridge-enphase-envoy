@@ -230,6 +230,7 @@ class envoyDevice {
     this.powerConsumptionNetMaxFile = this.prefDir + '/' + 'powerConsumptionNetMax_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
 
+
     //check if prefs directory ends with a /, if not then add it
     if (this.prefDir.endsWith('/') === false) {
       this.prefDir = this.prefDir + '/';
@@ -408,48 +409,103 @@ class envoyDevice {
       me.log('Meters: %s', meters);
       me.log('----------------------------------');
       me.serialNumber = serialNumber;
+      me.inverters = inverters;
       me.encharge = encharge;
       me.qrelays = qrelays;
       me.meters = meters;
+      if (inverters > 0) {
+        for (let i = 0; i < inverters; i++) {
+          if (typeof response.data[0].devices[i].serial_num !== 'undefined') {
+            var serial_num = response.data[0].devices[i].serial_num;
+          } else {
+            serial_num = 'Undefined';
+          };
+          if (typeof response.data[0].devices[i].producing !== 'undefined') {
+            var producing = response.data[0].devices[i].producing ? 'Yes' : 'No';
+          } else {
+            producing = 'Undefined';
+          };
+          if (typeof response.data[0].devices[i].communicating !== 'undefined') {
+            var communicating = response.data[0].devices[i].communicating ? 'Yes' : 'No';
+          } else {
+            communicating = 'Undefined';
+          };
+          if (typeof response.data[0].devices[i].provisioned !== 'undefined') {
+            var provisioned = response.data[0].devices[i].provisioned ? 'Yes' : 'No';
+          } else {
+            provisioned = 'Undefined';
+          };
+          if (typeof response.data[0].devices[i].operating !== 'undefined') {
+            var operating = response.data[0].devices[i].operating ? 'Yes' : 'No';
+          } else {
+            operating = 'Undefined';
+          };
+          if (typeof response.data[0].devices[i].device_status !== 'undefined') {
+            var device_status = response.data[0].devices[i].device_status.join(', ');
+          } else {
+            device_status = 'Undefined';
+          };
+          me.log('Inverter: %s', serial_num);
+          me.log('Producing: %s', producing);
+          me.log('Communicating: %s', communicating);
+          me.log('Provisioned: %s', provisioned);
+          me.log('Operating: %s', operating);
+          me.log('Status: %s', device_status);
+          me.log('----------------------------------');
+          me.inverterSerialNumber = serial_num;
+          me.inverterProducing = producing;
+          me.inverterCommunicating = communicating;
+          me.inverterProvisioned = provisioned;
+          me.inverterOperating = operating;
+          me.inverterDeviceStatus = device_status;
+        };
+      }
       if (encharge > 0) {
-        if (typeof response.data[1].producing !== 'undefined') {
-          var producing = response.data[1].devices[0].producing ? 'Yes' : 'No';
-        } else {
-          producing = 'Undefined';
+        for (let i = 0; i < encharge; i++) {
+          if (typeof response.data[1].devices[i].producing !== 'undefined') {
+            var producing = response.data[1].devices[i].producing ? 'Yes' : 'No';
+          } else {
+            producing = 'Undefined';
+          };
+          if (typeof response.data[1].devices[i].communicating !== 'undefined') {
+            var communicating = response.data[1].devices[i].communicating ? 'Yes' : 'No';
+          } else {
+            communicating = 'Undefined';
+          };
+          if (typeof response.data[1].devices[i].provisioned !== 'undefined') {
+            var provisioned = response.data[1].devices[i].provisioned ? 'Yes' : 'No';
+          } else {
+            provisioned = 'Undefined';
+          };
+          if (typeof response.data[1].devices[i].operating !== 'undefined') {
+            var operating = response.data[1].devices[i].operating ? 'Yes' : 'No';
+          } else {
+            operating = 'Undefined';
+          };
+          if (typeof response.data[1].devices[i].device_status !== 'undefined') {
+            var device_status = response.data[1].devices[i].device_status.join(', ');
+          } else {
+            device_status = 'Undefined';
+          };
+          me.log('Encharge: %s', producing);
+          me.log('Communicating: %s', communicating);
+          me.log('Provisioned: %s', provisioned);
+          me.log('Operating: %s', operating);
+          me.log('Status: %s', device_status);
+          me.log('----------------------------------');
+          me.enchargeProducing = producing;
+          me.enchargeCommunicating = communicating;
+          me.enchargeProvisioned = provisioned;
+          me.enchargeOperating = operating;
+          me.enchargeDeviceStatus = device_status;
         };
-        if (typeof response.data[1].devices[0].communicating !== 'undefined') {
-          var communicating = response.data[1].devices[0].communicating ? 'Yes' : 'No';
-        } else {
-          communicating = 'Undefined';
-        };
-        if (typeof response.data[1].devices[0].provisioned !== 'undefined') {
-          var provisioned = response.data[1].devices[0].provisioned ? 'Yes' : 'No';
-        } else {
-          provisioned = 'Undefined';
-        };
-        if (typeof response.data[1].devices[0].operating !== 'undefined') {
-          var operating = response.data[1].devices[0].operating ? 'Yes' : 'No';
-        } else {
-          operating = 'Undefined';
-        };
-        if (typeof response.data[1].devices[0].device_status !== 'undefined') {
-          var device_status = response.data[1].devices[0].device_status[0];
-        } else {
-          device_status = 'Undefined';
-        };
-        me.log('Encharge: %s', producing);
-        me.log('Communicating: %s', communicating);
-        me.log('Provisioned: %s', provisioned);
-        me.log('Operating: %s', operating);
-        me.log('Status: %s', device_status);
-        me.log('----------------------------------');
-        me.enchargeProducing = producing;
-        me.enchargeCommunicating = communicating;
-        me.enchargeProvisioned = provisioned;
-        me.enchargeOperating = operating;
-        me.enchargeDeviceStatus = device_status;
       }
       if (qrelays >= 1) {
+        if (typeof response.data[2].devices[0].relay !== 'undefined') {
+          var relay = response.data[2].devices[0].relay ? 'Closed' : 'Open';
+        } else {
+          relay = 'Undefined';
+        };
         if (typeof response.data[2].devices[0].communicating !== 'undefined') {
           var communicating = response.data[2].devices[0].communicating ? 'Yes' : 'No';
         } else {
@@ -466,14 +522,9 @@ class envoyDevice {
           operating = 'Undefined';
         };
         if (typeof response.data[2].devices[0].device_status !== 'undefined') {
-          var device_status = response.data[2].devices[0].device_status[0];
+          var device_status = response.data[2].devices[0].device_status.join(', ');
         } else {
           device_status = 'Undefined';
-        };
-        if (typeof response.data[2].devices[0].relay !== 'undefined') {
-          var relay = response.data[2].devices[0].relay ? 'Closed' : 'Open';
-        } else {
-          relay = 'Undefined';
         };
         // if (typeof response.data[2].devices[0].line-count !== 'undefined') {
         //   var linecount = response.data[2].devices[0].line-count;
@@ -542,7 +593,7 @@ class envoyDevice {
           meteringStatus = 'Undefined';
         };
         if (typeof response2.data[0].statusFlags !== 'undefined') {
-          var statusFlags = response2.data[0].statusFlags;
+          var statusFlags = response2.data[0].statusFlags.join(', ');
         } else {
           statusFlags = 'Undefined';
         };
@@ -587,7 +638,7 @@ class envoyDevice {
           meteringStatus = 'Undefined';
         };
         if (typeof response2.data[1].statusFlags !== 'undefined') {
-          var statusFlags = response2.data[1].statusFlags;
+          var statusFlags = response2.data[1].statusFlags.join(', ');
         } else {
           statusFlags = 'Undefined';
         };
@@ -676,7 +727,6 @@ class envoyDevice {
 
       //consumption total
       if ((me.meterConsumptionState && me.meterConsumptionMeasurementType == 'total-consumption') || (me.meterConsumptionState && me.meterConsumptionMeasurementType == 'net-consumption')) {
-        //consumption total
         var powerConsumptionTotal = parseFloat(response1.data.consumption[0].wNow / 1000);
 
         //save and read powerConsumptionTotalMax
@@ -784,6 +834,8 @@ class envoyDevice {
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionNetLifetime);
         }
       }
+
+      //encharge storage
       if (me.encharge > 0) {
         var powerEnchargeStorage = parseFloat(response1.data.storage[0].wNow / 1000);
         var energyEnchargeStorage = parseFloat(response1.data.storage[0].whNow + me.enchargeStorageOffset / 1000);
