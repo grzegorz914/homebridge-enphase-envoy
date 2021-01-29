@@ -139,6 +139,51 @@ module.exports = (api) => {
   inherits(Service.PowerMeter, Service);
   Service.PowerMeter.UUID = '00000001-000A-1000-8000-0026BB765291';
 
+  Characteristic.inverterPower = function () {
+    Characteristic.call(this, 'Power', Characteristic.inverterPower.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'W',
+      minValue: 0,
+      maxValue: 10000,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.inverterPower, Characteristic);
+  Characteristic.inverterPower.UUID = '00000008-000B-1000-8000-0026BB765291';
+
+  Characteristic.inverterPowerMax = function () {
+    Characteristic.call(this, 'Power Max', Characteristic.inverterPowerMax.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'W',
+      minValue: 0,
+      maxValue: 10000,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.inverterPowerMax, Characteristic);
+  Characteristic.inverterPowerMax.UUID = '00000009-000B-1000-8000-0026BB765291';
+
+  Service.inverterPowerMeter = function (displayName, subtype) {
+    Service.call(this, displayName, Service.inverterPowerMeter.UUID, subtype);
+    this.addCharacteristic(Characteristic.inverterPower);
+    // Optional Characteristics
+    this.addOptionalCharacteristic(Characteristic.inverterPowerMax);
+    // Optional Characteristics standard
+    this.addOptionalCharacteristic(Characteristic.StatusActive);
+    this.addOptionalCharacteristic(Characteristic.StatusFault);
+    this.addOptionalCharacteristic(Characteristic.StatusLowBattery);
+    this.addOptionalCharacteristic(Characteristic.StatusTampered);
+    this.addOptionalCharacteristic(Characteristic.Name);
+  };
+  inherits(Service.inverterPowerMeter, Service);
+  Service.inverterPowerMeter.UUID = '00000002-000A-1000-8000-0026BB765291';
+
   api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform, true);
 }
 
@@ -782,8 +827,8 @@ class envoyDevice {
               me.invertersMaxPower.push(inverterMaxPower);
 
               if (me.envoyServiceInverter) {
-                me.envoyServiceInverter.updateCharacteristic(Characteristic.Power, inverterLastPower);
-                me.envoyServiceInverter.updateCharacteristic(Characteristic.PowerMax, inverterMaxPower);
+                me.envoyServiceInverter.updateCharacteristic(Characteristic.inverterPower, inverterLastPower);
+                me.envoyServiceInverter.updateCharacteristic(Characteristic.inverterPowerMax, inverterMaxPower);
               }
             }
           }
@@ -981,17 +1026,17 @@ class envoyDevice {
     if (this.invertersCount > 0) {
       for (let i = 0; i < this.invertersCount; i++) {
         this.inverterActualPoll = i;
-        this.envoyServiceInverter = new Service.PowerMeter('Inverter ' + this.invertersSerialNumber[i], 'envoyServiceInverter' + i);
-        this.envoyServiceInverter.getCharacteristic(Characteristic.Power)
+        this.envoyServiceInverter = new Service.inverterPowerMeter('Inverter ' + this.invertersSerialNumber[i], 'envoyServiceInverter' + i);
+        this.envoyServiceInverter.getCharacteristic(Characteristic.inverterPower)
           .on('get', (callback) => {
             let value = this.invertersLastPower[i];
-            this.log.info('Device: %s %s, inverter: %s last power: %s W', this.host, this.name, this.invertersSerialNumber[i], value);
+            this.log.info('Device: %s %s, inverter: %s last power: %s W', this.host, this.name, this.invertersSerialNumber[i], value.toFixed(0));
             callback(null, value);
           });
-        this.envoyServiceInverter.getCharacteristic(Characteristic.PowerMax)
+        this.envoyServiceInverter.getCharacteristic(Characteristic.inverterPowerMax)
           .on('get', (callback) => {
             let value = this.invertersMaxPower[i];
-            this.log.info('Device: %s %s, inverter: %s max power: %s W', this.host, this.name, this.invertersSerialNumber[i], value);
+            this.log.info('Device: %s %s, inverter: %s max power: %s W', this.host, this.name, this.invertersSerialNumber[i], value.toFixed(0));
             callback(null, value);
           });
         this.accessory.addService(this.envoyServiceInverter);
