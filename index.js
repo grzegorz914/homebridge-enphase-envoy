@@ -39,7 +39,7 @@ module.exports = (api) => {
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
       minValue: -100,
-      maxValue: 100,
+      maxValue: 1000,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -54,7 +54,7 @@ module.exports = (api) => {
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
       minValue: -100,
-      maxValue: 100,
+      maxValue: 1000,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -119,36 +119,6 @@ module.exports = (api) => {
   inherits(Characteristic.EnergyLifetime, Characteristic);
   Characteristic.EnergyLifetime.UUID = '00000005-000B-1000-8000-0026BB765291';
 
-  Characteristic.PowerLastInverter = function () {
-    Characteristic.call(this, 'Power Last', Characteristic.PowerLastInverter.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'W',
-      minValue: 0,
-      maxValue: 100000,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.PowerLastInverter, Characteristic);
-  Characteristic.PowerLastInverter.UUID = '00000007-000B-1000-8000-0026BB765291';
-
-  Characteristic.PowerMaxInverter = function () {
-    Characteristic.call(this, 'Power Max', Characteristic.PowerMaxInverter.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'W',
-      minValue: 0,
-      maxValue: 100000,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.PowerMaxInverter, Characteristic);
-  Characteristic.PowerMaxInverter.UUID = '00000008-000B-1000-8000-0026BB765291';
-
   //custom service
   Service.PowerMeter = function (displayName, subtype) {
     Service.call(this, displayName, Service.PowerMeter.UUID, subtype);
@@ -159,8 +129,6 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.EnergyToday);
     this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
     this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
-    this.addOptionalCharacteristic(Characteristic.PowerLastInverter);
-    this.addOptionalCharacteristic(Characteristic.PowerMaxInverter);
     // Optional Characteristics standard
     this.addOptionalCharacteristic(Characteristic.StatusActive);
     this.addOptionalCharacteristic(Characteristic.StatusFault);
@@ -814,8 +782,8 @@ class envoyDevice {
               me.invertersMaxPower.push(inverterMaxPower);
 
               if (me.envoyServiceInverter) {
-                me.envoyServiceInverter.updateCharacteristic(Characteristic.PowerLastInverter, inverterLastPower);
-                me.envoyServiceInverter.updateCharacteristic(Characteristic.PowerMaxInverter, inverterMaxPower);
+                me.envoyServiceInverter.updateCharacteristic(Characteristic.Power, inverterLastPower);
+                me.envoyServiceInverter.updateCharacteristic(Characteristic.PowerMax, inverterMaxPower);
               }
             }
           }
@@ -1014,13 +982,13 @@ class envoyDevice {
       for (let i = 0; i < this.invertersCount; i++) {
         this.inverterActualPoll = i;
         this.envoyServiceInverter = new Service.PowerMeter('Inverter ' + this.invertersSerialNumber[i], 'envoyServiceInverter' + i);
-        this.envoyServiceInverter.getCharacteristic(Characteristic.PowerLastInverter, this.invertersLastPower[i])
+        this.envoyServiceInverter.getCharacteristic(Characteristic.Power)
           .on('get', (callback) => {
             let value = this.invertersLastPower[i];
             this.log.info('Device: %s %s, inverter: %s last power: %s W', this.host, this.name, this.invertersSerialNumber[i], value);
             callback(null, value);
           });
-        this.envoyServiceInverter.getCharacteristic(Characteristic.PowerMaxInverter, this.invertersMaxPower[i])
+        this.envoyServiceInverter.getCharacteristic(Characteristic.PowerMax)
           .on('get', (callback) => {
             let value = this.invertersMaxPower[i];
             this.log.info('Device: %s %s, inverter: %s max power: %s W', this.host, this.name, this.invertersSerialNumber[i], value);
