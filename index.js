@@ -1,6 +1,7 @@
 'use strict';
 
 const axios = require('axios').default;
+const http = require('urllib');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
@@ -10,17 +11,17 @@ const parseStringPromise = require('xml2js').parseStringPromise;
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
-const INFO_URL = '/info.xml'
-const PRODUCTION_CT_URL = '/production.json'
-const PRODUCTION_CT_DETAILS_URL = '/production.json?details=1'
-const PRODUCTION_SUMM_INVERTERS_URL = '/api/v1/production'
-const PRODUCTION_INVERTERS_URL = '/api/v1/production/inverters'
-const CONSUMPTION_SUMM_URL = '/api/v1/consumption'
-const INVENTORY_URL = '/inventory.json'
-const METERS_URL = '/ivp/meters'
-const REPORT_SETTINGS_URL = '/ivp/reportsettings'
-const INVERTERS_STATUS_URL = '/installer/agf/inverters_status.json'
-const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check'
+const INFO_URL = '/info.xml';
+const PRODUCTION_CT_URL = '/production.json';
+const PRODUCTION_CT_DETAILS_URL = '/production.json?details=1';
+const PRODUCTION_SUMM_INVERTERS_URL = '/api/v1/production';
+const PRODUCTION_INVERTERS_URL = '/api/v1/production/inverters?locale=en';
+const CONSUMPTION_SUMM_URL = '/api/v1/consumption';
+const INVENTORY_URL = '/inventory.json';
+const METERS_URL = '/ivp/meters';
+const REPORT_SETTINGS_URL = '/ivp/reportsettings';
+const INVERTERS_STATUS_URL = '/installer/agf/inverters_status.json';
+const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check';
 
 let Accessory, Characteristic, Service, Categories, UUID;
 
@@ -118,6 +119,36 @@ module.exports = (api) => {
   inherits(Characteristic.EnergyLifetime, Characteristic);
   Characteristic.EnergyLifetime.UUID = '00000005-000B-1000-8000-0026BB765291';
 
+  Characteristic.PowerLastInverter = function () {
+    Characteristic.call(this, 'Power Last', Characteristic.PowerLastInverter.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'W',
+      minValue: 0,
+      maxValue: 100000,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.PowerLastInverter, Characteristic);
+  Characteristic.PowerLastInverter.UUID = '00000007-000B-1000-8000-0026BB765291';
+
+  Characteristic.PowerMaxInverter = function () {
+    Characteristic.call(this, 'Power Max', Characteristic.PowerMaxInverter.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'W',
+      minValue: 0,
+      maxValue: 100000,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.PowerMaxInverter, Characteristic);
+  Characteristic.PowerMaxInverter.UUID = '00000008-000B-1000-8000-0026BB765291';
+
   //custom service
   Service.PowerMeter = function (displayName, subtype) {
     Service.call(this, displayName, Service.PowerMeter.UUID, subtype);
@@ -128,6 +159,8 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.EnergyToday);
     this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
     this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
+    this.addOptionalCharacteristic(Characteristic.PowerLastInverter);
+    this.addOptionalCharacteristic(Characteristic.PowerMaxInverter);
     // Optional Characteristics standard
     this.addOptionalCharacteristic(Characteristic.StatusActive);
     this.addOptionalCharacteristic(Characteristic.StatusFault);
@@ -186,6 +219,10 @@ class envoyDevice {
     //device configuration
     this.name = config.name;
     this.host = config.host || 'envoy.local';
+    this.envoyUser = config.envoyUser || 'envoy';
+    this.envoyPasswd = config.envoyPasswd;
+    this.installerUser = config.installerUser || 'installer';
+    this.installerPasswd = config.installerPasswd;
     this.refreshInterval = config.refreshInterval || 10;
     this.enchargeStorageOffset = config.enchargeStorageOffset || 0;
     this.powerProductionMaxDetected = config.powerProductionMaxDetected || 0;
@@ -222,6 +259,11 @@ class envoyDevice {
     this.energyConsumptionNetToday = 0;
     this.energyConsumptionNetLastSevenDays = 0;
     this.energyConsumptionNetLifetime = 0;
+    this.invertersSerialNumber = new Array();
+    this.invertersLastReportDate = new Array();
+    this.invertersDeviceType = new Array();
+    this.invertersLastPower = new Array();
+    this.invertersMaxPower = new Array();
     this.powerEnchargeStorage = 0;
     this.energyEnchargeStorage = 0;
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
@@ -259,104 +301,6 @@ class envoyDevice {
 
     this.getDeviceInfo()
     //this.prepareAccessory();
-  }
-
-  //Prepare accessory
-  prepareAccessory() {
-    this.log.debug('prepareAccessory');
-    const accessoryName = this.name;
-    const accessoryUUID = UUID.generate(accessoryName);
-    const accessoryCategory = Categories.OTHER;
-    this.accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
-
-    this.prepareInformationService();
-    this.prepareEnvoyService();
-
-    this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
-    this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
-  }
-
-  //Prepare information service
-  prepareInformationService() {
-    this.log.debug('prepareInformationService');
-
-    let manufacturer = this.manufacturer;
-    let modelName = this.modelName;
-    let serialNumber = this.serialNumber;
-    let firmwareRevision = this.firmwareRevision;
-
-    this.accessory.removeService(this.accessory.getService(Service.AccessoryInformation));
-    const informationService = new Service.AccessoryInformation();
-    informationService
-      .setCharacteristic(Characteristic.Name, this.name)
-      .setCharacteristic(Characteristic.Manufacturer, manufacturer)
-      .setCharacteristic(Characteristic.Model, modelName)
-      .setCharacteristic(Characteristic.SerialNumber, serialNumber)
-      .setCharacteristic(Characteristic.FirmwareRevision, firmwareRevision);
-
-    this.accessory.addService(informationService);
-  }
-
-  //Prepare TV service 
-  prepareEnvoyService() {
-    this.log.debug('prepareEnvoyService');
-    this.envoyServiceProduction = new Service.PowerMeter('Production', 'envoyServiceProduction');
-    this.envoyServiceProduction.getCharacteristic(Characteristic.Power)
-      .on('get', this.getPowerProduction.bind(this));
-    this.envoyServiceProduction.getCharacteristic(Characteristic.PowerMax)
-      .on('get', this.getPowerProductionMax.bind(this));
-    this.envoyServiceProduction.getCharacteristic(Characteristic.PowerMaxDetected)
-      .on('get', this.getPowerProductionMaxDetected.bind(this));
-    this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyToday)
-      .on('get', this.getEnergyProductionToday.bind(this));
-    this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLastSevenDays)
-      .on('get', this.getEnergyProductionLastSevenDays.bind(this));
-    this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLifetime)
-      .on('get', this.getEnergyProductionLifetime.bind(this));
-    this.accessory.addService(this.envoyServiceProduction);
-
-    if ((this.meterConsumptionState && this.meterConsumptionMeasurementType == 'total-consumption') || (this.meterConsumptionState && this.meterConsumptionMeasurementType == 'net-consumption')) {
-      this.envoyServiceConsumptionTotal = new Service.PowerMeter('Consumption Total', 'envoyServiceConsumptionTotal');
-      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.Power)
-        .on('get', this.getPowerConsumptionTotal.bind(this));
-      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.PowerMax)
-        .on('get', this.getPowerConsumptionTotalMax.bind(this));
-      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.PowerMaxDetected)
-        .on('get', this.getPowerConsumptionTotalMaxDetected.bind(this));
-      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyToday)
-        .on('get', this.getEnergyConsumptionTotalToday.bind(this));
-      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLastSevenDays)
-        .on('get', this.getEnergyConsumptionTotalLastSevenDays.bind(this));
-      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLifetime)
-        .on('get', this.getEnergyConsumptionTotalLifetime.bind(this));
-      this.accessory.addService(this.envoyServiceConsumptionTotal);
-    }
-
-    if (this.meterConsumptionState && this.meterConsumptionMeasurementType == 'net-consumption') {
-      this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
-      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
-        .on('get', this.getPowerConsumptionNet.bind(this));
-      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.PowerMax)
-        .on('get', this.getPowerConsumptionNetMax.bind(this));
-      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.PowerMaxDetected)
-        .on('get', this.getPowerConsumptionNetMaxDetected.bind(this));
-      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyToday)
-        .on('get', this.getEnergyConsumptionNetToday.bind(this));
-      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLastSevenDays)
-        .on('get', this.getEnergyConsumptionNetLastSevenDays.bind(this));
-      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLifetime)
-        .on('get', this.getEnergyConsumptionNetLifetime.bind(this));
-      this.accessory.addService(this.envoyServiceConsumptionNet);
-    }
-
-    if (this.encharge > 0) {
-      this.envoyServiceEnchargeStorage = new Service.PowerMeter('Encharge storage', 'envoyServiceEnchargeStorage');
-      this.envoyServiceEnchargeStorage.getCharacteristic(Characteristic.Power)
-        .on('get', this.getPowerEnchargeStorage.bind(this));
-      this.envoyServiceEnchargeStorage.getCharacteristic(Characteristic.EnergyToday)
-        .on('get', this.getEnergyEnchargeStorage.bind(this));
-      this.accessory.addService(this.envoyServiceEnchargeStorage);
-    }
   }
 
   async getDeviceInfo() {
@@ -409,16 +353,17 @@ class envoyDevice {
       me.log('Meters: %s', meters);
       me.log('----------------------------------');
       me.serialNumber = serialNumber;
-      me.inverters = inverters;
+      me.firmwareRevision = firmwareRevision;
+      me.invertersCount = inverters;
       me.encharge = encharge;
       me.qrelays = qrelays;
       me.meters = meters;
       if (inverters > 0) {
         for (let i = 0; i < inverters; i++) {
           if (typeof response.data[0].devices[i].serial_num !== 'undefined') {
-            var serial_num = response.data[0].devices[i].serial_num;
+            var inverterSerialNumber = response.data[0].devices[i].serial_num;
           } else {
-            serial_num = 'Undefined';
+            inverterSerialNumber = 'Undefined';
           };
           if (typeof response.data[0].devices[i].producing !== 'undefined') {
             var producing = response.data[0].devices[i].producing ? 'Yes' : 'No';
@@ -445,14 +390,14 @@ class envoyDevice {
           } else {
             device_status = 'Undefined';
           };
-          me.log('Inverter: %s', serial_num);
+          me.log('Inverter %s: %s', i + 1, inverterSerialNumber);
           me.log('Producing: %s', producing);
           me.log('Communicating: %s', communicating);
           me.log('Provisioned: %s', provisioned);
           me.log('Operating: %s', operating);
           me.log('Status: %s', device_status);
           me.log('----------------------------------');
-          me.inverterSerialNumber = serial_num;
+          me.invertersSerialNumber.push(inverterSerialNumber);
           me.inverterProducing = producing;
           me.inverterCommunicating = communicating;
           me.inverterProvisioned = provisioned;
@@ -487,7 +432,7 @@ class envoyDevice {
           } else {
             device_status = 'Undefined';
           };
-          me.log('Encharge: %s', producing);
+          me.log('Encharge %s: %s', i + 1, producing);
           me.log('Communicating: %s', communicating);
           me.log('Provisioned: %s', provisioned);
           me.log('Operating: %s', operating);
@@ -656,8 +601,8 @@ class envoyDevice {
         me.meterConsumptionMeteringStatus = meteringStatus;
         me.meterConsumptionStatusFlags = statusFlags;
       }
-      me.prepareAccessory();
-      me.updateDeviceState()
+
+      me.updateDeviceState();
     } catch (error) {
       me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
       me.checkDeviceInfo = true;
@@ -716,7 +661,7 @@ class envoyDevice {
       me.energyProductionLifetime = energyProductionLifetime;
       me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
 
-      if (me.envoyServiceProduction) {
+      if (me.envoyServiceProduction && response != 'undefined') {
         me.envoyServiceProduction.updateCharacteristic(Characteristic.Power, powerProduction);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.PowerMax, powerProductionMax);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.PowerMaxDetected, powerProductionMaxDetectedState);
@@ -770,7 +715,7 @@ class envoyDevice {
         me.energyConsumptionTotalLifetime = energyConsumptionTotalLifetime;
         me.powerConsumptionTotalMaxDetectedState = powerConsumptionTotalMaxDetectedState;
 
-        if (me.envoyServiceConsumptionTotal) {
+        if (me.envoyServiceConsumptionTotal && response1 != 'undefined') {
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.Power, powerConsumptionTotal);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.PowerMax, powerConsumptionTotalMax);
           me.envoyServiceConsumptionTotal.updateCharacteristic(Characteristic.PowerMaxDetected, powerConsumptionTotalMaxDetectedState);
@@ -825,7 +770,7 @@ class envoyDevice {
         me.energyConsumptionNetLifetime = energyConsumptionNetLifetime;
         me.powerConsumptionNetMaxDetectedState = powerConsumptionNetMaxDetectedState;
 
-        if (me.envoyServiceConsumptionNet) {
+        if (me.envoyServiceConsumptionNet && response1 != 'undefined') {
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.Power, powerConsumptionNet);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.PowerMax, powerConsumptionNetMax);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.PowerMaxDetected, powerConsumptionNetMaxDetectedState);
@@ -833,6 +778,52 @@ class envoyDevice {
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLastSevenDays, energyConsumptionNetLastSevenDays);
           me.envoyServiceConsumptionNet.updateCharacteristic(Characteristic.EnergyLifetime, energyConsumptionNetLifetime);
         }
+      }
+
+      //microinverter
+      try {
+        const auth = me.envoyUser + ':' + me.envoyPasswd;
+        const url = me.url + PRODUCTION_INVERTERS_URL;
+        const options = {
+          method: 'GET',
+          rejectUnauthorized: false,
+          digestAuth: auth,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+        const output = (err, data, res) => {
+          if (err) {
+            me.log.error(err);
+          }
+          const response2 = JSON.parse(data.toString('utf8'));
+          var invertersCount = response2.length;
+          if (invertersCount > 0) {
+            for (let i = 0; i < invertersCount; i++) {
+              var inverterSerialNumber = response2[i].serialNumber;
+              var inverterLastReportDate = response2[i].lastReportDate;
+              var inverterDeviceType = response2[i].devType;
+              var inverterLastPower = parseFloat(response2[i].lastReportWatts);
+              var inverterMaxPower = parseFloat(response2[i].maxReportWatts);
+              me.log.debug('Device: %s %s, last inverter: %s power: %s W', me.host, me.name, inverterSerialNumber, inverterLastPower);
+              me.log.debug('Device: %s %s, max inverter: %s power: %s W', me.host, me.name, inverterSerialNumber, inverterMaxPower);
+              //me.invertersSerialNumber.push(inverterSerialNumber);
+              me.invertersLastReportDate.push(inverterLastReportDate);
+              me.invertersDeviceType.push(inverterDeviceType);
+              me.invertersLastPower.push(inverterLastPower);
+              me.invertersMaxPower.push(inverterMaxPower);
+
+              if (me.envoyServiceInverter) {
+                me.envoyServiceInverter.updateCharacteristic(Characteristic.PowerLastInverter, inverterLastPower);
+                me.envoyServiceInverter.updateCharacteristic(Characteristic.PowerMaxInverter, inverterMaxPower);
+              }
+            }
+          }
+          me.invertersCount = invertersCount;
+        }
+        http.request(url, options, output);
+      } catch (error) {
+        me.log.error('Device: %s %s, could not read inverters production, error: %s', me.host, me.name, error);
       }
 
       //encharge storage
@@ -849,154 +840,213 @@ class envoyDevice {
           me.envoyServiceEnchargeStorage.updateCharacteristic(Characteristic.EnergyToday, energyEnchargeStorage);
         }
       }
+      if (!me.checkDeviceState) {
+        me.prepareAccessory();
+      }
       me.checkDeviceState = true;
     } catch (error) {
       me.log.error('Device: %s %s, update Device state error: %s, state: Offline', me.host, me.name, error);
     }
   }
 
-  //production power
-  getPowerProduction(callback) {
-    var me = this;
-    let wNow = me.powerProduction;
-    me.log.info('Device: %s %s, power production: %s kW', me.host, me.name, wNow.toFixed(3));
-    callback(null, wNow);
+  //Prepare accessory
+  prepareAccessory() {
+    this.log.debug('prepareAccessory');
+    const accessoryName = this.name;
+    const accessoryUUID = UUID.generate(accessoryName);
+    const accessoryCategory = Categories.OTHER;
+    this.accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
+
+    this.prepareInformationService();
+    this.prepareEnvoyService();
+
+    this.log.debug('Device: %s %s, publishExternalAccessories.', this.host, accessoryName);
+    this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
   }
 
-  getPowerProductionMax(callback) {
-    var me = this;
-    let wNow = me.powerProductionMax;
-    me.log.info('Device: %s %s, power production max: %s kW', me.host, me.name, wNow.toFixed(3));
-    callback(null, wNow);
+  //Prepare information service
+  prepareInformationService() {
+    this.log.debug('prepareInformationService');
+
+    let manufacturer = this.manufacturer;
+    let modelName = this.modelName;
+    let serialNumber = this.serialNumber;
+    let firmwareRevision = this.firmwareRevision;
+
+    this.accessory.removeService(this.accessory.getService(Service.AccessoryInformation));
+    const informationService = new Service.AccessoryInformation();
+    informationService
+      .setCharacteristic(Characteristic.Name, this.name)
+      .setCharacteristic(Characteristic.Manufacturer, manufacturer)
+      .setCharacteristic(Characteristic.Model, modelName)
+      .setCharacteristic(Characteristic.SerialNumber, serialNumber)
+      .setCharacteristic(Characteristic.FirmwareRevision, firmwareRevision);
+
+    this.accessory.addService(informationService);
   }
 
-  getPowerProductionMaxDetected(callback) {
-    var me = this;
-    let status = me.powerProductionMaxDetectedState;
-    me.log.info('Device: %s %s, power production max detected: %s', me.host, me.name, status ? 'Yes' : 'No');
-    callback(null, status);
-  }
+  //Prepare TV service 
+  prepareEnvoyService() {
+    this.log.debug('prepareEnvoyService');
+    this.envoyServiceProduction = new Service.PowerMeter('Production', 'envoyServiceProduction');
+    this.envoyServiceProduction.getCharacteristic(Characteristic.Power)
+      .on('get', (callback) => {
+        let value = this.powerProduction;
+        this.log.info('Device: %s %s, power production : %s kW', this.host, this.name, value.toFixed(3));
+        callback(null, value);
+      });
+    this.envoyServiceProduction.getCharacteristic(Characteristic.PowerMax)
+      .on('get', (callback) => {
+        let value = this.powerProductionMax;
+        this.log.info('Device: %s %s, power production  max: %s kW', this.host, this.name, value.toFixed(3));
+        callback(null, value);
+      });
+    this.envoyServiceProduction.getCharacteristic(Characteristic.PowerMaxDetected)
+      .on('get', (callback) => {
+        let value = this.powerProductionMaxDetectedState;
+        this.log.info('Device: %s %s, power production  max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
+        callback(null, value);
+      });
+    this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyToday)
+      .on('get', (callback) => {
+        let value = this.energyProductionToday;
+        this.log.info('Device: %s %s, energy production  Today: %s kWh', this.host, this.name, value.toFixed(3));
+        callback(null, value);
+      });
+    this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLastSevenDays)
+      .on('get', (callback) => {
+        let value = this.energyProductionLastSevenDays;
+        this.log.info('Device: %s %s, energy production  Last Seven Days: %s kWh', this.host, this.name, value.toFixed(3));
+        callback(null, value);
+      });
+    this.envoyServiceProduction.getCharacteristic(Characteristic.EnergyLifetime)
+      .on('get', (callback) => {
+        let value = this.energyProductionLifetime;
+        this.log.info('Device: %s %s, energy production Lifetime: %s kWh', this.host, this.name, value.toFixed(3));
+        callback(null, value);
+      });
+    this.accessory.addService(this.envoyServiceProduction);
 
-  getEnergyProductionToday(callback) {
-    var me = this;
-    let whToday = me.energyProductionToday;
-    me.log.info('Device: %s %s, energy production Today: %s kWh', me.host, me.name, whToday.toFixed(3));
-    callback(null, whToday);
-  }
+    if ((this.meterConsumptionState && this.meterConsumptionMeasurementType == 'total-consumption') || (this.meterConsumptionState && this.meterConsumptionMeasurementType == 'net-consumption')) {
+      this.envoyServiceConsumptionTotal = new Service.PowerMeter('Consumption Total', 'envoyServiceConsumptionTotal');
+      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.Power)
+        .on('get', (callback) => {
+          let value = this.powerConsumptionTotal;
+          this.log.info('Device: %s %s, power consumption total: %s kW', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.PowerMax)
+        .on('get', (callback) => {
+          let value = this.powerConsumptionTotalMax;
+          this.log.info('Device: %s %s, power consumption total max: %s kW', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.PowerMaxDetected)
+        .on('get', (callback) => {
+          let value = this.powerConsumptionTotalMaxDetectedState;
+          this.log.info('Device: %s %s, power consumption total max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyToday)
+        .on('get', (callback) => {
+          let value = this.energyConsumptionTotalToday;
+          this.log.info('Device: %s %s, energy consumption total Today: %s kWh', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLastSevenDays)
+        .on('get', (callback) => {
+          let value = this.energyConsumptionTotalLastSevenDays;
+          this.log.info('Device: %s %s, energy consumption total Last Seven Days: %s kWh', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.EnergyLifetime)
+        .on('get', (callback) => {
+          let value = this.energyConsumptionTotalLifetime;
+          this.log.info('Device: %s %s, energy consumption total Lifetime: %s kWh', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.accessory.addService(this.envoyServiceConsumptionTotal);
+    }
 
-  getEnergyProductionLastSevenDays(callback) {
-    var me = this;
-    let whLastSevenDays = me.energyProductionLastSevenDays;
-    me.log.info('Device: %s %s, energy production Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays.toFixed(3));
-    callback(null, whLastSevenDays);
-  }
+    if (this.meterConsumptionState && this.meterConsumptionMeasurementType == 'net-consumption') {
+      this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
+      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
+        .on('get', (callback) => {
+          let value = this.powerConsumptionNet;
+          this.log.info('Device: %s %s, power consumption net: %s kW', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.PowerMax)
+        .on('get', (callback) => {
+          let value = this.powerConsumptionNetMax;
+          this.log.info('Device: %s %s, power consumption net max: %s kW', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.PowerMaxDetected)
+        .on('get', (callback) => {
+          let value = this.powerConsumptionNetMaxDetectedState;
+          this.log.info('Device: %s %s, power consumption net max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyToday)
+        .on('get', (callback) => {
+          let value = this.energyConsumptionNetToday;
+          this.log.info('Device: %s %s, energy consumption net Today: %s kWh', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLastSevenDays)
+        .on('get', (callback) => {
+          let value = this.energyConsumptionNetLastSevenDays;
+          this.log.info('Device: %s %s, energy consumption net Last Seven Days: %s kWh', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.EnergyLifetime)
+        .on('get', (callback) => {
+          let value = this.energyConsumptionNetLifetime;
+          this.log.info('Device: %s %s, energy consumption net Lifetime: %s kWh', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        })
+      this.accessory.addService(this.envoyServiceConsumptionNet);
+    }
 
-  getEnergyProductionLifetime(callback) {
-    var me = this;
-    let whLifetime = me.energyProductionLifetime;
-    me.log.info('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, whLifetime.toFixed(3));
-    callback(null, whLifetime);
-  }
+    //microinverter
+    if (this.invertersCount > 0) {
+      for (let i = 0; i < this.invertersCount; i++) {
+        this.inverterActualPoll = i;
+        this.envoyServiceInverter = new Service.PowerMeter('Inverter ' + this.invertersSerialNumber[i], 'envoyServiceInverter' + i);
+        this.envoyServiceInverter.getCharacteristic(Characteristic.PowerLastInverter, this.invertersLastPower[i])
+          .on('get', (callback) => {
+            let value = this.invertersLastPower[i];
+            this.log.info('Device: %s %s, inverter: %s last power: %s W', this.host, this.name, this.invertersSerialNumber[i], value);
+            callback(null, value);
+          });
+        this.envoyServiceInverter.getCharacteristic(Characteristic.PowerMaxInverter, this.invertersMaxPower[i])
+          .on('get', (callback) => {
+            let value = this.invertersMaxPower[i];
+            this.log.info('Device: %s %s, inverter: %s max power: %s W', this.host, this.name, this.invertersSerialNumber[i], value);
+            callback(null, value);
+          });
+        this.accessory.addService(this.envoyServiceInverter);
+      }
+    }
 
-  //total consumption
-  getPowerConsumptionTotal(callback) {
-    var me = this;
-    let wNow = me.powerConsumptionTotal;
-    me.log.info('Device: %s %s, power consumption total: %s kW', me.host, me.name, wNow.toFixed(3));
-    callback(null, wNow);
-  }
-
-  getPowerConsumptionTotalMax(callback) {
-    var me = this;
-    let wNow = me.powerConsumptionTotalMax;
-    me.log.info('Device: %s %s, power consumption total max: %s kW', me.host, me.name, wNow.toFixed(3));
-    callback(null, wNow);
-  }
-
-  getPowerConsumptionTotalMaxDetected(callback) {
-    var me = this;
-    let status = me.powerConsumptionTotalMaxDetectedState;
-    me.log.info('Device: %s %s, power consumption total max detected: %s', me.host, me.name, status ? 'Yes' : 'No');
-    callback(null, status);
-  }
-
-  getEnergyConsumptionTotalToday(callback) {
-    var me = this;
-    let whToday = me.energyConsumptionTotalToday;
-    me.log.info('Device: %s %s, energy consumption total Today: %s kWh', me.host, me.name, whToday.toFixed(3));
-    callback(null, whToday);
-  }
-
-  getEnergyConsumptionTotalLastSevenDays(callback) {
-    var me = this;
-    let whLastSevenDays = me.energyConsumptionTotalLastSevenDays;
-    me.log.info('Device: %s %s, energy consumption total Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays.toFixed(3));
-    callback(null, whLastSevenDays);
-  }
-
-  getEnergyConsumptionTotalLifetime(callback) {
-    var me = this;
-    let whLifetime = me.energyConsumptionTotalLifetime;
-    me.log.info('Device: %s %s, energy consumption total Lifetime: %s kWh', me.host, me.name, whLifetime.toFixed(3));
-    callback(null, whLifetime);
-  }
-
-  //net consumption power
-  getPowerConsumptionNet(callback) {
-    var me = this;
-    let wNow = me.powerConsumptionNet;
-    me.log.info('Device: %s %s, power consumption net: %s kW', me.host, me.name, wNow.toFixed(3));
-    callback(null, wNow);
-  }
-
-  getPowerConsumptionNetMax(callback) {
-    var me = this;
-    let wNow = me.powerConsumptionNetMax;
-    me.log.info('Device: %s %s, power consumption net max: %s kW', me.host, me.name, wNow.toFixed(3));
-    callback(null, wNow);
-  }
-
-  getPowerConsumptionNetMaxDetected(callback) {
-    var me = this;
-    let status = me.powerConsumptionNetMaxDetectedState;
-    me.log.info('Device: %s %s, power consumption net max detected: %s', me.host, me.name, status ? 'Yes' : 'No');
-    callback(null, status);
-  }
-
-  getEnergyConsumptionNetToday(callback) {
-    var me = this;
-    let whToday = me.energyConsumptionNetToday;
-    me.log.info('Device: %s %s, energy consumption net Today: %s kWh', me.host, me.name, whToday.toFixed(3));
-    callback(null, whToday);
-  }
-
-  getEnergyConsumptionNetLastSevenDays(callback) {
-    var me = this;
-    let whLastSevenDays = me.energyConsumptionNetLastSevenDays;
-    me.log.info('Device: %s %s, energy consumption net Last Seven Days: %s kWh', me.host, me.name, whLastSevenDays.toFixed(3));
-    callback(null, whLastSevenDays);
-  }
-
-  getEnergyConsumptionNetLifetime(callback) {
-    var me = this;
-    let whLifetime = me.energyConsumptionNetLifetime;
-    me.log.info('Device: %s %s, energy consumption net Lifetime: %s kWh', me.host, me.name, whLifetime.toFixed(3));
-    callback(null, whLifetime);
-  }
-
-  //encharge storage
-  getPowerEnchargeStorage(callback) {
-    var me = this;
-    let wNow = me.powerEnchargeStorage;
-    me.log.info('Device: %s %s, power encharge storage: %s kW', me.host, me.name, wNow.toFixed(3));
-    callback(null, wNow);
-  }
-
-  getEnergyEnchargeStorage(callback) {
-    var me = this;
-    let whNow = me.energyEnchargeStorage;
-    me.log.info('Device: %s %s, energy encharge storage: %s kWh', me.host, me.name, whNow.toFixed(3));
-    callback(null, whNow);
+    //encharge storage
+    if (this.encharge > 0) {
+      this.envoyServiceEnchargeStorage = new Service.PowerMeter('Encharge storage', 'envoyServiceEnchargeStorage');
+      this.envoyServiceEnchargeStorage.getCharacteristic(Characteristic.Power)
+        .on('get', (callback) => {
+          let value = this.powerEnchargeStorage;
+          this.log.info('Device: %s %s, power encharge storage: %s kW', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        })
+      this.envoyServiceEnchargeStorage.getCharacteristic(Characteristic.EnergyToday)
+        .on('get', (callback) => {
+          let value = this.energyEnchargeStorage;
+          this.log.info('Device: %s %s, energy encharge storage: %s kWh', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        })
+      this.accessory.addService(this.envoyServiceEnchargeStorage);
+    }
   }
 }
 

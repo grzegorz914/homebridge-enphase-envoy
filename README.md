@@ -37,7 +37,7 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 Version 3.5.0 detect automatically all installed devices, please check Your config after update to this version.
 
 ## Important note v3.0.0!!!
-Version 3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. 
+Version 3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE or Controller app displayed correctly, in HomeKit displayed as 'Unsupported'. 
 If U want to use old CO2 sensor style just still with 2.x.x version
 
 ## Info v3.x.x

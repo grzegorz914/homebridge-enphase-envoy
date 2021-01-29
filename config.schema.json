@@ -33,6 +33,30 @@
               "maximum": 3600,
               "required": true
             },
+            "envoyUser": {
+              "title": "Envoy user",
+              "type": "string",
+              "description": "Here set envoy user, default is - envoy.",
+              "required": false
+            },
+            "envoyPasswd": {
+              "title": "Envoy password",
+              "type": "string",
+              "description": "Here set envoy password, default is last 6 serial number.",
+              "required": false
+            },
+            "installerUser": {
+              "title": "Installer user",
+              "type": "string",
+              "description": "Here set installer user, default is - installer.",
+              "required": false
+            },
+            "installerPasswd": {
+              "title": "Installer password",
+              "type": "string",
+              "description": "Here set installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/",
+              "required": false
+            },
             "enchargeStorageOffset": {
               "title": "Encharge Storage energy offset",
               "type": "integer",
@@ -131,6 +155,19 @@
         "devices[].name",
         "devices[].host",
         "devices[].refreshInterval",
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "Advanced settings",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].envoyUser",
+            "devices[].envoyPasswd",
+            "devices[].installerUser",
+            "devices[].installerPasswd"
+          ]
+        },
         {
           "key": "devices[]",
           "type": "section",
