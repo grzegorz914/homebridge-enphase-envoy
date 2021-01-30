@@ -3,11 +3,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## Important note v4.0.0 and abowe!!!
+Version 4.0.0 whole new concept.
+
 ## Important note v3.5.0 and abowe!!!
 Version 3.5.0 detect automatically all installed devices, please check Your config after update to this version.
 
 ## Important note
 Ab verion v3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. If U want to use old CO2 sensor style just still with 2.x.x version
+
+## [4.0.0] - (30.01.2021)
+## Changs
+- refactoring whole code
+- added Characteristics for Q-Relay, Meters, Microinverters, Encharges
+- added whole base of status code all displayes in EVE or Controller app
+- added and present state and power of all devices (Envoy, Q-Relay, Meters, Microinverters, Encharges)
+- code cleanup and many more
 
 ## [3.6.0] - (29.01.2021)
 ## Changs

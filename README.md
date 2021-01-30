@@ -33,6 +33,9 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 4. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*. 
 5. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
 
+## Important note v4.0.0 and abowe detect all devices automatically!!!
+Version 4.0.0 whole new concept.
+
 ## Important note v3.5.0!!!
 Version 3.5.0 detect automatically all installed devices, please check Your config after update to this version.
 
@@ -68,7 +71,7 @@ If U want to use old CO2 sensor style just still with 2.x.x version
 13. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
 14. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
 15. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
-16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app
+16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app, firmware and serialNumber are displayed automatically.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
