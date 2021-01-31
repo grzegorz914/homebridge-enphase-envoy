@@ -1255,7 +1255,7 @@ class envoyDevice {
       });
     this.accessory.addService(this.envoyServiceProduction);
 
-    if (this.metersMeasurementType.indexOf('net-consumption') || this.metersMeasurementType.indexOf('total-consumption')) {
+    if ((this.metersMeasurementType.indexOf('net-consumption') != -1) || (this.metersMeasurementType.indexOf('total-consumption') != -1)) {
       this.envoyServiceConsumptionTotal = new Service.PowerMeter('Consumption Total', 'envoyServiceConsumptionTotal');
       this.envoyServiceConsumptionTotal.getCharacteristic(Characteristic.Power)
         .on('get', (callback) => {
@@ -1296,7 +1296,7 @@ class envoyDevice {
       this.accessory.addService(this.envoyServiceConsumptionTotal);
     }
 
-    if (this.metersMeasurementType.indexOf('net-consumption')) {
+    if ((this.metersMeasurementType.indexOf('net-consumption') != -1)) {
       this.envoyServiceConsumptionNet = new Service.PowerMeter('Consumption Net', 'envoyServiceConsumptionNet');
       this.envoyServiceConsumptionNet.getCharacteristic(Characteristic.Power)
         .on('get', (callback) => {
