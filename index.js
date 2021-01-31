@@ -639,6 +639,7 @@ class envoyDevice {
     this.firmwareRevision = config.firmwareRevision || 'Firmware Revision';
 
     //setup variables
+    this.envoySerialNumber = '';
     this.checkDeviceInfo = false;
     this.checkDeviceState = false;
     this.powerLastReportDate = '';
@@ -756,7 +757,7 @@ class envoyDevice {
         me.log('Q-Relays: %s', qrelays);
         me.log('Meters: %s', meters);
         me.log('----------------------------------');
-        me.serialNumber = serialNumber;
+        me.envoySerialNumber = serialNumber.toString;
         me.firmwareRevision = firmwareRevision;
         me.invertersCount = inverters;
         me.enchargesCount = encharge;
@@ -1160,7 +1161,9 @@ class envoyDevice {
           me.invertersLastReportDate.push(lastrptdate);
         };
 
-        const auth = me.envoyUser + ':' + me.envoyPasswd;
+        const user = me.envoyUser;
+        const passwd = me.envoyPasswd;
+        const auth = user + ':' + passwd;
         const url = me.url + PRODUCTION_INVERTERS_URL;
         const options = {
           method: 'GET',
@@ -1175,16 +1178,19 @@ class envoyDevice {
             me.log.error(err);
           }
           const invertersData = JSON.parse(data);
-          var invertersCount = invertersData.length;
+          var allInvertersCount = invertersData.length;
+          var arr = new Array();
+          for (let i = 0; i < allInvertersCount; i++) {
+            var serialNumber = invertersData[i].serialNumber;
+            arr.push(serialNumber);
+          }
           if (me.invertersCount > 0) {
             for (let i = 0; i < me.invertersCount; i++) {
-              //var search = me.invertersSerialNumber[i];
-              //var position = (invertersData[i].serialNumber).indexOf(search);
-              //me.log.info('dane', i, search, position)
-              var inverterLastReportDate = invertersData[i].lastReportDate;
-              var inverterType = invertersData[i].devType;
-              var inverterLastPower = parseFloat(invertersData[i].lastReportWatts);
-              var inverterMaxPower = parseFloat(invertersData[i].maxReportWatts);
+              var index = arr.indexOf(me.invertersSerialNumber[i]);
+              var inverterLastReportDate = invertersData[index].lastReportDate;
+              var inverterType = invertersData[index].devType;
+              var inverterLastPower = parseFloat(invertersData[index].lastReportWatts);
+              var inverterMaxPower = parseFloat(invertersData[index].maxReportWatts);
               me.log.debug('Device: %s %s, last inverter: %s power: %s W', me.host, me.name, me.invertersSerialNumber[i], inverterLastPower);
               me.log.debug('Device: %s %s, max inverter: %s power: %s W', me.host, me.name, me.invertersSerialNumber[i], inverterMaxPower);
               me.invertersLastReportDate.push(inverterLastReportDate);
