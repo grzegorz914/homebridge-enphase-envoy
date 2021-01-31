@@ -233,7 +233,7 @@ module.exports = (api) => {
   Characteristic.qRelayLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.qRelayLastReportDate.UUID);
     this.setProps({
-      format: Characteristic.Formats.STRING,
+      format: Characteristic.Formats.DATE,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
@@ -424,7 +424,7 @@ module.exports = (api) => {
   Characteristic.enchargeLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.enchargeLastReportDate.UUID);
     this.setProps({
-      format: Characteristic.Formats.STRING,
+      format: Characteristic.Formats.DATE,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
@@ -536,7 +536,7 @@ module.exports = (api) => {
   Characteristic.inverterLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.inverterLastReportDate.UUID);
     this.setProps({
-      format: Characteristic.Formats.STRING,
+      format: Characteristic.Formats.DATE,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
@@ -961,6 +961,10 @@ class envoyDevice {
           //   var line1connected = inventory.data[2].devices[i].line1-connectedt ? 'Closed' : 'Open';
           //   var line2connected = inventory.data[2].devices[i].line2-connectedt ? 'Closed' : 'Open';
           //   var line3connected = inventory.data[2].devices[i].line3-connectedt ? 'Closed' : 'Open';
+
+          // convert Unix time to local date time
+          lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
+
           me.log.debug('Q-Relay: %s', serialNumber);
           me.log.debug('Relay: %s', relay ? 'Closed' : 'Open');
           me.log.debug('Producing: %s', producing ? 'Yes' : 'No');
@@ -1058,6 +1062,10 @@ class envoyDevice {
           }
           var powerEnchargeStorage = parseFloat(productionCT.data.storage[i].wNow / 1000);
           var energyEnchargeStorage = parseFloat(productionCT.data.storage[i].whNow + me.enchargeStorageOffset / 1000);
+
+          // convert Unix time to local date time
+          lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
+
           me.log.debug('Encharge %s: %s', i, serialNumber);
           me.log.debug('Producing: %s', producing ? 'Yes' : 'No');
           me.log.debug('Communicating: %s', communicating ? 'Yes' : 'No');
@@ -1110,6 +1118,10 @@ class envoyDevice {
           } else {
             var status = 'Status not available';
           }
+
+          // convert Unix time to local date time
+          lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
+
           me.log.debug('Inverter %s: %s', i, serialNumber);
           me.log.debug('Producing: %s', producing ? 'Yes' : 'No');
           me.log.debug('Communicating: %s', communicating ? 'Yes' : 'No');
