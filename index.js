@@ -68,8 +68,8 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -100,
-      maxValue: 1000,
+      minValue: -100000,
+      maxValue: 100000,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -83,8 +83,8 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -100,
-      maxValue: 1000,
+      minValue: -100000,
+      maxValue: 100000,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -181,8 +181,8 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -100,
-      maxValue: 1000,
+      minValue: -100000,
+      maxValue: 100000,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -196,8 +196,8 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -100,
-      maxValue: 1000,
+      minValue: -100000,
+      maxValue: 100000,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -590,7 +590,7 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'W',
-      minValue: 0,
+      minValue: -1000,
       maxValue: 10000,
       minStep: 1,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -605,7 +605,7 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'W',
-      minValue: 0,
+      minValue: -1000,
       maxValue: 10000,
       minStep: 1,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
