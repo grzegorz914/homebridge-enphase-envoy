@@ -1312,7 +1312,7 @@ class envoyDevice {
 
       //meters
       const meters = await axios.get(me.url + METERS_URL);
-      if (me.metersCount > 0) {
+      if (me.metersCount > 0 && meters.data != 'unsefned') {
         for (let i = 0; i < me.metersCount; i++) {
           var state = meters.data[i].state;
           var measurementType = meters.data[i].measurementType;
@@ -1433,7 +1433,7 @@ class envoyDevice {
       }
 
       //microinverters power
-      if (me.invertersCount > 0) {
+      if (me.invertersCount > 0 && inventory.data !== 'unsefned') {
         for (let i = 0; i < me.invertersCount; i++) {
           var serialNumber = inventory.data[0].devices[i].serial_num;
           var firmware = inventory.data[0].devices[i].img_pnum_running;
@@ -1514,7 +1514,7 @@ class envoyDevice {
             var serialNumber = invertersData[i].serialNumber;
             arr.push(serialNumber);
           }
-          if (me.invertersCount > 0) {
+          if (me.invertersCount > 0 && invertersData !== 'unsefned') {
             for (let i = 0; i < me.invertersCount; i++) {
               var index = arr.indexOf(me.invertersSerialNumber[i]);
               //var inverterLastReportDate = invertersData[index].LastReportDate;
