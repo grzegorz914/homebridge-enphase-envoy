@@ -256,16 +256,16 @@ module.exports = (api) => {
   Service.enphaseQrelay.UUID = '00000002-000A-1000-8000-0026BB765291';
 
   //meter characteristics
-  Characteristic.meterState = function () {
-    Characteristic.call(this, 'State', Characteristic.meterState.UUID);
+  Characteristic.meterProductionState = function () {
+    Characteristic.call(this, 'State', Characteristic.meterProductionState.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.meterState, Characteristic);
-  Characteristic.meterState.UUID = '00000020-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.meterProductionState, Characteristic);
+  Characteristic.meterProductionState.UUID = '00000020-000B-1000-8000-0026BB765291';
 
   Characteristic.meterMeasurmentType = function () {
     Characteristic.call(this, 'Measurment type', Characteristic.meterMeasurmentType.UUID);
@@ -324,7 +324,7 @@ module.exports = (api) => {
 
   Service.enphaseMeter = function (displayName, subtype) {
     Service.call(this, displayName, Service.enphaseMeter.UUID, subtype);
-    this.addCharacteristic(Characteristic.meterState);
+    this.addCharacteristic(Characteristic.meterProductionState);
     // Optional Characteristics
     this.addOptionalCharacteristic(Characteristic.meterMeasurmentType);
     this.addOptionalCharacteristic(Characteristic.meterPhaseMode);
@@ -760,12 +760,13 @@ class envoyDevice {
   async updateDeviceState() {
     var me = this;
     try {
-      var productionUrl = me.meterProductionState ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
+      var meterProductionState = (me.metersMeasurementType.indexOf('net-consumption') != -1);
+      var productionUrl = meterProductionState ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
       const [production, productionCT] = await axios.all([axios.get(productionUrl), axios.get(me.url + PRODUCTION_CT_URL)]);
       me.log.debug('Device %s %s, get device status data: %s, data1 %s', me.host, me.name, production.data, productionCT.data);
 
       //production
-      var powerProduction = me.meterProductionState ? parseFloat(production.data.production[1].wNow / 1000) : parseFloat(production.data.wattsNow / 1000);
+      var powerProduction = meterProductionState ? parseFloat(production.data.production[1].wNow / 1000) : parseFloat(production.data.wattsNow / 1000);
 
       //save and read powerProductionMax
       try {
@@ -794,9 +795,9 @@ class envoyDevice {
       me.powerProductionMax = powerProductionMax;
       me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
 
-      var energyProductionToday = me.meterProductionState ? parseFloat(production.data.production[1].whToday / 1000) : parseFloat(production.data.wattHoursToday / 1000);
-      var energyProductionLastSevenDays = me.meterProductionState ? parseFloat(production.data.production[1].whLastSevenDays / 1000) : parseFloat(production.data.wattHoursSevenDays / 1000);
-      var energyProductionLifetime = me.meterProductionState ? parseFloat((production.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000) : parseFloat(production.data.wattHoursLifetime / 1000);
+      var energyProductionToday = meterProductionState ? parseFloat(production.data.production[1].whToday / 1000) : parseFloat(production.data.wattHoursToday / 1000);
+      var energyProductionLastSevenDays = meterProductionState ? parseFloat(production.data.production[1].whLastSevenDays / 1000) : parseFloat(production.data.wattHoursSevenDays / 1000);
+      var energyProductionLifetime = meterProductionState ? parseFloat((production.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000) : parseFloat(production.data.wattHoursLifetime / 1000);
       me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, powerProduction);
       me.log.debug('Device: %s %s, power production max: %s kW', me.host, me.name, powerProductionMax);
       me.log.debug('Device: %s %s, power production max detected: %s', me.host, me.name, powerProductionMaxDetectedState ? 'Yes' : 'No');
@@ -819,7 +820,7 @@ class envoyDevice {
       }
 
       //consumption total
-      if (me.metersMeasurementType.indexOf('net-consumption') || me.metersMeasurementType.indexOf('total-consumption')) {
+      if ((me.metersMeasurementType.indexOf('net-consumption') != -1) || (me.metersMeasurementType.indexOf('total-consumption') != -1)) {
         var powerConsumptionTotal = parseFloat(productionCT.data.consumption[0].wNow / 1000);
 
         //save and read powerConsumptionTotalMax
@@ -874,7 +875,7 @@ class envoyDevice {
       }
 
       //consumption net
-      if (me.metersMeasurementType.indexOf('net-consumption')) {
+      if (me.metersMeasurementType.indexOf('net-consumption') != -1) {
         var powerConsumptionNet = parseFloat(productionCT.data.consumption[1].wNow / 1000);
 
         //save and read powerConsumptionNetMax
@@ -1393,7 +1394,7 @@ class envoyDevice {
     if (this.metersCount > 0) {
       for (let i = 0; i < this.metersCount; i++) {
         this.envoyServiceMeter = new Service.enphaseMeter('Meter ' + this.metersMeasurementType[i], 'envoyServiceMeter' + i);
-        this.envoyServiceMeter.getCharacteristic(Characteristic.meterState)
+        this.envoyServiceMeter.getCharacteristic(Characteristic.meterProductionState)
           .on('get', (callback) => {
             let value = this.metersState[i];
             this.log.info('Device: %s %s, meter: %s state: %s', this.host, this.name, this.metersMeasurementType[i], value);
