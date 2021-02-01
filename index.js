@@ -176,6 +176,88 @@ module.exports = (api) => {
   inherits(Service.enphaseMeter, Service);
   Service.enphaseMeter.UUID = '00000001-000A-1000-8000-0026BB765291';
 
+  //enphase current meters
+  Characteristic.enphaseDeviceMetersState = function () {
+    Characteristic.call(this, 'Status', Characteristic.enphaseDeviceMetersState.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseDeviceMetersState, Characteristic);
+  Characteristic.enphaseDeviceMetersState.UUID = '00000031-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseDeviceMetersMeasurementType = function () {
+    Characteristic.call(this, 'Phase mode', Characteristic.enphaseDeviceMetersMeasurementType.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseDeviceMetersMeasurementType, Characteristic);
+  Characteristic.enphaseDeviceMetersMeasurementType.UUID = '00000032-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseDeviceMetersPhaseMode = function () {
+    Characteristic.call(this, 'Phase mode', Characteristic.enphaseDeviceMetersPhaseMode.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseDeviceMetersPhaseMode, Characteristic);
+  Characteristic.enphaseDeviceMetersPhaseMode.UUID = '00000033-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseDeviceMetersPhaseCount = function () {
+    Characteristic.call(this, 'Phase count', Characteristic.enphaseDeviceMetersPhaseCount.UUID);
+    this.setProps({
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseDeviceMetersPhaseCount, Characteristic);
+  Characteristic.enphaseDeviceMetersPhaseCount.UUID = '00000034-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseDeviceMetersMeteringStatus = function () {
+    Characteristic.call(this, 'Metering status', Characteristic.enphaseDeviceMetersMeteringStatus.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseDeviceMetersMeteringStatus, Characteristic);
+  Characteristic.enphaseDeviceMetersMeteringStatus.UUID = '00000035-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseDeviceMetersStatusFlags = function () {
+    Characteristic.call(this, 'Status flag', Characteristic.enphaseDeviceMetersStatusFlags.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseDeviceMetersStatusFlags, Characteristic);
+  Characteristic.enphaseDeviceMetersStatusFlags.UUID = '00000036-000B-1000-8000-0026BB765291';
+
+  //current meters service
+  Service.enphaseDeviceMeters = function (displayName, subtype) {
+    Service.call(this, displayName, Service.enphaseDeviceMeters.UUID, subtype);
+    // Mandatory Characteristics
+    // Optional Characteristics
+    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersState);
+    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersMeasurementType);
+    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersPhaseMode);
+    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersPhaseCount);
+    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersMeteringStatus);
+    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersStatusFlags);
+  };
+  inherits(Service.enphaseDeviceMeters, Service);
+  Service.enphaseDeviceMeters.UUID = '00000002-000A-1000-8000-0026BB765291';
+
   //Envoy devices
   Characteristic.enphaseDevicePower = function () {
     Characteristic.call(this, 'Power', Characteristic.enphaseDevicePower.UUID);
@@ -184,7 +266,7 @@ module.exports = (api) => {
       unit: 'kW',
       minValue: -100000,
       maxValue: 100000,
-      minStep: 0.001,
+      minStep: 1,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
@@ -199,7 +281,7 @@ module.exports = (api) => {
       unit: 'kW',
       minValue: -100000,
       maxValue: 100000,
-      minStep: 0.001,
+      minStep: 1,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
@@ -328,89 +410,7 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseDeviceLastReportDate);
   };
   inherits(Service.enphaseDevice, Service);
-  Service.enphaseDevice.UUID = '00000002-000A-1000-8000-0026BB765291';
-
-  //enphase current meters
-  Characteristic.enphaseDeviceMetersState = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseDeviceMetersState.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseDeviceMetersState, Characteristic);
-  Characteristic.enphaseDeviceMetersState.UUID = '00000031-000B-1000-8000-0026BB765291';
-
-  Characteristic.enphaseDeviceMetersMeasurementType = function () {
-    Characteristic.call(this, 'Phase mode', Characteristic.enphaseDeviceMetersMeasurementType.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseDeviceMetersMeasurementType, Characteristic);
-  Characteristic.enphaseDeviceMetersMeasurementType.UUID = '00000032-000B-1000-8000-0026BB765291';
-
-  Characteristic.enphaseDeviceMetersPhaseMode = function () {
-    Characteristic.call(this, 'Phase mode', Characteristic.enphaseDeviceMetersPhaseMode.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseDeviceMetersPhaseMode, Characteristic);
-  Characteristic.enphaseDeviceMetersPhaseMode.UUID = '00000033-000B-1000-8000-0026BB765291';
-
-  Characteristic.enphaseDeviceMetersPhaseCount = function () {
-    Characteristic.call(this, 'Phase count', Characteristic.enphaseDeviceMetersPhaseCount.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseDeviceMetersPhaseCount, Characteristic);
-  Characteristic.enphaseDeviceMetersPhaseCount.UUID = '00000034-000B-1000-8000-0026BB765291';
-
-  Characteristic.enphaseDeviceMetersMeteringStatus = function () {
-    Characteristic.call(this, 'Metering status', Characteristic.enphaseDeviceMetersMeteringStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseDeviceMetersMeteringStatus, Characteristic);
-  Characteristic.enphaseDeviceMetersMeteringStatus.UUID = '00000035-000B-1000-8000-0026BB765291';
-
-  Characteristic.enphaseDeviceMetersStatusFlags = function () {
-    Characteristic.call(this, 'Status flag', Characteristic.enphaseDeviceMetersStatusFlags.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseDeviceMetersStatusFlags, Characteristic);
-  Characteristic.enphaseDeviceMetersStatusFlags.UUID = '00000036-000B-1000-8000-0026BB765291';
-
-  //current meters service
-  Service.enphaseDeviceMeters = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseDeviceMeters.UUID, subtype);
-    // Mandatory Characteristics
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersState);
-    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersMeasurementType);
-    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersPhaseMode);
-    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersPhaseCount);
-    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersMeteringStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseDeviceMetersStatusFlags);
-  };
-  inherits(Service.enphaseDeviceMeters, Service);
-  Service.enphaseDeviceMeters.UUID = '00000003-000A-1000-8000-0026BB765291';
+  Service.enphaseDevice.UUID = '00000003-000A-1000-8000-0026BB765291';
 
   api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform, true);
 }
@@ -628,9 +628,16 @@ class envoyDevice {
       me.log.debug('Device %s %s, get device status production: %s, productionCT %s', me.host, me.name, production.data, productionCT.data);
 
       const invertersAvtiveCount = productionCT.data.production[0].activeCount;
-      const productionMeterAvtiveCount = productionCT.data.production[1].activeCount;
-      const totalConsumtionMeterAvtiveCount = productionCT.data.consumption[0].activeCount;
-      const netConsumtionMeterAvtiveCount = productionCT.data.consumption[1].activeCount;
+      me.invertersAvtiveCount = invertersAvtiveCount;
+      
+      if (me.meters.count > 0) {
+        const productionMeterAvtiveCount = productionCT.data.production[1].activeCount;
+        const totalConsumtionMeterAvtiveCount = productionCT.data.consumption[0].activeCount;
+        const netConsumtionMeterAvtiveCount = productionCT.data.consumption[1].activeCount;
+        me.productionMeterAvtiveCount = productionMeterAvtiveCount;
+        me.totalConsumtionMeterAvtiveCount = totalConsumtionMeterAvtiveCount;
+        me.netConsumtionMeterAvtiveCount = netConsumtionMeterAvtiveCount;
+      }
 
       //production
       // convert Unix time to local date time
@@ -693,11 +700,6 @@ class envoyDevice {
         me.envoyServiceProduction.updateCharacteristic(Characteristic.enphaseEnergyLifetime, energyProductionLifetime);
         me.envoyServiceProduction.updateCharacteristic(Characteristic.enphaseLastReportDate, lastrptdate);
       }
-
-      me.invertersAvtiveCount = invertersAvtiveCount;
-      me.productionMeterAvtiveCount = productionMeterAvtiveCount;
-      me.totalConsumtionMeterAvtiveCount = totalConsumtionMeterAvtiveCount;
-      me.netConsumtionMeterAvtiveCount = netConsumtionMeterAvtiveCount;
 
       //consumption total
       if (totalConsumtionMeterAvtiveCount > 0 && productionCT.data !== 'undefined') {
