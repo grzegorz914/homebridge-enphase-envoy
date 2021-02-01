@@ -629,8 +629,8 @@ class envoyDevice {
 
       const invertersAvtiveCount = productionCT.data.production[0].activeCount;
       me.invertersAvtiveCount = invertersAvtiveCount;
-      
-      if (me.meters.count > 0) {
+
+      if (me.metersCount > 0) {
         const productionMeterAvtiveCount = productionCT.data.production[1].activeCount;
         const totalConsumtionMeterAvtiveCount = productionCT.data.consumption[0].activeCount;
         const netConsumtionMeterAvtiveCount = productionCT.data.consumption[1].activeCount;
