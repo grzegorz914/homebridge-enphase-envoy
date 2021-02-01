@@ -1361,7 +1361,7 @@ class envoyDevice {
       }
 
       //encharge storage
-      if (me.enchargesCount > 0 && (inventory.data !== 'undefned' && productionCT.data !== 'unsefned')) {
+      if (me.enchargesCount > 0 && (inventory.data !== 'undefned' && productionCT.data !== 'undefned')) {
         for (let i = 0; i < me.enchargesCount; i++) {
           var serialNumber = inventory.data[1].devices[i].serial_num;
           var firmware = inventory.data[1].devices[i].img_pnum_running;
@@ -1540,7 +1540,6 @@ class envoyDevice {
           }
         }
       }
-
 
       if (!me.checkDeviceState) {
         me.prepareAccessory();
