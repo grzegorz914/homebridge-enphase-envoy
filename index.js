@@ -796,7 +796,7 @@ class envoyDevice {
 
       var energyProductionToday = me.metersConsumtionTotalCount ? parseFloat(productionCT.data.production[1].whToday / 1000) : parseFloat(production.data.wattHoursToday / 1000);
       var energyProductionLastSevenDays = me.metersConsumtionTotalCount ? parseFloat(productionCT.data.production[1].whLastSevenDays / 1000) : parseFloat(production.data.wattHoursSevenDays / 1000);
-      var energyProductionLifetime = me.metersConsumtionTotalCount ? parseFloat((productionCT.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000) : parseFloat(production.data.wattHoursLifetime / 1000);
+      var energyProductionLifetime = me.metersConsumtionTotalCount ? parseFloat((productionCT.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000) : parseFloat((production.data.wattHoursLifetime + me.energyProductionLifetimeOffset) / 1000);
       me.log.debug('Device: %s %s, production report: %s', me.host, me.name, lastrptdate);
       me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, powerProduction);
       me.log.debug('Device: %s %s, power production max: %s kW', me.host, me.name, powerProductionMax);
