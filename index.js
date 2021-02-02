@@ -1257,7 +1257,7 @@ class envoyDevice {
             me.invertersProvisioned.push(provisioned);
             me.invertersOperating.push(operating);
             me.invertersStatus.push(status);
-            me.invertersLastReportDate.push(lastrptdate);
+            //me.invertersLastReportDate.push(lastrptdate);
 
             if (me.envoyServiceMicronverter) {
               me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDeviceProducing, producing);
@@ -1266,7 +1266,7 @@ class envoyDevice {
               me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDeviceOperating, operating);
               me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDeviceStatus, status);
               me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDeviceFirmware, firmware);
-              me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDeviceLastReportDate, lastrptdate);
+              //me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDeviceLastReportDate, lastrptdate);
             }
           }
           me.invertersDataOK = true;
@@ -1284,39 +1284,40 @@ class envoyDevice {
               'Content-Type': 'application/json'
             }
           };
-
           const response = await http.request(url, options);
           const inverters = JSON.parse(response.data);
-          var invertersCount = inverters.length;
-          var arr = new Array();
-          for (let i = 0; i < invertersCount; i++) {
-            var serialNumber = inverters[i].serialNumber;
-            arr.push(serialNumber);
-          }
 
-          if (me.invertersCount > 0 && inverters !== 'undefined') {
+          if (inverters !== 'undefined') {
+            var invertersCount = inverters.length;
+            var arr = new Array();
+            for (let i = 0; i < invertersCount; i++) {
+              var serialNumber = inverters[i].serialNumber;
+              arr.push(serialNumber);
+            }
             for (let i = 0; i < me.invertersCount; i++) {
               var index = arr.indexOf(me.invertersSerialNumber[i]);
-              //var inverterLastReportDate = inverters[index].LastReportDate;
+              var inverterLastReportDate = inverters[index].lastReportDate;
               var inverterType = inverters[index].devType;
               var inverterLastPower = parseFloat(inverters[index].lastReportWatts);
               var inverterMaxPower = parseFloat(inverters[index].maxReportWatts);
-              //me.log.debug('Device: %s %s, inverter: %s last report: %s W', me.host, me.name, me.invertersSerialNumber[i], inverterLastReportDate);
+
+              // convert Unix time to local date time
+              inverterLastReportDate = new Date(inverterLastReportDate * 1000).toLocaleString();
+
               me.log.debug('Device: %s %s, inverter: %s type: %s', me.host, me.name, me.invertersSerialNumber[i], inverterType);
               me.log.debug('Device: %s %s, inverter: %s last power: %s W', me.host, me.name, me.invertersSerialNumber[i], inverterLastPower);
-              me.log.debug('Device: %s %s, nverter: %s max power: %s W', me.host, me.name, me.invertersSerialNumber[i], inverterMaxPower);
-              //me.invertersLastReportDate.push(inverterLastReportDate);
+              me.log.debug('Device: %s %s, inverter: %s max power: %s W', me.host, me.name, me.invertersSerialNumber[i], inverterMaxPower);
+              me.log.debug('Device: %s %s, inverter: %s last report: %s', me.host, me.name, me.invertersSerialNumber[i], inverterLastReportDate);
+              me.invertersLastReportDate.push(inverterLastReportDate);
               me.invertersType.push(inverterType);
               me.invertersLastPower.push(inverterLastPower);
               me.invertersMaxPower.push(inverterMaxPower);
 
-              // convert Unix time to local date time
-              //inverterLastReportDate = new Date(inverterLastReportDate * 1000).toLocaleString();
 
               if (me.envoyServiceMicronverter) {
                 me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDevicePower, inverterLastPower);
                 me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDevicePowerMax, inverterMaxPower);
-                //me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseLastReportDate, inverterLastReportDate);
+                me.envoyServiceMicronverter.updateCharacteristic(Characteristic.enphaseDeviceLastReportDate, inverterLastReportDate);
               }
             }
             me.invertersDataOK1 = true;
