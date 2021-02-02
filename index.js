@@ -761,7 +761,7 @@ class envoyDevice {
 
       //production
       // convert Unix time to local date time
-      var readindTimeProduction = me.metersConsumtionTotalCount ? productionCT.data.production[1].readingTime : production.data.production[0].readingTime;
+      var readindTimeProduction = me.metersConsumtionTotalCount ? productionCT.data.production[1].readingTime : productionCT.data.production[0].readingTime;
       var lastrptdate = new Date(readindTimeProduction * 1000).toLocaleString();
 
       //power production
