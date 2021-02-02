@@ -565,8 +565,6 @@ class envoyDevice {
     //device configuration
     this.name = config.name;
     this.host = config.host || 'envoy.local';
-    this.envoyUser = config.envoyUser || 'envoy';
-    this.envoyPasswd = config.envoyPasswd;
     this.installerUser = config.installerUser || 'installer';
     this.installerPasswd = config.installerPasswd;
     this.refreshInterval = config.refreshInterval || 10;
@@ -581,12 +579,11 @@ class envoyDevice {
     //get Device info
     this.manufacturer = config.manufacturer || 'Enphase';
     this.modelName = config.modelName || 'Envoy';
-    this.serialNumber = config.serialNumber || 'Serial Number';
-    this.firmwareRevision = config.firmwareRevision || 'Firmware Revision';
 
     //setup variables
+    this.envoyUser = 'envoy';
     this.envoySerialNumber = '';
-    this.envoyfirmware = '';
+    this.envoyFirmware = '';
     this.qrelaysCount = 0;
     this.enchargesCount = 0;
     this.metersCount = 0;
@@ -726,7 +723,7 @@ class envoyDevice {
         me.log('Meters: %s', meters);
         me.log('----------------------------------');
         me.envoyTime = time;
-        me.envoySerialNumber = serialNumber.toString;
+        me.envoySerialNumber = serialNumber;
         me.envoyFirmware = firmware;
         me.invertersCount = inverters;
         me.enchargesCount = encharges;
@@ -1273,7 +1270,7 @@ class envoyDevice {
         }
         if (me.invertersDataOK) {
           const user = me.envoyUser;
-          const passwd = me.envoyPasswd;
+          const passwd = me.envoySerialNumber.substring(6);
           const auth = user + ':' + passwd;
           const url = me.url + PRODUCTION_INVERTERS_URL;
           const options = {
@@ -1355,8 +1352,8 @@ class envoyDevice {
 
     let manufacturer = this.manufacturer;
     let modelName = this.modelName;
-    let serialNumber = this.serialNumber;
-    let firmwareRevision = this.envoyFirmware || this.firmwareRevision;
+    let serialNumber = this.envoySerialNumber;
+    let firmwareRevision = this.envoyFirmware;
 
     this.accessory.removeService(this.accessory.getService(Service.AccessoryInformation));
     const informationService = new Service.AccessoryInformation();

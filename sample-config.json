@@ -29,10 +29,10 @@
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "installerUser": "installer",
+                    "installerPasswd": "password",
                     "manufacturer": "Manufacturer",
-                    "modelName": "Model",
-                    "serialNumber": "Serial Number",
-                    "firmwareRevision": "Firmware Revision"
+                    "modelName": "Model"
                 }
             ]
         }

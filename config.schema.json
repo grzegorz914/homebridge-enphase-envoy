@@ -33,18 +33,6 @@
               "maximum": 3600,
               "required": true
             },
-            "envoyUser": {
-              "title": "Envoy user",
-              "type": "string",
-              "description": "Here set envoy user, default is - envoy.",
-              "required": false
-            },
-            "envoyPasswd": {
-              "title": "Envoy password",
-              "type": "string",
-              "description": "Here set envoy password, default is last 6 serial number.",
-              "required": false
-            },
             "installerUser": {
               "title": "Installer user",
               "type": "string",
@@ -126,20 +114,6 @@
               "placeholder": "Model",
               "description": "Set the model name.",
               "required": false
-            },
-            "serialNumber": {
-              "name": "Serial Number",
-              "type": "string",
-              "placeholder": "Serial Number",
-              "description": "Set the serial number if not detected automatically.",
-              "required": false
-            },
-            "firmwareRevision": {
-              "name": "Firmware Revision",
-              "type": "string",
-              "placeholder": "Firmware Revision",
-              "description": "Set the firmware revision if not detected automatically.",
-              "required": false
             }
           }
         }
@@ -162,40 +136,11 @@
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].envoyUser",
-            "devices[].envoyPasswd",
             "devices[].installerUser",
-            "devices[].installerPasswd"
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
-          "title": "Encharge storage",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            "devices[].enchargeStorageOffset"
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
-          "title": "Production",
-          "expandable": true,
-          "expanded": false,
-          "items": [
+            "devices[].installerPasswd",
+            "devices[].enchargeStorageOffset",
             "devices[].powerProductionMaxDetected",
-            "devices[].energyProductionLifetimeOffset"
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
-          "title": "Consumption",
-          "expandable": true,
-          "expanded": false,
-          "items": [
+            "devices[].energyProductionLifetimeOffset",
             "devices[].powerConsumptionTotalMaxDetected",
             "devices[].energyConsumptionTotalLifetimeOffset",
             "devices[].powerConsumptionNetMaxDetected",
@@ -210,9 +155,7 @@
           "expanded": false,
           "items": [
             "devices[].manufacturer",
-            "devices[].modelName",
-            "devices[].serialNumber",
-            "devices[].firmwareRevision"
+            "devices[].modelName"
           ]
         }
       ]

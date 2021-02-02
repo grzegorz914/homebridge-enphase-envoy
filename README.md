@@ -71,8 +71,11 @@ If U want to use old CO2 sensor style just still with 2.x.x version
 13. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
 14. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
 15. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
-16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app, firmware and serialNumber are displayed automatically.
-
+16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app, firmware and serialNumber. (not available from v4.1.0)
+17. In `envoyUser` here set the envoy user standard is `envov`. (not available from v4.1.0)
+18. In `envoyPasswd` here set the envoy password standard is last 6 dig. serialNumber. (not available from v4.1.0)
+18. In `installerUser` here set the installer user standard is `installer`.
+20. In `installerPasswd` here set the installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
 </p>
@@ -85,21 +88,17 @@ If U want to use old CO2 sensor style just still with 2.x.x version
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
-                    "enchargeStorage": false,
                     "enchargeStorageOffset": 0,
-                    "powerConsumptionMetersInstalled": false,
-                    "powerProductionMeter": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
-                    "powerConsumptionMeter": 0,
                     "powerConsumptionTotalMaxDetected": 10000,
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "installerUser": "installer",
+                    "installerPasswd": "password",
                     "manufacturer": "Manufacturer",
-                    "modelName": "Model",
-                    "serialNumber": "Serial Number",
-                    "firmwareRevision": "Firmware Revision"
+                    "modelName": "Model"
                 }
             ]
         }
