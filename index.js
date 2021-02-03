@@ -22,6 +22,7 @@ const METERS_URL = '/ivp/meters';
 const REPORT_SETTINGS_URL = '/ivp/reportsettings';
 const INVERTERS_STATUS_URL = '/installer/agf/inverters_status.json';
 const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check';
+const NETWORK_INTERFACE = ['Ethernet', 'WiFi', 'Cellurar'];
 
 const ENVOY_STATUS_CODE = ['status_not_available',
   'error.nodata', 'envoy.global.ok', 'envoy.cond_flags.acb_ctrl.bmuhardwareerror', 'envoy.cond_flags.acb_ctrl.bmuimageerror', 'envoy.cond_flags.acb_ctrl.bmumaxcurrentwarning', 'envoy.cond_flags.acb_ctrl.bmusenseerror', 'envoy.cond_flags.acb_ctrl.cellmaxtemperror',
@@ -210,6 +211,17 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseEnvoyTariff, Characteristic);
   Characteristic.enphaseEnvoyTariff.UUID = '00000012-000B-1000-8000-0026BB765291';
 
+  Characteristic.enphaseEnvoyPrimaryInterface = function () {
+    Characteristic.call(this, 'Network interface', Characteristic.enphaseEnvoyPrimaryInterface.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnvoyPrimaryInterface, Characteristic);
+  Characteristic.enphaseEnvoyPrimaryInterface.UUID = '00000013-000B-1000-8000-0026BB765291';
+
   Characteristic.enphaseEnvoyNetworkWebComm = function () {
     Characteristic.call(this, 'Web communication', Characteristic.enphaseEnvoyNetworkWebComm.UUID);
     this.setProps({
@@ -219,7 +231,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyNetworkWebComm, Characteristic);
-  Characteristic.enphaseEnvoyNetworkWebComm.UUID = '00000013-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyNetworkWebComm.UUID = '00000014-000B-1000-8000-0026BB765291';
 
 
   Characteristic.enphaseEnvoyEverReportedToEnlighten = function () {
@@ -231,10 +243,10 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyEverReportedToEnlighten, Characteristic);
-  Characteristic.enphaseEnvoyEverReportedToEnlighten.UUID = '00000014-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyEverReportedToEnlighten.UUID = '00000015-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumAndLevel = function () {
-    Characteristic.call(this, 'Devices check / level', Characteristic.enphaseEnvoyCommNumAndLevel.UUID);
+    Characteristic.call(this, 'Devices comm num. / level', Characteristic.enphaseEnvoyCommNumAndLevel.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -242,10 +254,10 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAndLevel.UUID = '00000015-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumAndLevel.UUID = '00000016-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumPcuAndLevel = function () {
-    Characteristic.call(this, 'Microinverters / Level', Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID);
+    Characteristic.call(this, 'Microinverters comm. / level', Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -253,10 +265,10 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumPcuAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00000016-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00000017-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumAcbAndLevel = function () {
-    Characteristic.call(this, 'Encharges / Level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
+    Characteristic.call(this, 'Encharges comm. / level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -264,10 +276,10 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumAcbAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00000017-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00000018-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNsrbNumAndLevel = function () {
-    Characteristic.call(this, 'Q-Relays / Level', Characteristic.enphaseEnvoyCommNsrbNumAndLevel.UUID);
+    Characteristic.call(this, 'Q-Relays comm. / level', Characteristic.enphaseEnvoyCommNsrbNumAndLevel.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -275,7 +287,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNsrbNumAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNsrbNumAndLevel.UUID = '00000018-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNsrbNumAndLevel.UUID = '00000019-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyUpdateStatus = function () {
     Characteristic.call(this, 'Update status', Characteristic.enphaseEnvoyUpdateStatus.UUID);
@@ -286,7 +298,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyUpdateStatus, Characteristic);
-  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00000019-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00000020-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyTimeZone = function () {
     Characteristic.call(this, 'Time Zone', Characteristic.enphaseEnvoyTimeZone.UUID);
@@ -297,10 +309,10 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyTimeZone, Characteristic);
-  Characteristic.enphaseEnvoyTimeZone.UUID = '00000020-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyTimeZone.UUID = '00000021-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCurrentDateTime = function () {
-    Characteristic.call(this, 'Current local time', Characteristic.enphaseEnvoyCurrentDateTime.UUID);
+    Characteristic.call(this, 'Local time', Characteristic.enphaseEnvoyCurrentDateTime.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -308,7 +320,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCurrentDateTime, Characteristic);
-  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00000021-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00000022-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyLastEnlightenReporTime = function () {
     Characteristic.call(this, 'Last report to Enlighten', Characteristic.enphaseEnvoyLastEnlightenReporTime.UUID);
@@ -319,7 +331,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyLastEnlightenReporTime, Characteristic);
-  Characteristic.enphaseEnvoyLastEnlightenReporTime.UUID = '00000022-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyLastEnlightenReporTime.UUID = '00000023-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphaseDeviceEnvoy = function (displayName, subtype) {
@@ -329,6 +341,7 @@ module.exports = (api) => {
     // Optional Characteristics
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyDbSize);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTariff);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel);
@@ -780,17 +793,15 @@ class envoyDevice {
     this.envoySerialNumber = '';
     this.envoyFirmware = '';
     this.envoySoftwareBuildEpoch = 0;
+
     this.envoyIsEnvoy = false;
+    this.envoyAllerts = '';
     this.envoyDbSize = '';
     this.envoyDbPercentFull = '';
-    this.envoyTimeZone = '';
-    this.envoyCurrentDate = '';
-    this.envoyCurrentTime = '';
+    this.envoyTariff = '';
+    this.envoyPrimaryInterface = '';
     this.envoyNetworkWebComm = false;
     this.envoyEverReportedToEnlighten = false;
-    this.envoyLastEnlightenReporTime = 0;
-    this.envoyPrimaryInterface = '';
-    this.envoyTariff = '';
     this.envoyCommNum = 0;
     this.envoyCommLevel = 0;
     this.envoyCommPcuNum = 0;
@@ -799,8 +810,11 @@ class envoyDevice {
     this.envoyCommAcbLevel = 0;
     this.envoyCommNsrbNum = 0;
     this.envoyCommNsrbLevel = 0;
-    this.envoyAllerts = '';
     this.envoyUpdateStatus = '';
+    this.envoyTimeZone = '';
+    this.envoyCurrentDate = '';
+    this.envoyCurrentTime = '';
+    this.envoyLastEnlightenReporTime = 0;
     this.envoyDataOK = false;
 
     this.qRelaysCount = 0;
@@ -1198,6 +1212,10 @@ class envoyDevice {
         } else {
           var envoyAllerts = 'No allerts';
         }
+        // convert network intzerface
+        var networkInterface = ['eth0', 'wlan0', 'cellurar'];
+        var networkInterfaceIndex = networkInterface.indexOf(envoyPrimaryInterface);
+        envoyPrimaryInterface = NETWORK_INTERFACE[networkInterfaceIndex];
 
         // convert Unix time to local date time
         envoyLastEnlightenReporTime = new Date(envoyLastEnlightenReporTime * 1000).toLocaleString();
@@ -1243,6 +1261,7 @@ class envoyDevice {
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyAllerts, envoyAllerts);
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyDbSize, envoyDbSize + ' / ' + envoyDbPercentFull + '%');
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyTariff, envoyTariff);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface, envoyPrimaryInterface);
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm, envoyNetworkWebComm);
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten, envoyEverReportedToEnlighten);
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, envoyCommNum + ' / ' + envoyCommLevel);
@@ -1632,7 +1651,6 @@ class envoyDevice {
                 me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseDevicePower, inverterLastPower);
                 me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseDevicePowerMax, inverterMaxPower);
                 me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseDeviceLastReportDate, inverterLastReportDate);
-                me.log(inverterLastReportDate, inverterType, inverterLastPower, inverterMaxPower)
               }
             }
             me.invertersDataOK1 = true;
@@ -1854,6 +1872,12 @@ class envoyDevice {
         .on('get', (callback) => {
           let value = this.envoyTariff;
           this.log.info('Device: %s %s, envoy: %s tariff: %s', this.host, this.name, this.envoySerialNumber, value);
+          callback(null, value);
+        });
+      this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface)
+        .on('get', (callback) => {
+          let value = this.envoyPrimaryInterface;
+          this.log.info('Device: %s %s, envoy: %s network interface: %s', this.host, this.name, this.envoySerialNumber, value);
           callback(null, value);
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm)
