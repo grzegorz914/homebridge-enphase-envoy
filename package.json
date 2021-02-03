@@ -1,7 +1,7 @@
 {
     "displayName": "Enphase Ennvoy",
     "name": "homebridge-enphase-envoy",
-    "version": "4.1.3",
+    "version": "4.2.0",
     "description": "Homebridge plugin (https://github.com/homebridge/homebridge) to read data from Enphase Envoy-S.",
     "license": "MIT",
     "author": "grzegorz914",
