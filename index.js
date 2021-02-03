@@ -23,6 +23,7 @@ const REPORT_SETTINGS_URL = '/ivp/reportsettings';
 const INVERTERS_STATUS_URL = '/installer/agf/inverters_status.json';
 const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check';
 const NETWORK_INTERFACE = ['Ethernet', 'WiFi', 'Cellurar'];
+const ENERGY_TARIFF = ['Single rate', 'Time to use', 'Other'];
 
 const ENVOY_STATUS_CODE = ['status_not_available',
   'error.nodata', 'envoy.global.ok', 'envoy.cond_flags.acb_ctrl.bmuhardwareerror', 'envoy.cond_flags.acb_ctrl.bmuimageerror', 'envoy.cond_flags.acb_ctrl.bmumaxcurrentwarning', 'envoy.cond_flags.acb_ctrl.bmusenseerror', 'envoy.cond_flags.acb_ctrl.cellmaxtemperror',
@@ -1212,7 +1213,13 @@ class envoyDevice {
         } else {
           var envoyAllerts = 'No allerts';
         }
-        // convert network intzerface
+
+        // convert energy rate
+        var energyTarif = ['single_rate', 'time_to_use', 'other'];
+        var energyTarifIndex = energyTarif.indexOf(envoyTariff);
+        envoyTariff = ENERGY_TARIFF[energyTarifIndex]
+
+        // convert network interface
         var networkInterface = ['eth0', 'wlan0', 'cellurar'];
         var networkInterfaceIndex = networkInterface.indexOf(envoyPrimaryInterface);
         envoyPrimaryInterface = NETWORK_INTERFACE[networkInterfaceIndex];
