@@ -1411,11 +1411,11 @@ class envoyDevice {
             me.log.debug('Operating: %s', operating ? 'Yes' : 'No');
             me.log.debug('Lines count: %s', operating ? 'Yes' : 'No');
             if (linesCount >= 1) {
-              me.log.debug('Line 1: %s', line1Connected ? 'Yes' : 'No');
+              me.log.debug('Line 1: %s', line1Connected ? 'Closed' : 'Open');
               if (linesCount >= 2) {
-                me.log.debug('Line 2: %s', line2Connected ? 'Yes' : 'No');
+                me.log.debug('Line 2: %s', line2Connected ? 'Closed' : 'Open');
                 if (linesCount >= 3) {
-                  me.log.debug('Line 3: %s', line3Connected ? 'Yes' : 'No');
+                  me.log.debug('Line 3: %s', line3Connected ? 'Closed' : 'Open');
                 }
               }
             }
@@ -2058,7 +2058,7 @@ class envoyDevice {
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayState)
           .on('get', (callback) => {
             let value = this.qRelaysRelay[i];
-            this.log.info('Device: %s %s, qrelay: %s relay: %s', this.host, this.name, this.qRelaysSerialNumber[i], value);
+            this.log.info('Device: %s %s, qrelay: %s relay: %s', this.host, this.name, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
             callback(null, value);
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLinesCount)
@@ -2071,21 +2071,21 @@ class envoyDevice {
           this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine1Connected)
             .on('get', (callback) => {
               let value = this.qRelaysLine1Connected[i];
-              this.log.info('Device: %s %s, qrelay: %s line 1: %s', this.host, this.name, this.qRelaysSerialNumber[i], value ? 'Yes' : 'No');
+              this.log.info('Device: %s %s, qrelay: %s line 1: %s', this.host, this.name, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
               callback(null, value);
             });
           if (this.qRelaysLinesCount[i] >= 2) {
             this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine2Connected)
               .on('get', (callback) => {
                 let value = this.qRelaysLine2Connected[i];
-                this.log.info('Device: %s %s, qrelay: %s line 2: %s', this.host, this.name, this.qRelaysSerialNumber[i], value ? 'Yes' : 'No');
+                this.log.info('Device: %s %s, qrelay: %s line 2: %s', this.host, this.name, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
                 callback(null, value);
               });
             if (this.qRelaysLinesCount[i] >= 3) {
               this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine3Connected)
                 .on('get', (callback) => {
                   let value = this.qRelaysLine3Connected[i];
-                  this.log.info('Device: %s %s, qrelay: %s line 3: %s', this.host, this.name, this.qRelaysSerialNumber[i], value ? 'Yes' : 'No');
+                  this.log.info('Device: %s %s, qrelay: %s line 3: %s', this.host, this.name, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
                   callback(null, value);
                 });
             }
