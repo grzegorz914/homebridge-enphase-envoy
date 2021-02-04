@@ -288,7 +288,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyTariff, Characteristic);
-  Characteristic.enphaseEnvoyTariff.UUID = '00000118-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyTariff.UUID = '00000119-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyUpdateStatus = function () {
     Characteristic.call(this, 'Update status', Characteristic.enphaseEnvoyUpdateStatus.UUID);
