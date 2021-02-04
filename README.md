@@ -33,15 +33,11 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 4. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*. 
 5. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
 
-## Important note v4.0.0 and abowe detect all devices automatically!!!
-Version 4.0.0 whole new concept.
-
-## Important note v3.5.0!!!
-Version 3.5.0 detect automatically all installed devices, please check Your config after update to this version.
-
-## Important note v3.0.0!!!
-Version 3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE or Controller app displayed correctly, in HomeKit displayed as 'Unsupported'. 
-If U want to use old CO2 sensor style just still with 2.x.x version
+## Info v4.x.x and abowe!!!
+1. Version 4.0.0 whole new concept.
+2. All devices in PV are detected automatically.
+3. Envoy authentication is detected automatically.
+4. For best experiences please use *Controller App* for iOS
 
 ## Info v3.x.x
 1. With release v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
@@ -74,8 +70,8 @@ If U want to use old CO2 sensor style just still with 2.x.x version
 16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app, firmware and serialNumber. (not available from v4.1.0)
 17. In `envoyUser` here set the envoy user standard is `envov`. (not available from v4.1.0)
 18. In `envoyPasswd` here set the envoy password standard is last 6 dig. serialNumber. (not available from v4.1.0)
-18. In `installerUser` here set the installer user standard is `installer`.
-20. In `installerPasswd` here set the installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
+18. In `installerUser` here set the optionall installer user standard is `installer`.
+20. In `installerPasswd` here set optionall the installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
 </p>
