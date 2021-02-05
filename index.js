@@ -78,7 +78,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphasePower, Characteristic);
-  Characteristic.enphasePower.UUID = '00000101-000B-1000-8000-0026BB765291';
+  Characteristic.enphasePower.UUID = '00001111-000B-1000-8000-0026BB765291';
 
   Characteristic.enphasePowerMax = function () {
     Characteristic.call(this, 'Power max', Characteristic.enphasePowerMax.UUID);
@@ -93,7 +93,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphasePowerMax, Characteristic);
-  Characteristic.enphasePowerMax.UUID = '00000102-000B-1000-8000-0026BB765291';
+  Characteristic.enphasePowerMax.UUID = '00001112-000B-1000-8000-0026BB765291';
 
   Characteristic.enphasePowerMaxDetected = function () {
     Characteristic.call(this, 'Power max detected', Characteristic.enphasePowerMaxDetected.UUID);
@@ -104,7 +104,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphasePowerMaxDetected, Characteristic);
-  Characteristic.enphasePowerMaxDetected.UUID = '00000103-000B-1000-8000-0026BB765291';
+  Characteristic.enphasePowerMaxDetected.UUID = '00001113-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnergyToday = function () {
     Characteristic.call(this, 'Energy today', Characteristic.enphaseEnergyToday.UUID);
@@ -119,7 +119,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnergyToday, Characteristic);
-  Characteristic.enphaseEnergyToday.UUID = '00000104-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnergyToday.UUID = '00001114-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnergyLastSevenDays = function () {
     Characteristic.call(this, 'Energy last 7 days', Characteristic.enphaseEnergyLastSevenDays.UUID);
@@ -134,7 +134,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnergyLastSevenDays, Characteristic);
-  Characteristic.enphaseEnergyLastSevenDays.UUID = '00000105-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnergyLastSevenDays.UUID = '00001115-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnergyLifetime = function () {
     Characteristic.call(this, 'Energy Lifetime', Characteristic.enphaseEnergyLifetime.UUID);
@@ -149,7 +149,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnergyLifetime, Characteristic);
-  Characteristic.enphaseEnergyLifetime.UUID = '00000106-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnergyLifetime.UUID = '00001116-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.enphaseLastReportDate.UUID);
@@ -160,7 +160,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseLastReportDate, Characteristic);
-  Characteristic.enphaseLastReportDate.UUID = '00000107-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseLastReportDate.UUID = '00001117-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphasePowerEnergyMeter = function (displayName, subtype) {
@@ -188,7 +188,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyAllerts, Characteristic);
-  Characteristic.enphaseEnvoyAllerts.UUID = '00000111-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyAllerts.UUID = '00001211-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyPrimaryInterface = function () {
     Characteristic.call(this, 'Network interface', Characteristic.enphaseEnvoyPrimaryInterface.UUID);
@@ -199,7 +199,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyPrimaryInterface, Characteristic);
-  Characteristic.enphaseEnvoyPrimaryInterface.UUID = '00000112-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyPrimaryInterface.UUID = '00001212-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyNetworkWebComm = function () {
     Characteristic.call(this, 'Web communication', Characteristic.enphaseEnvoyNetworkWebComm.UUID);
@@ -210,7 +210,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyNetworkWebComm, Characteristic);
-  Characteristic.enphaseEnvoyNetworkWebComm.UUID = '00000113-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyNetworkWebComm.UUID = '00001213-000B-1000-8000-0026BB765291';
 
 
   Characteristic.enphaseEnvoyEverReportedToEnlighten = function () {
@@ -222,7 +222,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyEverReportedToEnlighten, Characteristic);
-  Characteristic.enphaseEnvoyEverReportedToEnlighten.UUID = '00000114-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyEverReportedToEnlighten.UUID = '00001214-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumAndLevel = function () {
     Characteristic.call(this, 'Devices and level', Characteristic.enphaseEnvoyCommNumAndLevel.UUID);
@@ -233,7 +233,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAndLevel.UUID = '00000115-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumAndLevel.UUID = '00001215-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumPcuAndLevel = function () {
     Characteristic.call(this, 'Microinverters and level', Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID);
@@ -244,7 +244,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumPcuAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00000116-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00001216-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumAcbAndLevel = function () {
     Characteristic.call(this, 'Encharges and level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
@@ -255,7 +255,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumAcbAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00000117-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00001217-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumNsrbAndLevel = function () {
     Characteristic.call(this, 'Q-Relays and level', Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID);
@@ -266,7 +266,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID = '00000118-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID = '00001218-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyDbSize = function () {
     Characteristic.call(this, 'DB size', Characteristic.enphaseEnvoyDbSize.UUID);
@@ -277,7 +277,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyDbSize, Characteristic);
-  Characteristic.enphaseEnvoyDbSize.UUID = '00000119-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyDbSize.UUID = '00001219-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyTariff = function () {
     Characteristic.call(this, 'Tariff', Characteristic.enphaseEnvoyTariff.UUID);
@@ -288,7 +288,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyTariff, Characteristic);
-  Characteristic.enphaseEnvoyTariff.UUID = '00000120-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyTariff.UUID = '00001220-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyUpdateStatus = function () {
     Characteristic.call(this, 'Update status', Characteristic.enphaseEnvoyUpdateStatus.UUID);
@@ -299,7 +299,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyUpdateStatus, Characteristic);
-  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00000121-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00001221-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyTimeZone = function () {
     Characteristic.call(this, 'Time Zone', Characteristic.enphaseEnvoyTimeZone.UUID);
@@ -310,7 +310,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyTimeZone, Characteristic);
-  Characteristic.enphaseEnvoyTimeZone.UUID = '00000122-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyTimeZone.UUID = '00001222-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCurrentDateTime = function () {
     Characteristic.call(this, 'Local time', Characteristic.enphaseEnvoyCurrentDateTime.UUID);
@@ -321,7 +321,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCurrentDateTime, Characteristic);
-  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00000123-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00001223-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyLastEnlightenReporTime = function () {
     Characteristic.call(this, 'Last report to Enlighten', Characteristic.enphaseEnvoyLastEnlightenReporTime.UUID);
@@ -332,7 +332,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyLastEnlightenReporTime, Characteristic);
-  Characteristic.enphaseEnvoyLastEnlightenReporTime.UUID = '00000124-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyLastEnlightenReporTime.UUID = '00001224-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphaseEnvoy = function (displayName, subtype) {
@@ -367,7 +367,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayState, Characteristic);
-  Characteristic.enphaseQrelayState.UUID = '00000131-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayState.UUID = '00001311-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayLinesCount = function () {
     Characteristic.call(this, 'Lines', Characteristic.enphaseQrelayLinesCount.UUID);
@@ -378,7 +378,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayLinesCount, Characteristic);
-  Characteristic.enphaseQrelayLinesCount.UUID = '00000132-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayLinesCount.UUID = '00001312-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayLine1Connected = function () {
     Characteristic.call(this, 'Line 1', Characteristic.enphaseQrelayLine1Connected.UUID);
@@ -389,7 +389,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayLine1Connected, Characteristic);
-  Characteristic.enphaseQrelayLine1Connected.UUID = '00000133-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayLine1Connected.UUID = '00001313-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayLine2Connected = function () {
     Characteristic.call(this, 'Line 2', Characteristic.enphaseQrelayLine2Connected.UUID);
@@ -400,7 +400,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayLine2Connected, Characteristic);
-  Characteristic.enphaseQrelayLine2Connected.UUID = '00000134-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayLine2Connected.UUID = '00001314-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayLine3Connected = function () {
     Characteristic.call(this, 'Line 3', Characteristic.enphaseQrelayLine3Connected.UUID);
@@ -411,7 +411,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayLine3Connected, Characteristic);
-  Characteristic.enphaseQrelayLine3Connected.UUID = '00000135-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayLine3Connected.UUID = '00001315-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayProducing = function () {
     Characteristic.call(this, 'Producing', Characteristic.enphaseQrelayProducing.UUID);
@@ -422,7 +422,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayProducing, Characteristic);
-  Characteristic.enphaseQrelayProducing.UUID = '00000136-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayProducing.UUID = '00001316-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayCommunicating = function () {
     Characteristic.call(this, 'Communicating', Characteristic.enphaseQrelayCommunicating.UUID);
@@ -433,7 +433,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayCommunicating, Characteristic);
-  Characteristic.enphaseQrelayCommunicating.UUID = '00000137-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayCommunicating.UUID = '00001317-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayProvisioned = function () {
     Characteristic.call(this, 'Provisioned', Characteristic.enphaseQrelayProvisioned.UUID);
@@ -444,7 +444,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayProvisioned, Characteristic);
-  Characteristic.enphaseQrelayProvisioned.UUID = '00000138-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayProvisioned.UUID = '00001318-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayOperating = function () {
     Characteristic.call(this, 'Operating', Characteristic.enphaseQrelayOperating.UUID);
@@ -455,7 +455,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayOperating, Characteristic);
-  Characteristic.enphaseQrelayOperating.UUID = '00000139-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayOperating.UUID = '00001319-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayStatus = function () {
     Characteristic.call(this, 'Status', Characteristic.enphaseQrelayStatus.UUID);
@@ -466,7 +466,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayStatus, Characteristic);
-  Characteristic.enphaseQrelayStatus.UUID = '00000140-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayStatus.UUID = '00001320-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayFirmware = function () {
     Characteristic.call(this, 'Firmware', Characteristic.enphaseQrelayFirmware.UUID);
@@ -477,7 +477,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayFirmware, Characteristic);
-  Characteristic.enphaseQrelayFirmware.UUID = '00000141-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayFirmware.UUID = '00001321-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseQrelayLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.enphaseQrelayLastReportDate.UUID);
@@ -488,7 +488,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseQrelayLastReportDate, Characteristic);
-  Characteristic.enphaseQrelayLastReportDate.UUID = '00000142-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseQrelayLastReportDate.UUID = '00001322-000B-1000-8000-0026BB765291';
 
   //qrelay service
   Service.enphaseQrelay = function (displayName, subtype) {
@@ -512,86 +512,86 @@ module.exports = (api) => {
   Service.enphaseQrelay.UUID = '00000003-000A-1000-8000-0026BB765291';
 
   //enphase current meters
-  Characteristic.enphaseMetersState = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseMetersState.UUID);
+  Characteristic.enphaseMeterState = function () {
+    Characteristic.call(this, 'Status', Characteristic.enphaseMeterState.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseMetersState, Characteristic);
-  Characteristic.enphaseMetersState.UUID = '00000151-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseMeterState, Characteristic);
+  Characteristic.enphaseMeterState.UUID = '00001411-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseMetersMeasurementType = function () {
-    Characteristic.call(this, 'Meter type', Characteristic.enphaseMetersMeasurementType.UUID);
+  Characteristic.enphaseMeterMeasurementType = function () {
+    Characteristic.call(this, 'Meter type', Characteristic.enphaseMeterMeasurementType.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseMetersMeasurementType, Characteristic);
-  Characteristic.enphaseMetersMeasurementType.UUID = '00000152-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseMeterMeasurementType, Characteristic);
+  Characteristic.enphaseMeterMeasurementType.UUID = '00001412-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseMetersPhaseCount = function () {
-    Characteristic.call(this, 'Phase count', Characteristic.enphaseMetersPhaseCount.UUID);
+  Characteristic.enphaseMeterPhaseCount = function () {
+    Characteristic.call(this, 'Phase count', Characteristic.enphaseMeterPhaseCount.UUID);
     this.setProps({
       format: Characteristic.Formats.UINT8,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseMetersPhaseCount, Characteristic);
-  Characteristic.enphaseMetersPhaseCount.UUID = '00000153-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseMeterPhaseCount, Characteristic);
+  Characteristic.enphaseMeterPhaseCount.UUID = '00001413-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseMetersPhaseMode = function () {
-    Characteristic.call(this, 'Phase mode', Characteristic.enphaseMetersPhaseMode.UUID);
+  Characteristic.enphaseMeterPhaseMode = function () {
+    Characteristic.call(this, 'Phase mode', Characteristic.enphaseMeterPhaseMode.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseMetersPhaseMode, Characteristic);
-  Characteristic.enphaseMetersPhaseMode.UUID = '00000154-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseMeterPhaseMode, Characteristic);
+  Characteristic.enphaseMeterPhaseMode.UUID = '00001414-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseMetersMeteringStatus = function () {
-    Characteristic.call(this, 'Metering status', Characteristic.enphaseMetersMeteringStatus.UUID);
+  Characteristic.enphaseMeterMeteringStatus = function () {
+    Characteristic.call(this, 'Metering status', Characteristic.enphaseMeterMeteringStatus.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseMetersMeteringStatus, Characteristic);
-  Characteristic.enphaseMetersMeteringStatus.UUID = '00000155-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseMeterMeteringStatus, Characteristic);
+  Characteristic.enphaseMeterMeteringStatus.UUID = '00001415-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseMetersStatusFlags = function () {
-    Characteristic.call(this, 'Status flag', Characteristic.enphaseMetersStatusFlags.UUID);
+  Characteristic.enphaseMeterStatusFlags = function () {
+    Characteristic.call(this, 'Status flag', Characteristic.enphaseMeterStatusFlags.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseMetersStatusFlags, Characteristic);
-  Characteristic.enphaseMetersStatusFlags.UUID = '00000156-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseMeterStatusFlags, Characteristic);
+  Characteristic.enphaseMeterStatusFlags.UUID = '00001416-000B-1000-8000-0026BB765291';
 
   //current meters service
-  Service.enphaseMeters = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseMeters.UUID, subtype);
+  Service.enphaseMeter = function (displayName, subtype) {
+    Service.call(this, displayName, Service.enphaseMeter.UUID, subtype);
     // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseMetersState);
+    this.addCharacteristic(Characteristic.enphaseMeterState);
     // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseMetersPhaseMode);
-    this.addOptionalCharacteristic(Characteristic.enphaseMetersPhaseCount);
-    this.addOptionalCharacteristic(Characteristic.enphaseMetersMeasurementType);
-    this.addOptionalCharacteristic(Characteristic.enphaseMetersMeteringStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseMetersStatusFlags);
+    this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseMode);
+    this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseCount);
+    this.addOptionalCharacteristic(Characteristic.enphaseMeterMeasurementType);
+    this.addOptionalCharacteristic(Characteristic.enphaseMeterMeteringStatus);
+    this.addOptionalCharacteristic(Characteristic.enphaseMeterStatusFlags);
   };
-  inherits(Service.enphaseMeters, Service);
-  Service.enphaseMeters.UUID = '00000004-000A-1000-8000-0026BB765291';
+  inherits(Service.enphaseMeter, Service);
+  Service.enphaseMeter.UUID = '00000004-000A-1000-8000-0026BB765291';
 
   //Encharge
   Characteristic.enphaseEnchargePower = function () {
@@ -607,7 +607,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargePower, Characteristic);
-  Characteristic.enphaseEnchargePower.UUID = '00000161-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargePower.UUID = '00001511-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeEnergy = function () {
     Characteristic.call(this, 'Energy', Characteristic.enphaseEnchargeEnergy.UUID);
@@ -622,7 +622,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeEnergy, Characteristic);
-  Characteristic.enphaseEnchargeEnergy.UUID = '00000162-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeEnergy.UUID = '00001512-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeState = function () {
     Characteristic.call(this, 'State', Characteristic.enphaseEnchargeState.UUID);
@@ -633,7 +633,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeState, Characteristic);
-  Characteristic.enphaseEnchargeState.UUID = '00000163-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeState.UUID = '00001513-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeProducing = function () {
     Characteristic.call(this, 'Producing', Characteristic.enphaseEnchargeProducing.UUID);
@@ -644,7 +644,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeProducing, Characteristic);
-  Characteristic.enphaseEnchargeProducing.UUID = '00000164-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeProducing.UUID = '00001514-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeCommunicating = function () {
     Characteristic.call(this, 'Communicating', Characteristic.enphaseEnchargeCommunicating.UUID);
@@ -655,7 +655,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeCommunicating, Characteristic);
-  Characteristic.enphaseEnchargeCommunicating.UUID = '00000165-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeCommunicating.UUID = '00001415-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeProvisioned = function () {
     Characteristic.call(this, 'Provisioned', Characteristic.enphaseEnchargeProvisioned.UUID);
@@ -666,7 +666,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeProvisioned, Characteristic);
-  Characteristic.enphaseEnchargeProvisioned.UUID = '00000166-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeProvisioned.UUID = '00001516-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeOperating = function () {
     Characteristic.call(this, 'Operating', Characteristic.enphaseEnchargeOperating.UUID);
@@ -677,7 +677,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeOperating, Characteristic);
-  Characteristic.enphaseEnchargeOperating.UUID = '00000167-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeOperating.UUID = '00001517-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeStatus = function () {
     Characteristic.call(this, 'Status', Characteristic.enphaseEnchargeStatus.UUID);
@@ -688,7 +688,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeStatus, Characteristic);
-  Characteristic.enphaseEnchargeStatus.UUID = '00000168-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeStatus.UUID = '00001518-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeFirmware = function () {
     Characteristic.call(this, 'Firmware', Characteristic.enphaseEnchargeFirmware.UUID);
@@ -699,7 +699,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeFirmware, Characteristic);
-  Characteristic.enphaseEnchargeFirmware.UUID = '00000169-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeFirmware.UUID = '00001519-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.enphaseEnchargeLastReportDate.UUID);
@@ -710,7 +710,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeLastReportDate, Characteristic);
-  Characteristic.enphaseEnchargeLastReportDate.UUID = '00000170-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeLastReportDate.UUID = '00001520-000B-1000-8000-0026BB765291';
 
   //Encharge service
   Service.enphaseEncharge = function (displayName, subtype) {
@@ -744,7 +744,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterPower, Characteristic);
-  Characteristic.enphaseMicroinverterPower.UUID = '00000181-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterPower.UUID = '00001611-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterPowerMax = function () {
     Characteristic.call(this, 'Power max', Characteristic.enphaseMicroinverterPowerMax.UUID);
@@ -759,7 +759,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterPowerMax, Characteristic);
-  Characteristic.enphaseMicroinverterPowerMax.UUID = '00000182-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterPowerMax.UUID = '00001612-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterProducing = function () {
     Characteristic.call(this, 'Producing', Characteristic.enphaseMicroinverterProducing.UUID);
@@ -770,7 +770,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterProducing, Characteristic);
-  Characteristic.enphaseMicroinverterProducing.UUID = '00000183-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterProducing.UUID = '00001613-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterCommunicating = function () {
     Characteristic.call(this, 'Communicating', Characteristic.enphaseMicroinverterCommunicating.UUID);
@@ -781,7 +781,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterCommunicating, Characteristic);
-  Characteristic.enphaseMicroinverterCommunicating.UUID = '00000184-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterCommunicating.UUID = '00001614-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterProvisioned = function () {
     Characteristic.call(this, 'Provisioned', Characteristic.enphaseMicroinverterProvisioned.UUID);
@@ -792,7 +792,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterProvisioned, Characteristic);
-  Characteristic.enphaseMicroinverterProvisioned.UUID = '00000185-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterProvisioned.UUID = '00001615-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterOperating = function () {
     Characteristic.call(this, 'Operating', Characteristic.enphaseMicroinverterOperating.UUID);
@@ -803,7 +803,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterOperating, Characteristic);
-  Characteristic.enphaseMicroinverterOperating.UUID = '00000186-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterOperating.UUID = '00001616-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterStatus = function () {
     Characteristic.call(this, 'Status', Characteristic.enphaseMicroinverterStatus.UUID);
@@ -814,7 +814,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterStatus, Characteristic);
-  Characteristic.enphaseMicroinverterStatus.UUID = '00000187-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterStatus.UUID = '00001617-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterFirmware = function () {
     Characteristic.call(this, 'Firmware', Characteristic.enphaseMicroinverterFirmware.UUID);
@@ -825,7 +825,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterFirmware, Characteristic);
-  Characteristic.enphaseMicroinverterFirmware.UUID = '00000188-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterFirmware.UUID = '00001618-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.enphaseMicroinverterLastReportDate.UUID);
@@ -836,7 +836,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterLastReportDate, Characteristic);
-  Characteristic.enphaseMicroinverterLastReportDate.UUID = '00000189-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterLastReportDate.UUID = '00001619-000B-1000-8000-0026BB765291';
 
   //devices service
   Service.enphaseMicroinverter = function (displayName, subtype) {
@@ -1641,11 +1641,11 @@ class envoyDevice {
             me.metersStatusFlags.push(status);
 
             if (me.enphaseServiceMeter) {
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMetersState, state);
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMetersPhaseMode, phaseMode);
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMetersPhaseCount, phaseCount);
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMetersMeteringStatus, meteringStatus);
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMetersStatusFlags, status);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterState, state);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterPhaseMode, phaseMode);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterPhaseCount, phaseCount);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterMeteringStatus, meteringStatus);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterStatusFlags, status);
             }
             me.metersDataOK = true;
           }
@@ -2090,18 +2090,6 @@ class envoyDevice {
           }
           callback(null, value);
         });
-      this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
-        .on('get', (callback) => {
-          let value = this.envoyDbSize + ' / ' + this.envoyDbPercentFull + '%';
-          this.log.info('Device: %s %s, envoy: %s db size: %s', this.host, this.name, this.envoySerialNumber, value);
-          callback(null, value);
-        });
-      this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyTariff)
-        .on('get', (callback) => {
-          let value = this.envoyTariff;
-          this.log.info('Device: %s %s, envoy: %s tariff: %s', this.host, this.name, this.envoySerialNumber, value);
-          callback(null, value);
-        });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface)
         .on('get', (callback) => {
           let value = this.envoyPrimaryInterface;
@@ -2142,6 +2130,18 @@ class envoyDevice {
         .on('get', (callback) => {
           let value = this.envoyCommNsrbNum + ' / ' + this.envoyCommNsrbLevel;
           this.log.info('Device: %s %s, envoy: %s communication qRelays and level: %s', this.host, this.name, this.envoySerialNumber, value);
+          callback(null, value);
+        });
+      this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
+        .on('get', (callback) => {
+          let value = this.envoyDbSize + ' / ' + this.envoyDbPercentFull + '%';
+          this.log.info('Device: %s %s, envoy: %s db size: %s', this.host, this.name, this.envoySerialNumber, value);
+          callback(null, value);
+        });
+      this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyTariff)
+        .on('get', (callback) => {
+          let value = this.envoyTariff;
+          this.log.info('Device: %s %s, envoy: %s tariff: %s', this.host, this.name, this.envoySerialNumber, value);
           callback(null, value);
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyUpdateStatus)
@@ -2266,32 +2266,32 @@ class envoyDevice {
     //meters
     if (this.metersCount > 0 && this.metersDataOK) {
       for (let i = 0; i < this.metersCount; i++) {
-        this.enphaseServiceMeter = new Service.enphaseMeters('Meter ' + this.metersMeasurementType[i], 'enphaseServiceMeter' + i);
-        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMetersState)
+        this.enphaseServiceMeter = new Service.enphaseMeter('Meter ' + this.metersMeasurementType[i], 'enphaseServiceMeter' + i);
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterState)
           .on('get', (callback) => {
             let value = this.metersState[i];
             this.log.info('Device: %s %s, meter: %s state: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
-        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMetersPhaseMode)
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPhaseMode)
           .on('get', (callback) => {
             let value = this.metersPhaseMode[i];
             this.log.info('Device: %s %s, meter: %s phase mode: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
-        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMetersPhaseCount)
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPhaseCount)
           .on('get', (callback) => {
             let value = this.metersPhaseCount[i];
             this.log.info('Device: %s %s, meter: %s phase count: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
-        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMetersMeteringStatus)
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterMeteringStatus)
           .on('get', (callback) => {
             let value = this.metersMeteringStatus[i];
             this.log.info('Device: %s %s, meter: %s metering status: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
-        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMetersStatusFlags)
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterStatusFlags)
           .on('get', (callback) => {
             let value = this.metersStatusFlags[i];
             this.log.info('Device: %s %s, meter: %s status flag: %s', this.host, this.name, this.metersMeasurementType[i], value);
