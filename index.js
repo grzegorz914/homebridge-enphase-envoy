@@ -1123,15 +1123,16 @@ class envoyDevice {
   async updateDeviceState() {
     var me = this;
     try {
+      var productionUrl = me.metersProductionActiveCount ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
+      const [production, productionCT, inventory] = await axios.all([axios.get(productionUrl), axios.get(me.url + PRODUCTION_CT_URL), axios.get(me.url + INVENTORY_URL)]);
       if (me.metersCount > 0) {
         // check enabled inverters, meters, encharges
-        const devicesAvtiveCount = await axios.get(me.url + PRODUCTION_CT_URL);
-        if (devicesAvtiveCount.status == 200) {
-          const invertersActiveCount = devicesAvtiveCount.data.production[0].activeCount;
-          const metersProductionCount = devicesAvtiveCount.data.production[1].activeCount;
-          const metersConsumtionTotalCount = devicesAvtiveCount.data.consumption[0].activeCount;
-          const metersConsumptionNetCount = devicesAvtiveCount.data.consumption[1].activeCount;
-          const enchargesActiveCount = devicesAvtiveCount.data.storage[0].activeCount;
+        if (productionCT.status == 200) {
+          const metersProductionCount = productionCT.data.production[1].activeCount;
+          const metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
+          const metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
+          const invertersActiveCount = productionCT.data.production[0].activeCount;
+          const enchargesActiveCount = productionCT.data.storage[0].activeCount;
           me.invertersActiveCount = invertersActiveCount;
           me.metersProductionActiveCount = metersProductionCount;
           me.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
@@ -1141,8 +1142,6 @@ class envoyDevice {
         }
       }
 
-      var productionUrl = me.metersProductionActiveCount ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
-      const [production, productionCT] = await axios.all([axios.get(productionUrl), axios.get(me.url + PRODUCTION_CT_URL)]);
       if (production.status == 200 && productionCT.status == 200) {
         me.log.debug('Device %s %s, get device status production: %s, productionCT %s', me.host, me.name, production.data, productionCT.data);
 
@@ -1393,7 +1392,7 @@ class envoyDevice {
           envoyAllerts = 'No allerts';
         }
 
-        // convert energy rate
+        // convert energy tariff
         var energyTariff = ['single_rate', 'time_to_use', 'other'];
         var energyTariffIndex = energyTariff.indexOf(envoyTariff);
         if (energyTariffIndex !== -1) {
@@ -1465,20 +1464,96 @@ class envoyDevice {
         me.envoyDataOK = true;
       }
 
+      //meters
+      if (me.metersCount > 0) {
+        const meters = await axios.get(me.url + METERS_URL);
+        for (let i = 0; i < me.metersCount; i++) {
+          if (meters.status == 200) {
+            var eid = meters.data[i].eid;
+            var state = meters.data[i].state;
+            var measurementType = meters.data[i].measurementType;
+            var phaseMode = meters.data[i].phaseMode;
+            var phaseCount = meters.data[i].phaseCount;
+            var meteringStatus = meters.data[i].meteringStatus;
+            var status = meters.data[i].statusFlags;
+            if (Array.isArray(status) && status.length === 1) {
+              var code1 = status[0];
+              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              status = ENVOY_STATUS_CODE_1[indexCode1];
+            } else if (Array.isArray(status) && status.length === 2) {
+              var code1 = status[0];
+              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              var code2 = status[1];
+              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              status = status1 + ' / ' + status2;
+            } else if (Array.isArray(status) && status.length === 3) {
+              var code1 = status[0];
+              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              var code2 = status[1];
+              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              var code3 = status[2];
+              var indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
+              var status3 = ENVOY_STATUS_CODE_1[indexCode3];
+              status = status1 + ' / ' + status2 + ' / ' + status3;
+            } else {
+              status = 'Status not available';
+            }
+            me.log.debug('Meter %s:', measurementType);
+            me.log.debug('State: %s', state);
+            me.log.debug('Phase mode: %s', phaseMode);
+            me.log.debug('Phase count: %s', phaseCount);
+            me.log.debug('Metering status: %s', meteringStatus);
+            me.log.debug('Status flag: %s', status);
+            me.log.debug('----------------------------------');
+            me.metersEid.push(eid);
+            me.metersState.push(state);
+            me.metersMeasurementType.push(measurementType);
+            me.metersPhaseMode.push(phaseMode);
+            me.metersPhaseCount.push(phaseCount);
+            me.metersMeteringStatus.push(meteringStatus);
+            me.metersStatusFlags.push(status);
+
+            if (me.enphaseServiceMeter) {
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterState, state);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterPhaseMode, phaseMode);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterPhaseCount, phaseCount);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterMeteringStatus, meteringStatus);
+              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterStatusFlags, status);
+            }
+            me.metersDataOK = true;
+          }
+        }
+      }
+
       //qrelays
       if (me.qRelaysCount > 0) {
-        const inventory = await axios.get(me.url + INVENTORY_URL);
         for (let i = 0; i < me.qRelaysCount; i++) {
           if (inventory.status == 200) {
             var type = inventory.data[2].type;
+            var partNum = inventory.data[2].part_num;
+            var installed = inventory.data[2].installed;
             var serialNumber = inventory.data[2].devices[i].serial_num;
-            var firmware = inventory.data[2].devices[i].img_pnum_running;
+            var status = inventory.data[2].devices[i].device_status;
             var lastrptdate = inventory.data[2].devices[i].last_rpt_date;
-            var relay = inventory.data[2].devices[i].relay;
+            var adminState = inventory.data[2].devices[i].admin_state;
+            var devType = inventory.data[2].devices[i].dev_type;
+            var createdDate = inventory.data[2].devices[i].created_date;
+            var imageLoadDate = inventory.data[2].devices[i].img_load_date;
+            var firmware = inventory.data[2].devices[i].img_pnum_running;
+            var ptpn = inventory.data[2].devices[i].ptpn;
+            var chaneid = inventory.data[2].devices[i].chaneid;
+            var deviceControl = inventory.data[2].devices[i].device_control;
             var producing = inventory.data[2].devices[i].producing;
             var communicating = inventory.data[2].devices[i].communicating;
             var provisioned = inventory.data[2].devices[i].provisioned;
             var operating = inventory.data[2].devices[i].operating;
+            var relay = inventory.data[2].devices[i].relay;
+            var reasonCode = inventory.data[2].devices[i].reason_code;
+            var reason = inventory.data[2].devices[i].reason;
             var linesCount = inventory.data[2].devices[i]['line-count'];
             if (linesCount >= 1) {
               var line1Connected = inventory.data[2].devices[i]['line1-connected'];
@@ -1490,7 +1565,6 @@ class envoyDevice {
               }
             }
 
-            var status = inventory.data[2].devices[i].device_status;
             if (Array.isArray(status) && status.length === 1) {
               var code1 = status[0];
               var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
@@ -1587,74 +1661,8 @@ class envoyDevice {
         }
       }
 
-      //meters
-      if (me.metersCount > 0) {
-        const meters = await axios.get(me.url + METERS_URL);
-        for (let i = 0; i < me.metersCount; i++) {
-          if (meters.status == 200) {
-            var eid = meters.data[i].eid;
-            var state = meters.data[i].state;
-            var measurementType = meters.data[i].measurementType;
-            var phaseMode = meters.data[i].phaseMode;
-            var phaseCount = meters.data[i].phaseCount;
-            var meteringStatus = meters.data[i].meteringStatus;
-            var status = meters.data[i].statusFlags;
-            if (Array.isArray(status) && status.length === 1) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              status = ENVOY_STATUS_CODE_1[indexCode1];
-            } else if (Array.isArray(status) && status.length === 2) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              status = status1 + ' / ' + status2;
-            } else if (Array.isArray(status) && status.length === 3) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              var code3 = status[2];
-              var indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              var status3 = ENVOY_STATUS_CODE_1[indexCode3];
-              status = status1 + ' / ' + status2 + ' / ' + status3;
-            } else {
-              status = 'Status not available';
-            }
-            me.log.debug('Meter %s:', measurementType);
-            me.log.debug('State: %s', state);
-            me.log.debug('Phase mode: %s', phaseMode);
-            me.log.debug('Phase count: %s', phaseCount);
-            me.log.debug('Metering status: %s', meteringStatus);
-            me.log.debug('Status flag: %s', status);
-            me.log.debug('----------------------------------');
-            me.metersEid.push(eid);
-            me.metersState.push(state);
-            me.metersMeasurementType.push(measurementType);
-            me.metersPhaseMode.push(phaseMode);
-            me.metersPhaseCount.push(phaseCount);
-            me.metersMeteringStatus.push(meteringStatus);
-            me.metersStatusFlags.push(status);
-
-            if (me.enphaseServiceMeter) {
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterState, state);
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterPhaseMode, phaseMode);
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterPhaseCount, phaseCount);
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterMeteringStatus, meteringStatus);
-              me.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterStatusFlags, status);
-            }
-            me.metersDataOK = true;
-          }
-        }
-      }
-
       //encharge storage
       if (me.enchargesCount > 0) {
-        const inventory = await axios.get(me.url + INVENTORY_URL);
         for (let i = 0; i < me.enchargesCount; i++) {
           if (inventory.status == 200) {
             var type = inventory.data[1].type;
@@ -1759,13 +1767,21 @@ class envoyDevice {
 
       //microinverters power
       if (me.invertersCount > 0) {
-        const inventory = await axios.get(me.url + INVENTORY_URL);
         if (inventory.status == 200) {
           for (let i = 0; i < me.invertersCount; i++) {
             var type = inventory.data[0].type;
+            var partNum = inventory.data[0].part_num;
+            var installed = inventory.data[0].installed;
             var serialNumber = inventory.data[0].devices[i].serial_num;
-            var firmware = inventory.data[0].devices[i].img_pnum_running;
             var lastrptdate = inventory.data[0].devices[i].last_rpt_date;
+            var adminState = inventory.data[0].devices[i].admin_state;
+            var createdDate = inventory.data[0].devices[i].created_date;
+            var devType = inventory.data[0].devices[i].dev_type;
+            var imageLoadDate = inventory.data[0].devices[i].img_load_date;
+            var firmware = inventory.data[0].devices[i].img_pnum_running;
+            var ptpn = inventory.data[0].devices[i].ptpn;
+            var chaneid = inventory.data[0].devices[i].chaneid;
+            var deviceControl = inventory.data[0].devices[i].device_control;
             var producing = inventory.data[0].devices[i].producing;
             var communicating = inventory.data[0].devices[i].communicating;
             var provisioned = inventory.data[0].devices[i].provisioned;
@@ -2302,10 +2318,10 @@ class envoyDevice {
     }
 
     //encharge storage
-    if (this.encharge > 0) {
+    if (this.encharge > 0 && this.enchargesActiveCount > 0) {
       for (let i = 0; i < this.encharge; i++) {
         if (this.enchargesDataOK1) {
-          this.enphaseServiceEncharge = new Service.enphaseEncharge('Encharge storage', + this.enchargesSerialNumber[i], 'enphaseServiceEncharge' + i);
+          this.enphaseServiceEncharge = new Service.enphaseEncharge('Encharge storage ', + this.enchargesSerialNumber[i], 'enphaseServiceEncharge' + i);
           this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargePower)
             .on('get', (callback) => {
               let value = this.enchargesPower[i];
@@ -2380,7 +2396,7 @@ class envoyDevice {
     }
 
     //microinverter
-    if (this.invertersCount > 0) {
+    if (this.invertersCount > 0 && this.invertersActiveCount > 0) {
       for (let i = 0; i < this.invertersCount; i++) {
         if (this.invertersDataOK1) {
           this.enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.invertersSerialNumber[i], 'enphaseServiceMicronverter' + i);
