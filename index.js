@@ -24,6 +24,7 @@ const INVERTERS_STATUS_URL = '/installer/agf/inverters_status.json';
 const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check';
 const NETWORK_INTERFACE = ['Ethernet', 'WiFi', 'Cellurar'];
 const ENERGY_TARIFF = ['Single rate', 'Time to use', 'Other'];
+const ENCHARGE_STATE = ['Idle', 'Discharging', 'Charging'];
 
 const ENVOY_STATUS_CODE = ['undefined',
   'error.nodata', 'envoy.global.ok', 'envoy.cond_flags.acb_ctrl.bmuhardwareerror', 'envoy.cond_flags.acb_ctrl.bmuimageerror', 'envoy.cond_flags.acb_ctrl.bmumaxcurrentwarning', 'envoy.cond_flags.acb_ctrl.bmusenseerror', 'envoy.cond_flags.acb_ctrl.cellmaxtemperror',
@@ -151,16 +152,61 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseEnergyLifetime, Characteristic);
   Characteristic.enphaseEnergyLifetime.UUID = '00001116-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseLastReportDate = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseLastReportDate.UUID);
+  Characteristic.enphaseRmsCurrent = function () {
+    Characteristic.call(this, 'Current', Characteristic.enphaseRmsCurrent.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'A',
+      minValue: -1000,
+      maxValue: 1000,
+      minStep: 0.001,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseRmsCurrent, Characteristic);
+  Characteristic.enphaseRmsCurrent.UUID = '00001117-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseRmsVoltage = function () {
+    Characteristic.call(this, 'Voltage', Characteristic.enphaseRmsVoltage.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'V',
+      minValue: 0,
+      maxValue: 1000,
+      minStep: 0.1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseRmsVoltage, Characteristic);
+  Characteristic.enphaseRmsVoltage.UUID = '00001118-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphasePwrFactor = function () {
+    Characteristic.call(this, 'Power factor', Characteristic.enphasePwrFactor.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'cos φ',
+      minValue: -1,
+      maxValue: 1,
+      minStep: 0.01,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphasePwrFactor, Characteristic);
+  Characteristic.enphasePwrFactor.UUID = '00001119-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseReadingTime = function () {
+    Characteristic.call(this, 'Last report', Characteristic.enphaseReadingTime.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseLastReportDate, Characteristic);
-  Characteristic.enphaseLastReportDate.UUID = '00001117-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseReadingTime, Characteristic);
+  Characteristic.enphaseReadingTime.UUID = '00001121-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphasePowerEnergyMeter = function (displayName, subtype) {
@@ -173,7 +219,10 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseEnergyToday);
     this.addOptionalCharacteristic(Characteristic.enphaseEnergyLastSevenDays);
     this.addOptionalCharacteristic(Characteristic.enphaseEnergyLifetime);
-    this.addOptionalCharacteristic(Characteristic.enphaseLastReportDate);
+    this.addOptionalCharacteristic(Characteristic.enphaseRmsCurrent);
+    this.addOptionalCharacteristic(Characteristic.enphaseRmsVoltage);
+    this.addOptionalCharacteristic(Characteristic.enphasePwrFactor);
+    this.addOptionalCharacteristic(Characteristic.enphaseReadingTime);
   };
   inherits(Service.enphasePowerEnergyMeter, Service);
   Service.enphasePowerEnergyMeter.UUID = '00000001-000A-1000-8000-0026BB765291';
@@ -323,16 +372,16 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseEnvoyCurrentDateTime, Characteristic);
   Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00001223-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnvoyLastEnlightenReporTime = function () {
-    Characteristic.call(this, 'Last report to Enlighten', Characteristic.enphaseEnvoyLastEnlightenReporTime.UUID);
+  Characteristic.enphaseEnvoyLastEnlightenReporDate = function () {
+    Characteristic.call(this, 'Last report to Enlighten', Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnvoyLastEnlightenReporTime, Characteristic);
-  Characteristic.enphaseEnvoyLastEnlightenReporTime.UUID = '00001224-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseEnvoyLastEnlightenReporDate, Characteristic);
+  Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID = '00001224-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphaseEnvoy = function (displayName, subtype) {
@@ -352,7 +401,7 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyUpdateStatus);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTimeZone);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporTime);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate);
   };
   inherits(Service.enphaseEnvoy, Service);
   Service.enphaseEnvoy.UUID = '00000002-000A-1000-8000-0026BB765291';
@@ -624,6 +673,36 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseEnchargeEnergy, Characteristic);
   Characteristic.enphaseEnchargeEnergy.UUID = '00001512-000B-1000-8000-0026BB765291';
 
+  Characteristic.enphaseEnchargePercentFull = function () {
+    Characteristic.call(this, 'Percent full', Characteristic.enphaseEnchargePercentFull.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: '%',
+      minValue: 0,
+      maxValue: 100,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargePercentFull, Characteristic);
+  Characteristic.enphaseEnchargePercentFull.UUID = '00001513-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnchargeActiveCount = function () {
+    Characteristic.call(this, 'Devices count', Characteristic.enphaseEnchargeActiveCount.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: '%',
+      minValue: 0,
+      maxValue: 100,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargeActiveCount, Characteristic);
+  Characteristic.enphaseEnchargeActiveCount.UUID = '00001513-000B-1000-8000-0026BB765291';
+
   Characteristic.enphaseEnchargeState = function () {
     Characteristic.call(this, 'State', Characteristic.enphaseEnchargeState.UUID);
     this.setProps({
@@ -633,7 +712,45 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeState, Characteristic);
-  Characteristic.enphaseEnchargeState.UUID = '00001513-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeState.UUID = '00001514-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnchargeReadingTime = function () {
+    Characteristic.call(this, 'Last report', Characteristic.enphaseEnchargeReadingTime.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargeReadingTime, Characteristic);
+  Characteristic.enphaseEnchargeReadingTime.UUID = '00001515-000B-1000-8000-0026BB765291';
+
+  //Encharge service
+  Service.enphaseEnchargePowerAndEnergy = function (displayName, subtype) {
+    Service.call(this, displayName, Service.enphaseEnchargePowerAndEnergy.UUID, subtype);
+    // Mandatory Characteristics
+    this.addCharacteristic(Characteristic.enphaseEnchargePower);
+    // Optional Characteristics
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeEnergy);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargePercentFull);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeActiveCount);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeState);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeReadingTime);
+  };
+  inherits(Service.enphaseEnchargePowerAndEnergy, Service);
+  Service.enphaseEnchargePowerAndEnergy.UUID = '00000005-000A-1000-8000-0026BB765291';
+
+  //Encharge
+  Characteristic.enphaseEnchargeChargeStatus = function () {
+    Characteristic.call(this, 'Charge status', Characteristic.enphaseEnchargeChargeStatus.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargeChargeStatus, Characteristic);
+  Characteristic.enphaseEnchargeChargeStatus.UUID = '00001611-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeProducing = function () {
     Characteristic.call(this, 'Producing', Characteristic.enphaseEnchargeProducing.UUID);
@@ -644,7 +761,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeProducing, Characteristic);
-  Characteristic.enphaseEnchargeProducing.UUID = '00001514-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeProducing.UUID = '00001612-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeCommunicating = function () {
     Characteristic.call(this, 'Communicating', Characteristic.enphaseEnchargeCommunicating.UUID);
@@ -655,7 +772,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeCommunicating, Characteristic);
-  Characteristic.enphaseEnchargeCommunicating.UUID = '00001415-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeCommunicating.UUID = '00001613-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeProvisioned = function () {
     Characteristic.call(this, 'Provisioned', Characteristic.enphaseEnchargeProvisioned.UUID);
@@ -666,7 +783,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeProvisioned, Characteristic);
-  Characteristic.enphaseEnchargeProvisioned.UUID = '00001516-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeProvisioned.UUID = '00001614-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeOperating = function () {
     Characteristic.call(this, 'Operating', Characteristic.enphaseEnchargeOperating.UUID);
@@ -677,7 +794,78 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeOperating, Characteristic);
-  Characteristic.enphaseEnchargeOperating.UUID = '00001517-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeOperating.UUID = '00001615-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnchargeSleepEnabled = function () {
+    Characteristic.call(this, 'Provisioned', Characteristic.enphaseEnchargeSleepEnabled.UUID);
+    this.setProps({
+      format: Characteristic.Formats.BOOL,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargeSleepEnabled, Characteristic);
+  Characteristic.enphaseEnchargeSleepEnabled.UUID = '00001616-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnchargePercentFull = function () {
+    Characteristic.call(this, 'Percent full', Characteristic.enphaseEnchargePercentFull.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: '%',
+      minValue: 0,
+      maxValue: 100,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargePercentFull, Characteristic);
+  Characteristic.enphaseEnchargePercentFull.UUID = '00001617-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnchargeMaxCellTemp = function () {
+    Characteristic.call(this, 'Max cell temp', Characteristic.enphaseEnchargeMaxCellTemp.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: '°C',
+      minValue: 0,
+      maxValue: 100,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargeMaxCellTemp, Characteristic);
+  Characteristic.enphaseEnchargeMaxCellTemp.UUID = '00001617-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnchargeSleepMinSoc = function () {
+    Characteristic.call(this, 'Sleep min soc', Characteristic.enphaseEnchargeSleepMinSoc.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'min',
+      minValue: 0,
+      maxValue: 100,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargeSleepMinSoc, Characteristic);
+  Characteristic.enphaseEnchargeSleepMinSoc.UUID = '00001618-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnchargeSleepMaxSoc = function () {
+    Characteristic.call(this, 'Sleep max soc', Characteristic.enphaseEnchargeSleepMaxSoc.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'min',
+      minValue: 0,
+      maxValue: 100,
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargeSleepMaxSoc, Characteristic);
+  Characteristic.enphaseEnchargeSleepMaxSoc.UUID = '00001619-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeStatus = function () {
     Characteristic.call(this, 'Status', Characteristic.enphaseEnchargeStatus.UUID);
@@ -688,7 +876,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeStatus, Characteristic);
-  Characteristic.enphaseEnchargeStatus.UUID = '00001518-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeStatus.UUID = '00001620-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeFirmware = function () {
     Characteristic.call(this, 'Firmware', Characteristic.enphaseEnchargeFirmware.UUID);
@@ -699,7 +887,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeFirmware, Characteristic);
-  Characteristic.enphaseEnchargeFirmware.UUID = '00001519-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeFirmware.UUID = '00001621-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.enphaseEnchargeLastReportDate.UUID);
@@ -710,25 +898,29 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeLastReportDate, Characteristic);
-  Characteristic.enphaseEnchargeLastReportDate.UUID = '00001520-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeLastReportDate.UUID = '00001622-000B-1000-8000-0026BB765291';
 
   //Encharge service
   Service.enphaseEncharge = function (displayName, subtype) {
     Service.call(this, displayName, Service.enphaseEncharge.UUID, subtype);
     // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseEnchargPower);
+    this.addCharacteristic(Characteristic.enphaseEnchargeChargeStatus);
     // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeEnergy);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeProducing);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommunicating);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeProvisioned);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeOperating);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeSleepEnabled);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargePercentFull);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeStatus);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeFirmware);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLastReportDate);
   };
   inherits(Service.enphaseEncharge, Service);
-  Service.enphaseEncharge.UUID = '00000005-000A-1000-8000-0026BB765291';
+  Service.enphaseEncharge.UUID = '00000006-000A-1000-8000-0026BB765291';
 
   //Microinverter
   Characteristic.enphaseMicroinverterPower = function () {
@@ -744,7 +936,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterPower, Characteristic);
-  Characteristic.enphaseMicroinverterPower.UUID = '00001611-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterPower.UUID = '00001711-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterPowerMax = function () {
     Characteristic.call(this, 'Power max', Characteristic.enphaseMicroinverterPowerMax.UUID);
@@ -759,7 +951,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterPowerMax, Characteristic);
-  Characteristic.enphaseMicroinverterPowerMax.UUID = '00001612-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterPowerMax.UUID = '00001712-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterProducing = function () {
     Characteristic.call(this, 'Producing', Characteristic.enphaseMicroinverterProducing.UUID);
@@ -770,7 +962,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterProducing, Characteristic);
-  Characteristic.enphaseMicroinverterProducing.UUID = '00001613-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterProducing.UUID = '00001713-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterCommunicating = function () {
     Characteristic.call(this, 'Communicating', Characteristic.enphaseMicroinverterCommunicating.UUID);
@@ -781,7 +973,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterCommunicating, Characteristic);
-  Characteristic.enphaseMicroinverterCommunicating.UUID = '00001614-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterCommunicating.UUID = '00001714-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterProvisioned = function () {
     Characteristic.call(this, 'Provisioned', Characteristic.enphaseMicroinverterProvisioned.UUID);
@@ -792,7 +984,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterProvisioned, Characteristic);
-  Characteristic.enphaseMicroinverterProvisioned.UUID = '00001615-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterProvisioned.UUID = '00001715-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterOperating = function () {
     Characteristic.call(this, 'Operating', Characteristic.enphaseMicroinverterOperating.UUID);
@@ -803,7 +995,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterOperating, Characteristic);
-  Characteristic.enphaseMicroinverterOperating.UUID = '00001616-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterOperating.UUID = '00001716-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterStatus = function () {
     Characteristic.call(this, 'Status', Characteristic.enphaseMicroinverterStatus.UUID);
@@ -814,7 +1006,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterStatus, Characteristic);
-  Characteristic.enphaseMicroinverterStatus.UUID = '00001617-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterStatus.UUID = '00001717-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterFirmware = function () {
     Characteristic.call(this, 'Firmware', Characteristic.enphaseMicroinverterFirmware.UUID);
@@ -825,7 +1017,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterFirmware, Characteristic);
-  Characteristic.enphaseMicroinverterFirmware.UUID = '00001618-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterFirmware.UUID = '00001718-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseMicroinverterLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.enphaseMicroinverterLastReportDate.UUID);
@@ -836,7 +1028,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseMicroinverterLastReportDate, Characteristic);
-  Characteristic.enphaseMicroinverterLastReportDate.UUID = '00001619-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseMicroinverterLastReportDate.UUID = '00001719-000B-1000-8000-0026BB765291';
 
   //devices service
   Service.enphaseMicroinverter = function (displayName, subtype) {
@@ -854,7 +1046,7 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterLastReportDate);
   };
   inherits(Service.enphaseMicroinverter, Service);
-  Service.enphaseMicroinverter.UUID = '00000006-000A-1000-8000-0026BB765291';
+  Service.enphaseMicroinverter.UUID = '00000007-000A-1000-8000-0026BB765291';
 
   api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform, true);
 }
@@ -908,12 +1100,12 @@ class envoyDevice {
     this.installerPasswd = config.installerPasswd;
     this.refreshInterval = config.refreshInterval || 10;
     this.enchargeStorageOffset = config.enchargeStorageOffset || 0;
-    this.powerProductionMaxDetected = config.powerProductionMaxDetected || 0;
-    this.energyProductionLifetimeOffset = config.energyProductionLifetimeOffset || 0;
-    this.powerConsumptionTotalMaxDetected = config.powerConsumptionTotalMaxDetected || 0;
-    this.energyConsumptionTotalLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
-    this.powerConsumptionNetMaxDetected = config.powerConsumptionNetMaxDetected || 0;
-    this.energyConsumptionNetLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
+    this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
+    this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
+    this.consumptionTotalPowerMaxDetected = config.powerConsumptionTotalMaxDetected || 0;
+    this.consumptionTotalEnergyLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
+    this.consumptionNetPowerMaxDetected = config.powerConsumptionNetMaxDetected || 0;
+    this.consumptionNetEnergyLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
 
     //get Device info
     this.manufacturer = config.manufacturer || 'Enphase';
@@ -923,30 +1115,41 @@ class envoyDevice {
     this.checkDeviceInfo = false;
     this.checkDeviceState = false;
 
-    this.powerProductionMax = 0;
-    this.powerProductionMaxDetectedState = false;
-    this.powerProduction = 0;
-    this.energyProductionToday = 0;
-    this.energyProductionLastSevenDays = 0;
-    this.energyProductionLifetime = 0;
-    this.powerProductionReadingTime = '';
+    this.productionPower = 0;
+    this.productionPowerMax = 0;
+    this.productionPowerMaxDetectedState = false;
+    this.productionEnergyToday = 0;
+    this.productionEnergyLastSevenDays = 0;
+    this.productionEnergyLifetime = 0;
+    this.productionRmsCurrent = 0;
+    this.productionRmsVoltage = 0;
+    this.productionPwrFactor = 0;
+    this.productionReadingTime = '';
     this.productionDataOK = false;
 
-    this.powerConsumptionTotalMax = 0;
-    this.powerConsumptionTotalMaxDetectedState = false;
-    this.powerConsumptionTotal = 0;
-    this.energyConsumptionTotalToday = 0;
-    this.energyConsumptionTotalLastSevenDays = 0;
-    this.energyConsumptionTotalLifetime = 0;
-    this.consumptionDataTotalDataOK = false;
+    this.consumptionTotalPower = 0;
+    this.consumptionTotalPowerMax = 0;
+    this.consumptionTotalPowerMaxDetectedState = false;
+    this.consumptionTotalEnergyToday = 0;
+    this.consumptionTotalEnergyLastSevenDays = 0;
+    this.consumptionTotalEnergyLifetime = 0;
+    this.consumptionTotaRmsCurrent = 0;
+    this.consumptionTotaRmsVoltage = 0;
+    this.consumptionTotaPwrFactor = 0;
+    this.consumptionTotaReadingTime = '';
+    this.consumptionTotalDataOK = false;
 
-    this.powerConsumptionNetMax = 0;
-    this.powerConsumptionNetMaxDetectedState = false;
-    this.powerConsumptionNet = 0;
-    this.energyConsumptionNetToday = 0;
-    this.energyConsumptionNetLastSevenDays = 0;
-    this.energyConsumptionNetLifetime = 0;
-    this.consumptionDataNetDataOK = false;
+    this.consumptionNetPower = 0;
+    this.consumptionNetPowerMax = 0;
+    this.consumptionNetPowerMaxDetectedState = false;
+    this.consumptionNetEnergyToday = 0;
+    this.consumptionNetEnergyLastSevenDays = 0;
+    this.consumptionNetEnergyLifetime = 0;
+    this.consumptionNetRmsCurrent = 0;
+    this.consumptionNetRmsVoltage = 0;
+    this.consumptionNetPwrFactor = 0;
+    this.consumptionNetReadingTime = '';
+    this.consumptionNetDataOK = false;
 
     this.envoyUser = 'envoy';
     this.envoySerialNumber = '';
@@ -955,8 +1158,8 @@ class envoyDevice {
 
     this.envoyIsEnvoy = false;
     this.envoyAllerts = '';
-    this.envoyDbSize = '';
-    this.envoyDbPercentFull = '';
+    this.envoyDbSize = 0;
+    this.envoyDbPercentFull = 0;
     this.envoyTariff = '';
     this.envoyPrimaryInterface = '';
     this.envoyNetworkWebComm = false;
@@ -973,40 +1176,20 @@ class envoyDevice {
     this.envoyTimeZone = '';
     this.envoyCurrentDate = '';
     this.envoyCurrentTime = '';
-    this.envoyLastEnlightenReporTime = 0;
+    this.envoyLastEnlightenReporDate = 0;
     this.envoyDataOK = false;
 
-    this.qRelaysCount = 0;
-    this.qRelaysSerialNumber = new Array();
-    this.qRelaysFirmware = new Array();
-    this.qRelaysRelay = new Array();
-    this.qRelaysProducing = new Array();
-    this.qRelaysCommunicating = new Array();
-    this.qRelaysProvisioned = new Array();
-    this.qRelaysOperating = new Array();
-    this.qRelaysLinesCount = new Array();
-    this.qRelaysLine1Connected = new Array();
-    this.qRelaysLine2Connected = new Array();
-    this.qRelaysLine3Connected = new Array();
-    this.qRelaysStatus = new Array();
-    this.qRelaysLastReportDate = new Array();
-    this.qrelaysDataOK = false;
+    this.qrelaysCount = 0;
+    this.qRelaysDataOK = false;
 
     this.enchargesCount = 0;
+    this.enchargesType = '';
     this.enchargesActiveCount = 0;
-    this.enchargesSerialNumber = new Array();
-    this.enchargesFirmware = new Array();
-    this.enchargesProducing = new Array();
-    this.enchargesCommunicating = new Array();
-    this.enchargesProvisioned = new Array();
-    this.enchargesOperating = new Array();
-    this.enchargesStatus = new Array();
-    this.enchargesLastReportDate = new Array();
-    this.enchargeType = new Array();
-    this.enchargeActiveCount = new Array();
-    this.enchargesPower = new Array();
-    this.enchargesEnergy = new Array();
-    this.enchargesState = new Array();
+    this.enchargesReadingTime = '';
+    this.enchargesPower = 0;
+    this.enchargesEnergy = 0;
+    this.enchargesState = '';
+    this.enchargesPercentFull = 0;
     this.enchargesDataOK = false;
     this.enchargesDataOK1 = false;
 
@@ -1015,34 +1198,16 @@ class envoyDevice {
     this.metersProductionActiveCount = 0;
     this.metersConsumtionTotalActiveCount = 0;
     this.metersConsumptionNetActiveCount = 0;
-    this.metersEid = new Array();
-    this.metersState = new Array();
-    this.metersMeasurementType = new Array();
-    this.metersPhaseMode = new Array();
-    this.metersPhaseCount = new Array();
-    this.metersMeteringStatus = new Array();
-    this.metersStatusFlags = new Array();
     this.metersDataOK = false;
 
     this.invertersCount = 0;
     this.invertersActiveCount = 0;
-    this.invertersSerialNumber = new Array();
-    this.invertersFirmware = new Array();
-    this.invertersType = new Array();
-    this.invertersLastPower = new Array();
-    this.invertersMaxPower = new Array();
-    this.invertersProducing = new Array();
-    this.invertersCommunicating = new Array();
-    this.invertersProvisioned = new Array();
-    this.invertersOperating = new Array();
-    this.invertersStatus = new Array();
-    this.invertersLastReportDate = new Array();
     this.invertersDataOK = false;
     this.invertersDataOK1 = false;
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
-    this.powerProductionMaxFile = this.prefDir + '/' + 'powerProductionMax_' + this.host.split('.').join('');
-    this.powerConsumptionTotalMaxFile = this.prefDir + '/' + 'powerConsumptionTotalMax_' + this.host.split('.').join('');
-    this.powerConsumptionNetMaxFile = this.prefDir + '/' + 'powerConsumptionNetMax_' + this.host.split('.').join('');
+    this.productionPowerMaxFile = this.prefDir + '/' + 'productionPowerMax_' + this.host.split('.').join('');
+    this.consumptionTotalPowerMaxFile = this.prefDir + '/' + 'consumptionTotalPowerMax_' + this.host.split('.').join('');
+    this.consumptionNetPowerMaxFile = this.prefDir + '/' + 'consumptionNetPowerMax_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
 
     //check if prefs directory ends with a /, if not then add it
@@ -1109,7 +1274,7 @@ class envoyDevice {
       me.envoyFirmware = firmware;
       me.invertersCount = microinverters;
       me.enchargesCount = encharges;
-      me.qRelaysCount = qrelays;
+      me.qrelaysCount = qrelays;
       me.metersCount = ctmeters;
 
       me.checkDeviceInfo = false;
@@ -1123,22 +1288,20 @@ class envoyDevice {
   async updateDeviceState() {
     var me = this;
     try {
-      var productionUrl = me.metersProductionActiveCount ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
+      const productionUrl = me.metersProductionActiveCount ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
       const [production, productionCT, inventory] = await axios.all([axios.get(productionUrl), axios.get(me.url + PRODUCTION_CT_URL), axios.get(me.url + INVENTORY_URL)]);
       if (me.metersCount > 0) {
         // check enabled inverters, meters, encharges
         if (productionCT.status == 200) {
-          const metersProductionCount = productionCT.data.production[1].activeCount;
-          const metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
-          const metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
-          const invertersActiveCount = productionCT.data.production[0].activeCount;
-          const enchargesActiveCount = productionCT.data.storage[0].activeCount;
-          me.invertersActiveCount = invertersActiveCount;
+          var metersProductionCount = productionCT.data.production[1].activeCount;
+          var metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
+          var metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
+          var invertersActiveCount = productionCT.data.production[0].activeCount;
           me.metersProductionActiveCount = metersProductionCount;
           me.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
           me.metersConsumptionNetActiveCount = metersConsumptionNetCount;
-          me.enchargesActiveCount = enchargesActiveCount;
           me.metersTypeEnabledCount = metersProductionCount + metersConsumtionTotalCount + metersConsumptionNetCount;
+          me.invertersActiveCount = invertersActiveCount;
         }
       }
 
@@ -1154,60 +1317,75 @@ class envoyDevice {
         var lastrptdate = new Date(readindTimeProduction * 1000).toLocaleString();
 
         //power production
-        var powerProduction = me.metersProductionActiveCount ? parseFloat(productionCT.data.production[1].wNow / 1000) : parseFloat(production.data.wattsNow / 1000);
+        var productionPower = me.metersProductionActiveCount ? parseFloat(productionCT.data.production[1].wNow / 1000) : parseFloat(production.data.wattsNow / 1000);
 
-        //save and read powerProductionMax
+        //save and read productionPowerMax
         try {
-          var savedPowerProductionMax = await fsPromises.readFile(me.powerProductionMaxFile);
+          var savedPowerProductionMax = await fsPromises.readFile(me.productionPowerMaxFile);
         } catch (error) {
-          me.log.debug('Device: %s %s, powerProductionMaxFile file does not exist', me.host, me.name);
+          me.log.debug('Device: %s %s, productionPowerMaxFile file does not exist', me.host, me.name);
         }
 
-        var powerProductionMax = 0;
+        var productionPowerMax = 0;
         if (savedPowerProductionMax) {
-          powerProductionMax = parseFloat(savedPowerProductionMax);
+          productionPowerMax = parseFloat(savedPowerProductionMax);
         }
 
-        if (powerProduction > powerProductionMax) {
-          var powerProductionMaxf = powerProduction.toString();
+        if (productionPower > productionPowerMax) {
+          var productionPowerMaxf = productionPower.toString();
           try {
-            await fsPromises.writeFile(me.powerProductionMaxFile, powerProductionMaxf);
-            me.log.debug('Device: %s %s, powerProductionMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerProduction);
+            await fsPromises.writeFile(me.productionPowerMaxFile, productionPowerMaxf);
+            me.log.debug('Device: %s %s, productionPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, productionPower);
           } catch (error) {
-            me.log.error('Device: %s %s, could not write powerProductionMaxFile, error: %s', me.host, me.name, error);
+            me.log.error('Device: %s %s, could not write productionPowerMaxFile, error: %s', me.host, me.name, error);
 
           }
         }
 
-        var powerProductionMaxDetectedState = (powerProduction >= me.powerProductionMaxDetected / 1000);
-        me.powerProductionMax = powerProductionMax;
-        me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
+        var productionPowerMaxDetectedState = (productionPower >= me.productionPowerMaxDetected / 1000);
+        me.productionPowerMax = productionPowerMax;
+        me.productionPowerMaxDetectedState = productionPowerMaxDetectedState;
 
-        var energyProductionToday = me.metersProductionActiveCount ? parseFloat(productionCT.data.production[1].whToday / 1000) : parseFloat(production.data.wattHoursToday / 1000);
-        var energyProductionLastSevenDays = me.metersProductionActiveCount ? parseFloat(productionCT.data.production[1].whLastSevenDays / 1000) : parseFloat(production.data.wattHoursSevenDays / 1000);
-        var energyProductionLifetime = me.metersProductionActiveCount ? parseFloat((productionCT.data.production[1].whLifetime + me.energyProductionLifetimeOffset) / 1000) : parseFloat((production.data.wattHoursLifetime + me.energyProductionLifetimeOffset) / 1000);
+        var productionEnergyToday = me.metersProductionActiveCount ? parseFloat(productionCT.data.production[1].whToday / 1000) : parseFloat(production.data.wattHoursToday / 1000);
+        var productionEnergyLastSevenDays = me.metersProductionActiveCount ? parseFloat(productionCT.data.production[1].whLastSevenDays / 1000) : parseFloat(production.data.wattHoursSevenDays / 1000);
+        var productionEnergyLifetime = me.metersProductionActiveCount ? parseFloat((productionCT.data.production[1].whLifetime + me.productionEnergyLifetimeOffset) / 1000) : parseFloat((production.data.wattHoursLifetime + me.productionEnergyLifetimeOffset) / 1000);
+        if (me.metersCount > 0 && me.metersProductionActiveCount) {
+          var productionRmsCurrent = parseFloat(productionCT.data.production[1].rmsCurrent);
+          var productionRmsVoltage = parseFloat((productionCT.data.production[1].rmsVoltage) / 3);
+          var productionPwrFactor = parseFloat(productionCT.data.production[1].pwrFactor);
+        }
+        me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, productionPower);
+        me.log.debug('Device: %s %s, power production max: %s kW', me.host, me.name, productionPowerMax);
+        me.log.debug('Device: %s %s, power production max detected: %s', me.host, me.name, productionPowerMaxDetectedState ? 'Yes' : 'No');
+        me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, productionEnergyToday);
+        me.log.debug('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, productionEnergyLastSevenDays);
+        me.log.debug('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, productionEnergyLifetime);
         me.log.debug('Device: %s %s, production report: %s', me.host, me.name, lastrptdate);
-        me.log.debug('Device: %s %s, power production: %s kW', me.host, me.name, powerProduction);
-        me.log.debug('Device: %s %s, power production max: %s kW', me.host, me.name, powerProductionMax);
-        me.log.debug('Device: %s %s, power production max detected: %s', me.host, me.name, powerProductionMaxDetectedState ? 'Yes' : 'No');
-        me.log.debug('Device: %s %s, energy production Today: %s kWh', me.host, me.name, energyProductionToday);
-        me.log.debug('Device: %s %s, energy production last 7 Days: %s kWh', me.host, me.name, energyProductionLastSevenDays);
-        me.log.debug('Device: %s %s, energy production Lifetime: %s kWh', me.host, me.name, energyProductionLifetime);
-        me.productionLastReportDate = lastrptdate;
-        me.powerProduction = powerProduction;
-        me.energyProductionToday = energyProductionToday;
-        me.energyProductionLastSevenDays = energyProductionLastSevenDays;
-        me.energyProductionLifetime = energyProductionLifetime;
-        me.powerProductionMaxDetectedState = powerProductionMaxDetectedState;
+        me.productionPower = productionPower;
+        me.productionPowerMaxDetectedState = productionPowerMaxDetectedState;
+        me.productionEnergyToday = productionEnergyToday;
+        me.productionEnergyLastSevenDays = productionEnergyLastSevenDays;
+        me.productionEnergyLifetime = productionEnergyLifetime;
+        if (me.metersCount > 0 && me.metersProductionActiveCount) {
+          me.productionRmsCurrent = productionRmsCurrent;
+          me.productionRmsVoltage = productionRmsVoltage;
+          me.productionPwrFactor = productionPwrFactor;
+        }
+        me.productionReadingTime = lastrptdate;
 
         if (me.enphaseServiceProduction) {
-          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePower, powerProduction);
-          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePowerMax, powerProductionMax);
-          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePowerMaxDetected, powerProductionMaxDetectedState);
-          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseEnergyToday, energyProductionToday);
-          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, energyProductionLastSevenDays);
-          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseEnergyLifetime, energyProductionLifetime);
-          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseLastReportDate, lastrptdate);
+          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePower, productionPower);
+          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePowerMax, productionPowerMax);
+          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePowerMaxDetected, productionPowerMaxDetectedState);
+          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseEnergyToday, productionEnergyToday);
+          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, productionEnergyLastSevenDays);
+          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseEnergyLifetime, productionEnergyLifetime);
+          if (me.metersCount > 0 && me.metersProductionActiveCount) {
+            me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseRmsCurrent, productionRmsCurrent);
+            me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseRmsVoltage, productionRmsVoltage);
+            me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePwrFactor, productionPwrFactor);
+          }
+          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseReadingTime, lastrptdate);
         }
         me.productionDataOK = true;
       }
@@ -1219,59 +1397,68 @@ class envoyDevice {
         var lastrptdate = new Date(productionLastReadDate * 1000).toLocaleString();
 
         //power consumption total
-        var powerConsumptionTotal = parseFloat(productionCT.data.consumption[0].wNow / 1000);
+        var consumptionTotalPower = parseFloat(productionCT.data.consumption[0].wNow / 1000);
 
-        //save and read powerConsumptionTotalMax
+        //save and read consumptionTotalPowerMax
         try {
-          var savedPowerConsumptionTotalMax = await fsPromises.readFile(me.powerConsumptionTotalMaxFile);
+          var savedPowerConsumptionTotalMax = await fsPromises.readFile(me.consumptionTotalPowerMaxFile);
         } catch (error) {
-          me.log.debug('Device: %s %s, powerConsumptionTotalMaxFile file does not exist', me.host, me.name);
+          me.log.debug('Device: %s %s, consumptionTotalPowerMaxFile file does not exist', me.host, me.name);
         }
 
-        var powerConsumptionTotalMax = 0;
+        var consumptionTotalPowerMax = 0;
         if (savedPowerConsumptionTotalMax) {
-          powerConsumptionTotalMax = parseFloat(savedPowerConsumptionTotalMax);
+          consumptionTotalPowerMax = parseFloat(savedPowerConsumptionTotalMax);
         }
 
-        if (powerConsumptionTotal > powerConsumptionTotalMax) {
-          var powerConsumptionTotalMaxf = powerConsumptionTotal.toString();
+        if (consumptionTotalPower > consumptionTotalPowerMax) {
+          var consumptionTotalPowerMaxf = consumptionTotalPower.toString();
           try {
-            await fsPromises.writeFile(me.powerConsumptionTotalMaxFile, powerConsumptionTotalMaxf);
-            me.log.debug('Device: %s %s, powerConsumptionTotalMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerConsumptionTotal);
+            await fsPromises.writeFile(me.consumptionTotalPowerMaxFile, consumptionTotalPowerMaxf);
+            me.log.debug('Device: %s %s, consumptionTotalPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, consumptionTotalPower);
           } catch (error) {
-            me.log.error('Device: %s %s, could not write powerConsumptionTotalMaxFile, error: %s', me.host, me.name, error);
+            me.log.error('Device: %s %s, could not write consumptionTotalPowerMaxFile, error: %s', me.host, me.name, error);
           }
         }
 
-        var powerConsumptionTotalMaxDetectedState = (me.powerConsumptionTotal >= me.powerConsumptionTotalMaxDetected / 1000);
-        me.powerConsumptionTotalMax = powerConsumptionTotalMax;
-        me.powerConsumptionTotalMaxDetectedState = powerConsumptionTotalMaxDetectedState;
+        var consumptionTotalPowerMaxDetectedState = (me.consumptionTotalPower >= me.consumptionTotalPowerMaxDetected / 1000);
+        me.consumptionTotalPowerMax = consumptionTotalPowerMax;
+        me.consumptionTotalPowerMaxDetectedState = consumptionTotalPowerMaxDetectedState;
 
-        var energyConsumptionTotalToday = parseFloat(productionCT.data.consumption[0].whToday / 1000);
-        var energyConsumptionTotalLastSevenDays = parseFloat(productionCT.data.consumption[0].whLastSevenDays / 1000);
-        var energyConsumptionTotalLifetime = parseFloat((productionCT.data.consumption[0].whLifetime + me.energyConsumptionTotalLifetimeOffset) / 1000);
+        var consumptionTotalEnergyToday = parseFloat(productionCT.data.consumption[0].whToday / 1000);
+        var consumptionTotalEnergyLastSevenDays = parseFloat(productionCT.data.consumption[0].whLastSevenDays / 1000);
+        var consumptionTotalEnergyLifetime = parseFloat((productionCT.data.consumption[0].whLifetime + me.consumptionTotalEnergyLifetimeOffset) / 1000);
+        var consumptionTotalRmsCurrent = parseFloat(productionCT.data.consumption[0].rmsCurrent);
+        var consumptionTotalRmsVoltage = parseFloat((productionCT.data.consumption[0].rmsVoltage) / 3);
+        var consumptionTotalPwrFactor = parseFloat(productionCT.data.consumption[0].pwrFactor);
         me.log.debug('Device: %s %s, total consumption report: %s', me.host, me.name, lastrptdate);
-        me.log.debug('Device: %s %s, total power consumption : %s kW', me.host, me.name, powerConsumptionTotal);
-        me.log.debug('Device: %s %s, total power consumption max: %s kW', me.host, me.name, powerConsumptionTotalMax);
-        me.log.debug('Device: %s %s, total power consumption max detected: %s', me.host, me.name, powerConsumptionTotalMaxDetectedState ? 'Yes' : 'No');
-        me.log.debug('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, energyConsumptionTotalToday);
-        me.log.debug('Device: %s %s, total energy consumption last 7 Days: %s kWh', me.host, me.name, energyConsumptionTotalLastSevenDays);
-        me.log.debug('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, energyConsumptionTotalLifetime);
-        me.totalConsumptionLastReportDate = lastrptdate;
-        me.powerConsumptionTotal = powerConsumptionTotal;
-        me.energyConsumptionTotalToday = energyConsumptionTotalToday;
-        me.energyConsumptionTotalLastSevenDays = energyConsumptionTotalLastSevenDays;
-        me.energyConsumptionTotalLifetime = energyConsumptionTotalLifetime;
-        me.powerConsumptionTotalMaxDetectedState = powerConsumptionTotalMaxDetectedState;
+        me.log.debug('Device: %s %s, total power consumption : %s kW', me.host, me.name, consumptionTotalPower);
+        me.log.debug('Device: %s %s, total power consumption max: %s kW', me.host, me.name, consumptionTotalPowerMax);
+        me.log.debug('Device: %s %s, total power consumption max detected: %s', me.host, me.name, consumptionTotalPowerMaxDetectedState ? 'Yes' : 'No');
+        me.log.debug('Device: %s %s, total energy consumption Today: %s kWh', me.host, me.name, consumptionTotalEnergyToday);
+        me.log.debug('Device: %s %s, total energy consumption last 7 Days: %s kWh', me.host, me.name, consumptionTotalEnergyLastSevenDays);
+        me.log.debug('Device: %s %s, total energy consumption Lifetime: %s kWh', me.host, me.name, consumptionTotalEnergyLifetime);
+        me.consumptionTotalPower = consumptionTotalPower;
+        me.consumptionTotalEnergyToday = consumptionTotalEnergyToday;
+        me.consumptionTotalEnergyLastSevenDays = consumptionTotalEnergyLastSevenDays;
+        me.consumptionTotalEnergyLifetime = consumptionTotalEnergyLifetime;
+        me.consumptionTotalPowerMaxDetectedState = consumptionTotalPowerMaxDetectedState;
+        me.consumptionTotalRmsCurrent = consumptionTotalRmsCurrent;
+        me.consumptionTotalRmsVoltage = consumptionTotalRmsVoltage;
+        me.consumptionTotalPwrFactor = consumptionTotalPwrFactor;
+        me.consumptionTotalReadingTime = lastrptdate;
 
         if (me.enphaseServiceConsumptionTotal) {
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePower, powerConsumptionTotal);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMax, powerConsumptionTotalMax);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMaxDetected, powerConsumptionTotalMaxDetectedState);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyToday, energyConsumptionTotalToday);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, energyConsumptionTotalLastSevenDays);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLifetime, energyConsumptionTotalLifetime);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseLastReportDate, lastrptdate);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePower, consumptionTotalPower);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMax, consumptionTotalPowerMax);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionTotalPowerMaxDetectedState);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionTotalEnergyToday);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionTotalEnergyLastSevenDays);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLifetime, consumptionTotalEnergyLifetime);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionTotalRmsCurrent);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionTotalRmsVoltage);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionTotalPwrFactor);
+          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseReadingTime, lastrptdate);
         }
         me.consumptionTotalDataOK = true;
       }
@@ -1283,59 +1470,68 @@ class envoyDevice {
         var lastrptdate = new Date(netConsumptionLastReadDate * 1000).toLocaleString();
 
         //power consumption net
-        var powerConsumptionNet = parseFloat(productionCT.data.consumption[1].wNow / 1000);
+        var consumptionNetPower = parseFloat(productionCT.data.consumption[1].wNow / 1000);
 
-        //save and read powerConsumptionNetMax
+        //save and read consumptionNetPowerMax
         try {
-          var savedPowerConsumptionNetMax = await fsPromises.readFile(me.powerConsumptionNetMaxFile);
+          var savedPowerConsumptionNetMax = await fsPromises.readFile(me.consumptionNetPowerMaxFile);
         } catch (error) {
-          me.log.debug('Device: %s %s, powerConsumptionNetMaxFile file does not exist', me.host, me.name);
+          me.log.debug('Device: %s %s, consumptionNetPowerMaxFile file does not exist', me.host, me.name);
         }
 
-        var powerConsumptionNetMax = 0;
+        var consumptionNetPowerMax = 0;
         if (savedPowerConsumptionNetMax) {
-          powerConsumptionNetMax = parseFloat(savedPowerConsumptionNetMax);
+          consumptionNetPowerMax = parseFloat(savedPowerConsumptionNetMax);
         }
 
-        if (powerConsumptionNet > powerConsumptionNetMax) {
-          var powerConsumptionNetMaxf = powerConsumptionNet.toString();
+        if (consumptionNetPower > consumptionNetPowerMax) {
+          var consumptionNetPowerMaxf = consumptionNetPower.toString();
           try {
-            await fsPromises.writeFile(me.powerConsumptionNetMaxFile, powerConsumptionNetMaxf);
-            me.log.debug('Device: %s %s, powerConsumptionNetMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, powerConsumptionNet);
+            await fsPromises.writeFile(me.consumptionNetPowerMaxFile, consumptionNetPowerMaxf);
+            me.log.debug('Device: %s %s, consumptionNetPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, consumptionNetPower);
           } catch (error) {
-            me.log.error('Device: %s %s, could not write powerConsumptionNetMaxFile, error: %s', me.host, me.name, error);
+            me.log.error('Device: %s %s, could not write consumptionNetPowerMaxFile, error: %s', me.host, me.name, error);
           }
         }
 
-        var powerConsumptionNetMaxDetectedState = (powerConsumptionNet >= me.powerConsumptionNetMaxDetected / 1000);
-        me.powerConsumptionNetMax = powerConsumptionNetMax;
-        me.powerConsumptionNetMaxDetectedState = powerConsumptionNetMaxDetectedState;
+        var consumptionNetPowerMaxDetectedState = (consumptionNetPower >= me.consumptionNetPowerMaxDetected / 1000);
+        me.consumptionNetPowerMax = consumptionNetPowerMax;
+        me.consumptionNetPowerMaxDetectedState = consumptionNetPowerMaxDetectedState;
 
-        var energyConsumptionNetToday = parseFloat(productionCT.data.consumption[1].whToday / 1000);
-        var energyConsumptionNetLastSevenDays = parseFloat(productionCT.data.consumption[1].whLastSevenDays / 1000);
-        var energyConsumptionNetLifetime = parseFloat((productionCT.data.consumption[1].whLifetime + me.energyConsumptionNetLifetimeOffset) / 1000);
+        var consumptionNetEnergyToday = parseFloat(productionCT.data.consumption[1].whToday / 1000);
+        var consumptionNetEnergyLastSevenDays = parseFloat(productionCT.data.consumption[1].whLastSevenDays / 1000);
+        var consumptionNetEnergyLifetime = parseFloat((productionCT.data.consumption[1].whLifetime + me.consumptionNetEnergyLifetimeOffset) / 1000);
+        var consumptionNetRmsCurrent = parseFloat(productionCT.data.consumption[1].rmsCurrent);
+        var consumptionNetRmsVoltage = parseFloat((productionCT.data.consumption[1].rmsVoltage) / 3);
+        var consumptionNetPwrFactor = parseFloat(productionCT.data.consumption[1].pwrFactor);
         me.log.debug('Device: %s %s, net consumption report: %s', me.host, me.name, lastrptdate);
-        me.log.debug('Device: %s %s, net power consumption: %s kW', me.host, me.name, powerConsumptionNet);
-        me.log.debug('Device: %s %s, net power consumption max: %s kW', me.host, me.name, powerConsumptionNetMax);
-        me.log.debug('Device: %s %s, net power consumption max detected: %s', me.host, me.name, powerConsumptionNetMaxDetectedState ? 'Yes' : 'No');
-        me.log.debug('Device: %s %s, net energy consumption Today: %s kWh', me.host, me.name, energyConsumptionNetToday);
-        me.log.debug('Device: %s %s, net energy consumption last 7 Days: %s kWh', me.host, me.name, energyConsumptionNetLastSevenDays);
-        me.log.debug('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, energyConsumptionNetLifetime);
-        me.netConsumptionLastReportDate = lastrptdate;
-        me.powerConsumptionNet = powerConsumptionNet;
-        me.energyConsumptionNetToday = energyConsumptionNetToday;
-        me.energyConsumptionNetLastSevenDays = energyConsumptionNetLastSevenDays;
-        me.energyConsumptionNetLifetime = energyConsumptionNetLifetime;
-        me.powerConsumptionNetMaxDetectedState = powerConsumptionNetMaxDetectedState;
+        me.log.debug('Device: %s %s, net power consumption: %s kW', me.host, me.name, consumptionNetPower);
+        me.log.debug('Device: %s %s, net power consumption max: %s kW', me.host, me.name, consumptionNetPowerMax);
+        me.log.debug('Device: %s %s, net power consumption max detected: %s', me.host, me.name, consumptionNetPowerMaxDetectedState ? 'Yes' : 'No');
+        me.log.debug('Device: %s %s, net energy consumption Today: %s kWh', me.host, me.name, consumptionNetEnergyToday);
+        me.log.debug('Device: %s %s, net energy consumption last 7 Days: %s kWh', me.host, me.name, consumptionNetEnergyLastSevenDays);
+        me.log.debug('Device: %s %s, net energy consumption Lifetime: %s kWh', me.host, me.name, consumptionNetEnergyLifetime);
+        me.consumptionNetPower = consumptionNetPower;
+        me.consumptionNetEnergyToday = consumptionNetEnergyToday;
+        me.consumptionNetEnergyLastSevenDays = consumptionNetEnergyLastSevenDays;
+        me.consumptionNetEnergyLifetime = consumptionNetEnergyLifetime;
+        me.consumptionNetPowerMaxDetectedState = consumptionNetPowerMaxDetectedState;
+        me.consumptionNetRmsCurrent = consumptionNetRmsCurrent;
+        me.consumptionNetRmsVoltage = consumptionNetRmsVoltage;
+        me.consumptionNetPwrFactor = consumptionNetPwrFactor;
+        me.consumptionNetReadingTime = lastrptdate;
 
         if (me.enphaseServiceConsumptionNet) {
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePower, powerConsumptionNet);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMax, powerConsumptionNetMax);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMaxDetected, powerConsumptionNetMaxDetectedState);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyToday, energyConsumptionNetToday);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, energyConsumptionNetLastSevenDays);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLifetime, energyConsumptionNetLifetime);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseLastReportDate, lastrptdate);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePower, consumptionNetPower);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMax, consumptionNetPowerMax);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionNetPowerMaxDetectedState);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionNetEnergyToday);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionNetEnergyLastSevenDays);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLifetime, consumptionNetEnergyLifetime);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionNetRmsCurrent);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionNetRmsVoltage);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionNetPwrFactor);
+          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseReadingTime, lastrptdate);
         }
         me.consumptionNetDataOK = true;
       }
@@ -1352,7 +1548,7 @@ class envoyDevice {
         var envoyCurrentTime = home.data.current_time;
         var envoyNetworkWebComm = home.data.network.web_comm;
         var envoyEverReportedToEnlighten = home.data.network.ever_reported_to_enlighten;
-        var envoyLastEnlightenReporTime = home.data.network.last_enlighten_report_time;
+        var envoyLastEnlightenReporDate = home.data.network.last_enlighten_report_time;
         var envoyPrimaryInterface = home.data.network.primary_interface;
         var envoyTariff = home.data.tariff;
         var envoyCommNum = home.data.comm.num;
@@ -1407,7 +1603,7 @@ class envoyDevice {
         envoyPrimaryInterface = NETWORK_INTERFACE[networkInterfaceIndex];
 
         // convert Unix time to local date time
-        envoyLastEnlightenReporTime = new Date(envoyLastEnlightenReporTime * 1000).toLocaleString();
+        envoyLastEnlightenReporDate = new Date(envoyLastEnlightenReporDate * 1000).toLocaleString();
 
         me.log.debug('Envoy: %s', envoyIsEnvoy ? 'Yes' : 'No');
         me.log.debug('DB size: %s', envoyDbSize);
@@ -1432,7 +1628,7 @@ class envoyDevice {
         me.envoyCurrentTime = envoyCurrentTime;
         me.envoyNetworkWebComm = envoyNetworkWebComm;
         me.envoyEverReportedToEnlighten = envoyEverReportedToEnlighten;
-        me.envoyLastEnlightenReporTime = envoyLastEnlightenReporTime;
+        me.envoyLastEnlightenReporDate = envoyLastEnlightenReporDate;
         me.envoyPrimaryInterface = envoyPrimaryInterface;
         me.envoyTariff = envoyTariff;
         me.envoyCommNum = envoyCommNum;
@@ -1459,13 +1655,21 @@ class envoyDevice {
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, envoyCommNsrbNum + ' / ' + envoyCommNsrbLevel);
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, envoyTimeZone);
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, envoyCurrentDate + ' ' + envoyCurrentTime);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporTime, envoyLastEnlightenReporTime);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, envoyLastEnlightenReporDate);
         }
         me.envoyDataOK = true;
       }
 
       //meters
       if (me.metersCount > 0) {
+        me.metersEid = new Array();
+        me.metersState = new Array();
+        me.metersMeasurementType = new Array();
+        me.metersPhaseMode = new Array();
+        me.metersPhaseCount = new Array();
+        me.metersMeteringStatus = new Array();
+        me.metersStatusFlags = new Array();
+
         const meters = await axios.get(me.url + METERS_URL);
         for (let i = 0; i < me.metersCount; i++) {
           if (meters.status == 200) {
@@ -1530,12 +1734,25 @@ class envoyDevice {
       }
 
       //qrelays
-      if (me.qRelaysCount > 0) {
-        for (let i = 0; i < me.qRelaysCount; i++) {
+      if (me.qrelaysCount > 0) {
+        me.qRelaysSerialNumber = new Array();
+        me.qRelaysFirmware = new Array();
+        me.qRelaysRelay = new Array();
+        me.qRelaysProducing = new Array();
+        me.qRelaysCommunicating = new Array();
+        me.qRelaysProvisioned = new Array();
+        me.qRelaysOperating = new Array();
+        me.qRelaysLinesCount = new Array();
+        me.qRelaysLine1Connected = new Array();
+        me.qRelaysLine2Connected = new Array();
+        me.qRelaysLine3Connected = new Array();
+        me.qRelaysStatus = new Array();
+        me.qRelaysLastReportDate = new Array();
+        for (let i = 0; i < me.qrelaysCount; i++) {
           if (inventory.status == 200) {
             var type = inventory.data[2].type;
-            var partNum = inventory.data[2].part_num;
-            var installed = inventory.data[2].installed;
+            var partNum = inventory.data[2].devices[i].part_num;
+            var installed = inventory.data[2].devices[i].installed;
             var serialNumber = inventory.data[2].devices[i].serial_num;
             var status = inventory.data[2].devices[i].device_status;
             var lastrptdate = inventory.data[2].devices[i].last_rpt_date;
@@ -1656,24 +1873,53 @@ class envoyDevice {
               me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayFirmware, firmware);
               me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, lastrptdate);
             }
-            me.qrelaysDataOK = true;
+            me.qRelaysDataOK = true;
           }
         }
       }
 
       //encharge storage
       if (me.enchargesCount > 0) {
+        me.enchargesChargeStatus = new Array();
+        me.enchargesSerialNumber = new Array();
+        me.enchargesFirmware = new Array();
+        me.enchargesProducing = new Array();
+        me.enchargesCommunicating = new Array();
+        me.enchargesProvisioned = new Array();
+        me.enchargesOperating = new Array();
+        me.enchargesSleepEnabled = new Array();
+        me.enchargesPerfentFull1 = new Array();
+        me.enchargesMaxCellTemp = new Array();
+        me.enchargesSleepMinSoc = new Array();
+        me.enchargesSleepMaxSoc = new Array();
+        me.enchargesStatus = new Array();
+        me.enchargesLastReportDate = new Array();
         for (let i = 0; i < me.enchargesCount; i++) {
           if (inventory.status == 200) {
             var type = inventory.data[1].type;
+            var partNum = inventory.data[1].devices[i].part_num;
+            var installed = inventory.data[1].devices[i].installed;
             var serialNumber = inventory.data[1].devices[i].serial_num;
-            var firmware = inventory.data[1].devices[i].img_pnum_running;
+            var status = inventory.data[1].devices[i].device_status;
             var lastrptdate = inventory.data[1].devices[i].last_rpt_date;
+            var adminState = inventory.data[1].devices[i].admin_state;
+            var devType = inventory.data[1].devices[i].dev_type;
+            var createdDate = inventory.data[1].devices[i].created_date;
+            var imageLoadDate = inventory.data[1].devices[i].img_load_date;
+            var firmware = inventory.data[1].devices[i].img_pnum_running;
+            var ptpn = inventory.data[1].devices[i].ptpn;
+            var chaneid = inventory.data[1].devices[i].chaneid;
+            var deviceControl = inventory.data[1].devices[i].device_control;
             var producing = inventory.data[1].devices[i].producing;
             var communicating = inventory.data[1].devices[i].communicating;
             var provisioned = inventory.data[1].devices[i].provisioned;
             var operating = inventory.data[1].devices[i].operating;
-            var status = inventory.data[1].devices[i].device_status;
+            var sleepEnabled = inventory.data[1].devices[i].sleep_enabled;
+            var perfentFull = inventory.data[1].devices[i].percentFull;
+            var maxCellTemp = inventory.data[1].devices[i].maxCellTemp;
+            var sleepMinSoc = inventory.data[1].devices[i].sleep_min_soc;
+            var sleepMaxSoc = inventory.data[1].devices[i].sleep_max_soc;
+            var chargeStatus = inventory.data[1].devices[i].charge_status;
             if (Array.isArray(status) && status.length === 1) {
               var code1 = status[0];
               var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
@@ -1703,6 +1949,15 @@ class envoyDevice {
             // convert Unix time to local date time
             lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
 
+            //convert encharge state
+            var state = ['idle', 'discharging', 'charging'];
+            var stateIndex = chargeStatus.indexOf(state);
+            if (stateIndex !== -1) {
+              chargeStatus = ENCHARGE_STATE[stateIndex]
+            } else {
+              chargeStatus = 'Undefined';
+            }
+
             me.log.debug('Encharge %s:', serialNumber);
             me.log.debug('Type %s:', type);
             me.log.debug('Firmware %s:', firmware);
@@ -1714,20 +1969,32 @@ class envoyDevice {
             me.log.debug('Last report: %s', lastrptdate);
             me.log.debug('----------------------------------');
 
+            me.enchargesChargeStatus.push(chargeStatus);
             me.enchargesSerialNumber.push(serialNumber);
             me.enchargesFirmware.push(firmware);
             me.enchargesProducing.push(producing);
             me.enchargesCommunicating.push(communicating);
             me.enchargesProvisioned.push(provisioned);
             me.enchargesOperating.push(operating);
+            me.enchargesSleepEnabled.push(sleepEnabled);
+            me.enchargesPerfentFull1.push(perfentFull);
+            me.enchargesMaxCellTemp.push(maxCellTemp);
+            me.enchargesSleepMinSoc.push(sleepMinSoc);
+            me.enchargesSleepMaxSoc.push(sleepMaxSoc);
             me.enchargesStatus.push(status);
             me.enchargesLastReportDate.push(lastrptdate);
 
             if (me.enphaseServiceEncharge) {
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeChargeStatus, chargeStatus);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeProducing, producing);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeCommunicating, communicating);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeProvisioned, provisioned);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeOperating, operating);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepEnabled, sleepEnabled);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargePerfentFull, perfentFull);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp, maxCellTemp);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc, sleepMinSoc);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc, sleepMaxSoc);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeStatus, status);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeFirmware, firmware);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, lastrptdate);
@@ -1736,29 +2003,49 @@ class envoyDevice {
           }
 
           if (productionCT.status == 200) {
-            var enchargeType = productionCT.data.storage[i].type;
-            var enchargeActiveCount = productionCT.data.storage[i].activeCount;
-            var enchargewNow = parseFloat((productionCT.data.storage[i].wNow) / 1000);
-            var enchargewhNow = parseFloat((productionCT.data.storage[i].whNow + me.enchargeStorageOffset) / 1000);
-            var enchargeState = productionCT.data.storage[i].state;
+            var enchargeType = productionCT.data.storage[0].type;
+            var enchargeActiveCount = productionCT.data.storage[0].activeCount;
+            var lastrptdate = productionCT.data.storage[0].readingTime;
+            var enchargewNow = parseFloat((productionCT.data.storage[0].wNow) / 1000);
+            var enchargewhNow = parseFloat((productionCT.data.storage[0].whNow + me.enchargeStorageOffset) / 1000);
+            var enchargeState = productionCT.data.storage[0].state;
+            var enchargePercentFull = productionCT.data.storage[0].percentFull;
+
+            // convert Unix time to local date time
+            lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
+
+            //convert encharge state
+            var state = ['idle', 'discharging', 'charging'];
+            var stateIndex = enchargeState.indexOf(state);
+            if (stateIndex !== -1) {
+              enchargeState = ENCHARGE_STATE[stateIndex]
+            } else {
+              enchargeState = 'Undefined';
+            }
 
             me.log.debug('Type: %s kW', me.host, me.name, enchargeType);
             me.log.debug('Active count: %s kW', me.host, me.name, enchargeActiveCount);
             me.log.debug('Power: %s kW', me.host, me.name, enchargewNow);
             me.log.debug('Energy: %s kWh', me.host, me.name, enchargewhNow);
             me.log.debug('State: %s', enchargeState);
+            me.log.debug('Percent full: %s', enchargePercentFull);
             me.log.debug('----------------------------------');
 
-            me.enchargeType.push(enchargeType);
-            me.enchargeActiveCount.push(enchargeActiveCount);
-            me.enchargesPower.push(enchargewNow);
-            me.enchargesEnergy.push(enchargewhNow);
-            me.enchargesState.push(enchargeState);
+            me.enchargesType = enchargeType;
+            me.enchargesActiveCount = enchargeActiveCount;
+            me.enchargesReadingTime = lastrptdate;
+            me.enchargesPower = enchargewNow;
+            me.enchargesEnergy = enchargewhNow;
+            me.enchargesState = enchargeState;
+            me.enchargesPercentFull = enchargePercentFull;
 
             if (me.enphaseServiceEncharge) {
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargePower, enchargewNow);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeEnergyToday, enchargewhNow);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeEnergy, enchargewhNow);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargePercentFull, enchargePercentFull);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeActiveCount, enchargeActiveCount);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeState, enchargeState);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, lastrptdate);
             }
             me.enchargesDataOK1 = true;
           }
@@ -1767,11 +2054,21 @@ class envoyDevice {
 
       //microinverters power
       if (me.invertersCount > 0) {
+        me.invertersProducing = new Array();
+        me.invertersCommunicating = new Array();
+        me.invertersProvisioned = new Array();
+        me.invertersOperating = new Array();
+        me.invertersStatus = new Array();
+        me.invertersStateLastReportDate = new Array();
+        me.invertersSerialNumberActive = new Array();
+        me.invertersSerialNumberAll = new Array();
+        me.invertersFirmware = new Array();
+
         if (inventory.status == 200) {
           for (let i = 0; i < me.invertersCount; i++) {
             var type = inventory.data[0].type;
-            var partNum = inventory.data[0].part_num;
-            var installed = inventory.data[0].installed;
+            var partNum = inventory.data[0].devices[i].part_num;
+            var installed = inventory.data[0].devices[i].installed;
             var serialNumber = inventory.data[0].devices[i].serial_num;
             var lastrptdate = inventory.data[0].devices[i].last_rpt_date;
             var adminState = inventory.data[0].devices[i].admin_state;
@@ -1827,14 +2124,14 @@ class envoyDevice {
             me.log.debug('Status: %s', status);
             me.log.debug('Last report: %s', lastrptdate);
             me.log.debug('----------------------------------');
-            me.invertersSerialNumber.push(serialNumber);
+            me.invertersSerialNumberActive.push(serialNumber);
             me.invertersFirmware.push(firmware);
             me.invertersProducing.push(producing);
             me.invertersCommunicating.push(communicating);
             me.invertersProvisioned.push(provisioned);
             me.invertersOperating.push(operating);
             me.invertersStatus.push(status);
-            //me.invertersLastReportDate.push(lastrptdate);
+            me.invertersStateLastReportDate.push(lastrptdate);
 
             if (me.enphaseServiceMicronverter) {
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterProducing, producing);
@@ -1843,12 +2140,17 @@ class envoyDevice {
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware);
-              //me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseLastReportDate, lastrptdate);
+              //me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastrptdate);
             }
+            me.invertersDataOK = true;
           }
-          me.invertersDataOK = true;
         }
         if (me.invertersDataOK) {
+          me.invertersType = new Array();
+          me.invertersLastPower = new Array();
+          me.invertersMaxPower = new Array();
+          me.invertersPowerReadingTime = new Array();
+
           const user = me.envoyUser;
           const passwd = me.envoySerialNumber.substring(6);
           const auth = user + ':' + passwd;
@@ -1863,40 +2165,41 @@ class envoyDevice {
           };
 
           const response = await http.request(url, options);
-          const inverters = JSON.parse(response.data);
+          var inverters = JSON.parse(response.data);
           if (inverters !== 'undefined') {
-            var invertersCount = inverters.length;
+            var length = inverters.length;
             var arr = new Array();
-            for (let i = 0; i < invertersCount; i++) {
-              var serialNumber = inverters[i].serialNumber;
-              arr.push(serialNumber);
+            for (let i = 0; i < length; i++) {
+              var allInvertersSerialNumber = inverters[i].serialNumber;
+              arr.push(allInvertersSerialNumber);
             }
             for (let i = 0; i < me.invertersCount; i++) {
-              var index = arr.indexOf(me.invertersSerialNumber[i]);
-              var inverterLastReportDate = inverters[index].lastReportDate;
-              var inverterType = inverters[index].devType;
-              var inverterLastPower = parseFloat(inverters[index].lastReportWatts);
-              var inverterMaxPower = parseFloat(inverters[index].maxReportWatts);
+              var indexActiveInverter = arr.indexOf(me.invertersSerialNumberActive[i]);
+              var lastrptdate = inverters[indexActiveInverter].lastReportDate;
+              var inverterType = inverters[indexActiveInverter].devType;
+              var inverterLastPower = parseFloat(inverters[indexActiveInverter].lastReportWatts);
+              var inverterMaxPower = parseFloat(inverters[indexActiveInverter].maxReportWatts);
 
-              // convert Unix time to local date time
-              inverterLastReportDate = new Date(inverterLastReportDate * 1000).toLocaleString();
+              //convert Unix time to local date time
+              lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
 
-              me.log.debug('Device: %s %s, inverter: %s type: %s', me.host, me.name, me.invertersSerialNumber[i], inverterType);
-              me.log.debug('Device: %s %s, inverter: %s last power: %s W', me.host, me.name, me.invertersSerialNumber[i], inverterLastPower);
-              me.log.debug('Device: %s %s, inverter: %s max power: %s W', me.host, me.name, me.invertersSerialNumber[i], inverterMaxPower);
-              me.log.debug('Device: %s %s, inverter: %s last report: %s', me.host, me.name, me.invertersSerialNumber[i], inverterLastReportDate);
-              me.invertersLastReportDate.push(inverterLastReportDate);
+              me.log.debug('Device: %s %s, inverter: %s type: %s', me.host, me.name, me.invertersSerialNumberAll[indexActiveInverter], inverterType);
+              me.log.debug('Device: %s %s, inverter: %s last power: %s W', me.host, me.name, me.invertersSerialNumberAll[indexActiveInverter], inverterLastPower);
+              me.log.debug('Device: %s %s, inverter: %s max power: %s W', me.host, me.name, me.invertersSerialNumberAll[indexActiveInverter], inverterMaxPower);
+              me.log.debug('Device: %s %s, inverter: %s last report: %s', me.host, me.name, me.invertersSerialNumberAll[indexActiveInverter], lastrptdate);
+
+              me.invertersPowerReadingTime.push(lastrptdate);
               me.invertersType.push(inverterType);
               me.invertersLastPower.push(inverterLastPower);
               me.invertersMaxPower.push(inverterMaxPower);
 
-              if (me.enphaseServiceMicronverter) {
-                me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPower, inverterLastPower);
-                me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, inverterMaxPower);
-                me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, inverterLastReportDate);
-              }
+              // if (me.enphaseServiceMicronverter) {
+              //  me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPower, inverterLastPower);
+              //  me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, inverterMaxPower);
+              // me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterReadingTime, lastrptdate);
+              //  }
+              me.invertersDataOK1 = true;
             }
-            me.invertersDataOK1 = true;
           }
         }
       }
@@ -1955,44 +2258,64 @@ class envoyDevice {
       this.enphaseServiceProduction = new Service.enphasePowerEnergyMeter('Production', 'enphaseServiceProduction');
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePower)
         .on('get', (callback) => {
-          let value = this.powerProduction;
-          this.log.info('Device: %s %s, power production: %s kW', this.host, this.name, value.toFixed(3));
+          let value = this.productionPower;
+          this.log.info('Device: %s %s, production power: %s kW', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePowerMax)
         .on('get', (callback) => {
-          let value = this.powerProductionMax;
-          this.log.info('Device: %s %s, power production max: %s kW', this.host, this.name, value.toFixed(3));
+          let value = this.productionPowerMax;
+          this.log.info('Device: %s %s, production power max: %s kW', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePowerMaxDetected)
         .on('get', (callback) => {
-          let value = this.powerProductionMaxDetectedState;
-          this.log.info('Device: %s %s, power production max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
+          let value = this.productionPowerMaxDetectedState;
+          this.log.info('Device: %s %s, production power max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
           callback(null, value);
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseEnergyToday)
         .on('get', (callback) => {
-          let value = this.energyProductionToday;
-          this.log.info('Device: %s %s, energy production Today: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.productionEnergyToday;
+          this.log.info('Device: %s %s, production energy today: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
         .on('get', (callback) => {
-          let value = this.energyProductionLastSevenDays;
-          this.log.info('Device: %s %s, energy production Last Seven Days: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.productionEnergyLastSevenDays;
+          this.log.info('Device: %s %s, production energy last seven days: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseEnergyLifetime)
         .on('get', (callback) => {
-          let value = this.energyProductionLifetime;
-          this.log.info('Device: %s %s, energy production Lifetime: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.productionEnergyLifetime;
+          this.log.info('Device: %s %s, production energy lifetime: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
-      this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseLastReportDate)
+      if (this.metersCount > 0 && this.metersProductionActiveCount > 0 && this.productionDataOK) {
+        this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseRmsCurrent)
+          .on('get', (callback) => {
+            let value = this.productionRmsCurrent;
+            this.log.info('Device: %s %s, production current: %s A', this.host, this.name, value.toFixed(3));
+            callback(null, value);
+          });
+        this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseRmsVoltage)
+          .on('get', (callback) => {
+            let value = this.productionRmsVoltage;
+            this.log.info('Device: %s %s, production voltage: %s V', this.host, this.name, value.toFixed(1));
+            callback(null, value);
+          });
+        this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePwrFactor)
+          .on('get', (callback) => {
+            let value = this.productionPwrFactor;
+            this.log.info('Device: %s %s, production power factor: %s cos φ', this.host, this.name, value.toFixed(2));
+            callback(null, value);
+          });
+      }
+      this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseReadingTime)
         .on('get', (callback) => {
-          let value = this.productionLastReportDate;
-          this.log.info('Device: %s %s, last report: %s', this.host, this.name, value);
+          let value = this.productionReadingTime;
+          this.log.info('Device: %s %s, production last report: %s', this.host, this.name, value);
           callback(null, value);
         });
       this.accessory.addService(this.enphaseServiceProduction);
@@ -2003,44 +2326,62 @@ class envoyDevice {
       this.enphaseServiceConsumptionTotal = new Service.enphasePowerEnergyMeter('Consumption Total', 'enphaseServiceConsumptionTotal');
       this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePower)
         .on('get', (callback) => {
-          let value = this.powerConsumptionTotal;
-          this.log.info('Device: %s %s, power consumption total: %s kW', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionTotalPower;
+          this.log.info('Device: %s %s, consumption total power : %s kW', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePowerMax)
         .on('get', (callback) => {
-          let value = this.powerConsumptionTotalMax;
-          this.log.info('Device: %s %s, power consumption total max: %s kW', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionTotalPowerMax;
+          this.log.info('Device: %s %s, consumption total power consumption max: %s kW', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePowerMaxDetected)
         .on('get', (callback) => {
-          let value = this.powerConsumptionTotalMaxDetectedState;
-          this.log.info('Device: %s %s, power consumption total max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
+          let value = this.consumptionTotalPowerMaxDetectedState;
+          this.log.info('Device: %s %s, consumption total power consumption max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
           callback(null, value);
         });
       this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseEnergyToday)
         .on('get', (callback) => {
-          let value = this.energyConsumptionTotalToday;
-          this.log.info('Device: %s %s, energy consumption total Today: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionTotalEnergyToday;
+          this.log.info('Device: %s %s, consumption total energy consumption today: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
         .on('get', (callback) => {
-          let value = this.energyConsumptionTotalLastSevenDays;
-          this.log.info('Device: %s %s, energy consumption total Last Seven Days: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionTotalEnergyLastSevenDays;
+          this.log.info('Device: %s %s, consumption total energy consumption last seven days: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseEnergyLifetime)
         .on('get', (callback) => {
-          let value = this.energyConsumptionTotalLifetime;
-          this.log.info('Device: %s %s, energy consumption total Lifetime: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionTotalEnergyLifetime;
+          this.log.info('Device: %s %s, consumption total energy lifetime: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
-      this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseLastReportDate)
+      this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseRmsCurrent)
         .on('get', (callback) => {
-          let value = this.totalConsumptionLastReportDate;
-          this.log.info('Device: %s %s, last report: %s', this.host, this.name, value);
+          let value = this.consumptionTotalRmsCurrent;
+          this.log.info('Device: %s %s, consumption total current: %s A', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseRmsVoltage)
+        .on('get', (callback) => {
+          let value = this.consumptionTotalRmsVoltage;
+          this.log.info('Device: %s %s, consumption total voltage: %s V', this.host, this.name, value.toFixed(1));
+          callback(null, value);
+        });
+      this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePwrFactor)
+        .on('get', (callback) => {
+          let value = this.consumptionTotalPwrFactor;
+          this.log.info('Device: %s %s, consumption total power factor: %s cos φ', this.host, this.name, value.toFixed(2));
+          callback(null, value);
+        });
+      this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseReadingTime)
+        .on('get', (callback) => {
+          let value = this.consumptionTotalReadingTime;
+          this.log.info('Device: %s %s, consumption total last report: %s', this.host, this.name, value);
           callback(null, value);
         });
       this.accessory.addService(this.enphaseServiceConsumptionTotal);
@@ -2051,44 +2392,62 @@ class envoyDevice {
       this.enphaseServiceConsumptionNet = new Service.enphasePowerEnergyMeter('Consumption Net', 'enphaseServiceConsumptionNet');
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphasePower)
         .on('get', (callback) => {
-          let value = this.powerConsumptionNet;
-          this.log.info('Device: %s %s, power consumption net: %s kW', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionNetPower;
+          this.log.info('Device: %s %s, consumption net power: %s kW', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphasePowerMax)
         .on('get', (callback) => {
-          let value = this.powerConsumptionNetMax;
-          this.log.info('Device: %s %s, power consumption net max: %s kW', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionNetPowerMax;
+          this.log.info('Device: %s %s, consumption net power max: %s kW', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphasePowerMaxDetected)
         .on('get', (callback) => {
-          let value = this.powerConsumptionNetMaxDetectedState;
-          this.log.info('Device: %s %s, power consumption net max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
+          let value = this.consumptionNetPowerMaxDetectedState;
+          this.log.info('Device: %s %s, consumption net power max detected: %s', this.host, this.name, value ? 'Yes' : 'No');
           callback(null, value);
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseEnergyToday)
         .on('get', (callback) => {
-          let value = this.energyConsumptionNetToday;
-          this.log.info('Device: %s %s, energy consumption net Today: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionNetEnergyToday;
+          this.log.info('Device: %s %s, consumption net energy today: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
         .on('get', (callback) => {
-          let value = this.energyConsumptionNetLastSevenDays;
-          this.log.info('Device: %s %s, energy consumption net Last Seven Days: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionNetEnergyLastSevenDays;
+          this.log.info('Device: %s %s, consumption net energy last seven days: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseEnergyLifetime)
         .on('get', (callback) => {
-          let value = this.energyConsumptionNetLifetime;
-          this.log.info('Device: %s %s, energy consumption net Lifetime: %s kWh', this.host, this.name, value.toFixed(3));
+          let value = this.consumptionNetEnergyLifetime;
+          this.log.info('Device: %s %s, consumption net energy lifetime: %s kWh', this.host, this.name, value.toFixed(3));
           callback(null, value);
         })
-      this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseLastReportDate)
+      this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseRmsCurrent)
         .on('get', (callback) => {
-          let value = this.netConsumptionLastReportDate;
-          this.log.info('Device: %s %s, last report: %s', this.host, this.name, value);
+          let value = this.consumptionNetRmsCurrent;
+          this.log.info('Device: %s %s, consumption net current: %s A', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseRmsVoltage)
+        .on('get', (callback) => {
+          let value = this.consumptionNetRmsVoltage;
+          this.log.info('Device: %s %s, consumption net voltage: %s V', this.host, this.name, value.toFixed(1));
+          callback(null, value);
+        });
+      this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphasePwrFactor)
+        .on('get', (callback) => {
+          let value = this.consumptionNetPwrFactor;
+          this.log.info('Device: %s %s, consumption net power factor: %s cos φ', this.host, this.name, value.toFixed(2));
+          callback(null, value);
+        });
+      this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseReadingTime)
+        .on('get', (callback) => {
+          let value = this.consumptionNetReadingTime;
+          this.log.info('Device: %s %s, consumption net last report: %s', this.host, this.name, value);
           callback(null, value);
         });
       this.accessory.addService(this.enphaseServiceConsumptionNet);
@@ -2178,9 +2537,9 @@ class envoyDevice {
           this.log.info('Device: %s %s, envoy: %s current date and time: %s', this.host, this.name, this.envoySerialNumber, value);
           callback(null, value);
         });
-      this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporTime)
+      this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate)
         .on('get', (callback) => {
-          let value = this.envoyLastEnlightenReporTime;
+          let value = this.envoyLastEnlightenReporDate;
           this.log.info('Device: %s %s, envoy: %s last report to enlighten: %s', this.host, this.name, this.envoySerialNumber, value);
           callback(null, value);
         });
@@ -2188,8 +2547,8 @@ class envoyDevice {
     }
 
     //qrelay
-    if (this.qRelaysCount > 0 && this.qrelaysDataOK) {
-      for (let i = 0; i < this.qRelaysCount; i++) {
+    if (this.qrelaysCount > 0 && this.qRelaysDataOK) {
+      for (let i = 0; i < this.qrelaysCount; i++) {
         this.enphaseServiceQrelay = new Service.enphaseQrelay('Q-Relay ' + this.qRelaysSerialNumber[i], 'enphaseServiceQrelay' + i);
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayState)
           .on('get', (callback) => {
@@ -2286,112 +2645,168 @@ class envoyDevice {
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterState)
           .on('get', (callback) => {
             let value = this.metersState[i];
-            this.log.info('Device: %s %s, meter: %s state: %s', this.host, this.name, this.metersMeasurementType[i], value);
+            this.log.info('Device: %s %s, Meter: %s state: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPhaseMode)
           .on('get', (callback) => {
             let value = this.metersPhaseMode[i];
-            this.log.info('Device: %s %s, meter: %s phase mode: %s', this.host, this.name, this.metersMeasurementType[i], value);
+            this.log.info('Device: %s %s, Meter: %s phase mode: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPhaseCount)
           .on('get', (callback) => {
             let value = this.metersPhaseCount[i];
-            this.log.info('Device: %s %s, meter: %s phase count: %s', this.host, this.name, this.metersMeasurementType[i], value);
+            this.log.info('Device: %s %s, Meter: %s phase count: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterMeteringStatus)
           .on('get', (callback) => {
             let value = this.metersMeteringStatus[i];
-            this.log.info('Device: %s %s, meter: %s metering status: %s', this.host, this.name, this.metersMeasurementType[i], value);
+            this.log.info('Device: %s %s, Meter: %s metering status: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterStatusFlags)
           .on('get', (callback) => {
             let value = this.metersStatusFlags[i];
-            this.log.info('Device: %s %s, meter: %s status flag: %s', this.host, this.name, this.metersMeasurementType[i], value);
+            this.log.info('Device: %s %s, Meter: %s status flag: %s', this.host, this.name, this.metersMeasurementType[i], value);
             callback(null, value);
           });
         this.accessory.addService(this.enphaseServiceMeter);
       }
     }
 
+    //encharge storage power and energy
+    if (this.encharge > 0 && this.enchargesActiveCount > 0 && this.enchargesDataOK1) {
+      this.enphaseServiceEnchargePowerAndEnergy = new Service.enphaseEnchargePowerAndEnergy('Encharge storage summary', 'enphaseServiceEnchargePowerAndEnergy');
+      this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargePower)
+        .on('get', (callback) => {
+          let value = this.enchargesPower;
+          this.log.info('Device: %s %s, power encharge storage: %s kW', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeEnergy)
+        .on('get', (callback) => {
+          let value = this.enchargesEnergy;
+          this.log.info('Device: %s %s, energy encharge storage: %s kWh', this.host, this.name, value.toFixed(3));
+          callback(null, value);
+        });
+      this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
+        .on('get', (callback) => {
+          let value = this.enchargesPercentFull;
+          this.log.info('Device: %s %s, encharge percent full: %s', this.host, this.name, value);
+          callback(null, value);
+        });
+      this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeActiveCount)
+        .on('get', (callback) => {
+          let value = this.enchargesActiveCount;
+          this.log.info('Device: %s %s, encharge devices count: %s', this.host, this.name, value);
+          callback(null, value);
+        });
+      this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeState)
+        .on('get', (callback) => {
+          let value = this.enchargesState;
+          this.log.info('Device: %s %s, encharge state: %s', this.host, this.name, value);
+          callback(null, value);
+        });
+      this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeReadingTime)
+        .on('get', (callback) => {
+          let value = this.enchargesReadingTime;
+          this.log.info('Device: %s %s, encharge: %s last report: %s', this.host, this.name, value);
+          callback(null, value);
+        });
+      this.accessory.addService(this.enphaseServiceEnchargePowerAndEnergy);
+    }
+
     //encharge storage
-    if (this.encharge > 0 && this.enchargesActiveCount > 0) {
-      for (let i = 0; i < this.encharge; i++) {
-        if (this.enchargesDataOK1) {
-          this.enphaseServiceEncharge = new Service.enphaseEncharge('Encharge storage ', + this.enchargesSerialNumber[i], 'enphaseServiceEncharge' + i);
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargePower)
-            .on('get', (callback) => {
-              let value = this.enchargesPower[i];
-              this.log.info('Device: %s %s, power encharge %s storage: %s kW', this.host, this.name, this.enchargesSerialNumber[i], value.toFixed(3));
-              callback(null, value);
-            })
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeEnergy)
-            .on('get', (callback) => {
-              let value = this.enchargesPower[i];
-              this.log.info('Device: %s %s, energy encharge %s storage: %s kWh', this.host, this.name, this.enchargesSerialNumber[i], value.toFixed(3));
-              callback(null, value);
-            })
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeState)
-            .on('get', (callback) => {
-              let value = this.enchargesState[i];
-              this.log.info('Device: %s %s, encharge: %s state: %s', this.host, this.name, this.enchargesSerialNumber[i], value);
-              callback(null, value);
-            });
-        }
-        if (this.enchargesDataOK) {
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeProducing)
-            .on('get', (callback) => {
-              let value = this.enchargesProducing[i];
-              this.log.info('Device: %s %s, encharge: %s producing: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
-              callback(null, value);
-            });
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeCommunicating)
-            .on('get', (callback) => {
-              let value = this.enchargesCommunicating[i];
-              this.log.info('Device: %s %s, encharge: %s communicating: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
-              callback(null, value);
-            });
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeProvisioned)
-            .on('get', (callback) => {
-              let value = this.enchargesProvisioned[i];
-              this.log.info('Device: %s %s, encharge: %s provisioned: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
-              callback(null, value);
-            });
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeOperating)
-            .on('get', (callback) => {
-              let value = this.enchargesOperating[i];
-              this.log.info('Device: %s %s, encharge: %s operating: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
-              callback(null, value);
-            });
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeStatus)
-            .on('get', (callback) => {
-              let value = this.enchargesStatus[i];
-              this.log.info('Device: %s %s, encharge: %s status: %s', this.host, this.name, this.enchargesSerialNumber[i], value);
-              if (value.length > 64) {
-                value = value.substring(0, 64)
-              }
-              callback(null, value);
-            });
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeFirmware)
-            .on('get', (callback) => {
-              let value = this.enchargesFirmware[i];
-              this.log.info('Device: %s %s, encharge: %s firmware: %s', this.host, this.name, this.enchargesSerialNumber[i], value);
-              if (value.length > 64) {
-                value = value.substring(0, 64)
-              }
-              callback(null, value);
-            });
-          this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeLastReportDate)
-            .on('get', (callback) => {
-              let value = this.enchargesLastReportDate[i];
-              this.log.info('Device: %s %s, encharge: %s last report: %s', this.host, this.name, this.enchargesSerialNumber[i], value);
-              callback(null, value);
-            });
-          this.accessory.addService(this.enphaseServiceEncharge);
-        }
+    if (this.encharge > 0 && this.enchargesActiveCount > 0 && this.enchargesDataOK) {
+      for (let i = 0; i < this.enchargesActiveCount; i++) {
+        this.enphaseServiceEncharge = new Service.enphaseEncharge('Encharge storage ', + this.enchargesSerialNumber[i], 'enphaseServiceEncharge' + i);
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeChargeStatus)
+          .on('get', (callback) => {
+            let value = this.enchargesChargeStatus[i];
+            this.log.info('Device: %s %s, encharge: %s charge status %s', this.host, this.name, this.enchargesSerialNumber[i], value);
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeProducing)
+          .on('get', (callback) => {
+            let value = this.enchargesProducing[i];
+            this.log.info('Device: %s %s, encharge: %s producing: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeCommunicating)
+          .on('get', (callback) => {
+            let value = this.enchargesCommunicating[i];
+            this.log.info('Device: %s %s, encharge: %s communicating: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeProvisioned)
+          .on('get', (callback) => {
+            let value = this.enchargesProvisioned[i];
+            this.log.info('Device: %s %s, encharge: %s provisioned: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeOperating)
+          .on('get', (callback) => {
+            let value = this.enchargesOperating[i];
+            this.log.info('Device: %s %s, encharge: %s operating: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepEnabled)
+          .on('get', (callback) => {
+            let value = this.enchargesSleepEnabled[i];
+            this.log.info('Device: %s %s, encharge: %s sleep: %s', this.host, this.name, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
+          .on('get', (callback) => {
+            let value = this.enchargesPercentFull1[i];
+            this.log.info('Device: %s %s, encharge: %s percent full: %s', this.host, this.name, this.enchargesSerialNumber[i], value + '%');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp)
+          .on('get', (callback) => {
+            let value = this.enchargesMaxCellTemp[i];
+            this.log.info('Device: %s %s, encharge: %s max cell temp: %s', this.host, this.name, this.enchargesSerialNumber[i], value + '°C');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc)
+          .on('get', (callback) => {
+            let value = this.enchargesSleepMinSoc[i];
+            this.log.info('Device: %s %s, encharge: %s sleep min soc: %s', this.host, this.name, this.enchargesSerialNumber[i], value + 'min');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc)
+          .on('get', (callback) => {
+            let value = this.enchargesSleepMaxSoc[i];
+            this.log.info('Device: %s %s, encharge: %s sleep max soc: %s', this.host, this.name, this.enchargesSerialNumber[i], value + 'min');
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeStatus)
+          .on('get', (callback) => {
+            let value = this.enchargesStatus[i];
+            this.log.info('Device: %s %s, encharge: %s status: %s', this.host, this.name, this.enchargesSerialNumber[i], value);
+            if (value.length > 64) {
+              value = value.substring(0, 64)
+            }
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeFirmware)
+          .on('get', (callback) => {
+            let value = this.enchargesFirmware[i];
+            this.log.info('Device: %s %s, encharge: %s firmware: %s', this.host, this.name, this.enchargesSerialNumber[i], value);
+            if (value.length > 64) {
+              value = value.substring(0, 64)
+            }
+            callback(null, value);
+          });
+        this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeLastReportDate)
+          .on('get', (callback) => {
+            let value = this.enchargesLastReportDate[i];
+            this.log.info('Device: %s %s, encharge: %s last report: %s', this.host, this.name, this.enchargesSerialNumber[i], value);
+            callback(null, value);
+          });
+        this.accessory.addService(this.enphaseServiceEncharge);
       }
     }
 
@@ -2399,17 +2814,17 @@ class envoyDevice {
     if (this.invertersCount > 0 && this.invertersActiveCount > 0) {
       for (let i = 0; i < this.invertersCount; i++) {
         if (this.invertersDataOK1) {
-          this.enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.invertersSerialNumber[i], 'enphaseServiceMicronverter' + i);
+          this.enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.invertersSerialNumberActive[i], 'enphaseServiceMicronverter' + i);
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPower)
             .on('get', (callback) => {
               let value = this.invertersLastPower[i];
-              this.log.info('Device: %s %s, inverter: %s last power: %s W', this.host, this.name, this.invertersSerialNumber[i], value.toFixed(0));
+              this.log.info('Device: %s %s, inverter: %s last power: %s W', this.host, this.name, this.invertersSerialNumberActive[i], value.toFixed(0));
               callback(null, value);
             });
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPowerMax)
             .on('get', (callback) => {
               let value = this.invertersMaxPower[i];
-              this.log.info('Device: %s %s, inverter: %s max power: %s W', this.host, this.name, this.invertersSerialNumber[i], value.toFixed(0));
+              this.log.info('Device: %s %s, inverter: %s max power: %s W', this.host, this.name, this.invertersSerialNumberActive[i], value.toFixed(0));
               callback(null, value);
             });
         }
@@ -2417,31 +2832,31 @@ class envoyDevice {
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterProducing)
             .on('get', (callback) => {
               let value = this.invertersProducing[i];
-              this.log.info('Device: %s %s, inverter: %s producing: %s', this.host, this.name, this.invertersSerialNumber[i], value ? 'Yes' : 'No');
+              this.log.info('Device: %s %s, inverter: %s producing: %s', this.host, this.name, this.invertersSerialNumberActive[i], value ? 'Yes' : 'No');
               callback(null, value);
             });
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterCommunicating)
             .on('get', (callback) => {
               let value = this.invertersCommunicating[i];
-              this.log.info('Device: %s %s, inverter: %s communicating: %s', this.host, this.name, this.invertersSerialNumber[i], value ? 'Yes' : 'No');
+              this.log.info('Device: %s %s, inverter: %s communicating: %s', this.host, this.name, this.invertersSerialNumberActive[i], value ? 'Yes' : 'No');
               callback(null, value);
             });
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterProvisioned)
             .on('get', (callback) => {
               let value = this.invertersProvisioned[i];
-              this.log.info('Device: %s %s, inverter: %s provisioned: %s', this.host, this.name, this.invertersSerialNumber[i], value ? 'Yes' : 'No');
+              this.log.info('Device: %s %s, inverter: %s provisioned: %s', this.host, this.name, this.invertersSerialNumberActive[i], value ? 'Yes' : 'No');
               callback(null, value);
             });
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterOperating)
             .on('get', (callback) => {
               let value = this.invertersOperating[i];
-              this.log.info('Device: %s %s, inverter: %s operating: %s', this.host, this.name, this.invertersSerialNumber[i], value ? 'Yes' : 'No');
+              this.log.info('Device: %s %s, inverter: %s operating: %s', this.host, this.name, this.invertersSerialNumberActive[i], value ? 'Yes' : 'No');
               callback(null, value);
             });
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterStatus)
             .on('get', (callback) => {
               let value = this.invertersStatus[i];
-              this.log.info('Device: %s %s, inverter: %s status: %s', this.host, this.name, this.invertersSerialNumber[i], value);
+              this.log.info('Device: %s %s, inverter: %s status: %s', this.host, this.name, this.invertersSerialNumberActive[i], value);
               if (value.length > 64) {
                 value = value.substring(0, 64)
               }
@@ -2450,7 +2865,7 @@ class envoyDevice {
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterFirmware)
             .on('get', (callback) => {
               let value = this.invertersFirmware[i];
-              this.log.info('Device: %s %s, inverter: %s firmware: %s', this.host, this.name, this.invertersSerialNumber[i], value);
+              this.log.info('Device: %s %s, inverter: %s firmware: %s', this.host, this.name, this.invertersSerialNumberActive[i], value);
               if (value.length > 64) {
                 value = value.substring(0, 64)
               }
@@ -2458,8 +2873,8 @@ class envoyDevice {
             });
           this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
             .on('get', (callback) => {
-              let value = this.invertersLastReportDate[i];
-              this.log.info('Device: %s %s, inverter: %s last report: %s', this.host, this.name, this.invertersSerialNumber[i], value);
+              let value = this.invertersPowerReadingTime[i];
+              this.log.info('Device: %s %s, inverter: %s last report: %s', this.host, this.name, this.invertersSerialNumberActive[i], value);
               callback(null, value);
             });
         }
@@ -2468,4 +2883,5 @@ class envoyDevice {
     }
   }
 }
+
 

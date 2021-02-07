@@ -11,6 +11,11 @@ Version 3.5.0 detect automatically all installed devices, please check Your conf
 
 ## Important note
 Ab verion v3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. If U want to use old CO2 sensor style just still with 2.x.x version
+## [4.3.0] - (07.02.2021)
+## Changs
+- added more characteristics for encharges
+- added characteristics for Current, Voltage and Power Factor
+- fixed reported bugs
 
 ## [4.2.0] - (03.02.2021)
 ## Changs
