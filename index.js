@@ -2039,13 +2039,13 @@ class envoyDevice {
             me.enchargesState = enchargeState;
             me.enchargesPercentFull = enchargePercentFull;
 
-            if (me.enphaseServiceEncharge) {
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargePower, enchargewNow);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeEnergy, enchargewhNow);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargePercentFull, enchargePercentFull);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeActiveCount, enchargeActiveCount);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeState, enchargeState);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, lastrptdate);
+            if (me.enphaseServiceEnchargePowerAndEnergy) {
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargePower, enchargewNow);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeEnergy, enchargewhNow);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargePercentFull, enchargePercentFull);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeActiveCount, enchargeActiveCount);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeState, enchargeState);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, lastrptdate);
             }
             me.enchargesDataOK1 = true;
           }
