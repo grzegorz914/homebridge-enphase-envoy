@@ -1365,14 +1365,16 @@ class envoyDevice {
 
       // check enabled inverters, meters, encharges
       if (productionCT.status === 200 && productionCT.data !== undefined) {
-        var metersProductionCount = productionCT.data.production[1].activeCount;
-        var metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
-        var metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
+        if (me.metersCount > 0) {
+          var metersProductionCount = productionCT.data.production[1].activeCount;
+          var metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
+          var metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
+          me.metersProductionActiveCount = metersProductionCount;
+          me.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
+          me.metersConsumptionNetActiveCount = metersConsumptionNetCount;
+          me.metersTypeEnabledCount = metersProductionCount + metersConsumtionTotalCount + metersConsumptionNetCount;
+        }
         var invertersActiveCount = productionCT.data.production[0].activeCount;
-        me.metersProductionActiveCount = metersProductionCount;
-        me.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
-        me.metersConsumptionNetActiveCount = metersConsumptionNetCount;
-        me.metersTypeEnabledCount = metersProductionCount + metersConsumtionTotalCount + metersConsumptionNetCount;
         me.invertersActiveCount = invertersActiveCount;
       }
 
