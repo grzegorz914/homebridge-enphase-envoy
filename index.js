@@ -1277,6 +1277,16 @@ class envoyDevice {
         }
       });
     }
+    //check if the files exists, if not then create it
+    if (fs.existsSync(this.productionPowerMaxFile) === false) {
+      fsPromises.writeFile(this.productionPowerMaxFile, '0.0');
+    }
+    if (fs.existsSync(this.consumptionTotalPowerMaxFile) === false) {
+      fsPromises.writeFile(this.consumptionTotalPowerMaxFile, '0.0');
+    }
+    if (fs.existsSync(this.consumptionNetPowerMaxFile) === false) {
+      fsPromises.writeFile(this.consumptionNetPowerMaxFile, '0.0');
+    }
 
     //Check device state
     setInterval(function () {
