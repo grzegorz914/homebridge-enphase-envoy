@@ -1296,7 +1296,7 @@ class envoyDevice {
     try {
       const [inventory, info, meters] = await axios.all([axios.get(me.url + INVENTORY_URL), axios.get(me.url + INFO_URL), axios.get(me.url + METERS_URL)]);
       me.log.info('Device: %s %s, state: Online.', me.host, me.name);
-      me.log.debug('Device %s %s, get device status data inventory %s info: %s', me.host, me.name, inventory.data, info.data);
+      me.log.debug('Device %s %s, get device status data inventory %s info: %s meters: %s', me.host, me.name, inventory.data, info.data, meters.data);
       const result = await parseStringPromise(info.data);
       me.log.debug('Device: %s %s, get Device info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
       var time = result.envoy_info.time[0];
@@ -1342,7 +1342,7 @@ class envoyDevice {
     try {
       const productionUrl = me.metersProductionActiveCount ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
       const [production, productionCT, inventory] = await axios.all([axios.get(productionUrl), axios.get(me.url + PRODUCTION_CT_URL), axios.get(me.url + INVENTORY_URL)]);
-      me.log.debug('Debug production: %s productionCT: %s, inventory: %s', production, productionCT, inventory);
+      me.log.debug('Debug production: %s productionCT: %s, inventory: %s', production.data, productionCT.data, inventory.data);
 
       me.checkCommLevel = false;
       if (me.installerPasswd) {
@@ -1496,7 +1496,7 @@ class envoyDevice {
         me.metersStatusFlags = new Array();
 
         const meters = await axios.get(me.url + METERS_URL);
-        me.log.debug('Debug meters: %s', meters);
+        me.log.debug('Debug meters: %s', meters.data);
         for (let i = 0; i < me.metersCount; i++) {
           if (meters.status === 200 && meters.data !== undefined) {
             var eid = meters.data[i].eid;
@@ -2153,20 +2153,20 @@ class envoyDevice {
             };
 
             // get inverters power data
-            const response = await http.request(me.url + PRODUCTION_INVERTERS_URL, authEnvoy);
-            me.log.debug('Debug production inverters: %s', response.data);
-            if (response.res.statusCode === 200 && response.data !== undefined) {
-              var length = response.data.length;
+            const productionInverters = await http.request(me.url + PRODUCTION_INVERTERS_URL, authEnvoy);
+            me.log.debug('Debug production inverters: %s', productionInverters.data);
+            if (productionInverters.res.statusCode === 200 && productionInverters.data !== undefined) {
+              var length = productionInverters.data.length;
               var arr = new Array();
               for (let a = 0; a < length; a++) {
-                var allInvertersSerialNumber = response.data[a].serialNumber;
+                var allInvertersSerialNumber = productionInverters.data[a].serialNumber;
                 arr.push(allInvertersSerialNumber);
               }
               var indexActiveInverter = arr.indexOf(me.invertersSerialNumberActive[i]);
-              var lastrptdate = response.data[indexActiveInverter].lastReportDate;
-              var inverterType = response.data[indexActiveInverter].devType;
-              var inverterLastPower = parseFloat(response.data[indexActiveInverter].lastReportWatts);
-              var inverterMaxPower = parseFloat(response.data[indexActiveInverter].maxReportWatts);
+              var lastrptdate = productionInverters.data[indexActiveInverter].lastReportDate;
+              var inverterType = productionInverters.data[indexActiveInverter].devType;
+              var inverterLastPower = parseFloat(productionInverters.data[indexActiveInverter].lastReportWatts);
+              var inverterMaxPower = parseFloat(productionInverters.data[indexActiveInverter].maxReportWatts);
 
               //convert Unix time to local date time
               lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
