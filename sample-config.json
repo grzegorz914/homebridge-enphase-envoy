@@ -22,6 +22,10 @@
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
+                    "envoyUser": "envoy",
+                    "envoyPasswd": "password",
+                    "installerUser": "installer",
+                    "installerPasswd": "password",
                     "enchargeStorageOffset": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
@@ -29,8 +33,6 @@
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
-                    "installerUser": "installer",
-                    "installerPasswd": "password",
                     "manufacturer": "Manufacturer",
                     "modelName": "Model"
                 }

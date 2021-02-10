@@ -68,8 +68,8 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 14. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
 15. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
 16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app, firmware and serialNumber. (not available from v4.1.0)
-17. In `envoyUser` here set the envoy user standard is `envov`. (not available from v4.1.0)
-18. In `envoyPasswd` here set the envoy password standard is last 6 dig. serialNumber. (not available from v4.1.0)
+17. In `envoyUser` here set the envoy user or leave empty, standard is `envoy`.
+18. In `envoyPasswd` here set the envoy password (only if U already changed default password).
 18. In `installerUser` here set the optionall installer user standard is `installer`.
 20. In `installerPasswd` here set optionall the installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 <p align="left">
@@ -84,6 +84,10 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
+                    "envoyUser": "envoy",
+                    "envoyPasswd": "password",
+                    "installerUser": "installer",
+                    "installerPasswd": "password",
                     "enchargeStorageOffset": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
@@ -91,8 +95,6 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
-                    "installerUser": "installer",
-                    "installerPasswd": "password",
                     "manufacturer": "Manufacturer",
                     "modelName": "Model"
                 }

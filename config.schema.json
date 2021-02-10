@@ -33,6 +33,19 @@
               "maximum": 3600,
               "required": true
             },
+            "envoyUser": {
+              "title": "Envoy user",
+              "type": "string",
+              "placeholder": "envoy",
+              "description": "Here set envoy user or leave empty.",
+              "required": false
+            },
+            "envoyPasswd": {
+              "title": "Envoy password",
+              "type": "string",
+              "description": "Here set envoy password (only if U already changed default password).",
+              "required": false
+            },
             "installerUser": {
               "title": "Installer user",
               "type": "string",
@@ -132,12 +145,23 @@
         {
           "key": "devices[]",
           "type": "section",
+          "title": "Authorization",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].envoyUser",
+            "devices[].envoyPasswd",
+            "devices[].installerUser",
+            "devices[].installerPasswd"
+          ]
+        },
+        {
+          "key": "devices[]",
+          "type": "section",
           "title": "Advanced settings",
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].installerUser",
-            "devices[].installerPasswd",
             "devices[].enchargeStorageOffset",
             "devices[].powerProductionMaxDetected",
             "devices[].energyProductionLifetimeOffset",
