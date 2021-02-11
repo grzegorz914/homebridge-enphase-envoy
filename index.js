@@ -1291,13 +1291,12 @@ class envoyDevice {
 
   async getDeviceInfo() {
     var me = this;
-    me.log.debug('Device: %s %s, requesting config information.', me.host, me.name);
+    me.log.debug('Device: %s %s, requesting devices information.', me.host, me.name);
     try {
       const [inventory, info, meters] = await axios.all([axios.get(me.url + INVENTORY_URL), axios.get(me.url + INFO_URL), axios.get(me.url + METERS_URL)]);
-      me.log.info('Device: %s %s, state: Online.', me.host, me.name);
-      me.log.debug('Device %s %s, get device status data inventory %s info: %s meters: %s', me.host, me.name, inventory.data, info.data, meters.data);
+      me.log.debug('Device %s %s, get devices data inventory: %s info: %s meters: %s', me.host, me.name, inventory.data, info.data, meters.data);
       const result = await parseStringPromise(info.data);
-      me.log.debug('Device: %s %s, get Device info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
+      me.log.debug('Device: %s %s, parse info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
       var time = result.envoy_info.time[0];
       var serialNumber = result.envoy_info.device[0].sn[0];
       var firmware = result.envoy_info.device[0].software[0];
@@ -1331,7 +1330,7 @@ class envoyDevice {
       me.checkDeviceInfo = false;
       me.updateDeviceState();
     } catch (error) {
-      me.log.error('Device: %s %s, getProduction eror: %s, state: Offline', me.host, me.name, error);
+      me.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', me.host, me.name, error);
       me.checkDeviceInfo = true;
     };
   }
