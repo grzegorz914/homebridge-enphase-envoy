@@ -1291,7 +1291,7 @@ class envoyDevice {
 
   async getDeviceInfo() {
     var me = this;
-    me.log.debug('Device: %s %s, requesting devices information.', me.host, me.name);
+    me.log.debug('Device: %s %s, requesting devices info.', me.host, me.name);
     try {
       const [inventory, info, meters] = await axios.all([axios.get(me.url + INVENTORY_URL), axios.get(me.url + INFO_URL), axios.get(me.url + METERS_URL)]);
       me.log.debug('Device %s %s, get devices data inventory: %s info: %s meters: %s', me.host, me.name, inventory.data, info.data, meters.data);
