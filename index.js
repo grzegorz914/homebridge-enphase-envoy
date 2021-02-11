@@ -1266,27 +1266,31 @@ class envoyDevice {
     if (this.prefDir.endsWith('/') === false) {
       this.prefDir = this.prefDir + '/';
     }
-
-    //check if the directory exists, if not then create it
-    if (fs.existsSync(this.prefDir) === false) {
-      fs.mkdir(this.prefDir, { recursive: false }, (error) => {
-        if (error) {
-          this.log.error('Device: %s %s, create directory: %s, error: %s', this.host, this.name, this.prefDir, error);
-        } else {
-          this.log.debug('Device: %s %s, create directory successful: %s', this.host, this.name, this.prefDir);
+    
+   (async () => { 
+      try { 
+        //check if the directory exists, if not then create it
+        const prefDirExist = await fsPromises.stat(this.prefDir);
+          if (!prefDirExist){
+        const prefDirWrite = await fsPromises.mkdir(this.prefDir, { recursive: false });
+          }
+        //check if the files exists, if not then create it
+        const prodFileExist = await fsPromises.stat(this.productionPowerMaxFile);
+          if (!prodFileExist){
+        const prodFileWrite = awaitfsPromises.writeFile(this.productionPowerMaxFile, '0.0');
+         }
+        const consTotalFileExist = fsPromises.stat(this.consumptionTotalPowerMaxFile);
+          if (!consTotalFileExist) {
+        const consToralFileWrite = await fsPromises.writeFile(this.consumptionTotalPowerMaxFile, '0.0');
         }
-      });
-    }
-    //check if the files exists, if not then create it
-    if (fs.existsSync(this.productionPowerMaxFile) === false) {
-      fsPromises.writeFile(this.productionPowerMaxFile, '0.0');
-    }
-    if (fs.existsSync(this.consumptionTotalPowerMaxFile) === false) {
-      fsPromises.writeFile(this.consumptionTotalPowerMaxFile, '0.0');
-    }
-    if (fs.existsSync(this.consumptionNetPowerMaxFile) === false) {
-      fsPromises.writeFile(this.consumptionNetPowerMaxFile, '0.0');
-    }
+        const consNetFileExist = fsPromises.stat(this.consumptionNetPowerMaxFile);
+          if (!consNetFileExist) {
+        const consNetFileWrite = await fsPromises.writeFile(this.consumptionNetPowerMaxFile, '0.0');
+        }
+         } catch (error) { 
+           this.log(error); 
+         } 
+       });
 
     //Check device state
     setInterval(function () {
