@@ -1379,106 +1379,106 @@ class envoyDevice {
 
       //envoy
       if (home.status === 200 && home.data !== undefined) {
-        var envoySoftwareBuildEpoch = home.data.software_build_epoch;
-        var envoyIsEnvoy = (home.data.is_nonvoy == false);
-        var envoyDbSize = home.data.db_size;
-        var envoyDbPercentFull = home.data.db_percent_full;
-        var envoyTimeZone = home.data.timezone;
-        var envoyCurrentDate = home.data.current_date;
-        var envoyCurrentTime = home.data.current_time;
-        var envoyNetworkWebComm = home.data.network.web_comm;
-        var envoyEverReportedToEnlighten = home.data.network.ever_reported_to_enlighten;
-        var envoyLastEnlightenReporDate = home.data.network.last_enlighten_report_time;
-        var envoyPrimaryInterface = home.data.network.primary_interface;
-        var envoyTariff = home.data.tariff;
-        var envoyCommNum = home.data.comm.num;
-        var envoyCommLevel = home.data.comm.level;
-        var envoyCommPcuNum = home.data.comm.pcu.num;
-        var envoyCommPcuLevel = home.data.comm.pcu.level;
-        var envoyCommAcbNum = home.data.comm.acb.num;
-        var envoyCommAcbLevel = home.data.comm.acb.level;
-        var envoyCommNsrbNum = home.data.comm.nsrb.num;
-        var envoyCommNsrbLevel = home.data.comm.nsrb.level;
-        var envoyAllerts = home.data.allerts;
-        var envoyUpdateStatus = home.data.update_status;
+        var softwareBuildEpoch = home.data.software_build_epoch;
+        var isEnvoy = (home.data.is_nonvoy == false);
+        var dbSize = home.data.db_size;
+        var dbPercentFull = home.data.db_percent_full;
+        var timeZone = home.data.timezone;
+        var currentDate = home.data.current_date;
+        var currentTime = home.data.current_time;
+        var networkWebComm = home.data.network.web_comm;
+        var everReportedToEnlighten = home.data.network.ever_reported_to_enlighten;
+        var lastEnlightenReporDate = home.data.network.last_enlighten_report_time;
+        var primaryInterface = home.data.network.primary_interface;
+        var tariff = home.data.tariff;
+        var commNum = home.data.comm.num;
+        var commLevel = home.data.comm.level;
+        var commPcuNum = home.data.comm.pcu.num;
+        var commPcuLevel = home.data.comm.pcu.level;
+        var commAcbNum = home.data.comm.acb.num;
+        var commAcbLevel = home.data.comm.acb.level;
+        var commNsrbNum = home.data.comm.nsrb.num;
+        var commNsrbLevel = home.data.comm.nsrb.level;
+        var allerts = home.data.allerts;
+        var updateStatus = home.data.update_status;
 
         // convert Unix time to local date time
-        envoyLastEnlightenReporDate = new Date(envoyLastEnlightenReporDate * 1000).toLocaleString();
+        lastEnlightenReporDate = new Date(lastEnlightenReporDate * 1000).toLocaleString();
 
         // convert network interface
-        var networkInterfaceIndex = NETWORK_INTERFACE.indexOf(envoyPrimaryInterface);
-        envoyPrimaryInterface = NETWORK_INTERFACE_1[networkInterfaceIndex];
+        var networkInterfaceIndex = NETWORK_INTERFACE.indexOf(primaryInterface);
+        primaryInterface = NETWORK_INTERFACE_1[networkInterfaceIndex];
 
         // convert energy tariff
-        var energyTariffIndex = ENERGY_TARIFF.indexOf(envoyTariff);
-        envoyTariff = ENERGY_TARIFF_1[energyTariffIndex]
+        var energyTariffIndex = ENERGY_TARIFF.indexOf(tariff);
+        tariff = ENERGY_TARIFF_1[energyTariffIndex]
 
         // convert status
-        if (Array.isArray(envoyAllerts) && envoyAllerts.length === 1) {
-          var code1 = envoyAllerts[0];
+        if (Array.isArray(allerts) && allerts.length === 1) {
+          var code1 = allerts[0];
           var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-          envoyAllerts = ENVOY_STATUS_CODE_1[indexCode1];
-        } else if (Array.isArray(envoyAllerts) && envoyAllerts.length === 2) {
-          var code1 = envoyAllerts[0];
-          var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-          var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-          var code2 = envoyAllerts[1];
-          var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-          var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-          envoyAllerts = status1 + ' / ' + status2;
-        } else if (Array.isArray(envoyAllerts) && envoyAllerts.length === 3) {
-          var code1 = envoyAllerts[0];
+          allerts = ENVOY_STATUS_CODE_1[indexCode1];
+        } else if (Array.isArray(allerts) && allerts.length === 2) {
+          var code1 = allerts[0];
           var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
           var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-          var code2 = envoyAllerts[1];
+          var code2 = allerts[1];
           var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
           var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-          var code3 = envoyAllerts[2];
+          allerts = status1 + ' / ' + status2;
+        } else if (Array.isArray(allerts) && allerts.length === 3) {
+          var code1 = allerts[0];
+          var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+          var status1 = ENVOY_STATUS_CODE_1[indexCode1];
+          var code2 = allerts[1];
+          var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+          var status2 = ENVOY_STATUS_CODE_1[indexCode2];
+          var code3 = allerts[2];
           var indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
           var status3 = ENVOY_STATUS_CODE_1[indexCode3];
-          nvoyAllerts = status1 + ' / ' + status2 + ' / ' + status3;
+          allerts = status1 + ' / ' + status2 + ' / ' + status3;
         } else {
-          envoyAllerts = 'No allerts';
+          allerts = 'No allerts';
         }
 
-        me.envoySoftwareBuildEpoch = envoySoftwareBuildEpoch;
-        me.envoyIsEnvoy = envoyIsEnvoy;
-        me.envoyDbSize = envoyDbSize;
-        me.envoyDbPercentFull = envoyDbPercentFull;
-        me.envoyTimeZone = envoyTimeZone;
-        me.envoyCurrentDate = envoyCurrentDate;
-        me.envoyCurrentTime = envoyCurrentTime;
-        me.envoyNetworkWebComm = envoyNetworkWebComm;
-        me.envoyEverReportedToEnlighten = envoyEverReportedToEnlighten;
-        me.envoyLastEnlightenReporDate = envoyLastEnlightenReporDate;
-        me.envoyPrimaryInterface = envoyPrimaryInterface;
-        me.envoyTariff = envoyTariff;
-        me.envoyCommNum = envoyCommNum;
-        me.envoyCommLevel = envoyCommLevel;
-        me.envoyCommPcuNum = envoyCommPcuNum;
-        me.envoyCommPcuLevel = envoyCommPcuLevel;
-        me.envoyCommAcbNum = envoyCommAcbNum;
-        me.envoyCommAcbLevel = envoyCommAcbLevel;
-        me.envoyCommNsrbNum = envoyCommNsrbNum;
-        me.envoyCommNsrbLevel = envoyCommNsrbLevel;
-        me.envoyAllerts = envoyAllerts;
-        me.envoyUpdateStatus = envoyUpdateStatus;
+        me.envoySoftwareBuildEpoch = softwareBuildEpoch;
+        me.envoyIsEnvoy = isEnvoy;
+        me.envoyDbSize = dbSize;
+        me.envoyDbPercentFull = dbPercentFull;
+        me.envoyTimeZone = timeZone;
+        me.envoyCurrentDate = currentDate;
+        me.envoyCurrentTime = currentTime;
+        me.envoyNetworkWebComm = networkWebComm;
+        me.envoyEverReportedToEnlighten = everReportedToEnlighten;
+        me.envoyLastEnlightenReporDate = lastEnlightenReporDate;
+        me.envoyPrimaryInterface = primaryInterface;
+        me.envoyTariff = tariff;
+        me.envoyCommNum = commNum;
+        me.envoyCommLevel = commLevel;
+        me.envoyCommPcuNum = commPcuNum;
+        me.envoyCommPcuLevel = commPcuLevel;
+        me.envoyCommAcbNum = commAcbNum;
+        me.envoyCommAcbLevel = commAcbLevel;
+        me.envoyCommNsrbNum = commNsrbNum;
+        me.envoyCommNsrbLevel = commNsrbLevel;
+        me.envoyAllerts = allerts;
+        me.envoyUpdateStatus = updateStatus;
         me.envoyDataOK = true;
 
         if (me.enphaseServiceEnvoy) {
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyAllerts, envoyAllerts);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyDbSize, envoyDbSize + ' / ' + envoyDbPercentFull + '%');
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyTariff, envoyTariff);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface, envoyPrimaryInterface);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm, envoyNetworkWebComm);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten, envoyEverReportedToEnlighten);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, envoyCommNum + ' / ' + envoyCommLevel);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, envoyCommPcuNum + ' / ' + envoyCommPcuLevel);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, envoyCommAcbNum + ' / ' + envoyCommAcbLevel);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, envoyCommNsrbNum + ' / ' + envoyCommNsrbLevel);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyAllerts, allerts);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyDbSize, dbSize + ' / ' + dbPercentFull + '%');
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyTariff, tariff);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface, primaryInterface);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm, networkWebComm);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten, everReportedToEnlighten);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, commNum + ' / ' + commLevel);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, commPcuNum + ' / ' + commPcuLevel);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, commAcbNum + ' / ' + commAcbLevel);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, commNsrbNum + ' / ' + commNsrbLevel);
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, envoyTimeZone);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, envoyCurrentDate + ' ' + envoyCurrentTime);
-          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, envoyLastEnlightenReporDate);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, currentDate + ' ' + currentTime);
+          me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, lastEnlightenReporDate);
         }
       }
 
@@ -1513,7 +1513,7 @@ class envoyDevice {
             var imageLoadDate = inventory.data[2].devices[i].img_load_date;
             var firmware = inventory.data[2].devices[i].img_pnum_running;
             var ptpn = inventory.data[2].devices[i].ptpn;
-            var chaneid = inventory.data[2].devices[i].chaneid;
+            var chaneId = inventory.data[2].devices[i].chaneid;
             var deviceControl = inventory.data[2].devices[i].device_control;
             var producing = inventory.data[2].devices[i].producing;
             var communicating = inventory.data[2].devices[i].communicating;
@@ -1906,7 +1906,7 @@ class envoyDevice {
             var imageLoadDate = inventory.data[1].devices[i].img_load_date;
             var firmware = inventory.data[1].devices[i].img_pnum_running;
             var ptpn = inventory.data[1].devices[i].ptpn;
-            var chaneid = inventory.data[1].devices[i].chaneid;
+            var chaneId = inventory.data[1].devices[i].chaneid;
             var deviceControl = inventory.data[1].devices[i].device_control;
             var producing = inventory.data[1].devices[i].producing;
             var communicating = inventory.data[1].devices[i].communicating;
@@ -2004,42 +2004,38 @@ class envoyDevice {
 
 
           if (productionCT.status === 200 && productionCT.data !== undefined) {
-            var enchargeType = productionCT.data.storage[0].type;
-            var enchargeActiveCount = productionCT.data.storage[0].activeCount;
-            var lastrptdate = productionCT.data.storage[0].readingTime;
-            var enchargewNow = parseFloat((productionCT.data.storage[0].wNow) / 1000);
-            var enchargewhNow = parseFloat((productionCT.data.storage[0].whNow + me.enchargeStorageOffset) / 1000);
-            var enchargeState = productionCT.data.storage[0].state;
-            var enchargePercentFull = productionCT.data.storage[0].percentFull;
+            var type = productionCT.data.storage[0].type;
+            var activeCount = productionCT.data.storage[0].activeCount;
+            var readingTime = productionCT.data.storage[0].readingTime;
+            var wNow = parseFloat((productionCT.data.storage[0].wNow) / 1000);
+            var whNow = parseFloat((productionCT.data.storage[0].whNow + me.enchargeStorageOffset) / 1000);
+            var chargeStatus = productionCT.data.storage[0].state;
+            var percentFull = productionCT.data.storage[0].percentFull;
 
             // convert Unix time to local date time
-            lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
+            readingTime = new Date(readingTime * 1000).toLocaleString();
 
             //convert encharge state
-            var state = ['idle', 'discharging', 'charging'];
-            var stateIndex = enchargeState.indexOf(state);
-            if (stateIndex !== -1) {
-              enchargeState = ENCHARGE_STATE[stateIndex]
-            } else {
-              enchargeState = 'Undefined';
-            }
+            var stateIndex = chargeStatus.indexOf(ENCHARGE_STATE);
+            chargeStatus = ENCHARGE_STATE_1[stateIndex]
 
-            me.enchargesType = enchargeType;
-            me.enchargesActiveCount = enchargeActiveCount;
+
+            me.enchargesType = type;
+            me.enchargesActiveCount = activeCount;
             me.enchargesReadingTime = lastrptdate;
-            me.enchargesPower = enchargewNow;
-            me.enchargesEnergy = enchargewhNow;
-            me.enchargesState = enchargeState;
-            me.enchargesPercentFull = enchargePercentFull;
+            me.enchargesPower = wNow;
+            me.enchargesEnergy = whNow;
+            me.enchargesState = chargeStatus;
+            me.enchargesPercentFull = percentFull;
             me.enchargesDataOK1 = true;
 
             if (me.enphaseServiceEnchargePowerAndEnergy) {
-              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargePower, enchargewNow);
-              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeEnergy, enchargewhNow);
-              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargePercentFull, enchargePercentFull);
-              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeActiveCount, enchargeActiveCount);
-              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeState, enchargeState);
-              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, lastrptdate);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargePower, wNow);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeEnergy, whNow);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargePercentFull, percentFull);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeActiveCount, activeCount);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeState, chargeStatus);
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, readingTime);
             }
           }
         }
@@ -2075,7 +2071,7 @@ class envoyDevice {
             var imageLoadDate = inventory.data[0].devices[i].img_load_date;
             var firmware = inventory.data[0].devices[i].img_pnum_running;
             var ptpn = inventory.data[0].devices[i].ptpn;
-            var chaneid = inventory.data[0].devices[i].chaneid;
+            var chaneId = inventory.data[0].devices[i].chaneid;
             var deviceControl = inventory.data[0].devices[i].device_control;
             var producing = inventory.data[0].devices[i].producing;
             var communicating = inventory.data[0].devices[i].communicating;
