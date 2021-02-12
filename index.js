@@ -1488,19 +1488,21 @@ class envoyDevice {
 
       //qrelays
       if (me.qRelaysCount > 0) {
-        me.qRelaysSerialNumber = new Array();
-        me.qRelaysFirmware = new Array();
-        me.qRelaysRelay = new Array();
-        me.qRelaysProducing = new Array();
-        me.qRelaysCommunicating = new Array();
-        me.qRelaysProvisioned = new Array();
-        me.qRelaysOperating = new Array();
-        me.qRelaysLinesCount = new Array();
-        me.qRelaysLine1Connected = new Array();
-        me.qRelaysLine2Connected = new Array();
-        me.qRelaysLine3Connected = new Array();
-        me.qRelaysStatus = new Array();
-        me.qRelaysLastReportDate = new Array();
+        if (inventory.status === 200 && inventory.data !== undefined) {
+          me.qRelaysSerialNumber = new Array();
+          me.qRelaysFirmware = new Array();
+          me.qRelaysRelay = new Array();
+          me.qRelaysProducing = new Array();
+          me.qRelaysCommunicating = new Array();
+          me.qRelaysProvisioned = new Array();
+          me.qRelaysOperating = new Array();
+          me.qRelaysLinesCount = new Array();
+          me.qRelaysLine1Connected = new Array();
+          me.qRelaysLine2Connected = new Array();
+          me.qRelaysLine3Connected = new Array();
+          me.qRelaysStatus = new Array();
+          me.qRelaysLastReportDate = new Array();
+        }
 
         if (me.checkCommLevel > 0) {
           me.qRelaysCommLevel = new Array();
@@ -1635,13 +1637,15 @@ class envoyDevice {
 
       //meters
       if (me.metersCount > 0) {
-        me.metersEid = new Array();
-        me.metersState = new Array();
-        me.metersMeasurementType = new Array();
-        me.metersPhaseMode = new Array();
-        me.metersPhaseCount = new Array();
-        me.metersMeteringStatus = new Array();
-        me.metersStatusFlags = new Array();
+        if (meters.status === 200 && meters.data !== undefined) {
+          me.metersEid = new Array();
+          me.metersState = new Array();
+          me.metersMeasurementType = new Array();
+          me.metersPhaseMode = new Array();
+          me.metersPhaseCount = new Array();
+          me.metersMeteringStatus = new Array();
+          me.metersStatusFlags = new Array();
+        }
 
         for (let i = 0; i < me.metersCount; i++) {
           if (meters.status === 200 && meters.data !== undefined) {
@@ -1785,146 +1789,148 @@ class envoyDevice {
           }
           me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseReadingTime, productionReadingTime);
         }
-      }
 
-      //consumption total
-      if (me.metersCount > 0 && me.metersConsumtionTotalActiveCount > 0) {
-        //reading time
-        var consumptionTotalReadingTime = productionCT.data.consumption[0].readingTime;
+        //consumption total
+        if (me.metersCount > 0 && me.metersConsumtionTotalActiveCount > 0) {
+          //reading time
+          var consumptionTotalReadingTime = productionCT.data.consumption[0].readingTime;
 
-        //power
-        var consumptionTotalPower = parseFloat(productionCT.data.consumption[0].wNow / 1000);
+          //power
+          var consumptionTotalPower = parseFloat(productionCT.data.consumption[0].wNow / 1000);
 
-        //save and read power max and state
-        var consumptionTotalPowerMax = 0;
-        var savedConsumptionTotalPowerMax = await fsPromises.readFile(me.consumptionTotalPowerMaxFile);
-        if (savedConsumptionTotalPowerMax) {
-          consumptionTotalPowerMax = parseFloat(savedConsumptionTotalPowerMax);
+          //save and read power max and state
+          var consumptionTotalPowerMax = 0;
+          var savedConsumptionTotalPowerMax = await fsPromises.readFile(me.consumptionTotalPowerMaxFile);
+          if (savedConsumptionTotalPowerMax) {
+            consumptionTotalPowerMax = parseFloat(savedConsumptionTotalPowerMax);
+          }
+
+          if (consumptionTotalPower > consumptionTotalPowerMax) {
+            var consumptionTotalPowerMaxf = consumptionTotalPower.toString();
+            var write = await fsPromises.writeFile(me.consumptionTotalPowerMaxFile, consumptionTotalPowerMaxf);
+            me.log.debug('Device: %s %s, consumptionTotalPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, consumptionTotalPower);
+          }
+          var consumptionTotalPowerMaxDetectedState = (me.consumptionTotalPower >= me.consumptionTotalPowerMaxDetected / 1000);
+
+          //energy
+          var consumptionTotalEnergyToday = parseFloat(productionCT.data.consumption[0].whToday / 1000);
+          var consumptionTotalEnergyLastSevenDays = parseFloat(productionCT.data.consumption[0].whLastSevenDays / 1000);
+          var consumptionTotalEnergyLifetime = parseFloat((productionCT.data.consumption[0].whLifetime + me.consumptionTotalEnergyLifetimeOffset) / 1000);
+
+          //param
+          var consumptionTotalRmsCurrent = parseFloat(productionCT.data.consumption[0].rmsCurrent);
+          var consumptionTotalRmsVoltage = parseFloat((productionCT.data.consumption[0].rmsVoltage) / 3);
+          var consumptionTotalPwrFactor = parseFloat(productionCT.data.consumption[0].pwrFactor);
+
+          //convert Unix time to local date time
+          consumptionTotalReadingTime = new Date(consumptionTotalReadingTime * 1000).toLocaleString();
+
+          me.consumptionTotalReadingTime = consumptionTotalReadingTime;
+          me.consumptionTotalPower = consumptionTotalPower;
+          me.consumptionTotalPowerMax = consumptionTotalPowerMax;
+          me.consumptionTotalPowerMaxDetectedState = consumptionTotalPowerMaxDetectedState;
+          me.consumptionTotalEnergyToday = consumptionTotalEnergyToday;
+          me.consumptionTotalEnergyLastSevenDays = consumptionTotalEnergyLastSevenDays;
+          me.consumptionTotalEnergyLifetime = consumptionTotalEnergyLifetime;
+          me.consumptionTotalRmsCurrent = consumptionTotalRmsCurrent;
+          me.consumptionTotalRmsVoltage = consumptionTotalRmsVoltage;
+          me.consumptionTotalPwrFactor = consumptionTotalPwrFactor;
+          me.consumptionTotalDataOK = true;
+
+          if (me.enphaseServiceConsumptionTotal) {
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePower, consumptionTotalPower);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMax, consumptionTotalPowerMax);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionTotalPowerMaxDetectedState);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionTotalEnergyToday);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionTotalEnergyLastSevenDays);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLifetime, consumptionTotalEnergyLifetime);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionTotalRmsCurrent);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionTotalRmsVoltage);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionTotalPwrFactor);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionTotalReadingTime);
+          }
         }
 
-        if (consumptionTotalPower > consumptionTotalPowerMax) {
-          var consumptionTotalPowerMaxf = consumptionTotalPower.toString();
-          var write = await fsPromises.writeFile(me.consumptionTotalPowerMaxFile, consumptionTotalPowerMaxf);
-          me.log.debug('Device: %s %s, consumptionTotalPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, consumptionTotalPower);
-        }
-        var consumptionTotalPowerMaxDetectedState = (me.consumptionTotalPower >= me.consumptionTotalPowerMaxDetected / 1000);
+        //consumption net
+        if (me.metersCount > 0 && me.metersConsumptionNetActiveCount > 0) {
+          //reading time
+          var consumptionNetReadingTime = productionCT.data.consumption[1].readingTime;
 
-        //energy
-        var consumptionTotalEnergyToday = parseFloat(productionCT.data.consumption[0].whToday / 1000);
-        var consumptionTotalEnergyLastSevenDays = parseFloat(productionCT.data.consumption[0].whLastSevenDays / 1000);
-        var consumptionTotalEnergyLifetime = parseFloat((productionCT.data.consumption[0].whLifetime + me.consumptionTotalEnergyLifetimeOffset) / 1000);
+          //power
+          var consumptionNetPower = parseFloat(productionCT.data.consumption[1].wNow / 1000);
 
-        //param
-        var consumptionTotalRmsCurrent = parseFloat(productionCT.data.consumption[0].rmsCurrent);
-        var consumptionTotalRmsVoltage = parseFloat((productionCT.data.consumption[0].rmsVoltage) / 3);
-        var consumptionTotalPwrFactor = parseFloat(productionCT.data.consumption[0].pwrFactor);
+          //save and read power max and state
+          var consumptionNetPowerMax = 0;
+          var sawedConsumptionNetPowerMax = await fsPromises.readFile(me.consumptionNetPowerMaxFile);
+          if (sawedConsumptionNetPowerMax) {
+            consumptionNetPowerMax = parseFloat(sawedConsumptionNetPowerMax);
+          }
 
-        //convert Unix time to local date time
-        consumptionTotalReadingTime = new Date(consumptionTotalReadingTime * 1000).toLocaleString();
+          if (consumptionNetPower > consumptionNetPowerMax) {
+            var consumptionNetPowerMaxf = consumptionNetPower.toString();
+            var write = await fsPromises.writeFile(me.consumptionNetPowerMaxFile, consumptionNetPowerMaxf);
+            me.log.debug('Device: %s %s, consumptionNetPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, consumptionNetPower);
+          }
+          var consumptionNetPowerMaxDetectedState = (consumptionNetPower >= me.consumptionNetPowerMaxDetected / 1000);
 
-        me.consumptionTotalReadingTime = consumptionTotalReadingTime;
-        me.consumptionTotalPower = consumptionTotalPower;
-        me.consumptionTotalPowerMax = consumptionTotalPowerMax;
-        me.consumptionTotalPowerMaxDetectedState = consumptionTotalPowerMaxDetectedState;
-        me.consumptionTotalEnergyToday = consumptionTotalEnergyToday;
-        me.consumptionTotalEnergyLastSevenDays = consumptionTotalEnergyLastSevenDays;
-        me.consumptionTotalEnergyLifetime = consumptionTotalEnergyLifetime;
-        me.consumptionTotalRmsCurrent = consumptionTotalRmsCurrent;
-        me.consumptionTotalRmsVoltage = consumptionTotalRmsVoltage;
-        me.consumptionTotalPwrFactor = consumptionTotalPwrFactor;
-        me.consumptionTotalDataOK = true;
+          //energy
+          var consumptionNetEnergyToday = parseFloat(productionCT.data.consumption[1].whToday / 1000);
+          var consumptionNetEnergyLastSevenDays = parseFloat(productionCT.data.consumption[1].whLastSevenDays / 1000);
+          var consumptionNetEnergyLifetime = parseFloat((productionCT.data.consumption[1].whLifetime + me.consumptionNetEnergyLifetimeOffset) / 1000);
 
-        if (me.enphaseServiceConsumptionTotal) {
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePower, consumptionTotalPower);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMax, consumptionTotalPowerMax);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionTotalPowerMaxDetectedState);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionTotalEnergyToday);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionTotalEnergyLastSevenDays);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLifetime, consumptionTotalEnergyLifetime);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionTotalRmsCurrent);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionTotalRmsVoltage);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionTotalPwrFactor);
-          me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionTotalReadingTime);
-        }
-      }
+          //param
+          var consumptionNetRmsCurrent = parseFloat(productionCT.data.consumption[1].rmsCurrent);
+          var consumptionNetRmsVoltage = parseFloat((productionCT.data.consumption[1].rmsVoltage) / 3);
+          var consumptionNetPwrFactor = parseFloat(productionCT.data.consumption[1].pwrFactor);
 
-      //consumption net
-      if (me.metersCount > 0 && me.metersConsumptionNetActiveCount > 0) {
-        //reading time
-        var consumptionNetReadingTime = productionCT.data.consumption[1].readingTime;
+          //convert Unix time to local date time
+          consumptionNetReadingTime = new Date(consumptionNetReadingTime * 1000).toLocaleString();
 
-        //power
-        var consumptionNetPower = parseFloat(productionCT.data.consumption[1].wNow / 1000);
+          me.consumptionNetReadingTime = consumptionNetReadingTime;
+          me.consumptionNetPower = consumptionNetPower;
+          me.consumptionNetPowerMax = consumptionNetPowerMax;
+          me.consumptionNetEnergyToday = consumptionNetEnergyToday;
+          me.consumptionNetEnergyLastSevenDays = consumptionNetEnergyLastSevenDays;
+          me.consumptionNetEnergyLifetime = consumptionNetEnergyLifetime;
+          me.consumptionNetPowerMaxDetectedState = consumptionNetPowerMaxDetectedState;
+          me.consumptionNetRmsCurrent = consumptionNetRmsCurrent;
+          me.consumptionNetRmsVoltage = consumptionNetRmsVoltage;
+          me.consumptionNetPwrFactor = consumptionNetPwrFactor;
+          me.consumptionNetDataOK = true;
 
-        //save and read power max and state
-        var consumptionNetPowerMax = 0;
-        var sawedConsumptionNetPowerMax = await fsPromises.readFile(me.consumptionNetPowerMaxFile);
-        if (sawedConsumptionNetPowerMax) {
-          consumptionNetPowerMax = parseFloat(sawedConsumptionNetPowerMax);
-        }
-
-        if (consumptionNetPower > consumptionNetPowerMax) {
-          var consumptionNetPowerMaxf = consumptionNetPower.toString();
-          var write = await fsPromises.writeFile(me.consumptionNetPowerMaxFile, consumptionNetPowerMaxf);
-          me.log.debug('Device: %s %s, consumptionNetPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.prefDir, consumptionNetPower);
-        }
-        var consumptionNetPowerMaxDetectedState = (consumptionNetPower >= me.consumptionNetPowerMaxDetected / 1000);
-
-        //energy
-        var consumptionNetEnergyToday = parseFloat(productionCT.data.consumption[1].whToday / 1000);
-        var consumptionNetEnergyLastSevenDays = parseFloat(productionCT.data.consumption[1].whLastSevenDays / 1000);
-        var consumptionNetEnergyLifetime = parseFloat((productionCT.data.consumption[1].whLifetime + me.consumptionNetEnergyLifetimeOffset) / 1000);
-
-        //param
-        var consumptionNetRmsCurrent = parseFloat(productionCT.data.consumption[1].rmsCurrent);
-        var consumptionNetRmsVoltage = parseFloat((productionCT.data.consumption[1].rmsVoltage) / 3);
-        var consumptionNetPwrFactor = parseFloat(productionCT.data.consumption[1].pwrFactor);
-
-        //convert Unix time to local date time
-        consumptionNetReadingTime = new Date(consumptionNetReadingTime * 1000).toLocaleString();
-
-        me.consumptionNetReadingTime = consumptionNetReadingTime;
-        me.consumptionNetPower = consumptionNetPower;
-        me.consumptionNetPowerMax = consumptionNetPowerMax;
-        me.consumptionNetEnergyToday = consumptionNetEnergyToday;
-        me.consumptionNetEnergyLastSevenDays = consumptionNetEnergyLastSevenDays;
-        me.consumptionNetEnergyLifetime = consumptionNetEnergyLifetime;
-        me.consumptionNetPowerMaxDetectedState = consumptionNetPowerMaxDetectedState;
-        me.consumptionNetRmsCurrent = consumptionNetRmsCurrent;
-        me.consumptionNetRmsVoltage = consumptionNetRmsVoltage;
-        me.consumptionNetPwrFactor = consumptionNetPwrFactor;
-        me.consumptionNetDataOK = true;
-
-        if (me.enphaseServiceConsumptionNet) {
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePower, consumptionNetPower);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMax, consumptionNetPowerMax);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionNetPowerMaxDetectedState);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionNetEnergyToday);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionNetEnergyLastSevenDays);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLifetime, consumptionNetEnergyLifetime);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionNetRmsCurrent);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionNetRmsVoltage);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionNetPwrFactor);
-          me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionNetReadingTime);
+          if (me.enphaseServiceConsumptionNet) {
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePower, consumptionNetPower);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMax, consumptionNetPowerMax);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionNetPowerMaxDetectedState);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionNetEnergyToday);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionNetEnergyLastSevenDays);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLifetime, consumptionNetEnergyLifetime);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionNetRmsCurrent);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionNetRmsVoltage);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionNetPwrFactor);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionNetReadingTime);
+          }
         }
       }
 
       //encharge storage
       if (me.enchargesCount > 0) {
-        me.enchargesChargeStatus = new Array();
-        me.enchargesSerialNumber = new Array();
-        me.enchargesFirmware = new Array();
-        me.enchargesProducing = new Array();
-        me.enchargesCommunicating = new Array();
-        me.enchargesProvisioned = new Array();
-        me.enchargesOperating = new Array();
-        me.enchargesSleepEnabled = new Array();
-        me.enchargesPerfentFull1 = new Array();
-        me.enchargesMaxCellTemp = new Array();
-        me.enchargesSleepMinSoc = new Array();
-        me.enchargesSleepMaxSoc = new Array();
-        me.enchargesStatus = new Array();
-        me.enchargesLastReportDate = new Array();
+        if (inventory.status === 200 && inventory.data !== undefined) {
+          me.enchargesChargeStatus = new Array();
+          me.enchargesSerialNumber = new Array();
+          me.enchargesFirmware = new Array();
+          me.enchargesProducing = new Array();
+          me.enchargesCommunicating = new Array();
+          me.enchargesProvisioned = new Array();
+          me.enchargesOperating = new Array();
+          me.enchargesSleepEnabled = new Array();
+          me.enchargesPerfentFull1 = new Array();
+          me.enchargesMaxCellTemp = new Array();
+          me.enchargesSleepMinSoc = new Array();
+          me.enchargesSleepMaxSoc = new Array();
+          me.enchargesStatus = new Array();
+          me.enchargesLastReportDate = new Array();
+        }
 
         if (me.checkCommLevel > 0) {
           me.enchargesCommLevel = new Array();
@@ -2005,22 +2011,22 @@ class envoyDevice {
             me.enchargesStatus.push(status);
             me.enchargesLastReportDate.push(lastrptdate);
             me.enchargesDataOK = true;
-          }
 
-          if (me.enphaseServiceEncharge) {
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeChargeStatus, chargeStatus);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeProducing, producing);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeCommunicating, communicating);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeProvisioned, provisioned);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeOperating, operating);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepEnabled, sleepEnabled);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargePerfentFull, perfentFull);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp, maxCellTemp);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc, sleepMinSoc);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc, sleepMaxSoc);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeStatus, status);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeFirmware, firmware);
-            me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, lastrptdate);
+            if (me.enphaseServiceEncharge) {
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeChargeStatus, chargeStatus);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeProducing, producing);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeCommunicating, communicating);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeProvisioned, provisioned);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeOperating, operating);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepEnabled, sleepEnabled);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargePerfentFull, perfentFull);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp, maxCellTemp);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc, sleepMinSoc);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc, sleepMaxSoc);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeStatus, status);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeFirmware, firmware);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, lastrptdate);
+            }
           }
 
           //encharge comm level
@@ -2079,14 +2085,16 @@ class envoyDevice {
 
       //microinverters power
       if (me.microinvertersCount > 0) {
-        me.microinvertersSerialNumberActive = new Array();
-        me.microinvertersProducing = new Array();
-        me.microinvertersCommunicating = new Array();
-        me.microinvertersProvisioned = new Array();
-        me.microinvertersOperating = new Array();
-        me.microinvertersStatus = new Array();
-        me.microinvertersFirmware = new Array();
-        me.microinvertersLastReportDate = new Array();
+        if (inventory.status === 200 && inventory.data !== undefined) {
+          me.microinvertersSerialNumberActive = new Array();
+          me.microinvertersProducing = new Array();
+          me.microinvertersCommunicating = new Array();
+          me.microinvertersProvisioned = new Array();
+          me.microinvertersOperating = new Array();
+          me.microinvertersStatus = new Array();
+          me.microinvertersFirmware = new Array();
+          me.microinvertersLastReportDate = new Array();
+        }
 
         if (me.checkMicroinvertersPower) {
           me.microinvertersReadingTimePower = new Array();
