@@ -1338,28 +1338,8 @@ class envoyDevice {
   async updateDeviceState() {
     var me = this;
     try {
-      const productionUrl = me.metersProductionActiveCount ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
       const [home, inventory, meters, production, productionCT] = await axios.all([axios.get(me.url + HOME_URL), axios.get(me.url + INVENTORY_URL), axios.get(me.url + METERS_URL), axios.get(productionUrl), axios.get(me.url + PRODUCTION_CT_URL)]);
       me.log.debug('Debug home: %s, inventory: %s, meters: %s, production: %s productionCT: %s', home.data, inventory.data, meters.data, production.data, productionCT.data);
-
-      var checkCommLevel = false;
-      if (me.installerPasswd) {
-        try {
-          const authInstaller = {
-            method: 'GET',
-            rejectUnauthorized: false,
-            digestAuth: me.installerUser + ':' + me.installerPasswd,
-            dataType: 'json',
-            timeout: [3000, 7000]
-          };
-          const pcuCommCheck = await http.request(me.url + PCU_COMM_CHECK_URL, authInstaller);
-          me.log.debug('Debug pcuCommCheck: %s', pcuCommCheck.data);
-          me.pcuCommCheck = pcuCommCheck;
-          checkCommLevel = true;
-        } catch (error) {
-          me.log.error('Device: %s %s, pcuCommCheck eror: %s', me.host, me.name, error);
-        };
-      }
 
       // check enabled inverters, meters, encharges
       if (productionCT.status === 200 && productionCT.data !== undefined) {
@@ -1375,6 +1355,7 @@ class envoyDevice {
         var invertersActiveCount = productionCT.data.production[0].activeCount;
         me.invertersActiveCount = invertersActiveCount;
       }
+       var productionUrl = me.metersProductionActiveCount ? me.url + PRODUCTION_CT_URL : me.url + PRODUCTION_SUMM_INVERTERS_URL;
 
       //envoy
       if (home.status === 200 && home.data !== undefined) {
@@ -1479,6 +1460,26 @@ class envoyDevice {
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, currentDate + ' ' + currentTime);
           me.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, lastEnlightenReporDate);
         }
+      }
+  
+      //check communications level of qrelays, encharges, microinverters
+      var checkCommLevel = false;
+      if (me.installerPasswd) {
+        try {
+          const authInstaller = {
+            method: 'GET',
+            rejectUnauthorized: false,
+            digestAuth: me.installerUser + ':' + me.installerPasswd,
+            dataType: 'json',
+            timeout: [3000, 7000]
+          };
+          const pcuCommCheck = await http.request(me.url + PCU_COMM_CHECK_URL, authInstaller);
+          me.log.debug('Debug pcuCommCheck: %s', pcuCommCheck.data);
+          me.pcuCommCheck = pcuCommCheck;
+          checkCommLevel = true;
+        } catch (error) {
+          me.log.error('Device: %s %s, pcuCommCheck eror: %s', me.host, me.name, error);
+        };
       }
 
       //qrelays
