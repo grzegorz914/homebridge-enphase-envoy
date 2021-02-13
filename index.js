@@ -1164,8 +1164,6 @@ class envoyDevice {
     //setup variables
     this.checkDeviceInfo = false;
     this.checkDeviceState = false;
-    this.checkCommLevel = true;
-    this.checkMicroinvertersPower = true;
 
     this.envoySerialNumber = '';
     this.envoyFirmware = '';
@@ -1338,10 +1336,12 @@ class envoyDevice {
       me.metersConsumption = ctmeterConsumption;
 
       me.checkDeviceInfo = false;
+      me.checkCommLevel = true;
       me.updateDeviceState();
     } catch (error) {
       me.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', me.host, me.name, error);
       me.checkDeviceInfo = true;
+      me.checkCommLevel = false;
     };
   }
 
@@ -1351,41 +1351,6 @@ class envoyDevice {
       //read all data;
       const [home, inventory, meters, production, productionCT] = await axios.all([axios.get(me.url + HOME_URL), axios.get(me.url + INVENTORY_URL), axios.get(me.url + METERS_URL), axios.get(me.url + PRODUCTION_SUMM_INVERTERS_URL), axios.get(me.url + PRODUCTION_CT_URL)]);
       me.log.debug('Debug home: %s, inventory: %s, meters: %s, production: %s productionCT: %s', home.data, inventory.data, meters.data, production.data, productionCT.data);
-
-      //checkMicroinvertersPower every 30sec
-      setInterval(function () {
-        me.checkMicroinvertersPower = true;
-      }, 30000);
-
-      //check microinverters power
-      if (me.microinvertersCount > 0 && me.checkMicroinvertersPower) {
-        try {
-          const user = me.envoyUser;
-          const passSerialNumber = me.envoySerialNumber.substring(6);
-          const passEnvoy = me.envoyPasswd;
-          const passwd = passEnvoy || passSerialNumber;
-          const auth = user + ':' + passwd;
-          const authEnvoy = {
-            method: 'GET',
-            rejectUnauthorized: false,
-            digestAuth: auth,
-            dataType: 'json',
-            timeout: [3000, 5000]
-          };
-          //microinverters power data
-          const microinverters = await http.request(me.url + PRODUCTION_INVERTERS_URL, authEnvoy);
-          me.log.debug('Debug production inverters: %s', microinverters.data);
-          me.microinverters = microinverters;
-        } catch (error) {
-          me.log.error('Device: %s %s, microinverters data eror: %s', me.host, me.name, error);
-          me.checkMicroinvertersPower = false;
-        };
-      }
-
-      //checkCommLevel every 60min
-      setInterval(function () {
-        me.checkCommLevel = true;
-      }, 3600000);
 
       //check communications level of qrelays, encharges, microinverters
       if (me.installerPasswd && me.checkCommLevel) {
@@ -1401,8 +1366,7 @@ class envoyDevice {
           me.log.debug('Debug pcuCommCheck: %s', pcuCommCheck.data);
           me.pcuCommCheck = pcuCommCheck;
         } catch (error) {
-          me.log.error('Device: %s %s, pcuCommCheck eror: %s', me.host, me.name, error);
-          me.checkCommLevel = false;
+          me.log.debug('Device: %s %s, pcuCommCheck error: %s', me.host, me.name, error);
         };
       }
 
@@ -1670,10 +1634,8 @@ class envoyDevice {
           me.metersPhaseCount = new Array();
           me.metersMeteringStatus = new Array();
           me.metersStatusFlags = new Array();
-        }
 
-        for (let i = 0; i < me.metersCount; i++) {
-          if (meters.status === 200 && meters.data !== undefined) {
+          for (let i = 0; i < me.metersCount; i++) {
             var eid = meters.data[i].eid;
             var state = meters.data[i].state;
             var measurementType = meters.data[i].measurementType;
@@ -2014,7 +1976,7 @@ class envoyDevice {
             } else {
               status = 'Not available';
             }
-            // convert Unix time to local date time
+            //convert Unix time to local date time
             lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
 
             //convert encharge state
@@ -2054,7 +2016,7 @@ class envoyDevice {
             }
           }
 
-          //encharge comm level
+          //encharges comm level
           if (me.checkCommLevel && me.pcuCommCheck.res.statusCode === 200 && me.pcuCommCheck.data !== undefined) {
             var key = '' + me.enchargesSerialNumber[i] + '';
             var commLevel = me.pcuCommCheck.data[key];
@@ -2070,6 +2032,7 @@ class envoyDevice {
           }
 
 
+          //encharges summary
           if (productionCT.status === 200 && productionCT.data !== undefined) {
             var type = productionCT.data.storage[0].type;
             var activeCount = productionCT.data.storage[0].activeCount;
@@ -2085,7 +2048,6 @@ class envoyDevice {
             //convert encharge state
             var stateIndex = chargeStatus.indexOf(ENCHARGE_STATE);
             chargeStatus = ENCHARGE_STATE_1[stateIndex]
-
 
             me.enchargesType = type;
             me.enchargesActiveCount = activeCount;
@@ -2121,16 +2083,32 @@ class envoyDevice {
           me.microinvertersLastReportDate = new Array();
         }
 
-        if (me.checkMicroinvertersPower && me.microinverters.res.statusCode === 200 && me.microinverters.data !== undefined) {
-          me.microinvertersReadingTimePower = new Array();
-          me.microinvertersType = new Array();
-          me.microinvertersLastPower = new Array();
-          me.microinvertersMaxPower = new Array();
-        }
+        var arr = new Array();
+        me.microinvertersReadingTimePower = new Array();
+        me.microinvertersType = new Array();
+        me.microinvertersLastPower = new Array();
+        me.microinvertersMaxPower = new Array();
 
         if (me.checkCommLevel && me.pcuCommCheck.res.statusCode === 200 && me.pcuCommCheck.data !== undefined) {
           me.microinvertersCommLevel = new Array();
         }
+
+        //check microinverters power
+        const user = me.envoyUser;
+        const passSerialNumber = me.envoySerialNumber.substring(6);
+        const passEnvoy = me.envoyPasswd;
+        const passwd = passEnvoy || passSerialNumber;
+        const auth = user + ':' + passwd;
+        const authEnvoy = {
+          method: 'GET',
+          rejectUnauthorized: false,
+          digestAuth: auth,
+          dataType: 'json',
+          timeout: [3000, 5000]
+        };
+        //microinverters power data
+        const microinverters = await http.request(me.url + PRODUCTION_INVERTERS_URL, authEnvoy);
+        me.log.debug('Debug production inverters: %s', microinverters.data);
 
         //microinverters state
         for (let i = 0; i < me.microinvertersCount; i++) {
@@ -2205,31 +2183,28 @@ class envoyDevice {
           }
 
           //microinverters power
-          if (me.checkMicroinvertersPower && me.microinverters.res.statusCode === 200 && me.microinverters.data !== undefined) {
-            var arr = new Array();
-            for (let a = 0; a < me.microinverters.data.length; a++) {
-              var allMicroinvertersSerialNumber = me.microinverters.data[a].serialNumber;
-              arr.push(allMicroinvertersSerialNumber);
-            }
-            var index = arr.indexOf(me.microinvertersSerialNumberActive[i]);
-            var lastrptdate = me.microinverters.data[index].lastReportDate;
-            var type = me.microinverters.data[index].devType;
-            var power = parseInt(me.microinverters.data[index].lastReportWatts);
-            var powerMax = parseInt(me.microinverters.data[index].maxReportWatts);
+          for (let a = 0; a < microinverters.data.length; a++) {
+            var allMicroinvertersSerialNumber = microinverters.data[a].serialNumber;
+            arr.push(allMicroinvertersSerialNumber);
+          }
+          var index = arr.indexOf(me.microinvertersSerialNumberActive[i]);
+          var lastrptdate = microinverters.data[index].lastReportDate;
+          var type = microinverters.data[index].devType;
+          var power = parseInt(microinverters.data[index].lastReportWatts);
+          var powerMax = parseInt(microinverters.data[index].maxReportWatts);
 
-            //convert Unix time to local date time
-            lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
+          //convert Unix time to local date time
+          lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
 
-            me.microinvertersReadingTimePower.push(lastrptdate);
-            me.microinvertersType.push(type);
-            me.microinvertersLastPower.push(power);
-            me.microinvertersMaxPower.push(powerMax);
-            me.microinvertersDataOK = true;
+          me.microinvertersReadingTimePower.push(lastrptdate);
+          me.microinvertersType.push(type);
+          me.microinvertersLastPower.push(power);
+          me.microinvertersMaxPower.push(powerMax);
+          me.microinvertersDataOK = true;
 
-            if (me.enphaseServiceMicronverter) {
-              me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPower, power);
-              me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, powerMax);
-            }
+          if (me.enphaseServiceMicronverter) {
+            me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPower, power);
+            me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, powerMax);
           }
 
           //microinverters comm level
@@ -2245,10 +2220,9 @@ class envoyDevice {
             if (me.enphaseServiceMicronverter) {
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, commLevel);
             }
+            me.checkCommLevel = false;
           }
         }
-        me.checkMicroinvertersPower = false;
-        me.checkCommLevel = false;
       }
 
       //start prepare accessory
