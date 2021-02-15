@@ -1164,6 +1164,7 @@ class envoyDevice {
     //setup variables
     this.checkDeviceInfo = false;
     this.checkDeviceState = false;
+    this.startPrepareAccessory = true;
 
     this.envoySerialNumber = '';
     this.envoyFirmware = '';
@@ -2224,9 +2225,10 @@ class envoyDevice {
           }
         }
       }
+      me.checkDeviceState = true;
 
       //start prepare accessory
-      if (!me.checkDeviceState) {
+      if (this.startPrepareAccessory) {
         me.prepareAccessory();
       }
     } catch (error) {
@@ -2891,7 +2893,7 @@ class envoyDevice {
         accessory.addService(this.enphaseServiceMicronverter);
       }
     }
-    this.checkDeviceState = true;
+    this.startPrepareAccessory = false;
 
     this.log.debug('Device: %s, publishExternalAccessories: %s.', this.host, accessoryName);
     this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
