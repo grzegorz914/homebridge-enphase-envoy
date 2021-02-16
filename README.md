@@ -56,6 +56,7 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 1. Use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) to configure the plugin (strongly recomended), or update your configuration file manually. See `sample-config.json` in this repository for a sample or add the bottom example to Your config.json file.
 2. In `host` set the iP adress or leave empy(will use default path `envoy.local`).
 3. In `refreshInterval` set the data refresh time in seconds.
+4. If `disableLogInfo` is enabled, disable log info, all values and state will not be displayed in Homebridge log console.
 5. In `enchargeStorage` check ON if encharge storage is installed. (not available in v3.5.0)
 6. In `enchargeStorageOffset` set the offset of encharge storage energy if nedded in (Wh),(+/-).
 7. In `powerConsumptionMetersInstalled` check ON if consumption meters are installed. (not available in v3.5.0)
@@ -84,6 +85,7 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
+                    "disableLogInfo": false,
                     "envoyUser": "envoy",
                     "envoyPasswd": "password",
                     "installerUser": "installer",

@@ -22,6 +22,7 @@
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
+                    "disableLogInfo": false,
                     "envoyUser": "envoy",
                     "envoyPasswd": "password",
                     "installerUser": "installer",

@@ -27,13 +27,20 @@
               "format": "hostname"
             },
             "refreshInterval": {
-							"title": "Refresh interval (sec)",
-							"type": "integer",
-							"default": 5,
-							"minimum": 0,
-							"maximum": 3600,
-							"required": true
-						},
+              "title": "Refresh interval (sec)",
+              "type": "integer",
+              "default": 5,
+              "minimum": 0,
+              "maximum": 300,
+              "required": true
+            },
+            "disableLogInfo": {
+              "title": "Disable log info",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This disable log info, all values and state will not be displayed in Homebridge log console."
+            },
             "envoyUser": {
               "title": "Envoy user",
               "type": "string",
@@ -142,7 +149,6 @@
       "items": [
         "devices[].name",
         "devices[].host",
-        "devices[].refreshInterval",
         {
           "key": "devices[]",
           "type": "section",
@@ -163,6 +169,8 @@
           "expandable": true,
           "expanded": false,
           "items": [
+            "devices[].disableLogInfo",
+            "devices[].refreshInterval",
             "devices[].enchargeStorageOffset",
             "devices[].powerProductionMaxDetected",
             "devices[].energyProductionLifetimeOffset",
