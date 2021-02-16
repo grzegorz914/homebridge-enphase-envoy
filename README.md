@@ -38,6 +38,7 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 2. All devices in PV are detected automatically.
 3. Envoy authentication is detected automatically.
 4. For best experiences please use *Controller App* for iOS
+5. Installer Password need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 
 ## Info v3.x.x
 1. With release v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
