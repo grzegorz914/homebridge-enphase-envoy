@@ -7,7 +7,7 @@ const path = require('path');
 const inherits = require('util').inherits;
 const parseStringPromise = require('xml2js').parseStringPromise;
 
-const PLUGIN_NAME = 'Enphase Envoy';
+const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
 const INFO_URL = '/info.xml';
