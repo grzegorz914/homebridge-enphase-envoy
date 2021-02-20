@@ -7,7 +7,7 @@ const path = require('path');
 const inherits = require('util').inherits;
 const parseStringPromise = require('xml2js').parseStringPromise;
 
-const PLUGIN_NAME = 'homebridge-enphase-envoy';
+const PLUGIN_NAME = 'Enphase Envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
 const INFO_URL = '/info.xml';
@@ -25,10 +25,12 @@ const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check';
 
 const NETWORK_INTERFACE = ['eth0', 'wlan0', 'cellurar', 'undefined'];
 const NETWORK_INTERFACE_1 = ['Ethernet', 'WiFi', 'Cellurar', 'Unknown'];
-const ENERGY_TARIFF = ['single_rate', 'time_to_use', 'other', 'undefined'];
-const ENERGY_TARIFF_1 = ['Single rate', 'Time to use', 'Other', 'Unknown'];
+const ENERGY_TARIFF = ['single_rate', 'time_to_use', 'none', 'other', 'undefined'];
+const ENERGY_TARIFF_1 = ['Single rate', 'Time to use', 'Not defined', 'Other', 'Unknown'];
 const ENCHARGE_STATE = ['idle', 'discharging', 'charging', 'undefined'];
 const ENCHARGE_STATE_1 = ['Idle', 'Discharging', 'Charging', 'Unknown'];
+const ENVOY_UPDATE = ['satisfied', 'not-satisfied', 'undefined'];
+const ENVOY_UPDATE_1 = ['Satisfied', 'Not satisfied', 'Unknown'];
 
 const ENVOY_STATUS_CODE = ['undefined',
   'error.nodata', 'envoy.global.ok', 'envoy.cond_flags.acb_ctrl.bmuhardwareerror', 'envoy.cond_flags.acb_ctrl.bmuimageerror', 'envoy.cond_flags.acb_ctrl.bmumaxcurrentwarning', 'envoy.cond_flags.acb_ctrl.bmusenseerror', 'envoy.cond_flags.acb_ctrl.cellmaxtemperror',
@@ -1407,6 +1409,10 @@ class envoyDevice {
         // convert energy tariff
         var energyTariffIndex = ENERGY_TARIFF.indexOf(tariff);
         tariff = ENERGY_TARIFF_1[energyTariffIndex]
+
+        // convert update status
+        var updateStatusIndex = ENVOY_UPDATE.indexOf(updateStatus);
+        updateStatus = ENVOY_UPDATE_1[updateStatusIndex]
 
         // convert status
         if (Array.isArray(allerts) && allerts.length === 1) {
