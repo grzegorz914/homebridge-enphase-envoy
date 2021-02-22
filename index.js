@@ -25,8 +25,8 @@ const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check';
 
 const NETWORK_INTERFACE = ['eth0', 'wlan0', 'cellurar', 'undefined'];
 const NETWORK_INTERFACE_1 = ['Ethernet', 'WiFi', 'Cellurar', 'Unknown'];
-const ENERGY_TARIFF = ['single_rate', 'time_to_use', 'none', 'other', 'undefined'];
-const ENERGY_TARIFF_1 = ['Single rate', 'Time to use', 'Not defined', 'Other', 'Unknown'];
+const ENERGY_TARIFF = ['single_rate', 'time_to_use', 'time_of_use', 'none', 'other', 'undefined'];
+const ENERGY_TARIFF_1 = ['Single rate', 'Time to use', 'Time of use', 'Not defined', 'Other', 'Unknown'];
 const ENCHARGE_STATE = ['idle', 'discharging', 'charging', 'undefined'];
 const ENCHARGE_STATE_1 = ['Idle', 'Discharging', 'Charging', 'Unknown'];
 const ENVOY_UPDATE = ['satisfied', 'not-satisfied', 'undefined'];
