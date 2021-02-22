@@ -1271,6 +1271,10 @@ class envoyDevice {
     if (this.prefDir.endsWith('/') === false) {
       this.prefDir = this.prefDir + '/';
     }
+    //check if the directory exists, if not then create it
+    if (fs.existsSync(this.prefDir) === false) {
+      fsPromises.mkdir(this.prefDir);
+    }
     //check if the files exists, if not then create it
     if (fs.existsSync(this.productionPowerMaxFile) === false) {
       fsPromises.writeFile(this.productionPowerMaxFile, '0.0');
