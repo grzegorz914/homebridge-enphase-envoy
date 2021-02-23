@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Important note v4.5.0 and abowe!!!
+## Important note v4.5.0 and above!!!
 Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
 ## [4.5.0] - (23.02.2021)
 ## Changes
@@ -36,7 +36,7 @@ Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
 - reconfigured config schema
 - other fixes and corrections
 
-## Important note v4.0.0 and abowe!!!
+## Important note v4.0.0 and above!!!
 Version 4.0.0 whole new concept.
 ## [4.0.0] - (30.01.2021)
 ## Changs
@@ -55,7 +55,7 @@ Version 4.0.0 whole new concept.
 ## Changs
 - list all devices in log with its status
 
-## Important note v3.5.0 and abowe!!!
+## Important note v3.5.0 and above!!!
 Version 3.5.0 detect automatically all installed devices, please check Your config after update to this version.
 ## [3.5.0] - (29.01.2021)
 ## Changs
