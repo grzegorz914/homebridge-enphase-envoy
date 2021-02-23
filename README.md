@@ -33,6 +33,9 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 4. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*. 
 5. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
 
+## Info v4.5.x and above!!!
+1. Versin 4.5.0 and above need to be used with Homebridge min. v1.3.x.
+
 ## Info v4.x.x and above!!!
 1. Version 4.0.0 whole new concept.
 2. All devices in PV are detected automatically.

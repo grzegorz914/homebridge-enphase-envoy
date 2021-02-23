@@ -1265,6 +1265,7 @@ class envoyDevice {
     this.productionPowerMaxFile = this.prefDir + '/' + 'productionPowerMax_' + this.host.split('.').join('');
     this.consumptionTotalPowerMaxFile = this.prefDir + '/' + 'consumptionTotalPowerMax_' + this.host.split('.').join('');
     this.consumptionNetPowerMaxFile = this.prefDir + '/' + 'consumptionNetPowerMax_' + this.host.split('.').join('');
+    this.devInfoFile = this.prefDir + '/' + 'devInfo_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
 
     //check if prefs directory ends with a /, if not then add it
@@ -1284,6 +1285,10 @@ class envoyDevice {
     }
     if (fs.existsSync(this.consumptionNetPowerMaxFile) === false) {
       fsPromises.writeFile(this.consumptionNetPowerMaxFile, '0.0');
+    }
+    //check if the files exists, if not then create it
+    if (fs.existsSync(this.devInfoFile) === false) {
+      fsPromises.writeFile(this.devInfoFile, '{}');
     }
 
     //Check device state
@@ -1306,6 +1311,12 @@ class envoyDevice {
       me.log.debug('Device %s %s, get devices data inventory: %s info: %s meters: %s', me.host, me.name, inventory.data, info.data, meters.data);
       const result = await parseStringPromise(info.data);
       me.log.debug('Device: %s %s, parse info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
+
+      let obj = Object.assign(result, inventory.data, meters.data);
+      let devInfo = JSON.stringify(obj, null, 2);
+      const writeDevInfoFile = await fsPromises.writeFile(me.devInfoFile, devInfo);
+      me.log.debug('Device: %s %s, saved Device Info successful.', me.host, me.name);
+
       var time = result.envoy_info.time[0];
       var serialNumber = result.envoy_info.device[0].sn[0];
       var firmware = result.envoy_info.device[0].software[0];
@@ -2278,116 +2289,116 @@ class envoyDevice {
     if (this.envoyDataOK) {
       this.enphaseServiceEnvoy = new Service.enphaseEnvoy('Envoy ' + this.envoySerialNumber, 'enphaseServiceEnvoy');
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyAllerts)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyAllerts;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s allerts: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyPrimaryInterface;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s network interface: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyNetworkWebComm;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s web communication: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyEverReportedToEnlighten;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s report to enlighten: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyCommNum + ' / ' + this.envoyCommLevel;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s communication devices and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyCommPcuNum + ' / ' + this.envoyCommPcuLevel;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s communication Encharges and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyCommAcbNum + ' / ' + this.envoyCommAcbLevel;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s communication Encharges and level %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyCommNsrbNum + ' / ' + this.envoyCommNsrbLevel;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s communication qRelays and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyDbSize + ' / ' + this.envoyDbPercentFull + '%';
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s db size: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyTariff)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyTariff;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s tariff: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyUpdateStatus)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyUpdateStatus;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s update status: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyTimeZone)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyTimeZone;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s time zone: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyCurrentDate + ' ' + this.envoyCurrentTime;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s current date and time: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.envoyLastEnlightenReporDate;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, envoy: %s last report to enlighten: %s', this.host, accessoryName, this.envoySerialNumber, value);
           }
-          callback(null, value);
+          return value;
         });
       accessory.addService(this.enphaseServiceEnvoy);
     }
@@ -2397,85 +2408,85 @@ class envoyDevice {
       for (let i = 0; i < this.qRelaysCount; i++) {
         this.enphaseServiceQrelay = new Service.enphaseQrelay('Q-Relay ' + this.qRelaysSerialNumber[i], 'enphaseServiceQrelay' + i);
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayState)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysRelay[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s relay: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLinesCount)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysLinesCount[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s lines: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         if (this.qRelaysLinesCount[i] >= 1) {
           this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine1Connected)
-            .on('get', (callback) => {
+            .onGet(async () => {
               let value = this.qRelaysLine1Connected[i];
               if (!this.disableLogInfo) {
                 this.log('Device: %s %s, qrelay: %s line 1: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
               }
-              callback(null, value);
+              return value;
             });
           if (this.qRelaysLinesCount[i] >= 2) {
             this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine2Connected)
-              .on('get', (callback) => {
+              .onGet(async () => {
                 let value = this.qRelaysLine2Connected[i];
                 if (!this.disableLogInfo) {
                   this.log('Device: %s %s, qrelay: %s line 2: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
                 }
-                callback(null, value);
+                return value;
               });
             if (this.qRelaysLinesCount[i] >= 3) {
               this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine3Connected)
-                .on('get', (callback) => {
+                .onGet(async () => {
                   let value = this.qRelaysLine3Connected[i];
                   if (!this.disableLogInfo) {
                     this.log('Device: %s %s, qrelay: %s line 3: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
                   }
-                  callback(null, value);
+                  return value;
                 });
             }
           }
         }
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayProducing)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysProducing[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s producing: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayCommunicating)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysCommunicating[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s communicating: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayProvisioned)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysProvisioned[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s provisioned: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayOperating)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysOperating[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s operating: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = 0;
             if (this.installerPasswd && this.checkCommLevel && this.pcuCommCheck.data !== undefined) {
               value = this.qRelaysCommLevel[i];
@@ -2483,31 +2494,31 @@ class envoyDevice {
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s comm. level: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayStatus)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysStatus[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s status: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayFirmware)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysFirmware[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s firmware: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLastReportDate)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.qRelaysLastReportDate[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s last report: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         accessory.addService(this.enphaseServiceQrelay);
       }
@@ -2518,44 +2529,44 @@ class envoyDevice {
       for (let i = 0; i < this.metersCount; i++) {
         this.enphaseServiceMeter = new Service.enphaseMeter('Meter ' + this.metersMeasurementType[i], 'enphaseServiceMeter' + i);
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterState)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.metersState[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, Meter: %s state: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPhaseMode)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.metersPhaseMode[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, Meter: %s phase mode: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPhaseCount)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.metersPhaseCount[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, Meter: %s phase count: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterMeteringStatus)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.metersMeteringStatus[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, Meter: %s metering status: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterStatusFlags)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.metersStatusFlags[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, Meter: %s status flag: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
-            callback(null, value);
+            return value;
           });
         accessory.addService(this.enphaseServiceMeter);
       }
@@ -2565,86 +2576,86 @@ class envoyDevice {
     if (this.productionDataOK) {
       this.enphaseServiceProduction = new Service.enphasePowerEnergyMeter('Production', 'enphaseServiceProduction');
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePower)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.productionPower;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, production power: %s kW', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePowerMax)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.productionPowerMax;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, production power max: %s kW', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePowerMaxDetected)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.productionPowerMaxDetectedState;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, production power max detected: %s', this.host, accessoryName, value ? 'Yes' : 'No');
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseEnergyToday)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.productionEnergyToday;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, production energy today: %s kWh', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.productionEnergyLastSevenDays;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, production energy last seven days: %s kWh', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseEnergyLifetime)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.productionEnergyLifetime;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, production energy lifetime: %s kWh', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       if (this.metersCount > 0 && this.metersProductionActiveCount > 0) {
         this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseRmsCurrent)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.productionRmsCurrent;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, production current: %s A', this.host, accessoryName, value.toFixed(3));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseRmsVoltage)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.productionRmsVoltage;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, production voltage: %s V', this.host, accessoryName, value.toFixed(1));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePwrFactor)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.productionPwrFactor;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, production power factor: %s cos φ', this.host, accessoryName, value.toFixed(2));
             }
-            callback(null, value);
+            return value;
           });
       }
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseReadingTime)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.productionReadingTime;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, production last report: %s', this.host, accessoryName, value);
           }
-          callback(null, value);
+          return value;
         });
       accessory.addService(this.enphaseServiceProduction);
     }
@@ -2654,84 +2665,84 @@ class envoyDevice {
       if (this.metersConsumtionTotalActiveCount > 0) {
         this.enphaseServiceConsumptionTotal = new Service.enphasePowerEnergyMeter('Consumption Total', 'enphaseServiceConsumptionTotal');
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePower)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalPower;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total power : %s kW', this.host, accessoryName, value.toFixed(3));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePowerMax)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalPowerMax;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total power consumption max: %s kW', this.host, accessoryName, value.toFixed(3));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePowerMaxDetected)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalPowerMaxDetectedState;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total power consumption max detected: %s', this.host, accessoryName, value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseEnergyToday)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalEnergyToday;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total energy consumption today: %s kWh', this.host, accessoryName, value.toFixed(3));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalEnergyLastSevenDays;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total energy consumption last seven days: %s kWh', this.host, accessoryName, value.toFixed(3));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseEnergyLifetime)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalEnergyLifetime;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total energy lifetime: %s kWh', this.host, accessoryName, value.toFixed(3));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseRmsCurrent)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalRmsCurrent;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total current: %s A', this.host, accessoryName, value.toFixed(3));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseRmsVoltage)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalRmsVoltage;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total voltage: %s V', this.host, accessoryName, value.toFixed(1));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePwrFactor)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalPwrFactor;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total power factor: %s cos φ', this.host, accessoryName, value.toFixed(2));
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseReadingTime)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.consumptionTotalReadingTime;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, consumption total last report: %s', this.host, accessoryName, value);
             }
-            callback(null, value);
+            return value;
           });
         accessory.addService(this.enphaseServiceConsumptionTotal);
       }
@@ -2741,84 +2752,84 @@ class envoyDevice {
         this.enphaseServiceConsumptionNet = new Service.enphasePowerEnergyMeter('Consumption Net', 'enphaseServiceConsumptionNet');
       }
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphasePower)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetPower;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net power: %s kW', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphasePowerMax)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetPowerMax;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net power max: %s kW', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphasePowerMaxDetected)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetPowerMaxDetectedState;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net power max detected: %s', this.host, accessoryName, value ? 'Yes' : 'No');
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseEnergyToday)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetEnergyToday;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net energy today: %s kWh', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetEnergyLastSevenDays;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net energy last seven days: %s kWh', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseEnergyLifetime)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetEnergyLifetime;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net energy lifetime: %s kWh', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
-        })
+          return value;
+        });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseRmsCurrent)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetRmsCurrent;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net current: %s A', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseRmsVoltage)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetRmsVoltage;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net voltage: %s V', this.host, accessoryName, value.toFixed(1));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphasePwrFactor)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetPwrFactor;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net power factor: %s cos φ', this.host, accessoryName, value.toFixed(2));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseReadingTime)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.consumptionNetReadingTime;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net last report: %s', this.host, accessoryName, value);
           }
-          callback(null, value);
+          return value;
         });
       accessory.addService(this.enphaseServiceConsumptionNet);
     }
@@ -2828,52 +2839,52 @@ class envoyDevice {
     if (this.encharge > 0 && this.enchargesActiveCount > 0) {
       this.enphaseServiceEnchargePowerAndEnergy = new Service.enphaseEnchargePowerAndEnergy('Encharges summary', 'enphaseServiceEnchargePowerAndEnergy');
       this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargePower)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.enchargesPower;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, power encharge storage: %s kW', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeEnergy)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.enchargesEnergy;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, energy encharge storage: %s kWh', this.host, accessoryName, value.toFixed(3));
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.enchargesPercentFull;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge percent full: %s', this.host, accessoryName, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeActiveCount)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.enchargesActiveCount;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge devices count: %s', this.host, accessoryName, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeState)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.enchargesState;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge state: %s', this.host, accessoryName, value);
           }
-          callback(null, value);
+          return value;
         });
       this.enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeReadingTime)
-        .on('get', (callback) => {
+        .onGet(async () => {
           let value = this.enchargesReadingTime;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge: %s last report: %s', this.host, accessoryName, value);
           }
-          callback(null, value);
+          return value;
         });
       accessory.addService(this.enphaseServiceEnchargePowerAndEnergy);
 
@@ -2881,47 +2892,47 @@ class envoyDevice {
       for (let i = 0; i < this.enchargesActiveCount; i++) {
         this.enphaseServiceEncharge = new Service.enphaseEncharge('Encharge ', + this.enchargesSerialNumber[i], 'enphaseServiceEncharge' + i);
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeChargeStatus)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesChargeStatus[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s charge status %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeProducing)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesProducing[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s producing: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeCommunicating)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesCommunicating[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s communicating: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeProvisioned)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesProvisioned[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s provisioned: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeOperating)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesOperating[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s operating: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = 0;
             if (this.installerPasswd && this.checkCommLevel && this.pcuCommCheck.data !== undefined) {
               value = this.enchargesCommLevel[i];
@@ -2929,71 +2940,71 @@ class envoyDevice {
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s comm. level: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepEnabled)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesSleepEnabled[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s sleep: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesPercentFull1[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s percent full: %s %', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesMaxCellTemp[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s max cell temp: %s °C', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesSleepMinSoc[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s sleep min soc: %s min', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesSleepMaxSoc[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s sleep max soc: %s min', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeStatus)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesStatus[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s status: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeFirmware)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesFirmware[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s firmware: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeLastReportDate)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.enchargesLastReportDate[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s last report: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
-            callback(null, value);
+            return value;
           });
         accessory.addService(this.enphaseServiceEncharge);
       }
@@ -3004,55 +3015,55 @@ class envoyDevice {
       for (let i = 0; i < this.microinvertersCount; i++) {
         this.enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumberActive[i], 'enphaseServiceMicronverter' + i);
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPower)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersLastPower[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s last power: %s W', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPowerMax)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersMaxPower[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s max power: %s W', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterProducing)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersProducing[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s producing: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterCommunicating)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersCommunicating[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s communicating: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterProvisioned)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersProvisioned[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s provisioned: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterOperating)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersOperating[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s operating: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value ? 'Yes' : 'No');
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = 0;
             if (this.installerPasswd && this.checkCommLevel && this.pcuCommCheck.data !== undefined) {
               value = this.microinvertersCommLevel[i];
@@ -3060,31 +3071,31 @@ class envoyDevice {
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s comm. level: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterStatus)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersStatus[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s status: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterFirmware)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersFirmware[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s firmware: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
             }
-            callback(null, value);
+            return value;
           });
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
-          .on('get', (callback) => {
+          .onGet(async () => {
             let value = this.microinvertersReadingTimePower[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s last report: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
             }
-            callback(null, value);
+            return value;
           });
         accessory.addService(this.enphaseServiceMicronverter);
       }

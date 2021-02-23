@@ -3,14 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## Important note v4.0.0 and abowe!!!
-Version 4.0.0 whole new concept.
 
-## Important note v3.5.0 and abowe!!!
-Version 3.5.0 detect automatically all installed devices, please check Your config after update to this version.
+## Important note v4.5.0 and abowe!!!
+Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
+## [4.5.0] - (23.02.2021)
+## Changes
+- code rebuild, use Characteristic.onSet/onGet
+- require Homebridge 1.3.x or above
 
-## Important note
-Ab verion v3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. If U want to use old CO2 sensor style just still with 2.x.x version
 ## [4.4.0] - (10.02.2021)
 ## Changs
 - restored possibility to set own user and password for envoy
@@ -36,7 +36,8 @@ Ab verion v3.0.0 accesory moved to Power Meter custom Characteristic, due to App
 - reconfigured config schema
 - other fixes and corrections
 
-
+## Important note v4.0.0 and abowe!!!
+Version 4.0.0 whole new concept.
 ## [4.0.0] - (30.01.2021)
 ## Changs
 - refactoring whole code
@@ -54,6 +55,8 @@ Ab verion v3.0.0 accesory moved to Power Meter custom Characteristic, due to App
 ## Changs
 - list all devices in log with its status
 
+## Important note v3.5.0 and abowe!!!
+Version 3.5.0 detect automatically all installed devices, please check Your config after update to this version.
 ## [3.5.0] - (29.01.2021)
 ## Changs
 - full automatic check installed devices, Envoy, Inverters, Q-Relay, Meters, Encharges
@@ -109,6 +112,8 @@ Ab verion v3.0.0 accesory moved to Power Meter custom Characteristic, due to App
 ## Changes
 - code cleanup
 
+## Important note
+Ab verion v3.0.0 accesory moved to Power Meter custom Characteristic, due to Apple HomeKit limitations right now only in EVE app displayed correctly, in HomeKit displayed as 'Unsupported'. If U want to use old CO2 sensor style just still with 2.x.x version
 ## [3.0.0] - (02.09.2020)
 ### New
 - accesory moved to Power Meter, due to Apple HomeKit limitations right now only in EVE app displayed, in HomeKit displayed as 'Unsupported'.
