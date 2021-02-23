@@ -1167,6 +1167,7 @@ class envoyDevice {
     //setup variables
     this.checkDeviceInfo = false;
     this.checkDeviceState = false;
+    this.checkCommLevel = false;
     this.startPrepareAccessory = true;
 
     this.envoySerialNumber = '';
@@ -1355,12 +1356,10 @@ class envoyDevice {
       me.metersConsumption = ctmeterConsumption;
 
       me.checkDeviceInfo = false;
-      me.checkCommLevel = true;
       me.updateDeviceState();
     } catch (error) {
       me.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', me.host, me.name, error);
       me.checkDeviceInfo = true;
-      me.checkCommLevel = false;
     };
   }
 
@@ -1372,7 +1371,7 @@ class envoyDevice {
       me.log.debug('Debug home: %s, inventory: %s, meters: %s, production: %s productionCT: %s', home.data, inventory.data, meters.data, production.data, productionCT.data);
 
       //check communications level of qrelays, encharges, microinverters
-      if (me.installerPasswd && me.checkCommLevel) {
+      if (me.installerPasswd) {
         try {
           const authInstaller = {
             method: 'GET',
@@ -1384,8 +1383,10 @@ class envoyDevice {
           const pcuCommCheck = await http.request(me.url + PCU_COMM_CHECK_URL, authInstaller);
           me.log.debug('Debug pcuCommCheck: %s', pcuCommCheck.data);
           me.pcuCommCheck = pcuCommCheck;
+          me.checkCommLevel = true;
         } catch (error) {
           me.log.debug('Device: %s %s, pcuCommCheck error: %s', me.host, me.name, error);
+          me.checkCommLevel = false;
         };
       }
 
@@ -1516,7 +1517,7 @@ class envoyDevice {
           me.qRelaysLastReportDate = new Array();
         }
 
-        if (me.installerPasswd && me.checkCommLevel && me.pcuCommCheck.data !== undefined) {
+        if (me.checkCommLevel) {
           me.qRelaysCommLevel = new Array();
         }
 
@@ -1631,14 +1632,14 @@ class envoyDevice {
           }
 
           // get qrelays comm level
-          if (me.installerPasswd && me.checkCommLevel && me.pcuCommCheck.data !== undefined) {
+          if (me.checkCommLevel) {
             var key = '' + me.qRelaysSerialNumber[i] + '';
             var commLevel = me.pcuCommCheck.data[key];
             if (commLevel === undefined) {
-              commLevel = 0
+              commLevel = 0;
             }
 
-            if (this.enphaseServiceQrelay) {
+            if (me.enphaseServiceQrelay) {
               me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayCommLevel, commLevel);
             }
 
@@ -1948,7 +1949,7 @@ class envoyDevice {
           me.enchargesLastReportDate = new Array();
         }
 
-        if (me.installerPasswd && me.checkCommLevel && me.pcuCommCheck.data !== undefined) {
+        if (me.checkCommLevel) {
           me.enchargesCommLevel = new Array();
         }
 
@@ -2046,11 +2047,11 @@ class envoyDevice {
           }
 
           //encharges comm level
-          if (me.installerPasswd && me.checkCommLevel && me.pcuCommCheck.data !== undefined) {
+          if (me.checkCommLevel) {
             var key = '' + me.enchargesSerialNumber[i] + '';
             var commLevel = me.pcuCommCheck.data[key];
             if (commLevel === undefined) {
-              commLevel = 0
+              commLevel = 0;
             }
             me.enchargesCommLevel.push(commLevel);
             me.enchargesDataOK2 = true;
@@ -2118,7 +2119,7 @@ class envoyDevice {
         me.microinvertersLastPower = new Array();
         me.microinvertersMaxPower = new Array();
 
-        if (me.installerPasswd && me.checkCommLevel && me.pcuCommCheck.data !== undefined) {
+        if (me.checkCommLevel) {
           me.microinvertersCommLevel = new Array();
         }
 
@@ -2237,11 +2238,11 @@ class envoyDevice {
           me.microinvertersDataOK = true;
 
           //microinverters comm level
-          if (me.installerPasswd && me.checkCommLevel && me.pcuCommCheck.data !== undefined) {
+          if (me.checkCommLevel) {
             var key = '' + me.microinvertersSerialNumberActive[i] + '';
             var commLevel = me.pcuCommCheck.data[key];
             if (commLevel === undefined) {
-              commLevel = 0
+              commLevel = 0;
             }
 
             if (me.enphaseServiceMicronverter) {
@@ -2250,14 +2251,13 @@ class envoyDevice {
 
             me.microinvertersCommLevel.push(commLevel);
             me.microinvertersDataOK2 = true;
-            me.checkCommLevel = false;
           }
         }
       }
       me.checkDeviceState = true;
 
       //start prepare accessory
-      if (this.startPrepareAccessory) {
+      if (me.startPrepareAccessory) {
         me.prepareAccessory();
       }
     } catch (error) {
@@ -2495,7 +2495,7 @@ class envoyDevice {
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
           .onGet(async () => {
             let value = 0;
-            if (this.installerPasswd && this.checkCommLevel && this.pcuCommCheck.data !== undefined) {
+            if (this.checkCommLevel) {
               value = this.qRelaysCommLevel[i];
             }
             if (!this.disableLogInfo) {
@@ -2941,7 +2941,7 @@ class envoyDevice {
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
           .onGet(async () => {
             let value = 0;
-            if (this.installerPasswd && this.checkCommLevel && this.pcuCommCheck.data !== undefined) {
+            if (this.checkCommLevel) {
               value = this.enchargesCommLevel[i];
             }
             if (!this.disableLogInfo) {
@@ -3072,7 +3072,7 @@ class envoyDevice {
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
           .onGet(async () => {
             let value = 0;
-            if (this.installerPasswd && this.checkCommLevel && this.pcuCommCheck.data !== undefined) {
+            if (this.checkCommLevel) {
               value = this.microinvertersCommLevel[i];
             }
             if (!this.disableLogInfo) {
