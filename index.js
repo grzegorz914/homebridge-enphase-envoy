@@ -710,9 +710,9 @@ module.exports = (api) => {
     Characteristic.call(this, 'Devices count', Characteristic.enphaseEnchargeActiveCount.UUID);
     this.setProps({
       format: Characteristic.Formats.UINT8,
-      unit: '%',
+      unit: '',
       minValue: 0,
-      maxValue: 100,
+      maxValue: 255,
       minStep: 1,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
