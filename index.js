@@ -1629,8 +1629,9 @@ class envoyDevice {
           me.qRelaysStatus = new Array();
           me.qRelaysLastReportDate = new Array();
         }
-
-        me.qRelaysCommLevel = new Array();
+        if (me.checkCommLevel) {
+          me.qRelaysCommLevel = new Array();
+        }
 
         for (let i = 0; i < me.qRelaysCount; i++) {
           if (inventory.status === 200 && inventory.data !== undefined) {
@@ -1742,15 +1743,15 @@ class envoyDevice {
           // get qrelays comm level
           if (me.checkCommLevel && me.qRelaysCommunicating[i]) {
             var key = '' + me.qRelaysSerialNumber[i] + '';
-            var commLevel = me.pcuCommCheck.data[key];
+            var commLevel = 0;
+            if (me.pcuCommCheck.data[key] !== undefined) {
+              commLevel = me.pcuCommCheck.data[key];
+            }
 
             if (me.enphaseServiceQrelay) {
               me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayCommLevel, commLevel);
             }
-
             me.qRelaysCommLevel.push(commLevel);
-          } else {
-            me.qRelaysCommLevel.push(0);
           }
         }
       }
@@ -2236,7 +2237,9 @@ class envoyDevice {
           me.enchargesLastReportDate = new Array();
         }
 
-        me.enchargesCommLevel = new Array();
+        if (me.checkCommLevel) {
+          me.enchargesCommLevel = new Array();
+        }
 
         for (let i = 0; i < me.enchargesCount; i++) {
           if (inventory.status === 200 && inventory.data !== undefined) {
@@ -2333,15 +2336,15 @@ class envoyDevice {
           //encharges comm level
           if (me.checkCommLevel && me.enchargesCommunicating[i]) {
             var key = '' + me.enchargesSerialNumber[i] + '';
-            var commLevel = me.pcuCommCheck.data[key];
-
-            me.enchargesCommLevel.push(commLevel);
+            var commLevel = 0;
+            if (me.pcuCommCheck.data[key] !== undefined) {
+              commLevel = me.pcuCommCheck.data[key];
+            }
 
             if (me.enphaseServiceEncharge) {
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, commLevel);
-            } else {
-              me.enchargesCommLevel.push(0);
             }
+            me.enchargesCommLevel.push(commLevel);
           }
 
 
@@ -2395,12 +2398,17 @@ class envoyDevice {
           me.microinvertersLastReportDate = new Array();
         }
 
-        me.allMicroinvertersSerialNumber = new Array();
-        me.microinvertersReadingTimePower = new Array();
-        me.microinvertersType = new Array();
-        me.microinvertersLastPower = new Array();
-        me.microinvertersMaxPower = new Array();
-        me.microinvertersCommLevel = new Array();
+        if (me.checkMicroinvertersPower) {
+          me.allMicroinvertersSerialNumber = new Array();
+          me.microinvertersReadingTimePower = new Array();
+          me.microinvertersType = new Array();
+          me.microinvertersLastPower = new Array();
+          me.microinvertersMaxPower = new Array();
+        }
+
+        if (me.checkCommLevel) {
+          me.microinvertersCommLevel = new Array();
+        }
 
         //microinverters state
         for (let i = 0; i < me.microinvertersCount; i++) {
@@ -2480,13 +2488,24 @@ class envoyDevice {
               me.allMicroinvertersSerialNumber.push(allSerialNumber);
             }
             var index = me.allMicroinvertersSerialNumber.indexOf(me.microinvertersSerialNumberActive[i]);
-            var lastrptdate = me.microinverters.data[index].lastReportDate;
-            var type = me.microinverters.data[index].devType;
-            var power = parseInt(me.microinverters.data[index].lastReportWatts);
-            var powerMax = parseInt(me.microinverters.data[index].maxReportWatts);
-
-            //convert Unix time to local date time
-            lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
+            var lastrptdate = 'Reading data failed';
+            if (me.microinverters.data[index].lastReportDate !== undefined) {
+              lastrptdate = me.microinverters.data[index].lastReportDate;
+              //convert Unix time to local date time
+              lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
+            }
+            var type = 0;
+            if (me.microinverters.data[index].devType !== undefined) {
+              type = me.microinverters.data[index].devType;
+            }
+            var power = 0;
+            if (me.microinverters.data[index].lastReportWatts !== undefined) {
+              power = parseInt(me.microinverters.data[index].lastReportWatts);
+            }
+            var powerMax = 0;
+            if (me.microinverters.data[index].maxReportWatts !== undefined) {
+              powerMax = parseInt(me.microinverters.data[index].maxReportWatts);
+            }
 
             if (me.enphaseServiceMicronverter) {
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPower, power);
@@ -2497,25 +2516,20 @@ class envoyDevice {
             me.microinvertersType.push(type);
             me.microinvertersLastPower.push(power);
             me.microinvertersMaxPower.push(powerMax);
-          } else {
-            me.microinvertersReadingTimePower.push('Read power failed');
-            me.microinvertersType.push(0);
-            me.microinvertersLastPower.push(0);
-            me.microinvertersMaxPower.push(0);;
           }
 
           //microinverters comm level
           if (me.checkCommLevel && me.microinvertersCommunicating[i]) {
             var key = '' + me.microinvertersSerialNumberActive[i] + '';
-            var commLevel = me.pcuCommCheck.data[key];
+            var commLevel = 0;
+            if (me.pcuCommCheck.data[key] !== undefined) {
+              commLevel = me.pcuCommCheck.data[key];
+            }
 
             if (me.enphaseServiceMicronverter) {
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, commLevel);
             }
-
             me.microinvertersCommLevel.push(commLevel);
-          } else {
-            me.microinvertersCommLevel.push(0);
           }
         }
       }

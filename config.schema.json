@@ -58,6 +58,7 @@
             "installerUser": {
               "title": "Installer user",
               "type": "string",
+              "placeholder": "installer",
               "description": "Here set installer user (only if U already changed default installer user).",
               "required": false
             },
