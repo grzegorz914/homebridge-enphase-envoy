@@ -23,7 +23,7 @@
               "title": "Address IP",
               "type": "string",
               "default": "192.168.1.35",
-              "required": true,
+              "required": false,
               "format": "hostname"
             },
             "refreshInterval": {
@@ -32,7 +32,7 @@
               "default": 5,
               "minimum": 0,
               "maximum": 300,
-              "required": true
+              "required": false
             },
             "disableLogInfo": {
               "title": "Disable log info",
