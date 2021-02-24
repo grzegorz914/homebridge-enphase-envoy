@@ -2,8 +2,8 @@
   "pluginAlias": "enphaseEnvoy",
   "pluginType": "platform",
   "singular": true,
-  "headerDisplay": "This plugin works with Enphase Envoy and are exposed to HomeKit as separate accessories and each needs to be manually paired.\n\n1. Open the Home <img src='https://user-images.githubusercontent.com/3979615/78010622-4ea1d380-738e-11ea-8a17-e6a465eeec35.png' height='16.42px'> app on your device.\n2. Tap the Home tab, then tap <img src='https://user-images.githubusercontent.com/3979615/78010869-9aed1380-738e-11ea-9644-9f46b3633026.png' height='16.42px'>.\n3. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*.\n4. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.",
-  "footerDisplay": "This plugin works with Enphase Envoy which is available [here](https://github.com/grzegorz914/homebridge-enphase-envoy).",
+  "headerDisplay": "This plugin works with Enphase Photovoltaic devices and are exposed to HomeKit as separate accessories and each needs to be manually paired.\n\n1. Open the Home <img src='https://user-images.githubusercontent.com/3979615/78010622-4ea1d380-738e-11ea-8a17-e6a465eeec35.png' height='16.42px'> app on your device.\n2. Tap the Home tab, then tap <img src='https://user-images.githubusercontent.com/3979615/78010869-9aed1380-738e-11ea-9644-9f46b3633026.png' height='16.42px'>.\n3. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*.\n4. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.",
+  "footerDisplay": "This plugin works with Enphase Photovoltaic devices which is available [here](https://github.com/grzegorz914/homebridge-enphase-envoy).",
   "schema": {
     "type": "object",
     "properties": {
@@ -31,7 +31,8 @@
               "type": "integer",
               "default": 5,
               "minimum": 0,
-              "maximum": 300,
+              "maximum": 100,
+              "description": "Here set data refresh time in (sec).",
               "required": false
             },
             "disableLogInfo": {
@@ -45,7 +46,7 @@
               "title": "Envoy user",
               "type": "string",
               "placeholder": "envoy",
-              "description": "Here set envoy user or leave empty.",
+              "description": "Here set envoy user (only if U already changed default envoy user).",
               "required": false
             },
             "envoyPasswd": {
@@ -57,7 +58,7 @@
             "installerUser": {
               "title": "Installer user",
               "type": "string",
-              "description": "Here set installer user, default is - installer.",
+              "description": "Here set installer user (only if U already changed default installer user).",
               "required": false
             },
             "installerPasswd": {
@@ -71,7 +72,7 @@
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set energy offset in (Wh) for Encharge Storage if nedded.",
+              "description": "Here set energy *Offset* in (Wh) for Encharge Storage if nedded.",
               "required": false
             },
             "powerProductionMaxDetected": {
@@ -79,7 +80,7 @@
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set max Power production in (W) at which You get notyfication message.",
+              "description": "Here set *max production Power* in (W) at which You get notyfication message.",
               "required": false
             },
             "energyProductionLifetimeOffset": {
@@ -87,7 +88,7 @@
               "type": "integer",
               "default": 0,
               "maximum": 100000,
-              "description": "Here set energy production offset in (Wh) for lifetime energy if nedded.",
+              "description": "Here set energy production *Offset* in (Wh) for lifetime energy if nedded.",
               "required": false
             },
             "powerConsumptionTotalMaxDetected": {
@@ -95,7 +96,7 @@
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set max Power consumption Total in (W) at which You get notyfication message.",
+              "description": "Here set *consumption-total max Power* in (W) at which You get notification message.",
               "required": false
             },
             "energyConsumptionTotalLifetimeOffset": {
@@ -103,7 +104,7 @@
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set energy consumption offset in (Wh) for lifetime total energy if nedded.",
+              "description": "Here set energy consumption *Offset* in (Wh) for lifetime total energy if nedded.",
               "required": false
             },
             "powerConsumptionNetMaxDetected": {
@@ -111,7 +112,7 @@
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set max Power consumption from Net in (W) at which You get notyfication message.",
+              "description": "Here set *consumption-net max Power* in (W) at which You get notification message.",
               "required": false
             },
             "energyConsumptionNetLifetimeOffset": {
@@ -119,21 +120,21 @@
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set energy consumption offset in (Wh) for lifetime net energy if nedded.",
+              "description": "Here set energy consumption *Offset* in (Wh) for lifetime net energy if nedded.",
               "required": false
             },
             "manufacturer": {
               "name": "Manufacturer",
               "type": "string",
               "placeholder": "Manufacturer",
-              "description": "Set the manufacturer name.",
+              "description": "Set the manufacturer name or leave empty.",
               "required": false
             },
             "modelName": {
               "name": "Model",
               "type": "string",
               "placeholder": "Model",
-              "description": "Set the model name.",
+              "description": "Set the envoy model name. or leave empty.",
               "required": false
             }
           }
