@@ -1654,18 +1654,18 @@ class envoyDevice {
       if (me.qRelaysCount > 0) {
         if (inventory.status === 200 && inventory.data !== undefined) {
           me.qRelaysSerialNumber = new Array();
+          me.qRelaysStatus = new Array();
+          me.qRelaysLastReportDate = new Array();
           me.qRelaysFirmware = new Array();
-          me.qRelaysRelay = new Array();
           me.qRelaysProducing = new Array();
           me.qRelaysCommunicating = new Array();
           me.qRelaysProvisioned = new Array();
           me.qRelaysOperating = new Array();
+          me.qRelaysRelay = new Array();
           me.qRelaysLinesCount = new Array();
           me.qRelaysLine1Connected = new Array();
           me.qRelaysLine2Connected = new Array();
           me.qRelaysLine3Connected = new Array();
-          me.qRelaysStatus = new Array();
-          me.qRelaysLastReportDate = new Array();
         }
         if (me.checkCommLevel) {
           me.qRelaysCommLevel = new Array();
@@ -1737,6 +1737,13 @@ class envoyDevice {
             lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
 
             if (me.enphaseServiceQrelay) {
+              me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayStatus, status);
+              me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, lastrptdate);
+              me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayFirmware, firmware);
+              me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayProducing, producing);
+              me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayCommunicating, communicating);
+              me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayProvisioned, provisioned);
+              me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayOperating, operating);
               me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayState, relay);
               me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayLinesCount, linesCount);
               if (linesCount >= 1) {
@@ -1747,22 +1754,18 @@ class envoyDevice {
                     me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, line3Connected);
                   }
                 }
-                me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayProducing, producing);
-                me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayCommunicating, communicating);
-                me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayProvisioned, provisioned);
-                me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayOperating, operating);
-                me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayStatus, status);
-                me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayFirmware, firmware);
-                me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, lastrptdate);
               }
             }
 
             me.qRelaysSerialNumber.push(serialNumber);
-            me.qRelaysRelay.push(relay);
+            me.qRelaysStatus.push(status);
+            me.qRelaysLastReportDate.push(lastrptdate);
+            me.qRelaysFirmware.push(firmware);
             me.qRelaysProducing.push(producing);
             me.qRelaysCommunicating.push(communicating);
             me.qRelaysProvisioned.push(provisioned);
             me.qRelaysOperating.push(operating);
+            me.qRelaysRelay.push(relay);
             me.qRelaysLinesCount.push(linesCount);
             if (linesCount >= 1) {
               me.qRelaysLine1Connected.push(line1Connected);
@@ -1773,9 +1776,6 @@ class envoyDevice {
                 }
               }
             }
-            me.qRelaysStatus.push(status);
-            me.qRelaysFirmware.push(firmware);
-            me.qRelaysLastReportDate.push(lastrptdate);
           }
 
           // get qrelays comm level
@@ -1786,7 +1786,7 @@ class envoyDevice {
               commLevel = me.pcuCommCheck.data[key];
             }
 
-            if (me.enphaseServiceQrelay) {
+            if (me.enphaseServiceQrelay && me.qRelaysCommunicating[i]) {
               me.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayCommLevel, commLevel);
             }
             me.qRelaysCommLevel.push(commLevel);
@@ -2107,6 +2107,7 @@ class envoyDevice {
         productionReadingTime = new Date(productionReadingTime * 1000).toLocaleString();
 
         if (me.enphaseServiceProduction) {
+          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseReadingTime, productionReadingTime);
           me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePower, productionPower);
           me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePowerMax, productionPowerMax);
           me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePowerMaxDetected, productionPowerMaxDetectedState);
@@ -2120,7 +2121,6 @@ class envoyDevice {
             me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseApparentPower, productionApparentPower);
             me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePwrFactor, productionPwrFactor);
           }
-          me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseReadingTime, productionReadingTime);
         }
 
         me.productionReadingTime = productionReadingTime;
@@ -2178,6 +2178,7 @@ class envoyDevice {
           consumptionTotalReadingTime = new Date(consumptionTotalReadingTime * 1000).toLocaleString();
 
           if (me.enphaseServiceConsumptionTotal) {
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionTotalReadingTime);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePower, consumptionTotalPower);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMax, consumptionTotalPowerMax);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionTotalPowerMaxDetectedState);
@@ -2189,7 +2190,6 @@ class envoyDevice {
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseReactivePower, consumptionTotalReactivePower);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseApparentPower, consumptionTotalApparentPower);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionTotalPwrFactor);
-            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionTotalReadingTime);
           }
 
           me.consumptionTotalReadingTime = consumptionTotalReadingTime;
@@ -2245,6 +2245,7 @@ class envoyDevice {
           consumptionNetReadingTime = new Date(consumptionNetReadingTime * 1000).toLocaleString();
 
           if (me.enphaseServiceConsumptionNet) {
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionNetReadingTime);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePower, consumptionNetPower);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMax, consumptionNetPowerMax);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionNetPowerMaxDetectedState);
@@ -2256,7 +2257,6 @@ class envoyDevice {
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseReactivePower, consumptionNetReactivePower);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseApparentPower, consumptionNetApparentPower);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionNetPwrFactor);
-            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionNetReadingTime);
           }
 
           me.consumptionNetReadingTime = consumptionNetReadingTime;
@@ -2277,8 +2277,10 @@ class envoyDevice {
       //encharge storage
       if (me.enchargesCount > 0) {
         if (inventory.status === 200 && inventory.data !== undefined) {
-          me.enchargesChargeStatus = new Array();
+
           me.enchargesSerialNumber = new Array();
+          me.enchargesStatus = new Array();
+          me.enchargesLastReportDate = new Array();
           me.enchargesFirmware = new Array();
           me.enchargesProducing = new Array();
           me.enchargesCommunicating = new Array();
@@ -2289,8 +2291,7 @@ class envoyDevice {
           me.enchargesMaxCellTemp = new Array();
           me.enchargesSleepMinSoc = new Array();
           me.enchargesSleepMaxSoc = new Array();
-          me.enchargesStatus = new Array();
-          me.enchargesLastReportDate = new Array();
+          me.enchargesChargeStatus = new Array();
         }
 
         if (me.checkCommLevel) {
@@ -2358,7 +2359,9 @@ class envoyDevice {
             chargeStatus = ENCHARGE_STATE_1[stateIndex]
 
             if (me.enphaseServiceEncharge) {
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeChargeStatus, chargeStatus);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeStatus, status);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, lastrptdate);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeFirmware, firmware);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeProducing, producing);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeCommunicating, communicating);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeProvisioned, provisioned);
@@ -2368,13 +2371,12 @@ class envoyDevice {
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp, maxCellTemp);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc, sleepMinSoc);
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc, sleepMaxSoc);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeStatus, status);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeFirmware, firmware);
-              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, lastrptdate);
+              me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeChargeStatus, chargeStatus);
             }
 
-            me.enchargesChargeStatus.push(chargeStatus);
             me.enchargesSerialNumber.push(serialNumber);
+            me.enchargesStatus.push(status);
+            me.enchargesLastReportDate.push(lastrptdate);
             me.enchargesFirmware.push(firmware);
             me.enchargesProducing.push(producing);
             me.enchargesCommunicating.push(communicating);
@@ -2385,8 +2387,7 @@ class envoyDevice {
             me.enchargesMaxCellTemp.push(maxCellTemp);
             me.enchargesSleepMinSoc.push(sleepMinSoc);
             me.enchargesSleepMaxSoc.push(sleepMaxSoc);
-            me.enchargesStatus.push(status);
-            me.enchargesLastReportDate.push(lastrptdate);
+            me.enchargesChargeStatus.push(chargeStatus);
           }
 
           //encharges comm level
@@ -2397,7 +2398,7 @@ class envoyDevice {
               commLevel = me.pcuCommCheck.data[key];
             }
 
-            if (me.enphaseServiceEncharge) {
+            if (me.enphaseServiceEncharge && me.enchargesCommunicating[i]) {
               me.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, commLevel);
             }
             me.enchargesCommLevel.push(commLevel);
@@ -2422,12 +2423,12 @@ class envoyDevice {
             chargeStatus = ENCHARGE_STATE_1[stateIndex]
 
             if (me.enphaseServiceEnchargePowerAndEnergy) {
+              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, readingTime);
               me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargePower, wNow);
               me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeEnergy, whNow);
               me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargePercentFull, percentFull);
               me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeActiveCount, activeCount);
               me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeState, chargeStatus);
-              me.enphaseServiceEnchargePowerAndEnergy.updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, readingTime);
             }
 
             me.enchargesType = type;
@@ -2445,13 +2446,13 @@ class envoyDevice {
       if (me.microinvertersCount > 0) {
         if (inventory.status === 200 && inventory.data !== undefined) {
           me.microinvertersSerialNumberActive = new Array();
+          me.microinvertersLastReportDate = new Array();
+          me.microinvertersFirmware = new Array();
           me.microinvertersProducing = new Array();
           me.microinvertersCommunicating = new Array();
           me.microinvertersProvisioned = new Array();
           me.microinvertersOperating = new Array();
           me.microinvertersStatus = new Array();
-          me.microinvertersFirmware = new Array();
-          me.microinvertersLastReportDate = new Array();
         }
 
         if (me.checkMicroinvertersPower) {
@@ -2518,23 +2519,24 @@ class envoyDevice {
             lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
 
             if (me.enphaseServiceMicronverter) {
+              me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastrptdate);
+              me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterProducing, producing);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, communicating);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, provisioned);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status);
-              me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware);
-              me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastrptdate);
+
             }
 
             me.microinvertersSerialNumberActive.push(serialNumber);
+            me.microinvertersLastReportDate.push(lastrptdate);
             me.microinvertersFirmware.push(firmware);
             me.microinvertersProducing.push(producing);
             me.microinvertersCommunicating.push(communicating);
             me.microinvertersProvisioned.push(provisioned);
             me.microinvertersOperating.push(operating);
             me.microinvertersStatus.push(status);
-            me.microinvertersLastReportDate.push(lastrptdate);
           }
 
           //microinverters power
@@ -2563,7 +2565,9 @@ class envoyDevice {
               powerMax = parseInt(me.microinverters.data[index].maxReportWatts);
             }
 
-            if (me.enphaseServiceMicronverter) {
+            if (me.enphaseServiceMicronverter && me.microinvertersCommunicating[i]) {
+              me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastrptdate);
+              //me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterType, type);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPower, power);
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, powerMax);
             }
@@ -2582,7 +2586,7 @@ class envoyDevice {
               commLevel = me.pcuCommCheck.data[key];
             }
 
-            if (me.enphaseServiceMicronverter) {
+            if (me.enphaseServiceMicronverter && me.microinvertersCommunicating[i]) {
               me.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, commLevel);
             }
             me.microinvertersCommLevel.push(commLevel);
