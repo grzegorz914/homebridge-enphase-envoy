@@ -1444,19 +1444,19 @@ class envoyDevice {
       const writeDevInfoFile = await fsPromises.writeFile(me.devInfoFile, devInfo);
       me.log.debug('Device: %s %s, saved Device Info successful.', me.host, me.name);
 
-      var time = result.envoy_info.time[0];
-      var serialNumber = result.envoy_info.device[0].sn[0];
-      var firmware = result.envoy_info.device[0].software[0];
-      var microinverters = inventory.data[0].devices.length;
-      var encharges = inventory.data[1].devices.length;
-      var qrelays = inventory.data[2].devices.length;
-      var ctmeters = meters.data.length;
+      let time = result.envoy_info.time[0];
+      let serialNumber = result.envoy_info.device[0].sn[0];
+      let firmware = result.envoy_info.device[0].software[0];
+      let microinverters = inventory.data[0].devices.length;
+      let encharges = inventory.data[1].devices.length;
+      let qrelays = inventory.data[2].devices.length;
+      let ctmeters = meters.data.length;
       if (ctmeters >= 1) {
         var ctmeterProduction = ((meters.data[0].state) === 'enabled');
-        if (ctmeters >= 2) {
-          var ctmeterConsumption = ((meters.data[1].state) === 'enabled');
         }
-      }
+      if (ctmeters >= 2) {
+        var ctmeterConsumption = ((meters.data[1].state) === 'enabled');
+        }
       // convert Unix time to local date time
       time = new Date(time * 1000).toLocaleString();
 
@@ -1571,40 +1571,40 @@ class envoyDevice {
         lastEnlightenReporDate = new Date(lastEnlightenReporDate * 1000).toLocaleString();
 
         // convert network interface
-        var networkInterfaceIndex = NETWORK_INTERFACE.indexOf(primaryInterface);
+        let networkInterfaceIndex = NETWORK_INTERFACE.indexOf(primaryInterface);
         primaryInterface = NETWORK_INTERFACE_1[networkInterfaceIndex];
 
         // convert energy tariff
-        var energyTariffIndex = ENERGY_TARIFF.indexOf(tariff);
+        let energyTariffIndex = ENERGY_TARIFF.indexOf(tariff);
         tariff = ENERGY_TARIFF_1[energyTariffIndex]
 
         // convert update status
-        var updateStatusIndex = ENVOY_UPDATE.indexOf(updateStatus);
+        let updateStatusIndex = ENVOY_UPDATE.indexOf(updateStatus);
         updateStatus = ENVOY_UPDATE_1[updateStatusIndex]
 
         // convert status
         if (Array.isArray(allerts) && allerts.length === 1) {
-          var code1 = allerts[0];
-          var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+          let code1 = allerts[0];
+          let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
           allerts = ENVOY_STATUS_CODE_1[indexCode1];
         } else if (Array.isArray(allerts) && allerts.length === 2) {
-          var code1 = allerts[0];
-          var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-          var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-          var code2 = allerts[1];
-          var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-          var status2 = ENVOY_STATUS_CODE_1[indexCode2];
+          let code1 = allerts[0];
+          let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+          let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+          let code2 = allerts[1];
+          let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+          let status2 = ENVOY_STATUS_CODE_1[indexCode2];
           allerts = status1 + ' / ' + status2;
         } else if (Array.isArray(allerts) && allerts.length === 3) {
-          var code1 = allerts[0];
-          var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-          var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-          var code2 = allerts[1];
-          var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-          var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-          var code3 = allerts[2];
-          var indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-          var status3 = ENVOY_STATUS_CODE_1[indexCode3];
+          let code1 = allerts[0];
+          let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+          let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+          let code2 = allerts[1];
+          let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+          let status2 = ENVOY_STATUS_CODE_1[indexCode2];
+          let code3 = allerts[2];
+          let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
+          let status3 = ENVOY_STATUS_CODE_1[indexCode3];
           allerts = status1 + ' / ' + status2 + ' / ' + status3;
         } else {
           allerts = 'No allerts';
@@ -1707,27 +1707,27 @@ class envoyDevice {
 
             // convert status
             if (Array.isArray(status) && status.length === 1) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
               status = ENVOY_STATUS_CODE_1[indexCode1];
             } else if (Array.isArray(status) && status.length === 2) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              let code2 = status[1];
+              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
               status = status1 + ' / ' + status2;
             } else if (Array.isArray(status) && status.length === 3) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              var code3 = status[2];
-              var indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              var status3 = ENVOY_STATUS_CODE_1[indexCode3];
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              let code2 = status[1];
+              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              let code3 = status[2];
+              let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
+              let status3 = ENVOY_STATUS_CODE_1[indexCode3];
               status = status1 + ' / ' + status2 + ' / ' + status3;
             } else {
               status = 'Not available';
@@ -1816,27 +1816,27 @@ class envoyDevice {
 
             // convert status
             if (Array.isArray(status) && status.length === 1) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
               status = ENVOY_STATUS_CODE_1[indexCode1];
             } else if (Array.isArray(status) && status.length === 2) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              let code2 = status[1];
+              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
               status = status1 + ' / ' + status2;
             } else if (Array.isArray(status) && status.length === 3) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              var code3 = status[2];
-              var indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              var status3 = ENVOY_STATUS_CODE_1[indexCode3];
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              let code2 = status[1];
+              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              let code3 = status[2];
+              let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
+              let status3 = ENVOY_STATUS_CODE_1[indexCode3];
               status = status1 + ' / ' + status2 + ' / ' + status3;
             } else {
               status = 'Not available';
@@ -1879,27 +1879,27 @@ class envoyDevice {
             me.log('Debug metersStream: %s', metersStream.data);
 
             if (me.metersProductionActiveCount) {
-              var activePowerL1 = metersStream.data.data.production['ph-a'].p;
-              var activePowerL2 = metersStream.data.data.production['ph-b'].p;
-              var activePowerL3 = metersStream.data.data.production['ph-c'].p;
-              var reactivePowerL1 = metersStream.data.data.production['ph-a'].q;
-              var reactivePowerL2 = metersStream.data.data.production['ph-b'].q;
-              var reactivePowerL3 = metersStream.data.data.production['ph-c'].q;
-              var apparentPowerL1 = metersStream.data.data.production['ph-a'].s;
-              var apparentPowerL2 = metersStream.data.data.production['ph-b'].s;
-              var apparentPowerL3 = metersStream.data.data.production['ph-c'].s;
-              var voltageL1 = metersStream.data.data.production['ph-a'].v;
-              var voltageL2 = metersStream.data.data.production['ph-b'].v;
-              var voltageL3 = metersStream.data.data.production['ph-c'].v;
-              var currentL1 = metersStream.data.data.production['ph-a'].i;
-              var currentL2 = metersStream.data.data.production['ph-b'].i;
-              var currentL3 = metersStream.data.data.production['ph-c'].i;
-              var powerFactorL1 = metersStream.data.data.production['ph-a'].pf;
-              var powerFactorL2 = metersStream.data.data.production['ph-b'].pf;
-              var powerFactorL3 = metersStream.data.data.production['ph-c'].pf;
-              var frequencyL1 = metersStream.data.data.production['ph-a'].f;
-              var frequencyL2 = metersStream.data.data.production['ph-b'].f;
-              var frequencyL3 = metersStream.data.data.production['ph-c'].f;
+              let activePowerL1 = metersStream.data.data.production['ph-a'].p;
+              let activePowerL2 = metersStream.data.data.production['ph-b'].p;
+              let activePowerL3 = metersStream.data.data.production['ph-c'].p;
+              let reactivePowerL1 = metersStream.data.data.production['ph-a'].q;
+              let reactivePowerL2 = metersStream.data.data.production['ph-b'].q;
+              let reactivePowerL3 = metersStream.data.data.production['ph-c'].q;
+              let apparentPowerL1 = metersStream.data.data.production['ph-a'].s;
+              let apparentPowerL2 = metersStream.data.data.production['ph-b'].s;
+              let apparentPowerL3 = metersStream.data.data.production['ph-c'].s;
+              let voltageL1 = metersStream.data.data.production['ph-a'].v;
+              let voltageL2 = metersStream.data.data.production['ph-b'].v;
+              let voltageL3 = metersStream.data.data.production['ph-c'].v;
+              let currentL1 = metersStream.data.data.production['ph-a'].i;
+              let currentL2 = metersStream.data.data.production['ph-b'].i;
+              let currentL3 = metersStream.data.data.production['ph-c'].i;
+              let powerFactorL1 = metersStream.data.data.production['ph-a'].pf;
+              let powerFactorL2 = metersStream.data.data.production['ph-b'].pf;
+              let powerFactorL3 = metersStream.data.data.production['ph-c'].pf;
+              let frequencyL1 = metersStream.data.data.production['ph-a'].f;
+              let frequencyL2 = metersStream.data.data.production['ph-b'].f;
+              let frequencyL3 = metersStream.data.data.production['ph-c'].f;
 
               me.metersStreamDataProductionActivePowerL1 = activePowerL1;
               me.metersStreamDataProductionActivePowerL2 = activePowerL2;
@@ -1933,27 +1933,27 @@ class envoyDevice {
             }
 
             if (me.metersConsumptionNetActiveCount) {
-              var activePowerL1 = data['net-consumption']['ph-a'].p;
-              var activePowerL2 = data['net-consumption']['ph-b'].p;
-              var activePowerL3 = data['net-consumption']['ph-c'].p;
-              var reactivePowerL1 = data['net-consumption']['ph-a'].q;
-              var reactivePowerL2 = data['net-consumption']['ph-b'].q;
-              var reactivePowerL3 = data['net-consumption']['ph-c'].q;
-              var apparentPowerL1 = data['net-consumption']['ph-a'].s;
-              var apparentPowerL2 = data['net-consumption']['ph-b'].s;
-              var apparentPowerL3 = data['net-consumption']['ph-c'].s;
-              var voltageL1 = data['net-consumption']['ph-a'].v;
-              var voltageL2 = data['net-consumption']['ph-b'].v;
-              var voltageL3 = data['net-consumption']['ph-c'].v;
-              var currentL1 = data['net-consumption']['ph-a'].i;
-              var currentL2 = data['net-consumption']['ph-b'].i;
+              let activePowerL1 = data['net-consumption']['ph-a'].p;
+              let activePowerL2 = data['net-consumption']['ph-b'].p;
+              let activePowerL3 = data['net-consumption']['ph-c'].p;
+              let reactivePowerL1 = data['net-consumption']['ph-a'].q;
+              let reactivePowerL2 = data['net-consumption']['ph-b'].q;
+              let reactivePowerL3 = data['net-consumption']['ph-c'].q;
+              let apparentPowerL1 = data['net-consumption']['ph-a'].s;
+              let apparentPowerL2 = data['net-consumption']['ph-b'].s;
+              let apparentPowerL3 = data['net-consumption']['ph-c'].s;
+              let voltageL1 = data['net-consumption']['ph-a'].v;
+              let voltageL2 = data['net-consumption']['ph-b'].v;
+              let voltageL3 = data['net-consumption']['ph-c'].v;
+              let currentL1 = data['net-consumption']['ph-a'].i;
+              let currentL2 = data['net-consumption']['ph-b'].i;
               var currentL3 = data['net-consumption']['ph-c'].i;
-              var powerFactorL1 = data['net-consumption']['ph-a'].pf;
-              var powerFactorL2 = data['net-consumption']['ph-b'].pf;
-              var powerFactorL3 = data['net-consumption']['ph-c'].pf;
-              var frequencyL1 = data['net-consumption']['ph-a'].f;
-              var frequencyL2 = data['net-consumption']['ph-b'].f;
-              var frequencyL3 = data['net-consumption']['ph-c'].f;
+              let powerFactorL1 = data['net-consumption']['ph-a'].pf;
+              let powerFactorL2 = data['net-consumption']['ph-b'].pf;
+              let powerFactorL3 = data['net-consumption']['ph-c'].pf;
+              let frequencyL1 = data['net-consumption']['ph-a'].f;
+              let frequencyL2 = data['net-consumption']['ph-b'].f;
+              let frequencyL3 = data['net-consumption']['ph-c'].f;
 
               me.metersStreamDataConsumptionNetActivePowerL1 = activePowerL1;
               me.metersStreamDataConsumptionNetActivePowerL2 = activePowerL2;
@@ -1987,28 +1987,28 @@ class envoyDevice {
             }
 
             if (me.metersConsumtionTotalActiveCount) {
-              var activePowerL1 = data['total-consumption']['ph-a'].p;
-              var activePowerL2 = data['total-consumption']['ph-b'].p;
-              var activePowerL3 = data['total-consumption']['ph-c'].p;
-              var reactivePowerL1 = data['total-consumption']['ph-a'].q;
-              var reactivePowerL2 = data['total-consumption']['ph-b'].q;
-              var reactivePowerL3 = data['total-consumption']['ph-c'].q;
-              var apparentPowerL1 = data['total-consumption']['ph-a'].s;
-              var apparentPowerL2 = data['total-consumption']['ph-b'].s;
-              var apparentPowerL3 = data['total-consumption']['ph-c'].s;
-              var voltageL1 = data['total-consumption']['ph-a'].v;
-              var voltageL2 = data['total-consumption']['ph-b'].v;
-              var voltageL3 = data['total-consumption']['ph-c'].v;
-              var currentL1 = data['total-consumption']['ph-a'].i;
-              var currentL2 = data['total-consumption']['ph-b'].i;
-              var currentL3 = data['total-consumption']['ph-c'].i;
-              var powerFactorL1 = data['total-consumption']['ph-a'].pf;
-              var powerFactorL2 = data['total-consumption']['ph-b'].pf;
-              var powerFactorL3 = data['total-consumption']['ph-c'].pf;
-              var frequencyL1 = data['total-consumption']['ph-a'].f;
-              var frequencyL2 = data['total-consumption']['ph-b'].f;
-              var frequencyL3 = data['total-consumption']['ph-c'].f;
-
+              let activePowerL1 = data['total-consumption']['ph-a'].p;
+              let activePowerL2 = data['total-consumption']['ph-b'].p;
+              let activePowerL3 = data['total-consumption']['ph-c'].p;
+              let reactivePowerL1 = data['total-consumption']['ph-a'].q;
+              let reactivePowerL2 = data['total-consumption']['ph-b'].q;
+              let reactivePowerL3 = data['total-consumption']['ph-c'].q;
+              let apparentPowerL1 = data['total-consumption']['ph-a'].s;
+              let apparentPowerL2 = data['total-consumption']['ph-b'].s;
+              let apparentPowerL3 = data['total-consumption']['ph-c'].s;
+              let voltageL1 = data['total-consumption']['ph-a'].v;
+              let voltageL2 = data['total-consumption']['ph-b'].v;
+              let voltageL3 = data['total-consumption']['ph-c'].v;
+              let currentL1 = data['total-consumption']['ph-a'].i;
+              let currentL2 = data['total-consumption']['ph-b'].i;
+              let currentL3 = data['total-consumption']['ph-c'].i;
+              let powerFactorL1 = data['total-consumption']['ph-a'].pf;
+              let powerFactorL2 = data['total-consumption']['ph-b'].pf;
+              let powerFactorL3 = data['total-consumption']['ph-c'].pf;
+              let frequencyL1 = data['total-consumption']['ph-a'].f;
+              let frequencyL2 = data['total-consumption']['ph-b'].f;
+              let frequencyL3 = data['total-consumption']['ph-c'].f;
+              
               me.metersStreamDataConsumptionTotalActivePowerL1 = activePowerL1;
               me.metersStreamDataConsumptionTotalActivePowerL2 = activePowerL2;
               me.metersStreamDataConsumptionTotalActivePowerL3 = activePowerL3;
@@ -2050,17 +2050,17 @@ class envoyDevice {
       if (productionCT.status === 200 && productionCT.data !== undefined) {
         if (me.metersCount > 0) {
           if (me.metersProduction) {
-            var metersProductionCount = productionCT.data.production[1].activeCount;
+            let metersProductionCount = productionCT.data.production[1].activeCount;
             me.metersProductionActiveCount = metersProductionCount;
           }
           if (me.metersConsumption) {
-            var metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
-            var metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
+            let metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
+            let metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
             me.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
             me.metersConsumptionNetActiveCount = metersConsumptionNetCount;
           }
         }
-        var microinvertersActiveCount = productionCT.data.production[0].activeCount;
+        let microinvertersActiveCount = productionCT.data.production[0].activeCount;
         me.microinvertersActiveCount = microinvertersActiveCount;
       }
 
@@ -2073,17 +2073,16 @@ class envoyDevice {
         var productionPower = me.metersProduction ? parseFloat(productionCT.data.production[1].wNow / 1000) : parseFloat(production.data.wattsNow / 1000);
 
         //save and read power max and state
-        var productionPowerMax = 0;
+        var productionPowerMax = productionPower;
         var savedProductionPowerMax = await fsPromises.readFile(me.productionPowerMaxFile);
         me.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', me.host, me.name, savedProductionPowerMax);
-        if (savedProductionPowerMax) {
+        if (savedProductionPowerMax > productionPower) {
           productionPowerMax = parseFloat(savedProductionPowerMax);
           me.log.debug('Device: %s %s, productionPowerMax: %s kW', me.host, me.name, productionPowerMax);
         }
 
         if (productionPower > productionPowerMax) {
-          var productionPowerMaxf = productionPower.toString();
-          var write = await fsPromises.writeFile(me.productionPowerMaxFile, productionPowerMaxf);
+          const write = await fsPromises.writeFile(me.productionPowerMaxFile, productionPower.toString());
           me.log.debug('Device: %s %s, productionPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.productionPowerMaxFile, productionPower);
 
         }
@@ -2148,16 +2147,15 @@ class envoyDevice {
           var consumptionTotalPower = parseFloat(productionCT.data.consumption[0].wNow / 1000);
 
           //save and read power max and state
-          var consumptionTotalPowerMax = 0;
+          var consumptionTotalPowerMax = consumptionTotalPower;
           var savedConsumptionTotalPowerMax = await fsPromises.readFile(me.consumptionTotalPowerMaxFile);
           me.log.debug('Device: %s %s, savedConsumptionTotalPowerMax: %s kW', me.host, me.name, savedConsumptionTotalPowerMax);
-          if (savedConsumptionTotalPowerMax) {
+          if (savedConsumptionTotalPowerMax > consumptionTotalPower) {
             consumptionTotalPowerMax = parseFloat(savedConsumptionTotalPowerMax);
           }
 
           if (consumptionTotalPower > consumptionTotalPowerMax) {
-            var consumptionTotalPowerMaxf = consumptionTotalPower.toString();
-            var write = await fsPromises.writeFile(me.consumptionTotalPowerMaxFile, consumptionTotalPowerMaxf);
+            const write1 = await fsPromises.writeFile(me.consumptionTotalPowerMaxFile, consumptionTotalPower.toString());
             me.log.debug('Device: %s %s, consumptionTotalPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.consumptionTotalPowerMaxFile, consumptionTotalPower);
           }
           var consumptionTotalPowerMaxDetectedState = (me.consumptionTotalPower >= me.consumptionTotalPowerMaxDetected / 1000);
@@ -2215,16 +2213,15 @@ class envoyDevice {
           var consumptionNetPower = parseFloat(productionCT.data.consumption[1].wNow / 1000);
 
           //save and read power max and state
-          var consumptionNetPowerMax = 0;
+          var consumptionNetPowerMax = consumptionNetPower;
           var savedConsumptionNetPowerMax = await fsPromises.readFile(me.consumptionNetPowerMaxFile);
           me.log.debug('Device: %s %s, savedConsumptionNetPowerMax: %s kW', me.host, me.name, savedConsumptionNetPowerMax);
-          if (savedConsumptionNetPowerMax) {
+          if (savedConsumptionNetPowerMax > consumptionNetPower) {
             consumptionNetPowerMax = parseFloat(savedConsumptionNetPowerMax);
           }
 
           if (consumptionNetPower > consumptionNetPowerMax) {
-            var consumptionNetPowerMaxf = consumptionNetPower.toString();
-            var write = await fsPromises.writeFile(me.consumptionNetPowerMaxFile, consumptionNetPowerMaxf);
+            const write2 = await fsPromises.writeFile(me.consumptionNetPowerMaxFile, consumptionNetPower.toString());
             me.log.debug('Device: %s %s, consumptionNetPowerMaxFile saved successful in: %s %s kW', me.host, me.name, me.consumptionNetPowerMaxFile, consumptionNetPower);
           }
           var consumptionNetPowerMaxDetectedState = (consumptionNetPower >= me.consumptionNetPowerMaxDetected / 1000);
@@ -2326,27 +2323,27 @@ class envoyDevice {
             var chargeStatus = inventory.data[1].devices[i].charge_status;
 
             if (Array.isArray(status) && status.length === 1) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
               status = ENVOY_STATUS_CODE_1[indexCode1];
             } else if (Array.isArray(status) && status.length === 2) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              let code2 = status[1];
+              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
               status = status1 + ' / ' + status2;
             } else if (Array.isArray(status) && status.length === 3) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              var code3 = status[2];
-              var indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              var status3 = ENVOY_STATUS_CODE_1[indexCode3];
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              let code2 = status[1];
+              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              let code3 = status[2];
+              let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
+              let status3 = ENVOY_STATUS_CODE_1[indexCode3];
               status = status1 + ' / ' + status2 + ' / ' + status3;
             } else {
               status = 'Not available';
@@ -2355,7 +2352,7 @@ class envoyDevice {
             lastrptdate = new Date(lastrptdate * 1000).toLocaleString();
 
             //convert encharge state
-            var stateIndex = ENCHARGE_STATE.indexOf(state);
+            let stateIndex = ENCHARGE_STATE.indexOf(state);
             chargeStatus = ENCHARGE_STATE_1[stateIndex]
 
             if (me.enphaseServiceEncharge) {
@@ -2419,7 +2416,7 @@ class envoyDevice {
             readingTime = new Date(readingTime * 1000).toLocaleString();
 
             //convert encharge state
-            var stateIndex = chargeStatus.indexOf(ENCHARGE_STATE);
+            let stateIndex = chargeStatus.indexOf(ENCHARGE_STATE);
             chargeStatus = ENCHARGE_STATE_1[stateIndex]
 
             if (me.enphaseServiceEnchargePowerAndEnergy) {
@@ -2489,27 +2486,27 @@ class envoyDevice {
             var operating = inventory.data[0].devices[i].operating;
             var status = inventory.data[0].devices[i].device_status;
             if (Array.isArray(status) && status.length === 1) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
               status = ENVOY_STATUS_CODE_1[indexCode1];
             } else if (Array.isArray(status) && status.length === 2) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              let code2 = status[1];
+              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
               status = status1 + ' / ' + status2;
             } else if (Array.isArray(status) && status.length === 3) {
-              var code1 = status[0];
-              var indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              var status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              var code2 = status[1];
-              var indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              var status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              var code3 = status[2];
-              var indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              var status3 = ENVOY_STATUS_CODE_1[indexCode3];
+              let code1 = status[0];
+              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
+              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
+              let code2 = status[1];
+              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
+              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
+              let code3 = status[2];
+              let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
+              let status3 = ENVOY_STATUS_CODE_1[indexCode3];
               status = status1 + ' / ' + status2 + ' / ' + status3;
             } else {
               status = 'Not available';
@@ -2541,8 +2538,8 @@ class envoyDevice {
 
           //microinverters power
           if (me.checkMicroinvertersPower) {
-            for (let a = 0; a < me.microinverters.data.length; a++) {
-              var allSerialNumber = me.microinverters.data[a].serialNumber;
+            for (let j = 0; j < me.microinverters.data.length; j++) {
+              let allSerialNumber = me.microinverters.data[j].serialNumber;
               me.allMicroinvertersSerialNumber.push(allSerialNumber);
             }
             var index = me.allMicroinvertersSerialNumber.indexOf(me.microinvertersSerialNumberActive[i]);
