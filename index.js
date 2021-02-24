@@ -1544,42 +1544,42 @@ class envoyDevice {
 
       //envoy
       if (home.status === 200 && home.data !== undefined) {
-        var softwareBuildEpoch = home.data.software_build_epoch;
-        var isEnvoy = (home.data.is_nonvoy == false);
-        var dbSize = home.data.db_size;
-        var dbPercentFull = home.data.db_percent_full;
-        var timeZone = home.data.timezone;
-        var currentDate = home.data.current_date;
-        var currentTime = home.data.current_time;
-        var networkWebComm = home.data.network.web_comm;
-        var everReportedToEnlighten = home.data.network.ever_reported_to_enlighten;
-        var lastEnlightenReporDate = home.data.network.last_enlighten_report_time;
-        var primaryInterface = home.data.network.primary_interface;
-        var tariff = home.data.tariff;
-        var commNum = home.data.comm.num;
-        var commLevel = home.data.comm.level;
-        var commPcuNum = home.data.comm.pcu.num;
-        var commPcuLevel = home.data.comm.pcu.level;
-        var commAcbNum = home.data.comm.acb.num;
-        var commAcbLevel = home.data.comm.acb.level;
-        var commNsrbNum = home.data.comm.nsrb.num;
-        var commNsrbLevel = home.data.comm.nsrb.level;
-        var allerts = home.data.allerts;
-        var updateStatus = home.data.update_status;
-
+        const softwareBuildEpoch = home.data.software_build_epoch;
+        const isEnvoy = (home.data.is_nonvoy == false);
+        const dbSize = home.data.db_size;
+        const dbPercentFull = home.data.db_percent_full;
+        const timeZone = home.data.timezone;
+        const currentDate = home.data.current_date;
+        const currentTime = home.data.current_time;
+        const networkWebComm = home.data.network.web_comm;
+        const everReportedToEnlighten = home.data.network.ever_reported_to_enlighten;
+        let lastEnlightenReporDate = home.data.network.last_enlighten_report_time;
+        let primaryInterface = home.data.network.primary_interface;
+        let tariff = home.data.tariff;
+        const commNum = home.data.comm.num;
+        const commLevel = home.data.comm.level;
+        const commPcuNum = home.data.comm.pcu.num;
+        const commPcuLevel = home.data.comm.pcu.level;
+        const commAcbNum = home.data.comm.acb.num;
+        const commAcbLevel = home.data.comm.acb.level;
+        const commNsrbNum = home.data.comm.nsrb.num;
+        const commNsrbLevel = home.data.comm.nsrb.level;
+        let allerts = home.data.allerts;
+        let updateStatus = home.data.update_status;
+        
         // convert Unix time to local date time
-        lastEnlightenReporDate = new Date(lastEnlightenReporDate * 1000).toLocaleString();
+           lastEnlightenReporDate = new Date(lastEnlightenReporDate * 1000).toLocaleString();
 
         // convert network interface
-        let networkInterfaceIndex = NETWORK_INTERFACE.indexOf(primaryInterface);
+        const networkInterfaceIndex = NETWORK_INTERFACE.indexOf(primaryInterface);
         primaryInterface = NETWORK_INTERFACE_1[networkInterfaceIndex];
 
         // convert energy tariff
-        let energyTariffIndex = ENERGY_TARIFF.indexOf(tariff);
+        const energyTariffIndex = ENERGY_TARIFF.indexOf(tariff);
         tariff = ENERGY_TARIFF_1[energyTariffIndex]
 
         // convert update status
-        let updateStatusIndex = ENVOY_UPDATE.indexOf(updateStatus);
+        const updateStatusIndex = ENVOY_UPDATE.indexOf(updateStatus);
         updateStatus = ENVOY_UPDATE_1[updateStatusIndex]
 
         // convert status
@@ -2067,7 +2067,7 @@ class envoyDevice {
       //production
       if (production.status === 200 && productionCT.status === 200) {
         //reading time
-        var productionReadingTime = me.metersProduction ? productionCT.data.production[1].readingTime : productionCT.data.production[0].readingTime;
+        let productionReadingTime = me.metersProduction ? productionCT.data.production[1].readingTime : productionCT.data.production[0].readingTime;
 
         //power production
         var productionPower = me.metersProduction ? parseFloat(productionCT.data.production[1].wNow / 1000) : parseFloat(production.data.wattsNow / 1000);
@@ -2141,7 +2141,7 @@ class envoyDevice {
         //consumption total
         if (me.metersCount > 0 && me.metersConsumtionTotalActiveCount > 0) {
           //reading time
-          var consumptionTotalReadingTime = productionCT.data.consumption[0].readingTime;
+          let consumptionTotalReadingTime = productionCT.data.consumption[0].readingTime;
 
           //power
           var consumptionTotalPower = parseFloat(productionCT.data.consumption[0].wNow / 1000);
@@ -2207,7 +2207,7 @@ class envoyDevice {
         //consumption net
         if (me.metersCount > 0 && me.metersConsumptionNetActiveCount > 0) {
           //reading time
-          var consumptionNetReadingTime = productionCT.data.consumption[1].readingTime;
+          let consumptionNetReadingTime = productionCT.data.consumption[1].readingTime;
 
           //power
           var consumptionNetPower = parseFloat(productionCT.data.consumption[1].wNow / 1000);
@@ -2320,7 +2320,7 @@ class envoyDevice {
             var maxCellTemp = inventory.data[1].devices[i].maxCellTemp;
             var sleepMinSoc = inventory.data[1].devices[i].sleep_min_soc;
             var sleepMaxSoc = inventory.data[1].devices[i].sleep_max_soc;
-            var chargeStatus = inventory.data[1].devices[i].charge_status;
+            let chargeStatus = inventory.data[1].devices[i].charge_status;
 
             if (Array.isArray(status) && status.length === 1) {
               let code1 = status[0];
@@ -2539,10 +2539,10 @@ class envoyDevice {
           //microinverters power
           if (me.checkMicroinvertersPower) {
             for (let j = 0; j < me.microinverters.data.length; j++) {
-              let allSerialNumber = me.microinverters.data[j].serialNumber;
-              me.allMicroinvertersSerialNumber.push(allSerialNumber);
+              let serialNumber = me.microinverters.data[j].serialNumber;
+              me.allMicroinvertersSerialNumber.push(serialNumber);
             }
-            var index = me.allMicroinvertersSerialNumber.indexOf(me.microinvertersSerialNumberActive[i]);
+            const index = me.allMicroinvertersSerialNumber.indexOf(me.microinvertersSerialNumberActive[i]);
             var lastrptdate = 'Reading data failed';
             if (me.microinverters.data[index].lastReportDate !== undefined) {
               lastrptdate = me.microinverters.data[index].lastReportDate;
