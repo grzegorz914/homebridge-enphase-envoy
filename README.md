@@ -61,22 +61,22 @@ Homebridge plugin for Photovoltaic Energy System basis on Enphase devices (Envoy
 2. In `host` set the iP adress or leave empy(will use default path `envoy.local`).
 3. In `refreshInterval` set the data refresh time in seconds.
 4. If `disableLogInfo` is enabled, disable log info, all values and state will not be displayed in Homebridge log console.
-5. In `enchargeStorage` check ON if encharge storage is installed. (not available in v3.5.0)
+5. In `enchargeStorage` check ON if encharge storage is installed. (not available from v3.5.0)
 6. In `enchargeStorageOffset` set the offset of encharge storage energy if nedded in (Wh),(+/-).
-7. In `powerConsumptionMetersInstalled` check ON if consumption meters are installed. (not available in v3.5.0)
-8. In `powerProductionMeter` select which meter will be used to display Power production. (not available in v3.5.0)
+7. In `powerConsumptionMetersInstalled` check ON if consumption meters are installed. (not available from v3.5.0)
+8. In `powerProductionMeter` select which meter will be used to display Power production. (not available from v3.5.0)
 9. In `powerProductionMaxDetected` set the maximum Power production, if the Power production will be >= `powerProductionMaxDetected` then You get notyfication message from the HomeKit.
 10. In `energyProductionLifetimeOffset` set the offset of lifetime energy production if nedded in (Wh),(+/-).
-11. In `powerConsumptionMeter` select which meter will be used to display Power consumption. (not available in v3.5.0)
+11. In `powerConsumptionMeter` select which meter will be used to display Power consumption. (not available from v3.5.0)
 12. In `powerConsumptionTotalMaxDetected` set the maximum total Power consumption, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit.
 13. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
 14. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
 15. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
 16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app, firmware and serialNumber. (not available from v4.1.0)
 17. In `envoyUser` here set the envoy user or leave empty, standard is `envoy`.
-18. In `envoyPasswd` here set the envoy password (only if U already changed default password).
-18. In `installerUser` here set the optionall installer user standard is `installer`.
-20. In `installerPasswd` here set optionall the installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
+18. In `envoyPasswd` here set the envoy password (only if U already changed the default password).
+19. In `installerUser` here set the optional installer user, standard is `installer`.
+20. In `installerPasswd` here set optional the installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
 </p>
