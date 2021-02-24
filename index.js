@@ -513,8 +513,8 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -10000,
-      maxValue: 10000,
+      minValue: -1000,
+      maxValue: 1000,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -528,8 +528,8 @@ module.exports = (api) => {
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
-      minValue: -10000,
-      maxValue: 10000,
+      minValue: -1000,
+      maxValue: 1000,
       minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
@@ -624,6 +624,36 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseRmsVoltage, Characteristic);
   Characteristic.enphaseRmsVoltage.UUID = '00004212-000B-1000-8000-0026BB765291';
 
+  Characteristic.enphaseReactivePower = function () {
+    Characteristic.call(this, 'Reactive power', Characteristic.enphaseReactivePower.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'kVAr',
+      minValue: -1000,
+      maxValue: 1000,
+      minStep: 0.001,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseReactivePower, Characteristic);
+  Characteristic.enphaseReactivePower.UUID = '00004213-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseApparentPower = function () {
+    Characteristic.call(this, 'Apparent power', Characteristic.enphaseApparentPower.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'kVA',
+      minValue: -1000,
+      maxValue: 1000,
+      minStep: 0.001,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseApparentPower, Characteristic);
+  Characteristic.enphaseApparentPower.UUID = '00004214-000B-1000-8000-0026BB765291';
+
   Characteristic.enphasePwrFactor = function () {
     Characteristic.call(this, 'Power factor', Characteristic.enphasePwrFactor.UUID);
     this.setProps({
@@ -637,7 +667,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphasePwrFactor, Characteristic);
-  Characteristic.enphasePwrFactor.UUID = '00004213-000B-1000-8000-0026BB765291';
+  Characteristic.enphasePwrFactor.UUID = '00004215-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseReadingTime = function () {
     Characteristic.call(this, 'Last report', Characteristic.enphaseReadingTime.UUID);
@@ -648,7 +678,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseReadingTime, Characteristic);
-  Characteristic.enphaseReadingTime.UUID = '00004214-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseReadingTime.UUID = '00004216-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphasePowerEnergyMeter = function (displayName, subtype) {
@@ -663,6 +693,8 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseEnergyLifetime);
     this.addOptionalCharacteristic(Characteristic.enphaseRmsCurrent);
     this.addOptionalCharacteristic(Characteristic.enphaseRmsVoltage);
+    this.addOptionalCharacteristic(Characteristic.enphaseReactivePower);
+    this.addOptionalCharacteristic(Characteristic.enphaseApparentPower);
     this.addOptionalCharacteristic(Characteristic.enphasePwrFactor);
     this.addOptionalCharacteristic(Characteristic.enphaseReadingTime);
   };
@@ -1313,6 +1345,8 @@ class envoyDevice {
     this.productionEnergyLifetime = 0;
     this.productionRmsCurrent = 0;
     this.productionRmsVoltage = 0;
+    this.productionReactivePower = 0;
+    this.productionApparentPower = 0;
     this.productionPwrFactor = 0;
     this.productionReadingTime = '';
 
@@ -1322,10 +1356,12 @@ class envoyDevice {
     this.consumptionTotalEnergyToday = 0;
     this.consumptionTotalEnergyLastSevenDays = 0;
     this.consumptionTotalEnergyLifetime = 0;
-    this.consumptionTotaRmsCurrent = 0;
-    this.consumptionTotaRmsVoltage = 0;
-    this.consumptionTotaPwrFactor = 0;
-    this.consumptionTotaReadingTime = '';
+    this.consumptionTotalRmsCurrent = 0;
+    this.consumptionTotalRmsVoltage = 0;
+    this.consumptionTotalReactivePower = 0;
+    this.consumptionTotalApparentPower = 0;
+    this.consumptionTotalPwrFactor = 0;
+    this.consumptionTotalReadingTime = '';
 
     this.consumptionNetPower = 0;
     this.consumptionNetPowerMax = 0;
@@ -1335,6 +1371,8 @@ class envoyDevice {
     this.consumptionNetEnergyLifetime = 0;
     this.consumptionNetRmsCurrent = 0;
     this.consumptionNetRmsVoltage = 0;
+    this.consumptionNetReactivePower = 0;
+    this.consumptionNetApparentPower = 0;
     this.consumptionNetPwrFactor = 0;
     this.consumptionNetReadingTime = '';
 
@@ -1741,7 +1779,7 @@ class envoyDevice {
           }
 
           // get qrelays comm level
-          if (me.checkCommLevel && me.qRelaysCommunicating[i]) {
+          if (me.checkCommLevel) {
             var key = '' + me.qRelaysSerialNumber[i] + '';
             var commLevel = 0;
             if (me.pcuCommCheck.data[key] !== undefined) {
@@ -2060,6 +2098,8 @@ class envoyDevice {
         if (me.metersCount > 0 && me.metersProductionActiveCount > 0) {
           var productionRmsCurrent = parseFloat(productionCT.data.production[1].rmsCurrent);
           var productionRmsVoltage = parseFloat((productionCT.data.production[1].rmsVoltage) / 3);
+          var productionReactivePower = parseFloat((productionCT.data.production[1].reactPwr) / 1000);
+          var productionApparentPower = parseFloat((productionCT.data.production[1].apprntPwr) / 1000);
           var productionPwrFactor = parseFloat(productionCT.data.production[1].pwrFactor);
         }
 
@@ -2076,15 +2116,11 @@ class envoyDevice {
           if (me.metersCount > 0 && me.metersProductionActiveCount > 0) {
             me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseRmsCurrent, productionRmsCurrent);
             me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseRmsVoltage, productionRmsVoltage);
+            me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseReactivePower, productionReactivePower);
+            me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseApparentPower, productionApparentPower);
             me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphasePwrFactor, productionPwrFactor);
           }
           me.enphaseServiceProduction.updateCharacteristic(Characteristic.enphaseReadingTime, productionReadingTime);
-        }
-
-        if (me.metersCount > 0 && me.metersProductionActiveCount > 0) {
-          me.productionRmsCurrent = productionRmsCurrent;
-          me.productionRmsVoltage = productionRmsVoltage;
-          me.productionPwrFactor = productionPwrFactor;
         }
 
         me.productionReadingTime = productionReadingTime;
@@ -2094,6 +2130,14 @@ class envoyDevice {
         me.productionEnergyToday = productionEnergyToday;
         me.productionEnergyLastSevenDays = productionEnergyLastSevenDays;
         me.productionEnergyLifetime = productionEnergyLifetime;
+
+        if (me.metersCount > 0 && me.metersProductionActiveCount > 0) {
+          me.productionRmsCurrent = productionRmsCurrent;
+          me.productionRmsVoltage = productionRmsVoltage;
+          me.productionReactivePower = productionReactivePower;
+          me.productionApparentPower = productionApparentPower;
+          me.productionPwrFactor = productionPwrFactor;
+        }
 
         //consumption total
         if (me.metersCount > 0 && me.metersConsumtionTotalActiveCount > 0) {
@@ -2126,6 +2170,8 @@ class envoyDevice {
           //param
           var consumptionTotalRmsCurrent = parseFloat(productionCT.data.consumption[0].rmsCurrent);
           var consumptionTotalRmsVoltage = parseFloat((productionCT.data.consumption[0].rmsVoltage) / 3);
+          var consumptionTotalReactivePower = parseFloat((productionCT.data.consumption[0].reactPwr) / 1000);
+          var consumptionTotalApparentPower = parseFloat((productionCT.data.consumption[0].apprntPwr) / 1000);
           var consumptionTotalPwrFactor = parseFloat(productionCT.data.consumption[0].pwrFactor);
 
           //convert Unix time to local date time
@@ -2140,6 +2186,8 @@ class envoyDevice {
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseEnergyLifetime, consumptionTotalEnergyLifetime);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionTotalRmsCurrent);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionTotalRmsVoltage);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseReactivePower, consumptionTotalReactivePower);
+            me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseApparentPower, consumptionTotalApparentPower);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionTotalPwrFactor);
             me.enphaseServiceConsumptionTotal.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionTotalReadingTime);
           }
@@ -2153,6 +2201,8 @@ class envoyDevice {
           me.consumptionTotalEnergyLifetime = consumptionTotalEnergyLifetime;
           me.consumptionTotalRmsCurrent = consumptionTotalRmsCurrent;
           me.consumptionTotalRmsVoltage = consumptionTotalRmsVoltage;
+          me.consumptionTotalReactivePower = consumptionTotalReactivePower;
+          me.consumptionTotalApparentPower = consumptionTotalApparentPower;
           me.consumptionTotalPwrFactor = consumptionTotalPwrFactor;
         }
 
@@ -2187,6 +2237,8 @@ class envoyDevice {
           //param
           var consumptionNetRmsCurrent = parseFloat(productionCT.data.consumption[1].rmsCurrent);
           var consumptionNetRmsVoltage = parseFloat((productionCT.data.consumption[1].rmsVoltage) / 3);
+          var consumptionNetReactivePower = parseFloat((productionCT.data.consumption[1].reactPwr) / 1000);
+          var consumptionNetApparentPower = parseFloat((productionCT.data.consumption[1].apprntPwr) / 1000);
           var consumptionNetPwrFactor = parseFloat(productionCT.data.consumption[1].pwrFactor);
 
           //convert Unix time to local date time
@@ -2201,6 +2253,8 @@ class envoyDevice {
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseEnergyLifetime, consumptionNetEnergyLifetime);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionNetRmsCurrent);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionNetRmsVoltage);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseReactivePower, consumptionNetReactivePower);
+            me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseApparentPower, consumptionNetApparentPower);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphasePwrFactor, consumptionNetPwrFactor);
             me.enphaseServiceConsumptionNet.updateCharacteristic(Characteristic.enphaseReadingTime, consumptionNetReadingTime);
           }
@@ -2214,6 +2268,8 @@ class envoyDevice {
           me.consumptionNetPowerMaxDetectedState = consumptionNetPowerMaxDetectedState;
           me.consumptionNetRmsCurrent = consumptionNetRmsCurrent;
           me.consumptionNetRmsVoltage = consumptionNetRmsVoltage;
+          me.consumptionNetReactivePower = consumptionNetReactivePower;
+          me.consumptionNetApparentPower = consumptionNetApparentPower;
           me.consumptionNetPwrFactor = consumptionNetPwrFactor;
         }
       }
@@ -2334,7 +2390,7 @@ class envoyDevice {
           }
 
           //encharges comm level
-          if (me.checkCommLevel && me.enchargesCommunicating[i]) {
+          if (me.checkCommLevel) {
             var key = '' + me.enchargesSerialNumber[i] + '';
             var commLevel = 0;
             if (me.pcuCommCheck.data[key] !== undefined) {
@@ -2482,7 +2538,7 @@ class envoyDevice {
           }
 
           //microinverters power
-          if (me.checkMicroinvertersPower && me.microinvertersCommunicating[i]) {
+          if (me.checkMicroinvertersPower) {
             for (let a = 0; a < me.microinverters.data.length; a++) {
               var allSerialNumber = me.microinverters.data[a].serialNumber;
               me.allMicroinvertersSerialNumber.push(allSerialNumber);
@@ -2519,7 +2575,7 @@ class envoyDevice {
           }
 
           //microinverters comm level
-          if (me.checkCommLevel && me.microinvertersCommunicating[i]) {
+          if (me.checkCommLevel) {
             var key = '' + me.microinvertersSerialNumberActive[i] + '';
             var commLevel = 0;
             if (me.pcuCommCheck.data[key] !== undefined) {
@@ -2920,6 +2976,22 @@ class envoyDevice {
           }
           return value;
         });
+      this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseReactivePower)
+        .onGet(async () => {
+          let value = this.productionReactivePower;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, production net reactive power: %s kVAr', this.host, accessoryName, value.toFixed(3));
+          }
+          return value;
+        });
+      this.enphaseServiceProduction.getCharacteristic(Characteristic.enphaseApparentPower)
+        .onGet(async () => {
+          let value = this.productionApparentPower;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, production net apparent power: %s kVA', this.host, accessoryName, value.toFixed(3));
+          }
+          return value;
+        });
       this.enphaseServiceProduction.getCharacteristic(Characteristic.enphasePwrFactor)
         .onGet(async () => {
           let value = this.productionPwrFactor;
@@ -3007,6 +3079,22 @@ class envoyDevice {
             }
             return value;
           });
+        this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseReactivePower)
+          .onGet(async () => {
+            let value = this.consumptionTotalReactivePower;
+            if (!this.disableLogInfo) {
+              this.log('Device: %s %s, consumption total reactive power: %s kVAr', this.host, accessoryName, value.toFixed(3));
+            }
+            return value;
+          });
+        this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphaseApparentPower)
+          .onGet(async () => {
+            let value = this.consumptionTotalApparentPower;
+            if (!this.disableLogInfo) {
+              this.log('Device: %s %s, consumption total apparent power: %s kVA', this.host, accessoryName, value.toFixed(3));
+            }
+            return value;
+          });
         this.enphaseServiceConsumptionTotal.getCharacteristic(Characteristic.enphasePwrFactor)
           .onGet(async () => {
             let value = this.consumptionTotalPwrFactor;
@@ -3091,6 +3179,22 @@ class envoyDevice {
           let value = this.consumptionNetRmsVoltage;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, consumption net voltage: %s V', this.host, accessoryName, value.toFixed(1));
+          }
+          return value;
+        });
+      this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseReactivePower)
+        .onGet(async () => {
+          let value = this.consumptionNetReactivePower;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, consumption net reactive power: %s kVAr', this.host, accessoryName, value.toFixed(3));
+          }
+          return value;
+        });
+      this.enphaseServiceConsumptionNet.getCharacteristic(Characteristic.enphaseApparentPower)
+        .onGet(async () => {
+          let value = this.consumptionNetApparentPower;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, consumption net apparent power: %s kVA', this.host, accessoryName, value.toFixed(3));
           }
           return value;
         });

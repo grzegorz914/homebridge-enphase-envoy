@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Important note v4.5.0 and above!!!
 Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
+
+## [4.6.0] - (24.02.2021)
+## Changes
+- added Characteristics for Apparent and Reactive Power
+- fixed some bugs
+
 ## [4.5.0] - (23.02.2021)
 ## Changes
 - code rebuild, use Characteristic.onSet/onGet
