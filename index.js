@@ -10,18 +10,27 @@ const parseStringPromise = require('xml2js').parseStringPromise;
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
-const INFO_URL = '/info.xml';
-const HOME_URL = '/home.json';
+const ENVOY_INFO_URL = '/info.xml';
+const ENVOY_HOME_URL = '/home.json';
+const ENVOY_INVENTORY_URL = '/inventory.json';
+const ENVOY_PCU_COMM_CHECK_URL = '/installer/pcu_comm_check';
+const ENVOY_DATABASE_EVENTS_URL = '/datatab/event_dt.rb?start=0&length=500';
+const METERS_URL = '/ivp/meters';
+const METERS_STREAM_DATA_URL = '/stream/meter';
+const INVERTERS_STATUS_URL = '/installer/agf/inverters_status.json';
 const PRODUCTION_CT_URL = '/production.json';
 const PRODUCTION_CT_DETAILS_URL = '/production.json?details=1';
-const PRODUCTION_SUMM_INVERTERS_URL = '/api/v1/production';
 const PRODUCTION_INVERTERS_URL = '/api/v1/production/inverters?locale=en';
+const PRODUCTION_INVERTERS_SUM_URL = '/api/v1/production';
 const CONSUMPTION_SUMM_URL = '/api/v1/consumption';
-const INVENTORY_URL = '/inventory.json';
-const METERS_URL = '/ivp/meters';
-const REPORT_SETTINGS_URL = '/ivp/reportsettings';
-const INVERTERS_STATUS_URL = '/installer/agf/inverters_status.json';
-const PCU_COMM_CHECK_URL = '/installer/pcu_comm_check';
+const ADMIN_PMU_DISPLAY_URL = '/admin/lib/admin_pmu_display.json';
+const ADMIN_TUNEL_OPEN_STATUS_URL = '/admin/lib/dba.json';
+const ADMIN_PASSWD_CHANGE_STATUS_URL = '/admin/lib/security_display.json';
+const ADMIN_TIME_ZONES_URL = '/admin/lib/date_time_display.json?tzlist=1&locale=en';
+const ADMIN_LAN_SETTINGS_URL = '/admin/lib/network_display.json';
+const ADMIN_WLAN_SETTINGS_URL = '/admin/lib/wireless_display.json';
+const ENPHASE_PROV_DEVICES_URL = '/prov';
+const ENPHASE_REPORT_SETTINGS_URL = '/ivp/peb/reportsettings';
 
 const NETWORK_INTERFACE = ['eth0', 'wlan0', 'cellurar', 'undefined'];
 const NETWORK_INTERFACE_1 = ['Ethernet', 'WiFi', 'Cellurar', 'Unknown'];
@@ -1202,6 +1211,97 @@ class envoyDevice {
     this.metersConsumtionTotalActiveCount = 0;
     this.metersConsumptionNetActiveCount = 0;
 
+    this.metersStreamData = false;
+    this.metersStreamDataProductionActivePowerL1 = 0;
+    this.metersStreamDataProductionActivePowerL2 = 0;
+    this.metersStreamDataProductionActivePowerL3 = 0;
+    this.metersStreamDataProductionReactivePowerL1 = 0;
+    this.metersStreamDataProductionReactivePowerL2 = 0;
+    this.metersStreamDataProductionReactivePowerL3 = 0;
+    this.metersStreamDataProductionApparentPowerL1 = 0;
+    this.metersStreamDataProductionApparentPowerL2 = 0;
+    this.metersStreamDataProductionApparentPowerL3 = 0;
+    this.metersStreamDataProductionVoltageL1 = 0;
+    this.metersStreamDataProductionVoltageL2 = 0;
+    this.metersStreamDataProductionVoltageL3 = 0;
+    this.metersStreamDataProductionCurrentL1 = 0;
+    this.metersStreamDataProductionCurrentL2 = 0;
+    this.metersStreamDataProductionCurrentL3 = 0;
+    this.metersStreamDataProductionPowerFactorL1 = 0;
+    this.metersStreamDataProductionPowerFactorL2 = 0;
+    this.metersStreamDataProductionPowerFactorL3 = 0;
+    this.metersStreamDataProductionFrequencyL1 = 0;
+    this.metersStreamDataProductionFrequencyL2 = 0;
+    this.metersStreamDataProductionFrequencyL3 = 0;
+
+    this.metersStreamDataProductionActivePowerSum = 0;
+    this.metersStreamDataProductionReactivePowerSum = 0;
+    this.metersStreamDataProductionApparentPowerSum = 0;
+    this.metersStreamDataProductionVoltageAvg = 0;
+    this.metersStreamDataProductionCurrentSum = 0;
+    this.metersStreamDataProductionPowerFactorAvg = 0;
+    this.metersStreamDataProductionFrequencyAvg = 0;
+
+    this.metersStreamDataConsumptionNetActivePowerL1 = 0;
+    this.metersStreamDataConsumptionNetActivePowerL2 = 0;
+    this.metersStreamDataConsumptionNetActivePowerL3 = 0;
+    this.metersStreamDataConsumptionNetReactivePowerL1 = 0;
+    this.metersStreamDataConsumptionNetReactivePowerL2 = 0;
+    this.metersStreamDataConsumptionNetReactivePowerL3 = 0;
+    this.metersStreamDataConsumptionNetApparentPowerL1 = 0;
+    this.metersStreamDataConsumptionNetApparentPowerL2 = 0;
+    this.metersStreamDataConsumptionNetApparentPowerL3 = 0;
+    this.metersStreamDataConsumptionNetVoltageL1 = 0;
+    this.metersStreamDataConsumptionNetVoltageL2 = 0;
+    this.metersStreamDataConsumptionNetVoltageL3 = 0;
+    this.metersStreamDataConsumptionNetCurrentL1 = 0;
+    this.metersStreamDataConsumptionNetCurrentL2 = 0;
+    this.metersStreamDataConsumptionNetCurrentL3 = 0;
+    this.metersStreamDataConsumptionNetPowerFactorL1 = 0;
+    this.metersStreamDataConsumptionNetPowerFactorL2 = 0;
+    this.metersStreamDataConsumptionNetPowerFactorL3 = 0;
+    this.metersStreamDataConsumptionNetFrequencyL1 = 0;
+    this.metersStreamDataConsumptionNetFrequencyL2 = 0;
+    this.metersStreamDataConsumptionNetFrequencyL3 = 0;
+
+    this.metersStreamDataConsumptionNetActivePowerSum = 0;
+    this.metersStreamDataConsumptionNetReactivePowerSum = 0;
+    this.metersStreamDataConsumptionNetApparentPowerSum = 0;
+    this.metersStreamDataConsumptionNetVoltageAvg = 0;
+    this.metersStreamDataConsumptionNetCurrentSum = 0;
+    this.metersStreamDataConsumptionNetPowerFactorAvg = 0;
+    this.metersStreamDataConsumptionNetFrequencyAvg = 0;
+
+    this.metersStreamDataConsumptionTotalActivePowerL1 = 0;
+    this.metersStreamDataConsumptionTotalActivePowerL2 = 0;
+    this.metersStreamDataConsumptionTotalActivePowerL3 = 0;
+    this.metersStreamDataConsumptionTotalReactivePowerL1 = 0;
+    this.metersStreamDataConsumptionTotalReactivePowerL2 = 0;
+    this.metersStreamDataConsumptionTotalReactivePowerL3 = 0;
+    this.metersStreamDataConsumptionTotalApparentPowerL1 = 0;
+    this.metersStreamDataConsumptionTotalApparentPowerL2 = 0;
+    this.metersStreamDataConsumptionTotalApparentPowerL3 = 0;
+    this.metersStreamDataConsumptionTotalVoltageL1 = 0;
+    this.metersStreamDataConsumptionTotalVoltageL2 = 0;
+    this.metersStreamDataConsumptionTotalVoltageL3 = 0;
+    this.metersStreamDataConsumptionTotalCurrentL1 = 0;
+    this.metersStreamDataConsumptionTotalCurrentL2 = 0;
+    this.metersStreamDataConsumptionTotalCurrentL3 = 0;
+    this.metersStreamDataConsumptionTotalPowerFactorL1 = 0;
+    this.metersStreamDataConsumptionTotalPowerFactorL2 = 0;
+    this.metersStreamDataConsumptionTotalPowerFactorL3 = 0;
+    this.metersStreamDataConsumptionTotalFrequencyL1 = 0;
+    this.metersStreamDataConsumptionTotalFrequencyL2 = 0;
+    this.metersStreamDataConsumptionTotalFrequencyL3 = 0;
+
+    this.metersStreamDataConsumptionTotalActivePowerSum = 0;
+    this.metersStreamDataConsumptionTotalReactivePowerSum = 0;
+    this.metersStreamDataConsumptionTotalApparentPowerSum = 0;
+    this.metersStreamDataConsumptionTotalVoltageAvg = 0;
+    this.metersStreamDataConsumptionTotalCurrentSum = 0;
+    this.metersStreamDataConsumptionTotalPowerFactorAvg = 0;
+    this.metersStreamDataConsumptionTotalFrequencyAvg = 0;
+
     this.qRelaysCount = 0;
 
     this.productionPower = 0;
@@ -1295,7 +1395,7 @@ class envoyDevice {
     var me = this;
     me.log.debug('Device: %s %s, requesting devices info.', me.host, me.name);
     try {
-      const [inventory, info, meters] = await axios.all([axios.get(me.url + INVENTORY_URL), axios.get(me.url + INFO_URL), axios.get(me.url + METERS_URL)]);
+      const [inventory, info, meters] = await axios.all([axios.get(me.url + ENVOY_INVENTORY_URL), axios.get(me.url + ENVOY_INFO_URL), axios.get(me.url + METERS_URL)]);
       me.log.debug('Device %s %s, get devices data inventory: %s info: %s meters: %s', me.host, me.name, inventory.data, info.data, meters.data);
       const result = await parseStringPromise(info.data);
       me.log.debug('Device: %s %s, parse info.xml successful: %s', me.host, me.name, JSON.stringify(result, null, 2));
@@ -1354,12 +1454,13 @@ class envoyDevice {
     var me = this;
     try {
       //read all data;
-      const [home, inventory, meters, production, productionCT] = await axios.all([axios.get(me.url + HOME_URL), axios.get(me.url + INVENTORY_URL), axios.get(me.url + METERS_URL), axios.get(me.url + PRODUCTION_SUMM_INVERTERS_URL), axios.get(me.url + PRODUCTION_CT_URL)]);
+      const [home, inventory, meters, production, productionCT] = await axios.all([axios.get(me.url + ENVOY_HOME_URL), axios.get(me.url + ENVOY_INVENTORY_URL), axios.get(me.url + METERS_URL), axios.get(me.url + PRODUCTION_INVERTERS_SUM_URL), axios.get(me.url + PRODUCTION_CT_URL)]);
       me.log.debug('Debug home: %s, inventory: %s, meters: %s, production: %s productionCT: %s', home.data, inventory.data, meters.data, production.data, productionCT.data);
 
       //check communications level of qrelays, encharges, microinverters
       if (me.installerPasswd) {
         try {
+          //authorization installer
           const authInstaller = {
             method: 'GET',
             rejectUnauthorized: false,
@@ -1367,7 +1468,7 @@ class envoyDevice {
             dataType: 'json',
             timeout: [3000, 5000]
           };
-          const pcuCommCheck = await http.request(me.url + PCU_COMM_CHECK_URL, authInstaller);
+          const pcuCommCheck = await http.request(me.url + ENVOY_PCU_COMM_CHECK_URL, authInstaller);
           me.log.debug('Debug pcuCommCheck: %s', pcuCommCheck.data);
           me.pcuCommCheck = pcuCommCheck;
           me.checkCommLevel = true;
@@ -1692,6 +1793,191 @@ class envoyDevice {
             me.metersMeteringStatus.push(meteringStatus);
             me.metersStatusFlags.push(status);
           }
+        }
+
+        //realtime meters stream data
+        if (me.metersStreamData) {
+          try {
+            //authorization envoy
+            const user = me.envoyUser;
+            const passSerialNumber = me.envoySerialNumber.substring(6);
+            const passEnvoy = me.envoyPasswd;
+            const passwd = passEnvoy || passSerialNumber;
+            const auth = user + ':' + passwd;
+            const option = {
+              method: 'GET',
+              rejectUnauthorized: false,
+              digestAuth: auth,
+              timeout: [3000, 5000]
+            };
+            const metersStream = await http.request(me.url + METERS_STREAM_DATA_URL, option);
+            me.log('Debug metersStream: %s', metersStream.data);
+
+            if (me.metersProductionActiveCount) {
+              var activePowerL1 = metersStream.data.data.production['ph-a'].p;
+              var activePowerL2 = metersStream.data.data.production['ph-b'].p;
+              var activePowerL3 = metersStream.data.data.production['ph-c'].p;
+              var reactivePowerL1 = metersStream.data.data.production['ph-a'].q;
+              var reactivePowerL2 = metersStream.data.data.production['ph-b'].q;
+              var reactivePowerL3 = metersStream.data.data.production['ph-c'].q;
+              var apparentPowerL1 = metersStream.data.data.production['ph-a'].s;
+              var apparentPowerL2 = metersStream.data.data.production['ph-b'].s;
+              var apparentPowerL3 = metersStream.data.data.production['ph-c'].s;
+              var voltageL1 = metersStream.data.data.production['ph-a'].v;
+              var voltageL2 = metersStream.data.data.production['ph-b'].v;
+              var voltageL3 = metersStream.data.data.production['ph-c'].v;
+              var currentL1 = metersStream.data.data.production['ph-a'].i;
+              var currentL2 = metersStream.data.data.production['ph-b'].i;
+              var currentL3 = metersStream.data.data.production['ph-c'].i;
+              var powerFactorL1 = metersStream.data.data.production['ph-a'].pf;
+              var powerFactorL2 = metersStream.data.data.production['ph-b'].pf;
+              var powerFactorL3 = metersStream.data.data.production['ph-c'].pf;
+              var frequencyL1 = metersStream.data.data.production['ph-a'].f;
+              var frequencyL2 = metersStream.data.data.production['ph-b'].f;
+              var frequencyL3 = metersStream.data.data.production['ph-c'].f;
+
+              me.metersStreamDataProductionActivePowerL1 = activePowerL1;
+              me.metersStreamDataProductionActivePowerL2 = activePowerL2;
+              me.metersStreamDataProductionActivePowerL3 = activePowerL3;
+              me.metersStreamDataProductionReactivePowerL1 = reactivePowerL1;
+              me.metersStreamDataProductionReactivePowerL2 = reactivePowerL2;
+              me.metersStreamDataProductionReactivePowerL3 = reactivePowerL3;
+              me.metersStreamDataProductionApparentPowerL1 = apparentPowerL1;
+              me.metersStreamDataProductionApparentPowerL2 = apparentPowerL2;
+              me.metersStreamDataProductionApparentPowerL3 = apparentPowerL3;
+              me.metersStreamDataProductionVoltageL1 = voltageL1;
+              me.metersStreamDataProductionVoltageL2 = voltageL2;
+              me.metersStreamDataProductionVoltageL3 = voltageL3;
+              me.metersStreamDataProductionCurrentL1 = currentL1;
+              me.metersStreamDataProductionCurrentL2 = currentL2;
+              me.metersStreamDataProductionCurrentL3 = currentL3;
+              me.metersStreamDataProductionPowerFactorL1 = powerFactorL1;
+              me.metersStreamDataProductionPowerFactorL2 = powerFactorL2;
+              me.metersStreamDataProductionPowerFactorL3 = powerFactorL3;
+              me.metersStreamDataProductionFrequencyL1 = frequencyL1;
+              me.metersStreamDataProductionFrequencyL2 = frequencyL2;
+              me.metersStreamDataProductionFrequencyL3 = frequencyL3;
+
+              me.metersStreamDataProductionActivePowerSum = (activePowerL1 + activePowerL2 + activePowerL3);
+              me.metersStreamDataProductionReactivePowerSum = (reactivePowerL1 + reactivePowerL2 + reactivePowerL3);
+              me.metersStreamDataProductionApparentPowerSum = (apparentPowerL1 + apparentPowerL2 + apparentPowerL3);
+              me.metersStreamDataProductionVoltageAvg = (voltageL1 + voltageL2 + voltageL3) / 3;
+              me.metersStreamDataProductionCurrentSum = (currentL1 + currentL2 + currentL3);
+              me.metersStreamDataProductionPowerFactorAvg = (powerFactorL1 + powerFactorL2 + powerFactorL3) / 3;
+              me.metersStreamDataProductionFrequencyAvg = (frequencyL1 + frequencyL2 + frequencyL3) / 3;
+            }
+
+            if (me.metersConsumptionNetActiveCount) {
+              var activePowerL1 = data['net-consumption']['ph-a'].p;
+              var activePowerL2 = data['net-consumption']['ph-b'].p;
+              var activePowerL3 = data['net-consumption']['ph-c'].p;
+              var reactivePowerL1 = data['net-consumption']['ph-a'].q;
+              var reactivePowerL2 = data['net-consumption']['ph-b'].q;
+              var reactivePowerL3 = data['net-consumption']['ph-c'].q;
+              var apparentPowerL1 = data['net-consumption']['ph-a'].s;
+              var apparentPowerL2 = data['net-consumption']['ph-b'].s;
+              var apparentPowerL3 = data['net-consumption']['ph-c'].s;
+              var voltageL1 = data['net-consumption']['ph-a'].v;
+              var voltageL2 = data['net-consumption']['ph-b'].v;
+              var voltageL3 = data['net-consumption']['ph-c'].v;
+              var currentL1 = data['net-consumption']['ph-a'].i;
+              var currentL2 = data['net-consumption']['ph-b'].i;
+              var currentL3 = data['net-consumption']['ph-c'].i;
+              var powerFactorL1 = data['net-consumption']['ph-a'].pf;
+              var powerFactorL2 = data['net-consumption']['ph-b'].pf;
+              var powerFactorL3 = data['net-consumption']['ph-c'].pf;
+              var frequencyL1 = data['net-consumption']['ph-a'].f;
+              var frequencyL2 = data['net-consumption']['ph-b'].f;
+              var frequencyL3 = data['net-consumption']['ph-c'].f;
+
+              me.metersStreamDataConsumptionNetActivePowerL1 = activePowerL1;
+              me.metersStreamDataConsumptionNetActivePowerL2 = activePowerL2;
+              me.metersStreamDataConsumptionNetActivePowerL3 = activePowerL3;
+              me.metersStreamDataConsumptionNetReactivePowerL1 = reactivePowerL1;
+              me.metersStreamDataConsumptionNetReactivePowerL2 = reactivePowerL2;
+              me.metersStreamDataConsumptionNetReactivePowerL3 = reactivePowerL3;
+              me.metersStreamDataConsumptionNetApparentPowerL1 = apparentPowerL1;
+              me.metersStreamDataConsumptionNetApparentPowerL2 = apparentPowerL2;
+              me.metersStreamDataConsumptionNetApparentPowerL3 = apparentPowerL3;
+              me.metersStreamDataConsumptionNetVoltageL1 = voltageL1;
+              me.metersStreamDataConsumptionNetVoltageL2 = voltageL2;
+              me.metersStreamDataConsumptionNetVoltageL3 = voltageL3;
+              me.metersStreamDataConsumptionNetCurrentL1 = currentL1;
+              me.metersStreamDataConsumptionNetCurrentL2 = currentL2;
+              me.metersStreamDataConsumptionNetCurrentL3 = currentL3;
+              me.metersStreamDataConsumptionNetPowerFactorL1 = powerFactorL1;
+              me.metersStreamDataConsumptionNetPowerFactorL2 = powerFactorL2;
+              me.metersStreamDataConsumptionNetPowerFactorL3 = powerFactorL3;
+              me.metersStreamDataConsumptionNetFrequencyL1 = frequencyL1;
+              me.metersStreamDataConsumptionNetFrequencyL2 = frequencyL2;
+              me.metersStreamDataConsumptionNetFrequencyL3 = frequencyL3;
+
+              me.metersStreamDataConsumptionNetActivePowerSum = (activePowerL1 + activePowerL2 + activePowerL3);
+              me.metersStreamDataConsumptionNetReactivePowerSum = (reactivePowerL1 + reactivePowerL2 + reactivePowerL3);
+              me.metersStreamDataConsumptionNetApparentPowerSum = (apparentPowerL1 + apparentPowerL2 + apparentPowerL3);
+              me.metersStreamDataConsumptionNetVoltageAvg = (voltageL1 + voltageL2 + voltageL3) / 3;
+              me.metersStreamDataConsumptionNetCurrentSum = (currentL1 + currentL2 + currentL3);
+              me.metersStreamDataConsumptionNetPowerFactorAvg = (powerFactorL1 + powerFactorL2 + powerFactorL3) / 3;
+              me.metersStreamDataConsumptionNetFrequencyAvg = (frequencyL1 + frequencyL2 + frequencyL3) / 3;
+            }
+
+            if (me.metersConsumtionTotalActiveCount) {
+              var activePowerL1 = data['total-consumption']['ph-a'].p;
+              var activePowerL2 = data['total-consumption']['ph-b'].p;
+              var activePowerL3 = data['total-consumption']['ph-c'].p;
+              var reactivePowerL1 = data['total-consumption']['ph-a'].q;
+              var reactivePowerL2 = data['total-consumption']['ph-b'].q;
+              var reactivePowerL3 = data['total-consumption']['ph-c'].q;
+              var apparentPowerL1 = data['total-consumption']['ph-a'].s;
+              var apparentPowerL2 = data['total-consumption']['ph-b'].s;
+              var apparentPowerL3 = data['total-consumption']['ph-c'].s;
+              var voltageL1 = data['total-consumption']['ph-a'].v;
+              var voltageL2 = data['total-consumption']['ph-b'].v;
+              var voltageL3 = data['total-consumption']['ph-c'].v;
+              var currentL1 = data['total-consumption']['ph-a'].i;
+              var currentL2 = data['total-consumption']['ph-b'].i;
+              var currentL3 = data['total-consumption']['ph-c'].i;
+              var powerFactorL1 = data['total-consumption']['ph-a'].pf;
+              var powerFactorL2 = data['total-consumption']['ph-b'].pf;
+              var powerFactorL3 = data['total-consumption']['ph-c'].pf;
+              var frequencyL1 = data['total-consumption']['ph-a'].f;
+              var frequencyL2 = data['total-consumption']['ph-b'].f;
+              var frequencyL3 = data['total-consumption']['ph-c'].f;
+
+              me.metersStreamDataConsumptionTotalActivePowerL1 = activePowerL1;
+              me.metersStreamDataConsumptionTotalActivePowerL2 = activePowerL2;
+              me.metersStreamDataConsumptionTotalActivePowerL3 = activePowerL3;
+              me.metersStreamDataConsumptionTotalReactivePowerL1 = reactivePowerL1;
+              me.metersStreamDataConsumptionTotalReactivePowerL2 = reactivePowerL2;
+              me.metersStreamDataConsumptionTotalReactivePowerL3 = reactivePowerL3;
+              me.metersStreamDataConsumptionTotalApparentPowerL1 = apparentPowerL1;
+              me.metersStreamDataConsumptionTotalApparentPowerL2 = apparentPowerL2;
+              me.metersStreamDataConsumptionTotalApparentPowerL3 = apparentPowerL3;
+              me.metersStreamDataConsumptionTotalVoltageL1 = voltageL1;
+              me.metersStreamDataConsumptionTotalVoltageL2 = voltageL2;
+              me.metersStreamDataConsumptionTotalVoltageL3 = voltageL3;
+              me.metersStreamDataConsumptionTotalCurrentL1 = currentL1;
+              me.metersStreamDataConsumptionTotalCurrentL2 = currentL2;
+              me.metersStreamDataConsumptionTotalCurrentL3 = currentL3;
+              me.metersStreamDataConsumptionTotalPowerFactorL1 = powerFactorL1;
+              me.metersStreamDataConsumptionTotalPowerFactorL2 = powerFactorL2;
+              me.metersStreamDataConsumptionTotalPowerFactorL3 = powerFactorL3;
+              me.metersStreamDataConsumptionTotalFrequencyL1 = frequencyL1;
+              me.metersStreamDataConsumptionTotalFrequencyL2 = frequencyL2;
+              me.metersStreamDataConsumptionTotalFrequencyL3 = frequencyL3;
+
+              me.metersStreamDataConsumptionTotalActivePowerSum = (activePowerL1 + activePowerL2 + activePowerL3);
+              me.metersStreamDataConsumptionTotalReactivePowerSum = (reactivePowerL1 + reactivePowerL2 + reactivePowerL3);
+              me.metersStreamDataConsumptionTotalApparentPowerSum = (apparentPowerL1 + apparentPowerL2 + apparentPowerL3);
+              me.metersStreamDataConsumptionTotalVoltageAvg = (voltageL1 + voltageL2 + voltageL3) / 3;
+              me.metersStreamDataConsumptionTotalCurrentSum = (currentL1 + currentL2 + currentL3);
+              me.metersStreamDataConsumptionTotalPowerFactorAvg = (powerFactorL1 + powerFactorL2 + powerFactorL3) / 3;
+              me.metersStreamDataConsumptionTotalFrequencyAvg = (frequencyL1 + frequencyL2 + frequencyL3) / 3;
+            }
+          } catch (error) {
+            me.log('Device: %s %s, metersStream error: %s', me.host, me.name, error);
+            me.metersStreamData = false;
+          };
         }
       }
 
@@ -2083,7 +2369,7 @@ class envoyDevice {
           me.microinvertersLastReportDate = new Array();
         }
 
-        //check microinverters power
+        //authorization envoy
         const user = me.envoyUser;
         const passSerialNumber = me.envoySerialNumber.substring(6);
         const passEnvoy = me.envoyPasswd;
@@ -2096,7 +2382,6 @@ class envoyDevice {
           dataType: 'json',
           timeout: [3000, 5000]
         };
-        //microinverters power data
         const microinverters = await http.request(me.url + PRODUCTION_INVERTERS_URL, authEnvoy);
         me.log.debug('Debug production inverters: %s', microinverters.data);
 
