@@ -10,7 +10,7 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/grzegorz914/homebridge-enphase-envoy.svg)](https://github.com/grzegorz914/homebridge-enphase-envoy/pulls)
 [![GitHub issues](https://img.shields.io/github/issues/grzegorz914/homebridge-enphase-envoy.svg)](https://github.com/grzegorz914/homebridge-enphase-envoy/issues)
 
-Homebridge plugin to control Photovoltaic energy system basis on Enphase devices (IQ Envoy, Envoy-S Metered/Standard).
+Homebridge plugin for Photovoltaic Energy System basis on Enphase devices (Envoy-IQ, Envoy-S Metered/Standard).
 
 </span>
 
@@ -38,10 +38,10 @@ Homebridge plugin to control Photovoltaic energy system basis on Enphase devices
 
 ## Info v4.x.x and above!!!
 1. Version 4.0.0 whole new concept.
-2. All devices in PV are detected automatically.
-3. Envoy authentication is detected automatically.
-4. For best experiences please use *Controller App* for iOS
-5. Installer Password need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
+2. All devices in PV are detected automatically (Envoy, Q-Relays, Encharges, Meters, Microinverters).
+3. Envoy authentication is detected automatically or can be added in config if was chenged.
+4. For best experiences please use *Controller App* or *EVE app* for iOS
+5. Installer Password which is nedded to read communications level of (Microinverters, Q-Relays, Encharges) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 
 ## Info v3.x.x
 1. With release v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
