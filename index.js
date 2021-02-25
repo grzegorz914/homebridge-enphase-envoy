@@ -1552,39 +1552,21 @@ class envoyDevice {
         const commAcbLevel = home.data.comm.acb.level;
         const commNsrbNum = home.data.comm.nsrb.num;
         const commNsrbLevel = home.data.comm.nsrb.level;
-        let allerts = home.data.allerts;
+        let status = home.data.allerts;
         const updateStatus = ENVOY_UPDATE_1[ENVOY_UPDATE.indexOf(home.data.update_status)];
 
         // convert status
-        if (Array.isArray(allerts) && allerts.length === 1) {
-          let code1 = allerts[0];
-          let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-          allerts = ENVOY_STATUS_CODE_1[indexCode1];
-        } else if (Array.isArray(allerts) && allerts.length === 2) {
-          let code1 = allerts[0];
-          let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-          let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-          let code2 = allerts[1];
-          let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-          let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-          allerts = status1 + ' / ' + status2;
-        } else if (Array.isArray(allerts) && allerts.length === 3) {
-          let code1 = allerts[0];
-          let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-          let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-          let code2 = allerts[1];
-          let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-          let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-          let code3 = allerts[2];
-          let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-          let status3 = ENVOY_STATUS_CODE_1[indexCode3];
-          allerts = status1 + ' / ' + status2 + ' / ' + status3;
+        if (Array.isArray(status)) {
+          let statusLength = status.length;
+          for (let j = 0; j < statusLength; j++) {
+            status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+          }
         } else {
-          allerts = 'No allerts';
+          status = 'Not available';
         }
 
         if (this.enphaseServiceEnvoy) {
-          this.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyAllerts, allerts);
+          this.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyAllerts, status);
           this.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyDbSize, dbSize + ' / ' + dbPercentFull + '%');
           this.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyTariff, tariff);
           this.enphaseServiceEnvoy.updateCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface, primaryInterface);
@@ -1619,7 +1601,7 @@ class envoyDevice {
         this.envoyCommAcbLevel = commAcbLevel;
         this.envoyCommNsrbNum = commNsrbNum;
         this.envoyCommNsrbLevel = commNsrbLevel;
-        this.envoyAllerts = allerts;
+        this.envoyAllerts = status;
         this.envoyUpdateStatus = updateStatus;
       }
 
@@ -1668,6 +1650,17 @@ class envoyDevice {
             const reasonCode = inventory.data[2].devices[i].reason_code;
             const reason = inventory.data[2].devices[i].reason;
             const linesCount = inventory.data[2].devices[i]['line-count'];
+
+            // convert status
+            let statusLength = status.length;
+            if (Array.isArray(status) && statusLength > 0) {
+              for (let j = 0; j < statusLength; j++) {
+                status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+              }
+            } else {
+              status = 'Not available';
+            }
+
             if (linesCount >= 1) {
               const line1Connected = inventory.data[2].devices[i]['line1-connected'];
               if (this.enphaseServiceQrelay) {
@@ -1688,34 +1681,6 @@ class envoyDevice {
                   this.qRelaysLine3Connected.push(line3Connected);
                 }
               }
-            }
-
-            // convert status
-            if (Array.isArray(status) && status.length === 1) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              status = ENVOY_STATUS_CODE_1[indexCode1];
-            } else if (Array.isArray(status) && status.length === 2) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              let code2 = status[1];
-              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              status = status1 + ' / ' + status2;
-            } else if (Array.isArray(status) && status.length === 3) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              let code2 = status[1];
-              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              let code3 = status[2];
-              let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              let status3 = ENVOY_STATUS_CODE_1[indexCode3];
-              status = status1 + ' / ' + status2 + ' / ' + status3;
-            } else {
-              status = 'Not available';
             }
 
             if (this.enphaseServiceQrelay) {
@@ -1779,29 +1744,11 @@ class envoyDevice {
             let status = meters.data[i].statusFlags;
 
             // convert status
-            if (Array.isArray(status) && status.length === 1) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              status = ENVOY_STATUS_CODE_1[indexCode1];
-            } else if (Array.isArray(status) && status.length === 2) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              let code2 = status[1];
-              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              status = status1 + ' / ' + status2;
-            } else if (Array.isArray(status) && status.length === 3) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              let code2 = status[1];
-              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              let code3 = status[2];
-              let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              let status3 = ENVOY_STATUS_CODE_1[indexCode3];
-              status = status1 + ' / ' + status2 + ' / ' + status3;
+            let statusLength = status.length;
+            if (Array.isArray(status) && statusLength > 0) {
+              for (let j = 0; j < statusLength; j++) {
+                status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+              }
             } else {
               status = 'Not available';
             }
@@ -2054,7 +2001,7 @@ class envoyDevice {
           this.log.debug('Device: %s %s, productionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.productionPowerMaxFile, productionPower);
 
         }
-        const productionPowerMaxDetectedState = (productionPower >= this.productionPowerMaxDetected / 1000);
+        const productionPowerMaxDetectedState = (productionPower >= (this.productionPowerMaxDetected / 1000));
 
         //energy
         const productionEnergyToday = this.metersProduction ? parseFloat(productionCT.data.production[1].whToday / 1000) : parseFloat(production.data.wattHoursToday / 1000);
@@ -2120,7 +2067,7 @@ class envoyDevice {
             const write1 = await fsPromises.writeFile(this.consumptionTotalPowerMaxFile, consumptionTotalPower.toString());
             this.log.debug('Device: %s %s, consumptionTotalPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.consumptionTotalPowerMaxFile, consumptionTotalPower);
           }
-          const consumptionTotalPowerMaxDetectedState = (this.consumptionTotalPower >= this.consumptionTotalPowerMaxDetected / 1000);
+          const consumptionTotalPowerMaxDetectedState = (consumptionTotalPower >= (this.consumptionTotalPowerMaxDetected / 1000));
 
           //energy
           const consumptionTotalEnergyToday = parseFloat(productionCT.data.consumption[0].whToday / 1000);
@@ -2183,7 +2130,7 @@ class envoyDevice {
             const write2 = await fsPromises.writeFile(this.consumptionNetPowerMaxFile, consumptionNetPower.toString());
             this.log.debug('Device: %s %s, consumptionNetPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.consumptionNetPowerMaxFile, consumptionNetPower);
           }
-          const consumptionNetPowerMaxDetectedState = (consumptionNetPower >= this.consumptionNetPowerMaxDetected / 1000);
+          const consumptionNetPowerMaxDetectedState = (consumptionNetPower >= (this.consumptionNetPowerMaxDetected / 1000));
 
           //energy
           const consumptionNetEnergyToday = parseFloat(productionCT.data.consumption[1].whToday / 1000);
@@ -2278,29 +2225,12 @@ class envoyDevice {
             const sleepMaxSoc = inventory.data[1].devices[i].sleep_max_soc;
             const chargeStatus = ENCHARGE_STATE_1[ENCHARGE_STATE.indexOf(inventory.data[1].devices[i].charge_status)];
 
-            if (Array.isArray(status) && status.length === 1) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              status = ENVOY_STATUS_CODE_1[indexCode1];
-            } else if (Array.isArray(status) && status.length === 2) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              let code2 = status[1];
-              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              status = status1 + ' / ' + status2;
-            } else if (Array.isArray(status) && status.length === 3) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              let code2 = status[1];
-              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              let code3 = status[2];
-              let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              let status3 = ENVOY_STATUS_CODE_1[indexCode3];
-              status = status1 + ' / ' + status2 + ' / ' + status3;
+            // convert status
+            let statusLength = status.length;
+            if (Array.isArray(status) && statusLength > 0) {
+              for (let j = 0; j < statusLength; j++) {
+                status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+              }
             } else {
               status = 'Not available';
             }
@@ -2428,29 +2358,13 @@ class envoyDevice {
             const provisioned = inventory.data[0].devices[i].provisioned;
             const operating = inventory.data[0].devices[i].operating;
             let status = inventory.data[0].devices[i].device_status;
-            if (Array.isArray(status) && status.length === 1) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              status = ENVOY_STATUS_CODE_1[indexCode1];
-            } else if (Array.isArray(status) && status.length === 2) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              let code2 = status[1];
-              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              status = status1 + ' / ' + status2;
-            } else if (Array.isArray(status) && status.length === 3) {
-              let code1 = status[0];
-              let indexCode1 = ENVOY_STATUS_CODE.indexOf(code1);
-              let status1 = ENVOY_STATUS_CODE_1[indexCode1];
-              let code2 = status[1];
-              let indexCode2 = ENVOY_STATUS_CODE.indexOf(code2);
-              let status2 = ENVOY_STATUS_CODE_1[indexCode2];
-              let code3 = status[2];
-              let indexCode3 = ENVOY_STATUS_CODE.indexOf(code3);
-              let status3 = ENVOY_STATUS_CODE_1[indexCode3];
-              status = status1 + ' / ' + status2 + ' / ' + status3;
+
+            // convert status
+            let statusLength = status.length;
+            if (Array.isArray(status) && statusLength > 0) {
+              for (let j = 0; j < statusLength; j++) {
+                status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+              }
             } else {
               status = 'Not available';
             }
