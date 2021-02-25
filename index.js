@@ -1701,10 +1701,12 @@ class envoyDevice {
 
             // convert status
             let statusLength = status.length;
+            let arrStatus = new Array();
             if (Array.isArray(status) && statusLength > 0) {
               for (let j = 0; j < statusLength; j++) {
-                status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+                arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
               }
+              status = arrStatus.join(', ')
             } else {
               status = 'Not available';
             }
@@ -1793,10 +1795,12 @@ class envoyDevice {
 
             // convert status
             let statusLength = status.length;
+            let arrStatus = new Array();
             if (Array.isArray(status) && statusLength > 0) {
               for (let j = 0; j < statusLength; j++) {
-                status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+                arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
               }
+              status = arrStatus.join(', ')
             } else {
               status = 'Not available';
             }
@@ -2290,10 +2294,12 @@ class envoyDevice {
 
             // convert status
             let statusLength = status.length;
+            let arrStatus = new Array();
             if (Array.isArray(status) && statusLength > 0) {
               for (let j = 0; j < statusLength; j++) {
-                status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+                arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
               }
+              status = arrStatus.join(', ')
             } else {
               status = 'Not available';
             }
@@ -2425,10 +2431,12 @@ class envoyDevice {
 
             // convert status
             let statusLength = status.length;
+            let arrStatus = new Array();
             if (Array.isArray(status) && statusLength > 0) {
               for (let j = 0; j < statusLength; j++) {
-                status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+                arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
               }
+              status = arrStatus.join(', ')
             } else {
               status = 'Not available';
             }
