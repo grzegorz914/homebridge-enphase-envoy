@@ -139,6 +139,7 @@ begin
     allInverters = JSON.parse(res.body)
 
     # Get serial number and power of every microinverter
+    puts "Microinverter"
     arr = Array.new 
     arr1 = Array.new 
 
@@ -157,7 +158,7 @@ begin
         end
         index = arr1.find_index(arr1[i])
         power = allInverters[index]["lastReportWatts"]
-        puts "Microinverter #{serial} moc: #{autoFormatPower(power)}| size=12"
+        puts "Nr. #{serial} moc: #{autoFormatPower(power)}| size=12"
     i += 1
     if i == inventory[0]["devices"].length
         break
