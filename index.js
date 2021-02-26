@@ -2029,7 +2029,7 @@ class envoyDevice {
         const productionActiveCount = this.metersProduction ? productionCT.data.production[1].activeCount : 0;
         const productionMeasurmentType = this.metersProduction ? productionCT.data.production[1].measurementType : 0;
         const productionReadingTime = this.metersProduction ? new Date(productionCT.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
-        const productionPower = this.metersProduction ? parseFoat(productionCT.data.production[1].wNow / 1000) : productionMicroSummaryWattsNow;
+        const productionPower = this.metersProduction ? parseFloat(productionCT.data.production[1].wNow / 1000) : productionMicroSummaryWattsNow;
 
         //save and read power max and state
         let productionPowerMax = productionPower;
