@@ -2025,14 +2025,11 @@ class envoyDevice {
         const productionMicroEnergyLifeTime = parseFloat((productionCT.data.production[0].whLifetime + this.productionEnergyLifetimeOffset) / 1000);
 
         //current transformers
-        const productionType = productionCT.data.production[1].type;
-        const productionActiveCount = productionCT.data.production[1].activeCount;
-        const productionMeasurmentType = productionCT.data.production[1].measurementType;
-        let productionReadingTime = new Date(productionCT.data.production[1].readingTime * 1000).toLocaleString();
-        let productionPower = parseFloat(productionCT.data.production[1].wNow / 1000);
-
-        productionReadingTime = this.metersProduction ? productionReadingTime : productionMicroReadingTime;
-        productionPower = this.metersProduction ? productionPower : productionMicroSummaryWattsNow;
+        const productionType = this.metersProduction ? productionCT.data.production[1].type : 0;
+        const productionActiveCount = this.metersProduction ? productionCT.data.production[1].activeCount : 0;
+        const productionMeasurmentType = this.metersProduction ? productionCT.data.production[1].measurementType : 0;
+        const productionReadingTime = this.metersProduction ? new Date(productionCT.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
+        const productionPower = this.metersProduction ? parseFoat(productionCT.data.production[1].wNow / 1000) : productionMicroSummaryWattsNow;
 
         //save and read power max and state
         let productionPowerMax = productionPower;
@@ -2051,21 +2048,17 @@ class envoyDevice {
         const productionPowerMaxDetectedState = (productionPower >= (this.productionPowerMaxDetected / 1000));
 
         //energy
-        let productionEnergyLifeTime = parseFloat((productionCT.data.production[1].whLifetime + this.productionEnergyLifetimeOffset) / 1000);
-        const productionEnergyVarhLeadLifetime = parseFloat(productionCT.data.production[1].varhLeadLifetime / 1000);
-        const productionEnergyVarhLagLifetime = parseFloat(productionCT.data.production[1].varhLagLifetime / 1000);
-        let productionEnergyLastSevenDays = parseFloat(productionCT.data.production[1].whLastSevenDays / 1000);
-        let productionEnergyToday = parseFloat(productionCT.data.production[1].whToday / 1000);
-        const productionEnergyVahToday = parseFloat(productionCT.data.production[1].vahToday / 1000);
-        const productionEnergyVarhLeadToday = parseFloat(productionCT.data.production[1].varhLeadToday / 1000);
-        const productionEnergyVarhLagToday = parseFloat(productionCT.data.production[1].varhLagToday / 1000);
-
-        productionEnergyLifeTime = this.metersProduction ? productionEnergyLifeTime : productionMicroSummarywhLifeTime;
-        productionEnergyLastSevenDays = this.metersProduction ? productionEnergyLastSevenDays : productionMicroSummarywhLastSevenDays;
-        productionEnergyToday = this.metersProduction ? productionEnergyToday : productionMicroSummarywhToday;
+        const productionEnergyLifeTime = this.metersProduction ? parseFloat((productionCT.data.production[1].whLifetime + this.productionEnergyLifetimeOffset) / 1000) : productionMicroSummarywhLifeTime;
+        const productionEnergyVarhLeadLifetime = this.metersProduction ? parseFloat(productionCT.data.production[1].varhLeadLifetime / 1000) : 0;
+        const productionEnergyVarhLagLifetime = this.metersProduction ? parseFloat(productionCT.data.production[1].varhLagLifetime / 1000) : 0;
+        const productionEnergyLastSevenDays = this.metersProduction ? parseFloat(productionCT.data.production[1].whLastSevenDays / 1000) : productionMicroSummarywhLastSevenDays;
+        const productionEnergyToday = this.metersProduction ? parseFloat(productionCT.data.production[1].whToday / 1000) : productionMicroSummarywhToday;
+        const productionEnergyVahToday = this.metersProduction ? parseFloat(productionCT.data.production[1].vahToday / 1000) : 0;
+        const productionEnergyVarhLeadToday = this.metersProduction ? parseFloat(productionCT.data.production[1].varhLeadToday / 1000) : 0;
+        const productionEnergyVarhLagToday = this.metersProduction ? parseFloat(productionCT.data.production[1].varhLagToday / 1000) : 0;
 
         //param
-        if (this.metersCount > 0 && this.metersProductionActiveCount > 0) {
+        if (this.metersProduction && this.metersProductionActiveCount > 0) {
           const productionRmsCurrent = parseFloat(productionCT.data.production[1].rmsCurrent);
           const productionRmsVoltage = parseFloat((productionCT.data.production[1].rmsVoltage) / 3);
           const productionReactivePower = parseFloat((productionCT.data.production[1].reactPwr) / 1000);
@@ -2104,7 +2097,7 @@ class envoyDevice {
         this.productionEnergyLifeTime = productionEnergyLifeTime;
 
         //consumption total
-        if (this.metersCount > 0 && this.metersConsumtionTotalActiveCount > 0) {
+        if (this.metersConsumption && this.metersConsumtionTotalActiveCount > 0) {
           const consumptionTotalType = productionCT.data.consumption[0].type;
           const consumptionTotalActiveCount = productionCT.data.consumption[0].activeCount;
           const consumptionTotalMeasurmentType = productionCT.data.consumption[0].measurementType;
@@ -2172,7 +2165,7 @@ class envoyDevice {
         }
 
         //consumption net
-        if (this.metersCount > 0 && this.metersConsumptionNetActiveCount > 0) {
+        if (this.metersConsumption && this.metersConsumptionNetActiveCount > 0) {
           const consumptionNetType = productionCT.data.consumption[1].type;
           const consumptionNetActiveCount = productionCT.data.consumption[1].activeCount;
           const consumptionNetMeasurmentType = productionCT.data.consumption[1].measurementType;
