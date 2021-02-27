@@ -54,23 +54,23 @@ begin
     raise "Error on http request. Response: " + res.message unless res.is_a?(Net::HTTPSuccess)
     productionct = JSON.parse(res.body)
 
-    productionMicroinverters = productionct["production"][0]["wNow"]
-    productionMicroinvertersWhLifetime = productionct["production"][0]["whLifetime"]
-    production = productionct["production"][1]["wNow"]
-    productionWhToday = productionct["production"][1]["whToday"]
-    productionWhLastSevenDays = productionct["production"][1]["whLastSevenDays"]
-    productionWhLifetime = productionct["production"][1]["whLifetime"]
-    totalConsumption = productionct["consumption"][0]["wNow"]
-    totalConsumptionWhToday = productionct["consumption"][0]["whToday"]
-    totalConsumptionWhLastSevenDays = productionct["consumption"][0]["whLastSevenDays"]
-    totalConsumptionWhLifetime = productionct["consumption"][0]["whLifetime"]
-    netConsumption = productionct["consumption"][1]["wNow"]
-    netConsumptionWhLifetime = productionct["consumption"][1]["whLifetime"]
+    productionMicroPower = productionct["production"][0]["wNow"]
+    productionMicroEnergyLifeTime = productionct["production"][0]["whLifetime"]
+    productionPower = productionct["production"][1]["wNow"]
+    productionEnergyToday = productionct["production"][1]["whToday"]
+    productionEnergyLastSevenDays = productionct["production"][1]["whLastSevenDays"]
+    productionEnergyLifeTime = productionct["production"][1]["whLifetime"]
+    consumptionTotalPower = productionct["consumption"][0]["wNow"]
+    consumptionTotalEnergyToday = productionct["consumption"][0]["whToday"]
+    consumptionTotalEnergyLastSevenDays = productionct["consumption"][0]["whLastSevenDays"]
+    consumptionTotalEnergyLifeTime = productionct["consumption"][0]["whLifetime"]
+    consumptionNetPower = productionct["consumption"][1]["wNow"]
+    consumptionNetEnergyLifeTime = productionct["consumption"][1]["whLifetime"]
 
     case 
-    when netConsumption > 0
+    when consumptionNetPower > 0
         icon = "🔌" # Power plug
-    when production < (SYSTEM_SIZE_WATTS / 2)
+    when productionPower < (SYSTEM_SIZE_WATTS / 2)
         icon = "⛅" # Cloudy
     else
         icon = "☀️" # Sun
@@ -78,29 +78,29 @@ begin
 
      # Set the display in bar
      case 
-     when netConsumption > 0
-         power = netConsumption
+     when consumptionNetPower > 0
+         power = consumptionNetPower
      else
-        power = production
+        power = productionPower
      end
 
     puts "#{icon} #{autoFormatPower(power)}| color=#{netConsumption > 0 ? "red":"white"} size=12"
     puts "---"
     puts "Production"
-    puts "Power #{autoFormatPower(production)}| size=12"
-    puts "Energy #{autoFormatEnergy(productionWhToday)}| size=12"
-    puts "Energy 7 days #{autoFormatEnergy(productionWhLastSevenDays)}| size=12"
-    puts "Energy lifetime #{autoFormatEnergy(productionWhLifetime)}| size=12"
+    puts "Power #{autoFormatPower(productionPower)}| size=12"
+    puts "Energy #{autoFormatEnergy(productionEnergyToday)}| size=12"
+    puts "Energy 7 days #{autoFormatEnergy(productionEnergyLastSevenDays)}| size=12"
+    puts "Energy lifetime #{autoFormatEnergy(productionEnergyLifeTime)}| size=12"
     puts "---"
     puts "Consumption total"
-    puts "Power #{autoFormatPower(totalConsumption)}| size=12"
-    puts "Energy #{autoFormatEnergy(totalConsumptionWhToday)}| size=12"
-    puts "Energy 7 days #{autoFormatEnergy(totalConsumptionWhLastSevenDays)}| size=12"
-    puts "Energy lifetime #{autoFormatEnergy(totalConsumptionWhLifetime)}| size=12"
+    puts "Power #{autoFormatPower(consumptionTotalPower)}| size=12"
+    puts "Energy #{autoFormatEnergy(consumptionTotalEnergyToday)}| size=12"
+    puts "Energy 7 days #{autoFormatEnergy(consumptionTotalEnergyLastSevenDays)}| size=12"
+    puts "Energy lifetime #{autoFormatEnergy(consumptionTotalEnergyLifeTime)}| size=12"
     puts "---"
     puts "Consumption net"
-    puts "Power #{autoFormatPower(netConsumption)}| size=12"
-    puts "Energy lifetime #{autoFormatEnergy(netConsumptionWhLifetime)}| size=12"
+    puts "Power #{autoFormatPower(consumptionNetPower)}| size=12"
+    puts "Energy lifetime #{autoFormatEnergy(consumptionNetEnergyLifeTime)}| size=12"
     puts "---"
 
     # Get installed and active devices
