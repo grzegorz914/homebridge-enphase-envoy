@@ -24,7 +24,7 @@ If U have special wish or do not know how to change the file, please let me know
 3. Install homebrew: `mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew`.
 4. Install digest auth: `gem install net-http-digest_auth`.
 5. Instal BitBar `brew install bitbar`.
-6. Edit `enphase_envoy.15s.rb` file and change the `SYSTEM_SIZE_WATTS = 5400` to Your microinverters power.
+6. Edit `enphase_envoy.15s.rb` file and change the `MICROINVERTERS_SUM_WATTS = 5400` to Your microinverters power.
 7. Edit `enphase_envoy.15s.rb` file and change `ENVOY_IP = envoy.local` to IP Address of Your Envoy if nedded.
 8. If You already changed Your standard Envoy password, edit `enphase_envoy.15s.rb` and change `uri.password = envoySerial[-6,6]`.
 9. Run [BitBar](https://github.com/matryer/bitbar) and go to Preferences>>Change Plugin Folder... and chose folder where You placed the `enphase_envoy.15s.rb`.

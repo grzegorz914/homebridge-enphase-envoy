@@ -16,7 +16,7 @@ require 'net/http/digest_auth'
 require 'json'
 
 ENVOY_IP = 'envoy.local'
-SYSTEM_SIZE_WATTS = 5400 # Set the summary power of microinverters
+MICROINVERTERS_SUM_WATTS = 5400 # Set the summary power of microinverters
 
 def autoFormatPower(val)
     if (val < 1000 && val > -1000)
@@ -43,9 +43,7 @@ def autoFormatEnergy(val)
 end
 
 begin
-
     raise "Not a valid IP address. Update ENVOY_IP in script" unless ENVOY_IP.match(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)
-
     http = Net::HTTP.new(ENVOY_IP)
 
     # Get production
