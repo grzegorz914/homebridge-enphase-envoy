@@ -84,7 +84,7 @@ begin
         power = productionPower
      end
 
-    puts "#{icon} #{autoFormatPower(power)}| color=#{netConsumption > 0 ? "red":"white"} size=12"
+    puts "#{icon} #{autoFormatPower(power)}| color=#{consumptionNetPower > 0 ? "red":"white"} size=12"
     puts "---"
     puts "Production"
     puts "Power #{autoFormatPower(productionPower)}| size=12"
