@@ -158,7 +158,7 @@ begin
         serial = inventory[0]["devices"][i]["serial_num"]
         arr.push(serial)
         index = arr1.find_index(arr[i])
-        puts "Nr. #{arr1[index]} moc: #{autoFormatPower(arr2[index])}| size=12"
+        puts "SN: #{arr1[index]} power: #{autoFormatPower(arr2[index])}| size=12"
         i += 1
         if i == inventory[0]["devices"].length
         break
