@@ -25,7 +25,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 7. Run *BitBar* and go to Preferences>>Change Plugin Folder... and chose folder where You placed the *enphase_envoy.15s.rb*.
 8. After a few seconds You will see on the Top Bar:
 <p align="left">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" height="150"></a>
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" height="250"></a>
 </p>
 
 
