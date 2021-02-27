@@ -92,7 +92,7 @@ begin
     puts "Energy 7 days #{autoFormatEnergy(productionWhLastSevenDays)}| size=12"
     puts "Energy lifetime #{autoFormatEnergy(productionWhLifetime)}| size=12"
     puts "---"
-    puts "Consumption totall"
+    puts "Consumption total"
     puts "Power #{autoFormatPower(totalConsumption)}| size=12"
     puts "Energy #{autoFormatEnergy(totalConsumptionWhToday)}| size=12"
     puts "Energy 7 days #{autoFormatEnergy(totalConsumptionWhLastSevenDays)}| size=12"
