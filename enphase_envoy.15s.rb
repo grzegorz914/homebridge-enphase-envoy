@@ -45,6 +45,37 @@ end
 begin
     raise "Not a valid IP address. Update ENVOY_IP in script" unless ENVOY_IP.match(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)
     http = Net::HTTP.new(ENVOY_IP)
+    
+    # Check installed meters
+    uri = URI("http://" + ENVOY_IP + "/ivp/meters")
+    req  = Net::HTTP::Get.new(uri.request_uri)
+    req['Content-Type'] = 'application/json'
+    res = http.request(req)
+    raise "Error on http request. Response: " + res.message unless res.is_a?(Net::HTTPSuccess)
+    meters = JSON.parse(res.body)
+    
+    ctmeters = meters.length
+     if ctmeters > 0
+        ctmeterProduction = meters[0]["state"] == "enabled"
+        ctmeterConsumption = meters[1]["state"] == "enabled"
+     else
+        ctmeterProduction = false
+        ctmeterConsumption = false
+     end
+    
+    # Get production misroinverters
+    uri = URI("http://" + ENVOY_IP + "/api/v1/production")
+    req  = Net::HTTP::Get.new(uri.request_uri)
+    req['Content-Type'] = 'application/json'
+    res = http.request(req)
+    raise "Error on http request. Response: " + res.message unless res.is_a?(Net::HTTPSuccess)
+    production = JSON.parse(res.body)
+    
+    # microinverters summary 
+    productionMicroSummarywhToday = production["attHoursToday"]
+    productionMicroSummarywhLastSevenDays = production["wattHoursSevenDays"]
+    productionMicroSummarywhLifeTime = production["wattHoursLifetime"]
+    productionMicroSummaryWattsNow = production["wattsNow"]
 
     # Get production
     uri = URI("http://" + ENVOY_IP + "/production.json?details=1")
@@ -53,19 +84,24 @@ begin
     res = http.request(req)
     raise "Error on http request. Response: " + res.message unless res.is_a?(Net::HTTPSuccess)
     productionct = JSON.parse(res.body)
-
+    
     productionMicroPower = productionct["production"][0]["wNow"]
     productionMicroEnergyLifeTime = productionct["production"][0]["whLifetime"]
+    
+    if ctmeterProduction == true
     productionPower = productionct["production"][1]["wNow"]
     productionEnergyToday = productionct["production"][1]["whToday"]
     productionEnergyLastSevenDays = productionct["production"][1]["whLastSevenDays"]
     productionEnergyLifeTime = productionct["production"][1]["whLifetime"]
+    end
+    if ctmeterConsumption
     consumptionTotalPower = productionct["consumption"][0]["wNow"]
     consumptionTotalEnergyToday = productionct["consumption"][0]["whToday"]
     consumptionTotalEnergyLastSevenDays = productionct["consumption"][0]["whLastSevenDays"]
     consumptionTotalEnergyLifeTime = productionct["consumption"][0]["whLifetime"]
     consumptionNetPower = productionct["consumption"][1]["wNow"]
     consumptionNetEnergyLifeTime = productionct["consumption"][1]["whLifetime"]
+    end
 
     case 
     when consumptionNetPower > 0
@@ -87,11 +123,12 @@ begin
     puts "#{icon} #{autoFormatPower(power)}| color=#{consumptionNetPower > 0 ? "red":"white"} size=12"
     puts "---"
     puts "Production"
-    puts "Power #{autoFormatPower(productionPower)}| size=12"
-    puts "Energy #{autoFormatEnergy(productionEnergyToday)}| size=12"
-    puts "Energy 7 days #{autoFormatEnergy(productionEnergyLastSevenDays)}| size=12"
-    puts "Energy lifetime #{autoFormatEnergy(productionEnergyLifeTime)}| size=12"
+    puts "Power #{autoFormatPower(ctmeterProduction ? productionPower : productionMicroSummaryWattsNow)}| size=12"
+    puts "Energy #{autoFormatEnergy(ctmeterProduction ? productionEnergyToday : productionMicroSummarywhToday)}| size=12"
+    puts "Energy 7 days #{autoFormatEnergy(ctmeterProduction ? productionEnergyLastSevenDays : productionMicroSummarywhLastSevenDays)}| size=12"
+    puts "Energy lifetime #{autoFormatEnergy(ctmeterProduction ? productionEnergyLifeTime : productionMicroSummarywhLifetime)}| size=12"
     puts "---"
+    if ctmeterConsumption
     puts "Consumption total"
     puts "Power #{autoFormatPower(consumptionTotalPower)}| size=12"
     puts "Energy #{autoFormatEnergy(consumptionTotalEnergyToday)}| size=12"
@@ -101,6 +138,7 @@ begin
     puts "Consumption net"
     puts "Power #{autoFormatPower(consumptionNetPower)}| size=12"
     puts "Energy lifetime #{autoFormatEnergy(consumptionNetEnergyLifeTime)}| size=12"
+    end
     puts "---"
 
     # Get installed and active devices
