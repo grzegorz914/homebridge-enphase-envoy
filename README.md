@@ -16,17 +16,17 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 </span>
 
 # Bonus Top Bar on Mac!!!
-The file is currentlly prepared to work with Envoy-S with installed Current Meter. You can allways comment not nedde lines to correct work with other Envoys.
+The file is currentlly prepared to work with Envoy-S with installed Current Meter. You can allways comment not nedded lines to correct work with other Envoys.
 If U have special wish or do not know how to change the file, please let me know of Your Photovoltaic config.
 
 1. Download `enphase_envoy.15s.rb`.
 2. Open the Terminal app. 
 3. Install homebrew: `mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew`.
 4. Install digest auth: `gem install net-http-digest_auth`.
-5. Instal BitBar `brew install bitbar`.
-6. Edit `enphase_envoy.15s.rb` file and change the `MICROINVERTERS_SUM_WATTS = 5400` to Your microinverters power.
-7. Edit `enphase_envoy.15s.rb` file and change `ENVOY_IP = envoy.local` to IP Address of Your Envoy if nedded.
-8. If You already changed Your standard Envoy password, edit `enphase_envoy.15s.rb` and change `uri.password = envoySerial[-6,6]`.
+5. Install BitBar `brew install bitbar`.
+6. Edit the `enphase_envoy.15s.rb` file and change the `MICROINVERTERS_SUM_WATTS = 5400` to Your microinverters power.
+7. Edit the `enphase_envoy.15s.rb` file and change `ENVOY_IP = envoy.local` to IP Address of Your Envoy if nedded.
+8. If You already changed Your standard Envoy password, edit the `enphase_envoy.15s.rb` file and change `uri.password = envoySerial[-6,6]`.
 9. Run [BitBar](https://github.com/matryer/bitbar) and go to Preferences>>Change Plugin Folder... and chose folder where You placed the `enphase_envoy.15s.rb`.
 10. After a few seconds You will see all data on the Top Bar:
 
