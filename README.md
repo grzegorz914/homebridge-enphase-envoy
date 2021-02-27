@@ -15,6 +15,20 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 </span>
 
+## Bonus Top Bar on Mac!!!
+1. Download *enphase_envoy.15s.rb*
+2. Open the Terminal app. 
+3. Install homebrew: *mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew*
+4. Install digest auth: *gem install net-http-digest_auth*
+5. Instal BitBar *brew install bitbar*
+6. If nedded edit *enphase_envoy.15s.rb* file and change *envoy.local* to proper IP Address of Your Envoy
+7. Run *BitBar* and go to Preferences>>Change Plugin Folder... and chose folder where You placed the *enphase_envoy.15s.rb*.
+8. After a few seconds You will see on the Top Bar:
+<p align="left">
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" height="150"></a>
+</p>
+
+
 ## Package
 1. [Homebridge](https://github.com/homebridge/homebridge)
 2. [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x)
