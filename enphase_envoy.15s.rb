@@ -137,30 +137,28 @@ begin
     allInverters = JSON.parse(res.body)
 
     # Get serial number and power of every microinverter
-    puts "Mikroinwerter"
-    j = 0
-    arr1 = Array.new 
-    arr2 = Array.new
+    puts "Microinverter"
+    i = 0
+    arr = Array.new 
+    arr1 = Array.new
     loop do
-        serialNumber = allInverters[j]["serialNumber"]
-        power = allInverters[j]["lastReportWatts"]
-        arr1.push(serialNumber)
-        arr2.push(power)
-        j += 1
-        if j == allInverters.length
+        serialNumber = allInverters[i]["serialNumber"]
+        power = allInverters[i]["lastReportWatts"]
+        arr.push(serialNumber)
+        arr1.push(power)
+        i += 1
+        if i == allInverters.length
             break
         end
     end
 
-    i = 0
-    arr = Array.new 
+    j = 0
     loop do
-        serial = inventory[0]["devices"][i]["serial_num"]
-        arr.push(serial)
-        index = arr1.find_index(arr[i])
-        puts "Nr. #{arr1[index]} moc: #{autoFormatPower(arr2[index])}| size=12"
-        i += 1
-        if i == inventory[0]["devices"].length
+        serial = inventory[0]["devices"][j]["serial_num"]
+        index = arr.find_index(serial)
+        puts "SN: #{arr[index]} power: #{autoFormatPower(arr1[index])}| size=12"
+        j += 1
+        if j == inventory[0]["devices"].length
         break
         puts "---"
         end
