@@ -1603,11 +1603,12 @@ class envoyDevice {
         const updateStatus = ENVOY_UPDATE_1[ENVOY_UPDATE.indexOf(home.data.update_status)];
 
         // convert status
-        if (Array.isArray(status)) {
-          let statusLength = status.length;
-          for (let j = 0; j < statusLength; j++) {
-            status = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])];
+        if (Array.isArray(status) && status.length > 0) {
+          const arrStatus = new Array();
+          for (let j = 0; j < status.length; j++) {
+            arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
           }
+          status = arrStatus.join(', ')
         } else {
           status = 'Not available';
         }
@@ -1700,10 +1701,9 @@ class envoyDevice {
             const linesCount = inventory.data[2].devices[i]['line-count'];
 
             // convert status
-            let statusLength = status.length;
-            let arrStatus = new Array();
-            if (Array.isArray(status) && statusLength > 0) {
-              for (let j = 0; j < statusLength; j++) {
+            if (Array.isArray(status) && status.length > 0) {
+              const arrStatus = new Array();
+              for (let j = 0; j < status.length; j++) {
                 arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
               }
               status = arrStatus.join(', ')
@@ -1760,12 +1760,9 @@ class envoyDevice {
           // get qrelays comm level
           if (this.checkCommLevel) {
             const key = '' + this.qRelaysSerialNumber[i] + '';
-            let commLevel = 0;
-            if (this.pcuCommCheck.data[key] !== undefined) {
-              commLevel = this.pcuCommCheck.data[key];
-            }
+            const commLevel = this.qRelaysCommunicating[i] ? this.pcuCommCheck.data[key] : 0;
 
-            if (this.enphaseServiceQrelay && this.qRelaysCommunicating[i]) {
+            if (this.enphaseServiceQrelay) {
               this.enphaseServiceQrelay.updateCharacteristic(Characteristic.enphaseQrelayCommLevel, commLevel);
             }
             this.qRelaysCommLevel.push(commLevel);
@@ -1794,10 +1791,9 @@ class envoyDevice {
             let status = meters.data[i].statusFlags;
 
             // convert status
-            let statusLength = status.length;
-            let arrStatus = new Array();
-            if (Array.isArray(status) && statusLength > 0) {
-              for (let j = 0; j < statusLength; j++) {
+            if (Array.isArray(status) && status.length > 0) {
+              const arrStatus = new Array();
+              for (let j = 0; j < status.length; j++) {
                 arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
               }
               status = arrStatus.join(', ')
@@ -2287,10 +2283,9 @@ class envoyDevice {
             const chargeStatus = ENCHARGE_STATE_1[ENCHARGE_STATE.indexOf(inventory.data[1].devices[i].charge_status)];
 
             // convert status
-            let statusLength = status.length;
-            let arrStatus = new Array();
-            if (Array.isArray(status) && statusLength > 0) {
-              for (let j = 0; j < statusLength; j++) {
+            if (Array.isArray(status) && status.length > 0) {
+              const arrStatus = new Array();
+              for (let j = 0; j < status.length; j++) {
                 arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
               }
               status = arrStatus.join(', ')
@@ -2333,17 +2328,13 @@ class envoyDevice {
           //encharges comm level
           if (this.checkCommLevel) {
             const key = '' + this.enchargesSerialNumber[i] + '';
-            let commLevel = 0;
-            if (this.pcuCommCheck.data[key] !== undefined) {
-              commLevel = this.pcuCommCheck.data[key];
-            }
+            const commLevel = this.enchargesCommunicating[i] ? this.pcuCommCheck.data[key] : 0;
 
-            if (this.enphaseServiceEncharge && this.enchargesCommunicating[i]) {
+            if (this.enphaseServiceEncharge) {
               this.enphaseServiceEncharge.updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, commLevel);
             }
             this.enchargesCommLevel.push(commLevel);
           }
-
 
           //encharges summary
           if (productionCT.status === 200 && productionCT.data !== undefined) {
@@ -2378,7 +2369,7 @@ class envoyDevice {
       //microinverters power
       if (this.microinvertersCount > 0) {
         if (inventory.status === 200 && inventory.data !== undefined) {
-          this.microinvertersSerialNumberActive = new Array();
+          this.microinvertersSerialNumber = new Array();
           this.microinvertersLastReportDate = new Array();
           this.microinvertersFirmware = new Array();
           this.microinvertersProducing = new Array();
@@ -2424,10 +2415,9 @@ class envoyDevice {
             const operating = inventory.data[0].devices[i].operating;
 
             // convert status
-            let statusLength = status.length;
-            let arrStatus = new Array();
-            if (Array.isArray(status) && statusLength > 0) {
-              for (let j = 0; j < statusLength; j++) {
+            if (Array.isArray(status) && status.length > 0) {
+              const arrStatus = new Array();
+              for (let j = 0; j < status.length; j++) {
                 arrStatus.push(ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(status[j])]);
               }
               status = arrStatus.join(', ')
@@ -2446,7 +2436,7 @@ class envoyDevice {
 
             }
 
-            this.microinvertersSerialNumberActive.push(serialNumber);
+            this.microinvertersSerialNumber.push(serialNumber);
             this.microinvertersLastReportDate.push(lastrptdate);
             this.microinvertersFirmware.push(firmware);
             this.microinvertersProducing.push(producing);
@@ -2457,28 +2447,16 @@ class envoyDevice {
           }
 
           //microinverters power
-          if (this.checkMicroinvertersPower) {
+          if (this.checkMicroinvertersPower && this.microinverters.data !== undefined) {
             for (let j = 0; j < this.microinverters.data.length; j++) {
-              let serialNumber = this.microinverters.data[j].serialNumber;
+              const serialNumber = this.microinverters.data[j].serialNumber;
               this.allMicroinvertersSerialNumber.push(serialNumber);
             }
-            const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumberActive[i]);
-            let lastrptdate = 'Reading data failed';
-            if (this.microinverters.data[index].lastReportDate !== undefined) {
-              lastrptdate = new Date(this.microinverters.data[index].lastReportDate * 1000).toLocaleString();
-            }
-            let type = 0;
-            if (this.microinverters.data[index].devType !== undefined) {
-              type = this.microinverters.data[index].devType;
-            }
-            let power = 0;
-            if (this.microinverters.data[index].lastReportWatts !== undefined) {
-              power = parseInt(this.microinverters.data[index].lastReportWatts);
-            }
-            let powerMax = 0;
-            if (this.microinverters.data[index].maxReportWatts !== undefined) {
-              powerMax = parseInt(this.microinverters.data[index].maxReportWatts);
-            }
+            const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
+            const lastrptdate = new Date(this.microinverters.data[index].lastReportDate * 1000).toLocaleString();
+            const type = this.microinverters.data[index].devType;
+            const power = parseInt(this.microinverters.data[index].lastReportWatts);
+            const powerMax = parseInt(this.microinverters.data[index].maxReportWatts);
 
             if (this.enphaseServiceMicronverter && this.microinvertersCommunicating[i]) {
               this.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastrptdate);
@@ -2495,13 +2473,10 @@ class envoyDevice {
 
           //microinverters comm level
           if (this.checkCommLevel) {
-            const key = '' + this.microinvertersSerialNumberActive[i] + '';
-            let commLevel = 0;
-            if (this.pcuCommCheck.data[key] !== undefined) {
-              commLevel = this.pcuCommCheck.data[key];
-            }
+            const key = '' + this.microinvertersSerialNumber[i] + '';
+            const commLevel = this.microinvertersCommunicating[i] ? this.pcuCommCheck.data[key] : 0;
 
-            if (this.enphaseServiceMicronverter && this.microinvertersCommunicating[i]) {
+            if (this.enphaseServiceMicronverter) {
               this.enphaseServiceMicronverter.updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, commLevel);
             }
             this.microinvertersCommLevel.push(commLevel);
@@ -3316,12 +3291,12 @@ class envoyDevice {
     //microinverter
     if (this.microinvertersCount > 0 && this.microinvertersActiveCount > 0) {
       for (let i = 0; i < this.microinvertersCount; i++) {
-        this.enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumberActive[i], 'enphaseServiceMicronverter' + i);
+        this.enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumber[i], 'enphaseServiceMicronverter' + i);
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPower)
           .onGet(async () => {
             let value = this.microinvertersLastPower[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s last power: %s W', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
+              this.log('Device: %s %s, microinverter: %s last power: %s W', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
             return value;
           });
@@ -3329,7 +3304,7 @@ class envoyDevice {
           .onGet(async () => {
             let value = this.microinvertersMaxPower[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s max power: %s W', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
+              this.log('Device: %s %s, microinverter: %s max power: %s W', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
             return value;
           });
@@ -3337,7 +3312,7 @@ class envoyDevice {
           .onGet(async () => {
             let value = this.microinvertersProducing[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s producing: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, microinverter: %s producing: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
@@ -3345,7 +3320,7 @@ class envoyDevice {
           .onGet(async () => {
             let value = this.microinvertersCommunicating[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s communicating: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, microinverter: %s communicating: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
@@ -3353,7 +3328,7 @@ class envoyDevice {
           .onGet(async () => {
             let value = this.microinvertersProvisioned[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s provisioned: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, microinverter: %s provisioned: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
@@ -3361,7 +3336,7 @@ class envoyDevice {
           .onGet(async () => {
             let value = this.microinvertersOperating[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s operating: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, microinverter: %s operating: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
@@ -3370,7 +3345,7 @@ class envoyDevice {
             .onGet(async () => {
               let value = this.microinvertersCommLevel[i];
               if (!this.disableLogInfo) {
-                this.log('Device: %s %s, microinverter: %s comm. level: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
+                this.log('Device: %s %s, microinverter: %s comm. level: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
               }
               return value;
             });
@@ -3379,7 +3354,7 @@ class envoyDevice {
           .onGet(async () => {
             let value = this.microinvertersStatus[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s status: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
+              this.log('Device: %s %s, microinverter: %s status: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
             return value;
           });
@@ -3387,7 +3362,7 @@ class envoyDevice {
           .onGet(async () => {
             let value = this.microinvertersFirmware[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s firmware: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
+              this.log('Device: %s %s, microinverter: %s firmware: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
             return value;
           });
@@ -3395,7 +3370,7 @@ class envoyDevice {
           .onGet(async () => {
             let value = this.microinvertersReadingTimePower[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, microinverter: %s last report: %s', this.host, accessoryName, this.microinvertersSerialNumberActive[i], value);
+              this.log('Device: %s %s, microinverter: %s last report: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
             return value;
           });
