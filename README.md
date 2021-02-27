@@ -16,6 +16,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 </span>
 
 ## Bonus Top Bar on Mac!!!
+The file is currentlly prepared to work with Envoy-S with installed Current Meter. You can allways comment not nedde lines to correct work with other Envoys.
+If U have special wish or do not know how to change the file please let me know of Your Photovoltaic config.
+
 1. Download `enphase_envoy.15s.rb`
 2. Open the Terminal app. 
 3. Install homebrew: `mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew`.
