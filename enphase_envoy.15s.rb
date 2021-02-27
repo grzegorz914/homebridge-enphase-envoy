@@ -20,25 +20,25 @@ MICROINVERTERS_SUM_WATTS = 5400 # Set the summary power of microinverters
 
 def autoFormatPower(val)
     if (val < 1000 && val > -1000)
-        return val.round(1).to_s + 'W'
+        return val.round(1).to_s + ' W'
     end
     if ((val >= 1000 && val < 1000000) || (val > -1000000 && val <= -1000))
-        return (val/1000).round(3).to_s + 'kW'
+        return (val/1000).round(3).to_s + ' kW'
     end
     if (val <= -1000000 || val >= 1000000)
-        return (val/1000000).round(3).to_s + 'MW'
+        return (val/1000000).round(3).to_s + ' MW'
     end
 end
 
 def autoFormatEnergy(val)
     if (val < 1000 && val > -1000)
-        return val.round(1).to_s + 'Wh'
+        return val.round(1).to_s + ' Wh'
     end
     if ((val >= 1000 && val < 1000000) || (val > -1000000 && val <= -1000))
-        return (val/1000).round(3).to_s + 'kWh'
+        return (val/1000).round(3).to_s + ' kWh'
     end
     if (val <= -1000000 || val >= 1000000)
-        return (val/1000000).round(3).to_s + 'MWh'
+        return (val/1000000).round(3).to_s + ' MWh'
     end
 end
 
@@ -125,11 +125,14 @@ begin
     end
 
     puts "#{icon} #{autoFormatPower(power)}| color=#{power > 0 ? "red":"white"} size=12"
+    puts "---"
+    puts "Production"
+    puts "Power #{autoFormatPower(ctmeterProduction ? productionPower : productionMicroSummaryWattsNow)}| size=12"
     puts "Energy #{autoFormatEnergy(ctmeterProduction ? productionEnergyToday : productionMicroSummarywhToday)}| size=12"
     puts "Energy 7 days #{autoFormatEnergy(ctmeterProduction ? productionEnergyLastSevenDays : productionMicroSummarywhLastSevenDays)}| size=12"
-    puts "Energy lifetime #{autoFormatEnergy(ctmeterProduction ? productionEnergyLifeTime : productionMicroSummarywhLifetime)}| size=12"
+    puts "Energy lifetime #{autoFormatEnergy(ctmeterProduction ? productionEnergyLifeTime : productionMicroSummarywhLifeTime)}| size=12"
     puts "---"
-    if ctmeterConsumption
+    if ctmeterConsumption == true
     puts "Consumption total"
     puts "Power #{autoFormatPower(consumptionTotalPower)}| size=12"
     puts "Energy #{autoFormatEnergy(consumptionTotalEnergyToday)}| size=12"
