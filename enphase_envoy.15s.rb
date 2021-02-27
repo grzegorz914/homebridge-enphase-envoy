@@ -54,10 +54,11 @@ begin
     raise "Error on http request. Response: " + res.message unless res.is_a?(Net::HTTPSuccess)
     meters = JSON.parse(res.body)
     
+    # Check enabled meters
     ctmeters = meters.length
      if ctmeters > 0
-        ctmeterProduction = meters[0]["state"] == "enabled"
-        ctmeterConsumption = meters[1]["state"] == "enabled"
+        ctmeterProduction = (meters[0]["state"] == "enabled")
+        ctmeterConsumption = (meters[1]["state"] == "enabled")
      else
         ctmeterProduction = false
         ctmeterConsumption = false
@@ -71,13 +72,12 @@ begin
     raise "Error on http request. Response: " + res.message unless res.is_a?(Net::HTTPSuccess)
     production = JSON.parse(res.body)
     
-    # microinverters summary 
     productionMicroSummarywhToday = production["attHoursToday"]
     productionMicroSummarywhLastSevenDays = production["wattHoursSevenDays"]
     productionMicroSummarywhLifeTime = production["wattHoursLifetime"]
     productionMicroSummaryWattsNow = production["wattsNow"]
 
-    # Get production
+    # Get production cureent meters
     uri = URI("http://" + ENVOY_IP + "/production.json?details=1")
     req  = Net::HTTP::Get.new(uri.request_uri)
     req['Content-Type'] = 'application/json'
@@ -85,16 +85,14 @@ begin
     raise "Error on http request. Response: " + res.message unless res.is_a?(Net::HTTPSuccess)
     productionct = JSON.parse(res.body)
     
-    productionMicroPower = productionct["production"][0]["wNow"]
-    productionMicroEnergyLifeTime = productionct["production"][0]["whLifetime"]
-    
     if ctmeterProduction == true
     productionPower = productionct["production"][1]["wNow"]
     productionEnergyToday = productionct["production"][1]["whToday"]
     productionEnergyLastSevenDays = productionct["production"][1]["whLastSevenDays"]
     productionEnergyLifeTime = productionct["production"][1]["whLifetime"]
     end
-    if ctmeterConsumption
+
+    if ctmeterConsumption == true
     consumptionTotalPower = productionct["consumption"][0]["wNow"]
     consumptionTotalEnergyToday = productionct["consumption"][0]["whToday"]
     consumptionTotalEnergyLastSevenDays = productionct["consumption"][0]["whLastSevenDays"]
@@ -103,27 +101,30 @@ begin
     consumptionNetEnergyLifeTime = productionct["consumption"][1]["whLifetime"]
     end
 
-    case 
-    when consumptionNetPower > 0
-        icon = "🔌" # Power plug
-    when productionPower < (SYSTEM_SIZE_WATTS / 2)
-        icon = "⛅" # Cloudy
+    if ctmeterConsumption == true
+        case 
+        when consumptionNetPower > 0
+            icon = "🔌" # Power plug
+            power = consumptionNetPower
+        when (ctmeterProduction ? productionPower : productionMicroSummaryWattsNow) < (SYSTEM_SIZE_WATTS / 2)
+            icon = "⛅" # Cloudy
+            power = ctmeterProduction ? productionPower : productionMicroSummaryWattsNow
+        else
+            icon = "☀️" # Sun
+            power = ctmeterProduction ? productionPower : productionMicroSummaryWattsNow
+        end
     else
-        icon = "☀️" # Sun
+        case 
+        when (ctmeterProduction ? productionPower : productionMicroSummaryWattsNow) < (SYSTEM_SIZE_WATTS / 2)
+            icon = "⛅" # Cloudy
+            power = ctmeterProduction ? productionPower : productionMicroSummaryWattsNow
+        else
+            icon = "☀️" # Sun
+            power = ctmeterProduction ? productionPower : productionMicroSummaryWattsNow
+        end
     end
 
-     # Set the display in bar
-     case 
-     when consumptionNetPower > 0
-         power = consumptionNetPower
-     else
-        power = productionPower
-     end
-
-    puts "#{icon} #{autoFormatPower(power)}| color=#{consumptionNetPower > 0 ? "red":"white"} size=12"
-    puts "---"
-    puts "Production"
-    puts "Power #{autoFormatPower(ctmeterProduction ? productionPower : productionMicroSummaryWattsNow)}| size=12"
+    puts "#{icon} #{autoFormatPower(power)}| color=#{power > 0 ? "red":"white"} size=12"
     puts "Energy #{autoFormatEnergy(ctmeterProduction ? productionEnergyToday : productionMicroSummarywhToday)}| size=12"
     puts "Energy 7 days #{autoFormatEnergy(ctmeterProduction ? productionEnergyLastSevenDays : productionMicroSummarywhLastSevenDays)}| size=12"
     puts "Energy lifetime #{autoFormatEnergy(ctmeterProduction ? productionEnergyLifeTime : productionMicroSummarywhLifetime)}| size=12"
@@ -138,8 +139,8 @@ begin
     puts "Consumption net"
     puts "Power #{autoFormatPower(consumptionNetPower)}| size=12"
     puts "Energy lifetime #{autoFormatEnergy(consumptionNetEnergyLifeTime)}| size=12"
-    end
     puts "---"
+    end
 
     # Get installed and active devices
     uri = URI('http://' + ENVOY_IP + '/inventory.json')
