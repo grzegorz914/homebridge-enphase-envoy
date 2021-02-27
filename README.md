@@ -18,12 +18,14 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 ## Bonus Top Bar on Mac!!!
 1. Download `enphase_envoy.15s.rb`
 2. Open the Terminal app. 
-3. Install homebrew: `mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew`
-4. Install digest auth: `gem install net-http-digest_auth`
-5. Instal BitBar `brew install bitbar`
-6. If nedded edit `enphase_envoy.15s.rb` file and change `envoy.local` to the correct IP Address of Your Envoy
-7. Run `BitBar` and go to Preferences>>Change Plugin Folder... and chose folder where You placed the `enphase_envoy.15s.rb`.
-8. After a few seconds You will see on the Top Bar:
+3. Install homebrew: `mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew`.
+4. Install digest auth: `gem install net-http-digest_auth`.
+5. Instal BitBar `brew install bitbar`.
+6. Edit `enphase_envoy.15s.rb` file and change the `SYSTEM_SIZE_WATTS = 5400` to Your microinverters power.
+7. Edit `enphase_envoy.15s.rb` file and change `ENVOY_IP = envoy.local` to IP Address of Your Envoy if nedded.
+8. If You already changed Your standard Envoy password, edit `enphase_envoy.15s.rb` and change `uri.password = envoySerial[-6,6]`.
+9. Run `BitBar` and go to Preferences>>Change Plugin Folder... and chose folder where You placed the `enphase_envoy.15s.rb`.
+10. After a few seconds You will see all data on the Top Bar:
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" height="350"></a>
 </p>
