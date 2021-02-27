@@ -90,13 +90,13 @@ begin
     puts "---"
     puts "Production"
     puts "Power #{autoFormatPower(production)}| size=12"
-    puts "Energy today #{autoFormatEnergy(productionWhToday)}| size=12"
+    puts "Energy #{autoFormatEnergy(productionWhToday)}| size=12"
     puts "Energy 7 days #{autoFormatEnergy(productionWhLastSevenDays)}| size=12"
     puts "Energy lifetime #{autoFormatEnergy(productionWhLifetime)}| size=12"
     puts "---"
     puts "Consumption totall"
     puts "Power #{autoFormatPower(totalConsumption)}| size=12"
-    puts "Energy today #{autoFormatEnergy(totalConsumptionWhToday)}| size=12"
+    puts "Energy #{autoFormatEnergy(totalConsumptionWhToday)}| size=12"
     puts "Energy 7 days #{autoFormatEnergy(totalConsumptionWhLastSevenDays)}| size=12"
     puts "Energy lifetime #{autoFormatEnergy(totalConsumptionWhLifetime)}| size=12"
     puts "---"
@@ -139,30 +139,32 @@ begin
     allInverters = JSON.parse(res.body)
 
     # Get serial number and power of every microinverter
-    puts "Microinverter"
-    arr = Array.new 
+    puts "Mikroinwerter"
+    j = 0
     arr1 = Array.new 
+    arr2 = Array.new
+    loop do
+        serialNumber = allInverters[j]["serialNumber"]
+        power = allInverters[j]["lastReportWatts"]
+        arr1.push(serialNumber)
+        arr2.push(power)
+        j += 1
+        if j == allInverters.length
+            break
+        end
+    end
 
     i = 0
+    arr = Array.new 
     loop do
         serial = inventory[0]["devices"][i]["serial_num"]
         arr.push(serial)
-        j = 0
-        loop do
-            serialNumber = allInverters[j]["serialNumber"]
-            arr1.push(serialNumber)
-            j += 1
-            if j == allInverters.length
-                break
-            end
-        end
-        index = arr1.find_index(arr1[i])
-        power = allInverters[index]["lastReportWatts"]
-        puts "Nr. #{serial} moc: #{autoFormatPower(power)}| size=12"
-    i += 1
-    if i == inventory[0]["devices"].length
+        index = arr1.find_index(arr[i])
+        puts "Nr. #{arr1[index]} moc: #{autoFormatPower(arr2[index])}| size=12"
+        i += 1
+        if i == inventory[0]["devices"].length
         break
-    puts "---"
+        puts "---"
         end
     end
     
