@@ -122,9 +122,9 @@ Data refresh time
                     "refreshInterval": 30,
                     "disableLogInfo": false,
                     "envoyUser": "envoy", //removed from 4.6.11, not nedded anymore
-                    "envoyPasswd": "password",
+                    "envoyPasswd": "",
                     "installerUser": "installer", //removed from 4.6.11 not nedded anymore
-                    "installerPasswd": "password",
+                    "installerPasswd": "",
                     "enchargeStorageOffset": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
