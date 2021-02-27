@@ -41,7 +41,7 @@ const ENCHARGE_STATE_1 = ['Idle', 'Discharging', 'Charging', 'Unknown'];
 const ENVOY_UPDATE = ['satisfied', 'not-satisfied', 'undefined'];
 const ENVOY_UPDATE_1 = ['Satisfied', 'Not satisfied', 'Unknown'];
 
-const ENVOY_STATUS_CODE = ['undefined',
+const ENVOY_STATUS_CODE = ['undefined', 'enabled', 'disabled', 'one', 'two', 'three', 'normal', 'closed', 'open',
   'error.nodata', 'envoy.global.ok', 'envoy.cond_flags.acb_ctrl.bmuhardwareerror', 'envoy.cond_flags.acb_ctrl.bmuimageerror', 'envoy.cond_flags.acb_ctrl.bmumaxcurrentwarning', 'envoy.cond_flags.acb_ctrl.bmusenseerror', 'envoy.cond_flags.acb_ctrl.cellmaxtemperror',
   'envoy.cond_flags.acb_ctrl.cellmaxtempwarning', 'envoy.cond_flags.acb_ctrl.cellmaxvoltageerror', 'envoy.cond_flags.acb_ctrl.cellmaxvoltagewarning', 'envoy.cond_flags.acb_ctrl.cellmintemperror', 'envoy.cond_flags.acb_ctrl.cellmintempwarning',
   'envoy.cond_flags.acb_ctrl.cellminvoltageerror', 'envoy.cond_flags.acb_ctrl.cellminvoltagewarning', 'envoy.cond_flags.acb_ctrl.cibcanerror', 'envoy.cond_flags.acb_ctrl.cibimageerror', 'envoy.cond_flags.acb_ctrl.cibspierror',
@@ -57,7 +57,7 @@ const ENVOY_STATUS_CODE = ['undefined',
   'envoy.cond_flags.pcu_ctrl.pwrgenoffbycmd', 'envoy.cond_flags.pcu_ctrl.runningonac', 'envoy.cond_flags.pcu_ctrl.tpmtest', 'envoy.cond_flags.pcu_ctrl.unexpectedreset', 'envoy.cond_flags.pcu_ctrl.watchdogreset', 'envoy.cond_flags.rgm_chan.check_meter',
   'envoy.cond_flags.rgm_chan.power_quality'
 ]
-const ENVOY_STATUS_CODE_1 = ['Unknown', 'No Data', 'Normal', 'BMU Hardware Error', 'BMU Image Error', 'BMU Max Current Warning', 'BMU Sense Error', 'Cell Max Temperature Error', 'Cell Max Temperature Warning', 'Cell Max Voltage Error',
+const ENVOY_STATUS_CODE_1 = ['Unknown', 'Enabled', 'Disabled', 'One', 'Two', 'Three', 'Normal', 'Closed', 'Open', 'No Data', 'Normal', 'BMU Hardware Error', 'BMU Image Error', 'BMU Max Current Warning', 'BMU Sense Error', 'Cell Max Temperature Error', 'Cell Max Temperature Warning', 'Cell Max Voltage Error',
   'Cell Max Voltage Warning', 'Cell Min Temperature Error', 'Cell Min Temperature Warning', 'Cell Min Voltage Error', 'Cell Min Voltage Warning', 'CIB CAN Error', 'CIB Image Error', 'CIB SPI Error', 'Discovering', 'Failure to report',
   'Flash Error', 'Not Monitored', 'Normal', 'PLM Error', 'Secure mode enter failure', 'Secure mode exit failure', 'Sleeping', 'AC Monitor Error', 'AC Frequency High', 'AC Frequency Low', 'AC Frequency Out Of Range', 'AC Voltage Average High',
   'AC Voltage High', 'AC Voltage Low', 'AC Voltage Out Of Range', 'AC Voltage Out Of Range - Phase 1', 'AC Voltage Out Of Range - Phase 2', 'AC Voltage Out Of Range - Phase 3', 'AGF Power Limiting', 'DC Resistance Low', 'DC Resistance Low - Power Off',
@@ -1694,7 +1694,7 @@ class envoyDevice {
             const communicating = inventory.data[2].devices[i].communicating;
             const provisioned = inventory.data[2].devices[i].provisioned;
             const operating = inventory.data[2].devices[i].operating;
-            const relay = inventory.data[2].devices[i].relay;
+            const relay = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(inventory.data[2].devices[i].relay)];
             const reasonCode = inventory.data[2].devices[i].reason_code;
             const reason = inventory.data[2].devices[i].reason;
             const linesCount = inventory.data[2].devices[i]['line-count'];
@@ -1786,11 +1786,11 @@ class envoyDevice {
 
           for (let i = 0; i < this.metersCount; i++) {
             const eid = meters.data[i].eid;
-            const state = meters.data[i].state;
+            const state = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(meters.data[i].state)];
             const measurementType = meters.data[i].measurementType;
-            const phaseMode = meters.data[i].phaseMode;
+            const phaseMode = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(meters.data[i].phaseMode)];
             const phaseCount = meters.data[i].phaseCount;
-            const meteringStatus = meters.data[i].meteringStatus;
+            const meteringStatus = ENVOY_STATUS_CODE_1[ENVOY_STATUS_CODE.indexOf(meters.data[i].meteringStatus)];
             let status = meters.data[i].statusFlags;
 
             // convert status
@@ -1804,6 +1804,7 @@ class envoyDevice {
             } else {
               status = 'Not available';
             }
+
 
             if (this.enphaseServiceMeter) {
               this.enphaseServiceMeter.updateCharacteristic(Characteristic.enphaseMeterState, state);
