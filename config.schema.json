@@ -42,24 +42,10 @@
               "required": false,
               "description": "This disable log info, all values and state will not be displayed in Homebridge log console."
             },
-            "envoyUser": {
-              "title": "Envoy user",
-              "type": "string",
-              "placeholder": "envoy",
-              "description": "Here set envoy user (only if U already changed default envoy user).",
-              "required": false
-            },
             "envoyPasswd": {
               "title": "Envoy password",
               "type": "string",
               "description": "Here set envoy password (only if U already changed default password).",
-              "required": false
-            },
-            "installerUser": {
-              "title": "Installer user",
-              "type": "string",
-              "placeholder": "installer",
-              "description": "Here set installer user (only if U already changed default installer user).",
               "required": false
             },
             "installerPasswd": {
@@ -158,9 +144,7 @@
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].envoyUser",
             "devices[].envoyPasswd",
-            "devices[].installerUser",
             "devices[].installerPasswd"
           ]
         },

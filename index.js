@@ -10,6 +10,9 @@ const parseStringPromise = require('xml2js').parseStringPromise;
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
+const ENVOY_USER = 'envoy';
+const INSTALLER_USER = 'installer';
+
 const ENVOY_INFO_URL = '/info.xml';
 const ENVOY_HOME_URL = '/home.json';
 const ENVOY_INVENTORY_URL = '/inventory.json';
@@ -1189,9 +1192,7 @@ class envoyDevice {
     this.host = config.host || 'envoy.local';
     this.refreshInterval = config.refreshInterval || 5;
     this.disableLogInfo = config.disableLogInfo;
-    this.envoyUser = config.envoyUser || 'envoy';
     this.envoyPasswd = config.envoyPasswd;
-    this.installerUser = config.installerUser || 'installer';
     this.installerPasswd = config.installerPasswd;
     this.enchargeStorageOffset = config.enchargeStorageOffset || 0;
     this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
@@ -1498,7 +1499,7 @@ class envoyDevice {
           const authInstaller = {
             method: 'GET',
             rejectUnauthorized: false,
-            digestAuth: this.installerUser + ':' + this.installerPasswd,
+            digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
             dataType: 'json',
             timeout: [5000, 5000]
           };
@@ -1515,11 +1516,10 @@ class envoyDevice {
       if (this.microinvertersCount > 0) {
         try {
           //authorization envoy
-          const user = this.envoyUser;
           const passSerialNumber = this.envoySerialNumber.substring(6);
           const passEnvoy = this.envoyPasswd;
           const passwd = passEnvoy || passSerialNumber;
-          const auth = user + ':' + passwd;
+          const auth = ENVOY_USER + ':' + passwd;
           const authEnvoy = {
             method: 'GET',
             rejectUnauthorized: false,
@@ -1828,7 +1828,7 @@ class envoyDevice {
         if (this.metersStreamData) {
           try {
             //authorization envoy
-            const user = this.envoyUser;
+            const user = this.ENVOY_USER;
             const passSerialNumber = this.envoySerialNumber.substring(6);
             const passEnvoy = this.envoyPasswd;
             const passwd = passEnvoy || passSerialNumber;

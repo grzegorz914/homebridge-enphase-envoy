@@ -104,9 +104,9 @@ Data refresh time
 14. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
 15. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
 16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app, `firmware` and `serialNumber`. (not available from v4.1.0)
-17. In `envoyUser` here set the envoy user or leave empty, standard is `envoy`.
+17. In `envoyUser` here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore).
 18. In `envoyPasswd` here set the envoy password (only if U already changed the default password).
-19. In `installerUser` here set the optional installer user, standard is `installer`.
+19. In `installerUser` here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore).
 20. In `installerPasswd` here set optional the installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
@@ -121,9 +121,9 @@ Data refresh time
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
                     "disableLogInfo": false,
-                    "envoyUser": "envoy",
+                    "envoyUser": "envoy", //removed from 4.6.11, not nedded anymore
                     "envoyPasswd": "password",
-                    "installerUser": "installer",
+                    "installerUser": "installer", //removed from 4.6.11 not nedded anymore
                     "installerPasswd": "password",
                     "enchargeStorageOffset": 0,
                     "powerProductionMaxDetected": 5400,
