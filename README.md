@@ -30,12 +30,12 @@ If U have special wish or do not know how to change the file, please let me know
 9. Run [BitBar](https://github.com/matryer/bitbar) and go to Preferences>>Change Plugin Folder... and chose folder where You placed the `enphase_envoy.15s.rb`.
 10. After a few seconds You will see all data on the Top Bar:
 
-Quick info about file name and its function:
+# Quick info about file name and its function:
 1. The `enphase_envoy` just the file name.
 2. The `15s` data refresh time.
-3. The `rb` file extensions
+3. The `rb` file extension.
 
-### Data refresh time
+Data refresh time
 * 15s - 15 seconds
 * 1m - 1 minute
 * 1h - 1 hour
