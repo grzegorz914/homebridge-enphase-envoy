@@ -50,9 +50,8 @@ begin
     uri = URI("http://" + ENVOY_IP + "/ivp/meters")
     req  = Net::HTTP::Get.new(uri.request_uri)
     res = http.request(req)
-    if res.code == "200"
-       meters = JSON.parse(res.body)
-    end
+    raise "Error on meters response: " + res.message unless res.is_a?(Net::HTTPSuccess)
+    meters = JSON.parse(res.body)
     
     # Check enabled meters
     ctmeters = meters.length
@@ -68,9 +67,8 @@ begin
     uri = URI("http://" + ENVOY_IP + "/api/v1/production")
     req  = Net::HTTP::Get.new(uri.request_uri)
     res = http.request(req)
-    if res.code == "200"
-       production = JSON.parse(res.body)
-    end
+    raise "Error on production response: " + res.message unless res.is_a?(Net::HTTPSuccess)
+    production = JSON.parse(res.body)
     
     productionMicroSummarywhToday = production["attHoursToday"]
     productionMicroSummarywhLastSevenDays = production["wattHoursSevenDays"]
@@ -81,9 +79,8 @@ begin
     uri = URI("http://" + ENVOY_IP + "/production.json?details=1")
     req  = Net::HTTP::Get.new(uri.request_uri)
     res = http.request(req)
-    if res.code == "200"
-        productionct = JSON.parse(res.body)
-     end
+    raise "Error on productionct response: " + res.message unless res.is_a?(Net::HTTPSuccess)
+    productionct = JSON.parse(res.body)
     
     if ctmeterProduction == true
     productionPower = productionct["production"][1]["wNow"]
@@ -145,28 +142,26 @@ begin
     puts "---"
     end
 
-     # Get installed and active devices
-     uri = URI("http://" + ENVOY_IP + "/inventory.json")
-     req  = Net::HTTP::Get.new(uri.request_uri)
-     res = http.request(req)
-     if res.code == "200"
-         inventory = JSON.parse(res.body)
-     end
+    # Get installed and active devices
+    uri = URI("http://" + ENVOY_IP + "/inventory.json")
+    req  = Net::HTTP::Get.new(uri.request_uri)
+    res = http.request(req)
+    raise "Error on inventory response: " + res.message unless res.is_a?(Net::HTTPSuccess)
+    inventory = JSON.parse(res.body)
+
+    # Get the serial number of the envoy
+    uri = URI("http://" + ENVOY_IP + "/info.xml")
+    req  = Net::HTTP::Get.new(uri.request_uri)
+    res = http.request(req)
+    raise "Error on envoy serial response: " + res.message unless res.is_a?(Net::HTTPSuccess)
+    envoySerial = res.body.scan(/sn>(\d*)<\/sn>/).first.first
  
-     # Get the serial number of the envoy
-     uri = URI("http://" + ENVOY_IP + "/info.xml")
-     req  = Net::HTTP::Get.new(uri.request_uri)
-     res = http.request(req)
-     if res.code == "200"
-         envoySerial = res.body.scan(/sn>(\d*)<\/sn>/).first.first
-     end
+    # Now lets see how much the every microinverter producing.
+    uri = URI("http://" + ENVOY_IP + "/api/v1/production/inverters")
+    uri.user = "envoy"
+    uri.password = envoySerial[-6,6]
  
-     # Now lets see how much the every microinverter producing.
-     uri = URI("http://" + ENVOY_IP + "/api/v1/production/inverters")
-     uri.user = "envoy"
-     uri.password = envoySerial[-6,6]
- 
-     # Make the first request to get the auth
+    # Make the first request to get the auth
     req = Net::HTTP::Get.new(uri.request_uri)
     res = http.request(req)
 
@@ -176,9 +171,8 @@ begin
     req = Net::HTTP::Get.new(uri.request_uri)
     req.add_field('Authorization', auth)
     res = http.request(req)
-    if res.code == "200"
-        allInverters = JSON.parse(res.body)
-    end
+    raise "Error on all inverters response: " + res.message unless res.is_a?(Net::HTTPSuccess)
+    allInverters = JSON.parse(res.body)
 
     # Get serial number and power of every microinverter
     puts "Microinverter"
