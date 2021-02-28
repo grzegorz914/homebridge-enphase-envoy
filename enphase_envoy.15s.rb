@@ -171,35 +171,43 @@ begin
     req = Net::HTTP::Get.new(uri.request_uri)
     req.add_field('Authorization', auth)
     res = http.request(req)
-    raise "Error on all inverters response: " + res.message unless res.is_a?(Net::HTTPSuccess)
-    allInverters = JSON.parse(res.body)
-
+    
     # Get serial number and power of every microinverter
-    puts "Microinverter"
-    i = 0
-    arr = Array.new 
-    arr1 = Array.new
-    loop do
-        serialNumber = allInverters[i]["serialNumber"]
-        power = allInverters[i]["lastReportWatts"]
-        arr.push(serialNumber)
-        arr1.push(power)
-        i += 1
-        if i == allInverters.length
-            break
+    case res
+    when Net::HTTPSuccess
+        allInverters = JSON.parse(res.body)
+        puts "Mikroinwerter"
+        j = 0
+        arr = Array.new 
+        arr1 = Array.new
+        loop do
+            serialNumber = allInverters[j]["serialNumber"]
+            power = allInverters[j]["lastReportWatts"]
+            arr.push(serialNumber)
+            arr1.push(power)
+            j += 1
+            if j == allInverters.length
+                break
+            end
         end
-    end
 
-    j = 0
-    loop do
-        serial = inventory[0]["devices"][j]["serial_num"]
-        index = arr.find_index(serial)
-        puts "SN: #{arr[index]} power: #{autoFormatPower(arr1[index])}| size=12"
-        j += 1
-        if j == inventory[0]["devices"].length
-        break
-        puts "---"
+        i = 0
+        loop do
+            serial = inventory[0]["devices"][i]["serial_num"]
+            index = arr.find_index(serial)
+            puts "Nr. #{arr[index]} moc: #{autoFormatPower(arr1[index])}| size=12"
+            i += 1
+            if i == inventory[0]["devices"].length
+                break
+            puts "---"
+            end
         end
+    when Net::HTTPUnauthorized
+      {'error' => "#{res.message}: username and password set and correct?"}
+    when Net::HTTPServerError
+      {'error' => "#{res.message}: try again later?"}
+    else
+      {'error' => res.message}
     end
     
 rescue StandardError => e
