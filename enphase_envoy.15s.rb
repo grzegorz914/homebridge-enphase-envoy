@@ -167,18 +167,18 @@ begin
      uri.password = envoySerial[-6,6]
  
      # Make the first request to get the auth
-     req = Net::HTTP::Get.new uri.request_uri
-     res = http.request req
- 
-     # Aauthentication digest
-     digest_auth = Net::HTTP::DigestAuth.new
-     auth = digest_auth.auth_header uri, res["www-authenticate"], "GET"
-     req = Net::HTTP::Get.new uri.request_uri 
-     req.add_field "Authorization", auth
-     res = http.request req
-     if res.code == "200"
-         allInverters = JSON.parse(res.body)
-     end
+    req = Net::HTTP::Get.new(uri.request_uri)
+    res = http.request(req)
+
+    # Aauthentication digest
+    digest_auth = Net::HTTP::DigestAuth.new
+    auth = digest_auth.auth_header(uri, res['www-authenticate'], 'GET')
+    req = Net::HTTP::Get.new(uri.request_uri)
+    req.add_field('Authorization', auth)
+    res = http.request(req)
+    if res.code == "200"
+        allInverters = JSON.parse(res.body)
+    end
 
     # Get serial number and power of every microinverter
     puts "Microinverter"
