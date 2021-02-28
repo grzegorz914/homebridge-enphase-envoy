@@ -52,8 +52,6 @@ begin
     res = http.request(req)
     if res.code == "200"
        meters = JSON.parse(res.body)
-    else
-        res.message
     end
     
     # Check enabled meters
@@ -72,8 +70,6 @@ begin
     res = http.request(req)
     if res.code == "200"
        production = JSON.parse(res.body)
-    else
-        res.message
     end
     
     productionMicroSummarywhToday = production["attHoursToday"]
@@ -87,8 +83,6 @@ begin
     res = http.request(req)
     if res.code == "200"
         productionct = JSON.parse(res.body)
-     else
-         res.message
      end
     
     if ctmeterProduction == true
@@ -157,8 +151,6 @@ begin
      res = http.request(req)
      if res.code == "200"
          inventory = JSON.parse(res.body)
-     else
-         res.message
      end
  
      # Get the serial number of the envoy
@@ -167,8 +159,6 @@ begin
      res = http.request(req)
      if res.code == "200"
          envoySerial = res.body.scan(/sn>(\d*)<\/sn>/).first.first
-     else
-         res.message
      end
  
      # Now lets see how much the every microinverter producing.
@@ -189,8 +179,6 @@ begin
      res = http.request req
      if res.code == "200"
          allInverters = JSON.parse(res.body)
-     else
-         res.message
      end
 
     # Get serial number and power of every microinverter
