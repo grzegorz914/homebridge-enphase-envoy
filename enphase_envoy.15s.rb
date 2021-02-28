@@ -164,8 +164,7 @@ begin
      # Now lets see how much the every microinverter producing.
      uri = URI("http://" + ENVOY_IP + "/api/v1/production/inverters")
      uri.user = "envoy"
-     uri.password = "pdp-lx5090h"
-     # uri.password = envoySerial[-6,6]
+     uri.password = envoySerial[-6,6]
  
      # Make the first request to get the auth
      req = Net::HTTP::Get.new uri.request_uri
