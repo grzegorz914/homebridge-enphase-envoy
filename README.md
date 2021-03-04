@@ -100,7 +100,7 @@ Data refresh time
 13. In `energyConsumptionTotalLifetimeOffset` set the offset of lifetime total energy consumption if nedded in (Wh),(+/-).
 14. In `powerConsumptionNetMaxDetected` set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit.
 15. In `energyConsumptionNetLifetimeOffset` set the offset of lifetime net energy consumption if nedded in (Wh),(+/-).
-16. `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - optional branding data displayed in Home.app, `firmware` and `serialNumber`. (not available from v4.1.0)
+16. In `manufacturer`, `model`, `serialNumber`, `firmwareRevision` - set optional branding, `firmware` and `serialNumber`. (not available from v4.1.0, all from 4.7.0)
 17. In `envoyUser` here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore).
 18. In `envoyPasswd` here set the envoy password (only if U already changed the default password).
 19. In `installerUser` here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore).
@@ -129,8 +129,8 @@ Data refresh time
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
-                    "manufacturer": "Manufacturer",
-                    "modelName": "Model"
+                    "manufacturer": "Manufacturer", //removed from 4.7.0 not nedded anymore
+                    "modelName": "Model" //removed from 4.7.0 not nedded anymore
                 }
             ]
         }

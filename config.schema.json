@@ -109,20 +109,6 @@
               "maximum": 65535,
               "description": "Here set energy consumption *Offset* in (Wh) for lifetime net energy if nedded.",
               "required": false
-            },
-            "manufacturer": {
-              "name": "Manufacturer",
-              "type": "string",
-              "placeholder": "Manufacturer",
-              "description": "Set the manufacturer name or leave empty.",
-              "required": false
-            },
-            "modelName": {
-              "name": "Model",
-              "type": "string",
-              "placeholder": "Model",
-              "description": "Set the envoy model name. or leave empty.",
-              "required": false
             }
           }
         }
@@ -164,17 +150,6 @@
             "devices[].energyConsumptionTotalLifetimeOffset",
             "devices[].powerConsumptionNetMaxDetected",
             "devices[].energyConsumptionNetLifetimeOffset"
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
-          "title": "Branding",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            "devices[].manufacturer",
-            "devices[].modelName"
           ]
         }
       ]
