@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Important note v4.5.0 and above!!!
 Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
+## [4.7.0] - (04.03.2021)
+## Changes
+-  update config.chema
+- fixed many small bugs
+- correct identyfi all hardware
+- code cleanup
 
 ## [4.6.0] - (24.02.2021)
 ## Changes
