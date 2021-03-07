@@ -31,7 +31,7 @@
               "type": "integer",
               "default": 5,
               "minimum": 0,
-              "maximum": 100,
+              "maximum": 60,
               "description": "Here set data refresh time in (sec).",
               "required": false
             },
