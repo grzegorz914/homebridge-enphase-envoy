@@ -18,7 +18,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 # Bonus Top Bar on Mac!!!
 1. Download `enphase_envoy.15s.rb`.
 2. Open the Terminal app. 
-3. Install homebrew: `mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew`.
+3. Install homebrew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`.
 4. Install digest auth: `gem install net-http-digest_auth`.
 5. Install BitBar `brew install bitbar`.
 6. Edit the `enphase_envoy.15s.rb` file and change the `MICROINVERTERS_SUM_WATTS = 5400` to Your microinverters power.
