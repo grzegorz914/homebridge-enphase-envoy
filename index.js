@@ -2020,7 +2020,7 @@ class envoyDevice {
                 const current = parseFloat(meterReading.data[k].current).toFixed(3);
                 const freq = parseFloat(meterReading.data[k].freq).toFixed(2);
 
-                if (this.enphaseServiceMeterProduction && (k === 0)) {
+                if (this.enphaseServiceMeterProduction && this.meterProductionState && (k === 0)) {
                   this.enphaseServiceMeterProduction
                     .updateCharacteristic(Characteristic.enphaseMeterReadingTime, timestamp)
                     .updateCharacteristic(Characteristic.enphaseMeterActivePower, activePower)
@@ -2032,7 +2032,7 @@ class envoyDevice {
                     .updateCharacteristic(Characteristic.enphaseMeterFreq, freq);
                 }
 
-                if (this.enphaseServiceMeterConsumption && (k === 1)) {
+                if (this.enphaseServiceMeterConsumption && this.meterConsumptionState && (k === 1)) {
                   this.enphaseServiceMeterConsumption
                     .updateCharacteristic(Characteristic.enphaseMeterReadingTime, timestamp)
                     .updateCharacteristic(Characteristic.enphaseMeterActivePower, activePower)
@@ -2844,7 +2844,6 @@ class envoyDevice {
 
     //ct meter production
     if (this.envoySupportMeters) {
-      if (this.meterProductionState) {
         this.enphaseServiceMeterProduction = new Service.enphaseMeter('Meter production', 'enphaseServiceMeterProduction');
         this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterState)
           .onGet(async () => {
@@ -2886,6 +2885,7 @@ class envoyDevice {
             }
             return value;
           });
+      if (this.meterProductionState) {
         this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterActivePower)
           .onGet(async () => {
             const value = this.activePowerSumm[0];
@@ -2954,7 +2954,6 @@ class envoyDevice {
       }
 
       //ct meter consumption
-      if (this.meterProductionState) {
         this.enphaseServiceMeterConsumption = new Service.enphaseMeter('Meter consumption', 'enphaseServiceMeterConsumption');
         this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterState)
           .onGet(async () => {
@@ -2996,6 +2995,7 @@ class envoyDevice {
             }
             return value;
           });
+      if (this.meterConsumptionState) {
         this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterActivePower)
           .onGet(async () => {
             const value = this.activePowerSumm[1];
