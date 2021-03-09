@@ -1877,7 +1877,7 @@ class envoyDevice {
             }
 
             if (this.enphaseServiceQrelay) {
-              this.enphaseServiceQrelay
+              this.qrelaysService[i]
                 .updateCharacteristic(Characteristic.enphaseQrelayStatus, status)
                 .updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, lastReportDate)
                 .updateCharacteristic(Characteristic.enphaseQrelayFirmware, firmware)
@@ -2003,37 +2003,25 @@ class envoyDevice {
             //read meter summary data
             const meterReadingLength = meterReading.data.length;
             if (meterReadingLength >= 1) {
-              for (let k = 0; k < meterReadingLength; k++) {
-                const eid = meterReading.data[k].eid;
-                const timestamp = new Date(meterReading.data[k].timestamp * 1000).toLocaleString();
-                const actEnergyDlvd = parseFloat(meterReading.data[k].actEnergyDlvd).toFixed(3);
-                const actEnergyRcvd = parseFloat(meterReading.data[k].actEnergyRcvd).toFixed(3);
-                const apparentEnergy = parseFloat(meterReading.data[k].apparentEnergy).toFixed(3);
-                const reactEnergyLagg = parseFloat(meterReading.data[k].reactEnergyLagg).toFixed(3);
-                const reactEnergyLead = parseFloat(meterReading.data[k].reactEnergyLead).toFixed(3);
-                const instantaneousDemand = parseFloat(meterReading.data[k].instantaneousDemand).toFixed(3);
-                const activePower = parseFloat((meterReading.data[k].activePower) / 1000).toFixed(3);
-                const apparentPower = parseFloat((meterReading.data[k].apparentPower) / 1000).toFixed(3);
-                const reactivePower = parseFloat((meterReading.data[k].reactivePower) / 1000).toFixed(3);
-                const pwrFactor = parseFloat(meterReading.data[k].pwrFactor).toFixed(3);
-                const voltage = parseFloat((meterReading.data[k].voltage) / 3).toFixed(1);
-                const current = parseFloat(meterReading.data[k].current).toFixed(3);
-                const freq = parseFloat(meterReading.data[k].freq).toFixed(2);
+              for (let i = 0; i < meterReadingLength; i++) {
+                const eid = meterReading.data[i].eid;
+                const timestamp = new Date(meterReading.data[i].timestamp * 1000).toLocaleString();
+                const actEnergyDlvd = parseFloat(meterReading.data[i].actEnergyDlvd).toFixed(3);
+                const actEnergyRcvd = parseFloat(meterReading.data[i].actEnergyRcvd).toFixed(3);
+                const apparentEnergy = parseFloat(meterReading.data[i].apparentEnergy).toFixed(3);
+                const reactEnergyLagg = parseFloat(meterReading.data[i].reactEnergyLagg).toFixed(3);
+                const reactEnergyLead = parseFloat(meterReading.data[i].reactEnergyLead).toFixed(3);
+                const instantaneousDemand = parseFloat(meterReading.data[i].instantaneousDemand).toFixed(3);
+                const activePower = parseFloat((meterReading.data[i].activePower) / 1000).toFixed(3);
+                const apparentPower = parseFloat((meterReading.data[i].apparentPower) / 1000).toFixed(3);
+                const reactivePower = parseFloat((meterReading.data[i].reactivePower) / 1000).toFixed(3);
+                const pwrFactor = parseFloat(meterReading.data[i].pwrFactor).toFixed(3);
+                const voltage = parseFloat((meterReading.data[i].voltage) / 3).toFixed(1);
+                const current = parseFloat(meterReading.data[i].current).toFixed(3);
+                const freq = parseFloat(meterReading.data[i].freq).toFixed(2);
 
-                if (this.enphaseServiceMeterProduction && this.meterProductionState && (k === 0)) {
-                  this.enphaseServiceMeterProduction
-                    .updateCharacteristic(Characteristic.enphaseMeterReadingTime, timestamp)
-                    .updateCharacteristic(Characteristic.enphaseMeterActivePower, activePower)
-                    .updateCharacteristic(Characteristic.enphaseMeterApparentPower, apparentPower)
-                    .updateCharacteristic(Characteristic.enphaseMeterReactivePower, reactivePower)
-                    .updateCharacteristic(Characteristic.enphaseMeterPwrFactor, pwrFactor)
-                    .updateCharacteristic(Characteristic.enphaseMeterVoltage, voltage)
-                    .updateCharacteristic(Characteristic.enphaseMeterCurrent, current)
-                    .updateCharacteristic(Characteristic.enphaseMeterFreq, freq);
-                }
-
-                if (this.enphaseServiceMeterConsumption && this.meterConsumptionState && (k === 1)) {
-                  this.enphaseServiceMeterConsumption
+                if (this.enphaseServiceMeter) {
+                  this.metersService[i]
                     .updateCharacteristic(Characteristic.enphaseMeterReadingTime, timestamp)
                     .updateCharacteristic(Characteristic.enphaseMeterActivePower, activePower)
                     .updateCharacteristic(Characteristic.enphaseMeterApparentPower, apparentPower)
@@ -2062,24 +2050,24 @@ class envoyDevice {
                 this.freqSumm.push(freq);
 
                 //read meter every phase data
-                const meterReadingChannelsLength = meterReading.data[k].channels.length;
+                const meterReadingChannelsLength = meterReading.data[i].channels.length;
                 if (meterReadingChannelsLength >= 1) {
                   for (let l = 0; l < meterReadingChannelsLength; l++) {
-                    const eid = meterReading.data[k].channels[l].eid;
-                    const timestamp = new Date(meterReading.data[k].channels[l].timestamp * 1000).toLocaleString();
-                    const actEnergyDlvd = parseFloat(meterReading.data[k].channels[l].actEnergyDlvd).toFixed(3);
-                    const actEnergyRcvd = parseFloat(meterReading.data[k].channels[l].actEnergyRcvd).toFixed(3);
-                    const apparentEnergy = parseFloat(meterReading.data[k].channels[l].apparentEnergy).toFixed(3);
-                    const reactEnergyLagg = parseFloat(meterReading.data[k].channels[l].reactEnergyLagg).toFixed(3);
-                    const reactEnergyLead = parseFloat(meterReading.data[k].channels[l].reactEnergyLead).toFixed(3);
-                    const instantaneousDemand = parseFloat(meterReading.data[k].channels[l].instantaneousDemand).toFixed(3);
-                    const activePower = parseFloat((meterReading.data[k].channels[l].activePower) / 1000).toFixed(3);
-                    const apparentPower = parseFloat((meterReading.data[k].channels[l].apparentPower) / 1000).toFixed(3);
-                    const reactivePower = parseFloat((meterReading.data[k].channels[l].reactivePower) / 1000).toFixed(3);
-                    const pwrFactor = parseFloat(meterReading.data[k].channels[l].pwrFactor).toFixed(3);
-                    const voltage = parseFloat(meterReading.data[k].channels[l].voltage).toFixed(1);
-                    const current = parseFloat(meterReading.data[k].channels[l].current).toFixed(3);
-                    const freq = parseFloat(meterReading.data[k].channels[l].freq).toFixed(2);
+                    const eid = meterReading.data[i].channels[l].eid;
+                    const timestamp = new Date(meterReading.data[i].channels[l].timestamp * 1000).toLocaleString();
+                    const actEnergyDlvd = parseFloat(meterReading.data[i].channels[l].actEnergyDlvd).toFixed(3);
+                    const actEnergyRcvd = parseFloat(meterReading.data[i].channels[l].actEnergyRcvd).toFixed(3);
+                    const apparentEnergy = parseFloat(meterReading.data[i].channels[l].apparentEnergy).toFixed(3);
+                    const reactEnergyLagg = parseFloat(meterReading.data[i].channels[l].reactEnergyLagg).toFixed(3);
+                    const reactEnergyLead = parseFloat(meterReading.data[i].channels[l].reactEnergyLead).toFixed(3);
+                    const instantaneousDemand = parseFloat(meterReading.data[i].channels[l].instantaneousDemand).toFixed(3);
+                    const activePower = parseFloat((meterReading.data[i].channels[l].activePower) / 1000).toFixed(3);
+                    const apparentPower = parseFloat((meterReading.data[i].channels[l].apparentPower) / 1000).toFixed(3);
+                    const reactivePower = parseFloat((meterReading.data[i].channels[l].reactivePower) / 1000).toFixed(3);
+                    const pwrFactor = parseFloat(meterReading.data[i].channels[l].pwrFactor).toFixed(3);
+                    const voltage = parseFloat(meterReading.data[i].channels[l].voltage).toFixed(1);
+                    const current = parseFloat(meterReading.data[i].channels[l].current).toFixed(3);
+                    const freq = parseFloat(meterReading.data[i].channels[l].freq).toFixed(2);
 
                     this.meterReadingChannelsLength = meterReadingChannelsLength;
                     this.eidPhase.push(eid);
@@ -2170,7 +2158,7 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphasePowerMaxDetected, productionPowerMaxDetectedState)
             .updateCharacteristic(Characteristic.enphaseEnergyToday, productionEnergyToday)
             .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, productionEnergyLastSevenDays)
-            .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, productionEnergyLifeTime)
+            .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, productionEnergyLifeTime);
           if (this.meterProductionState) {
             this.enphaseServiceProduction
               .updateCharacteristic(Characteristic.enphaseRmsCurrent, productionRmsCurrent)
@@ -2336,8 +2324,37 @@ class envoyDevice {
 
       //encharge storage
       if (this.enchargesCount > 0) {
-        if (inventory.status === 200 && inventory.data !== undefined) {
+        //encharges summary
+        if (productionCT.status === 200 && productionCT.data !== undefined) {
+          const type = productionCT.data.storage[0].type;
+          const activeCount = productionCT.data.storage[0].activeCount;
+          const readingTime = new Date(productionCT.data.storage[0].readingTime * 1000).toLocaleString();
+          const wNow = parseFloat((productionCT.data.storage[0].wNow) / 1000).toFixed(3);
+          const whNow = parseFloat((productionCT.data.storage[0].whNow + this.enchargeStorageOffset) / 1000).toFixed(3);
+          const chargeStatus = ENVOY_STATUS_CODE[productionCT.data.storage[0].state] || 'undefined';
+          const percentFull = productionCT.data.storage[0].percentFull;
 
+          if (this.enphaseServiceEnchargePowerAndEnergy) {
+            this.enphaseServiceEnchargePowerAndEnergy
+              .updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, readingTime)
+              .updateCharacteristic(Characteristic.enphaseEnchargePower, wNow)
+              .updateCharacteristic(Characteristic.enphaseEnchargeEnergy, whNow)
+              .updateCharacteristic(Characteristic.enphaseEnchargePercentFull, percentFull)
+              .updateCharacteristic(Characteristic.enphaseEnchargeActiveCount, activeCount)
+              .updateCharacteristic(Characteristic.enphaseEnchargeState, chargeStatus);
+          }
+
+          this.enchargesType = type;
+          this.enchargesActiveCount = activeCount;
+          this.enchargesReadingTime = readingTime;
+          this.enchargesPower = wNow;
+          this.enchargesEnergy = whNow;
+          this.enchargesState = chargeStatus;
+          this.enchargesPercentFull = percentFull;
+        }
+
+        //encharges detail
+        if (inventory.status === 200 && inventory.data !== undefined) {
           this.enchargesSerialNumber = new Array();
           this.enchargesStatus = new Array();
           this.enchargesLastReportDate = new Array();
@@ -2394,7 +2411,7 @@ class envoyDevice {
             }
 
             if (this.enphaseServiceEncharge) {
-              this.enphaseServiceEncharge
+              this.enchargesService[i]
                 .updateCharacteristic(Characteristic.enphaseEnchargeStatus, status)
                 .updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, lastReportDate)
                 .updateCharacteristic(Characteristic.enphaseEnchargeFirmware, firmware)
@@ -2424,35 +2441,6 @@ class envoyDevice {
             this.enchargesSleepMinSoc.push(sleepMinSoc);
             this.enchargesSleepMaxSoc.push(sleepMaxSoc);
             this.enchargesChargeStatus.push(chargeStatus);
-          }
-
-          //encharges summary
-          if (productionCT.status === 200 && productionCT.data !== undefined) {
-            const type = productionCT.data.storage[0].type;
-            const activeCount = productionCT.data.storage[0].activeCount;
-            const readingTime = new Date(productionCT.data.storage[0].readingTime * 1000).toLocaleString();
-            const wNow = parseFloat((productionCT.data.storage[0].wNow) / 1000).toFixed(3);
-            const whNow = parseFloat((productionCT.data.storage[0].whNow + this.enchargeStorageOffset) / 1000).toFixed(3);
-            const chargeStatus = ENVOY_STATUS_CODE[productionCT.data.storage[0].state] || 'undefined';
-            const percentFull = productionCT.data.storage[0].percentFull;
-
-            if (this.enphaseServiceEnchargePowerAndEnergy) {
-              this.enphaseServiceEnchargePowerAndEnergy
-                .updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, readingTime)
-                .updateCharacteristic(Characteristic.enphaseEnchargePower, wNow)
-                .updateCharacteristic(Characteristic.enphaseEnchargeEnergy, whNow)
-                .updateCharacteristic(Characteristic.enphaseEnchargePercentFull, percentFull)
-                .updateCharacteristic(Characteristic.enphaseEnchargeActiveCount, activeCount)
-                .updateCharacteristic(Characteristic.enphaseEnchargeState, chargeStatus);
-            }
-
-            this.enchargesType = type;
-            this.enchargesActiveCount = activeCount;
-            this.enchargesReadingTime = readingTime;
-            this.enchargesPower = wNow;
-            this.enchargesEnergy = whNow;
-            this.enchargesState = chargeStatus;
-            this.enchargesPercentFull = percentFull;
           }
         }
       }
@@ -2513,7 +2501,7 @@ class envoyDevice {
             }
 
             if (this.enphaseServiceMicronverter) {
-              this.enphaseServiceMicronverter
+              this.microinvertersService[i]
                 .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
                 .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware)
                 .updateCharacteristic(Characteristic.enphaseMicroinverterProducing, producing)
@@ -2547,7 +2535,7 @@ class envoyDevice {
             const maxReportWatts = parseInt(this.microinverters.data[index].maxReportWatts);
 
             if (this.enphaseServiceMicronverter) {
-              this.enphaseServiceMicronverter
+              this.microinvertersService[i]
                 .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
                 //.updateCharacteristic(Characteristic.enphaseMicroinverterType, devType)
                 .updateCharacteristic(Characteristic.enphaseMicroinverterPower, lastReportWatts)
@@ -2725,6 +2713,7 @@ class envoyDevice {
 
     //qrelay
     if (this.qRelaysCount > 0) {
+      this.qrelaysService = new Array();
       for (let i = 0; i < this.qRelaysCount; i++) {
         this.enphaseServiceQrelay = new Service.enphaseQrelay('Q-Relay ' + this.qRelaysSerialNumber[i], 'enphaseServiceQrelay' + i);
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayState)
@@ -2808,7 +2797,7 @@ class envoyDevice {
         this.enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
           .onGet(async () => {
             const key = '' + this.qRelaysSerialNumber[i] + '';
-            const value = this.checkCommLevel ? (this.allCommLevels[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s comm. level: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
@@ -2838,230 +2827,126 @@ class envoyDevice {
             }
             return value;
           });
-        accessory.addService(this.enphaseServiceQrelay);
+        this.qrelaysService.push(this.enphaseServiceQrelay);
+        accessory.addService(this.qrelaysService[i]);
       }
     }
 
+    //meters
     //ct meter production
     if (this.envoySupportMeters) {
-      this.enphaseServiceMeterProduction = new Service.enphaseMeter('Meter production', 'enphaseServiceMeterProduction');
-      this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterState)
-        .onGet(async () => {
-          const value = this.metersState[0];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter production: %s state: %s', this.host, accessoryName, this.metersMeasurementType[0], value);
-          }
-          return value;
-        });
-      this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterPhaseMode)
-        .onGet(async () => {
-          const value = this.metersPhaseMode[0];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter production: %s phase mode: %s', this.host, accessoryName, this.metersMeasurementType[0], value);
-          }
-          return value;
-        });
-      this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterPhaseCount)
-        .onGet(async () => {
-          const value = this.metersPhaseCount[0];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter production: %s phase count: %s', this.host, accessoryName, this.metersMeasurementType[0], value);
-          }
-          return value;
-        });
-      this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterMeteringStatus)
-        .onGet(async () => {
-          const value = this.metersMeteringStatus[0];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter production: %s metering status: %s', this.host, accessoryName, this.metersMeasurementType[0], value);
-          }
-          return value;
-        });
-      this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterStatusFlags)
-        .onGet(async () => {
-          const value = this.metersStatusFlags[0];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter production: %s status flag: %s', this.host, accessoryName, this.metersMeasurementType[0], value);
-          }
-          return value;
-        });
-      if (this.meterProductionState) {
-        this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterActivePower)
+      this.metersService = new Array();
+      for (let i = 0; i < this.metersCount; i++) {
+        this.enphaseServiceMeter = new Service.enphaseMeter('Meter ' + this.metersMeasurementType[i], 'enphaseServiceMeter' + i);
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterState)
           .onGet(async () => {
-            const value = this.activePowerSumm[0];
+            const value = this.metersState[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter production: %s active power: %s kW', this.host, accessoryName, this.metersMeasurementType[0], value);
+              this.log('Device: %s %s, Meter: %s state: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
-        this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterApparentPower)
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPhaseMode)
           .onGet(async () => {
-            const value = this.apparentPowerSumm[0];
+            const value = this.metersPhaseMode[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter production: %s apparent power: %s kVA', this.host, accessoryName, this.metersMeasurementType[0], value);
+              this.log('Device: %s %s, Meter: %s phase mode: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
-        this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterReactivePower)
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPhaseCount)
           .onGet(async () => {
-            const value = this.reactivePowerSumm[0];
+            const value = this.metersPhaseCount[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter production: %s reactive power: %s kVAr', this.host, accessoryName, this.metersMeasurementType[0], value);
+              this.log('Device: %s %s, Meter: %s phase count: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
-        this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterPwrFactor)
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterMeteringStatus)
           .onGet(async () => {
-            const value = this.pwrFactorSumm[0];
+            const value = this.metersMeteringStatus[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter production: %s power factor: %s cos φ', this.host, accessoryName, this.metersMeasurementType[0], value);
+              this.log('Device: %s %s, Meter: %s metering status: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
-        this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterVoltage)
+        this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterStatusFlags)
           .onGet(async () => {
-            const value = this.voltageSumm[0];
+            const value = this.metersStatusFlags[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter production: %s voltage: %s V', this.host, accessoryName, this.metersMeasurementType[0], value);
+              this.log('Device: %s %s, Meter: %s status flag: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
-        this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterCurrent)
-          .onGet(async () => {
-            const value = this.currentSumm[0];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter production: %s current: %s A', this.host, accessoryName, this.metersMeasurementType[0], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterFreq)
-          .onGet(async () => {
-            const value = this.freqSumm[0];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter production: %s frequency: %s Hz', this.host, accessoryName, this.metersMeasurementType[0], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterProduction.getCharacteristic(Characteristic.enphaseMeterReadingTime)
-          .onGet(async () => {
-            const value = this.timestampSumm[0];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter production: %s last report: %s', this.host, accessoryName, this.metersMeasurementType[0], value);
-            }
-            return value;
-          });
+        if (this.meterProductionState && this.meterConsumptionState) {
+          this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterActivePower)
+            .onGet(async () => {
+              const value = this.activePowerSumm[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, meter: %s active power: %s kW', this.host, accessoryName, this.metersMeasurementType[i], value);
+              }
+              return value;
+            });
+          this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterApparentPower)
+            .onGet(async () => {
+              const value = this.apparentPowerSumm[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, meter: %s apparent power: %s kVA', this.host, accessoryName, this.metersMeasurementType[i], value);
+              }
+              return value;
+            });
+          this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterReactivePower)
+            .onGet(async () => {
+              const value = this.reactivePowerSumm[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, meter: %s reactive power: %s kVAr', this.host, accessoryName, this.metersMeasurementType[i], value);
+              }
+              return value;
+            });
+          this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterPwrFactor)
+            .onGet(async () => {
+              const value = this.pwrFactorSumm[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, meter: %s power factor: %s cos φ', this.host, accessoryName, this.metersMeasurementType[i], value);
+              }
+              return value;
+            });
+          this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterVoltage)
+            .onGet(async () => {
+              const value = this.voltageSumm[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, meter: %s voltage: %s V', this.host, accessoryName, this.metersMeasurementType[i], value);
+              }
+              return value;
+            });
+          this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterCurrent)
+            .onGet(async () => {
+              const value = this.currentSumm[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, meter: %s current: %s A', this.host, accessoryName, this.metersMeasurementType[i], value);
+              }
+              return value;
+            });
+          this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterFreq)
+            .onGet(async () => {
+              const value = this.freqSumm[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, meter: %s frequency: %s Hz', this.host, accessoryName, this.metersMeasurementType[i], value);
+              }
+              return value;
+            });
+          this.enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterReadingTime)
+            .onGet(async () => {
+              const value = this.timestampSumm[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, meter: %s last report: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
+              }
+              return value;
+            });
+        }
+        this.metersService.push(this.enphaseServiceMeter);
+        accessory.addService(this.metersService[i]);
       }
-      accessory.addService(this.enphaseServiceMeterProduction);
-
-      //ct meter consumption
-      this.enphaseServiceMeterConsumption = new Service.enphaseMeter('Meter consumption', 'enphaseServiceMeterConsumption');
-      this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterState)
-        .onGet(async () => {
-          const value = this.metersState[1];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter consumption: %s state: %s', this.host, accessoryName, this.metersMeasurementType[1], value);
-          }
-          return value;
-        });
-      this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterPhaseMode)
-        .onGet(async () => {
-          const value = this.metersPhaseMode[1];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter consumption: %s phase mode: %s', this.host, accessoryName, this.metersMeasurementType[1], value);
-          }
-          return value;
-        });
-      this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterPhaseCount)
-        .onGet(async () => {
-          const value = this.metersPhaseCount[1];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter consumption: %s phase count: %s', this.host, accessoryName, this.metersMeasurementType[1], value);
-          }
-          return value;
-        });
-      this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterMeteringStatus)
-        .onGet(async () => {
-          const value = this.metersMeteringStatus[1];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter consumption: %s metering status: %s', this.host, accessoryName, this.metersMeasurementType[1], value);
-          }
-          return value;
-        });
-      this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterStatusFlags)
-        .onGet(async () => {
-          const value = this.metersStatusFlags[1];
-          if (!this.disableLogInfo) {
-            this.log('Device: %s %s, Meter consumption: %s status flag: %s', this.host, accessoryName, this.metersMeasurementType[1], value);
-          }
-          return value;
-        });
-      if (this.meterConsumptionState) {
-        this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterActivePower)
-          .onGet(async () => {
-            const value = this.activePowerSumm[1];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter consumption: %s active power: %s kW', this.host, accessoryName, this.metersMeasurementType[1], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterApparentPower)
-          .onGet(async () => {
-            const value = this.apparentPowerSumm[1];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter consumption: %s apparent power: %s kVA', this.host, accessoryName, this.metersMeasurementType[1], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterReactivePower)
-          .onGet(async () => {
-            const value = this.reactivePowerSumm[1];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter consumption: %s reactive power: %s kVAr', this.host, accessoryName, this.metersMeasurementType[1], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterPwrFactor)
-          .onGet(async () => {
-            const value = this.pwrFactorSumm[1];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter consumption: %s power factor: %s cos φ', this.host, accessoryName, this.metersMeasurementType[1], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterVoltage)
-          .onGet(async () => {
-            const value = this.voltageSumm[1];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter consumption: %s voltage: %s V', this.host, accessoryName, this.metersMeasurementType[1], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterCurrent)
-          .onGet(async () => {
-            const value = this.currentSumm[1];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter consumption: %s current: %s A', this.host, accessoryName, this.metersMeasurementType[1], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterFreq)
-          .onGet(async () => {
-            const value = this.freqSumm[1];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter consumption: %s frequency: %s Hz', this.host, accessoryName, this.metersMeasurementType[1], value);
-            }
-            return value;
-          });
-        this.enphaseServiceMeterConsumption.getCharacteristic(Characteristic.enphaseMeterReadingTime)
-          .onGet(async () => {
-            const value = this.timestampSumm[1];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, Meter consumption: %s last report: %s', this.host, accessoryName, this.metersMeasurementType[1], value);
-            }
-            return value;
-          });
-      }
-      accessory.addService(this.enphaseServiceMeterConsumption);
     }
 
     //power and energy production
@@ -3427,6 +3312,7 @@ class envoyDevice {
       accessory.addService(this.enphaseServiceEnchargePowerAndEnergy);
 
       //encharge storage state
+      this.enchargesService = new Array();
       for (let i = 0; i < this.enchargesActiveCount; i++) {
         this.enphaseServiceEncharge = new Service.enphaseEncharge('Encharge ', + this.enchargesSerialNumber[i], 'enphaseServiceEncharge' + i);
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeChargeStatus)
@@ -3472,7 +3358,7 @@ class envoyDevice {
         this.enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
           .onGet(async () => {
             const key = '' + this.enchargesSerialNumber[i] + '';
-            const value = this.checkCommLevel ? (this.allCommLevels[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s comm. level: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
@@ -3542,12 +3428,14 @@ class envoyDevice {
             }
             return value;
           });
-        accessory.addService(this.enphaseServiceEncharge);
+        this.enchargesService.push(this.enphaseServiceEncharge);
+        accessory.addService(this.enchargesService[i]);
       }
     }
 
     //microinverter
     if (this.microinvertersCount > 0 && this.microinvertersActiveCount > 0) {
+      this.microinvertersService = new Array();
       for (let i = 0; i < this.microinvertersCount; i++) {
         this.enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumber[i], 'enphaseServiceMicronverter' + i);
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPower)
@@ -3601,7 +3489,7 @@ class envoyDevice {
         this.enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
           .onGet(async () => {
             const key = '' + this.microinvertersSerialNumber[i] + '';
-            const value = this.checkCommLevel ? (this.allCommLevels[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s comm. level: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
@@ -3635,7 +3523,8 @@ class envoyDevice {
             }
             return value;
           });
-        accessory.addService(this.enphaseServiceMicronverter);
+        this.microinvertersService.push(this.enphaseServiceMicronverter);
+        accessory.addService(this.microinvertersService[i]);
       }
     }
     this.startPrepareAccessory = false;
