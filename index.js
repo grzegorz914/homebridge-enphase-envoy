@@ -1656,15 +1656,6 @@ class envoyDevice {
         const meterProductionEnabled = this.meterProductionEnabled;
         const meterConsumptionEnabled = this.meterConsumptionEnabled;
 
-        const metersProductionCount = meterProductionEnabled ? productionCT.data.production[1].activeCount : 0;
-        const metersConsumtionTotalCount = meterConsumptionEnabled ? productionCT.data.consumption[0].activeCount : 0;
-        const metersConsumptionNetCount = meterConsumptionEnabled ? productionCT.data.consumption[1].activeCount : 0;
-        const microinvertersActiveCount = productionCT.data.production[0].activeCount;
-        this.metersProductionActiveCount = metersProductionCount;
-        this.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
-        this.metersConsumptionNetActiveCount = metersConsumptionNetCount;
-        this.microinvertersActiveCount = microinvertersActiveCount;
-
       //envoy
       if (home.status === 200 && home.data !== undefined) {
         const softwareBuildEpoch = home.data.software_build_epoch;
@@ -2128,7 +2119,8 @@ class envoyDevice {
               .updateCharacteristic(Characteristic.enphasePwrFactor, productionPwrFactor);
           }
         }
-
+        this.productionMicroActiveCount = productionMicroActiveCount;
+        this.productionActiveCount = productionActiveCount;
         this.productionMeasurmentType = productionMeasurmentType;
         this.productionReadingTime = productionReadingTime;
         this.productionPower = productionPower;
@@ -2145,8 +2137,9 @@ class envoyDevice {
         this.productionPwrFactor = productionPwrFactor;
 
         //consumption
-        if (this.meterConsumptionEnabled && this.metersConsumtionTotalActiveCount > 0) {
+        if (this.meterConsumptionEnabled) {
           this.consumptionMeasurmentType = new Array();
+          this.consumptionActiveCount = new Array();
           this.consumptionReadingTime = new Array();
           this.consumptionPower = new Array();
           this.consumptionPowerMaxDetected = new Array();
@@ -2204,9 +2197,9 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseApparentPower, consumptionApparentPower)
                 .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor);
             }
-
             this.consumptionLength = consumptionLength;
             this.consumptionMeasurmentType.push(consumptionMeasurmentType);
+            this.consumptionActiveCount.push(consumptionActiveCount);
             this.consumptionReadingTime.push(consumptionReadingTime);
             this.consumptionPower.push(consumptionPower);
             this.consumptionPowerMaxDetected.push(consumptionPowerMaxDetected);
@@ -2902,7 +2895,7 @@ class envoyDevice {
         }
         return value;
       });
-    if (this.envoySupportMeters && this.metersProductionActiveCount > 0) {
+    if (this.envoySupportMeters && this.meterProductionEnabled) {
       enphaseServiceProduction.getCharacteristic(Characteristic.enphaseRmsCurrent)
         .onGet(async () => {
           const value = this.productionRmsCurrent;
@@ -2956,7 +2949,7 @@ class envoyDevice {
     accessory.addService(this.productionsService[0]);
 
     //power and energy consumption total
-    if (this.envoySupportMeters) {
+    if (this.envoySupportMeters && this.meterConsumptionEnabled) {
       this.consumptionsService = new Array();
       for (let i = 0; i < this.consumptionLength; i++) {
         const enphaseServiceConsumption = new Service.enphasePowerEnergyMeter(this.consumptionMeasurmentType[i], 'enphaseServiceConsumption' + i);
@@ -3232,7 +3225,7 @@ class envoyDevice {
     }
 
     //microinverter
-    if (this.microinvertersCount > 0 && this.microinvertersActiveCount > 0) {
+    if (this.microinvertersCount > 0 && this.productionMicroActiveCount > 0) {
       this.microinvertersService = new Array();
       for (let i = 0; i < this.microinvertersCount; i++) {
         const enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumber[i], 'enphaseServiceMicronverter' + i);
