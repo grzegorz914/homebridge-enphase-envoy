@@ -1461,8 +1461,8 @@ class envoyDevice {
     this.qRelaysCount = 0;
 
     this.metersCount = 0;
-    this.meterProductionState = false;
-    this.meterConsumptionState = false;
+    this.meterProductionEnabled = false;
+    this.meterConsumptionEnabled = false;
     this.metersProductionActiveCount = 0;
     this.metersConsumtionTotalActiveCount = 0;
     this.metersConsumptionNetActiveCount = 0;
@@ -1555,18 +1555,12 @@ class envoyDevice {
       const seqNum = result.envoy_info.device[0].seqnum[0];
       const apiVer = result.envoy_info.device[0].apiver[0];
       const supportMeters = (result.envoy_info.device[0].imeter[0] === 'true');
+      const metersLength = supportMeters ? meters.data.length : 0;
+      const meterProductionEnabled = supportMeters ? (meters.data[0].state === 'enabled') : false;
+      const meterConsumptionEnabled = supportMeters ? (meters.data[1].state === 'enabled') : false;
       const qrelays = inventory.data[2].devices.length;
       const encharges = inventory.data[1].devices.length;
       const microinverters = inventory.data[0].devices.length;
-
-      if (supportMeters) {
-        const metersLength = meters.data.length;
-        const meterProduction = (meters.data[0].state === 'enabled');
-        const meterConsumption = (meters.data[1].state === 'enabled');
-        this.metersCount = metersLength;
-        this.meterProductionState = meterProduction;
-        this.meterConsumptionState = meterConsumption;
-      }
 
       this.log('-------- %s --------', this.name);
       this.log('Manufacturer: Enphase');
@@ -1578,8 +1572,8 @@ class envoyDevice {
       this.log('------------------------------');
       this.log('Meters: %s', supportMeters ? 'Yes' : 'No');
       if (supportMeters) {
-        this.log('Production: %s', this.meterProductionState ? 'Enabled' : 'Disabled');
-        this.log('Consumption: %s', this.meterConsumptionState ? 'Enabled' : 'Disabled');
+        this.log('Production: %s', meterProductionEnabled ? 'Enabled' : 'Disabled');
+        this.log('Consumption: %s', meterConsumptionEnabled ? 'Enabled' : 'Disabled');
         this.log('------------------------------');
       }
       this.log('Q-Relays: %s', qrelays);
@@ -1590,6 +1584,9 @@ class envoyDevice {
       this.envoySerialNumber = serialNumber;
       this.envoyFirmware = firmware;
       this.envoySupportMeters = supportMeters;
+      this.metersCount = metersLength;
+      this.meterProductionEnabled = meterProductionEnabled;
+      this.meterConsumptionEnabled = meterConsumptionEnabled;
       this.qRelaysCount = qrelays;
       this.enchargesCount = encharges;
       this.microinvertersCount = microinverters;
@@ -1659,11 +1656,11 @@ class envoyDevice {
       if (productionCT.status === 200 && productionCT.data !== undefined) {
 
         let microinvertersActiveCount = productionCT.data.production[0].activeCount;
-        if (this.meterProductionState) {
+        if (this.meterProductionEnabled) {
           let metersProductionCount = productionCT.data.production[1].activeCount;
           this.metersProductionActiveCount = metersProductionCount;
         }
-        if (this.meterConsumptionState) {
+        if (this.meterConsumptionEnabled) {
           let metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
           let metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
           this.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
@@ -2070,6 +2067,7 @@ class envoyDevice {
       const productionMicroSummaryWattsNow = parseFloat(production.data.wattsNow / 1000);
 
       if (productionCT.status === 200) {
+        const meterProductionEnabled = this.meterProductionEnabled;
         //microinverters current transformer
         const productionMicroType = ENVOY_STATUS_CODE[productionCT.data.production[0].type] || 'undefined';
         const productionMicroActiveCount = productionCT.data.production[0].activeCount;
@@ -2078,11 +2076,11 @@ class envoyDevice {
         const productionMicroEnergyLifeTime = parseFloat((productionCT.data.production[0].whLifetime + this.productionEnergyLifetimeOffset) / 1000);
 
         //current transformers
-        const productionType = this.meterProductionState ? ENVOY_STATUS_CODE[productionCT.data.production[1].type] : 'undefined';
-        const productionActiveCount = this.meterProductionState ? productionCT.data.production[1].activeCount : 0;
-        const productionMeasurmentType = this.meterProductionState ? ENVOY_STATUS_CODE[productionCT.data.production[1].measurementType] : 'undefined';
-        const productionReadingTime = this.meterProductionState ? new Date(productionCT.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
-        const productionPower = this.meterProductionState ? parseFloat(productionCT.data.production[1].wNow / 1000).toFixed(3) : productionMicroSummaryWattsNow;
+        const productionType = meterProductionEnabled ? ENVOY_STATUS_CODE[productionCT.data.production[1].type] : 'undefined';
+        const productionActiveCount = meterProductionEnabled ? productionCT.data.production[1].activeCount : 0;
+        const productionMeasurmentType = meterProductionEnabled ? ENVOY_STATUS_CODE[productionCT.data.production[1].measurementType] : 'undefined';
+        const productionReadingTime = meterProductionEnabled ? new Date(productionCT.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
+        const productionPower = meterProductionEnabled ? parseFloat(productionCT.data.production[1].wNow / 1000).toFixed(3) : productionMicroSummaryWattsNow;
 
         //save and read power max and state
         let productionPowerMax = productionPower;
@@ -2101,21 +2099,21 @@ class envoyDevice {
         const productionPowerMaxDetected = (productionPower >= (this.productionPowerMaxDetected / 1000));
 
         //energy
-        const productionEnergyLifeTime = this.meterProductionState ? parseFloat((productionCT.data.production[1].whLifetime + this.productionEnergyLifetimeOffset) / 1000).toFixed(3) : productionMicroSummarywhLifeTime;
-        const productionEnergyVarhLeadLifetime = this.meterProductionState ? parseFloat(productionCT.data.production[1].varhLeadLifetime / 1000).toFixed(3) : 0;
-        const productionEnergyVarhLagLifetime = this.meterProductionState ? parseFloat(productionCT.data.production[1].varhLagLifetime / 1000).toFixed(3) : 0;
-        const productionEnergyLastSevenDays = this.meterProductionState ? parseFloat(productionCT.data.production[1].whLastSevenDays / 1000).toFixed(3) : productionMicroSummarywhLastSevenDays;
-        const productionEnergyToday = this.meterProductionState ? parseFloat(productionCT.data.production[1].whToday / 1000).toFixed(3) : productionMicroSummarywhToday;
-        const productionEnergyVahToday = this.meterProductionState ? parseFloat(productionCT.data.production[1].vahToday / 1000).toFixed(3) : 0;
-        const productionEnergyVarhLeadToday = this.meterProductionState ? parseFloat(productionCT.data.production[1].varhLeadToday / 1000).toFixed(3) : 0;
-        const productionEnergyVarhLagToday = this.meterProductionState ? parseFloat(productionCT.data.production[1].varhLagToday / 1000).toFixed(3) : 0;
+        const productionEnergyLifeTime = meterProductionEnabled ? parseFloat((productionCT.data.production[1].whLifetime + this.productionEnergyLifetimeOffset) / 1000).toFixed(3) : productionMicroSummarywhLifeTime;
+        const productionEnergyVarhLeadLifetime = meterProductionEnabled ? parseFloat(productionCT.data.production[1].varhLeadLifetime / 1000).toFixed(3) : 0;
+        const productionEnergyVarhLagLifetime = meterProductionEnabled ? parseFloat(productionCT.data.production[1].varhLagLifetime / 1000).toFixed(3) : 0;
+        const productionEnergyLastSevenDays = meterProductionEnabled ? parseFloat(productionCT.data.production[1].whLastSevenDays / 1000).toFixed(3) : productionMicroSummarywhLastSevenDays;
+        const productionEnergyToday = meterProductionEnabled ? parseFloat(productionCT.data.production[1].whToday / 1000).toFixed(3) : productionMicroSummarywhToday;
+        const productionEnergyVahToday = meterProductionEnabled ? parseFloat(productionCT.data.production[1].vahToday / 1000).toFixed(3) : 0;
+        const productionEnergyVarhLeadToday = meterProductionEnabled ? parseFloat(productionCT.data.production[1].varhLeadToday / 1000).toFixed(3) : 0;
+        const productionEnergyVarhLagToday = meterProductionEnabled ? parseFloat(productionCT.data.production[1].varhLagToday / 1000).toFixed(3) : 0;
 
         //param
-        const productionRmsCurrent = this.meterProductionState ? parseFloat(productionCT.data.production[1].rmsCurrent).toFixed(3) : 0;
-        const productionRmsVoltage = this.meterProductionState ? parseFloat((productionCT.data.production[1].rmsVoltage) / 3).toFixed(1) : 0;
-        const productionReactivePower = this.meterProductionState ? parseFloat((productionCT.data.production[1].reactPwr) / 1000).toFixed(3) : 0;
-        const productionApparentPower = this.meterProductionState ? parseFloat((productionCT.data.production[1].apprntPwr) / 1000).toFixed(3) : 0;
-        const productionPwrFactor = this.meterProductionState ? parseFloat(productionCT.data.production[1].pwrFactor).toFixed(2) : 0;
+        const productionRmsCurrent = meterProductionEnabled ? parseFloat(productionCT.data.production[1].rmsCurrent).toFixed(3) : 0;
+        const productionRmsVoltage = meterProductionEnabled ? parseFloat((productionCT.data.production[1].rmsVoltage) / 3).toFixed(1) : 0;
+        const productionReactivePower = meterProductionEnabled ? parseFloat((productionCT.data.production[1].reactPwr) / 1000).toFixed(3) : 0;
+        const productionApparentPower = meterProductionEnabled ? parseFloat((productionCT.data.production[1].apprntPwr) / 1000).toFixed(3) : 0;
+        const productionPwrFactor = meterProductionEnabled ? parseFloat(productionCT.data.production[1].pwrFactor).toFixed(2) : 0;
 
         if (this.productionsService) {
           this.productionsService[0]
@@ -2126,7 +2124,7 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphaseEnergyToday, productionEnergyToday)
             .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, productionEnergyLastSevenDays)
             .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, productionEnergyLifeTime);
-          if (this.meterProductionState) {
+          if (meterProductionEnabled) {
             this.productionsService[0]
               .updateCharacteristic(Characteristic.enphaseRmsCurrent, productionRmsCurrent)
               .updateCharacteristic(Characteristic.enphaseRmsVoltage, productionRmsVoltage)
@@ -2152,7 +2150,7 @@ class envoyDevice {
         this.productionPwrFactor = productionPwrFactor;
 
         //consumption
-        if (this.meterConsumptionState && this.metersConsumtionTotalActiveCount > 0) {
+        if (this.meterConsumptionEnabled && this.metersConsumtionTotalActiveCount > 0) {
           this.consumptionMeasurmentType = new Array();
           this.consumptionReadingTime = new Array();
           this.consumptionPower = new Array();
@@ -2787,7 +2785,7 @@ class envoyDevice {
             }
             return value;
           });
-        if (this.meterProductionState && this.meterConsumptionState) {
+        if (this.meterProductionEnabled && this.meterConsumptionEnabled) {
           enphaseServiceMeter.getCharacteristic(Characteristic.enphaseMeterActivePower)
             .onGet(async () => {
               const value = this.activePowerSumm[i];
