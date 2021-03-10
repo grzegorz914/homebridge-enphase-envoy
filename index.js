@@ -1463,15 +1463,13 @@ class envoyDevice {
     this.metersCount = 0;
     this.meterProductionEnabled = false;
     this.meterConsumptionEnabled = false;
-    this.metersProductionActiveCount = 0;
-    this.metersConsumtionTotalActiveCount = 0;
-    this.metersConsumptionNetActiveCount = 0;
 
     this.meterReadingLength = 0;
     this.meterReadingChannelsLength = 0;
 
     this.productionLength = 0;
     this.productionMeasurmentType = '';
+    this.productionActiveCount = 0;
     this.productionPower = 0;
     this.productionPowerMax = 0;
     this.productionPowerMaxDetected = false;
@@ -1486,7 +1484,6 @@ class envoyDevice {
     this.productionReadingTime = '';
 
     this.consumptionLength = 0;
-    this.consumptionPower = 0;
 
     this.enchargesCount = 0;
     this.enchargesType = '';
@@ -1653,8 +1650,8 @@ class envoyDevice {
       }
 
       // check enabled microinverters, meters
-        const meterProductionEnabled = this.meterProductionEnabled;
-        const meterConsumptionEnabled = this.meterConsumptionEnabled;
+      const meterProductionEnabled = this.meterProductionEnabled;
+      const meterConsumptionEnabled = this.meterConsumptionEnabled;
 
       //envoy
       if (home.status === 200 && home.data !== undefined) {
@@ -2054,7 +2051,7 @@ class envoyDevice {
       const productionMicroSummaryWattsNow = parseFloat(production.data.wattsNow / 1000);
 
       if (productionCT.status === 200) {
-        //microinverters current transformer
+        //microinverters summary CT
         const productionMicroType = ENVOY_STATUS_CODE[productionCT.data.production[0].type] || 'undefined';
         const productionMicroActiveCount = productionCT.data.production[0].activeCount;
         const productionMicroReadingTime = new Date(productionCT.data.production[0].readingTime * 1000).toLocaleString();
@@ -2121,6 +2118,7 @@ class envoyDevice {
         }
         this.productionMicroActiveCount = productionMicroActiveCount;
         this.productionActiveCount = productionActiveCount;
+        this.productionType = productionType;
         this.productionMeasurmentType = productionMeasurmentType;
         this.productionReadingTime = productionReadingTime;
         this.productionPower = productionPower;
@@ -2137,7 +2135,8 @@ class envoyDevice {
         this.productionPwrFactor = productionPwrFactor;
 
         //consumption
-        if (this.meterConsumptionEnabled) {
+        if (meterConsumptionEnabled) {
+          this.consumptionType = new Array();
           this.consumptionMeasurmentType = new Array();
           this.consumptionActiveCount = new Array();
           this.consumptionReadingTime = new Array();
@@ -2198,6 +2197,7 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor);
             }
             this.consumptionLength = consumptionLength;
+            this.consumptionType.push(consumptionType);
             this.consumptionMeasurmentType.push(consumptionMeasurmentType);
             this.consumptionActiveCount.push(consumptionActiveCount);
             this.consumptionReadingTime.push(consumptionReadingTime);
@@ -2248,6 +2248,7 @@ class envoyDevice {
 
         //encharges detail
         if (inventory.status === 200 && inventory.data !== undefined) {
+          this.enchargesType = new Array();
           this.enchargesSerialNumber = new Array();
           this.enchargesStatus = new Array();
           this.enchargesLastReportDate = new Array();
@@ -2320,6 +2321,7 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseEnchargeChargeStatus, chargeStatus);
             }
 
+            this.enchargesType.push(type);
             this.enchargesSerialNumber.push(serialNumber);
             this.enchargesStatus.push(status);
             this.enchargesLastReportDate.push(lastReportDate);
@@ -2341,6 +2343,7 @@ class envoyDevice {
       //microinverters power
       if (this.microinvertersCount > 0) {
         if (inventory.status === 200 && inventory.data !== undefined) {
+          this.microinvertersType = new Array();
           this.microinvertersSerialNumber = new Array();
           this.microinvertersLastReportDate = new Array();
           this.microinvertersFirmware = new Array();
@@ -2405,6 +2408,7 @@ class envoyDevice {
 
             }
 
+            this.microinvertersType.push(type);
             this.microinvertersSerialNumber.push(serialNumber);
             this.microinvertersLastReportDate.push(lastReportDate);
             this.microinvertersFirmware.push(firmware);
@@ -3048,7 +3052,7 @@ class envoyDevice {
 
 
     //encharge storage power and energy
-    if (this.encharge > 0 && this.enchargesActiveCount > 0) {
+    if (this.enchargesCount > 0 && this.enchargesActiveCount > 0) {
       this.enchargesServicePower = new Array();
       const enphaseServiceEnchargePowerAndEnergy = new Service.enphaseEnchargePowerAndEnergy('Encharges summary', 'enphaseServiceEnchargePowerAndEnergy');
       enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePower)
