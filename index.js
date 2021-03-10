@@ -1486,7 +1486,7 @@ class envoyDevice {
     this.productionReadingTime = '';
 
     this.consumptionLength = 0;
-    this.consumptionPowerMax = 0;
+    this.consumptionPower = 0;
 
     this.enchargesCount = 0;
     this.enchargesType = '';
@@ -1608,8 +1608,6 @@ class envoyDevice {
       //read all data;
       const [home, inventory, meters, production, productionCT] = await axios.all([axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo), axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats)]);
       this.log.debug('Debug home: %s, inventory: %s, meters: %s, production: %s, productionCT: %s', home.data, inventory.data, meters.data, production.data, productionCT.data);
-
-      this.consumptionLength = productionCT.data.consumption.length;
 
       //check communications level of qrelays, encharges, microinverters
       if (this.installerPasswd) {
@@ -2158,7 +2156,6 @@ class envoyDevice {
           this.consumptionMeasurmentType = new Array();
           this.consumptionReadingTime = new Array();
           this.consumptionPower = new Array();
-          this.consumptionPowerMax = new Array();
           this.consumptionPowerMaxDetected = new Array();
           this.consumptionEnergyToday = new Array();
           this.consumptionEnergyLastSevenDays = new Array();
@@ -2169,7 +2166,8 @@ class envoyDevice {
           this.consumptionApparentPower = new Array();
           this.consumptionPwrFactor = new Array();
 
-          for (let i = 0; i < this.consumptionLength; i++) {
+          const consumptionLength = productionCT.data.consumption.length;
+          for (let i = 0; i < consumptionLength; i++) {
             //power
             const consumptionType = ENVOY_STATUS_CODE[productionCT.data.consumption[i].type] || 'undefined';
             const consumptionActiveCount = productionCT.data.consumption[i].activeCount;
@@ -2177,13 +2175,12 @@ class envoyDevice {
             const consumptionReadingTime = new Date(productionCT.data.consumption[i].readingTime * 1000).toLocaleString();
             const consumptionPower = parseFloat(productionCT.data.consumption[i].wNow / 1000).toFixed(3);
 
-            //power max and state
-            const lifeTimeOffset = [this.consumptionTotalEnergyLifetimeOffset, this.consumptionNetEnergyLifetimeOffset][i]
-            const powerMax = [this.consumptionTotalPowerMaxDetected, this.consumptionNetPowerMaxDetected][i]
-            const consumptionPowerMax = (consumptionPower > this.consumptionPowerMax) ? consumptionPower : this.consumptionPowerMax;
-            const consumptionPowerMaxDetected = (consumptionPower >= (powerMax / 1000));
+            //power max state
+            const powerMax = (([this.consumptionTotalPowerMaxDetected, this.consumptionNetPowerMaxDetected][i]) / 1000).toFixed(3);
+            const consumptionPowerMaxDetected = (consumptionPower >= powerMax);
 
             //energy
+            const lifeTimeOffset = [this.consumptionTotalEnergyLifetimeOffset, this.consumptionNetEnergyLifetimeOffset][i]
             const consumptionEnergyLifeTime = parseFloat((productionCT.data.consumption[i].whLifetime + lifeTimeOffset) / 1000).toFixed(3);
             const consumptionEnergyVarhLeadLifetime = parseFloat(productionCT.data.consumption[i].varhLeadLifetime / 1000).toFixed(3);
             const consumptionEnergyVarhLagLifetime = parseFloat(productionCT.data.consumption[i].varhLagLifetime / 1000).toFixed(3);
@@ -2204,7 +2201,6 @@ class envoyDevice {
               this.consumptionsService[i]
                 .updateCharacteristic(Characteristic.enphaseReadingTime, consumptionReadingTime)
                 .updateCharacteristic(Characteristic.enphasePower, consumptionPower)
-                .updateCharacteristic(Characteristic.enphasePowerMax, consumptionPowerMax)
                 .updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionPowerMaxDetected)
                 .updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionEnergyToday)
                 .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionEnergyLastSevenDays)
@@ -2216,10 +2212,10 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor);
             }
 
+            this.consumptionLength = consumptionLength;
             this.consumptionMeasurmentType.push(consumptionMeasurmentType);
             this.consumptionReadingTime.push(consumptionReadingTime);
             this.consumptionPower.push(consumptionPower);
-            this.consumptionPowerMax.push(consumptionPowerMax);
             this.consumptionPowerMaxDetected.push(consumptionPowerMaxDetected);
             this.consumptionEnergyToday.push(consumptionEnergyToday);
             this.consumptionEnergyLastSevenDays.push(consumptionEnergyLastSevenDays);
@@ -2976,14 +2972,6 @@ class envoyDevice {
             const value = this.consumptionPower[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s power: %s kW', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
-            }
-            return value;
-          });
-        enphaseServiceConsumption.getCharacteristic(Characteristic.enphasePowerMax)
-          .onGet(async () => {
-            const value = this.consumptionPowerMax[i];
-            if (!this.disableLogInfo) {
-              this.log('Device: %s %s, %s power max: %s kW', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
             return value;
           });
