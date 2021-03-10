@@ -2078,9 +2078,9 @@ class envoyDevice {
         const productionMicroEnergyLifeTime = parseFloat((productionCT.data.production[0].whLifetime + this.productionEnergyLifetimeOffset) / 1000);
 
         //current transformers
-        const productionType = ENVOY_STATUS_CODE[productionCT.data.production[1].type] || 'undefined';
+        const productionType = this.meterProductionState ? ENVOY_STATUS_CODE[productionCT.data.production[1].type] : 'undefined';
         const productionActiveCount = this.meterProductionState ? productionCT.data.production[1].activeCount : 0;
-        const productionMeasurmentType = ENVOY_STATUS_CODE[productionCT.data.production[1].measurementType] || 'undefined';
+        const productionMeasurmentType = this.meterProductionState ? ENVOY_STATUS_CODE[productionCT.data.production[1].measurementType] : 'undefined';
         const productionReadingTime = this.meterProductionState ? new Date(productionCT.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
         const productionPower = this.meterProductionState ? parseFloat(productionCT.data.production[1].wNow / 1000).toFixed(3) : productionMicroSummaryWattsNow;
 
