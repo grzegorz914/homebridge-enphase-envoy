@@ -1652,22 +1652,18 @@ class envoyDevice {
         };
       }
 
-      // check enabled microinverters, meters, encharges
-      if (productionCT.status === 200 && productionCT.data !== undefined) {
+      // check enabled microinverters, meters
+        const meterProductionEnabled = this.meterProductionEnabled;
+        const meterConsumptionEnabled = this.meterConsumptionEnabled;
 
-        let microinvertersActiveCount = productionCT.data.production[0].activeCount;
-        if (this.meterProductionEnabled) {
-          let metersProductionCount = productionCT.data.production[1].activeCount;
-          this.metersProductionActiveCount = metersProductionCount;
-        }
-        if (this.meterConsumptionEnabled) {
-          let metersConsumtionTotalCount = productionCT.data.consumption[0].activeCount;
-          let metersConsumptionNetCount = productionCT.data.consumption[1].activeCount;
-          this.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
-          this.metersConsumptionNetActiveCount = metersConsumptionNetCount;
-        }
+        const metersProductionCount = meterProductionEnabled ? productionCT.data.production[1].activeCount : 0;
+        const metersConsumtionTotalCount = meterConsumptionEnabled ? productionCT.data.consumption[0].activeCount : 0;
+        const metersConsumptionNetCount = meterConsumptionEnabled ? productionCT.data.consumption[1].activeCount : 0;
+        const microinvertersActiveCount = productionCT.data.production[0].activeCount;
+        this.metersProductionActiveCount = metersProductionCount;
+        this.metersConsumtionTotalActiveCount = metersConsumtionTotalCount;
+        this.metersConsumptionNetActiveCount = metersConsumptionNetCount;
         this.microinvertersActiveCount = microinvertersActiveCount;
-      }
 
       //envoy
       if (home.status === 200 && home.data !== undefined) {
@@ -2067,7 +2063,6 @@ class envoyDevice {
       const productionMicroSummaryWattsNow = parseFloat(production.data.wattsNow / 1000);
 
       if (productionCT.status === 200) {
-        const meterProductionEnabled = this.meterProductionEnabled;
         //microinverters current transformer
         const productionMicroType = ENVOY_STATUS_CODE[productionCT.data.production[0].type] || 'undefined';
         const productionMicroActiveCount = productionCT.data.production[0].activeCount;
