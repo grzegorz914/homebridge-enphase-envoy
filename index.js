@@ -1464,9 +1464,8 @@ class envoyDevice {
     this.meterProductionEnabled = false;
     this.meterConsumptionEnabled = false;
     this.metersConsumpionCount = 0;
-
-    this.meterReadingCount = 0;
-    this.meterReadingChannelsLength = 0;
+    this.metersReadingCount = 0;
+    this.meterReadingChannelsCount = 0;
 
     this.productionMeasurmentType = '';
     this.productionActiveCount = 0;
@@ -1526,7 +1525,7 @@ class envoyDevice {
       }
     }.bind(this), this.refreshInterval * 1000);
 
-    this.getDeviceInfo()
+    this.getDeviceInfo();
   }
 
   async getDeviceInfo() {
@@ -1710,7 +1709,7 @@ class envoyDevice {
           for (let j = 0; j < status.length; j++) {
             arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
           }
-          status = arrStatus.join(', ')
+          status = arrStatus.join(', ');
         } else {
           status = 'Not available';
         }
@@ -1806,7 +1805,7 @@ class envoyDevice {
               for (let j = 0; j < status.length; j++) {
                 arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
               }
-              status = arrStatus.join(', ')
+              status = arrStatus.join(', ');
             } else {
               status = 'Not available';
             }
@@ -1889,7 +1888,7 @@ class envoyDevice {
               for (let j = 0; j < status.length; j++) {
                 arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
               }
-              status = arrStatus.join(', ')
+              status = arrStatus.join(', ');
             } else {
               status = 'Not available';
             }
@@ -1952,9 +1951,9 @@ class envoyDevice {
             this.freqPhase = new Array();
 
             //read meter summary data
-            const meterReadingCount = meterReadingData.data.length;
-            if (meterReadingCount >= 1) {
-              for (let i = 0; i < meterReadingCount; i++) {
+            const metersReadingCount = meterReadingData.data.length;
+            if (metersReadingCount >= 1) {
+              for (let i = 0; i < metersReadingCount; i++) {
                 const eid = meterReadingData.data[i].eid;
                 const timestamp = new Date(meterReadingData.data[i].timestamp * 1000).toLocaleString();
                 const actEnergyDlvd = parseFloat(meterReadingData.data[i].actEnergyDlvd).toFixed(3);
@@ -1983,7 +1982,7 @@ class envoyDevice {
                     .updateCharacteristic(Characteristic.enphaseMeterFreq, freq);
                 }
 
-                this.meterReadingCount = meterReadingCount;
+                this.metersReadingCount = metersReadingCount;
                 this.eidSumm.push(eid);
                 this.timestampSumm.push(timestamp);
                 this.actEnergyDlvdSumm.push(actEnergyDlvd);
@@ -2001,9 +2000,9 @@ class envoyDevice {
                 this.freqSumm.push(freq);
 
                 //read meter every phase data
-                const meterReadingChannelsLength = meterReadingData.data[i].channels.length;
-                if (meterReadingChannelsLength >= 1) {
-                  for (let l = 0; l < meterReadingChannelsLength; l++) {
+                const meterReadingChannelsCount = meterReadingData.data[i].channels.length;
+                if (meterReadingChannelsCount >= 1) {
+                  for (let l = 0; l < meterReadingChannelsCount; l++) {
                     const eid = meterReadingData.data[i].channels[l].eid;
                     const timestamp = new Date(meterReadingData.data[i].channels[l].timestamp * 1000).toLocaleString();
                     const actEnergyDlvd = parseFloat(meterReadingData.data[i].channels[l].actEnergyDlvd).toFixed(3);
@@ -2020,7 +2019,7 @@ class envoyDevice {
                     const current = parseFloat(meterReadingData.data[i].channels[l].current).toFixed(3);
                     const freq = parseFloat(meterReadingData.data[i].channels[l].freq).toFixed(2);
 
-                    this.meterReadingChannelsLength = meterReadingChannelsLength;
+                    this.meterReadingChannelsCount = meterReadingChannelsCount;
                     this.eidPhase.push(eid);
                     this.timestampPhase.push(timestamp);
                     this.actEnergyDlvdPhase.push(actEnergyDlvd);
@@ -2062,20 +2061,16 @@ class envoyDevice {
         const productionMicroEnergyLifeTime = parseFloat((productionCtData.data.production[0].whLifetime + this.productionEnergyLifetimeOffset) / 1000);
 
         //current transformers
-        const productionType = meterProductionEnabled ? ENVOY_STATUS_CODE[productionCtData.data.production[1].type] : 'undefined';
+        const productionType = meterProductionEnabled ? ENVOY_STATUS_CODE[productionCtData.data.production[1].type] : productionMicroType;
         const productionActiveCount = meterProductionEnabled ? productionCtData.data.production[1].activeCount : 0;
         const productionMeasurmentType = meterProductionEnabled ? ENVOY_STATUS_CODE[productionCtData.data.production[1].measurementType] : 'undefined';
         const productionReadingTime = meterProductionEnabled ? new Date(productionCtData.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
         const productionPower = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].wNow / 1000).toFixed(3) : productionMicroSummaryWattsNow;
 
         //save and read power max and state
-        let productionPowerMax = productionPower;
         const savedProductionPowerMax = await fsPromises.readFile(this.productionPowerMaxFile);
         this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedProductionPowerMax);
-        if (savedProductionPowerMax > productionPower) {
-          productionPowerMax = parseFloat(savedProductionPowerMax);
-          this.log.debug('Device: %s %s, productionPowerMax: %s kW', this.host, this.name, productionPowerMax);
-        }
+        const productionPowerMax = (savedProductionPowerMax > productionPower) ? parseFloat(savedProductionPowerMax) : productionPower;
 
         if (productionPower > productionPowerMax) {
           const write = await fsPromises.writeFile(this.productionPowerMaxFile, productionPower.toString());
@@ -2119,7 +2114,8 @@ class envoyDevice {
               .updateCharacteristic(Characteristic.enphasePwrFactor, productionPwrFactor);
           }
         }
-        this.productionMicroActiveCount = productionMicroActiveCount;
+        this.microinvertersActiveCount = productionMicroActiveCount;
+
         this.productionActiveCount = productionActiveCount;
         this.productionType = productionType;
         this.productionMeasurmentType = productionMeasurmentType;
@@ -2302,7 +2298,7 @@ class envoyDevice {
               for (let j = 0; j < status.length; j++) {
                 arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
               }
-              status = arrStatus.join(', ')
+              status = arrStatus.join(', ');
             } else {
               status = 'Not available';
             }
@@ -2394,7 +2390,7 @@ class envoyDevice {
               for (let j = 0; j < status.length; j++) {
                 arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
               }
-              status = arrStatus.join(', ')
+              status = arrStatus.join(', ');
             } else {
               status = 'Not available';
             }
@@ -2465,18 +2461,6 @@ class envoyDevice {
   //Prepare accessory
   prepareAccessory() {
     this.log.debug('prepareAccessory');
-    // get enabled devices
-    const envoySupportMeters = this.envoySupportMeters;
-    const metersCount = this.metersCount;
-    const meterProductionEnabled = this.meterProductionEnabled;
-    const meterConsumptionEnabled = this.meterConsumptionEnabled;
-    const metersConsumpionCount = this.metersConsumpionCount;
-    const qRelaysCount = this.qRelaysCount;
-    const enchargesCount = this.enchargesCount;
-    const enchargesActiveCount = this.enchargesActiveCount;
-    const microinvertersCount = this.microinvertersCount
-    const productionMicroActiveCount = this.productionMicroActiveCount
-
     const accessoryName = this.name;
     const accessoryUUID = UUID.generate(accessoryName);
     const accessoryCategory = Categories.OTHER;
@@ -2499,6 +2483,17 @@ class envoyDevice {
     accessory.addService(informationService);
 
     this.log.debug('prepareEnphaseServices');
+    // get enabled devices
+    const envoySupportMeters = this.envoySupportMeters;
+    const metersCount = this.metersCount;
+    const meterProductionEnabled = this.meterProductionEnabled;
+    const meterConsumptionEnabled = this.meterConsumptionEnabled;
+    const metersConsumpionCount = this.metersConsumpionCount;
+    const qRelaysCount = this.qRelaysCount;
+    const enchargesCount = this.enchargesCount;
+    const enchargesActiveCount = this.enchargesActiveCount;
+    const microinvertersCount = this.microinvertersCount;
+    const microinvertersActiveCount = this.microinvertersActiveCount;
     //envoy
     this.envoysService = new Array();
     const enphaseServiceEnvoy = new Service.enphaseEnvoy('Envoy ' + this.envoySerialNumber, 'enphaseServiceEnvoy');
@@ -3244,9 +3239,9 @@ class envoyDevice {
     }
 
     //microinverter
-    if (microinvertersCount > 0 && productionMicroActiveCount > 0) {
+    if (microinvertersCount > 0 && microinvertersActiveCount > 0) {
       this.microinvertersService = new Array();
-      for (let i = 0; i < this.microinvertersCount; i++) {
+      for (let i = 0; i < microinvertersCount; i++) {
         const enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumber[i], 'enphaseServiceMicronverter' + i);
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPower)
           .onGet(async () => {
