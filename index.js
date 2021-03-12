@@ -2645,16 +2645,16 @@ class envoyDevice {
 
     enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel)
       .onGet(async () => {
-        const value = this.envoyCheckCommLevel;
+        const state = this.envoyCheckCommLevel;
         if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s check comm level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          this.log('Device: %s %s, envoy: %s checking comm level: %s', this.host, accessoryName, this.envoySerialNumber, state ? 'Yes' : 'No');
         }
-        return value;
+        return state;
       })
       .onSet(async (state) => {
         this.envoyCheckCommLevel = state;
         if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s set check comm level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          this.log('Device: %s %s, envoy: %s check comm level: %s', this.host, accessoryName, this.envoySerialNumber, state ? 'Yes' : 'No');
         }
       });
     this.envoysService.push(enphaseServiceEnvoy);
