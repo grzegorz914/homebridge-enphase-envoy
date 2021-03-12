@@ -1443,7 +1443,7 @@ class envoyDevice {
     this.checkDeviceState = false;
     this.checkMicroinvertersPower = false;
     this.checkCommLevel = false;
-    this.allCommLevels = {};
+    this.commLevel = {};
     this.startPrepareAccessory = true;
 
     this.envoyCheckCommLevel = false;
@@ -1534,16 +1534,13 @@ class envoyDevice {
     setInterval(function () {
       if (this.checkDeviceInfo) {
         this.getDeviceInfo();
-      } else if (!this.checkDeviceInfo && this.checkDeviceState) {
+      }
+      if (!this.checkDeviceInfo && this.checkDeviceState) {
         this.updateMicroinvertersPower();
         this.updateDeviceState();
-      }
-    }.bind(this), this.refreshInterval * 1000);
-
-    //Check comm level
-    setInterval(function () {
-      if (this.envoyCheckCommLevel && !this.checkDeviceInfo && this.checkDeviceState && this.installerPasswd) {
-        this.updateCommLevel();
+        if (this.envoyCheckCommLevel && this.installerPasswd) {
+          this.updateCommLevel();
+        }
       }
     }.bind(this), this.refreshInterval * 1000);
 
@@ -1629,10 +1626,10 @@ class envoyDevice {
       const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
       this.log.debug('Debug pcuCommCheck: %s', pcuCommCheckData.data);
       const pcuCommCheckDataOK = (pcuCommCheckData.status === 200);
-      this.allCommLevels = pcuCommCheckDataOK ? pcuCommCheckData.data : this.checkCommLevel;
-      this.checkCommLevel = pcuCommCheckDataOK ? true : false;
 
       if (pcuCommCheckDataOK) {
+        const commLevel = pcuCommCheckData.data;
+
         if (this.envoysService) {
           this.envoysService[0]
             .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
@@ -1640,7 +1637,7 @@ class envoyDevice {
 
         for (let i = 0; i < this.qrelaysCount; i++) {
           const key = '' + this.qRelaysSerialNumber[i] + '';
-          const value = (this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+          const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
 
           if (this.qrelaysService) {
             this.qrelaysService[i]
@@ -1650,7 +1647,7 @@ class envoyDevice {
 
         for (let i = 0; i < this.enchargesCount; i++) {
           const key = '' + this.enchargesSerialNumber[i] + '';
-          const value = (this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+          const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
 
           if (this.enchargesService) {
             this.enchargesService[i]
@@ -1660,16 +1657,18 @@ class envoyDevice {
 
         for (let i = 0; i < this.microinvertersCount; i++) {
           const key = '' + this.microinvertersSerialNumber[i] + '';
-          const value = (this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+          const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
 
           if (this.microinvertersService) {
             this.microinvertersService[i]
               .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
           }
         }
+        this.commLevel = commLevel;
+        this.checkCommLevel = true;
+        this.envoyCheckCommLevel = false;
       }
 
-      this.envoyCheckCommLevel = pcuCommCheckDataOK ? false : true;
     } catch (error) {
       this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
       this.checkCommLevel = false;
@@ -2779,7 +2778,7 @@ class envoyDevice {
         enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
           .onGet(async () => {
             const key = '' + this.qRelaysSerialNumber[i] + '';
-            const value = (this.checkCommLevel && this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.commLevel[key] !== undefined) ? (this.commLevel[key]) * 20 : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s comm. level: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
@@ -3233,10 +3232,10 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
+        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeCommLevel)
           .onGet(async () => {
             const key = '' + this.enchargesSerialNumber[i] + '';
-            const value = (this.checkCommLevel && this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.commLevel[key] !== undefined) ? (this.commLevel[key]) * 20 : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s comm. level: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
@@ -3367,7 +3366,7 @@ class envoyDevice {
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
           .onGet(async () => {
             const key = '' + this.microinvertersSerialNumber[i] + '';
-            const value = (this.checkCommLevel && this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.commLevel[key] !== undefined) ? (this.commLevel[key]) * 20 : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s comm. level: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
