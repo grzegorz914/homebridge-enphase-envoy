@@ -1760,19 +1760,17 @@ class envoyDevice {
         const commAcbLevel = (homeData.data.comm.acb.level * 20);
         const commNsrbNum = homeData.data.comm.nsrb.num;
         const commNsrbLevel = (homeData.data.comm.nsrb.level * 20);
-        let status = homeData.data.allerts;
+        const allerts = homeData.data.allerts;
         const updateStatus = ENVOY_STATUS_CODE[homeData.data.update_status] || 'undefined';
 
         // convert status
-        if (Array.isArray(status) && status.length > 0) {
-          const arrStatus = new Array();
-          for (let j = 0; j < status.length; j++) {
-            arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
+        const arrStatus = new Array();
+        if (Array.isArray(allerts) && allerts.length > 0) {
+          for (let j = 0; j < allerts.length; j++) {
+            arrStatus.push(ENVOY_STATUS_CODE[allerts[j]]);
           }
-          status = arrStatus.join(', ');
-        } else {
-          status = 'Not available';
         }
+        const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
 
         if (this.envoysService) {
           this.envoysService[0]
@@ -1818,6 +1816,7 @@ class envoyDevice {
       //qrelays
       if (qRelaysCount > 0) {
         if (inventoryData.status === 200 && inventoryData.data !== undefined) {
+          this.qRelaysType = new Array();
           this.qRelaysSerialNumber = new Array();
           this.qRelaysStatus = new Array();
           this.qRelaysLastReportDate = new Array();
@@ -1835,11 +1834,11 @@ class envoyDevice {
 
         for (let i = 0; i < qRelaysCount; i++) {
           if (inventoryData.status === 200 && inventoryData.data !== undefined) {
-            const type = inventoryData.data[2].type;
+            const type = ENVOY_STATUS_CODE[inventoryData.data[2].type] || 'undefined';
             const partNum = ENPHASE_PART_NUMBER[inventoryData.data[2].devices[i].part_num] || 'Q-Relay'
             const installed = inventoryData.data[2].devices[i].installed;
             const serialNumber = inventoryData.data[2].devices[i].serial_num;
-            let status = inventoryData.data[2].devices[i].device_status;
+            const deviceStatus = inventoryData.data[2].devices[i].device_status;
             const lastReportDate = new Date(inventoryData.data[2].devices[i].last_rpt_date * 1000).toLocaleString();
             const adminState = inventoryData.data[2].devices[i].admin_state;
             const devType = inventoryData.data[2].devices[i].dev_type;
@@ -1859,15 +1858,13 @@ class envoyDevice {
             const linesCount = inventoryData.data[2].devices[i]['line-count'];
 
             // convert status
-            if (Array.isArray(status) && status.length > 0) {
-              const arrStatus = new Array();
-              for (let j = 0; j < status.length; j++) {
-                arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
+            const arrStatus = new Array();
+            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
+              for (let j = 0; j < deviceStatus.length; j++) {
+                arrStatus.push(ENVOY_STATUS_CODE[deviceStatus[j]]);
               }
-              status = arrStatus.join(', ');
-            } else {
-              status = 'Not available';
             }
+            const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
 
             if (linesCount >= 1) {
               const line1Connected = (inventoryData.data[2].devices[i]['line1-connected'] === true);
@@ -1876,22 +1873,22 @@ class envoyDevice {
                   .updateCharacteristic(Characteristic.enphaseQrelayLine1Connected, line1Connected);
               }
               this.qRelaysLine1Connected.push(line1Connected);
-              if (linesCount >= 2) {
-                const line2Connected = (inventoryData.data[2].devices[i]['line2-connected'] === true);
-                if (this.qrelaysService) {
-                  this.qrelaysService[i]
-                    .updateCharacteristic(Characteristic.enphaseQrelayLine2Connected, line2Connected);
-                }
-                this.qRelaysLine2Connected.push(line2Connected);
-                if (linesCount >= 3) {
-                  const line3Connected = (inventoryData.data[2].devices[i]['line3-connected'] === true);
-                  if (this.qrelaysService) {
-                    this.qrelaysService[i]
-                      .updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, line3Connected);
-                  }
-                  this.qRelaysLine3Connected.push(line3Connected);
-                }
+            }
+            if (linesCount >= 2) {
+              const line2Connected = (inventoryData.data[2].devices[i]['line2-connected'] === true);
+              if (this.qrelaysService) {
+                this.qrelaysService[i]
+                  .updateCharacteristic(Characteristic.enphaseQrelayLine2Connected, line2Connected);
               }
+              this.qRelaysLine2Connected.push(line2Connected);
+            }
+            if (linesCount >= 3) {
+              const line3Connected = (inventoryData.data[2].devices[i]['line3-connected'] === true);
+              if (this.qrelaysService) {
+                this.qrelaysService[i]
+                  .updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, line3Connected);
+              }
+              this.qRelaysLine3Connected.push(line3Connected);
             }
 
             if (this.qrelaysService) {
@@ -1907,6 +1904,7 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseQrelayLinesCount, linesCount)
             }
 
+            this.qRelaysType.push(type);
             this.qRelaysSerialNumber.push(serialNumber);
             this.qRelaysStatus.push(status);
             this.qRelaysLastReportDate.push(lastReportDate);
@@ -1939,18 +1937,16 @@ class envoyDevice {
             const phaseMode = ENVOY_STATUS_CODE[metersData.data[i].phaseMode] || 'undefined';
             const phaseCount = metersData.data[i].phaseCount;
             const meteringStatus = ENVOY_STATUS_CODE[metersData.data[i].meteringStatus] || 'undefined';
-            let status = metersData.data[i].statusFlags;
+            const statusFlags = metersData.data[i].statusFlags;
 
             // convert status
-            if (Array.isArray(status) && status.length > 0) {
-              const arrStatus = new Array();
-              for (let j = 0; j < status.length; j++) {
-                arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
+            const arrStatus = new Array();
+            if (Array.isArray(statusFlags) && statusFlags.length > 0) {
+              for (let j = 0; j < statusFlags.length; j++) {
+                arrStatus.push(ENVOY_STATUS_CODE[statusFlags[j]]);
               }
-              status = arrStatus.join(', ');
-            } else {
-              status = 'Not available';
             }
+            const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
 
 
             if (this.metersService) {
@@ -2329,7 +2325,7 @@ class envoyDevice {
             const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'Encharge'
             const installed = inventoryData.data[1].devices[i].installed;
             const serialNumber = inventoryData.data[1].devices[i].serial_num;
-            let status = inventoryData.data[1].devices[i].device_status;
+            const deviceStatus = inventoryData.data[1].devices[i].device_status;
             const lastReportDate = new Date(inventoryData.data[1].devices[i].last_rpt_date * 1000).toLocaleString();
             const adminState = inventoryData.data[1].devices[i].admin_state;
             const devType = inventoryData.data[1].devices[i].dev_type;
@@ -2351,15 +2347,13 @@ class envoyDevice {
             const chargeStatus = ENVOY_STATUS_CODE[inventoryData.data[1].devices[i].charge_status] || 'undefined';
 
             // convert status
-            if (Array.isArray(status) && status.length > 0) {
-              const arrStatus = new Array();
-              for (let j = 0; j < status.length; j++) {
-                arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
+            const arrStatus = new Array();
+            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
+              for (let j = 0; j < deviceStatus.length; j++) {
+                arrStatus.push(ENVOY_STATUS_CODE[deviceStatus[j]]);
               }
-              status = arrStatus.join(', ');
-            } else {
-              status = 'Not available';
             }
+            const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
 
             if (this.enchargesService) {
               this.enchargesService[i]
@@ -2426,7 +2420,7 @@ class envoyDevice {
             const partNum = ENPHASE_PART_NUMBER[inventoryData.data[0].devices[i].part_num] || 'Microinverter';
             const installed = inventoryData.data[0].devices[i].installed;
             const serialNumber = inventoryData.data[0].devices[i].serial_num;
-            let status = inventoryData.data[0].devices[i].device_status;
+            const deviceStatus = inventoryData.data[0].devices[i].device_status;
             const lastReportDate = new Date(inventoryData.data[0].devices[i].last_rpt_date * 1000).toLocaleString();
             const adminState = inventoryData.data[0].devices[i].admin_state;
             const devType = inventoryData.data[0].devices[i].dev_type;
@@ -2442,15 +2436,13 @@ class envoyDevice {
             const operating = (inventoryData.data[0].devices[i].operating === true);
 
             // convert status
-            if (Array.isArray(status) && status.length > 0) {
-              const arrStatus = new Array();
-              for (let j = 0; j < status.length; j++) {
-                arrStatus.push(ENVOY_STATUS_CODE[status[j]]) || 'undefined';
+            const arrStatus = new Array();
+            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
+              for (let j = 0; j < deviceStatus.length; j++) {
+                arrStatus.push(ENVOY_STATUS_CODE[deviceStatus[j]]);
               }
-              status = arrStatus.join(', ');
-            } else {
-              status = 'Not available';
             }
+            const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
 
             if (this.microinvertersService) {
               this.microinvertersService[i]
@@ -2713,7 +2705,7 @@ class envoyDevice {
             }
             return value;
           });
-        if (this.qRelaysLinesCount[i] >= 1) {
+        if (this.qRelaysLinesCount[i] > 0) {
           enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine1Connected)
             .onGet(async () => {
               const value = this.qRelaysLine1Connected[i];
@@ -2722,26 +2714,26 @@ class envoyDevice {
               }
               return value;
             });
-          if (this.qRelaysLinesCount[i] >= 2) {
-            enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine2Connected)
-              .onGet(async () => {
-                const value = this.qRelaysLine2Connected[i];
-                if (!this.disableLogInfo) {
-                  this.log('Device: %s %s, qrelay: %s line 2: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
-                }
-                return value;
-              });
-            if (this.qRelaysLinesCount[i] >= 3) {
-              enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine3Connected)
-                .onGet(async () => {
-                  const value = this.qRelaysLine3Connected[i];
-                  if (!this.disableLogInfo) {
-                    this.log('Device: %s %s, qrelay: %s line 3: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
-                  }
-                  return value;
-                });
-            }
-          }
+        }
+        if (this.qRelaysLinesCount[i] >= 2) {
+          enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine2Connected)
+            .onGet(async () => {
+              const value = this.qRelaysLine2Connected[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, qrelay: %s line 2: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
+              }
+              return value;
+            });
+        }
+        if (this.qRelaysLinesCount[i] >= 3) {
+          enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayLine3Connected)
+            .onGet(async () => {
+              const value = this.qRelaysLine3Connected[i];
+              if (!this.disableLogInfo) {
+                this.log('Device: %s %s, qrelay: %s line 3: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value ? 'Closed' : 'Open');
+              }
+              return value;
+            });
         }
         enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayProducing)
           .onGet(async () => {
