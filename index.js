@@ -81,6 +81,7 @@ const ENVOY_STATUS_CODE = {
   'ethernet': 'Ethernet', 'eth0': 'Ethernet', 'wifi': 'WiFi', 'wlan0': 'WiFi', 'cellurar': 'Cellurar', 'connected': 'Connected', 'disconnected': 'Disconnected',
   'single_rate': 'Single rate', 'time_to_use': 'Time to use', 'time_of_use': 'Time of use', 'tiered': 'Tiered', 'not_set': 'Not set', 'flat': 'Flat', 'none': 'None',
   'satisfied': 'Satisfied', 'not-satisfied': 'Not satisfied',
+  //status code
   'envoy.global.ok': 'Normal',
   'envoy.cond_flags.acb_ctrl.bmuhardwareerror': 'BMU Hardware Error',
   'envoy.cond_flags.acb_ctrl.bmuimageerror': 'BMU Image Error',
@@ -176,7 +177,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyAllerts, Characteristic);
-  Characteristic.enphaseEnvoyAllerts.UUID = '00000011-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyAllerts.UUID = '00000001-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyPrimaryInterface = function () {
     Characteristic.call(this, 'Network interface', Characteristic.enphaseEnvoyPrimaryInterface.UUID);
@@ -187,7 +188,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyPrimaryInterface, Characteristic);
-  Characteristic.enphaseEnvoyPrimaryInterface.UUID = '00000012-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyPrimaryInterface.UUID = '00000011-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyNetworkWebComm = function () {
     Characteristic.call(this, 'Web communication', Characteristic.enphaseEnvoyNetworkWebComm.UUID);
@@ -198,7 +199,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyNetworkWebComm, Characteristic);
-  Characteristic.enphaseEnvoyNetworkWebComm.UUID = '00000013-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyNetworkWebComm.UUID = '00000012-000B-1000-8000-0026BB765291';
 
 
   Characteristic.enphaseEnvoyEverReportedToEnlighten = function () {
@@ -210,7 +211,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyEverReportedToEnlighten, Characteristic);
-  Characteristic.enphaseEnvoyEverReportedToEnlighten.UUID = '00000014-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyEverReportedToEnlighten.UUID = '00000013-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumAndLevel = function () {
     Characteristic.call(this, 'Devices and level', Characteristic.enphaseEnvoyCommNumAndLevel.UUID);
@@ -221,7 +222,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAndLevel.UUID = '00000015-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumAndLevel.UUID = '00000014-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumNsrbAndLevel = function () {
     Characteristic.call(this, 'Q-Relays and level', Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID);
@@ -232,7 +233,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID = '00000016-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID = '00000015-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumAcbAndLevel = function () {
     Characteristic.call(this, 'Encharges and level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
@@ -243,7 +244,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumAcbAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00000017-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00000016-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumPcuAndLevel = function () {
     Characteristic.call(this, 'Microinverters and level', Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID);
@@ -254,7 +255,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumPcuAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00000018-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00000017-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyDbSize = function () {
     Characteristic.call(this, 'DB size', Characteristic.enphaseEnvoyDbSize.UUID);
@@ -265,7 +266,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyDbSize, Characteristic);
-  Characteristic.enphaseEnvoyDbSize.UUID = '00000019-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyDbSize.UUID = '00000018-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyTariff = function () {
     Characteristic.call(this, 'Tariff', Characteristic.enphaseEnvoyTariff.UUID);
@@ -276,7 +277,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyTariff, Characteristic);
-  Characteristic.enphaseEnvoyTariff.UUID = '00000021-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyTariff.UUID = '00000019-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyFirmware = function () {
     Characteristic.call(this, 'Firmware', Characteristic.enphaseEnvoyFirmware.UUID);
@@ -287,7 +288,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyFirmware, Characteristic);
-  Characteristic.enphaseEnvoyFirmware.UUID = '00000022-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyFirmware.UUID = '00000021-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyUpdateStatus = function () {
     Characteristic.call(this, 'Update status', Characteristic.enphaseEnvoyUpdateStatus.UUID);
@@ -298,7 +299,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyUpdateStatus, Characteristic);
-  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00000023-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00000022-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyTimeZone = function () {
     Characteristic.call(this, 'Time Zone', Characteristic.enphaseEnvoyTimeZone.UUID);
@@ -309,7 +310,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyTimeZone, Characteristic);
-  Characteristic.enphaseEnvoyTimeZone.UUID = '00000024-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyTimeZone.UUID = '00000023-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCurrentDateTime = function () {
     Characteristic.call(this, 'Local time', Characteristic.enphaseEnvoyCurrentDateTime.UUID);
@@ -320,7 +321,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCurrentDateTime, Characteristic);
-  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00000025-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00000024-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyLastEnlightenReporDate = function () {
     Characteristic.call(this, 'Last report to Enlighten', Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID);
@@ -331,7 +332,18 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyLastEnlightenReporDate, Characteristic);
-  Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID = '00000026-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID = '00000025-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnvoyCheckCommLevel = function () {
+    Characteristic.call(this, 'Check comm level', Characteristic.enphaseEnvoyCheckCommLevel.UUID);
+    this.setProps({
+      format: Characteristic.Formats.BOOL,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnvoyCheckCommLevel, Characteristic);
+  Characteristic.enphaseEnvoyCheckCommLevel.UUID = '00000026-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphaseEnvoy = function (displayName, subtype) {
@@ -353,6 +365,7 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTimeZone);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
   };
   inherits(Service.enphaseEnvoy, Service);
   Service.enphaseEnvoy.UUID = '00000001-000A-1000-8000-0026BB765291';
@@ -1433,6 +1446,7 @@ class envoyDevice {
     this.allCommLevels = {};
     this.startPrepareAccessory = true;
 
+    this.envoyCheckCommLevel = false;
     this.envoySerialNumber = '';
     this.envoyFirmware = '';
     this.envoySoftwareBuildEpoch = 0;
@@ -1521,7 +1535,15 @@ class envoyDevice {
       if (this.checkDeviceInfo) {
         this.getDeviceInfo();
       } else if (!this.checkDeviceInfo && this.checkDeviceState) {
+        this.updateMicroinvertersPower();
         this.updateDeviceState();
+      }
+    }.bind(this), this.refreshInterval * 1000);
+
+    //Check comm level
+    setInterval(function () {
+      if (this.envoyCheckCommLevel && !this.checkDeviceInfo && this.checkDeviceState && this.installerPasswd) {
+        this.updateCommLevel();
       }
     }.bind(this), this.refreshInterval * 1000);
 
@@ -1585,12 +1607,64 @@ class envoyDevice {
       this.enchargesCount = enchargesCount;
       this.microinvertersCount = microinvertersCount;
 
-
       this.checkDeviceInfo = false;
+      this.updateMicroinvertersPower();
       this.updateDeviceState();
     } catch (error) {
       this.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', this.host, this.name, error);
       this.checkDeviceInfo = true;
+    };
+  }
+
+  async updateCommLevel() {
+    //check communications level of qrelays, encharges, microinverters
+    try {
+      const authInstaller = {
+        method: 'GET',
+        rejectUnauthorized: false,
+        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
+        dataType: 'json',
+        timeout: [5000, 5000]
+      };
+      const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
+      this.log.debug('Debug pcuCommCheck: %s', pcuCommCheckData.data);
+      const allCommLevels = pcuCommCheckData.data;
+      this.allCommLevels = (pcuCommCheckData.status === 200) ? allCommLevels : this.checkCommLevel;
+      this.checkCommLevel = (pcuCommCheckData.status === 200) ? true : false;
+      const envoyCheckCommLevel = (pcuCommCheckData.status === 200) ? false : true;
+      this.envoyCheckCommLevel = envoyCheckCommLevel;
+      if (this.envoysService) {
+        this.envoysService[0]
+          .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, envoyCheckCommLevel);
+      }
+    } catch (error) {
+      this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
+      this.checkCommLevel = false;
+      this.envoyCheckCommLevel = true;
+    };
+  }
+
+  async updateMicroinvertersPower() {
+    //check microinverters power
+    try {
+      const passSerialNumber = this.envoySerialNumber.substring(6);
+      const passEnvoy = this.envoyPasswd;
+      const passwd = passEnvoy || passSerialNumber;
+      const auth = ENVOY_USER + ':' + passwd;
+      const authEnvoy = {
+        method: 'GET',
+        rejectUnauthorized: false,
+        digestAuth: auth,
+        dataType: 'json',
+        timeout: [5000, 5000]
+      };
+      const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
+      this.log.debug('Debug production inverters: %s', microinvertersData.data);
+      this.microinvertersData = microinvertersData;
+      this.checkMicroinvertersPower = true;
+    } catch (error) {
+      this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
+      this.checkMicroinvertersPower = false;
     };
   }
 
@@ -1608,52 +1682,6 @@ class envoyDevice {
       const qRelaysCount = this.qRelaysCount;
       const enchargesCount = this.enchargesCount;
       const microinvertersCount = this.microinvertersCount
-
-      //check communications level of qrelays, encharges, microinverters
-      if (this.installerPasswd) {
-        try {
-          //authorization installer
-          const authInstaller = {
-            method: 'GET',
-            rejectUnauthorized: false,
-            digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-            dataType: 'json',
-            timeout: [5000, 5000]
-          };
-          const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
-          this.log.debug('Debug pcuCommCheck: %s', pcuCommCheckData.data);
-          const allCommLevels = pcuCommCheckData.data;
-          this.allCommLevels = allCommLevels;
-          this.checkCommLevel = true;
-        } catch (error) {
-          this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
-          this.checkCommLevel = false;
-        };
-      }
-
-      if (microinvertersCount > 0) {
-        try {
-          //authorization envoy
-          const passSerialNumber = this.envoySerialNumber.substring(6);
-          const passEnvoy = this.envoyPasswd;
-          const passwd = passEnvoy || passSerialNumber;
-          const auth = ENVOY_USER + ':' + passwd;
-          const authEnvoy = {
-            method: 'GET',
-            rejectUnauthorized: false,
-            digestAuth: auth,
-            dataType: 'json',
-            timeout: [5000, 5000]
-          };
-          const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
-          this.log.debug('Debug production inverters: %s', microinvertersData.data);
-          this.microinvertersData = microinvertersData;
-          this.checkMicroinvertersPower = true;
-        } catch (error) {
-          this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
-          this.checkMicroinvertersPower = false;
-        };
-      }
 
       //envoy
       if (homeData.status === 200 && homeData.data !== undefined) {
@@ -2613,6 +2641,21 @@ class envoyDevice {
           this.log('Device: %s %s, envoy: %s last report to enlighten: %s', this.host, accessoryName, this.envoySerialNumber, value);
         }
         return value;
+      });
+
+    enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel)
+      .onGet(async () => {
+        const value = this.envoyCheckCommLevel;
+        if (!this.disableLogInfo) {
+          this.log('Device: %s %s, envoy: %s check comm level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+        }
+        return value;
+      })
+      .onSet(async (state) => {
+        this.envoyCheckCommLevel = state;
+        if (!this.disableLogInfo) {
+          this.log('Device: %s %s, envoy: %s set check comm level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+        }
       });
     this.envoysService.push(enphaseServiceEnvoy);
     accessory.addService(this.envoysService[0]);
