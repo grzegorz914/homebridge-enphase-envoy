@@ -1617,7 +1617,7 @@ class envoyDevice {
   }
 
   async updateCommLevel() {
-    //check communications level of qrelays, encharges, microinverters
+    this.log.debug('Device: %s %s, requesting communications level.', this.host, this.name);
     try {
       const authInstaller = {
         method: 'GET',
@@ -1628,15 +1628,48 @@ class envoyDevice {
       };
       const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
       this.log.debug('Debug pcuCommCheck: %s', pcuCommCheckData.data);
-      const allCommLevels = pcuCommCheckData.data;
-      this.allCommLevels = (pcuCommCheckData.status === 200) ? allCommLevels : this.checkCommLevel;
-      this.checkCommLevel = (pcuCommCheckData.status === 200) ? true : false;
-      const envoyCheckCommLevel = (pcuCommCheckData.status === 200) ? false : true;
-      this.envoyCheckCommLevel = envoyCheckCommLevel;
-      if (this.envoysService) {
-        this.envoysService[0]
-          .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, envoyCheckCommLevel);
+      const pcuCommCheckDataOK = (pcuCommCheckData.status === 200);
+      this.allCommLevels = pcuCommCheckDataOK ? pcuCommCheckData.data : this.checkCommLevel;
+      this.checkCommLevel = pcuCommCheckDataOK ? true : false;
+
+      if (pcuCommCheckDataOK) {
+        if (this.envoysService) {
+          this.envoysService[0]
+            .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
+        }
+
+        for (let i = 0; i < this.qrelaysCount; i++) {
+          const key = '' + this.qRelaysSerialNumber[i] + '';
+          const value = (this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+
+          if (this.qrelaysService) {
+            this.qrelaysService[i]
+              .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
+          }
+        }
+
+        for (let i = 0; i < this.enchargesCount; i++) {
+          const key = '' + this.enchargesSerialNumber[i] + '';
+          const value = (this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+
+          if (this.enchargesService) {
+            this.enchargesService[i]
+              .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
+          }
+        }
+
+        for (let i = 0; i < this.microinvertersCount; i++) {
+          const key = '' + this.microinvertersSerialNumber[i] + '';
+          const value = (this.allCommLevels[key] !== undefined) ? (this.allCommLevels[key]) * 20 : 0;
+
+          if (this.microinvertersService) {
+            this.microinvertersService[i]
+              .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
+          }
+        }
       }
+
+      this.envoyCheckCommLevel = pcuCommCheckDataOK ? false : true;
     } catch (error) {
       this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
       this.checkCommLevel = false;
@@ -1645,7 +1678,7 @@ class envoyDevice {
   }
 
   async updateMicroinvertersPower() {
-    //check microinverters power
+    this.log.debug('Device: %s %s, requesting microinverters power', this.host, this.name);
     try {
       const passSerialNumber = this.envoySerialNumber.substring(6);
       const passEnvoy = this.envoyPasswd;
