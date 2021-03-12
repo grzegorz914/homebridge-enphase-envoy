@@ -1776,7 +1776,6 @@ class envoyDevice {
         for (let i = 0; i < qRelaysCount; i++) {
           if (inventoryData.status === 200 && inventoryData.data !== undefined) {
             const type = inventoryData.data[2].type;
-            const devicesLength = inventoryData.data[2].devices.length;
             const partNum = ENPHASE_PART_NUMBER[inventoryData.data[2].devices[i].part_num] || 'Q-Relay'
             const installed = inventoryData.data[2].devices[i].installed;
             const serialNumber = inventoryData.data[2].devices[i].serial_num;
@@ -2267,7 +2266,6 @@ class envoyDevice {
         for (let i = 0; i < enchargesCount; i++) {
           if (inventoryData.status === 200 && inventoryData.data !== undefined) {
             const type = ENVOY_STATUS_CODE[inventoryData.data[1].type] || 'undefined';
-            const devicesLenth = inventoryData.data[1].devices.length;
             const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'Encharge'
             const installed = inventoryData.data[1].devices[i].installed;
             const serialNumber = inventoryData.data[1].devices[i].serial_num;
@@ -2365,7 +2363,6 @@ class envoyDevice {
         for (let i = 0; i < microinvertersCount; i++) {
           if (inventoryData.status === 200 && inventoryData.data !== undefined) {
             const type = ENVOY_STATUS_CODE[inventoryData.data[0].type] || 'undefined';
-            const devicesLenth = inventoryData.data[0].devices.length;
             const partNum = ENPHASE_PART_NUMBER[inventoryData.data[0].devices[i].part_num] || 'Microinverter';
             const installed = inventoryData.data[0].devices[i].installed;
             const serialNumber = inventoryData.data[0].devices[i].serial_num;
