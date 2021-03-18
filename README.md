@@ -27,11 +27,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 ## Know issues
 - If used with Hoobs, there is a possible configuration incompatibilty.
 
-## Installation
-1. Follow the step-by-step instructions on the [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) for how to install Homebridge.
-2. Follow the step-by-step instructions on the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) for how to install Homebridge Config UI X.
-3. Install homebridge-enphase-envoy using: `npm install -g homebridge-enphase-envoy` or search for `Enphase or Envoy` in Config UI X.
-
 ## Info v4.x.x and above!!!
 1. Version 4.0.0 whole new concept.
 2. All devices in PV are detected automatically (Envoy, Q-Relays, Encharges, Meters, Microinverters).
@@ -51,6 +46,11 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 5. Peak Level (W) - display the maximum Power production/consumption.
 6. Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
 7. Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
+
+## Installation
+1. Follow the step-by-step instructions on the [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) for how to install Homebridge.
+2. Follow the step-by-step instructions on the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) for how to install Homebridge Config UI X.
+3. Install homebridge-enphase-envoy using: `npm install -g homebridge-enphase-envoy` or search for `Enphase or Envoy` in Config UI X.
 
 ## Configuration
 
