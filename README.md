@@ -85,7 +85,7 @@ Alternatively, Tthe sample configuration can be edited and used manually. See th
 | `firmwareRevision` | Optional free-form informational data that will be displayed in the Home.app if it is filled in |
 
 <p align="left">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="150"></a>
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="170"></a>
 </p>
 
 ```json
