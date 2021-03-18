@@ -15,33 +15,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 </span>
 
-# Bonus Top Bar on Mac!!!
-1. Download `enphase_envoy.15s.rb`.
-2. Open the Terminal app. 
-3. Install homebrew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`.
-4. Install digest auth: `gem install net-http-digest_auth`.
-5. Install BitBar `brew install bitbar`.
-6. Edit the `enphase_envoy.15s.rb` file and change the `MICROINVERTERS_SUM_WATTS = 5400` to Your microinverters power.
-7. Edit the `enphase_envoy.15s.rb` file and change `ENVOY_IP = envoy.local` to IP Address of Your Envoy if nedded.
-8. If You already changed Your standard Envoy password, edit the `enphase_envoy.15s.rb` file and change `uri.password = envoySerial[-6,6]`.
-9. Run [BitBar](https://github.com/matryer/bitbar) and go to Preferences>>Change Plugin Folder... and chose folder where You placed the `enphase_envoy.15s.rb`.
-10. After a few seconds You will see all data on the Top Bar:
-
-### Quick info about file name and its function:
-1. The `enphase_envoy` just the file name.
-2. The `15s` data refresh time.
-3. The `rb` file extension.
-
-Data refresh time
-* 15s - 15 seconds
-* 1m - 1 minute
-* 1h - 1 hour
-
-<p align="left">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" height="350"></a>
-</p>
-
-
 ## Package Requirements
 | Package Link | Required |
 | --- | --- |
@@ -148,6 +121,32 @@ Each accessory needs to be manually paired.
 2. Tap the Home tab, then tap <img src='https://user-images.githubusercontent.com/3979615/78010869-9aed1380-738e-11ea-9644-9f46b3633026.png' height='16.42px'>. 
 3. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*. 
 4. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
+
+# Bonus Top Bar on Mac!!!
+1. Download `enphase_envoy.15s.rb`.
+2. Open the Terminal app. 
+3. Install homebrew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`.
+4. Install digest auth: `gem install net-http-digest_auth`.
+5. Install BitBar `brew install bitbar`.
+6. Edit the `enphase_envoy.15s.rb` file and change the `MICROINVERTERS_SUM_WATTS = 5400` to Your microinverters power.
+7. Edit the `enphase_envoy.15s.rb` file and change `ENVOY_IP = envoy.local` to IP Address of Your Envoy if nedded.
+8. If You already changed Your standard Envoy password, edit the `enphase_envoy.15s.rb` file and change `uri.password = envoySerial[-6,6]`.
+9. Run [BitBar](https://github.com/matryer/bitbar) and go to Preferences>>Change Plugin Folder... and chose folder where You placed the `enphase_envoy.15s.rb`.
+10. After a few seconds You will see all data on the Top Bar:
+
+### Quick info about file name and its function:
+1. The `enphase_envoy` just the file name.
+2. The `15s` data refresh time.
+3. The `rb` file extension.
+
+Data refresh time
+* 15s - 15 seconds
+* 1m - 1 minute
+* 1h - 1 hour
+
+<p align="left">
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" height="350"></a>
+</p>
 
 ## What's new:
 https://github.com/grzegorz914/homebridge-enphase-envoy/blob/master/CHANGELOG.md
