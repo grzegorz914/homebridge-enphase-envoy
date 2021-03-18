@@ -3366,11 +3366,7 @@ class envoyDevice {
           });
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterStatus)
           .onGet(async () => {
-            const value = this.microinvertersStatus[i];
-            if (value.length > 64) {
-              value = value.substring(0, 64)
-
-            }
+            const value = (this.microinvertersStatus[i].length <= 64) ? this.microinvertersStatus[i] : this.microinvertersStatus[i].substring(64);
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s status: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
