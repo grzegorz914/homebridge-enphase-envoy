@@ -1443,7 +1443,6 @@ class envoyDevice {
     this.checkDeviceState = false;
     this.checkMicroinvertersPower = false;
     this.checkCommLevel = false;
-    this.commLevel = {};
     this.startPrepareAccessory = true;
 
     this.envoyCheckCommLevel = false;
@@ -1628,6 +1627,9 @@ class envoyDevice {
       const pcuCommCheckDataOK = (pcuCommCheckData.status === 200);
 
       if (pcuCommCheckDataOK) {
+        this.qRelaysCommLevel = new Array();
+        this.enchargesCommLevel = new Array();
+        this.microinvertersCommLevel = new Array();
         const commLevel = pcuCommCheckData.data;
 
         if (this.envoysService) {
@@ -1635,36 +1637,39 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
         }
 
-        for (let i = 0; i < this.qrelaysCount; i++) {
+        for (let i = 0; i < this.qRelaysCount; i++) {
           const key = '' + this.qRelaysSerialNumber[i] + '';
           const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
 
-          if (this.qrelaysService) {
+          if (this.qrelaysService[i]) {
             this.qrelaysService[i]
               .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
           }
+          this.qRelaysCommLevel.push(value);
         }
 
         for (let i = 0; i < this.enchargesCount; i++) {
           const key = '' + this.enchargesSerialNumber[i] + '';
           const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
 
-          if (this.enchargesService) {
+          if (this.enchargesService[i]) {
             this.enchargesService[i]
               .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
           }
+          this.enchargesCommLevel.push(value);
         }
 
         for (let i = 0; i < this.microinvertersCount; i++) {
           const key = '' + this.microinvertersSerialNumber[i] + '';
           const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
 
-          if (this.microinvertersService) {
+          if (this.microinvertersService[i]) {
             this.microinvertersService[i]
               .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
           }
+          this.microinvertersCommLevel.push(value);
         }
-        this.commLevel = commLevel;
+
         this.checkCommLevel = true;
         this.envoyCheckCommLevel = false;
       }
@@ -2769,8 +2774,7 @@ class envoyDevice {
           });
         enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
           .onGet(async () => {
-            const key = '' + this.qRelaysSerialNumber[i] + '';
-            const value = (this.checkCommLevel && this.commLevel[key] !== undefined) ? (this.commLevel[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.qRelaysCommLevel[i] !== undefined) ? this.qRelaysCommLevel[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s comm. level: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
@@ -3226,8 +3230,7 @@ class envoyDevice {
           });
         enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeCommLevel)
           .onGet(async () => {
-            const key = '' + this.enchargesSerialNumber[i] + '';
-            const value = (this.checkCommLevel && this.commLevel[key] !== undefined) ? (this.commLevel[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.enchargesCommLevel[i] !== undefined) ? this.enchargesCommLevel[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s comm. level: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
@@ -3357,8 +3360,7 @@ class envoyDevice {
           });
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
           .onGet(async () => {
-            const key = '' + this.microinvertersSerialNumber[i] + '';
-            const value = (this.checkCommLevel && this.commLevel[key] !== undefined) ? (this.commLevel[key]) * 20 : 0;
+            const value = (this.checkCommLevel && this.microinvertersCommLevel[i] !== undefined) ? this.microinvertersCommLevel[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s comm. level: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
