@@ -1641,8 +1641,8 @@ class envoyDevice {
           const key = '' + this.qRelaysSerialNumber[i] + '';
           const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
 
-          if (this.qrelaysService[i]) {
-            this.qrelaysService[i]
+          if (this.qRelaysService[i]) {
+            this.qRelaysService[i]
               .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
           }
           this.qRelaysCommLevel.push(value);
@@ -1873,31 +1873,31 @@ class envoyDevice {
 
             if (linesCount >= 1) {
               const line1Connected = (inventoryData.data[2].devices[i]['line1-connected'] === true);
-              if (this.qrelaysService) {
-                this.qrelaysService[i]
+              if (this.qRelaysService) {
+                this.qRelaysService[i]
                   .updateCharacteristic(Characteristic.enphaseQrelayLine1Connected, line1Connected);
               }
               this.qRelaysLine1Connected.push(line1Connected);
             }
             if (linesCount >= 2) {
               const line2Connected = (inventoryData.data[2].devices[i]['line2-connected'] === true);
-              if (this.qrelaysService) {
-                this.qrelaysService[i]
+              if (this.qRelaysService) {
+                this.qRelaysService[i]
                   .updateCharacteristic(Characteristic.enphaseQrelayLine2Connected, line2Connected);
               }
               this.qRelaysLine2Connected.push(line2Connected);
             }
             if (linesCount >= 3) {
               const line3Connected = (inventoryData.data[2].devices[i]['line3-connected'] === true);
-              if (this.qrelaysService) {
-                this.qrelaysService[i]
+              if (this.qRelaysService) {
+                this.qRelaysService[i]
                   .updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, line3Connected);
               }
               this.qRelaysLine3Connected.push(line3Connected);
             }
 
-            if (this.qrelaysService) {
-              this.qrelaysService[i]
+            if (this.qRelaysService) {
+              this.qRelaysService[i]
                 .updateCharacteristic(Characteristic.enphaseQrelayStatus, status)
                 .updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, lastReportDate)
                 .updateCharacteristic(Characteristic.enphaseQrelayFirmware, firmware)
@@ -2691,7 +2691,7 @@ class envoyDevice {
 
     //qrelay
     if (qRelaysCount > 0) {
-      this.qrelaysService = new Array();
+      this.qRelaysService = new Array();
       for (let i = 0; i < qRelaysCount; i++) {
         const enphaseServiceQrelay = new Service.enphaseQrelay('Q-Relay ' + this.qRelaysSerialNumber[i], 'enphaseServiceQrelay' + i);
         enphaseServiceQrelay.getCharacteristic(Characteristic.enphaseQrelayState)
@@ -2804,8 +2804,8 @@ class envoyDevice {
             }
             return value;
           });
-        this.qrelaysService.push(enphaseServiceQrelay);
-        accessory.addService(this.qrelaysService[i]);
+        this.qRelaysService.push(enphaseServiceQrelay);
+        accessory.addService(this.qRelaysService[i]);
       }
     }
 
