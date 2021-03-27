@@ -14,7 +14,7 @@ const ENPHASE_PART_NUMBER = {
   //IQ combiner
   '800-00551-r03': 'X-IQ-AM1-120-B-M',
   '800-00553-r03': 'X-IQ-AM1-240-B', '800-00554-r03': 'X-IQ-AM1-240-2', '800-00554-r03': 'X-IQ-AM1-240-2-M', '800-00555-r03': 'X-IQ-AM1-240-3', '800-00554-r03': 'X-IQ-AM1-240-3-ES', '800-00556-r03': 'X-IQ-AM1-240-3C', '800-00554-r03': 'X-IQ-AM1-240-3C-ES', '800-00557-r03': 'X-IQ-AM1-240-BM',
-  //Envoys
+  //Envoys'800-00654-r06',
   '880-00122-r02': 'ENV-S-AB-120-A', '880-00210-r02': 'ENV-S-AM1-120',
   '800-00553-r02': 'ENV-S-WB-230', '800-00554-r03': 'ENV-S-WM-230',
   '880-00208-r03': 'ENV-IQ-AM1-240', '880-00208-r02': 'ENV-IQ-AM1-240', '880-00231-r02': 'ENV-IQ-AM1-240', '880-00209-r03': 'ENV-IQ-AM3-3P', '880-00557-r02': 'ENV-IQ-AM3-3P',
@@ -1551,8 +1551,8 @@ class envoyDevice {
         this.getDeviceInfo();
       }
       if (!this.checkDeviceInfo && this.checkDeviceState) {
-        this.updateMicroinvertersPower();
         this.updateDeviceState();
+        this.updateMicroinvertersPower();
         if (this.envoyCheckCommLevel && this.installerPasswd) {
           this.updateCommLevel();
         }
@@ -1618,7 +1618,6 @@ class envoyDevice {
       this.microinvertersCount = microinvertersCount;
 
       this.checkDeviceInfo = false;
-      this.updateMicroinvertersPower();
       this.updateDeviceState();
     } catch (error) {
       this.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', this.host, this.name, error);
@@ -1695,30 +1694,6 @@ class envoyDevice {
       this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
       this.checkCommLevel = false;
       this.envoyCheckCommLevel = true;
-    };
-  }
-
-  async updateMicroinvertersPower() {
-    this.log.debug('Device: %s %s, requesting microinverters power', this.host, this.name);
-    try {
-      const passSerialNumber = this.envoySerialNumber.substring(6);
-      const passEnvoy = this.envoyPasswd;
-      const passwd = passEnvoy || passSerialNumber;
-      const auth = ENVOY_USER + ':' + passwd;
-      const authEnvoy = {
-        method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: auth,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
-      const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
-      this.log.debug('Debug production inverters: %s', microinvertersData.data);
-      this.microinvertersData = (microinvertersData.data !== undefined) ? microinvertersData : undefined;
-      this.checkMicroinvertersPower = (this.microinvertersData !== undefined) ? true : false;
-    } catch (error) {
-      this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
-      this.checkMicroinvertersPower = false;
     };
   }
 
@@ -2427,14 +2402,6 @@ class envoyDevice {
           this.microinvertersStatus = new Array();
         }
 
-        if (this.checkMicroinvertersPower) {
-          this.allMicroinvertersSerialNumber = new Array();
-          this.microinvertersReadingTimePower = new Array();
-          this.microinvertersType = new Array();
-          this.microinvertersLastPower = new Array();
-          this.microinvertersMaxPower = new Array();
-        }
-
         //microinverters state
         for (let i = 0; i < microinvertersCount; i++) {
           if (inventoryData.status === 200 && inventoryData.data !== undefined) {
@@ -2488,32 +2455,6 @@ class envoyDevice {
             this.microinvertersOperating.push(operating);
             this.microinvertersStatus.push(status);
           }
-
-          //microinverters power
-          if (this.checkMicroinvertersPower) {
-            for (let j = 0; j < this.microinvertersData.data.length; j++) {
-              const serialNumber = this.microinvertersData.data[j].serialNumber;
-              this.allMicroinvertersSerialNumber.push(serialNumber);
-            }
-            const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
-            const lastReportDate = new Date(this.microinvertersData.data[index].lastReportDate * 1000).toLocaleString();
-            const devType = this.microinvertersData.data[index].devType;
-            const lastReportWatts = parseInt(this.microinvertersData.data[index].lastReportWatts);
-            const maxReportWatts = parseInt(this.microinvertersData.data[index].maxReportWatts);
-
-            if (this.microinvertersService) {
-              this.microinvertersService[i]
-                .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
-                //.updateCharacteristic(Characteristic.enphaseMicroinverterType, devType)
-                .updateCharacteristic(Characteristic.enphaseMicroinverterPower, lastReportWatts)
-                .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, maxReportWatts)
-            }
-
-            this.microinvertersReadingTimePower.push(lastReportDate);
-            this.microinvertersType.push(devType);
-            this.microinvertersLastPower.push(lastReportWatts);
-            this.microinvertersMaxPower.push(maxReportWatts);
-          }
         }
       }
       this.checkDeviceState = true;
@@ -2527,6 +2468,67 @@ class envoyDevice {
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     }
+  }
+
+  async updateMicroinvertersPower() {
+    this.log.debug('Device: %s %s, requesting microinverters power', this.host, this.name);
+    try {
+      const microinvertersCount = this.microinvertersCount;
+      const passSerialNumber = this.envoySerialNumber.substring(6);
+      const passEnvoy = this.envoyPasswd;
+      const passwd = passEnvoy || passSerialNumber;
+      const auth = ENVOY_USER + ':' + passwd;
+      const authEnvoy = {
+        method: 'GET',
+        rejectUnauthorized: false,
+        digestAuth: auth,
+        dataType: 'json',
+        timeout: [5000, 5000]
+      };
+      const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
+      this.log.debug('Debug production inverters: %s', microinvertersData.data);
+      const allMicroinvertersCount = microinvertersData.data.length;
+      const checkMicroinvertersPower = (microinvertersData.status === 200) ? true : false;
+
+      //microinverters power
+      if (checkMicroinvertersPower) {
+        this.allMicroinvertersSerialNumber = new Array();
+        this.microinvertersReadingTimePower = new Array();
+        this.microinvertersType = new Array();
+        this.microinvertersLastPower = new Array();
+        this.microinvertersMaxPower = new Array();
+
+        for (let i = 0; i < microinvertersCount; i++) {
+          for (let j = 0; j < allMicroinvertersCount; j++) {
+            const serialNumber = microinvertersData.data[j].serialNumber;
+            this.allMicroinvertersSerialNumber.push(serialNumber);
+          }
+          const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
+          const lastReportDate = new Date(microinvertersData.data[index].lastReportDate * 1000).toLocaleString();
+          const devType = microinvertersData.data[index].devType;
+          const lastReportWatts = parseInt(microinvertersData.data[index].lastReportWatts);
+          const maxReportWatts = parseInt(microinvertersData.data[index].maxReportWatts);
+
+          if (this.microinvertersService) {
+            this.microinvertersService[i]
+              .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
+              //.updateCharacteristic(Characteristic.enphaseMicroinverterType, devType)
+              .updateCharacteristic(Characteristic.enphaseMicroinverterPower, lastReportWatts)
+              .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, maxReportWatts)
+          }
+
+          this.microinvertersReadingTimePower.push(lastReportDate);
+          this.microinvertersType.push(devType);
+          this.microinvertersLastPower.push(lastReportWatts);
+          this.microinvertersMaxPower.push(maxReportWatts);
+        }
+      }
+
+      this.checkMicroinvertersPower = checkMicroinvertersPower;
+    } catch (error) {
+      this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
+      this.checkMicroinvertersPower = false;
+    };
   }
 
   //Prepare accessory
