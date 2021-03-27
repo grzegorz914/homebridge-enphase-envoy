@@ -11,10 +11,22 @@ const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
 const ENPHASE_PART_NUMBER = {
-  '800-00555-r03': 'X-IQ-AM1-240-3', '880-00122-r02': 'ENV-S-AB-120-A', '880-00210-r02': 'ENV-S-AM1-120', '880-00208-r02': 'ENV-IQ-AM1-240', '880-00231-r02': 'ENV-IQ-AM1-240', '880-00557-r02': 'ENV-IQ-AM3-3P', '800-00553-r02': 'ENV-S-WB-230', '800-00554-r03': 'ENV-S-WM-230', '880-00208-r03': 'ENV-IQ-AM1-240', '880-00209-r03': 'ENV-IQ-AM3-3P',
-  '800-00597-r02': 'Q-RELAY-3P-INT', '860-00152-r02': 'Q-RELAY-1P-INT', '800-00633-r02': 'IQ7A-72-2-INT', '800-00632-r02': 'IQ7X-96-2-INT', '800-00631-r02': 'IQ7PLUS-72-2-INT',
-  '800-00630-r02': 'IQ7-60-2-INT', '800-00634-r02': 'IQ7A-72-2-US', '800-00635-r02': 'IQ7X-96-2-US', '800-00636-r02': 'IQ7PLUS-72-2-US', '800-00637-r02': 'IQ7-60-2-US',
-  '121943068536EIM1': 'CT-100-SPLIT-P', '121943068536EIM2': 'CT-100-SPLIT-C'
+  //IQ combiner
+  '800-00551-r03': 'X-IQ-AM1-120-B-M',
+  '800-00553-r03': 'X-IQ-AM1-240-B', '800-00554-r03': 'X-IQ-AM1-240-2', '800-00554-r03': 'X-IQ-AM1-240-2-M', '800-00555-r03': 'X-IQ-AM1-240-3', '800-00554-r03': 'X-IQ-AM1-240-3-ES', '800-00556-r03': 'X-IQ-AM1-240-3C', '800-00554-r03': 'X-IQ-AM1-240-3C-ES', '800-00557-r03': 'X-IQ-AM1-240-BM',
+  //Envoys
+  '880-00122-r02': 'ENV-S-AB-120-A', '880-00210-r02': 'ENV-S-AM1-120',
+  '800-00553-r02': 'ENV-S-WB-230', '800-00554-r03': 'ENV-S-WM-230',
+  '880-00208-r03': 'ENV-IQ-AM1-240', '880-00208-r02': 'ENV-IQ-AM1-240', '880-00231-r02': 'ENV-IQ-AM1-240', '880-00209-r03': 'ENV-IQ-AM3-3P', '880-00557-r02': 'ENV-IQ-AM3-3P',
+  //qRelays
+  '800-00597-r02': 'Q-RELAY-3P-INT', '860-00152-r02': 'Q-RELAY-1P-INT',
+  //Microinverters
+  '800-00633-r02': 'IQ7A-72-2-INT', '800-00632-r02': 'IQ7X-96-2-INT', '800-00631-r02': 'IQ7PLUS-72-2-INT', '800-00630-r02': 'IQ7-60-2-INT',
+  '800-00634-r02': 'IQ7A-72-2-US', '800-00635-r02': 'IQ7X-96-2-US', '800-00636-r02': 'IQ7PLUS-72-2-US', '800-00637-r02': 'IQ7-60-2-US',
+  '800-00638-r02': 'IQ7A-72-B-US', '800-00639-r02': 'IQ7X-96-B-US', '800-00640-r02': 'IQ7PLUS-72-B-US', '800-00641-r02': 'IQ7-60-B-US',
+  //CT
+  '121943068536EIM1': 'CT-100-SPLIT-P', '121943068536EIM2': 'CT-100-SPLIT-C',
+  '121943068537EIM1': 'CT-200-SPLIT-P', '121943068537EIM2': 'CT-200-SPLIT-C'
 };
 
 const ENVOY_USER = 'envoy';
@@ -1392,28 +1404,30 @@ class envoyPlatform {
     this.config = config;
     this.api = api;
     this.devices = config.devices || [];
+    this.accessories = [];
 
     this.api.on('didFinishLaunching', () => {
       this.log.debug('didFinishLaunching');
       for (let i = 0; i < this.devices.length; i++) {
-        const deviceName = this.devices[i];
-        if (!deviceName.name) {
+        const device = this.devices[i];
+        if (!device.name) {
           this.log.warn('Device Name Missing');
         } else {
-          new envoyDevice(this.log, deviceName, this.api);
+          new envoyDevice(this.log, device, this.api);
         }
       }
     });
 
   }
 
-  configureAccessory(platformAccessory) {
-    this.log.debug('configurePlatformAccessory');
+  configureAccessory(accessory) {
+    this.log.debug('configureAccessory');
+    this.accessories.push(accessory);
   }
 
-  removeAccessory(platformAccessory) {
-    this.log.debug('removePlatformAccessory');
-    this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [platformAccessory]);
+  removeAccessory(accessory) {
+    this.log.debug('removeAccessory');
+    this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
   }
 }
 
@@ -1529,6 +1543,8 @@ class envoyDevice {
       fsPromises.writeFile(this.devInfoFile, '{}');
     }
 
+    this.getDeviceInfo();
+
     //Check device state
     setInterval(function () {
       if (this.checkDeviceInfo) {
@@ -1542,8 +1558,6 @@ class envoyDevice {
         }
       }
     }.bind(this), this.refreshInterval * 1000);
-
-    this.getDeviceInfo();
   }
 
   async getDeviceInfo() {
@@ -1623,57 +1637,60 @@ class envoyDevice {
         timeout: [5000, 5000]
       };
       const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
-      this.log.debug('Debug pcuCommCheck: %s', pcuCommCheckData.data);
-      const pcuCommCheckDataOK = (pcuCommCheckData.status === 200);
+      const commLevel = pcuCommCheckData.data;
+      this.log.debug('Debug pcuCommCheck: %s', commLevel);
 
-      if (pcuCommCheckDataOK) {
-        this.qRelaysCommLevel = new Array();
-        this.enchargesCommLevel = new Array();
-        this.microinvertersCommLevel = new Array();
-        const commLevel = pcuCommCheckData.data;
+      // get devices count
+      const qRelaysCount = this.qRelaysCount;
+      const enchargesCount = this.enchargesCount;
+      const microinvertersCount = this.microinvertersCount
 
-        if (this.envoysService) {
-          this.envoysService[0]
-            .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
+      //create arrays
+      this.qRelaysCommLevel = new Array();
+      this.enchargesCommLevel = new Array();
+      this.microinvertersCommLevel = new Array();
+
+      for (let i = 0; i < qRelaysCount; i++) {
+        const key = '' + this.qRelaysSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.qRelaysService) {
+          this.qRelaysService[i]
+            .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
         }
-
-        for (let i = 0; i < this.qRelaysCount; i++) {
-          const key = '' + this.qRelaysSerialNumber[i] + '';
-          const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-          if (this.qRelaysService[i]) {
-            this.qRelaysService[i]
-              .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
-          }
-          this.qRelaysCommLevel.push(value);
-        }
-
-        for (let i = 0; i < this.enchargesCount; i++) {
-          const key = '' + this.enchargesSerialNumber[i] + '';
-          const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-          if (this.enchargesService[i]) {
-            this.enchargesService[i]
-              .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
-          }
-          this.enchargesCommLevel.push(value);
-        }
-
-        for (let i = 0; i < this.microinvertersCount; i++) {
-          const key = '' + this.microinvertersSerialNumber[i] + '';
-          const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-          if (this.microinvertersService[i]) {
-            this.microinvertersService[i]
-              .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
-          }
-          this.microinvertersCommLevel.push(value);
-        }
-
-        this.checkCommLevel = true;
-        this.envoyCheckCommLevel = false;
+        this.qRelaysCommLevel.push(value);
       }
 
+      for (let i = 0; i < enchargesCount; i++) {
+        const key = '' + this.enchargesSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.enchargesService) {
+          this.enchargesService[i]
+            .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
+        }
+        this.enchargesCommLevel.push(value);
+      }
+
+      for (let i = 0; i < microinvertersCount; i++) {
+        const key = '' + this.microinvertersSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.microinvertersService) {
+          this.microinvertersService[i]
+            .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
+        }
+        this.microinvertersCommLevel.push(value);
+      }
+
+      //disable check comm level switch
+      if (this.envoysService) {
+        this.envoysService[0]
+          .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
+      }
+
+      this.checkCommLevel = true;
+      this.envoyCheckCommLevel = false;
     } catch (error) {
       this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
       this.checkCommLevel = false;
@@ -1697,8 +1714,8 @@ class envoyDevice {
       };
       const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
       this.log.debug('Debug production inverters: %s', microinvertersData.data);
-      this.microinvertersData = microinvertersData;
-      this.checkMicroinvertersPower = true;
+      this.microinvertersData = (microinvertersData.data !== undefined) ? microinvertersData : undefined;
+      this.checkMicroinvertersPower = (this.microinvertersData !== undefined) ? true : false;
     } catch (error) {
       this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
       this.checkMicroinvertersPower = false;
@@ -2473,7 +2490,7 @@ class envoyDevice {
           }
 
           //microinverters power
-          if (this.checkMicroinvertersPower && this.microinvertersData.data !== undefined) {
+          if (this.checkMicroinvertersPower) {
             for (let j = 0; j < this.microinvertersData.data.length; j++) {
               const serialNumber = this.microinvertersData.data[j].serialNumber;
               this.allMicroinvertersSerialNumber.push(serialNumber);
@@ -2548,6 +2565,7 @@ class envoyDevice {
     const enchargesActiveCount = this.enchargesActiveCount;
     const microinvertersCount = this.microinvertersCount;
     const microinvertersActiveCount = this.microinvertersActiveCount;
+
     //envoy
     this.envoysService = new Array();
     const enphaseServiceEnvoy = new Service.enphaseEnvoy('Envoy ' + this.envoySerialNumber, 'enphaseServiceEnvoy');
@@ -3128,7 +3146,6 @@ class envoyDevice {
       }
     }
 
-
     //encharge storage power and energy
     if (enchargesCount > 0 && enchargesActiveCount > 0) {
       this.enchargesServicePower = new Array();
@@ -3312,7 +3329,7 @@ class envoyDevice {
         const enphaseServiceMicronverter = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumber[i], 'enphaseServiceMicronverter' + i);
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPower)
           .onGet(async () => {
-            let value = this.microinvertersLastPower[i];
+            let value = (this.checkMicroinvertersPower) ? this.microinvertersLastPower[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s last power: %s W', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
@@ -3320,7 +3337,7 @@ class envoyDevice {
           });
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterPowerMax)
           .onGet(async () => {
-            const value = this.microinvertersMaxPower[i];
+            const value = (this.checkMicroinvertersPower) ? this.microinvertersMaxPower[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s max power: %s W', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
@@ -3384,7 +3401,7 @@ class envoyDevice {
           });
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
           .onGet(async () => {
-            const value = this.microinvertersReadingTimePower[i];
+            const value = (this.checkMicroinvertersPower) ? this.microinvertersReadingTimePower[i] : '0';
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s last report: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
@@ -3394,8 +3411,8 @@ class envoyDevice {
         accessory.addService(this.microinvertersService[i]);
       }
     }
-    this.startPrepareAccessory = false;
 
+    this.startPrepareAccessory = false;
     this.log.debug('Device: %s, publishExternalAccessories: %s.', this.host, accessoryName);
     this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
   }

@@ -31,9 +31,7 @@
                     "powerConsumptionTotalMaxDetected": 10000,
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
-                    "energyConsumptionNetLifetimeOffset": 0,
-                    "manufacturer": "Manufacturer",
-                    "modelName": "Model"
+                    "energyConsumptionNetLifetimeOffset": 0
                 }
             ]
         }

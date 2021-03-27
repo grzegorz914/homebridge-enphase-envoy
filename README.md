@@ -36,7 +36,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ## Info v3.x.x
 1. With release v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
-2. Max power detection is now supported.
 
 ## Info v2.3.x
 1. The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
@@ -61,7 +60,7 @@ Alternatively, Tthe sample configuration can be edited and used manually. See th
 ## Configuration Values
 | Key | Description | 
 | --- | --- |
-| `host` | set the *IP Address* or *host Name* or leave empy(will be used default path `envoy.local`) |
+| `host` | set the *IP Address* or *host Name* or leave empy (will be used default path `envoy.local`) |
 | `refreshInterval` | Set the data refresh time in seconds, default is every 5 seconds |
 | `disableLogInfo`| If `true` then disable log info, all values and state will not be displayed in Homebridge log console |
 | `envoyUser` | here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
@@ -79,10 +78,8 @@ Alternatively, Tthe sample configuration can be edited and used manually. See th
 | `energyConsumptionTotalLifetimeOffset` | set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
 | `powerConsumptionNetMaxDetected` | set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionNetLifetimeOffset` | set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
-| `manufacturer` | Optional free-form informational data that will be displayed in the Home.app if it is filled in |
-| `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in |
-| `serialNumber` | Optional free-form informational data that will be displayed in the Home.app if it is filled in |
-| `firmwareRevision` | Optional free-form informational data that will be displayed in the Home.app if it is filled in |
+| `manufacturer` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
+| `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="170"></a>
@@ -120,7 +117,8 @@ Each accessory needs to be manually paired.
 1. Open the Home <img src='https://user-images.githubusercontent.com/3979615/78010622-4ea1d380-738e-11ea-8a17-e6a465eeec35.png' height='16.42px'> app on your device. 
 2. Tap the Home tab, then tap <img src='https://user-images.githubusercontent.com/3979615/78010869-9aed1380-738e-11ea-9644-9f46b3633026.png' height='16.42px'>. 
 3. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*. 
-4. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
+4. Select Your accessory. 
+5. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
 
 # Bonus Top Bar on Mac!!!
 1. Download `enphase_envoy.15s.rb`.
