@@ -1571,6 +1571,7 @@ class envoyDevice {
     //Check microinverters power
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
+        this.updateHomeInventoryMetersData();
         this.updateMicroinvertersPower();
       }
     }.bind(this), this.refreshInterval * 5000);
@@ -1579,8 +1580,8 @@ class envoyDevice {
   async getDeviceInfo() {
     this.log.debug('Device: %s %s, requesting devices info.', this.host, this.name);
     try {
-      const [infoData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.GetInfo), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
-      this.log.debug('Device %s %s, get devices data info: %s inventory: %s meters: %s', this.host, this.name, infoData.data, inventoryData.data, metersData.data);
+      const [infoData, homeData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.GetInfo), axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
+      this.log.debug('Device %s %s, debug infoData: %s homeData: %s inventoryData: %s metersData: %s', this.host, this.name, infoData.data, homeData.data, inventoryData.data, metersData.data);
       const resultData = await parseStringPromise(infoData.data);
       this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(resultData, null, 2));
 
@@ -1633,6 +1634,7 @@ class envoyDevice {
       this.qRelaysCount = qrelaysCount;
       this.enchargesCount = enchargesCount;
       this.microinvertersCount = microinvertersCount;
+      this.homeData = homeData;
       this.inventoryData = inventoryData;
       this.metersData = metersData;
 
@@ -1644,75 +1646,16 @@ class envoyDevice {
     };
   }
 
-  async updateCommLevel() {
-    this.log.debug('Device: %s %s, requesting communications level.', this.host, this.name);
+  async updateHomeInventoryMetersData() {
+    this.log.debug('Device: %s %s, requesting inventoryData and metersData.', this.host, this.name);
     try {
-      const authInstaller = {
-        method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
-      const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
-      const commLevel = pcuCommCheckData.data;
-      this.log.debug('Debug pcuCommCheck: %s', commLevel);
-
-      // get devices count
-      const qRelaysCount = this.qRelaysCount;
-      const enchargesCount = this.enchargesCount;
-      const microinvertersCount = this.microinvertersCount
-
-      //create arrays
-      this.qRelaysCommLevel = new Array();
-      this.enchargesCommLevel = new Array();
-      this.microinvertersCommLevel = new Array();
-
-      for (let i = 0; i < qRelaysCount; i++) {
-        const key = '' + this.qRelaysSerialNumber[i] + '';
-        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-        if (this.qRelaysService) {
-          this.qRelaysService[i]
-            .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
-        }
-        this.qRelaysCommLevel.push(value);
-      }
-
-      for (let i = 0; i < enchargesCount; i++) {
-        const key = '' + this.enchargesSerialNumber[i] + '';
-        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-        if (this.enchargesService) {
-          this.enchargesService[i]
-            .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
-        }
-        this.enchargesCommLevel.push(value);
-      }
-
-      for (let i = 0; i < microinvertersCount; i++) {
-        const key = '' + this.microinvertersSerialNumber[i] + '';
-        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-        if (this.microinvertersService) {
-          this.microinvertersService[i]
-            .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
-        }
-        this.microinvertersCommLevel.push(value);
-      }
-
-      //disable check comm level switch
-      if (this.envoysService) {
-        this.envoysService[0]
-          .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
-      }
-
-      this.checkCommLevel = true;
-      this.envoyCheckCommLevel = false;
+      const [homeData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
+      this.log.debug('Device %s %s, debug inventory: %s meters: %s', this.host, this.name, inventoryData.data, metersData.data);
+      this.homeData = homeData;
+      this.inventoryData = inventoryData;
+      this.metersData = metersData;
     } catch (error) {
-      this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
-      this.checkCommLevel = false;
-      this.envoyCheckCommLevel = true;
+      this.log.debug('Device: %s %s, inventoryData, metersData error: %s', this.host, this.name, error);
     };
   }
 
@@ -1728,12 +1671,13 @@ class envoyDevice {
       const microinvertersCount = this.microinvertersCount
 
       //get inventory and meters data;
+      const homeData = this.homeData;
       const inventoryData = this.inventoryData;
       const metersData = this.metersData;
 
       //read all other data;
-      const [homeData, productionData, productionCtData] = await axios.all([axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats)]);
-      this.log.debug('Debug home: %s, production: %s, productionCT: %s', homeData.data, productionData.data, productionCtData.data);
+      const [productionData, productionCtData, meterReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats), axios.get(this.url + ENVOY_API_URL.InternalMeterReadings)]);
+      this.log.debug('Debug productionData: %s, productionCtData: %s, meterReadingData: %s', productionData.data, productionCtData.data, meterReadingData.data);
 
       //envoy
       if (homeData.status === 200) {
@@ -1985,134 +1929,128 @@ class envoyDevice {
         }
 
         //meters reading data
-        try {
-          const meterReadingData = await axios.get(this.url + ENVOY_API_URL.InternalMeterReadings);
-          this.log.debug('Debug meterReading: %s', meterReadingData.data);
-          if (meterReadingData.status === 200) {
-            this.eidSumm = new Array();
-            this.timestampSumm = new Array();
-            this.actEnergyDlvdSumm = new Array();
-            this.actEnergyRcvdSumm = new Array();
-            this.apparentEnergySumm = new Array();
-            this.reactEnergyLaggSumm = new Array();
-            this.reactEnergyLeadSumm = new Array();
-            this.instantaneousDemandSumm = new Array();
-            this.activePowerSumm = new Array();
-            this.apparentPowerSumm = new Array();
-            this.reactivePowerSumm = new Array();
-            this.pwrFactorSumm = new Array();
-            this.voltageSumm = new Array();
-            this.currentSumm = new Array();
-            this.freqSumm = new Array();
+        if (meterReadingData.status === 200) {
+          this.eidSumm = new Array();
+          this.timestampSumm = new Array();
+          this.actEnergyDlvdSumm = new Array();
+          this.actEnergyRcvdSumm = new Array();
+          this.apparentEnergySumm = new Array();
+          this.reactEnergyLaggSumm = new Array();
+          this.reactEnergyLeadSumm = new Array();
+          this.instantaneousDemandSumm = new Array();
+          this.activePowerSumm = new Array();
+          this.apparentPowerSumm = new Array();
+          this.reactivePowerSumm = new Array();
+          this.pwrFactorSumm = new Array();
+          this.voltageSumm = new Array();
+          this.currentSumm = new Array();
+          this.freqSumm = new Array();
 
-            this.eidPhase = new Array();
-            this.timestampPhase = new Array();
-            this.actEnergyDlvdPhase = new Array();
-            this.actEnergyRcvdPhase = new Array();
-            this.apparentEnergyPhase = new Array();
-            this.reactEnergyLaggPhase = new Array();
-            this.reactEnergyLeadPhase = new Array();
-            this.instantaneousDemandPhase = new Array();
-            this.activePowerPhase = new Array();
-            this.apparentPowerPhase = new Array();
-            this.reactivePowerPhase = new Array();
-            this.pwrFactorPhase = new Array();
-            this.voltagePhase = new Array();
-            this.currentPhase = new Array();
-            this.freqPhase = new Array();
+          this.eidPhase = new Array();
+          this.timestampPhase = new Array();
+          this.actEnergyDlvdPhase = new Array();
+          this.actEnergyRcvdPhase = new Array();
+          this.apparentEnergyPhase = new Array();
+          this.reactEnergyLaggPhase = new Array();
+          this.reactEnergyLeadPhase = new Array();
+          this.instantaneousDemandPhase = new Array();
+          this.activePowerPhase = new Array();
+          this.apparentPowerPhase = new Array();
+          this.reactivePowerPhase = new Array();
+          this.pwrFactorPhase = new Array();
+          this.voltagePhase = new Array();
+          this.currentPhase = new Array();
+          this.freqPhase = new Array();
 
-            //meters reading summary data
-            const metersReadingCount = meterReadingData.data.length;
-            if (metersReadingCount > 0) {
-              for (let i = 0; i < metersReadingCount; i++) {
-                const eid = meterReadingData.data[i].eid;
-                const timestamp = new Date(meterReadingData.data[i].timestamp * 1000).toLocaleString();
-                const actEnergyDlvd = parseFloat(meterReadingData.data[i].actEnergyDlvd);
-                const actEnergyRcvd = parseFloat(meterReadingData.data[i].actEnergyRcvd);
-                const apparentEnergy = parseFloat(meterReadingData.data[i].apparentEnergy);
-                const reactEnergyLagg = parseFloat(meterReadingData.data[i].reactEnergyLagg);
-                const reactEnergyLead = parseFloat(meterReadingData.data[i].reactEnergyLead);
-                const instantaneousDemand = parseFloat(meterReadingData.data[i].instantaneousDemand);
-                const activePower = parseFloat((meterReadingData.data[i].activePower) / 1000);
-                const apparentPower = parseFloat((meterReadingData.data[i].apparentPower) / 1000);
-                const reactivePower = parseFloat((meterReadingData.data[i].reactivePower) / 1000);
-                const pwrFactor = parseFloat(meterReadingData.data[i].pwrFactor);
-                const voltage = parseFloat((meterReadingData.data[i].voltage) / 3);
-                const current = parseFloat(meterReadingData.data[i].current);
-                const freq = parseFloat(meterReadingData.data[i].freq);
+          //meters reading summary data
+          const metersReadingCount = meterReadingData.data.length;
+          if (metersReadingCount > 0) {
+            for (let i = 0; i < metersReadingCount; i++) {
+              const eid = meterReadingData.data[i].eid;
+              const timestamp = new Date(meterReadingData.data[i].timestamp * 1000).toLocaleString();
+              const actEnergyDlvd = parseFloat(meterReadingData.data[i].actEnergyDlvd);
+              const actEnergyRcvd = parseFloat(meterReadingData.data[i].actEnergyRcvd);
+              const apparentEnergy = parseFloat(meterReadingData.data[i].apparentEnergy);
+              const reactEnergyLagg = parseFloat(meterReadingData.data[i].reactEnergyLagg);
+              const reactEnergyLead = parseFloat(meterReadingData.data[i].reactEnergyLead);
+              const instantaneousDemand = parseFloat(meterReadingData.data[i].instantaneousDemand);
+              const activePower = parseFloat((meterReadingData.data[i].activePower) / 1000);
+              const apparentPower = parseFloat((meterReadingData.data[i].apparentPower) / 1000);
+              const reactivePower = parseFloat((meterReadingData.data[i].reactivePower) / 1000);
+              const pwrFactor = parseFloat(meterReadingData.data[i].pwrFactor);
+              const voltage = parseFloat((meterReadingData.data[i].voltage) / 3);
+              const current = parseFloat(meterReadingData.data[i].current);
+              const freq = parseFloat(meterReadingData.data[i].freq);
 
-                if (this.metersService) {
-                  this.metersService[i]
-                    .updateCharacteristic(Characteristic.enphaseMeterReadingTime, timestamp)
-                    .updateCharacteristic(Characteristic.enphaseMeterActivePower, activePower)
-                    .updateCharacteristic(Characteristic.enphaseMeterApparentPower, apparentPower)
-                    .updateCharacteristic(Characteristic.enphaseMeterReactivePower, reactivePower)
-                    .updateCharacteristic(Characteristic.enphaseMeterPwrFactor, pwrFactor)
-                    .updateCharacteristic(Characteristic.enphaseMeterVoltage, voltage)
-                    .updateCharacteristic(Characteristic.enphaseMeterCurrent, current)
-                    .updateCharacteristic(Characteristic.enphaseMeterFreq, freq);
-                }
+              if (this.metersService) {
+                this.metersService[i]
+                  .updateCharacteristic(Characteristic.enphaseMeterReadingTime, timestamp)
+                  .updateCharacteristic(Characteristic.enphaseMeterActivePower, activePower)
+                  .updateCharacteristic(Characteristic.enphaseMeterApparentPower, apparentPower)
+                  .updateCharacteristic(Characteristic.enphaseMeterReactivePower, reactivePower)
+                  .updateCharacteristic(Characteristic.enphaseMeterPwrFactor, pwrFactor)
+                  .updateCharacteristic(Characteristic.enphaseMeterVoltage, voltage)
+                  .updateCharacteristic(Characteristic.enphaseMeterCurrent, current)
+                  .updateCharacteristic(Characteristic.enphaseMeterFreq, freq);
+              }
 
-                this.metersReadingCount = metersReadingCount;
-                this.eidSumm.push(eid);
-                this.timestampSumm.push(timestamp);
-                this.actEnergyDlvdSumm.push(actEnergyDlvd);
-                this.actEnergyRcvdSumm.push(actEnergyRcvd);
-                this.apparentEnergySumm.push(apparentEnergy);
-                this.reactEnergyLaggSumm.push(reactEnergyLagg);
-                this.reactEnergyLeadSumm.push(reactEnergyLead);
-                this.instantaneousDemandSumm.push(instantaneousDemand);
-                this.activePowerSumm.push(activePower);
-                this.apparentPowerSumm.push(apparentPower);
-                this.reactivePowerSumm.push(reactivePower);
-                this.pwrFactorSumm.push(pwrFactor);
-                this.voltageSumm.push(voltage);
-                this.currentSumm.push(current);
-                this.freqSumm.push(freq);
+              this.metersReadingCount = metersReadingCount;
+              this.eidSumm.push(eid);
+              this.timestampSumm.push(timestamp);
+              this.actEnergyDlvdSumm.push(actEnergyDlvd);
+              this.actEnergyRcvdSumm.push(actEnergyRcvd);
+              this.apparentEnergySumm.push(apparentEnergy);
+              this.reactEnergyLaggSumm.push(reactEnergyLagg);
+              this.reactEnergyLeadSumm.push(reactEnergyLead);
+              this.instantaneousDemandSumm.push(instantaneousDemand);
+              this.activePowerSumm.push(activePower);
+              this.apparentPowerSumm.push(apparentPower);
+              this.reactivePowerSumm.push(reactivePower);
+              this.pwrFactorSumm.push(pwrFactor);
+              this.voltageSumm.push(voltage);
+              this.currentSumm.push(current);
+              this.freqSumm.push(freq);
 
-                //meters reading phases data
-                const meterReadingChannelsCount = meterReadingData.data[i].channels.length;
-                if (meterReadingChannelsCount > 0) {
-                  for (let l = 0; l < meterReadingChannelsCount; l++) {
-                    const eid = meterReadingData.data[i].channels[l].eid;
-                    const timestamp = new Date(meterReadingData.data[i].channels[l].timestamp * 1000).toLocaleString();
-                    const actEnergyDlvd = parseFloat(meterReadingData.data[i].channels[l].actEnergyDlvd);
-                    const actEnergyRcvd = parseFloat(meterReadingData.data[i].channels[l].actEnergyRcvd);
-                    const apparentEnergy = parseFloat(meterReadingData.data[i].channels[l].apparentEnergy);
-                    const reactEnergyLagg = parseFloat(meterReadingData.data[i].channels[l].reactEnergyLagg);
-                    const reactEnergyLead = parseFloat(meterReadingData.data[i].channels[l].reactEnergyLead);
-                    const instantaneousDemand = parseFloat(meterReadingData.data[i].channels[l].instantaneousDemand);
-                    const activePower = parseFloat((meterReadingData.data[i].channels[l].activePower) / 1000);
-                    const apparentPower = parseFloat((meterReadingData.data[i].channels[l].apparentPower) / 1000);
-                    const reactivePower = parseFloat((meterReadingData.data[i].channels[l].reactivePower) / 1000);
-                    const pwrFactor = parseFloat(meterReadingData.data[i].channels[l].pwrFactor);
-                    const voltage = parseFloat(meterReadingData.data[i].channels[l].voltage);
-                    const current = parseFloat(meterReadingData.data[i].channels[l].current);
-                    const freq = parseFloat(meterReadingData.data[i].channels[l].freq);
+              //meters reading phases data
+              const meterReadingChannelsCount = meterReadingData.data[i].channels.length;
+              if (meterReadingChannelsCount > 0) {
+                for (let l = 0; l < meterReadingChannelsCount; l++) {
+                  const eid = meterReadingData.data[i].channels[l].eid;
+                  const timestamp = new Date(meterReadingData.data[i].channels[l].timestamp * 1000).toLocaleString();
+                  const actEnergyDlvd = parseFloat(meterReadingData.data[i].channels[l].actEnergyDlvd);
+                  const actEnergyRcvd = parseFloat(meterReadingData.data[i].channels[l].actEnergyRcvd);
+                  const apparentEnergy = parseFloat(meterReadingData.data[i].channels[l].apparentEnergy);
+                  const reactEnergyLagg = parseFloat(meterReadingData.data[i].channels[l].reactEnergyLagg);
+                  const reactEnergyLead = parseFloat(meterReadingData.data[i].channels[l].reactEnergyLead);
+                  const instantaneousDemand = parseFloat(meterReadingData.data[i].channels[l].instantaneousDemand);
+                  const activePower = parseFloat((meterReadingData.data[i].channels[l].activePower) / 1000);
+                  const apparentPower = parseFloat((meterReadingData.data[i].channels[l].apparentPower) / 1000);
+                  const reactivePower = parseFloat((meterReadingData.data[i].channels[l].reactivePower) / 1000);
+                  const pwrFactor = parseFloat(meterReadingData.data[i].channels[l].pwrFactor);
+                  const voltage = parseFloat(meterReadingData.data[i].channels[l].voltage);
+                  const current = parseFloat(meterReadingData.data[i].channels[l].current);
+                  const freq = parseFloat(meterReadingData.data[i].channels[l].freq);
 
-                    this.meterReadingChannelsCount = meterReadingChannelsCount;
-                    this.eidPhase.push(eid);
-                    this.timestampPhase.push(timestamp);
-                    this.actEnergyDlvdPhase.push(actEnergyDlvd);
-                    this.actEnergyRcvdPhase.push(actEnergyRcvd);
-                    this.apparentEnergyPhase.push(apparentEnergy);
-                    this.reactEnergyLaggPhase.push(reactEnergyLagg);
-                    this.reactEnergyLeadPhase.push(reactEnergyLead);
-                    this.instantaneousDemandPhase.push(instantaneousDemand);
-                    this.activePowerPhase.push(activePower);
-                    this.apparentPowerPhase.push(apparentPower);
-                    this.reactivePowerPhase.push(reactivePower);
-                    this.pwrFactorPhase.push(pwrFactor);
-                    this.voltagePhase.push(voltage);
-                    this.currentPhase.push(current);
-                    this.freqPhase.push(freq);
-                  }
+                  this.meterReadingChannelsCount = meterReadingChannelsCount;
+                  this.eidPhase.push(eid);
+                  this.timestampPhase.push(timestamp);
+                  this.actEnergyDlvdPhase.push(actEnergyDlvd);
+                  this.actEnergyRcvdPhase.push(actEnergyRcvd);
+                  this.apparentEnergyPhase.push(apparentEnergy);
+                  this.reactEnergyLaggPhase.push(reactEnergyLagg);
+                  this.reactEnergyLeadPhase.push(reactEnergyLead);
+                  this.instantaneousDemandPhase.push(instantaneousDemand);
+                  this.activePowerPhase.push(activePower);
+                  this.apparentPowerPhase.push(apparentPower);
+                  this.reactivePowerPhase.push(reactivePower);
+                  this.pwrFactorPhase.push(pwrFactor);
+                  this.voltagePhase.push(voltage);
+                  this.currentPhase.push(current);
+                  this.freqPhase.push(freq);
                 }
               }
             }
           }
-        } catch (error) {
-          this.log.error('Device: %s %s, meterReading error: %s', this.host, this.name, error);
         }
       }
 
@@ -2555,6 +2493,78 @@ class envoyDevice {
     } catch (error) {
       this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
       this.checkMicroinvertersPower = false;
+    };
+  }
+
+  async updateCommLevel() {
+    this.log.debug('Device: %s %s, requesting communications level.', this.host, this.name);
+    try {
+      const authInstaller = {
+        method: 'GET',
+        rejectUnauthorized: false,
+        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
+        dataType: 'json',
+        timeout: [5000, 5000]
+      };
+      const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
+      const commLevel = pcuCommCheckData.data;
+      this.log.debug('Debug pcuCommCheck: %s', commLevel);
+
+      // get devices count
+      const qRelaysCount = this.qRelaysCount;
+      const enchargesCount = this.enchargesCount;
+      const microinvertersCount = this.microinvertersCount
+
+      //create arrays
+      this.qRelaysCommLevel = new Array();
+      this.enchargesCommLevel = new Array();
+      this.microinvertersCommLevel = new Array();
+
+      for (let i = 0; i < qRelaysCount; i++) {
+        const key = '' + this.qRelaysSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.qRelaysService) {
+          this.qRelaysService[i]
+            .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
+        }
+        this.qRelaysCommLevel.push(value);
+      }
+
+      for (let i = 0; i < enchargesCount; i++) {
+        const key = '' + this.enchargesSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.enchargesService) {
+          this.enchargesService[i]
+            .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
+        }
+        this.enchargesCommLevel.push(value);
+      }
+
+      for (let i = 0; i < microinvertersCount; i++) {
+        const key = '' + this.microinvertersSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.microinvertersService) {
+          this.microinvertersService[i]
+            .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
+        }
+        this.microinvertersCommLevel.push(value);
+      }
+
+      //disable check comm level switch
+      if (this.envoysService) {
+        this.envoysService[0]
+          .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
+      }
+
+      this.checkCommLevel = true;
+      this.envoyCheckCommLevel = false;
+    } catch (error) {
+      this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
+      this.checkCommLevel = false;
+      this.envoyCheckCommLevel = true;
     };
   }
 
