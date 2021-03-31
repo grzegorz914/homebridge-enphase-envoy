@@ -16,7 +16,7 @@ const ENPHASE_PART_NUMBER = {
   '800-00553-r03': 'X-IQ-AM1-240-B', '800-00554-r03': 'X-IQ-AM1-240-2', '800-00554-r03': 'X-IQ-AM1-240-2-M', '800-00555-r03': 'X-IQ-AM1-240-3', '800-00554-r03': 'X-IQ-AM1-240-3-ES', '800-00556-r03': 'X-IQ-AM1-240-3C', '800-00554-r03': 'X-IQ-AM1-240-3C-ES', '800-00557-r03': 'X-IQ-AM1-240-BM',
   //Envoys
   '880-00122-r02': 'ENV-S-AB-120-A', '880-00210-r02': 'ENV-S-AM1-120',
-  '800-00553-r02': 'ENV-S-WB-230', '800-00554-r03': 'ENV-S-WM-230', '800-00654-r06': 'ENV-S-WM-230',
+  '800-00553-r01': 'ENV-S-WB-230', '800-00553-r02': 'ENV-S-WB-230-F', '800-00554-r03': 'ENV-S-WM-230', '800-00654-r06': 'ENV-S-WM-230',
   '880-00208-r03': 'ENV-IQ-AM1-240', '880-00208-r02': 'ENV-IQ-AM1-240', '880-00231-r02': 'ENV-IQ-AM1-240', '880-00209-r03': 'ENV-IQ-AM3-3P', '880-00557-r02': 'ENV-IQ-AM3-3P',
   //qRelays
   '800-00597-r02': 'Q-RELAY-3P-INT', '860-00152-r02': 'Q-RELAY-1P-INT',
@@ -1571,7 +1571,7 @@ class envoyDevice {
     //Check microinverters power
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
-        this.updateHomeInventoryMetersData();
+        this.updateHomeInventoryData();
         this.updateMicroinvertersPower();
       }
     }.bind(this), this.refreshInterval * 5000);
@@ -1580,8 +1580,8 @@ class envoyDevice {
   async getDeviceInfo() {
     this.log.debug('Device: %s %s, requesting devices info.', this.host, this.name);
     try {
-      const [infoData, homeData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.GetInfo), axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
-      this.log.debug('Device %s %s, debug infoData: %s homeData: %s inventoryData: %s metersData: %s', this.host, this.name, infoData.data, homeData.data, inventoryData.data, metersData.data);
+      const [infoData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.GetInfo), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
+      this.log.debug('Device %s %s, debug infoData: %s, inventoryData: %s, metersData: %s', this.host, this.name, infoData.data, inventoryData.data, metersData.data);
       const resultData = await parseStringPromise(infoData.data);
       this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(resultData, null, 2));
 
@@ -1634,28 +1634,29 @@ class envoyDevice {
       this.qRelaysCount = qrelaysCount;
       this.enchargesCount = enchargesCount;
       this.microinvertersCount = microinvertersCount;
-      this.homeData = homeData;
       this.inventoryData = inventoryData;
       this.metersData = metersData;
 
       this.checkDeviceInfo = false;
-      this.updateDeviceState();
+      this.updateHomeInventoryData();
     } catch (error) {
       this.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', this.host, this.name, error);
       this.checkDeviceInfo = true;
     };
   }
 
-  async updateHomeInventoryMetersData() {
-    this.log.debug('Device: %s %s, requesting inventoryData and metersData.', this.host, this.name);
+  async updateHomeInventoryData() {
+    this.log.debug('Device: %s %s, requesting homeData and inventoryData.', this.host, this.name);
     try {
-      const [homeData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
-      this.log.debug('Device %s %s, debug inventory: %s meters: %s', this.host, this.name, inventoryData.data, metersData.data);
+      const [homeData, inventoryData] = await axios.all([axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.Inventory)]);
+      this.log.debug('Device %s %s, debug homeData: %s, inventoryData: %s', this.host, this.name, homeData.data, inventoryData.data);
       this.homeData = homeData;
       this.inventoryData = inventoryData;
-      this.metersData = metersData;
+
+      this.updateDeviceState();
     } catch (error) {
-      this.log.debug('Device: %s %s, inventoryData, metersData error: %s', this.host, this.name, error);
+      this.log.debug('Device: %s %s, homeData or inventoryData error: %s', this.host, this.name, error);
+      this.checkDeviceInfo = true;
     };
   }
 
