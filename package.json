@@ -32,7 +32,7 @@
     },
     "dependencies": {
         "axios": "^0.21.1",
-        "urllib": "^2.36.1",
+        "urllib": "^2.37.0",
         "xml2js": "^0.4.23"
     },
     "keywords": [
@@ -44,7 +44,6 @@
         "enphase"
     ],
     "contributors": [],
-    "devDependencies": {},
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     }
