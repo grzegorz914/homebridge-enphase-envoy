@@ -1735,7 +1735,7 @@ class envoyDevice {
             arrStatus.push(ENVOY_STATUS_CODE[allerts[j]]);
           }
         }
-        const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
+        const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
 
         if (this.envoysService) {
           this.envoysService[0]
@@ -1826,7 +1826,7 @@ class envoyDevice {
               arrStatus.push(ENVOY_STATUS_CODE[deviceStatus[j]]);
             }
           }
-          const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
+          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
 
           if (linesCount >= 1) {
             const line1Connected = (inventoryData.data[2].devices[i]['line1-connected'] === true);
@@ -1907,7 +1907,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_STATUS_CODE[statusFlags[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
 
 
             if (this.metersService) {
@@ -2320,7 +2320,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_STATUS_CODE[deviceStatus[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
 
             if (this.enchargesService) {
               this.enchargesService[i]
@@ -2397,7 +2397,7 @@ class envoyDevice {
               arrStatus.push(ENVOY_STATUS_CODE[deviceStatus[j]]);
             }
           }
-          const status = (arrStatus.length > 0) ? arrStatus.join(', ') : 'Not available';
+          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
 
           if (this.microinvertersService) {
             this.microinvertersService[i]
@@ -2459,7 +2459,7 @@ class envoyDevice {
       //microinverters power
       if (checkMicroinvertersPower) {
         this.allMicroinvertersSerialNumber = new Array();
-        this.microinvertersReadingTimePower = new Array();
+        this.microinvertersReadingTime = new Array();
         this.microinvertersType = new Array();
         this.microinvertersLastPower = new Array();
         this.microinvertersMaxPower = new Array();
@@ -2483,7 +2483,7 @@ class envoyDevice {
               .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, maxReportWatts)
           }
 
-          this.microinvertersReadingTimePower.push(lastReportDate);
+          this.microinvertersReadingTime.push(lastReportDate);
           this.microinvertersType.push(devType);
           this.microinvertersLastPower.push(lastReportWatts);
           this.microinvertersMaxPower.push(maxReportWatts);
@@ -3428,7 +3428,7 @@ class envoyDevice {
           });
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterStatus)
           .onGet(async () => {
-            const value = (this.microinvertersStatus[i].length <= 64) ? this.microinvertersStatus[i] : this.microinvertersStatus[i].substring(64);
+            const value = this.microinvertersStatus[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s status: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
@@ -3444,7 +3444,7 @@ class envoyDevice {
           });
         enphaseServiceMicronverter.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
           .onGet(async () => {
-            const value = (this.checkMicroinvertersPower) ? this.microinvertersReadingTimePower[i] : '0';
+            const value = (this.checkMicroinvertersPower) ? this.microinvertersReadingTime[i] : '0';
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s last report: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
