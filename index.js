@@ -3116,7 +3116,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.consumptionEnergyToday[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, %s energy today: %s kWh', this.host, accessoryName, this.consumptionMeasurmentType[i], this.consumptionMeasurmentType[i], value);
+              this.log('Device: %s %s, %s energy today: %s kWh', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
             return value;
           });
