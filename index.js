@@ -2281,7 +2281,7 @@ class envoyDevice {
           this.enchargesProvisioned = new Array();
           this.enchargesOperating = new Array();
           this.enchargesSleepEnabled = new Array();
-          this.enchargesPerfentFull1 = new Array();
+          this.enchargesPercentFull = new Array();
           this.enchargesMaxCellTemp = new Array();
           this.enchargesSleepMinSoc = new Array();
           this.enchargesSleepMaxSoc = new Array();
@@ -2307,7 +2307,7 @@ class envoyDevice {
             const provisioned = (inventoryData.data[1].devices[i].provisioned === true);
             const operating = (inventoryData.data[1].devices[i].operating === true);
             const sleepEnabled = inventoryData.data[1].devices[i].sleep_enabled;
-            const perfentFull = inventoryData.data[1].devices[i].percentFull;
+            const percentFull = inventoryData.data[1].devices[i].percentFull;
             const maxCellTemp = inventoryData.data[1].devices[i].maxCellTemp;
             const sleepMinSoc = inventoryData.data[1].devices[i].sleep_min_soc;
             const sleepMaxSoc = inventoryData.data[1].devices[i].sleep_max_soc;
@@ -2332,7 +2332,7 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseEnchargeProvisioned, provisioned)
                 .updateCharacteristic(Characteristic.enphaseEnchargeOperating, operating)
                 .updateCharacteristic(Characteristic.enphaseEnchargeSleepEnabled, sleepEnabled)
-                .updateCharacteristic(Characteristic.enphaseEnchargePerfentFull, perfentFull)
+                .updateCharacteristic(Characteristic.enphaseEnchargePercentFull, percentFull)
                 .updateCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp, maxCellTemp)
                 .updateCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc, sleepMinSoc)
                 .updateCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc, sleepMaxSoc)
@@ -2349,7 +2349,7 @@ class envoyDevice {
             this.enchargesProvisioned.push(provisioned);
             this.enchargesOperating.push(operating);
             this.enchargesSleepEnabled.push(sleepEnabled);
-            this.enchargesPerfentFull1.push(perfentFull);
+            this.enchargesPercentFull.push(percentFull);
             this.enchargesMaxCellTemp.push(maxCellTemp);
             this.enchargesSleepMinSoc.push(sleepMinSoc);
             this.enchargesSleepMaxSoc.push(sleepMaxSoc);
