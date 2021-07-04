@@ -2260,13 +2260,13 @@ class envoyDevice {
               .updateCharacteristic(Characteristic.enphaseEnchargeState, chargeStatus);
           }
 
-          this.enchargesType = type;
-          this.enchargesActiveCount = activeCount;
-          this.enchargesReadingTime = readingTime;
-          this.enchargesPower = wNow;
-          this.enchargesEnergy = whNow;
-          this.enchargesState = chargeStatus;
-          this.enchargesPercentFull = percentFull;
+          this.enchargesSummaryType = type;
+          this.enchargesSummaryActiveCount = activeCount;
+          this.enchargesSummaryReadingTime = readingTime;
+          this.enchargesSummaryPower = wNow;
+          this.enchargesSummaryEnergy = whNow;
+          this.enchargesSummaryState = chargeStatus;
+          this.enchargesSummaryPercentFull = percentFull;
         }
 
         //encharges detail
@@ -3189,13 +3189,13 @@ class envoyDevice {
       }
     }
 
-    //encharge storage power and energy
+    //encharge storage power and energy summary
     if (enchargesCount > 0 && enchargesActiveCount > 0) {
       this.enchargesServicePower = new Array();
       const enphaseServiceEnchargePowerAndEnergy = new Service.enphaseEnchargePowerAndEnergy('Encharges summary', 'enphaseServiceEnchargePowerAndEnergy');
       enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePower)
         .onGet(async () => {
-          const value = this.enchargesPower;
+          const value = this.enchargesSummaryPower;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, power encharge storage: %s kW', this.host, accessoryName, value);
           }
@@ -3203,7 +3203,7 @@ class envoyDevice {
         });
       enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeEnergy)
         .onGet(async () => {
-          const value = this.enchargesEnergy;
+          const value = this.enchargesSummaryEnergy;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, energy encharge storage: %s kWh', this.host, accessoryName, value);
           }
@@ -3211,7 +3211,7 @@ class envoyDevice {
         });
       enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
         .onGet(async () => {
-          const value = this.enchargesPercentFull;
+          const value = this.enchargesSummaryPercentFull;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge percent full: %s', this.host, accessoryName, value);
           }
@@ -3219,7 +3219,7 @@ class envoyDevice {
         });
       enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeActiveCount)
         .onGet(async () => {
-          const value = this.enchargesActiveCount;
+          const value = this.enchargesSummaryActiveCount;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge devices count: %s', this.host, accessoryName, value);
           }
@@ -3227,7 +3227,7 @@ class envoyDevice {
         });
       enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeState)
         .onGet(async () => {
-          const value = this.enchargesState;
+          const value = this.enchargesSummaryState;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge state: %s', this.host, accessoryName, value);
           }
@@ -3235,7 +3235,7 @@ class envoyDevice {
         });
       enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeReadingTime)
         .onGet(async () => {
-          const value = this.enchargesReadingTime;
+          const value = this.enchargesSummaryReadingTime;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge: %s last report: %s', this.host, accessoryName, value);
           }
