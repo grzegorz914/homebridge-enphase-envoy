@@ -16,7 +16,7 @@ const ENPHASE_PART_NUMBER = {
   '800-00553-r03': 'X-IQ-AM1-240-B', '800-00554-r03': 'X-IQ-AM1-240-2', '800-00554-r03': 'X-IQ-AM1-240-2-M', '800-00555-r03': 'X-IQ-AM1-240-3', '800-00554-r03': 'X-IQ-AM1-240-3-ES', '800-00556-r03': 'X-IQ-AM1-240-3C', '800-00554-r03': 'X-IQ-AM1-240-3C-ES', '800-00557-r03': 'X-IQ-AM1-240-BM',
   //Envoys
   '880-00122-r02': 'ENV-S-AB-120-A', '880-00210-r02': 'ENV-S-AM1-120',
-  '800-00553-r01': 'ENV-S-WB-230', '800-00553-r02': 'ENV-S-WB-230-F', '800-00554-r03': 'ENV-S-WM-230', '800-00654-r06': 'ENV-S-WM-230',
+  '800-00552-r01': 'ENV-S-WM-230', '800-00553-r01': 'ENV-S-WB-230', '800-00553-r02': 'ENV-S-WB-230-F', '800-00554-r03': 'ENV-S-WM-230', '800-00654-r06': 'ENV-S-WM-230',
   '880-00208-r03': 'ENV-IQ-AM1-240', '880-00208-r02': 'ENV-IQ-AM1-240', '880-00231-r02': 'ENV-IQ-AM1-240', '880-00209-r03': 'ENV-IQ-AM3-3P', '880-00557-r02': 'ENV-IQ-AM3-3P',
   //qRelays
   '800-00597-r02': 'Q-RELAY-3P-INT', '860-00152-r02': 'Q-RELAY-1P-INT',
@@ -3306,7 +3306,7 @@ class envoyDevice {
           });
         enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
           .onGet(async () => {
-            const value = this.enchargesPercentFull1[i];
+            const value = this.enchargesPercentFull[i];
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, encharge: %s percent full: %s %', this.host, accessoryName, this.enchargesSerialNumber[i], value);
             }
