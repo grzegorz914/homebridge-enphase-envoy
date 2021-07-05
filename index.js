@@ -1510,13 +1510,13 @@ class envoyDevice {
     this.productionReadingTime = '';
 
     this.enchargesCount = 0;
-    this.enchargesType = '';
-    this.enchargesActiveCount = 0;
-    this.enchargesReadingTime = '';
-    this.enchargesPower = 0;
-    this.enchargesEnergy = 0;
-    this.enchargesState = '';
-    this.enchargesPercentFull = 0;
+    this.enchargesSummaryType = '';
+    this.enchargesSummaryActiveCount = 0;
+    this.enchargesSummaryReadingTime = '';
+    this.enchargesSummaryPower = 0;
+    this.enchargesSummaryEnergy = 0;
+    this.enchargesSummaryState = '';
+    this.enchargesSummaryPercentFull = 0;
 
     this.microinvertersCount = 0;
     this.microinvertersActiveCount = 0;
