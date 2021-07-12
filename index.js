@@ -84,7 +84,7 @@ const ENVOY_API_URL = {
 
 const ENVOY_STATUS_CODE = {
   //types
-  'eim': 'Current meter', 'inverters': 'Microinverters', 'production': 'Production', 'total-consumption': 'Consumption (Total)', 'net-consumption': 'Consumption (Net)', 'acb': 'Encharge',
+  'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'Encharge', 'PCU': 'Microinverter', 'ACB': 'Encharge', 'NSRB': 'Q-Relay', 'production': 'Production', 'total-consumption': 'Consumption (Total)', 'net-consumption': 'Consumption (Net)',
   //encharge
   'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging',
   //qrelay
