@@ -89,7 +89,7 @@ const ENVOY_API_CODE = {
   //encharge
   'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging',
   //qrelay
-  'enabled': 'Enabled', 'disabled': 'Disabled', 'one': 'One', 'two': 'Two', 'three': 'Three', 'normal': 'Normal', 'closed': 'Closed', 'open': 'Open', 'error.nodata': 'No Data',
+  'enabled': 'Enabled', 'disabled': 'Disabled', 'one': 'One', 'two': 'Two', 'three': 'Three', 'split': 'Split', 'normal': 'Normal', 'closed': 'Closed', 'open': 'Open', 'error.nodata': 'No Data',
   //envoy
   'ethernet': 'Ethernet', 'eth0': 'Ethernet', 'wifi': 'WiFi', 'wlan0': 'WiFi', 'cellurar': 'Cellurar', 'connected': 'Connected', 'disconnected': 'Disconnected',
   'single_rate': 'Single rate', 'time_to_use': 'Time to use', 'time_of_use': 'Time of use', 'tiered': 'Tiered', 'not_set': 'Not set', 'flat': 'Flat', 'none': 'None',
