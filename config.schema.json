@@ -55,11 +55,11 @@
               "required": false
             },
             "enchargeStorageOffset": {
-              "title": "Encharge Storage energy offset",
+              "title": "AC Batteries energy offset",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set energy *Offset* in (Wh) for Encharge Storage if nedded.",
+              "description": "Here set energy *Offset* in (Wh) for AC Batteries if nedded.",
               "required": false
             },
             "powerProductionMaxDetected": {
