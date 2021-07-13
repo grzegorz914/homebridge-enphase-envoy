@@ -85,7 +85,7 @@ const ENVOY_API_URL = {
 
 const ENVOY_API_CODE = {
   //types
-  'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'Encharge', 'PCU': 'Microinverter', 'ACB': 'Encharge', 'NSRB': 'Q-Relay', 'production': 'Production', 'total-consumption': 'Consumption (Total)', 'net-consumption': 'Consumption (Net)',
+  'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'AC Batteries', 'encharge': 'Encharge', 'enpower': 'Enpower', 'PCU': 'Microinverter', 'ACB': 'AC Batteries', 'ENCHARGE': 'Encharge', 'ENPOWER': 'Enpower', 'NSRB': 'Q-Relay', 'production': 'Production', 'total-consumption': 'Consumption (Total)', 'net-consumption': 'Consumption (Net)',
   //encharge
   'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging',
   //qrelay
@@ -953,7 +953,7 @@ module.exports = (api) => {
   inherits(Service.enphasePowerEnergyMeter, Service);
   Service.enphasePowerEnergyMeter.UUID = '00000004-000A-1000-8000-0026BB765291';
 
-  //Encharge
+  //AC Batterie
   Characteristic.enphaseEnchargePower = function () {
     Characteristic.call(this, 'Power', Characteristic.enphaseEnchargePower.UUID);
     this.setProps({
@@ -1036,7 +1036,7 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseEnchargeReadingTime, Characteristic);
   Characteristic.enphaseEnchargeReadingTime.UUID = '00000096-000B-1000-8000-0026BB765291';
 
-  //Encharge service
+  //AC Batterie service
   Service.enphaseEnchargePowerAndEnergy = function (displayName, subtype) {
     Service.call(this, displayName, Service.enphaseEnchargePowerAndEnergy.UUID, subtype);
     // Mandatory Characteristics
@@ -1051,7 +1051,7 @@ module.exports = (api) => {
   inherits(Service.enphaseEnchargePowerAndEnergy, Service);
   Service.enphaseEnchargePowerAndEnergy.UUID = '00000005-000A-1000-8000-0026BB765291';
 
-  //Encharge
+  //AC Batterie
   Characteristic.enphaseEnchargeChargeStatus = function () {
     Characteristic.call(this, 'Charge status', Characteristic.enphaseEnchargeChargeStatus.UUID);
     this.setProps({
@@ -1226,7 +1226,7 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseEnchargeLastReportDate, Characteristic);
   Characteristic.enphaseEnchargeLastReportDate.UUID = '00000125-000B-1000-8000-0026BB765291';
 
-  //Encharge service
+  //AC Batterie service
   Service.enphaseEncharge = function (displayName, subtype) {
     Service.call(this, displayName, Service.enphaseEncharge.UUID, subtype);
     // Mandatory Characteristics
@@ -1621,7 +1621,7 @@ class envoyDevice {
         this.log('------------------------------');
       }
       this.log('Q-Relays: %s', qrelaysCount);
-      this.log('Encharges: %s', enchargesCount);
+      this.log('AC Batteries: %s', enchargesCount);
       this.log('Inverters: %s', microinvertersCount);
       this.log('------------------------------');
       this.envoyTime = time;
@@ -2239,7 +2239,7 @@ class envoyDevice {
         }
       }
 
-      //encharge storage
+      //ac btteries
       if (enchargesCount > 0) {
         //encharges summary
         if (productionCtData.status === 200) {
@@ -2270,7 +2270,7 @@ class envoyDevice {
           this.enchargesSummaryPercentFull = percentFull;
         }
 
-        //encharges detail
+        //ac batteries detail
         if (inventoryData.status === 200) {
           this.enchargesType = new Array();
           this.enchargesSerialNumber = new Array();
@@ -3190,7 +3190,7 @@ class envoyDevice {
       }
     }
 
-    //encharge storage power and energy summary
+    //ac batteries power and energy summary
     if (enchargesCount > 0 && enchargesActiveCount > 0) {
       this.enchargesServicePower = new Array();
       const enphaseServiceEnchargePowerAndEnergy = new Service.enphaseEnchargePowerAndEnergy('Encharges summary', 'enphaseServiceEnchargePowerAndEnergy');
@@ -3245,7 +3245,7 @@ class envoyDevice {
       this.enchargesServicePower.push(enphaseServiceEnchargePowerAndEnergy);
       accessory.addService(this.enchargesServicePower[0]);
 
-      //encharge storage state
+      //ac batteries state
       this.enchargesService = new Array();
       for (let i = 0; i < enchargesActiveCount; i++) {
         const enphaseServiceEncharge = new Service.enphaseEncharge('Encharge ', + this.enchargesSerialNumber[i], 'enphaseServiceEncharge' + i);
