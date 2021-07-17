@@ -1726,9 +1726,21 @@ class envoyDevice {
         const commAcbLevel = (homeData.data.comm.acb.level * 20);
         const commNsrbNum = homeData.data.comm.nsrb.num;
         const commNsrbLevel = (homeData.data.comm.nsrb.level * 20);
+        //const commEnchargeNum = homeData.data.comm.encharge.num;
+        //const commEnchargeLevel = homeData.data.comm.encharge.level;
+        //const commEnchargeLevel24g = homeData.data.comm.encharge.level_24g;
+        //const commEnchargeLevelSubg = homeData.data.comm.encharge.level_subg;
         const allerts = homeData.data.allerts;
         const updateStatus = ENVOY_API_CODE[homeData.data.update_status] || 'undefined';
-
+        //const wirelessConnection = homeData.data.wireless_connection;
+        //const wirelessConnectionLength = homeData.data.wireless_connection.length;
+        //const wirelessConnectionSignalStrength = homeData.data.wireless_connection[i].sigmal_strength;
+        //const wirelessConnectionSignalStrengthMax = homeData.data.wireless_connection[i].sigmal_strength_max;
+        //const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type || 'undefined';
+        //const wirelessConnectionConnected = homeData.data.wireless_connection[i].connected;
+        //const enpowerConnected = homeData.data.enpower.connected;
+        //const enpowerGridStatus = homeData.data.enpower.grid_status;
+        
         //convert status
         const arrStatus = new Array();
         if (Array.isArray(allerts) && allerts.length > 0) {
