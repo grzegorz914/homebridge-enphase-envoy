@@ -3269,8 +3269,8 @@ class envoyDevice {
           }
           return value;
         });
-      this.acBatteriesServicePower.push(enphaseAcBatterieSummaryService);
-      accessory.addService(this.acBatteriesServicePower[0]);
+      this.acBatteriesSummaryService.push(enphaseAcBatterieSummaryService);
+      accessory.addService(this.acBatteriesSummaryService[0]);
 
       //ac batteries state
       this.acBatteriesService = new Array();
