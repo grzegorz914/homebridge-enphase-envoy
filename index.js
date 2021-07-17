@@ -954,8 +954,8 @@ module.exports = (api) => {
   Service.enphasePowerEnergyMeter.UUID = '00000004-000A-1000-8000-0026BB765291';
 
   //AC Batterie
-  Characteristic.enphaseEnchargePower = function () {
-    Characteristic.call(this, 'Power', Characteristic.enphaseEnchargePower.UUID);
+  Characteristic.enphaseAcBatterieSummaryPower = function () {
+    Characteristic.call(this, 'Power', Characteristic.enphaseAcBatterieSummaryPower.UUID);
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kW',
@@ -966,11 +966,11 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargePower, Characteristic);
-  Characteristic.enphaseEnchargePower.UUID = '00000091-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSummaryPower, Characteristic);
+  Characteristic.enphaseAcBatterieSummaryPower.UUID = '00000091-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeEnergy = function () {
-    Characteristic.call(this, 'Energy', Characteristic.enphaseEnchargeEnergy.UUID);
+  Characteristic.enphaseAcBatterieSummaryEnergy = function () {
+    Characteristic.call(this, 'Energy', Characteristic.enphaseAcBatterieSummaryEnergy.UUID);
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: 'kWh',
@@ -981,11 +981,11 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeEnergy, Characteristic);
-  Characteristic.enphaseEnchargeEnergy.UUID = '00000092-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSummaryEnergy, Characteristic);
+  Characteristic.enphaseAcBatterieEnergy.UUID = '00000092-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargePercentFull = function () {
-    Characteristic.call(this, 'Percent full', Characteristic.enphaseEnchargePercentFull.UUID);
+  Characteristic.enphaseAcBatterieSummaryPercentFull = function () {
+    Characteristic.call(this, 'Percent full', Characteristic.enphaseAcBatterieSummaryPercentFull.UUID);
     this.setProps({
       format: Characteristic.Formats.UINT8,
       unit: '%',
@@ -996,11 +996,11 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargePercentFull, Characteristic);
-  Characteristic.enphaseEnchargePercentFull.UUID = '00000093-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSummaryPercentFull, Characteristic);
+  Characteristic.enphaseAcBatterieSummaryPercentFull.UUID = '00000093-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeActiveCount = function () {
-    Characteristic.call(this, 'Devices count', Characteristic.enphaseEnchargeActiveCount.UUID);
+  Characteristic.enphaseAcBatterieSummaryActiveCount = function () {
+    Characteristic.call(this, 'Devices count', Characteristic.enphaseAcBatterieSummaryActiveCount.UUID);
     this.setProps({
       format: Characteristic.Formats.UINT8,
       unit: '',
@@ -1011,104 +1011,104 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeActiveCount, Characteristic);
-  Characteristic.enphaseEnchargeActiveCount.UUID = '00000094-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSummaryActiveCount, Characteristic);
+  Characteristic.enphaseAcBatterieSummaryActiveCount.UUID = '00000094-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeState = function () {
-    Characteristic.call(this, 'State', Characteristic.enphaseEnchargeState.UUID);
+  Characteristic.enphaseAcBatterieSummaruState = function () {
+    Characteristic.call(this, 'State', Characteristic.enphaseAcBatterieSummaruState.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeState, Characteristic);
-  Characteristic.enphaseEnchargeState.UUID = '00000095-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSummaruState, Characteristic);
+  Characteristic.enphaseAcBatterieSummaruState.UUID = '00000095-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeReadingTime = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseEnchargeReadingTime.UUID);
+  Characteristic.enphaseAcBatterieSummaryReadingTime = function () {
+    Characteristic.call(this, 'Last report', Characteristic.enphaseAcBatterieSummaryReadingTime.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeReadingTime, Characteristic);
-  Characteristic.enphaseEnchargeReadingTime.UUID = '00000096-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSummaryReadingTime, Characteristic);
+  Characteristic.enphaseAcBatterieSummaryReadingTime.UUID = '00000096-000B-1000-8000-0026BB765291';
 
   //AC Batterie service
-  Service.enphaseEnchargePowerAndEnergy = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseEnchargePowerAndEnergy.UUID, subtype);
+  Service.enphaseAcBatteriePowerAndEnergy = function (displayName, subtype) {
+    Service.call(this, displayName, Service.enphaseAcBatteriePowerAndEnergy.UUID, subtype);
     // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseEnchargePower);
+    this.addCharacteristic(Characteristic.enphaseAcBatterieSummaryPower);
     // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeEnergy);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargePercentFull);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeActiveCount);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeState);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeReadingTime);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaruActiveCount);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryState);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime);
   };
-  inherits(Service.enphaseEnchargePowerAndEnergy, Service);
-  Service.enphaseEnchargePowerAndEnergy.UUID = '00000005-000A-1000-8000-0026BB765291';
+  inherits(Service.enphaseAcBatteriePowerAndEnergy, Service);
+  Service.enphaseAcBatteriePowerAndEnergy.UUID = '00000005-000A-1000-8000-0026BB765291';
 
   //AC Batterie
-  Characteristic.enphaseEnchargeChargeStatus = function () {
-    Characteristic.call(this, 'Charge status', Characteristic.enphaseEnchargeChargeStatus.UUID);
+  Characteristic.enphaseAcBatterieChargeStatus = function () {
+    Characteristic.call(this, 'Charge status', Characteristic.enphaseAcBatterieChargeStatus.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeChargeStatus, Characteristic);
-  Characteristic.enphaseEnchargeChargeStatus.UUID = '00000111-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieChargeStatus, Characteristic);
+  Characteristic.enphaseAcBatterieChargeStatus.UUID = '00000111-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeProducing = function () {
-    Characteristic.call(this, 'Producing', Characteristic.enphaseEnchargeProducing.UUID);
+  Characteristic.enphaseAcBatterieProducing = function () {
+    Characteristic.call(this, 'Producing', Characteristic.enphaseAcBatterieProducing.UUID);
     this.setProps({
       format: Characteristic.Formats.BOOL,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeProducing, Characteristic);
-  Characteristic.enphaseEnchargeProducing.UUID = '00000112-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieProducing, Characteristic);
+  Characteristic.enphaseAcBatterieProducing.UUID = '00000112-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeCommunicating = function () {
-    Characteristic.call(this, 'Communicating', Characteristic.enphaseEnchargeCommunicating.UUID);
+  Characteristic.enphaseAcBatterieCommunicating = function () {
+    Characteristic.call(this, 'Communicating', Characteristic.enphaseAcBatterieCommunicating.UUID);
     this.setProps({
       format: Characteristic.Formats.BOOL,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeCommunicating, Characteristic);
-  Characteristic.enphaseEnchargeCommunicating.UUID = '00000113-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieCommunicating, Characteristic);
+  Characteristic.enphaseAcBatterieCommunicating.UUID = '00000113-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeProvisioned = function () {
-    Characteristic.call(this, 'Provisioned', Characteristic.enphaseEnchargeProvisioned.UUID);
+  Characteristic.enphaseAcBatterieProvisioned = function () {
+    Characteristic.call(this, 'Provisioned', Characteristic.enphaseAcBatterieProvisioned.UUID);
     this.setProps({
       format: Characteristic.Formats.BOOL,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeProvisioned, Characteristic);
-  Characteristic.enphaseEnchargeProvisioned.UUID = '00000114-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieProvisioned, Characteristic);
+  Characteristic.enphaseAcBatterieProvisioned.UUID = '00000114-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeOperating = function () {
-    Characteristic.call(this, 'Operating', Characteristic.enphaseEnchargeOperating.UUID);
+  Characteristic.enphaseAcBatterieOperating = function () {
+    Characteristic.call(this, 'Operating', Characteristic.enphaseAcBatterieOperating.UUID);
     this.setProps({
       format: Characteristic.Formats.BOOL,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeOperating, Characteristic);
-  Characteristic.enphaseEnchargeOperating.UUID = '00000115-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieOperating, Characteristic);
+  Characteristic.enphaseAcBatterieOperating.UUID = '00000115-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeCommLevel = function () {
-    Characteristic.call(this, 'Comm level', Characteristic.enphaseEnchargeCommLevel.UUID);
+  Characteristic.enphaseAcBatterieCommLevel = function () {
+    Characteristic.call(this, 'Comm level', Characteristic.enphaseAcBatterieCommLevel.UUID);
     this.setProps({
       format: Characteristic.Formats.UINT8,
       unit: '%',
@@ -1119,22 +1119,22 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeCommLevel, Characteristic);
-  Characteristic.enphaseEnchargeCommLevel.UUID = '00000116-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieCommLevel, Characteristic);
+  Characteristic.enphaseAcBatterieCommLevel.UUID = '00000116-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeSleepEnabled = function () {
-    Characteristic.call(this, 'Sleep enabled', Characteristic.enphaseEnchargeSleepEnabled.UUID);
+  Characteristic.enphaseAcBatterieSleepEnabled = function () {
+    Characteristic.call(this, 'Sleep enabled', Characteristic.enphaseAcBatterieSleepEnabled.UUID);
     this.setProps({
       format: Characteristic.Formats.BOOL,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeSleepEnabled, Characteristic);
-  Characteristic.enphaseEnchargeSleepEnabled.UUID = '00000117-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSleepEnabled, Characteristic);
+  Characteristic.enphaseAcBatterieSleepEnabled.UUID = '00000117-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargePercentFull = function () {
-    Characteristic.call(this, 'Percent full', Characteristic.enphaseEnchargePercentFull.UUID);
+  Characteristic.enphaseAcBatteriePercentFull = function () {
+    Characteristic.call(this, 'Percent full', Characteristic.enphaseAcBatteriePercentFull.UUID);
     this.setProps({
       format: Characteristic.Formats.UINT8,
       unit: '%',
@@ -1145,11 +1145,11 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargePercentFull, Characteristic);
-  Characteristic.enphaseEnchargePercentFull.UUID = '00000118-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatteriePercentFull, Characteristic);
+  Characteristic.enphaseAcBatteriePercentFull.UUID = '00000118-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeMaxCellTemp = function () {
-    Characteristic.call(this, 'Max cell temp', Characteristic.enphaseEnchargeMaxCellTemp.UUID);
+  Characteristic.enphaseAcBatterieMaxCellTemp = function () {
+    Characteristic.call(this, 'Max cell temp', Characteristic.enphaseAcBatterieMaxCellTemp.UUID);
     this.setProps({
       format: Characteristic.Formats.FLOAT,
       unit: '°C',
@@ -1160,11 +1160,11 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeMaxCellTemp, Characteristic);
-  Characteristic.enphaseEnchargeMaxCellTemp.UUID = '00000119-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieMaxCellTemp, Characteristic);
+  Characteristic.enphaseAcBatterieMaxCellTemp.UUID = '00000119-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeSleepMinSoc = function () {
-    Characteristic.call(this, 'Sleep min soc', Characteristic.enphaseEnchargeSleepMinSoc.UUID);
+  Characteristic.enphaseAcBatterieSleepMinSoc = function () {
+    Characteristic.call(this, 'Sleep min soc', Characteristic.enphaseAcBatterieSleepMinSoc.UUID);
     this.setProps({
       format: Characteristic.Formats.UINT8,
       unit: 'min',
@@ -1175,11 +1175,11 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeSleepMinSoc, Characteristic);
-  Characteristic.enphaseEnchargeSleepMinSoc.UUID = '00000121-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSleepMinSoc, Characteristic);
+  Characteristic.enphaseAcBatterieSleepMinSoc.UUID = '00000121-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeSleepMaxSoc = function () {
-    Characteristic.call(this, 'Sleep max soc', Characteristic.enphaseEnchargeSleepMaxSoc.UUID);
+  Characteristic.enphaseAcBatterieSleepMaxSoc = function () {
+    Characteristic.call(this, 'Sleep max soc', Characteristic.enphaseAcBatterieSleepMaxSoc.UUID);
     this.setProps({
       format: Characteristic.Formats.UINT8,
       unit: 'min',
@@ -1190,64 +1190,64 @@ module.exports = (api) => {
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeSleepMaxSoc, Characteristic);
-  Characteristic.enphaseEnchargeSleepMaxSoc.UUID = '00000122-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieSleepMaxSoc, Characteristic);
+  Characteristic.enphaseAcBatterieSleepMaxSoc.UUID = '00000122-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeStatus = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseEnchargeStatus.UUID);
+  Characteristic.enphaseAcBatterieStatus = function () {
+    Characteristic.call(this, 'Status', Characteristic.enphaseAcBatterieEnchargeStatus.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeStatus, Characteristic);
-  Characteristic.enphaseEnchargeStatus.UUID = '00000123-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieStatus, Characteristic);
+  Characteristic.enphaseAcBatterieStatus.UUID = '00000123-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeFirmware = function () {
-    Characteristic.call(this, 'Firmware', Characteristic.enphaseEnchargeFirmware.UUID);
+  Characteristic.enphaseAcBatterieFirmware = function () {
+    Characteristic.call(this, 'Firmware', Characteristic.enphaseAcBatterieFirmware.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeFirmware, Characteristic);
-  Characteristic.enphaseEnchargeFirmware.UUID = '00000124-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieFirmware, Characteristic);
+  Characteristic.enphaseAcBatterieFirmware.UUID = '00000124-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnchargeLastReportDate = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseEnchargeLastReportDate.UUID);
+  Characteristic.enphaseAcBatterieLastReportDate = function () {
+    Characteristic.call(this, 'Last report', Characteristic.enphaseAcBatterieLastReportDate.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  inherits(Characteristic.enphaseEnchargeLastReportDate, Characteristic);
-  Characteristic.enphaseEnchargeLastReportDate.UUID = '00000125-000B-1000-8000-0026BB765291';
+  inherits(Characteristic.enphaseAcBatterieLastReportDate, Characteristic);
+  Characteristic.enphaseAcBatterieLastReportDate.UUID = '00000125-000B-1000-8000-0026BB765291';
 
   //AC Batterie service
-  Service.enphaseEncharge = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseEncharge.UUID, subtype);
+  Service.enphaseAcBatterie = function (displayName, subtype) {
+    Service.call(this, displayName, Service.enphaseAcBatterie.UUID, subtype);
     // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseEnchargeChargeStatus);
+    this.addCharacteristic(Characteristic.enphaseAcBatterieChargeStatus);
     // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeProducing);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommunicating);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeProvisioned);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeOperating);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeSleepEnabled);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargePercentFull);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeFirmware);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLastReportDate);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProducing);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieCommunicating);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProvisioned);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieOperating);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieCommLevel);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepEnabled);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatteriePercentFull);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieMaxCellTemp);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepMinSoc);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepMaxSoc);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieStatus);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieFirmware);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieLastReportDate);
   };
-  inherits(Service.enphaseEncharge, Service);
-  Service.enphaseEncharge.UUID = '00000006-000A-1000-8000-0026BB765291';
+  inherits(Service.enphaseAcBatterie, Service);
+  Service.enphaseAcBatterie.UUID = '00000006-000A-1000-8000-0026BB765291';
 
   //Microinverter
   Characteristic.enphaseMicroinverterPower = function () {
@@ -1510,17 +1510,20 @@ class envoyDevice {
     this.productionPwrFactor = 0;
     this.productionReadingTime = '';
 
-    this.enchargesCount = 0;
-    this.enchargesSummaryType = '';
-    this.enchargesSummaryActiveCount = 0;
-    this.enchargesSummaryReadingTime = '';
-    this.enchargesSummaryPower = 0;
-    this.enchargesSummaryEnergy = 0;
-    this.enchargesSummaryState = '';
-    this.enchargesSummaryPercentFull = 0;
+    this.acBatteriesCount = 0;
+    this.acBatteriesSummaryType = '';
+    this.acBatteriesSummaryActiveCount = 0;
+    this.acBatteriesSummaryReadingTime = '';
+    this.acBatteriesSummaryPower = 0;
+    this.acBatteriesSummaryEnergy = 0;
+    this.acBatteriesSummaryState = '';
+    this.acBatteriesSummaryPercentFull = 0;
 
     this.microinvertersCount = 0;
     this.microinvertersActiveCount = 0;
+    
+    this.enchargesCount = 0;
+    this.enpowerInstalled = false;
 
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
     this.productionPowerMaxFile = this.prefDir + '/' + 'productionPowerMax_' + this.host.split('.').join('');
@@ -1602,9 +1605,11 @@ class envoyDevice {
       const metersCount = supportMeters ? metersData.data.length : 0;
       const meterProductionEnabled = supportMeters ? (metersData.data[0].state === 'enabled') : false;
       const meterConsumptionEnabled = supportMeters ? (metersData.data[1].state === 'enabled') : false;
-      const qrelaysCount = inventoryData.data[2].devices.length;
-      const enchargesCount = inventoryData.data[1].devices.length;
       const microinvertersCount = inventoryData.data[0].devices.length;
+      const acBatteriesCount = inventoryData.data[1].devices.length;
+      const qrelaysCount = inventoryData.data[2].devices.length;
+      const enchargesCount = 0;
+      const enpowerInstalled = false;
 
       this.log('-------- %s --------', this.name);
       this.log('Manufacturer: Enphase');
@@ -1621,8 +1626,10 @@ class envoyDevice {
         this.log('------------------------------');
       }
       this.log('Q-Relays: %s', qrelaysCount);
-      this.log('AC Batteries: %s', enchargesCount);
       this.log('Inverters: %s', microinvertersCount);
+      this.log('AC Batteries: %s', acBatteriesCount);
+      this.log('Encharges: %s', enchargesCount);
+      this.log('Enpower: %s', enpowerInstalled ? 'Yes' : 'No');
       this.log('------------------------------');
       this.envoyTime = time;
       this.envoySerialNumber = serialNumber;
@@ -1632,9 +1639,12 @@ class envoyDevice {
       this.metersCount = metersCount;
       this.meterProductionEnabled = meterProductionEnabled;
       this.meterConsumptionEnabled = meterConsumptionEnabled;
+      this.microinvertersCount = microinvertersCount;
+      this.acBatteriesCount = acBatteriesCount;
       this.qRelaysCount = qrelaysCount;
       this.enchargesCount = enchargesCount;
-      this.microinvertersCount = microinvertersCount;
+      this.enpowerInstalled = enpowerInstalled;
+      
       this.inventoryData = inventoryData;
       this.metersData = metersData;
 
@@ -1669,8 +1679,10 @@ class envoyDevice {
       const meterProductionEnabled = this.meterProductionEnabled;
       const meterConsumptionEnabled = this.meterConsumptionEnabled;
       const qRelaysCount = this.qRelaysCount;
-      const enchargesCount = this.enchargesCount;
+      const acBatteriesCount = this.acBatteriesCount;
       const microinvertersCount = this.microinvertersCount
+      const enchargesCount = this.enchargesCount;
+      const enpowerInstalled = this.enpowerInstalled;
 
       //get inventory and meters data;
       const homeData = this.homeData;
@@ -2252,7 +2264,7 @@ class envoyDevice {
       }
 
       //ac btteries
-      if (enchargesCount > 0) {
+      if (acBatteriesCount > 0) {
         //encharges summary
         if (productionCtData.status === 200) {
           const type = ENVOY_API_CODE[productionCtData.data.storage[0].type] || 'undefined';
@@ -2263,8 +2275,8 @@ class envoyDevice {
           const chargeStatus = ENVOY_API_CODE[productionCtData.data.storage[0].state] || 'undefined';
           const percentFull = productionCtData.data.storage[0].percentFull;
 
-          if (this.enchargesServicePower) {
-            this.enchargesServicePower[0]
+          if (this.acBatteriesServicePower) {
+            this.acBatteriesServicePower[0]
               .updateCharacteristic(Characteristic.enphaseEnchargeReadingTime, readingTime)
               .updateCharacteristic(Characteristic.enphaseEnchargePower, wNow)
               .updateCharacteristic(Characteristic.enphaseEnchargeEnergy, whNow)
@@ -2273,34 +2285,34 @@ class envoyDevice {
               .updateCharacteristic(Characteristic.enphaseEnchargeState, chargeStatus);
           }
 
-          this.enchargesSummaryType = type;
-          this.enchargesSummaryActiveCount = activeCount;
-          this.enchargesSummaryReadingTime = readingTime;
-          this.enchargesSummaryPower = wNow;
-          this.enchargesSummaryEnergy = whNow;
-          this.enchargesSummaryState = chargeStatus;
-          this.enchargesSummaryPercentFull = percentFull;
+          this.acBatteriesSummaryType = type;
+          this.acBatteriesSummaryActiveCount = activeCount;
+          this.acBatteriesSummaryReadingTime = readingTime;
+          this.acBatteriesSummaryPower = wNow;
+          this.acBatteriesSummaryEnergy = whNow;
+          this.acBatteriesSummaryState = chargeStatus;
+          this.acBatteriesSummaryPercentFull = percentFull;
         }
 
         //ac batteries detail
         if (inventoryData.status === 200) {
-          this.enchargesType = new Array();
-          this.enchargesSerialNumber = new Array();
-          this.enchargesStatus = new Array();
-          this.enchargesLastReportDate = new Array();
-          this.enchargesFirmware = new Array();
-          this.enchargesProducing = new Array();
-          this.enchargesCommunicating = new Array();
-          this.enchargesProvisioned = new Array();
-          this.enchargesOperating = new Array();
-          this.enchargesSleepEnabled = new Array();
-          this.enchargesPercentFull = new Array();
-          this.enchargesMaxCellTemp = new Array();
-          this.enchargesSleepMinSoc = new Array();
-          this.enchargesSleepMaxSoc = new Array();
-          this.enchargesChargeStatus = new Array();
+          this.acBatteriesType = new Array();
+          this.acBatteriesSerialNumber = new Array();
+          this.acBatteriesStatus = new Array();
+          this.acBatteriesLastReportDate = new Array();
+          this.acBatteriesFirmware = new Array();
+          this.acBatteriesProducing = new Array();
+          this.acBatteriesCommunicating = new Array();
+          this.acBatteriesProvisioned = new Array();
+          this.acBatteriesOperating = new Array();
+          this.acBatteriesSleepEnabled = new Array();
+          this.acBatteriesPercentFull = new Array();
+          this.acBatteriesMaxCellTemp = new Array();
+          this.acBatteriesSleepMinSoc = new Array();
+          this.acBatteriesSleepMaxSoc = new Array();
+          this.acBatteriesChargeStatus = new Array();
 
-          for (let i = 0; i < enchargesCount; i++) {
+          for (let i = 0; i < acBatteriesCount; i++) {
             const type = ENVOY_API_CODE[inventoryData.data[1].type] || 'undefined';
             const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'Encharge'
             const installed = inventoryData.data[1].devices[i].installed;
@@ -2335,8 +2347,8 @@ class envoyDevice {
             }
             const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
 
-            if (this.enchargesService) {
-              this.enchargesService[i]
+            if (this.acBatteriesService) {
+              this.acBatteriesService[i]
                 .updateCharacteristic(Characteristic.enphaseEnchargeStatus, status)
                 .updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, lastReportDate)
                 .updateCharacteristic(Characteristic.enphaseEnchargeFirmware, firmware)
@@ -2352,21 +2364,21 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseEnchargeChargeStatus, chargeStatus);
             }
 
-            this.enchargesType.push(type);
-            this.enchargesSerialNumber.push(serialNumber);
-            this.enchargesStatus.push(status);
-            this.enchargesLastReportDate.push(lastReportDate);
-            this.enchargesFirmware.push(firmware);
-            this.enchargesProducing.push(producing);
-            this.enchargesCommunicating.push(communicating);
-            this.enchargesProvisioned.push(provisioned);
-            this.enchargesOperating.push(operating);
-            this.enchargesSleepEnabled.push(sleepEnabled);
-            this.enchargesPercentFull.push(percentFull);
-            this.enchargesMaxCellTemp.push(maxCellTemp);
-            this.enchargesSleepMinSoc.push(sleepMinSoc);
-            this.enchargesSleepMaxSoc.push(sleepMaxSoc);
-            this.enchargesChargeStatus.push(chargeStatus);
+            this.acBatteriesType.push(type);
+            this.acBatteriesSerialNumber.push(serialNumber);
+            this.acBatteriesStatus.push(status);
+            this.acBatteriesLastReportDate.push(lastReportDate);
+            this.acBatteriesFirmware.push(firmware);
+            this.acBatteriesProducing.push(producing);
+            this.acBatteriesCommunicating.push(communicating);
+            this.acBatteriesProvisioned.push(provisioned);
+            this.acBatteriesOperating.push(operating);
+            this.acBatteriesSleepEnabled.push(sleepEnabled);
+            this.acBatteriesPercentFull.push(percentFull);
+            this.acBatteriesMaxCellTemp.push(maxCellTemp);
+            this.acBatteriesSleepMinSoc.push(sleepMinSoc);
+            this.acBatteriesSleepMaxSoc.push(sleepMaxSoc);
+            this.acBatteriesChargeStatus.push(chargeStatus);
           }
         }
       }
@@ -2526,12 +2538,12 @@ class envoyDevice {
 
       // get devices count
       const qRelaysCount = this.qRelaysCount;
-      const enchargesCount = this.enchargesCount;
+      const acBatteriesCount = this.acBatteriesCount;
       const microinvertersCount = this.microinvertersCount
 
       //create arrays
       this.qRelaysCommLevel = new Array();
-      this.enchargesCommLevel = new Array();
+      this.acBatteriesCommLevel = new Array();
       this.microinvertersCommLevel = new Array();
 
       for (let i = 0; i < qRelaysCount; i++) {
@@ -2545,15 +2557,15 @@ class envoyDevice {
         this.qRelaysCommLevel.push(value);
       }
 
-      for (let i = 0; i < enchargesCount; i++) {
-        const key = '' + this.enchargesSerialNumber[i] + '';
+      for (let i = 0; i < acBatteriesCount; i++) {
+        const key = '' + this.acBatteriesSerialNumber[i] + '';
         const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
 
-        if (this.enchargesService) {
-          this.enchargesService[i]
+        if (this.acBatteriesService) {
+          this.acBatteriesService[i]
             .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
         }
-        this.enchargesCommLevel.push(value);
+        this.acBatteriesCommLevel.push(value);
       }
 
       for (let i = 0; i < microinvertersCount; i++) {
@@ -2614,10 +2626,12 @@ class envoyDevice {
     const meterConsumptionEnabled = this.meterConsumptionEnabled;
     const metersConsumpionCount = this.metersConsumpionCount;
     const qRelaysCount = this.qRelaysCount;
-    const enchargesCount = this.enchargesCount;
-    const enchargesActiveCount = this.enchargesActiveCount;
+    const acBatteriesCount = this.acBatteriesCount;
+    const acBatteriesSummaryActiveCount = this.acBatteriesSummaryActiveCount;
     const microinvertersCount = this.microinvertersCount;
     const microinvertersActiveCount = this.microinvertersActiveCount;
+    const enchargesCount = this.enchargesCount;
+    const enpowerInstalled = this.enpowerInstalled;
 
     //envoy
     this.envoysService = new Array();
@@ -3203,178 +3217,178 @@ class envoyDevice {
     }
 
     //ac batteries power and energy summary
-    if (enchargesCount > 0 && enchargesActiveCount > 0) {
-      this.enchargesServicePower = new Array();
-      const enphaseServiceEnchargePowerAndEnergy = new Service.enphaseEnchargePowerAndEnergy('Encharges summary', 'enphaseServiceEnchargePowerAndEnergy');
-      enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePower)
+    if (acBatteriesCount > 0 && acBatteriesSummaryActiveCount > 0) {
+      this.acBatteriesServicePower = new Array();
+      const enphaseServiceAcBatteriePowerAndEnergy = new Service.enphaseServiceAcBatteriePowerAndEnergy('AC Batteries summary', 'enphaseServiceAcBatteriePowerAndEnergy');
+      enphaseServiceAcBatteriePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePower)
         .onGet(async () => {
-          const value = this.enchargesSummaryPower;
+          const value = this.acBatteriesSummaryPower;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, power encharge storage: %s kW', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeEnergy)
+      enphaseServiceAcBatteriePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeEnergy)
         .onGet(async () => {
-          const value = this.enchargesSummaryEnergy;
+          const value = this.acBatteriesSummaryEnergy;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, energy encharge storage: %s kWh', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
+      enphaseServiceAcBatteriePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
         .onGet(async () => {
-          const value = this.enchargesSummaryPercentFull;
+          const value = this.acBatteriesSummaryPercentFull;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge percent full: %s', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeActiveCount)
+      enphaseServiceAcBatteriePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeActiveCount)
         .onGet(async () => {
-          const value = this.enchargesSummaryActiveCount;
+          const value = this.acBatteriesSummaryActiveCount;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge devices count: %s', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeState)
+      enphaseServiceAcBatteriePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeState)
         .onGet(async () => {
-          const value = this.enchargesSummaryState;
+          const value = this.acBatteriesSummaryState;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge state: %s', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseServiceEnchargePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeReadingTime)
+      enphaseServiceAcBatteriePowerAndEnergy.getCharacteristic(Characteristic.enphaseEnchargeReadingTime)
         .onGet(async () => {
-          const value = this.enchargesSummaryReadingTime;
+          const value = this.acBatteriesSummaryReadingTime;
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge: %s last report: %s', this.host, accessoryName, value);
           }
           return value;
         });
-      this.enchargesServicePower.push(enphaseServiceEnchargePowerAndEnergy);
-      accessory.addService(this.enchargesServicePower[0]);
+      this.acBatteriesServicePower.push(enphaseServiceAcBatteriePowerAndEnergy);
+      accessory.addService(this.acBatteriesServicePower[0]);
 
       //ac batteries state
-      this.enchargesService = new Array();
-      for (let i = 0; i < enchargesActiveCount; i++) {
-        const enphaseServiceEncharge = new Service.enphaseEncharge('Encharge ', + this.enchargesSerialNumber[i], 'enphaseServiceEncharge' + i);
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeChargeStatus)
+      this.acBatteriesService = new Array();
+      for (let i = 0; i < acBatteriesCount; i++) {
+        const enphaseServiceAcBatterie = new Service.enphaseServiceAcBatterie('AC Batterie ', + this.acBatteriesSerialNumber[i], 'enphaseServiceAcBatterie' + i);
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeChargeStatus)
           .onGet(async () => {
-            const value = this.enchargesChargeStatus[i];
+            const value = this.acBatteriesChargeStatus[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s charge status %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s charge status %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeProducing)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeProducing)
           .onGet(async () => {
-            const value = this.enchargesProducing[i];
+            const value = this.acBatteriesProducing[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s producing: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, ac batterie: %s producing: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeCommunicating)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeCommunicating)
           .onGet(async () => {
-            const value = this.enchargesCommunicating[i];
+            const value = this.acBatteriesCommunicating[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s communicating: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, ac batterie: %s communicating: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeProvisioned)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeProvisioned)
           .onGet(async () => {
-            const value = this.enchargesProvisioned[i];
+            const value = this.acBatteriesProvisioned[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s provisioned: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, ac batterie: %s provisioned: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeOperating)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeOperating)
           .onGet(async () => {
-            const value = this.enchargesOperating[i];
+            const value = this.acBatteriesOperating[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s operating: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, ac batterie: %s operating: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeCommLevel)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeCommLevel)
           .onGet(async () => {
-            const value = (this.checkCommLevel && this.enchargesCommLevel[i] !== undefined) ? this.enchargesCommLevel[i] : 0;
+            const value = (this.checkCommLevel && this.acBatteriesCommLevel[i] !== undefined) ? this.acBatteriesCommLevel[i] : 0;
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s comm. level: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s comm. level: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepEnabled)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeSleepEnabled)
           .onGet(async () => {
-            const value = this.enchargesSleepEnabled[i];
+            const value = this.acBatteriesSleepEnabled[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s sleep: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value ? 'Yes' : 'No');
+              this.log('Device: %s %s, ac batterie: %s sleep: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value ? 'Yes' : 'No');
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargePercentFull)
           .onGet(async () => {
-            const value = this.enchargesPercentFull[i];
+            const value = this.acBatteriesPercentFull[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s percent full: %s %', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s percent full: %s %', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp)
           .onGet(async () => {
-            const value = this.enchargesMaxCellTemp[i];
+            const value = this.acBatteriesMaxCellTemp[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s max cell temp: %s °C', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s max cell temp: %s °C', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeSleepMinSoc)
           .onGet(async () => {
-            const value = this.enchargesSleepMinSoc[i];
+            const value = this.acBatteriesSleepMinSoc[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s sleep min soc: %s min', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s sleep min soc: %s min', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeSleepMaxSoc)
           .onGet(async () => {
-            const value = this.enchargesSleepMaxSoc[i];
+            const value = this.acBatteriesSleepMaxSoc[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s sleep max soc: %s min', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s sleep max soc: %s min', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeStatus)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeStatus)
           .onGet(async () => {
-            const value = this.enchargesStatus[i];
+            const value = this.acBatteriesStatus[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s status: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s status: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeFirmware)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeFirmware)
           .onGet(async () => {
-            const value = this.enchargesFirmware[i];
+            const value = this.acBatteriesFirmware[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s firmware: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s firmware: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        enphaseServiceEncharge.getCharacteristic(Characteristic.enphaseEnchargeLastReportDate)
+        enphaseServiceAcBatterie.getCharacteristic(Characteristic.enphaseEnchargeLastReportDate)
           .onGet(async () => {
-            const value = this.enchargesLastReportDate[i];
+            const value = this.acBatteriesLastReportDate[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, encharge: %s last report: %s', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+              this.log('Device: %s %s, ac batterie: %s last report: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
             return value;
           });
-        this.enchargesService.push(enphaseServiceEncharge);
-        accessory.addService(this.enchargesService[i]);
+        this.acBatteriesService.push(enphaseServiceAcBatterie);
+        accessory.addService(this.acBatteriesService[i]);
       }
     }
 
