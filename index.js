@@ -1730,7 +1730,7 @@ class envoyDevice {
             const interfaces1Status = ENVOY_API_CODE[homeData.data.network.interfaces[1].status] || 'undefined';
           }
         }
-        const tariff = ENVOY_API_CODE[homeData.data.tariff]] || 'undefined';
+        const tariff = ENVOY_API_CODE[homeData.data.tariff] || 'undefined';
         const commNum = homeData.data.comm.num;
         const commLevel = (homeData.data.comm.level * 20);
         const commPcuNum = homeData.data.comm.pcu.num;
