@@ -25,7 +25,7 @@
                     "disableLogInfo": false,
                     "envoyPasswd": "",
                     "installerPasswd": "",
-                    "enchargeStorageOffset": 0,
+                    "acBateriesStorageOffset": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
                     "powerConsumptionTotalMaxDetected": 10000,

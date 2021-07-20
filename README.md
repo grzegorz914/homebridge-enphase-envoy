@@ -68,7 +68,7 @@ Alternatively, Tthe sample configuration can be edited and used manually. See th
 | `installerUser` | here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
 | `installerPasswd` | here set the optional installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/" |
 | `enchargeStorage` | check *ON* if AC Batteries are installed. (not available from v3.5.0) |
-| `enchargeStorageOffset` | set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) |
+| `acBaterieStorageOffset` | set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) |
 | `powerConsumptionMetersInstalled` | check *ON* if consumption meters are installed. (not available from v3.5.0) |
 | `powerProductionMeter` | select which *meter* will be used to display Power production. (not available from v3.5.0) |
 | `powerProductionMaxDetected` | set the *maximum production Power*, if the Power production will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
@@ -98,7 +98,7 @@ Alternatively, Tthe sample configuration can be edited and used manually. See th
                     "envoyPasswd": "",
                     "installerUser": "installer", //removed from 4.6.11 not nedded anymore
                     "installerPasswd": "",
-                    "enchargeStorageOffset": 0,
+                    "acBateriesStorageOffset": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
                     "powerConsumptionTotalMaxDetected": 10000,

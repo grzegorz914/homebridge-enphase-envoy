@@ -250,7 +250,7 @@ module.exports = (api) => {
   Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID = '00000015-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCommNumAcbAndLevel = function () {
-    Characteristic.call(this, 'Encharges and level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
+    Characteristic.call(this, 'AC Bateries and level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -1045,7 +1045,7 @@ module.exports = (api) => {
     // Optional Characteristics
     this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy);
     this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaruActiveCount);
+    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount);
     this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryState);
     this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime);
   };
@@ -1195,7 +1195,7 @@ module.exports = (api) => {
   Characteristic.enphaseAcBatterieSleepMaxSoc.UUID = '00000122-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseAcBatterieStatus = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseAcBatterieEnchargeStatus.UUID);
+    Characteristic.call(this, 'Status', Characteristic.enphaseAcBatterieStatus.UUID);
     this.setProps({
       format: Characteristic.Formats.STRING,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -1446,7 +1446,7 @@ class envoyDevice {
     this.disableLogInfo = config.disableLogInfo || false;
     this.envoyPasswd = config.envoyPasswd;
     this.installerPasswd = config.installerPasswd;
-    this.enchargeStorageOffset = config.enchargeStorageOffset || 0;
+    this.acBaterieStorageOffset = config.acBaterieStorageOffset || 0;
     this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
     this.consumptionTotalPowerMaxDetected = config.powerConsumptionTotalMaxDetected || 0;
@@ -1524,7 +1524,7 @@ class envoyDevice {
     this.microinvertersActiveCount = 0;
 
     this.enchargesCount = 0;
-    this.enpowerInstalled = false;
+    this.enpowersCount = 0;
 
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
     this.productionPowerMaxFile = this.prefDir + '/' + 'productionPowerMax_' + this.host.split('.').join('');
@@ -1586,6 +1586,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting devices info.', this.host, this.name);
     try {
       const [infoData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.GetInfo), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
+      //const [infoData, inventoryData, metersData, inventoryEnsembleData] = await axios.all([axios.get(this.url + ENVOY_API_URL.GetInfo), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo), axios.get(this.url + ENVOY_API_URL.InventoryEnsemble)]);
       this.log.debug('Device %s %s, debug infoData: %s, inventoryData: %s, metersData: %s', this.host, this.name, infoData.data, inventoryData.data, metersData.data);
       const resultData = await parseStringPromise(infoData.data);
       this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(resultData, null, 2));
@@ -1609,8 +1610,8 @@ class envoyDevice {
       const microinvertersCount = inventoryData.data[0].devices.length;
       const acBatteriesCount = inventoryData.data[1].devices.length;
       const qrelaysCount = inventoryData.data[2].devices.length;
-      const enchargesCount = 0;
-      const enpowerInstalled = false;
+      const enchargesCount = 0; // inventoryEnsembleData.data[0].devices.length;
+      const enpowersCount = 0; // inventoryEnsembleData.data[1].devices.length;
 
       this.log('-------- %s --------', this.name);
       this.log('Manufacturer: Enphase');
@@ -1630,7 +1631,7 @@ class envoyDevice {
       this.log('Inverters: %s', microinvertersCount);
       this.log('AC Batteries: %s', acBatteriesCount);
       this.log('Encharges: %s', enchargesCount);
-      this.log('Enpower: %s', enpowerInstalled ? 'Yes' : 'No');
+      this.log('Enpowers: %s', enpowersCount);
       this.log('------------------------------');
       this.envoyTime = time;
       this.envoySerialNumber = serialNumber;
@@ -1644,7 +1645,7 @@ class envoyDevice {
       this.acBatteriesCount = acBatteriesCount;
       this.qRelaysCount = qrelaysCount;
       this.enchargesCount = enchargesCount;
-      this.enpowerInstalled = enpowerInstalled;
+      this.enpowersCount = enpowersCount;
 
       this.inventoryData = inventoryData;
       this.metersData = metersData;
@@ -1683,7 +1684,7 @@ class envoyDevice {
       const acBatteriesCount = this.acBatteriesCount;
       const microinvertersCount = this.microinvertersCount
       const enchargesCount = this.enchargesCount;
-      const enpowerInstalled = this.enpowerInstalled;
+      const enpowersCount = this.enpowersCount;
 
       //get inventory and meters data;
       const homeData = this.homeData;
@@ -2266,24 +2267,24 @@ class envoyDevice {
 
       //ac btteries
       if (acBatteriesCount > 0) {
-        //encharges summary
+        //ac btteries summary
         if (productionCtData.status === 200) {
           const type = ENVOY_API_CODE[productionCtData.data.storage[0].type] || 'undefined';
           const activeCount = productionCtData.data.storage[0].activeCount;
           const readingTime = new Date(productionCtData.data.storage[0].readingTime * 1000).toLocaleString();
           const wNow = parseFloat((productionCtData.data.storage[0].wNow) / 1000);
-          const whNow = parseFloat((productionCtData.data.storage[0].whNow + this.enchargeStorageOffset) / 1000);
+          const whNow = parseFloat((productionCtData.data.storage[0].whNow + this.acBatteriesStorageOffset) / 1000);
           const chargeStatus = ENVOY_API_CODE[productionCtData.data.storage[0].state] || 'undefined';
           const percentFull = productionCtData.data.storage[0].percentFull;
 
           if (this.acBatteriesSummaryService) {
             this.acBatteriesSummaryService[0]
-              .updateCharacteristic(Characteristic.enphasAcBatterieSummaryReadingTime, readingTime)
-              .updateCharacteristic(Characteristic.enphasAcBatterieSummaryPower, wNow)
-              .updateCharacteristic(Characteristic.enphasAcBatterieSummaryEnergy, whNow)
-              .updateCharacteristic(Characteristic.enphasAcBatterieSummaryPercentFull, percentFull)
-              .updateCharacteristic(Characteristic.enphasAcBatterieSummaryActiveCount, activeCount)
-              .updateCharacteristic(Characteristic.enphasAcBatterieSummaryState, chargeStatus);
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime, readingTime)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryPower, wNow)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy, whNow)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull, percentFull)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount, activeCount)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryState, chargeStatus);
           }
 
           this.acBatteriesSummaryType = type;
@@ -2315,7 +2316,7 @@ class envoyDevice {
 
           for (let i = 0; i < acBatteriesCount; i++) {
             const type = ENVOY_API_CODE[inventoryData.data[1].type] || 'undefined';
-            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'Encharge'
+            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'Unknown'
             const installed = inventoryData.data[1].devices[i].installed;
             const serialNumber = inventoryData.data[1].devices[i].serial_num;
             const deviceStatus = inventoryData.data[1].devices[i].device_status;
@@ -2337,7 +2338,7 @@ class envoyDevice {
             const maxCellTemp = inventoryData.data[1].devices[i].maxCellTemp;
             const sleepMinSoc = inventoryData.data[1].devices[i].sleep_min_soc;
             const sleepMaxSoc = inventoryData.data[1].devices[i].sleep_max_soc;
-            const chargeStatus = ENVOY_API_CODE[inventoryData.data[1].devices[i].charge_status] || 'undefined';
+            const chargeStatus = ENVOY_API_CODE[inventoryData.data[1].devices[i].charge_status] || 'Unknown';
 
             //convert status
             const arrStatus = new Array();
@@ -2564,7 +2565,7 @@ class envoyDevice {
 
         if (this.acBatteriesService) {
           this.acBatteriesService[i]
-            .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
+            .updateCharacteristic(Characteristic.enphaseAcBatterieCommLevel, value)
         }
         this.acBatteriesCommLevel.push(value);
       }
@@ -2632,7 +2633,7 @@ class envoyDevice {
     const microinvertersCount = this.microinvertersCount;
     const microinvertersActiveCount = this.microinvertersActiveCount;
     const enchargesCount = this.enchargesCount;
-    const enpowerInstalled = this.enpowerInstalled;
+    const enpowersCount = this.enpowersCount;
 
     //envoy
     this.envoysService = new Array();
@@ -2681,7 +2682,7 @@ class envoyDevice {
       .onGet(async () => {
         const value = this.envoyCommPcuNum + ' / ' + this.envoyCommPcuLevel;
         if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s communication Encharges and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          this.log('Device: %s %s, envoy: %s communication AC Batteries and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
         }
         return value;
       });
@@ -2689,7 +2690,7 @@ class envoyDevice {
       .onGet(async () => {
         const value = this.envoyCommAcbNum + ' / ' + this.envoyCommAcbLevel;
         if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s communication Encharges and level %s', this.host, accessoryName, this.envoySerialNumber, value);
+          this.log('Device: %s %s, envoy: %s communication AC Batteries and level %s', this.host, accessoryName, this.envoySerialNumber, value);
         }
         return value;
       });
@@ -3221,51 +3222,51 @@ class envoyDevice {
     if (acBatteriesCount > 0 && acBatteriesSummaryActiveCount > 0) {
       this.acBatteriesSummaryService = new Array();
       const enphaseAcBatterieSummaryService = new Service.enphaseAcBatterieSummaryService('AC Batteries summary', 'enphaseAcBatterieSummaryService');
-      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummayPower)
+      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryPower)
         .onGet(async () => {
           const value = this.acBatteriesSummaryPower;
           if (!this.disableLogInfo) {
-            this.log('Device: %s %s, power encharge storage: %s kW', this.host, accessoryName, value);
+            this.log('Device: %s %s, power ac bateries storage: %s kW', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummayEnergy)
+      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy)
         .onGet(async () => {
           const value = this.acBatteriesSummaryEnergy;
           if (!this.disableLogInfo) {
-            this.log('Device: %s %s, energy encharge storage: %s kWh', this.host, accessoryName, value);
+            this.log('Device: %s %s, energy ac bateries storage: %s kWh', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummayPercentFull)
+      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull)
         .onGet(async () => {
           const value = this.acBatteriesSummaryPercentFull;
           if (!this.disableLogInfo) {
-            this.log('Device: %s %s, encharge percent full: %s', this.host, accessoryName, value);
+            this.log('Device: %s %s, ac bateries percent full: %s', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummayActiveCount)
+      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount)
         .onGet(async () => {
           const value = this.acBatteriesSummaryActiveCount;
           if (!this.disableLogInfo) {
-            this.log('Device: %s %s, encharge devices count: %s', this.host, accessoryName, value);
+            this.log('Device: %s %s, ac bateries devices count: %s', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummayState)
+      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryState)
         .onGet(async () => {
           const value = this.acBatteriesSummaryState;
           if (!this.disableLogInfo) {
-            this.log('Device: %s %s, encharge state: %s', this.host, accessoryName, value);
+            this.log('Device: %s %s, ac bateries state: %s', this.host, accessoryName, value);
           }
           return value;
         });
-      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummayReadingTime)
+      enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime)
         .onGet(async () => {
           const value = this.acBatteriesSummaryReadingTime;
           if (!this.disableLogInfo) {
-            this.log('Device: %s %s, encharge: %s last report: %s', this.host, accessoryName, value);
+            this.log('Device: %s %s, ac bateries: %s last report: %s', this.host, accessoryName, value);
           }
           return value;
         });
