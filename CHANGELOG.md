@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Important note v4.5.0 and above!!!
 Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
+## [4.9.0] - (xx.08.2021)
+## Changes
+- added support for Ensemble (Enpower and Encharges)
+- fixed wrong named Encharges to AC Batteries
+
 ## [4.8.0] - (12.03.2021)
 ## Changes
 - added possibility to check communications level of all devces on user request

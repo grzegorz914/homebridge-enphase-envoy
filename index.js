@@ -249,17 +249,6 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, Characteristic);
   Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID = '00000015-000B-1000-8000-0026BB765291';
 
-  Characteristic.enphaseEnvoyCommNumAcbAndLevel = function () {
-    Characteristic.call(this, 'AC Bateries and level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyCommNumAcbAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00000016-000B-1000-8000-0026BB765291';
-
   Characteristic.enphaseEnvoyCommNumPcuAndLevel = function () {
     Characteristic.call(this, 'Microinverters and level', Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID);
     this.setProps({
@@ -269,7 +258,29 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCommNumPcuAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00000017-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00000016-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnvoyCommNumAcbAndLevel = function () {
+    Characteristic.call(this, 'AC Bateries and level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnvoyCommNumAcbAndLevel, Characteristic);
+  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00000017-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnvoyCommNumEnchgAndLevel = function () {
+    Characteristic.call(this, 'Encharges and level', Characteristic.enphaseEnvoyCommNumEnchgAndLevel.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, Characteristic);
+  Characteristic.enphaseEnvoyCommNumEnchgAndLevel.UUID = '00000018-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyDbSize = function () {
     Characteristic.call(this, 'DB size', Characteristic.enphaseEnvoyDbSize.UUID);
@@ -280,7 +291,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyDbSize, Characteristic);
-  Characteristic.enphaseEnvoyDbSize.UUID = '00000018-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyDbSize.UUID = '00000019-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyTariff = function () {
     Characteristic.call(this, 'Tariff', Characteristic.enphaseEnvoyTariff.UUID);
@@ -291,7 +302,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyTariff, Characteristic);
-  Characteristic.enphaseEnvoyTariff.UUID = '00000019-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyTariff.UUID = '00000021-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyFirmware = function () {
     Characteristic.call(this, 'Firmware', Characteristic.enphaseEnvoyFirmware.UUID);
@@ -302,7 +313,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyFirmware, Characteristic);
-  Characteristic.enphaseEnvoyFirmware.UUID = '00000021-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyFirmware.UUID = '00000022-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyUpdateStatus = function () {
     Characteristic.call(this, 'Update status', Characteristic.enphaseEnvoyUpdateStatus.UUID);
@@ -313,7 +324,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyUpdateStatus, Characteristic);
-  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00000022-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00000023-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyTimeZone = function () {
     Characteristic.call(this, 'Time Zone', Characteristic.enphaseEnvoyTimeZone.UUID);
@@ -324,7 +335,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyTimeZone, Characteristic);
-  Characteristic.enphaseEnvoyTimeZone.UUID = '00000023-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyTimeZone.UUID = '00000024-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCurrentDateTime = function () {
     Characteristic.call(this, 'Local time', Characteristic.enphaseEnvoyCurrentDateTime.UUID);
@@ -335,7 +346,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCurrentDateTime, Characteristic);
-  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00000024-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00000025-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyLastEnlightenReporDate = function () {
     Characteristic.call(this, 'Last report to Enlighten', Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID);
@@ -346,7 +357,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyLastEnlightenReporDate, Characteristic);
-  Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID = '00000025-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID = '00000026-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnvoyCheckCommLevel = function () {
     Characteristic.call(this, 'Check comm level', Characteristic.enphaseEnvoyCheckCommLevel.UUID);
@@ -357,7 +368,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCheckCommLevel, Characteristic);
-  Characteristic.enphaseEnvoyCheckCommLevel.UUID = '00000026-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCheckCommLevel.UUID = '00000027-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphaseEnvoy = function (displayName, subtype) {
@@ -370,8 +381,9 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyDbSize);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTariff);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyFirmware);
@@ -1481,6 +1493,8 @@ class envoyDevice {
     this.envoyCommAcbLevel = 0;
     this.envoyCommNsrbNum = 0;
     this.envoyCommNsrbLevel = 0;
+    this.envoyCommEnchgNum = 0;
+    this.envoyCommEnchgLevel = 0
     this.envoyUpdateStatus = '';
     this.envoyTimeZone = '';
     this.envoyCurrentDate = '';
@@ -1629,7 +1643,7 @@ class envoyDevice {
       }
       this.log('Q-Relays: %s', qrelaysCount);
       this.log('Inverters: %s', microinvertersCount);
-      this.log('AC Batteries: %s', acBatteriesCount);
+      this.log('Batteries: %s', acBatteriesCount);
       this.log('Encharges: %s', enchargesCount);
       this.log('Enpowers: %s', enpowersCount);
       this.log('------------------------------');
@@ -1649,6 +1663,7 @@ class envoyDevice {
 
       this.inventoryData = inventoryData;
       this.metersData = metersData;
+      this.inventoryEnsembleDate = 0 //inventoryEnsembleDate;
 
       this.checkDeviceInfo = false;
       this.updateHomeInventoryData();
@@ -1690,6 +1705,7 @@ class envoyDevice {
       const homeData = this.homeData;
       const inventoryData = this.inventoryData;
       const metersData = this.metersData;
+      const inventoryEnsembleData = this.inventoryEnsembleDate;
 
       //read all other data;
       const [productionData, productionCtData, meterReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats), axios.get(this.url + ENVOY_API_URL.InternalMeterReadings)]);
@@ -1740,20 +1756,28 @@ class envoyDevice {
         const commAcbLevel = (homeData.data.comm.acb.level * 20);
         const commNsrbNum = homeData.data.comm.nsrb.num;
         const commNsrbLevel = (homeData.data.comm.nsrb.level * 20);
-        //const commEnchargeNum = homeData.data.comm.encharge.num;
-        //const commEnchargeLevel = homeData.data.comm.encharge.level;
-        //const commEnchargeLevel24g = homeData.data.comm.encharge.level_24g;
-        //const commEnchargeLevelSubg = homeData.data.comm.encharge.level_subg;
+
+        //encharge
+        const commEnchgNum = enchargesCount > 0 ? homeData.data.comm.encharge.num : 0;
+        const commEnchgLevel = enchargesCount > 0 ? (homeData.data.comm.encharge.level * 20) : 0;
+        const commEnchgLevel24g = enchargesCount > 0 ? (homeData.data.comm.encharge.level_24g * 20) : 0;
+        const commEnchagLevelSubg = enchargesCount > 0 ? (homeData.data.comm.encharge.level_subg * 20) : 0;
+
         const allerts = homeData.data.allerts;
         const updateStatus = ENVOY_API_CODE[homeData.data.update_status] || 'undefined';
-        //const wirelessConnection = homeData.data.wireless_connection;
-        //const wirelessConnectionLength = homeData.data.wireless_connection.length;
-        //const wirelessConnectionSignalStrength = homeData.data.wireless_connection[i].sigmal_strength;
-        //const wirelessConnectionSignalStrengthMax = homeData.data.wireless_connection[i].sigmal_strength_max;
-        //const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type || 'undefined';
-        //const wirelessConnectionConnected = homeData.data.wireless_connection[i].connected;
-        //const enpowerConnected = homeData.data.enpower.connected;
-        //const enpowerGridStatus = homeData.data.enpower.grid_status;
+
+        //wireless connection
+        const wirelessConnectionLength = (enchargesCount > 0 || enpowersCount > 0) ? homeData.data.wireless_connection.length : 0;
+        for (let i = 0; i < wirelessConnectionLength; i++) {
+          const wirelessConnectionSignalStrength = homeData.data.wireless_connection[i].sigmal_strength;
+          const wirelessConnectionSignalStrengthMax = homeData.data.wireless_connection[i].sigmal_strength_max;
+          const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type] || 'undefined';
+          const wirelessConnectionConnected = homeData.data.wireless_connection[i].connected;
+        }
+
+        //enpower
+        const enpowerConnected = enpowersCount > 0 ? homeData.data.enpower.connected : false;
+        const enpowerGridStatus = enpowersCount > 0 ? ENVOY_API_CODE[homeData.data.enpower.grid_status] || 'undefined' : 'undefined';
 
         //convert status
         const arrStatus = new Array();
@@ -1776,6 +1800,7 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, commPcuNum + ' / ' + commPcuLevel)
             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, commAcbNum + ' / ' + commAcbLevel)
             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, commNsrbNum + ' / ' + commNsrbLevel)
+            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, commEnchgNum + ' / ' + commEnchgLevel)
             .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, timeZone)
             .updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, currentDate + ' ' + currentTime)
             .updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, lastEnlightenReporDate);
@@ -1801,6 +1826,8 @@ class envoyDevice {
         this.envoyCommAcbLevel = commAcbLevel;
         this.envoyCommNsrbNum = commNsrbNum;
         this.envoyCommNsrbLevel = commNsrbLevel;
+        this.envoyCommEnchgNum = commEnchgNum;
+        this.envoyCommEnchgLevel = commEnchgLevel
         this.envoyAllerts = status;
         this.envoyUpdateStatus = updateStatus;
       }
@@ -2449,6 +2476,178 @@ class envoyDevice {
           this.microinvertersStatus.push(status);
         }
       }
+
+      //ensemble
+      if (inventoryEnsembleData.status === 200) {
+        //encharges
+        if (acBatteriesCount > 0) {
+          this.enchargesType = new Array();
+          this.enchargesSerialNumber = new Array();
+          this.enchargesStatus = new Array();
+          this.enchargesLastReportDate = new Array();
+          this.enchargesOperating = new Array();
+          this.enchargesCommunicating = new Array();
+          this.enchargesSleepEnabled = new Array();
+          this.enchargesPercentFull = new Array();
+          this.enchargesTemperature = new Array();
+          this.enchargesMaxCellTemp = new Array();
+          this.enchargesRealPowerW = new Array();
+          this.enchargesDcSwitchOff = new Array();
+          this.enchargesCapacity = new Array();
+
+          for (let i = 0; i < enchargesCount; i++) {
+            const type = ENVOY_API_CODE[inventoryEnsembleData.data[0].type] || 'undefined';
+            const partNum = ENPHASE_PART_NUMBER[inventoryEnsembleData.data[0].devices[i].part_num] || 'undefined'
+            const installed = inventoryEnsembleData.data[0].devices[i].installed;
+            const serialNumber = inventoryEnsembleData.data[0].devices[i].serial_num;
+            const deviceStatus = inventoryEnsembleData.data[0].devices[i].device_status;
+            const lastReportDate = new Date(inventoryEnsembleData.data[0].devices[i].last_rpt_date * 1000).toLocaleString();
+            const adminState = inventoryEnsembleData.data[0].devices[i].admin_state;
+            const createdDate = new Date(inventoryEnsembleData.data[0].devices[i].created_date * 1000).toLocaleString();
+            const imgLoadDate = new Date(inventoryEnsembleData.data[0].devices[i].img_load_date * 1000).toLocaleString();
+            const imgPnumRunning = inventoryEnsembleData.data[0].devices[i].img_pnum_running;
+            const zigbeeDongleFwVersion = inventoryEnsembleData.data[0].devices[i].zigbee_dongle_fw_version;
+            const operating = (inventoryEnsembleData.data[0].devices[i].operating === true);
+            const communicating = (inventoryEnsembleData.data[0].devices[i].communicating === true);
+            const sleepEnabled = inventoryEnsembleData.data[0].devices[i].sleep_enabled;
+            const percentFull = inventoryEnsembleData.data[0].devices[i].percentFull;
+            const temperature = inventoryEnsembleData.data[0].devices[i].temperature;
+            const maxCellTemp = inventoryEnsembleData.data[0].devices[i].maxCellTemp;
+            const commLevelSubGhz = inventoryEnsembleData.data[0].devices[i].comm_level_sub_ghz;
+            const commLevel24Ghz = inventoryEnsembleData.data[0].devices[i].comm_level_2_4_ghz;
+            const ledStatus = inventoryEnsembleData.data[0].devices[i].led_status;
+            const realPowerW = inventoryEnsembleData.data[0].devices[i].real_power_w;
+            const dcSwitchOff = inventoryEnsembleData.data[0].devices[i].dc_switch_off;
+            const enchargeRev = inventoryEnsembleData.data[0].devices[i].encharge_rev;
+            const capacity = inventoryEnsembleData.data[0].devices[i].encharge_capacity;
+
+            //convert status
+            const arrStatus = new Array();
+            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
+              for (let j = 0; j < deviceStatus.length; j++) {
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+              }
+            }
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+
+            if (this.enchargesService) {
+              this.enchargesService[i]
+                .updateCharacteristic(Characteristic.enphasEnchargeStatus, status)
+                .updateCharacteristic(Characteristic.enphasEnchargeLastReportDate, lastReportDate)
+                .updateCharacteristic(Characteristic.enphasEnchargeCommunicating, communicating)
+                .updateCharacteristic(Characteristic.enphasEnchargeOperating, operating)
+                .updateCharacteristic(Characteristic.enphasEnchargeSleepEnabled, sleepEnabled)
+                .updateCharacteristic(Characteristic.enphasEnchargePercentFull, percentFull)
+                .updateCharacteristic(Characteristic.enphasEnchargeTemperature, temperature)
+                .updateCharacteristic(Characteristic.enphasEnchargeMaxCellTemp, maxCellTemp)
+                .updateCharacteristic(Characteristic.enphasEnchargeRealPowerW, realPowerW)
+                .updateCharacteristic(Characteristic.enphasEnchargeDcSwitchOff, dcSwitchOff)
+                .updateCharacteristic(Characteristic.enphasEnchargeCapacity, capacity)
+            }
+
+            this.enchargesType.push(type);
+            this.enchargesSerialNumber.push(serialNumber);
+            this.enchargesStatus.push(status);
+            this.enchargesLastReportDate.push(lastReportDate);
+            this.enchargesCommunicating.push(communicating);
+            this.enchargesOperating.push(operating);
+            this.enchargesSleepEnabled.push(sleepEnabled);
+            this.enchargesPercentFull.push(percentFull);
+            this.enchargesTemperature.push(temperature);
+            this.enchargesMaxCellTemp.push(maxCellTemp);
+            this.enchargesRealPowerW.push(realPowerW);
+            this.enchargesDcSwitchOff.push(dcSwitchOff);
+            this.enchargesCapacity.push(capacity);
+          }
+        }
+
+        //enpowers
+        if (enpowersCount > 0) {
+          this.enpowersType = new Array();
+          this.enpowersSerialNumber = new Array();
+          this.enpowersStatus = new Array();
+          this.enpowersLastReportDate = new Array();
+          this.enpowersOperating = new Array();
+          this.enpowersCommunicating = new Array();
+          this.enpowersSleepEnabled = new Array();
+          this.enpowersPercentFull = new Array();
+          this.enpowersTemperature = new Array();
+          this.enpowersGridMode = new Array();
+          this.enpowersEnchgGridMode = new Array();
+          this.enpowersRelayStateBm = new Array();
+          this.enpowersCurrStateId = new Array();
+
+          for (let i = 0; i < enpowersCount; i++) {
+            const type = ENVOY_API_CODE[inventoryEnsembleData.data[1].type] || 'undefined';
+            const partNum = ENPHASE_PART_NUMBER[inventoryEnsembleData.data[1].devices[i].part_num] || 'undefined'
+            const installed = inventoryEnsembleData.data[1].devices[i].installed;
+            const serialNumber = inventoryEnsembleData.data[1].devices[i].serial_num;
+            const deviceStatus = inventoryEnsembleData.data[1].devices[i].device_status;
+            const lastReportDate = new Date(inventoryEnsembleData.data[1].devices[i].last_rpt_date * 1000).toLocaleString();
+            const adminState = inventoryEnsembleData.data[1].devices[i].admin_state;
+            const createdDate = new Date(inventoryEnsembleData.data[1].devices[i].created_date * 1000).toLocaleString();
+            const imgLoadDate = new Date(inventoryEnsembleData.data[1].devices[i].img_load_date * 1000).toLocaleString();
+            const imgPnumRunning = inventoryEnsembleData.data[1].devices[i].img_pnum_running;
+            const zigbeeDongleFwVersion = inventoryEnsembleData.data[1].devices[i].zigbee_dongle_fw_version;
+            const operating = (inventoryEnsembleData.data[1].devices[i].operating === true);
+            const communicating = (inventoryEnsembleData.data[1].devices[i].communicating === true);;
+            const temperature = inventoryEnsembleData.data[1].devices[i].temperature;
+            const commLevelSubGhz = inventoryEnsembleData.data[1].devices[i].comm_level_sub_ghz;
+            const commLevel24Ghz = inventoryEnsembleData.data[1].devices[i].comm_level_2_4_ghz;
+            const mains_admin_state = ENVOY_API_CODE[inventoryEnsembleData.data[1].devices[i].mains_admin_state] || 'undefined';
+            const mains_oper_state = ENVOY_API_CODE[inventoryEnsembleData.data[1].devices[i].mains_oper_state] || 'undefined';
+            const enpwrGridMode = ENVOY_API_CODE[inventoryEnsembleData.data[1].devices[i].Enpwr_grid_mode] || 'undefined';
+            const enchgGridMode = ENVOY_API_CODE[inventoryEnsembleData.data[1].devices[i].Enchg_grid_mode] || 'undefined';
+            const enpwrRelayStateBm = inventoryEnsembleData.data[1].devices[i].Enpwr_relay_state_bm;
+            const enpwrCurrStateId = inventoryEnsembleData.data[1].devices[i].Enpwr_curr_state_id;
+
+            //convert status
+            const arrStatus = new Array();
+            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
+              for (let j = 0; j < deviceStatus.length; j++) {
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+              }
+            }
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+
+            if (this.enpowersService) {
+              this.enpowersService[i]
+                .updateCharacteristic(Characteristic.enphasEnpowerStatus, status)
+                .updateCharacteristic(Characteristic.enphasEnpowerLastReportDate, lastReportDate)
+                .updateCharacteristic(Characteristic.enphasEnpowerCommunicating, communicating)
+                .updateCharacteristic(Characteristic.enphasEnpowerOperating, operating)
+                .updateCharacteristic(Characteristic.enphasEnpowerPercentFull, enpwrCurrStateId)
+                .updateCharacteristic(Characteristic.enphasEnpowerTemperature, temperature)
+                .updateCharacteristic(Characteristic.enphasEnpowerMaxCellTemp, enpwrGridMode)
+                .updateCharacteristic(Characteristic.enphasEnpowerRealPowerW, enchgGridMode)
+                .updateCharacteristic(Characteristic.enphasEnpowerCapacity, enpwrRelayStateBm)
+                .updateCharacteristic(Characteristic.enphasEnpowerPercentFull, enpwrCurrStateId)
+            }
+
+            this.enpowersType.push(type);
+            this.enpowersSerialNumber.push(serialNumber);
+            this.enpowersStatus.push(status);
+            this.enpowersLastReportDate.push(lastReportDate);
+            this.enpowersCommunicating.push(communicating);
+            this.enpowersOperating.push(operating);
+            this.enpowersTemperature.push(temperature);
+            this.enpowersGridMode.push(enpwrGridMode);
+            this.enpowersEnchgGridMode.push(enchgGridMode);
+            this.enpowersRelayStateBm.push(enpwrRelayStateBm);
+            this.enpowersCurrStateId.push(enpwrCurrStateId);
+          }
+        }
+        const gridProfileName = inventoryEnsembleData.data[2].grid_profile_name;
+        const id = inventoryEnsembleData.data[2].id;
+        const gridProfileVersion = inventoryEnsembleData.data[2].grid_profile_version;
+        const itemCount = inventoryEnsembleData.data[2].item_count;
+
+        this.enpowerGridProfileName = gridProfileName;
+        this.enpowerid = id;
+        this.enpowerGridProfileVersion = gridProfileVersion;
+        this.enpowerItemCount = itemCount;
+      }
+
       this.checkDeviceState = true;
 
       //start prepare accessory
@@ -2678,6 +2877,14 @@ class envoyDevice {
         }
         return value;
       });
+    enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel)
+      .onGet(async () => {
+        const value = this.envoyCommNsrbNum + ' / ' + this.envoyCommNsrbLevel;
+        if (!this.disableLogInfo) {
+          this.log('Device: %s %s, envoy: %s communication qRelays and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+        }
+        return value;
+      });
     enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel)
       .onGet(async () => {
         const value = this.envoyCommPcuNum + ' / ' + this.envoyCommPcuLevel;
@@ -2694,11 +2901,11 @@ class envoyDevice {
         }
         return value;
       });
-    enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel)
+    enphaseServiceEnvoy.getCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel)
       .onGet(async () => {
-        const value = this.envoyCommNsrbNum + ' / ' + this.envoyCommNsrbLevel;
+        const value = this.envoyCommEnchgNum + ' / ' + this.envoyCommEnchgLevel;
         if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s communication qRelays and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          this.log('Device: %s %s, envoy: %s communication Encharges and level %s', this.host, accessoryName, this.envoySerialNumber, value);
         }
         return value;
       });
