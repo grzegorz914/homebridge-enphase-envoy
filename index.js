@@ -86,14 +86,14 @@ const ENVOY_API_URL = {
 
 const ENVOY_API_CODE = {
   //types
-  'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'AC Batteries', 'encharge': 'Encharge', 'enpower': 'Enpower', 'PCU': 'Microinverter', 'ACB': 'AC Batteries', 'ENCHARGE': 'Encharge', 
+  'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'AC Batteries', 'encharge': 'Encharge', 'enpower': 'Enpower', 'PCU': 'Microinverter', 'ACB': 'AC Batteries', 'ENCHARGE': 'Encharge',
   'ENPOWER': 'Enpower', 'NSRB': 'Q-Relay', 'production': 'Production', 'total-consumption': 'Consumption (Total)', 'net-consumption': 'Consumption (Net)',
   //encharge, enpower
   'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging', 'multimode-ongrid': 'Multimode on Grid', 'ENCHG_STATE_READY': 'Encharge state ready', 'ENPWR_STATE_OPER_CLOSED': 'Enpower state closed',
   //qrelay
   'enabled': 'Enabled', 'disabled': 'Disabled', 'one': 'One', 'two': 'Two', 'three': 'Three', 'split': 'Split', 'normal': 'Normal', 'closed': 'Closed', 'open': 'Open', 'error.nodata': 'No Data',
   //envoy
-  'ethernet': 'Ethernet', 'eth0': 'Ethernet', 'wifi': 'WiFi', 'wlan0': 'WiFi', 'cellurar': 'Cellurar', 'zigbee': 'ZigBee', 'subghz': 'Sug GHz','connected': 'Connected', 'disconnected': 'Disconnected',
+  'ethernet': 'Ethernet', 'eth0': 'Ethernet', 'wifi': 'WiFi', 'wlan0': 'WiFi', 'cellurar': 'Cellurar', 'zigbee': 'ZigBee', 'subghz': 'Sug GHz', 'connected': 'Connected', 'disconnected': 'Disconnected',
   'single_rate': 'Single rate', 'time_to_use': 'Time to use', 'time_of_use': 'Time of use', 'tiered': 'Tiered', 'not_set': 'Not set', 'flat': 'Flat', 'none': 'None',
   'satisfied': 'Satisfied', 'not-satisfied': 'Not satisfied',
   //status code
@@ -2492,6 +2492,9 @@ class envoyDevice {
           this.enchargesPercentFull = new Array();
           this.enchargesTemperature = new Array();
           this.enchargesMaxCellTemp = new Array();
+          this.enchargesCommLevelSubGhz = new Array();
+          this.enchargesCommLevel24Ghz = new Array();
+          this.enchargesLedStatus = new Array();
           this.enchargesRealPowerW = new Array();
           this.enchargesDcSwitchOff = new Array();
           this.enchargesCapacity = new Array();
@@ -2533,17 +2536,20 @@ class envoyDevice {
 
             if (this.enchargesService) {
               this.enchargesService[i]
-                .updateCharacteristic(Characteristic.enphasEnchargeStatus, status)
-                .updateCharacteristic(Characteristic.enphasEnchargeLastReportDate, lastReportDate)
-                .updateCharacteristic(Characteristic.enphasEnchargeCommunicating, communicating)
-                .updateCharacteristic(Characteristic.enphasEnchargeOperating, operating)
-                .updateCharacteristic(Characteristic.enphasEnchargeSleepEnabled, sleepEnabled)
-                .updateCharacteristic(Characteristic.enphasEnchargePercentFull, percentFull)
-                .updateCharacteristic(Characteristic.enphasEnchargeTemperature, temperature)
-                .updateCharacteristic(Characteristic.enphasEnchargeMaxCellTemp, maxCellTemp)
-                .updateCharacteristic(Characteristic.enphasEnchargeRealPowerW, realPowerW)
-                .updateCharacteristic(Characteristic.enphasEnchargeDcSwitchOff, dcSwitchOff)
-                .updateCharacteristic(Characteristic.enphasEnchargeCapacity, capacity)
+                .updateCharacteristic(Characteristic.enphaseEnchargeStatus, status)
+                .updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, lastReportDate)
+                .updateCharacteristic(Characteristic.enphaseEnchargeOperating, operating)
+                .updateCharacteristic(Characteristic.enphaseEnchargeCommunicating, communicating)
+                .updateCharacteristic(Characteristic.enphaseEnchargeSleepEnabled, sleepEnabled)
+                .updateCharacteristic(Characteristic.enphaseEnchargePercentFull, percentFull)
+                .updateCharacteristic(Characteristic.enphaseEnchargeTemperature, temperature)
+                .updateCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp, maxCellTemp)
+                .updateCharacteristic(Characteristic.enphaseEnchargeCommLevelSubGhz, commLevelSubGhz)
+                .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel24Ghz, commLevel24Ghz)
+                .updateCharacteristic(Characteristic.enphaseEnchargeLedStatus, ledStatus)
+                .updateCharacteristic(Characteristic.enphaseEnchargeRealPowerW, realPowerW)
+                .updateCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff, dcSwitchOff)
+                .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, capacity)
             }
 
             this.enchargesType.push(type);
@@ -2556,6 +2562,9 @@ class envoyDevice {
             this.enchargesPercentFull.push(percentFull);
             this.enchargesTemperature.push(temperature);
             this.enchargesMaxCellTemp.push(maxCellTemp);
+            this.enchargesCommLevelSubGhz.push(commLevelSubGhz);
+            this.enchargesCommLevel24Ghz.push(commLevel24Ghz);
+            this.enchargesLedStatus.push(ledStatus);
             this.enchargesRealPowerW.push(realPowerW);
             this.enchargesDcSwitchOff.push(dcSwitchOff);
             this.enchargesCapacity.push(capacity);
@@ -2570,9 +2579,9 @@ class envoyDevice {
           this.enpowersLastReportDate = new Array();
           this.enpowersOperating = new Array();
           this.enpowersCommunicating = new Array();
-          this.enpowersSleepEnabled = new Array();
-          this.enpowersPercentFull = new Array();
           this.enpowersTemperature = new Array();
+          this.enpowersCommLevelSubGhz = new Array();
+          this.enpowersCommLevel24Ghz = new Array();
           this.enpowersGridMode = new Array();
           this.enpowersEnchgGridMode = new Array();
           this.enpowersRelayStateBm = new Array();
@@ -2613,25 +2622,28 @@ class envoyDevice {
 
             if (this.enpowersService) {
               this.enpowersService[i]
-                .updateCharacteristic(Characteristic.enphasEnpowerStatus, status)
-                .updateCharacteristic(Characteristic.enphasEnpowerLastReportDate, lastReportDate)
-                .updateCharacteristic(Characteristic.enphasEnpowerCommunicating, communicating)
-                .updateCharacteristic(Characteristic.enphasEnpowerOperating, operating)
-                .updateCharacteristic(Characteristic.enphasEnpowerPercentFull, enpwrCurrStateId)
-                .updateCharacteristic(Characteristic.enphasEnpowerTemperature, temperature)
-                .updateCharacteristic(Characteristic.enphasEnpowerMaxCellTemp, enpwrGridMode)
-                .updateCharacteristic(Characteristic.enphasEnpowerRealPowerW, enchgGridMode)
-                .updateCharacteristic(Characteristic.enphasEnpowerCapacity, enpwrRelayStateBm)
-                .updateCharacteristic(Characteristic.enphasEnpowerPercentFull, enpwrCurrStateId)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatus, status)
+                .updateCharacteristic(Characteristic.enphaseEnpowerLastReportDate, lastReportDate)
+                .updateCharacteristic(Characteristic.enphaseEnpowerOperating, operating)
+                .updateCharacteristic(Characteristic.enphaseEnpowerCommunicating, communicating)
+                .updateCharacteristic(Characteristic.enphaseEnpowerTemperature, temperature)
+                .updateCharacteristic(Characteristic.enphaseEnpowerCommLevelSubGhz, commLevelSubGhz)
+                .updateCharacteristic(Characteristic.enphaseEnpowerCommLevel24Ghz, commLevel24Ghz)
+                .updateCharacteristic(Characteristic.enphaseEnpowerGridMode, enpwrGridMode)
+                .updateCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode, enchgGridMode)
+                .updateCharacteristic(Characteristic.enphaseEnpowerRelayStateBm, enpwrRelayStateBm)
+                .updateCharacteristic(Characteristic.enphaseEnpowerCurrStateId, enpwrCurrStateId)
             }
 
             this.enpowersType.push(type);
             this.enpowersSerialNumber.push(serialNumber);
             this.enpowersStatus.push(status);
             this.enpowersLastReportDate.push(lastReportDate);
-            this.enpowersCommunicating.push(communicating);
             this.enpowersOperating.push(operating);
+            this.enpowersCommunicating.push(communicating);
             this.enpowersTemperature.push(temperature);
+            this.enpowersCommLevelSubGhz.push(commLevelSubGhz);
+            this.enpowersCommLevel24Ghz.push(commLevel24Ghz);
             this.enpowersGridMode.push(enpwrGridMode);
             this.enpowersEnchgGridMode.push(enchgGridMode);
             this.enpowersRelayStateBm.push(enpwrRelayStateBm);
