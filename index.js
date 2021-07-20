@@ -1552,6 +1552,21 @@ module.exports = (api) => {
   };
   inherits(Characteristic.enphaseEnchargeRealPowerW, Characteristic);
   Characteristic.enphaseEnchargeRealPowerW.UUID = '00000162-000B-1000-8000-0026BB765291';
+  
+  Characteristic.enphaseEnchargeCapacity = function () {
+    Characteristic.call(this, 'Capacity', Characteristic.enphaseEnchargeCapacity.UUID);
+    this.setProps({
+      format: Characteristic.Formats.FLOAT,
+      unit: 'kWh',
+      maxValue: 1000,
+      minValue: 0,
+      minStep: 0.001,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnchargeCapacity, Characteristic);
+  Characteristic.enphaseEnchargeCapacity.UUID = '00000163-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeDcSwitchOff = function () {
     Characteristic.call(this, 'DC switch OFF', Characteristic.enphaseEnchargeDcSwitchOff.UUID);
@@ -1562,7 +1577,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeDcSwitchOff, Characteristic);
-  Characteristic.enphaseEnchargeDcSwitchOff.UUID = '00000163-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeDcSwitchOff.UUID = '00000164-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeStatus = function () {
     Characteristic.call(this, 'Status', Characteristic.enphaseEnchargeStatus.UUID);
@@ -1573,7 +1588,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeStatus, Characteristic);
-  Characteristic.enphaseEnchargeStatus.UUID = '00000164-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeStatus.UUID = '00000165-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeRev = function () {
     Characteristic.call(this, 'Revision', Characteristic.enphaseEnchargeRev.UUID);
@@ -1588,7 +1603,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeRev, Characteristic);
-  Characteristic.enphaseEnchargeRev.UUID = '00000165-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeRev.UUID = '00000166-000B-1000-8000-0026BB765291';
 
   Characteristic.enphaseEnchargeLastReportDate = function () {
     Characteristic.call(this, 'Last report', Characteristic.enphaseEnchargeLastReportDate.UUID);
@@ -1599,7 +1614,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnchargeLastReportDate, Characteristic);
-  Characteristic.enphaseEnchargeLastReportDate.UUID = '00000166-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnchargeLastReportDate.UUID = '00000167-000B-1000-8000-0026BB765291';
 
   //Encharge service
   Service.enphaseEncharge = function (displayName, subtype) {
@@ -1617,6 +1632,7 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLedStatus);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeRealPowerW);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCapacity);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeStatus);
     this.addOptionalCharacteristic(Characteristic.enphaseEnchargeRev);
@@ -2928,7 +2944,7 @@ class envoyDevice {
             const realPowerW = inventoryEnsembleData.data[0].devices[i].real_power_w;
             const dcSwitchOff = inventoryEnsembleData.data[0].devices[i].dc_switch_off;
             const rev = inventoryEnsembleData.data[0].devices[i].encharge_rev;
-            const capacity = inventoryEnsembleData.data[0].devices[i].encharge_capacity;
+            const capacity = parseFloat((inventoryEnsembleData.data[0].devices[i].encharge_capacity) / 1000);
 
             //convert status
             const arrStatus = new Array();
@@ -4210,6 +4226,14 @@ class envoyDevice {
           const value = this.enchargesRealPowerW[i];
           if (!this.disableLogInfo) {
             this.log('Device: %s %s, encharge: %s real power: %s W', this.host, accessoryName, this.enchargesSerialNumber[i], value);
+          }
+          return value;
+        });
+      enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeCapacity)
+        .onGet(async () => {
+          const value = this.enchargesCapacity[i];
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, encharge: %s capacity: %s kWh', this.host, accessoryName, this.enchargesSerialNumber[i], value);
           }
           return value;
         });
