@@ -1762,7 +1762,7 @@ class envoyDevice {
             arrStatus.push(ENVOY_API_CODE[allerts[j]]);
           }
         }
-        const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
+        const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
 
         if (this.envoysService) {
           this.envoysService[0]
@@ -1853,7 +1853,7 @@ class envoyDevice {
               arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
             }
           }
-          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
+          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
 
           if (linesCount >= 1) {
             const line1Connected = (inventoryData.data[2].devices[i]['line1-connected'] === true);
@@ -1934,7 +1934,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_API_CODE[statusFlags[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
 
 
             if (this.metersService) {
@@ -2316,7 +2316,7 @@ class envoyDevice {
 
           for (let i = 0; i < acBatteriesCount; i++) {
             const type = ENVOY_API_CODE[inventoryData.data[1].type] || 'undefined';
-            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'Unknown'
+            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'undefined'
             const installed = inventoryData.data[1].devices[i].installed;
             const serialNumber = inventoryData.data[1].devices[i].serial_num;
             const deviceStatus = inventoryData.data[1].devices[i].device_status;
@@ -2338,7 +2338,7 @@ class envoyDevice {
             const maxCellTemp = inventoryData.data[1].devices[i].maxCellTemp;
             const sleepMinSoc = inventoryData.data[1].devices[i].sleep_min_soc;
             const sleepMaxSoc = inventoryData.data[1].devices[i].sleep_max_soc;
-            const chargeStatus = ENVOY_API_CODE[inventoryData.data[1].devices[i].charge_status] || 'Unknown';
+            const chargeStatus = ENVOY_API_CODE[inventoryData.data[1].devices[i].charge_status] || 'undefined';
 
             //convert status
             const arrStatus = new Array();
@@ -2347,7 +2347,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
 
             if (this.acBatteriesService) {
               this.acBatteriesService[i]
@@ -2424,7 +2424,7 @@ class envoyDevice {
               arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
             }
           }
-          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'Not available';
+          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
 
           if (this.microinvertersService) {
             this.microinvertersService[i]
