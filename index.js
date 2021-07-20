@@ -1522,7 +1522,7 @@ class envoyDevice {
 
     this.microinvertersCount = 0;
     this.microinvertersActiveCount = 0;
-    
+
     this.enchargesCount = 0;
     this.enpowerInstalled = false;
 
@@ -1645,7 +1645,7 @@ class envoyDevice {
       this.qRelaysCount = qrelaysCount;
       this.enchargesCount = enchargesCount;
       this.enpowerInstalled = enpowerInstalled;
-      
+
       this.inventoryData = inventoryData;
       this.metersData = metersData;
 
@@ -1753,7 +1753,7 @@ class envoyDevice {
         //const wirelessConnectionConnected = homeData.data.wireless_connection[i].connected;
         //const enpowerConnected = homeData.data.enpower.connected;
         //const enpowerGridStatus = homeData.data.enpower.grid_status;
-        
+
         //convert status
         const arrStatus = new Array();
         if (Array.isArray(allerts) && allerts.length > 0) {
