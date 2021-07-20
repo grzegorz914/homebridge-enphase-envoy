@@ -2041,16 +2041,16 @@ class envoyDevice {
       this.log('SerialNr: %s', serialNumber);
       this.log('Time: %s', time);
       this.log('------------------------------');
-      this.log('Meters: %s', supportMeters ? 'Yes' : 'No');
-      if (supportMeters) {
-        this.log('Production: %s', meterProductionEnabled ? 'Enabled' : 'Disabled');
-        this.log('Consumption: %s', meterConsumptionEnabled ? 'Enabled' : 'Disabled');
-        this.log('------------------------------');
-      }
       this.log('Q-Relays: %s', qrelaysCount);
       this.log('Inverters: %s', microinvertersCount);
       this.log('Batteries: %s', acBatteriesCount);
       this.log('--------------------------------');
+      this.log('Meters: %s', supportMeters ? 'Yes' : 'No');
+      if (supportMeters) {
+        this.log('Production: %s', meterProductionEnabled ? 'Enabled' : 'Disabled');
+        this.log('Consumption: %s', meterConsumptionEnabled ? 'Enabled' : 'Disabled');
+        this.log('--------------------------------');
+      }
       this.log('Ensemble: %s', this.ensembleInstalled ? 'Yes' : 'No');
       if (this.ensembleInstalled) {
         this.log('Encharges: %s', this.enchargesCount);
