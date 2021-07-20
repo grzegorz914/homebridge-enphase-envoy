@@ -2030,7 +2030,7 @@ class envoyDevice {
         this.enpowersCount = enpowersCount;
         this.inventoryEnsembleData = inventoryEnsembleData;
       } catch (error) {
-        this.log.info('Device: %s %s, requesting installed ensemble devices, state: Not installed.', this.host, this.name);
+        this.log('Device: %s %s, requesting installed ensemble devices, state: Not installed.', this.host, this.name);
       };
 
       this.log('-------- %s --------', this.name);
@@ -2050,12 +2050,13 @@ class envoyDevice {
       this.log('Q-Relays: %s', qrelaysCount);
       this.log('Inverters: %s', microinvertersCount);
       this.log('Batteries: %s', acBatteriesCount);
-      this.log('Ensemble: %s', this.ensembleInstalled);
+      this.log('--------------------------------');
+      this.log('Ensemble: %s', this.ensembleInstalled ? 'Yes' : 'No');
       if (this.ensembleInstalled) {
         this.log('Encharges: %s', this.enchargesCount);
         this.log('Enpowers: %s', this.enpowersCount);
       }
-      this.log('------------------------------');
+      this.log('--------------------------------');
       this.envoyTime = time;
       this.envoySerialNumber = serialNumber;
       this.envoyModelName = partNum;
