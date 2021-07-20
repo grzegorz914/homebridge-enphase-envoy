@@ -86,13 +86,14 @@ const ENVOY_API_URL = {
 
 const ENVOY_API_CODE = {
   //types
-  'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'AC Batteries', 'encharge': 'Encharge', 'enpower': 'Enpower', 'PCU': 'Microinverter', 'ACB': 'AC Batteries', 'ENCHARGE': 'Encharge', 'ENPOWER': 'Enpower', 'NSRB': 'Q-Relay', 'production': 'Production', 'total-consumption': 'Consumption (Total)', 'net-consumption': 'Consumption (Net)',
-  //encharge
-  'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging',
+  'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'AC Batteries', 'encharge': 'Encharge', 'enpower': 'Enpower', 'PCU': 'Microinverter', 'ACB': 'AC Batteries', 'ENCHARGE': 'Encharge', 
+  'ENPOWER': 'Enpower', 'NSRB': 'Q-Relay', 'production': 'Production', 'total-consumption': 'Consumption (Total)', 'net-consumption': 'Consumption (Net)',
+  //encharge, enpower
+  'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging', 'multimode-ongrid': 'Multimode on Grid', 'ENCHG_STATE_READY': 'Encharge state ready', 'ENPWR_STATE_OPER_CLOSED': 'Enpower state closed',
   //qrelay
   'enabled': 'Enabled', 'disabled': 'Disabled', 'one': 'One', 'two': 'Two', 'three': 'Three', 'split': 'Split', 'normal': 'Normal', 'closed': 'Closed', 'open': 'Open', 'error.nodata': 'No Data',
   //envoy
-  'ethernet': 'Ethernet', 'eth0': 'Ethernet', 'wifi': 'WiFi', 'wlan0': 'WiFi', 'cellurar': 'Cellurar', 'connected': 'Connected', 'disconnected': 'Disconnected',
+  'ethernet': 'Ethernet', 'eth0': 'Ethernet', 'wifi': 'WiFi', 'wlan0': 'WiFi', 'cellurar': 'Cellurar', 'zigbee': 'ZigBee', 'subghz': 'Sug GHz','connected': 'Connected', 'disconnected': 'Disconnected',
   'single_rate': 'Single rate', 'time_to_use': 'Time to use', 'time_of_use': 'Time of use', 'tiered': 'Tiered', 'not_set': 'Not set', 'flat': 'Flat', 'none': 'None',
   'satisfied': 'Satisfied', 'not-satisfied': 'Not satisfied',
   //status code
