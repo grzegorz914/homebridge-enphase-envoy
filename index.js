@@ -2031,8 +2031,8 @@ class envoyDevice {
     //Check microinverters power
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
-        this.updateHomeInventoryData();
-        this.updateMicroinvertersPowerData();
+        this.updateData();
+        this.updateMicroinvertersData();
       }
     }.bind(this), this.refreshInterval * 5000);
   }
@@ -2134,19 +2134,17 @@ class envoyDevice {
     };
   }
 
-  async updateHomeInventoryData() {
+  async updateHomeData() {
     this.log.debug('Device: %s %s, requesting homeData and inventoryData.', this.host, this.name);
     try {
       const [homeData, inventoryData] = await axios.all([axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.Inventory)]);
       this.log.debug('Device %s %s, debug homeData: %s, inventoryData: %s', this.host, this.name, homeData.data, inventoryData.data);
       this.homeData = homeData;
-      this.inventoryData = inventoryData;
 
       this.updateProductionConsumptionData();
     } catch (error) {
       this.log.debug('Device: %s %s, homeData or inventoryData error: %s', this.host, this.name, error);
       this.homeData = 0;
-      this.inventoryData = 0;
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2161,7 +2159,7 @@ class envoyDevice {
       this.productionCtData = productionCtData;
       this.meterReadingData = meterReadingData;
 
-      const updateMicroinvertersPower = this.startPrepareAccessory ? this.updateMicroinvertersPowerData() : false;
+      const updateMicroinvertersPower = this.startPrepareAccessory ? this.updateMicroinvertersData() : false;
     } catch (error) {
       this.log.debug('Device: %s %s, productionData, productionCtData or meterReadingData error: %s', this.host, this.name, error);
       this.productionData = 0;
@@ -2172,7 +2170,7 @@ class envoyDevice {
     };
   }
 
-  async updateMicroinvertersPowerData() {
+  async updateMicroinvertersData() {
     this.log.debug('Device: %s %s, requesting microinverters power', this.host, this.name);
     try {
       const passSerialNumber = this.envoySerialNumber.substring(6);
