@@ -364,6 +364,28 @@ module.exports = (api) => {
   inherits(Characteristic.enphaseEnvoyLastEnlightenReporDate, Characteristic);
   Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID = '00000026-000B-1000-8000-0026BB765291';
 
+  Characteristic.enphaseEnvoyEnpowerConnected = function () {
+    Characteristic.call(this, 'Enpower connected', Characteristic.enphaseEnvoyEnpowerConnected.UUID);
+    this.setProps({
+      format: Characteristic.Formats.BOOL,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnvoyEnpowerConnected, Characteristic);
+  Characteristic.enphaseEnvoyEnpowerConnected.UUID = '00000027-000B-1000-8000-0026BB765291';
+
+  Characteristic.enphaseEnvoyEnpowerGridStatus = function () {
+    Characteristic.call(this, 'Enpower grid status', Characteristic.enphaseEnvoyEnpowerGridStatus.UUID);
+    this.setProps({
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  };
+  inherits(Characteristic.enphaseEnvoyEnpowerGridStatus, Characteristic);
+  Characteristic.enphaseEnvoyEnpowerGridStatus.UUID = '00000028-000B-1000-8000-0026BB765291';
+
   Characteristic.enphaseEnvoyCheckCommLevel = function () {
     Characteristic.call(this, 'Check comm level', Characteristic.enphaseEnvoyCheckCommLevel.UUID);
     this.setProps({
@@ -373,7 +395,7 @@ module.exports = (api) => {
     this.value = this.getDefaultValue();
   };
   inherits(Characteristic.enphaseEnvoyCheckCommLevel, Characteristic);
-  Characteristic.enphaseEnvoyCheckCommLevel.UUID = '00000027-000B-1000-8000-0026BB765291';
+  Characteristic.enphaseEnvoyCheckCommLevel.UUID = '00000029-000B-1000-8000-0026BB765291';
 
   //power production service
   Service.enphaseEnvoy = function (displayName, subtype) {
@@ -396,6 +418,8 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTimeZone);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected);
+    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus);
     this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
   };
   inherits(Service.enphaseEnvoy, Service);
@@ -1910,6 +1934,9 @@ class envoyDevice {
     this.envoyCurrentTime = '';
     this.envoyLastEnlightenReporDate = 0;
 
+    this.envoyEnpowerConnected = false;
+    this.envoyEnpowerGridStatus = '';
+
     this.qRelaysCount = 0;
 
     this.metersCount = 0;
@@ -2154,25 +2181,26 @@ class envoyDevice {
         const primaryInterface = ENVOY_API_CODE[homeData.data.network.primary_interface] || 'undefined';
         const interfacesCount = homeData.data.network.interfaces.length;
         if (interfacesCount >= 1) {
-          const interfaces0Type = ENVOY_API_CODE[homeData.data.network.interfaces[0].type] || 'undefined';
-          const interfaces0Interface = homeData.data.network.interfaces[0].interface;
-          const interfaces0Mac = homeData.data.network.interfaces[0].mac;
-          const interfaces0Dhcp = homeData.data.network.interfaces[0].dhcp;
-          const interfaces0Ip = homeData.data.network.interfaces[0].ip;
-          const interfaces0SignalStrength = homeData.data.network.interfaces[0].signal_strength;
-          const interfaces0Carrier = homeData.data.network.interfaces[0].carrier;
+          const interface0Type = ENVOY_API_CODE[homeData.data.network.interfaces[0].type] || 'undefined';
+          const interface0Interface = homeData.data.network.interfaces[0].interface;
+          const interface0Mac = homeData.data.network.interfaces[0].mac;
+          const interface0Dhcp = homeData.data.network.interfaces[0].dhcp;
+          const interface0Ip = homeData.data.network.interfaces[0].ip;
+          const interface0SignalStrength = (homeData.data.network.interfaces[0].signal_strength * 20);
+          const interface0SignalStrengthMax = (homeData.data.network.interfaces[1].signal_strength_max * 20);
+          const interface0Carrier = homeData.data.network.interfaces[0].carrier;
           if (interfacesCount >= 2) {
-            const interfaces1SignalStrenth = homeData.data.network.interfaces[1].signal_strength;
-            const interfaces1SignalStrengthMax = homeData.data.network.interfaces[1].signal_strength_max;
-            const interfaces1Type = ENVOY_API_CODE[homeData.data.network.interfaces[1].type] || 'undefined';
-            const interfaces1Interface = homeData.data.network.interfaces[1].interface;
-            const interfaces1Dhcp = homeData.data.network.interfaces[1].dhcp;
-            const interfaces1Ip = homeData.data.network.interfaces[1].ip;
-            const interfaces1Carrier = homeData.data.network.interfaces[1].carrier;
-            const interfaces1Supported = homeData.data.network.interfaces[1].supported;
-            const interfaces1Present = homeData.data.network.interfaces[1].present;
-            const interfaces1Configured = homeData.data.network.interfaces[1].configured;
-            const interfaces1Status = ENVOY_API_CODE[homeData.data.network.interfaces[1].status] || 'undefined';
+            const interface1SignalStrenth = (homeData.data.network.interfaces[1].signal_strength * 20);
+            const interface1SignalStrengthMax = (homeData.data.network.interfaces[1].signal_strength_max * 20);
+            const interface1Type = ENVOY_API_CODE[homeData.data.network.interfaces[1].type] || 'undefined';
+            const interface1Interface = homeData.data.network.interfaces[1].interface;
+            const interface1Dhcp = homeData.data.network.interfaces[1].dhcp;
+            const interface1Ip = homeData.data.network.interfaces[1].ip;
+            const interface1Carrier = homeData.data.network.interfaces[1].carrier;
+            const interface1Supported = homeData.data.network.interfaces[1].supported;
+            const interface1Present = homeData.data.network.interfaces[1].present;
+            const interface1Configured = homeData.data.network.interfaces[1].configured;
+            const interface1Status = ENVOY_API_CODE[homeData.data.network.interfaces[1].status] || 'undefined';
           }
         }
         const tariff = ENVOY_API_CODE[homeData.data.tariff] || 'undefined';
@@ -2197,15 +2225,15 @@ class envoyDevice {
         //wireless connection
         const wirelessConnectionLength = (enchargesCount > 0 || enpowersCount > 0) ? homeData.data.wireless_connection.length : 0;
         for (let i = 0; i < wirelessConnectionLength; i++) {
-          const wirelessConnectionSignalStrength = homeData.data.wireless_connection[i].sigmal_strength;
-          const wirelessConnectionSignalStrengthMax = homeData.data.wireless_connection[i].sigmal_strength_max;
+          const wirelessConnectionSignalStrength = (homeData.data.wireless_connection[i].sigmal_strength * 20);
+          const wirelessConnectionSignalStrengthMax = (homeData.data.wireless_connection[i].sigmal_strength_max * 20);
           const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type] || 'undefined';
           const wirelessConnectionConnected = homeData.data.wireless_connection[i].connected;
         }
 
         //enpower
         const enpowerConnected = enpowersCount > 0 ? homeData.data.enpower.connected : false;
-        const enpowerGridStatus = enpowersCount > 0 ? ENVOY_API_CODE[homeData.data.enpower.grid_status] || 'undefined' : 'undefined';
+        const enpowerGridStatus = enpowersCount > 0 ? ENVOY_API_CODE[homeData.data.enpower.grid_status] || 'undefined' : 'Enpower not installed';
 
         //convert status
         const arrStatus = new Array();
@@ -2226,12 +2254,24 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten, everReportedToEnlighten)
             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, commNum + ' / ' + commLevel)
             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, commPcuNum + ' / ' + commPcuLevel)
-            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, commAcbNum + ' / ' + commAcbLevel)
             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, commNsrbNum + ' / ' + commNsrbLevel)
-            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, commEnchgNum + ' / ' + commEnchgLevel)
+
             .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, timeZone)
             .updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, currentDate + ' ' + currentTime)
             .updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, lastEnlightenReporDate);
+          if (acBatteriesCount > 0) {
+            this.envoysService[0]
+              .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, commAcbNum + ' / ' + commAcbLevel)
+          }
+          if (enchargesCount > 0) {
+            this.envoysService[0]
+              .updateCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, commEnchgNum + ' / ' + commEnchgLevel)
+          }
+          if (enpowersCount > 0) {
+            this.envoysService[0]
+              .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected, enpowerConnected)
+              .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus, enpowerGridStatus)
+          }
         }
 
         this.envoySoftwareBuildEpoch = softwareBuildEpoch;
@@ -2258,6 +2298,9 @@ class envoyDevice {
         this.envoyCommEnchgLevel = commEnchgLevel
         this.envoyAllerts = status;
         this.envoyUpdateStatus = updateStatus;
+
+        this.envoyEnpowerConnected = enpowerConnected;
+        this.envoyEnpowerGridStatus = enpowerGridStatus;
       }
 
       //qrelays
@@ -3342,22 +3385,26 @@ class envoyDevice {
         }
         return value;
       });
-    enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel)
-      .onGet(async () => {
-        const value = this.envoyCommAcbNum + ' / ' + this.envoyCommAcbLevel;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s communication AC Batteries and level %s', this.host, accessoryName, this.envoySerialNumber, value);
-        }
-        return value;
-      });
-    enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel)
-      .onGet(async () => {
-        const value = this.envoyCommEnchgNum + ' / ' + this.envoyCommEnchgLevel;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s communication Encharges and level %s', this.host, accessoryName, this.envoySerialNumber, value);
-        }
-        return value;
-      });
+    if (acBatteriesCount > 0) {
+      enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel)
+        .onGet(async () => {
+          const value = this.envoyCommAcbNum + ' / ' + this.envoyCommAcbLevel;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, envoy: %s communication AC Batteries and level %s', this.host, accessoryName, this.envoySerialNumber, value);
+          }
+          return value;
+        });
+    }
+    if (enchargesCount > 0) {
+      enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel)
+        .onGet(async () => {
+          const value = this.envoyCommEnchgNum + ' / ' + this.envoyCommEnchgLevel;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, envoy: %s communication Encharges and level %s', this.host, accessoryName, this.envoySerialNumber, value);
+          }
+          return value;
+        });
+    }
     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
       .onGet(async () => {
         const value = this.envoyDbSize + ' / ' + this.envoyDbPercentFull + '%';
@@ -3414,7 +3461,24 @@ class envoyDevice {
         }
         return value;
       });
-
+    if (enpowersCount > 0) {
+      enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected)
+        .onGet(async () => {
+          const value = this.envoyEnpowerConnected;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, envoy: %s Enpower connected: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          }
+          return value;
+        });
+      enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus)
+        .onGet(async () => {
+          const value = this.envoyEnpowerGridStatus;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, envoy: %s Enpower grid status: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          }
+          return value;
+        });
+    }
     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel)
       .onGet(async () => {
         const state = this.envoyCheckCommLevel;
