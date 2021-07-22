@@ -2876,13 +2876,13 @@ class envoyDevice {
 
           if (this.microinvertersService) {
             this.microinvertersService[i]
-              .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status);
+              .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status)
               .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
               .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware)
               .updateCharacteristic(Characteristic.enphaseMicroinverterProducing, producing)
               .updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, communicating)
               .updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, provisioned)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating)
+              .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating);
 
           }
 
