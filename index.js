@@ -2143,7 +2143,7 @@ class envoyDevice {
 
       this.updateProductionConsumptionData();
     } catch (error) {
-      this.log.debug('Device: %s %s, homeData error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
       this.homeData = 0;
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
@@ -2154,14 +2154,14 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting homeData and inventoryData.', this.host, this.name);
     try {
       const [productionData, productionCtData, metersReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats), axios.get(this.url + ENVOY_API_URL.InternalMeterReadings)]);
-      this.log.debug('Debug productionData: %s, productionCtData: %s, meterReadingData: %s', productionData.data, productionCtData.data, meterReadingData.data);
+      this.log.debug('Debug productionData: %s, productionCtData: %s, metersReadingData: %s', productionData.data, productionCtData.data, metersReadingData.data);
       this.productionData = productionData;
       this.productionCtData = productionCtData;
       this.metersReadingData = metersReadingData;
 
       const updateMicroinvertersData = this.startPrepareAccessory ? this.updateMicroinvertersData() : false;
     } catch (error) {
-      this.log.debug('Device: %s %s, productionData, productionCtData or metersReadingData error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, productionData, productionCtData or metersReadingData error: %s', this.host, this.name, error);
       this.productionData = 0;
       this.productionCtData = 0;
       this.metersReadingData = 0;
@@ -2188,9 +2188,9 @@ class envoyDevice {
       this.log.debug('Debug production inverters: %s', microinvertersData.data);
 
       this.microinvertersData = microinvertersData;
-      const updateDeviceState = this.startPrepareAccessory ? this.updateDeviceState() : false;
+      this.updateDeviceState();
     } catch (error) {
-      this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, microinverters error: %s', this.host, this.name, error);
       this.microinvertersData = 0;
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
@@ -2205,7 +2205,7 @@ class envoyDevice {
       const productionData = this.productionData;
       const productionCtData = this.productionCtData;
       const metersData = this.metersData;
-      const meterReadingData = this.metersReadingData;
+      const metersReadingData = this.metersReadingData;
       const microinvertersData = this.microinvertersData
       const inventoryEnsembleData = this.inventoryEnsembleData;
 
@@ -2865,7 +2865,7 @@ class envoyDevice {
         }
 
         //meters reading data
-        if (meterReadingData.status === 200) {
+        if (metersReadingData.status === 200) {
           this.eidSumm = new Array();
           this.timestampSumm = new Array();
           this.actEnergyDlvdSumm = new Array();
@@ -2899,24 +2899,24 @@ class envoyDevice {
           this.freqPhase = new Array();
 
           //meters reading summary data
-          const metersReadingCount = meterReadingData.data.length;
+          const metersReadingCount = metersReadingData.data.length;
           if (metersReadingCount > 0) {
             for (let i = 0; i < metersReadingCount; i++) {
-              const eid = meterReadingData.data[i].eid;
-              const timestamp = new Date(meterReadingData.data[i].timestamp * 1000).toLocaleString();
-              const actEnergyDlvd = parseFloat(meterReadingData.data[i].actEnergyDlvd);
-              const actEnergyRcvd = parseFloat(meterReadingData.data[i].actEnergyRcvd);
-              const apparentEnergy = parseFloat(meterReadingData.data[i].apparentEnergy);
-              const reactEnergyLagg = parseFloat(meterReadingData.data[i].reactEnergyLagg);
-              const reactEnergyLead = parseFloat(meterReadingData.data[i].reactEnergyLead);
-              const instantaneousDemand = parseFloat(meterReadingData.data[i].instantaneousDemand);
-              const activePower = parseFloat((meterReadingData.data[i].activePower) / 1000);
-              const apparentPower = parseFloat((meterReadingData.data[i].apparentPower) / 1000);
-              const reactivePower = parseFloat((meterReadingData.data[i].reactivePower) / 1000);
-              const pwrFactor = parseFloat(meterReadingData.data[i].pwrFactor);
-              const voltage = parseFloat((meterReadingData.data[i].voltage) / 3);
-              const current = parseFloat(meterReadingData.data[i].current);
-              const freq = parseFloat(meterReadingData.data[i].freq);
+              const eid = metersReadingData.data[i].eid;
+              const timestamp = new Date(metersReadingData.data[i].timestamp * 1000).toLocaleString();
+              const actEnergyDlvd = parseFloat(metersReadingData.data[i].actEnergyDlvd);
+              const actEnergyRcvd = parseFloat(metersReadingData.data[i].actEnergyRcvd);
+              const apparentEnergy = parseFloat(metersReadingData.data[i].apparentEnergy);
+              const reactEnergyLagg = parseFloat(metersReadingData.data[i].reactEnergyLagg);
+              const reactEnergyLead = parseFloat(metersReadingData.data[i].reactEnergyLead);
+              const instantaneousDemand = parseFloat(metersReadingData.data[i].instantaneousDemand);
+              const activePower = parseFloat((metersReadingData.data[i].activePower) / 1000);
+              const apparentPower = parseFloat((metersReadingData.data[i].apparentPower) / 1000);
+              const reactivePower = parseFloat((metersReadingData.data[i].reactivePower) / 1000);
+              const pwrFactor = parseFloat(metersReadingData.data[i].pwrFactor);
+              const voltage = parseFloat((metersReadingData.data[i].voltage) / 3);
+              const current = parseFloat(metersReadingData.data[i].current);
+              const freq = parseFloat(metersReadingData.data[i].freq);
 
               if (this.metersService) {
                 this.metersService[i]
@@ -2948,24 +2948,24 @@ class envoyDevice {
               this.freqSumm.push(freq);
 
               //meters reading phases data
-              const meterReadingChannelsCount = meterReadingData.data[i].channels.length;
+              const meterReadingChannelsCount = metersReadingData.data[i].channels.length;
               if (meterReadingChannelsCount > 0) {
                 for (let l = 0; l < meterReadingChannelsCount; l++) {
-                  const eid = meterReadingData.data[i].channels[l].eid;
-                  const timestamp = new Date(meterReadingData.data[i].channels[l].timestamp * 1000).toLocaleString();
-                  const actEnergyDlvd = parseFloat(meterReadingData.data[i].channels[l].actEnergyDlvd);
-                  const actEnergyRcvd = parseFloat(meterReadingData.data[i].channels[l].actEnergyRcvd);
-                  const apparentEnergy = parseFloat(meterReadingData.data[i].channels[l].apparentEnergy);
-                  const reactEnergyLagg = parseFloat(meterReadingData.data[i].channels[l].reactEnergyLagg);
-                  const reactEnergyLead = parseFloat(meterReadingData.data[i].channels[l].reactEnergyLead);
-                  const instantaneousDemand = parseFloat(meterReadingData.data[i].channels[l].instantaneousDemand);
-                  const activePower = parseFloat((meterReadingData.data[i].channels[l].activePower) / 1000);
-                  const apparentPower = parseFloat((meterReadingData.data[i].channels[l].apparentPower) / 1000);
-                  const reactivePower = parseFloat((meterReadingData.data[i].channels[l].reactivePower) / 1000);
-                  const pwrFactor = parseFloat(meterReadingData.data[i].channels[l].pwrFactor);
-                  const voltage = parseFloat(meterReadingData.data[i].channels[l].voltage);
-                  const current = parseFloat(meterReadingData.data[i].channels[l].current);
-                  const freq = parseFloat(meterReadingData.data[i].channels[l].freq);
+                  const eid = metersReadingData.data[i].channels[l].eid;
+                  const timestamp = new Date(metersReadingData.data[i].channels[l].timestamp * 1000).toLocaleString();
+                  const actEnergyDlvd = parseFloat(metersReadingData.data[i].channels[l].actEnergyDlvd);
+                  const actEnergyRcvd = parseFloat(metersReadingData.data[i].channels[l].actEnergyRcvd);
+                  const apparentEnergy = parseFloat(metersReadingData.data[i].channels[l].apparentEnergy);
+                  const reactEnergyLagg = parseFloat(metersReadingData.data[i].channels[l].reactEnergyLagg);
+                  const reactEnergyLead = parseFloat(metersReadingData.data[i].channels[l].reactEnergyLead);
+                  const instantaneousDemand = parseFloat(metersReadingData.data[i].channels[l].instantaneousDemand);
+                  const activePower = parseFloat((metersReadingData.data[i].channels[l].activePower) / 1000);
+                  const apparentPower = parseFloat((metersReadingData.data[i].channels[l].apparentPower) / 1000);
+                  const reactivePower = parseFloat((metersReadingData.data[i].channels[l].reactivePower) / 1000);
+                  const pwrFactor = parseFloat(metersReadingData.data[i].channels[l].pwrFactor);
+                  const voltage = parseFloat(metersReadingData.data[i].channels[l].voltage);
+                  const current = parseFloat(metersReadingData.data[i].channels[l].current);
+                  const freq = parseFloat(metersReadingData.data[i].channels[l].freq);
 
                   this.meterReadingChannelsCount = meterReadingChannelsCount;
                   this.eidPhase.push(eid);
