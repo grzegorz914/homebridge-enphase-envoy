@@ -2031,7 +2031,7 @@ class envoyDevice {
     //Check microinverters power
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
-        this.updateData();
+        this.updateHomeData();
         this.updateMicroinvertersData();
       }
     }.bind(this), this.refreshInterval * 5000);
