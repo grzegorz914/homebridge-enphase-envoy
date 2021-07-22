@@ -54,14 +54,6 @@
               "description": "Here set installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/",
               "required": false
             },
-            "acBateriesStorageOffset": {
-              "title": "AC Batteries energy offset",
-              "type": "integer",
-              "default": 0,
-              "maximum": 65535,
-              "description": "Here set energy *Offset* in (Wh) for AC Batteries if nedded.",
-              "required": false
-            },
             "powerProductionMaxDetected": {
               "title": "Power production max detected",
               "type": "integer",
@@ -143,7 +135,6 @@
           "items": [
             "devices[].disableLogInfo",
             "devices[].refreshInterval",
-            "devices[].acBateriesStorageOffset",
             "devices[].powerProductionMaxDetected",
             "devices[].energyProductionLifetimeOffset",
             "devices[].powerConsumptionTotalMaxDetected",

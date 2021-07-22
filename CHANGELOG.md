@@ -10,7 +10,7 @@ Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
 ## Changes
 - added support for Ensemble (Enpowers and Encharges)
 - fixed wrong named Encharges to AC Batteries
-- other fixes
+- other fixes and performance improvements
 
 ## [4.8.0] - (12.03.2021)
 ## Changes

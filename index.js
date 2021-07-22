@@ -1544,10 +1544,10 @@ module.exports = (api) => {
     Characteristic.call(this, 'Real power', Characteristic.enphaseEnchargeRealPowerW.UUID);
     this.setProps({
       format: Characteristic.Formats.INT,
-      unit: 'W',
+      unit: 'kW',
       maxValue: 1000,
-      minValue: 0,
-      minStep: 1,
+      minValue: -1000,
+      minStep: 0.001,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
@@ -1863,7 +1863,6 @@ class envoyDevice {
     this.disableLogInfo = config.disableLogInfo || false;
     this.envoyPasswd = config.envoyPasswd;
     this.installerPasswd = config.installerPasswd;
-    this.acBaterieStorageOffset = config.acBaterieStorageOffset || 0;
     this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
     this.consumptionTotalPowerMaxDetected = config.powerConsumptionTotalMaxDetected || 0;
@@ -2138,7 +2137,7 @@ class envoyDevice {
 
       //envoy
       if (homeData.status === 200) {
-        const softwareBuildEpoch = homeData.data.software_build_epoch;
+        const softwareBuildEpoch = new Date(homeData.data.software_build_epoch * 1000).toLocaleString();
         const isEnvoy = (homeData.data.is_nonvoy == false);
         const dbSize = homeData.data.db_size;
         const dbPercentFull = homeData.data.db_percent_full;
@@ -2276,14 +2275,14 @@ class envoyDevice {
         const type = ENVOY_API_CODE[inventoryData.data[2].type] || 'undefined';
         for (let i = 0; i < qRelaysCount; i++) {
           const partNum = ENPHASE_PART_NUMBER[inventoryData.data[2].devices[i].part_num] || 'Q-Relay'
-          const installed = inventoryData.data[2].devices[i].installed;
+          const installed = new Date(inventoryData.data[2].devices[i].installed * 1000).toLocaleString();
           const serialNumber = inventoryData.data[2].devices[i].serial_num;
           const deviceStatus = inventoryData.data[2].devices[i].device_status;
           const lastReportDate = new Date(inventoryData.data[2].devices[i].last_rpt_date * 1000).toLocaleString();
           const adminState = inventoryData.data[2].devices[i].admin_state;
           const devType = inventoryData.data[2].devices[i].dev_type;
-          const createdDate = inventoryData.data[2].devices[i].created_date;
-          const imageLoadDate = inventoryData.data[2].devices[i].img_load_date;
+          const createdDate = new Date(inventoryData.data[2].devices[i].created_date * 1000).toLocaleString();
+          const imageLoadDate = new Date(inventoryData.data[2].devices[i].img_load_date * 1000).toLocaleString();
           const firmware = inventoryData.data[2].devices[i].img_pnum_running;
           const ptpn = inventoryData.data[2].devices[i].ptpn;
           const chaneId = inventoryData.data[2].devices[i].chaneid;
@@ -2767,14 +2766,14 @@ class envoyDevice {
           const type = ENVOY_API_CODE[inventoryData.data[1].type] || 'undefined';
           for (let i = 0; i < acBatteriesCount; i++) {
             const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'undefined'
-            const installed = inventoryData.data[1].devices[i].installed;
+            const installed = new Date(inventoryData.data[1].devices[i].installed * 1000).toLocaleString();
             const serialNumber = inventoryData.data[1].devices[i].serial_num;
             const deviceStatus = inventoryData.data[1].devices[i].device_status;
             const lastReportDate = new Date(inventoryData.data[1].devices[i].last_rpt_date * 1000).toLocaleString();
             const adminState = inventoryData.data[1].devices[i].admin_state;
             const devType = inventoryData.data[1].devices[i].dev_type;
-            const createdDate = inventoryData.data[1].devices[i].created_date;
-            const imageLoadDate = inventoryData.data[1].devices[i].img_load_date;
+            const createdDate = new Date(inventoryData.data[1].devices[i].created_date * 1000).toLocaleString();
+            const imageLoadDate = new Date(inventoryData.data[1].devices[i].img_load_date * 1000).toLocaleString();
             const firmware = inventoryData.data[1].devices[i].img_pnum_running;
             const ptpn = inventoryData.data[1].devices[i].ptpn;
             const chaneId = inventoryData.data[1].devices[i].chaneid;
@@ -2838,25 +2837,25 @@ class envoyDevice {
       //microinverters
       if (microinvertersCount > 0 && inventoryData.status === 200) {
         this.microinvertersSerialNumber = new Array();
+        this.microinvertersStatus = new Array();
         this.microinvertersLastReportDate = new Array();
         this.microinvertersFirmware = new Array();
         this.microinvertersProducing = new Array();
         this.microinvertersCommunicating = new Array();
         this.microinvertersProvisioned = new Array();
         this.microinvertersOperating = new Array();
-        this.microinvertersStatus = new Array();
 
         const type = ENVOY_API_CODE[inventoryData.data[0].type] || 'undefined';
         for (let i = 0; i < microinvertersCount; i++) {
           const partNum = ENPHASE_PART_NUMBER[inventoryData.data[0].devices[i].part_num] || 'Microinverter';
-          const installed = inventoryData.data[0].devices[i].installed;
+          const installed = new Date(inventoryData.data[0].devices[i].installed * 1000).toLocaleString();
           const serialNumber = inventoryData.data[0].devices[i].serial_num;
           const deviceStatus = inventoryData.data[0].devices[i].device_status;
           const lastReportDate = new Date(inventoryData.data[0].devices[i].last_rpt_date * 1000).toLocaleString();
           const adminState = inventoryData.data[0].devices[i].admin_state;
           const devType = inventoryData.data[0].devices[i].dev_type;
-          const createdDate = inventoryData.data[0].devices[i].created_date;
-          const imageLoadDate = inventoryData.data[0].devices[i].img_load_date;
+          const createdDate = new Date(inventoryData.data[0].devices[i].created_date * 1000).toLocaleString();
+          const imageLoadDate = new Date(inventoryData.data[0].devices[i].img_load_date * 1000).toLocaleString();
           const firmware = inventoryData.data[0].devices[i].img_pnum_running;
           const ptpn = inventoryData.data[0].devices[i].ptpn;
           const chaneId = inventoryData.data[0].devices[i].chaneid;
@@ -2877,24 +2876,24 @@ class envoyDevice {
 
           if (this.microinvertersService) {
             this.microinvertersService[i]
+              .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status);
               .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
               .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware)
               .updateCharacteristic(Characteristic.enphaseMicroinverterProducing, producing)
               .updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, communicating)
               .updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, provisioned)
               .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status);
 
           }
 
           this.microinvertersSerialNumber.push(serialNumber);
+          this.microinvertersStatus.push(status);
           this.microinvertersLastReportDate.push(lastReportDate);
           this.microinvertersFirmware.push(firmware);
           this.microinvertersProducing.push(producing);
           this.microinvertersCommunicating.push(communicating);
           this.microinvertersProvisioned.push(provisioned);
           this.microinvertersOperating.push(operating);
-          this.microinvertersStatus.push(status);
         }
         this.microinvertersType = type;
       }
@@ -2924,7 +2923,7 @@ class envoyDevice {
           const type = ENVOY_API_CODE[inventoryEnsembleData.data[0].type] || 'undefined';
           for (let i = 0; i < enchargesCount; i++) {
             const partNum = ENPHASE_PART_NUMBER[inventoryEnsembleData.data[0].devices[i].part_num] || 'undefined'
-            const installed = inventoryEnsembleData.data[0].devices[i].installed;
+            const installed = new Date(inventoryEnsembleData.data[0].devices[i].installed * 1000).toLocaleString();
             const serialNumber = inventoryEnsembleData.data[0].devices[i].serial_num;
             const deviceStatus = inventoryEnsembleData.data[0].devices[i].device_status;
             const lastReportDate = new Date(inventoryEnsembleData.data[0].devices[i].last_rpt_date * 1000).toLocaleString();
@@ -2943,7 +2942,7 @@ class envoyDevice {
             const commLevelSubGhz = inventoryEnsembleData.data[0].devices[i].comm_level_sub_ghz;
             const commLevel24Ghz = inventoryEnsembleData.data[0].devices[i].comm_level_2_4_ghz;
             const ledStatus = ENCHARGE_LED_STATUS[inventoryEnsembleData.data[0].devices[i].led_status] || 'undefined';
-            const realPowerW = inventoryEnsembleData.data[0].devices[i].real_power_w;
+            const realPowerW = parseFloat((inventoryEnsembleData.data[0].devices[i].real_power_w) / 1000);
             const dcSwitchOff = inventoryEnsembleData.data[0].devices[i].dc_switch_off;
             const rev = inventoryEnsembleData.data[0].devices[i].encharge_rev;
             const capacity = parseFloat((inventoryEnsembleData.data[0].devices[i].encharge_capacity) / 1000);
@@ -3019,7 +3018,7 @@ class envoyDevice {
           for (let i = 0; i < enpowersCount; i++) {
             const type = ENVOY_API_CODE[inventoryEnsembleData.data[1].type] || 'undefined';
             const partNum = ENPHASE_PART_NUMBER[inventoryEnsembleData.data[1].devices[i].part_num] || 'undefined'
-            const installed = inventoryEnsembleData.data[1].devices[i].installed;
+            const installed = new Date(inventoryEnsembleData.data[1].devices[i].installed * 1000).toLocaleString();
             const serialNumber = inventoryEnsembleData.data[1].devices[i].serial_num;
             const deviceStatus = inventoryEnsembleData.data[1].devices[i].device_status;
             const lastReportDate = new Date(inventoryEnsembleData.data[1].devices[i].last_rpt_date * 1000).toLocaleString();
@@ -3187,8 +3186,8 @@ class envoyDevice {
 
       // get devices count
       const qRelaysCount = this.qRelaysCount;
-      const acBatteriesCount = this.acBatteriesCount;
       const microinvertersCount = this.microinvertersCount
+      const acBatteriesCount = this.acBatteriesCount;
 
       //create arrays
       this.qRelaysCommLevel = new Array();
@@ -3206,17 +3205,6 @@ class envoyDevice {
         this.qRelaysCommLevel.push(value);
       }
 
-      for (let i = 0; i < acBatteriesCount; i++) {
-        const key = '' + this.acBatteriesSerialNumber[i] + '';
-        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-        if (this.acBatteriesService) {
-          this.acBatteriesService[i]
-            .updateCharacteristic(Characteristic.enphaseAcBatterieCommLevel, value)
-        }
-        this.acBatteriesCommLevel.push(value);
-      }
-
       for (let i = 0; i < microinvertersCount; i++) {
         const key = '' + this.microinvertersSerialNumber[i] + '';
         const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
@@ -3226,6 +3214,17 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
         }
         this.microinvertersCommLevel.push(value);
+      }
+
+      for (let i = 0; i < acBatteriesCount; i++) {
+        const key = '' + this.acBatteriesSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.acBatteriesService) {
+          this.acBatteriesService[i]
+            .updateCharacteristic(Characteristic.enphaseAcBatterieCommLevel, value)
+        }
+        this.acBatteriesCommLevel.push(value);
       }
 
       //disable check comm level switch
@@ -4047,7 +4046,7 @@ class envoyDevice {
       }
     }
 
-    //microinverter
+    //microinverters
     if (microinvertersCount > 0) {
       this.microinvertersService = new Array();
       for (let i = 0; i < microinvertersCount; i++) {
@@ -4275,7 +4274,7 @@ class envoyDevice {
       }
     }
 
-    //enpower
+    //enpowers
     if (enpowersCount > 0) {
       this.enpowersService = new Array();
       for (let i = 0; i < enpowersCount; i++) {
