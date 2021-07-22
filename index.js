@@ -2020,16 +2020,20 @@ class envoyDevice {
       this.log.debug('Device: %s %s, saved Device Info successful.', this.host, this.name);
 
       const time = new Date(resultData.envoy_info.time[0] * 1000).toLocaleString();
-      const serialNumber = resultData.envoy_info.device[0].sn[0];
-      const partNum = ENPHASE_PART_NUMBER[resultData.envoy_info.device[0].pn[0]] || 'Envoy'
-      const firmware = resultData.envoy_info.device[0].software[0];
-      const euaid = resultData.envoy_info.device[0].euaid[0];
-      const seqNum = resultData.envoy_info.device[0].seqnum[0];
-      const apiVer = resultData.envoy_info.device[0].apiver[0];
-      const supportMeters = (resultData.envoy_info.device[0].imeter[0] === 'true');
-      const metersCount = supportMeters ? metersData.data.length : 0;
-      const meterProductionEnabled = supportMeters ? (metersData.data[0].state === 'enabled') : false;
-      const meterConsumptionEnabled = supportMeters ? (metersData.data[1].state === 'enabled') : false;
+      const deviceSn = resultData.envoy_info.device[0].sn[0];
+      const devicePn = ENPHASE_PART_NUMBER[resultData.envoy_info.device[0].pn[0]] || 'Envoy'
+      const deviceSoftware = resultData.envoy_info.device[0].software[0];
+      const deviceEuaid = resultData.envoy_info.device[0].euaid[0];
+      const deviceSeqNum = resultData.envoy_info.device[0].seqnum[0];
+      const deviceApiVer = resultData.envoy_info.device[0].apiver[0];
+      const deviceImeter = (resultData.envoy_info.device[0].imeter[0] === 'true');
+      const buildTimeQmt = new Date(resultData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
+      const buildId = resultData.envoy_info.build_info[0].build_id[0];
+
+      const metersCount = deviceImeter ? metersData.data.length : 0;
+      const meterProductionEnabled = deviceImeter ? (metersData.data[0].state === 'enabled') : false;
+      const meterConsumptionEnabled = deviceImeter ? (metersData.data[1].state === 'enabled') : false;
+
       const microinvertersCount = inventoryData.data[0].devices.length;
       const acBatteriesCount = inventoryData.data[1].devices.length;
       const qrelaysCount = inventoryData.data[2].devices.length;
@@ -2047,23 +2051,23 @@ class envoyDevice {
         this.enpowersCount = enpowersCount;
         this.inventoryEnsembleData = inventoryEnsembleData;
       } catch (error) {
-        this.log('Device: %s %s, requesting installed ensemble devices, state: Not installed.', this.host, this.name);
+        this.log('Device: %s %s, requesting installed Ensemble devices, state: Not installed.', this.host, this.name);
       };
 
       this.log('-------- %s --------', this.name);
       this.log('Manufacturer: Enphase');
-      this.log('Model: %s', partNum);
-      this.log('Api ver: %s', apiVer);
-      this.log('Firmware: %s', firmware);
-      this.log('SerialNr: %s', serialNumber);
+      this.log('Model: %s', devicePn);
+      this.log('Api ver: %s', deviceApiVer);
+      this.log('Firmware: %s', deviceSoftware);
+      this.log('SerialNr: %s', deviceSn);
       this.log('Time: %s', time);
       this.log('------------------------------');
       this.log('Q-Relays: %s', qrelaysCount);
       this.log('Inverters: %s', microinvertersCount);
       this.log('Batteries: %s', acBatteriesCount);
       this.log('--------------------------------');
-      this.log('Meters: %s', supportMeters ? 'Yes' : 'No');
-      if (supportMeters) {
+      this.log('Meters: %s', deviceImeter ? 'Yes' : 'No');
+      if (deviceImeter) {
         this.log('Production: %s', meterProductionEnabled ? 'Enabled' : 'Disabled');
         this.log('Consumption: %s', meterConsumptionEnabled ? 'Enabled' : 'Disabled');
         this.log('--------------------------------');
@@ -2075,10 +2079,10 @@ class envoyDevice {
       }
       this.log('--------------------------------');
       this.envoyTime = time;
-      this.envoySerialNumber = serialNumber;
-      this.envoyModelName = partNum;
-      this.envoyFirmware = firmware;
-      this.envoySupportMeters = supportMeters;
+      this.envoySerialNumber = deviceSn;
+      this.envoyModelName = devicePn;
+      this.envoyFirmware = deviceSoftware;
+      this.envoySupportMeters = deviceImeter;
       this.metersCount = metersCount;
       this.meterProductionEnabled = meterProductionEnabled;
       this.meterConsumptionEnabled = meterConsumptionEnabled;
