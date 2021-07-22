@@ -2125,7 +2125,7 @@ class envoyDevice {
       this.metersData = metersData;
 
       this.checkDeviceInfo = false;
-      this.updateHomeInventoryData();
+      this.updateHomeData();
     } catch (error) {
       this.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', this.host, this.name, error);
       this.inventoryData = 0;
@@ -2159,7 +2159,7 @@ class envoyDevice {
       this.productionCtData = productionCtData;
       this.metersReadingData = metersReadingData;
 
-      const updateMicroinvertersPower = this.startPrepareAccessory ? this.updateMicroinvertersData() : false;
+      const updateMicroinvertersData = this.startPrepareAccessory ? this.updateMicroinvertersData() : false;
     } catch (error) {
       this.log.debug('Device: %s %s, productionData, productionCtData or metersReadingData error: %s', this.host, this.name, error);
       this.productionData = 0;
@@ -2188,7 +2188,7 @@ class envoyDevice {
       this.log.debug('Debug production inverters: %s', microinvertersData.data);
 
       this.microinvertersData = microinvertersData;
-      const updateMicroinvertersPower = this.startPrepareAccessory ? this.updateDeviceState() : false;
+      const updateDeviceState = this.startPrepareAccessory ? this.updateDeviceState() : false;
     } catch (error) {
       this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
       this.microinvertersData = 0;
@@ -2199,7 +2199,7 @@ class envoyDevice {
 
   async updateDeviceState() {
     try {
-      //get data;
+      //get devices data;
       const homeData = this.homeData;
       const inventoryData = this.inventoryData;
       const productionData = this.productionData;
@@ -2276,7 +2276,7 @@ class envoyDevice {
         const allerts = homeData.data.allerts;
         const updateStatus = ENVOY_API_CODE[homeData.data.update_status] || 'undefined';
 
-        //wireless connection
+        //wireless connection kit
         const wirelessConnectionsCount = (enchargesCount > 0 || enpowersCount > 0) ? homeData.data.wireless_connection.length : 0;
         for (let i = 0; i < wirelessConnectionsCount; i++) {
           const wirelessConnectionSignalStrength = (homeData.data.wireless_connection[i].sigmal_strength * 20);
@@ -2744,7 +2744,7 @@ class envoyDevice {
             const consumptionEnergyVarhLeadToday = parseFloat(productionCtData.data.consumption[i].varhLeadToday / 1000);
             const consumptionEnergyVarhLagToday = parseFloat(productionCtData.data.consumption[i].varhLagToday / 1000);
 
-            //param
+            //net param
             const consumptionRmsCurrent = parseFloat(productionCtData.data.consumption[i].rmsCurrent);
             const consumptionRmsVoltage = parseFloat((productionCtData.data.consumption[i].rmsVoltage) / 3);
             const consumptionReactivePower = parseFloat((productionCtData.data.consumption[i].reactPwr) / 1000);
