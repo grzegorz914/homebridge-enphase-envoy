@@ -1902,12 +1902,12 @@ class envoyDevice {
 
     this.homeData = 0;
     this.inventoryData = 0;
-    this.metersData = 0;
-    this.inventoryEnsembleData = 0;
     this.productionData = 0;
     this.productionCtData = 0;
-    this.meterReadingData = 0;
+    this.metersData = 0;
+    this.metersReadingData = 0;
     this.microinvertersData = 0;
+    this.inventoryEnsembleData = 0;
 
     this.envoyCheckCommLevel = false;
     this.envoySerialNumber = '';
@@ -2137,13 +2137,13 @@ class envoyDevice {
   async updateHomeData() {
     this.log.debug('Device: %s %s, requesting homeData and inventoryData.', this.host, this.name);
     try {
-      const [homeData, inventoryData] = await axios.all([axios.get(this.url + ENVOY_API_URL.Home), axios.get(this.url + ENVOY_API_URL.Inventory)]);
-      this.log.debug('Device %s %s, debug homeData: %s, inventoryData: %s', this.host, this.name, homeData.data, inventoryData.data);
+      const homeData = await axios.get(this.url + ENVOY_API_URL.Home);
+      this.log.debug('Device %s %s, debug homeData: %s', this.host, this.name, homeData.data);
       this.homeData = homeData;
 
       this.updateProductionConsumptionData();
     } catch (error) {
-      this.log.debug('Device: %s %s, homeData or inventoryData error: %s', this.host, this.name, error);
+      this.log.debug('Device: %s %s, homeData error: %s', this.host, this.name, error);
       this.homeData = 0;
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
@@ -2153,18 +2153,18 @@ class envoyDevice {
   async updateProductionConsumptionData() {
     this.log.debug('Device: %s %s, requesting homeData and inventoryData.', this.host, this.name);
     try {
-      const [productionData, productionCtData, meterReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats), axios.get(this.url + ENVOY_API_URL.InternalMeterReadings)]);
+      const [productionData, productionCtData, metersReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats), axios.get(this.url + ENVOY_API_URL.InternalMeterReadings)]);
       this.log.debug('Debug productionData: %s, productionCtData: %s, meterReadingData: %s', productionData.data, productionCtData.data, meterReadingData.data);
       this.productionData = productionData;
       this.productionCtData = productionCtData;
-      this.meterReadingData = meterReadingData;
+      this.metersReadingData = metersReadingData;
 
       const updateMicroinvertersPower = this.startPrepareAccessory ? this.updateMicroinvertersData() : false;
     } catch (error) {
-      this.log.debug('Device: %s %s, productionData, productionCtData or meterReadingData error: %s', this.host, this.name, error);
+      this.log.debug('Device: %s %s, productionData, productionCtData or metersReadingData error: %s', this.host, this.name, error);
       this.productionData = 0;
       this.productionCtData = 0;
-      this.meterReadingData = 0;
+      this.metersReadingData = 0;
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2199,6 +2199,16 @@ class envoyDevice {
 
   async updateDeviceState() {
     try {
+      //get data;
+      const homeData = this.homeData;
+      const inventoryData = this.inventoryData;
+      const productionData = this.productionData;
+      const productionCtData = this.productionCtData;
+      const metersData = this.metersData;
+      const meterReadingData = this.metersReadingData;
+      const microinvertersData = this.microinvertersData
+      const inventoryEnsembleData = this.inventoryEnsembleData;
+
       //get enabled devices
       const envoySupportMeters = this.envoySupportMeters;
       const metersCount = this.metersCount;
@@ -2209,16 +2219,6 @@ class envoyDevice {
       const microinvertersCount = this.microinvertersCount
       const enchargesCount = this.enchargesCount;
       const enpowersCount = this.enpowersCount;
-
-      //get inventory and meters data;
-      const homeData = this.homeData;
-      const inventoryData = this.inventoryData;
-      const productionData = this.productionData;
-      const productionCtData = this.productionCtData;
-      const metersData = this.metersData;
-      const meterReadingData = this.meterReadingData;
-      const microinvertersData = this.microinvertersData
-      const inventoryEnsembleData = this.inventoryEnsembleData;
 
       //envoy
       if (homeData.status === 200) {
