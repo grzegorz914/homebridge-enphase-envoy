@@ -87,9 +87,11 @@ const ENVOY_API_URL = {
 const ENVOY_API_CODE = {
   //types
   'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'AC Batteries', 'encharge': 'Encharge', 'enpower': 'Enpower', 'PCU': 'Microinverter', 'ACB': 'AC Batteries', 'ENCHARGE': 'Encharge',
-  'ENPOWER': 'Enpower', 'NSRB': 'Q-Relay', 'production': 'Production', 'total-consumption': 'Consumption (Total)', 'net-consumption': 'Consumption (Net)',
-  //encharge, enpower
-  'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging', 'multimode-ongrid': 'Multimode on Grid', 'ENCHG_STATE_READY': 'Encharge state ready', 'ENPWR_STATE_OPER_CLOSED': 'Enpower state closed',
+  'ENPOWER': 'Enpower', 'NSRB': 'Q-Relay', 'production': 'Production', 'net-consumption': 'Consumption (Net)', 'total-consumption': 'Consumption (Total)',
+  //enpower
+  'multimode-ongrid': 'Multimode on Grid', 'ENPWR_STATE_OPER_CLOSED': 'Enpower state closed', 'ENPWR_STATE_OPER_OPEN': 'Enpower state open',
+  //encharge
+  'ready': 'Ready', 'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging', 'ENCHG_STATE_READY': 'Encharge state ready', 'ENCHG_STATE_IDLE': 'Encharge state idle', 'ENCHG_STATE_CHARGING': 'Encharge state charging', 'ENCHG_STATE_DISCHARGING': 'Encharge state discharging',
   //qrelay
   'enabled': 'Enabled', 'disabled': 'Disabled', 'one': 'One', 'two': 'Two', 'three': 'Three', 'split': 'Split', 'normal': 'Normal', 'closed': 'Closed', 'open': 'Open', 'error.nodata': 'No Data',
   //envoy
@@ -949,8 +951,8 @@ module.exports = (api) => {
   Characteristic.enphaseReadingTime.UUID = '00000083-000B-1000-8000-0026BB765291';
 
   //power production service
-  Service.enphasePowerEnergyMeter = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphasePowerEnergyMeter.UUID, subtype);
+  Service.enphasePowerAndEnergy = function (displayName, subtype) {
+    Service.call(this, displayName, Service.enphasePowerAndEnergy.UUID, subtype);
     // Mandatory Characteristics
     this.addCharacteristic(Characteristic.enphasePower);
     // Optional Characteristics
@@ -966,8 +968,8 @@ module.exports = (api) => {
     this.addOptionalCharacteristic(Characteristic.enphasePwrFactor);
     this.addOptionalCharacteristic(Characteristic.enphaseReadingTime);
   };
-  inherits(Service.enphasePowerEnergyMeter, Service);
-  Service.enphasePowerEnergyMeter.UUID = '00000004-000A-1000-8000-0026BB765291';
+  inherits(Service.enphasePowerAndEnergy, Service);
+  Service.enphasePowerAndEnergy.UUID = '00000004-000A-1000-8000-0026BB765291';
 
   //AC Batterie
   Characteristic.enphaseAcBatterieSummaryPower = function () {
@@ -1552,7 +1554,7 @@ module.exports = (api) => {
   };
   inherits(Characteristic.enphaseEnchargeRealPowerW, Characteristic);
   Characteristic.enphaseEnchargeRealPowerW.UUID = '00000162-000B-1000-8000-0026BB765291';
-  
+
   Characteristic.enphaseEnchargeCapacity = function () {
     Characteristic.call(this, 'Capacity', Characteristic.enphaseEnchargeCapacity.UUID);
     this.setProps({
@@ -3665,7 +3667,7 @@ class envoyDevice {
 
     //power and energy production
     this.productionsService = new Array();
-    const enphaseProductionService = new Service.enphasePowerEnergyMeter(this.productionMeasurmentType, 'enphaseProductionService');
+    const enphaseProductionService = new Service.enphasePowerAndEnergy('Power And Energy ' + this.productionMeasurmentType, 'enphaseProductionService');
     enphaseProductionService.getCharacteristic(Characteristic.enphasePower)
       .onGet(async () => {
         const value = this.productionPower;
@@ -3769,7 +3771,7 @@ class envoyDevice {
     if (envoySupportMeters && meterConsumptionEnabled) {
       this.consumptionsService = new Array();
       for (let i = 0; i < metersConsumpionCount; i++) {
-        const enphaseConsumptionService = new Service.enphasePowerEnergyMeter(this.consumptionMeasurmentType[i], 'enphaseConsumptionService' + i);
+        const enphaseConsumptionService = new Service.enphasePowerAndEnergy('Power And Energy ' + this.consumptionMeasurmentType[i], 'enphaseConsumptionService' + i);
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePower)
           .onGet(async () => {
             const value = this.consumptionPower[i];
@@ -3874,7 +3876,7 @@ class envoyDevice {
     //ac batteries summary
     if (acBatteriesCount > 0 && acBatteriesSummaryActiveCount > 0) {
       this.acBatteriesSummaryService = new Array();
-      const enphaseAcBatterieSummaryService = new Service.enphaseAcBatterieSummaryService('AC Batteries summary', 'enphaseAcBatterieSummaryService');
+      const enphaseAcBatterieSummaryService = new Service.enphaseAcBatterieSummary('AC Batteries Summary', 'enphaseAcBatterieSummaryService');
       enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryPower)
         .onGet(async () => {
           const value = this.acBatteriesSummaryPower;
@@ -3929,7 +3931,7 @@ class envoyDevice {
       //ac batteries state
       this.acBatteriesService = new Array();
       for (let i = 0; i < acBatteriesCount; i++) {
-        const enphaseAcBatterieService = new Service.enphaseAcBatterieService('AC Batterie ', + this.acBatteriesSerialNumber[i], 'enphaseAcBatterieService' + i);
+        const enphaseAcBatterieService = new Service.enphaseAcBatterie('AC Batterie ', + this.acBatteriesSerialNumber[i], 'enphaseAcBatterieService' + i);
         enphaseAcBatterieService.getCharacteristic(Characteristic.enphaseAcBatterieChargeStatus)
           .onGet(async () => {
             const value = this.acBatteriesChargeStatus[i];
@@ -4051,8 +4053,8 @@ class envoyDevice {
     if (microinvertersCount > 0 && microinvertersActiveCount > 0) {
       this.microinvertersService = new Array();
       for (let i = 0; i < microinvertersCount; i++) {
-        const enphaseMicronverterService = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumber[i], 'enphaseMicronverterService' + i);
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterPower)
+        const enphaseMicroinverterService = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumber[i], 'enphaseMicroinverterService' + i);
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPower)
           .onGet(async () => {
             let value = (this.checkMicroinvertersPower) ? this.microinvertersLastPower[i] : 0;
             if (!this.disableLogInfo) {
@@ -4060,7 +4062,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterPowerMax)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPowerMax)
           .onGet(async () => {
             const value = (this.checkMicroinvertersPower) ? this.microinvertersMaxPower[i] : 0;
             if (!this.disableLogInfo) {
@@ -4068,7 +4070,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterProducing)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterProducing)
           .onGet(async () => {
             const value = this.microinvertersProducing[i];
             if (!this.disableLogInfo) {
@@ -4076,7 +4078,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommunicating)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommunicating)
           .onGet(async () => {
             const value = this.microinvertersCommunicating[i];
             if (!this.disableLogInfo) {
@@ -4084,7 +4086,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterProvisioned)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterProvisioned)
           .onGet(async () => {
             const value = this.microinvertersProvisioned[i];
             if (!this.disableLogInfo) {
@@ -4092,7 +4094,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterOperating)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterOperating)
           .onGet(async () => {
             const value = this.microinvertersOperating[i];
             if (!this.disableLogInfo) {
@@ -4100,7 +4102,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
           .onGet(async () => {
             const value = (this.checkCommLevel && this.microinvertersCommLevel[i] !== undefined) ? this.microinvertersCommLevel[i] : 0;
             if (!this.disableLogInfo) {
@@ -4108,7 +4110,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterStatus)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterStatus)
           .onGet(async () => {
             const value = this.microinvertersStatus[i];
             if (!this.disableLogInfo) {
@@ -4116,7 +4118,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterFirmware)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterFirmware)
           .onGet(async () => {
             const value = this.microinvertersFirmware[i];
             if (!this.disableLogInfo) {
@@ -4124,7 +4126,7 @@ class envoyDevice {
             }
             return value;
           });
-        enphaseMicronverterService.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
+        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
           .onGet(async () => {
             const value = (this.checkMicroinvertersPower) ? this.microinvertersReadingTime[i] : '0';
             if (!this.disableLogInfo) {
@@ -4132,7 +4134,7 @@ class envoyDevice {
             }
             return value;
           });
-        this.microinvertersService.push(enphaseMicronverterService);
+        this.microinvertersService.push(enphaseMicroinverterService);
         accessory.addService(this.microinvertersService[i]);
       }
     }
@@ -4140,7 +4142,7 @@ class envoyDevice {
     //encharges
     this.enchargesService = new Array();
     for (let i = 0; i < enchargesCount; i++) {
-      const enphaseEnchargeService = new Service.enphaseEnchargeService('Encharge ', + this.enchargesSerialNumber[i], 'enphaseEnchargeService' + i);
+      const enphaseEnchargeService = new Service.enphaseEncharge('Encharge ', + this.enchargesSerialNumber[i], 'enphaseEnchargeService' + i);
       enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeAdminStateStr)
         .onGet(async () => {
           const value = this.enchargesAdminStateStr[i];
@@ -4276,7 +4278,7 @@ class envoyDevice {
     //enpower
     this.enpowersService = new Array();
     for (let i = 0; i < enpowersCount; i++) {
-      const enphaseEnpowerService = new Service.enphaseEnpowerService('Enpower ', + this.enpowersSerialNumber[i], 'enphaseEnpowerService' + i);
+      const enphaseEnpowerService = new Service.enphaseEnpower('Enpower ', + this.enpowersSerialNumber[i], 'enphaseEnpowerService' + i);
       enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerAdminStateStr)
         .onGet(async () => {
           const value = this.enpowersAdminStateStr[i];
