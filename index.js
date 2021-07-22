@@ -2135,7 +2135,7 @@ class envoyDevice {
   }
 
   async updateHomeData() {
-    this.log.debug('Device: %s %s, requesting homeData and inventoryData.', this.host, this.name);
+    this.log.debug('Device: %s %s, requesting homeData.', this.host, this.name);
     try {
       const homeData = await axios.get(this.url + ENVOY_API_URL.Home);
       this.log.debug('Device %s %s, debug homeData: %s', this.host, this.name, homeData.data);
