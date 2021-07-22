@@ -29,7 +29,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ## Info v4.x.x and above!!!
 1. Version 4.0.0 whole new concept.
-2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, comming soon - (Ensemble, Encharges, Enpowers)).
+2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, coming soon - (Ensemble, Encharges, Enpowers)).
 3. Envoy authentication is detected automatically or can be added in config if was chenged.
 4. For best experiences please use *Controller App* or *EVE app* for iOS
 5. Installer Password which is nedded to read communications level of (Microinverters, Q-Relays, AC Batteries) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
