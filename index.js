@@ -2223,8 +2223,8 @@ class envoyDevice {
         const updateStatus = ENVOY_API_CODE[homeData.data.update_status] || 'undefined';
 
         //wireless connection
-        const wirelessConnectionLength = (enchargesCount > 0 || enpowersCount > 0) ? homeData.data.wireless_connection.length : 0;
-        for (let i = 0; i < wirelessConnectionLength; i++) {
+        const wirelessConnectionsCount = (enchargesCount > 0 || enpowersCount > 0) ? homeData.data.wireless_connection.length : 0;
+        for (let i = 0; i < wirelessConnectionsCount; i++) {
           const wirelessConnectionSignalStrength = (homeData.data.wireless_connection[i].sigmal_strength * 20);
           const wirelessConnectionSignalStrengthMax = (homeData.data.wireless_connection[i].sigmal_strength_max * 20);
           const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type] || 'undefined';
@@ -2233,7 +2233,7 @@ class envoyDevice {
 
         //enpower
         const enpowerConnected = enpowersCount > 0 ? homeData.data.enpower.connected : false;
-        const enpowerGridStatus = enpowersCount > 0 ? ENVOY_API_CODE[homeData.data.enpower.grid_status] || 'undefined' : 'Enpower not installed';
+        const enpowerGridStatus = enpowersCount > 0 ? ENVOY_API_CODE[homeData.data.enpower.grid_status] || 'undefined' : '';
 
         //convert status
         const arrStatus = new Array();
@@ -2248,17 +2248,16 @@ class envoyDevice {
           this.envoysService[0]
             .updateCharacteristic(Characteristic.enphaseEnvoyAllerts, status)
             .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, dbSize + ' / ' + dbPercentFull + '%')
-            .updateCharacteristic(Characteristic.enphaseEnvoyTariff, tariff)
-            .updateCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface, primaryInterface)
-            .updateCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm, webComm)
-            .updateCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten, everReportedToEnlighten)
-            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, commNum + ' / ' + commLevel)
-            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, commPcuNum + ' / ' + commPcuLevel)
-            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, commNsrbNum + ' / ' + commNsrbLevel)
-
             .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, timeZone)
             .updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, currentDate + ' ' + currentTime)
-            .updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, lastEnlightenReporDate);
+            .updateCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm, webComm)
+            .updateCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten, everReportedToEnlighten)
+            .updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, lastEnlightenReporDate)
+            .updateCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface, primaryInterface)
+            .updateCharacteristic(Characteristic.enphaseEnvoyTariff, tariff)
+            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, commNum + ' / ' + commLevel)
+            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, commPcuNum + ' / ' + commPcuLevel)
+            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, commNsrbNum + ' / ' + commNsrbLevel);
           if (acBatteriesCount > 0) {
             this.envoysService[0]
               .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, commAcbNum + ' / ' + commAcbLevel)
@@ -2342,6 +2341,9 @@ class envoyDevice {
           const reasonCode = inventoryData.data[2].devices[i].reason_code;
           const reason = inventoryData.data[2].devices[i].reason;
           const linesCount = inventoryData.data[2].devices[i]['line-count'];
+          const line1Connected = linesCount >= 1 ? (inventoryData.data[2].devices[i]['line1-connected'] === true) : false;
+          const line2Connected = linesCount >= 2 ? (inventoryData.data[2].devices[i]['line2-connected'] === true) : false;
+          const line3Connected = linesCount >= 3 ? (inventoryData.data[2].devices[i]['line3-connected'] === true) : false;
 
           //convert status
           const arrStatus = new Array();
@@ -2351,31 +2353,6 @@ class envoyDevice {
             }
           }
           const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
-
-          if (linesCount >= 1) {
-            const line1Connected = (inventoryData.data[2].devices[i]['line1-connected'] === true);
-            if (this.qRelaysService) {
-              this.qRelaysService[i]
-                .updateCharacteristic(Characteristic.enphaseQrelayLine1Connected, line1Connected);
-            }
-            this.qRelaysLine1Connected.push(line1Connected);
-          }
-          if (linesCount >= 2) {
-            const line2Connected = (inventoryData.data[2].devices[i]['line2-connected'] === true);
-            if (this.qRelaysService) {
-              this.qRelaysService[i]
-                .updateCharacteristic(Characteristic.enphaseQrelayLine2Connected, line2Connected);
-            }
-            this.qRelaysLine2Connected.push(line2Connected);
-          }
-          if (linesCount >= 3) {
-            const line3Connected = (inventoryData.data[2].devices[i]['line3-connected'] === true);
-            if (this.qRelaysService) {
-              this.qRelaysService[i]
-                .updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, line3Connected);
-            }
-            this.qRelaysLine3Connected.push(line3Connected);
-          }
 
           if (this.qRelaysService) {
             this.qRelaysService[i]
@@ -2388,6 +2365,18 @@ class envoyDevice {
               .updateCharacteristic(Characteristic.enphaseQrelayOperating, operating)
               .updateCharacteristic(Characteristic.enphaseQrelayState, relay)
               .updateCharacteristic(Characteristic.enphaseQrelayLinesCount, linesCount)
+            if (linesCount >= 1) {
+              this.qRelaysService[i]
+                .updateCharacteristic(Characteristic.enphaseQrelayLine1Connected, line1Connected);
+            }
+            if (linesCount >= 2) {
+              this.qRelaysService[i]
+                .updateCharacteristic(Characteristic.enphaseQrelayLine2Connected, line2Connected);
+            }
+            if (linesCount >= 3) {
+              this.qRelaysService[i]
+                .updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, line3Connected);
+            }
           }
 
           this.qRelaysSerialNumber.push(serialNumber);
@@ -2400,6 +2389,9 @@ class envoyDevice {
           this.qRelaysOperating.push(operating);
           this.qRelaysRelay.push(relay);
           this.qRelaysLinesCount.push(linesCount);
+          this.qRelaysLine1Connected.push(line1Connected);
+          this.qRelaysLine2Connected.push(line2Connected);
+          this.qRelaysLine3Connected.push(line3Connected);
         }
         this.qRelaysType = type;
       }
