@@ -1897,7 +1897,6 @@ class envoyDevice {
     //setup variables
     this.checkDeviceInfo = false;
     this.checkDeviceState = false;
-    this.checkMicroinvertersPower = false;
     this.checkCommLevel = false;
     this.startPrepareAccessory = true;
 
@@ -1905,6 +1904,10 @@ class envoyDevice {
     this.inventoryData = 0;
     this.metersData = 0;
     this.inventoryEnsembleData = 0;
+    this.productionData = 0;
+    this.productionCtData = 0;
+    this.meterReadingData = 0;
+    this.microinvertersData = 0;
 
     this.envoyCheckCommLevel = false;
     this.envoySerialNumber = '';
@@ -2017,6 +2020,7 @@ class envoyDevice {
         this.getDeviceInfo();
       }
       if (!this.checkDeviceInfo && this.checkDeviceState) {
+        this.updateProductionConsumptionData();
         this.updateDeviceState();
         if (this.envoyCheckCommLevel && this.installerPasswd) {
           this.updateCommLevel();
@@ -2028,7 +2032,7 @@ class envoyDevice {
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
         this.updateHomeInventoryData();
-        this.updateMicroinvertersPower();
+        this.updateMicroinvertersPowerData();
       }
     }.bind(this), this.refreshInterval * 5000);
   }
@@ -2124,6 +2128,8 @@ class envoyDevice {
       this.updateHomeInventoryData();
     } catch (error) {
       this.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', this.host, this.name, error);
+      this.inventoryData = 0;
+      this.metersData = 0;
       this.checkDeviceInfo = true;
     };
   }
@@ -2136,9 +2142,59 @@ class envoyDevice {
       this.homeData = homeData;
       this.inventoryData = inventoryData;
 
-      this.updateDeviceState();
+      this.updateProductionConsumptionData();
     } catch (error) {
       this.log.debug('Device: %s %s, homeData or inventoryData error: %s', this.host, this.name, error);
+      this.homeData = 0;
+      this.inventoryData = 0;
+      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
+    };
+  }
+
+  async updateProductionConsumptionData() {
+    this.log.debug('Device: %s %s, requesting homeData and inventoryData.', this.host, this.name);
+    try {
+      const [productionData, productionCtData, meterReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats), axios.get(this.url + ENVOY_API_URL.InternalMeterReadings)]);
+      this.log.debug('Debug productionData: %s, productionCtData: %s, meterReadingData: %s', productionData.data, productionCtData.data, meterReadingData.data);
+      this.productionData = productionData;
+      this.productionCtData = productionCtData;
+      this.meterReadingData = meterReadingData;
+
+      const updateMicroinvertersPower = this.startPrepareAccessory ? this.updateMicroinvertersPowerData() : false;
+    } catch (error) {
+      this.log.debug('Device: %s %s, productionData, productionCtData or meterReadingData error: %s', this.host, this.name, error);
+      this.productionData = 0;
+      this.productionCtData = 0;
+      this.meterReadingData = 0;
+      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
+    };
+  }
+
+  async updateMicroinvertersPowerData() {
+    this.log.debug('Device: %s %s, requesting microinverters power', this.host, this.name);
+    try {
+      const passSerialNumber = this.envoySerialNumber.substring(6);
+      const passEnvoy = this.envoyPasswd;
+      const passwd = passEnvoy || passSerialNumber;
+      const auth = ENVOY_USER + ':' + passwd;
+      const authEnvoy = {
+        method: 'GET',
+        rejectUnauthorized: false,
+        digestAuth: auth,
+        dataType: 'json',
+        timeout: [5000, 5000]
+      };
+      const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
+      this.log.debug('Debug production inverters: %s', microinvertersData.data);
+
+      this.microinvertersData = microinvertersData;
+      const updateMicroinvertersPower = this.startPrepareAccessory ? this.updateDeviceState() : false;
+    } catch (error) {
+      this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
+      this.microinvertersData = 0;
+      this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
   }
@@ -2159,12 +2215,12 @@ class envoyDevice {
       //get inventory and meters data;
       const homeData = this.homeData;
       const inventoryData = this.inventoryData;
+      const productionData = this.productionData;
+      const productionCtData = this.productionCtData;
       const metersData = this.metersData;
+      const meterReadingData = this.meterReadingData;
+      const microinvertersData = this.microinvertersData
       const inventoryEnsembleData = this.inventoryEnsembleData;
-
-      //read all other data;
-      const [productionData, productionCtData, meterReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats), axios.get(this.url + ENVOY_API_URL.InternalMeterReadings)]);
-      this.log.debug('Debug productionData: %s, productionCtData: %s, meterReadingData: %s', productionData.data, productionCtData.data, meterReadingData.data);
 
       //envoy
       if (homeData.status === 200) {
@@ -2302,98 +2358,463 @@ class envoyDevice {
         this.envoyEnpowerGridStatus = enpowerGridStatus;
       }
 
-      //qrelays
-      if (qRelaysCount > 0 && inventoryData.status === 200) {
-        this.qRelaysSerialNumber = new Array();
-        this.qRelaysStatus = new Array();
-        this.qRelaysLastReportDate = new Array();
-        this.qRelaysFirmware = new Array();
-        this.qRelaysProducing = new Array();
-        this.qRelaysCommunicating = new Array();
-        this.qRelaysProvisioned = new Array();
-        this.qRelaysOperating = new Array();
-        this.qRelaysRelay = new Array();
-        this.qRelaysLinesCount = new Array();
-        this.qRelaysLine1Connected = new Array();
-        this.qRelaysLine2Connected = new Array();
-        this.qRelaysLine3Connected = new Array();
+      if (inventoryData.status === 200) {
+        //microinverters inventory
+        if (microinvertersCount > 0) {
+          this.microinvertersSerialNumber = new Array();
+          this.microinvertersStatus = new Array();
+          this.microinvertersLastReportDate = new Array();
+          this.microinvertersFirmware = new Array();
+          this.microinvertersProducing = new Array();
+          this.microinvertersCommunicating = new Array();
+          this.microinvertersProvisioned = new Array();
+          this.microinvertersOperating = new Array();
 
-        const type = ENVOY_API_CODE[inventoryData.data[2].type] || 'undefined';
-        for (let i = 0; i < qRelaysCount; i++) {
-          const partNum = ENPHASE_PART_NUMBER[inventoryData.data[2].devices[i].part_num] || 'Q-Relay'
-          const installed = new Date(inventoryData.data[2].devices[i].installed * 1000).toLocaleString();
-          const serialNumber = inventoryData.data[2].devices[i].serial_num;
-          const deviceStatus = inventoryData.data[2].devices[i].device_status;
-          const lastReportDate = new Date(inventoryData.data[2].devices[i].last_rpt_date * 1000).toLocaleString();
-          const adminState = inventoryData.data[2].devices[i].admin_state;
-          const devType = inventoryData.data[2].devices[i].dev_type;
-          const createdDate = new Date(inventoryData.data[2].devices[i].created_date * 1000).toLocaleString();
-          const imageLoadDate = new Date(inventoryData.data[2].devices[i].img_load_date * 1000).toLocaleString();
-          const firmware = inventoryData.data[2].devices[i].img_pnum_running;
-          const ptpn = inventoryData.data[2].devices[i].ptpn;
-          const chaneId = inventoryData.data[2].devices[i].chaneid;
-          const deviceControl = inventoryData.data[2].devices[i].device_control;
-          const producing = (inventoryData.data[2].devices[i].producing === true);
-          const communicating = (inventoryData.data[2].devices[i].communicating === true);
-          const provisioned = (inventoryData.data[2].devices[i].provisioned === true);
-          const operating = (inventoryData.data[2].devices[i].operating === true);
-          const relay = (inventoryData.data[2].devices[i].relay === 'closed') || false;
-          const reasonCode = inventoryData.data[2].devices[i].reason_code;
-          const reason = inventoryData.data[2].devices[i].reason;
-          const linesCount = inventoryData.data[2].devices[i]['line-count'];
-          const line1Connected = linesCount >= 1 ? (inventoryData.data[2].devices[i]['line1-connected'] === true) : false;
-          const line2Connected = linesCount >= 2 ? (inventoryData.data[2].devices[i]['line2-connected'] === true) : false;
-          const line3Connected = linesCount >= 3 ? (inventoryData.data[2].devices[i]['line3-connected'] === true) : false;
+          const type = ENVOY_API_CODE[inventoryData.data[0].type] || 'undefined';
+          for (let i = 0; i < microinvertersCount; i++) {
+            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[0].devices[i].part_num] || 'Microinverter';
+            const installed = new Date(inventoryData.data[0].devices[i].installed * 1000).toLocaleString();
+            const serialNumber = inventoryData.data[0].devices[i].serial_num;
+            const deviceStatus = inventoryData.data[0].devices[i].device_status;
+            const lastReportDate = new Date(inventoryData.data[0].devices[i].last_rpt_date * 1000).toLocaleString();
+            const adminState = inventoryData.data[0].devices[i].admin_state;
+            const devType = inventoryData.data[0].devices[i].dev_type;
+            const createdDate = new Date(inventoryData.data[0].devices[i].created_date * 1000).toLocaleString();
+            const imageLoadDate = new Date(inventoryData.data[0].devices[i].img_load_date * 1000).toLocaleString();
+            const firmware = inventoryData.data[0].devices[i].img_pnum_running;
+            const ptpn = inventoryData.data[0].devices[i].ptpn;
+            const chaneId = inventoryData.data[0].devices[i].chaneid;
+            const deviceControl = inventoryData.data[0].devices[i].device_control;
+            const producing = (inventoryData.data[0].devices[i].producing === true);
+            const communicating = (inventoryData.data[0].devices[i].communicating === true);
+            const provisioned = (inventoryData.data[0].devices[i].provisioned === true);
+            const operating = (inventoryData.data[0].devices[i].operating === true);
 
-          //convert status
-          const arrStatus = new Array();
-          if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
-            for (let j = 0; j < deviceStatus.length; j++) {
-              arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+            //convert status
+            const arrStatus = new Array();
+            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
+              for (let j = 0; j < deviceStatus.length; j++) {
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+              }
             }
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+
+            if (this.microinvertersService) {
+              this.microinvertersService[i]
+                .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status)
+                .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
+                .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware)
+                .updateCharacteristic(Characteristic.enphaseMicroinverterProducing, producing)
+                .updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, communicating)
+                .updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, provisioned)
+                .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating);
+
+            }
+
+            this.microinvertersSerialNumber.push(serialNumber);
+            this.microinvertersStatus.push(status);
+            this.microinvertersLastReportDate.push(lastReportDate);
+            this.microinvertersFirmware.push(firmware);
+            this.microinvertersProducing.push(producing);
+            this.microinvertersCommunicating.push(communicating);
+            this.microinvertersProvisioned.push(provisioned);
+            this.microinvertersOperating.push(operating);
           }
-          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
-
-          if (this.qRelaysService) {
-            this.qRelaysService[i]
-              .updateCharacteristic(Characteristic.enphaseQrelayStatus, status)
-              .updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, lastReportDate)
-              .updateCharacteristic(Characteristic.enphaseQrelayFirmware, firmware)
-              .updateCharacteristic(Characteristic.enphaseQrelayProducing, producing)
-              .updateCharacteristic(Characteristic.enphaseQrelayCommunicating, communicating)
-              .updateCharacteristic(Characteristic.enphaseQrelayProvisioned, provisioned)
-              .updateCharacteristic(Characteristic.enphaseQrelayOperating, operating)
-              .updateCharacteristic(Characteristic.enphaseQrelayState, relay)
-              .updateCharacteristic(Characteristic.enphaseQrelayLinesCount, linesCount)
-            if (linesCount >= 1) {
-              this.qRelaysService[i]
-                .updateCharacteristic(Characteristic.enphaseQrelayLine1Connected, line1Connected);
-            }
-            if (linesCount >= 2) {
-              this.qRelaysService[i]
-                .updateCharacteristic(Characteristic.enphaseQrelayLine2Connected, line2Connected);
-            }
-            if (linesCount >= 3) {
-              this.qRelaysService[i]
-                .updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, line3Connected);
-            }
-          }
-
-          this.qRelaysSerialNumber.push(serialNumber);
-          this.qRelaysStatus.push(status);
-          this.qRelaysLastReportDate.push(lastReportDate);
-          this.qRelaysFirmware.push(firmware);
-          this.qRelaysProducing.push(producing);
-          this.qRelaysCommunicating.push(communicating);
-          this.qRelaysProvisioned.push(provisioned);
-          this.qRelaysOperating.push(operating);
-          this.qRelaysRelay.push(relay);
-          this.qRelaysLinesCount.push(linesCount);
-          this.qRelaysLine1Connected.push(line1Connected);
-          this.qRelaysLine2Connected.push(line2Connected);
-          this.qRelaysLine3Connected.push(line3Connected);
+          this.microinvertersType = type;
         }
-        this.qRelaysType = type;
+
+        //ac btteries inventoty
+        if (acBatteriesCount > 0) {
+          this.acBatteriesSerialNumber = new Array();
+          this.acBatteriesStatus = new Array();
+          this.acBatteriesLastReportDate = new Array();
+          this.acBatteriesFirmware = new Array();
+          this.acBatteriesProducing = new Array();
+          this.acBatteriesCommunicating = new Array();
+          this.acBatteriesProvisioned = new Array();
+          this.acBatteriesOperating = new Array();
+          this.acBatteriesSleepEnabled = new Array();
+          this.acBatteriesPercentFull = new Array();
+          this.acBatteriesMaxCellTemp = new Array();
+          this.acBatteriesSleepMinSoc = new Array();
+          this.acBatteriesSleepMaxSoc = new Array();
+          this.acBatteriesChargeStatus = new Array();
+
+          const type = ENVOY_API_CODE[inventoryData.data[1].type] || 'undefined';
+          for (let i = 0; i < acBatteriesCount; i++) {
+            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'undefined'
+            const installed = new Date(inventoryData.data[1].devices[i].installed * 1000).toLocaleString();
+            const serialNumber = inventoryData.data[1].devices[i].serial_num;
+            const deviceStatus = inventoryData.data[1].devices[i].device_status;
+            const lastReportDate = new Date(inventoryData.data[1].devices[i].last_rpt_date * 1000).toLocaleString();
+            const adminState = inventoryData.data[1].devices[i].admin_state;
+            const devType = inventoryData.data[1].devices[i].dev_type;
+            const createdDate = new Date(inventoryData.data[1].devices[i].created_date * 1000).toLocaleString();
+            const imageLoadDate = new Date(inventoryData.data[1].devices[i].img_load_date * 1000).toLocaleString();
+            const firmware = inventoryData.data[1].devices[i].img_pnum_running;
+            const ptpn = inventoryData.data[1].devices[i].ptpn;
+            const chaneId = inventoryData.data[1].devices[i].chaneid;
+            const deviceControl = inventoryData.data[1].devices[i].device_control;
+            const producing = (inventoryData.data[1].devices[i].producing === true);
+            const communicating = (inventoryData.data[1].devices[i].communicating === true);
+            const provisioned = (inventoryData.data[1].devices[i].provisioned === true);
+            const operating = (inventoryData.data[1].devices[i].operating === true);
+            const sleepEnabled = inventoryData.data[1].devices[i].sleep_enabled;
+            const percentFull = inventoryData.data[1].devices[i].percentFull;
+            const maxCellTemp = inventoryData.data[1].devices[i].maxCellTemp;
+            const sleepMinSoc = inventoryData.data[1].devices[i].sleep_min_soc;
+            const sleepMaxSoc = inventoryData.data[1].devices[i].sleep_max_soc;
+            const chargeStatus = ENVOY_API_CODE[inventoryData.data[1].devices[i].charge_status] || 'undefined';
+
+            //convert status
+            const arrStatus = new Array();
+            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
+              for (let j = 0; j < deviceStatus.length; j++) {
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+              }
+            }
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+
+            if (this.acBatteriesService) {
+              this.acBatteriesService[i]
+                .updateCharacteristic(Characteristic.enphasAcBatterieStatus, status)
+                .updateCharacteristic(Characteristic.enphasAcBatterieLastReportDate, lastReportDate)
+                .updateCharacteristic(Characteristic.enphasAcBatterieFirmware, firmware)
+                .updateCharacteristic(Characteristic.enphasAcBatterieProducing, producing)
+                .updateCharacteristic(Characteristic.enphasAcBatterieCommunicating, communicating)
+                .updateCharacteristic(Characteristic.enphasAcBatterieProvisioned, provisioned)
+                .updateCharacteristic(Characteristic.enphasAcBatterieOperating, operating)
+                .updateCharacteristic(Characteristic.enphasAcBatterieSleepEnabled, sleepEnabled)
+                .updateCharacteristic(Characteristic.enphasAcBatteriePercentFull, percentFull)
+                .updateCharacteristic(Characteristic.enphasAcBatterieMaxCellTemp, maxCellTemp)
+                .updateCharacteristic(Characteristic.enphasAcBatterieSleepMinSoc, sleepMinSoc)
+                .updateCharacteristic(Characteristic.enphasAcBatterieSleepMaxSoc, sleepMaxSoc)
+                .updateCharacteristic(Characteristic.enphasAcBatterieChargeStatus, chargeStatus);
+            }
+
+            this.acBatteriesSerialNumber.push(serialNumber);
+            this.acBatteriesStatus.push(status);
+            this.acBatteriesLastReportDate.push(lastReportDate);
+            this.acBatteriesFirmware.push(firmware);
+            this.acBatteriesProducing.push(producing);
+            this.acBatteriesCommunicating.push(communicating);
+            this.acBatteriesProvisioned.push(provisioned);
+            this.acBatteriesOperating.push(operating);
+            this.acBatteriesSleepEnabled.push(sleepEnabled);
+            this.acBatteriesPercentFull.push(percentFull);
+            this.acBatteriesMaxCellTemp.push(maxCellTemp);
+            this.acBatteriesSleepMinSoc.push(sleepMinSoc);
+            this.acBatteriesSleepMaxSoc.push(sleepMaxSoc);
+            this.acBatteriesChargeStatus.push(chargeStatus);
+          }
+          this.acBatteriesType = type;
+        }
+
+        //qrelays inventory
+        if (qRelaysCount > 0) {
+          this.qRelaysSerialNumber = new Array();
+          this.qRelaysStatus = new Array();
+          this.qRelaysLastReportDate = new Array();
+          this.qRelaysFirmware = new Array();
+          this.qRelaysProducing = new Array();
+          this.qRelaysCommunicating = new Array();
+          this.qRelaysProvisioned = new Array();
+          this.qRelaysOperating = new Array();
+          this.qRelaysRelay = new Array();
+          this.qRelaysLinesCount = new Array();
+          this.qRelaysLine1Connected = new Array();
+          this.qRelaysLine2Connected = new Array();
+          this.qRelaysLine3Connected = new Array();
+
+          const type = ENVOY_API_CODE[inventoryData.data[2].type] || 'undefined';
+          for (let i = 0; i < qRelaysCount; i++) {
+            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[2].devices[i].part_num] || 'Q-Relay'
+            const installed = new Date(inventoryData.data[2].devices[i].installed * 1000).toLocaleString();
+            const serialNumber = inventoryData.data[2].devices[i].serial_num;
+            const deviceStatus = inventoryData.data[2].devices[i].device_status;
+            const lastReportDate = new Date(inventoryData.data[2].devices[i].last_rpt_date * 1000).toLocaleString();
+            const adminState = inventoryData.data[2].devices[i].admin_state;
+            const devType = inventoryData.data[2].devices[i].dev_type;
+            const createdDate = new Date(inventoryData.data[2].devices[i].created_date * 1000).toLocaleString();
+            const imageLoadDate = new Date(inventoryData.data[2].devices[i].img_load_date * 1000).toLocaleString();
+            const firmware = inventoryData.data[2].devices[i].img_pnum_running;
+            const ptpn = inventoryData.data[2].devices[i].ptpn;
+            const chaneId = inventoryData.data[2].devices[i].chaneid;
+            const deviceControl = inventoryData.data[2].devices[i].device_control;
+            const producing = (inventoryData.data[2].devices[i].producing === true);
+            const communicating = (inventoryData.data[2].devices[i].communicating === true);
+            const provisioned = (inventoryData.data[2].devices[i].provisioned === true);
+            const operating = (inventoryData.data[2].devices[i].operating === true);
+            const relay = (inventoryData.data[2].devices[i].relay === 'closed') || false;
+            const reasonCode = inventoryData.data[2].devices[i].reason_code;
+            const reason = inventoryData.data[2].devices[i].reason;
+            const linesCount = inventoryData.data[2].devices[i]['line-count'];
+            const line1Connected = linesCount >= 1 ? (inventoryData.data[2].devices[i]['line1-connected'] === true) : false;
+            const line2Connected = linesCount >= 2 ? (inventoryData.data[2].devices[i]['line2-connected'] === true) : false;
+            const line3Connected = linesCount >= 3 ? (inventoryData.data[2].devices[i]['line3-connected'] === true) : false;
+
+            //convert status
+            const arrStatus = new Array();
+            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
+              for (let j = 0; j < deviceStatus.length; j++) {
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+              }
+            }
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+
+            if (this.qRelaysService) {
+              this.qRelaysService[i]
+                .updateCharacteristic(Characteristic.enphaseQrelayStatus, status)
+                .updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, lastReportDate)
+                .updateCharacteristic(Characteristic.enphaseQrelayFirmware, firmware)
+                .updateCharacteristic(Characteristic.enphaseQrelayProducing, producing)
+                .updateCharacteristic(Characteristic.enphaseQrelayCommunicating, communicating)
+                .updateCharacteristic(Characteristic.enphaseQrelayProvisioned, provisioned)
+                .updateCharacteristic(Characteristic.enphaseQrelayOperating, operating)
+                .updateCharacteristic(Characteristic.enphaseQrelayState, relay)
+                .updateCharacteristic(Characteristic.enphaseQrelayLinesCount, linesCount)
+              if (linesCount >= 1) {
+                this.qRelaysService[i]
+                  .updateCharacteristic(Characteristic.enphaseQrelayLine1Connected, line1Connected);
+              }
+              if (linesCount >= 2) {
+                this.qRelaysService[i]
+                  .updateCharacteristic(Characteristic.enphaseQrelayLine2Connected, line2Connected);
+              }
+              if (linesCount >= 3) {
+                this.qRelaysService[i]
+                  .updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, line3Connected);
+              }
+            }
+
+            this.qRelaysSerialNumber.push(serialNumber);
+            this.qRelaysStatus.push(status);
+            this.qRelaysLastReportDate.push(lastReportDate);
+            this.qRelaysFirmware.push(firmware);
+            this.qRelaysProducing.push(producing);
+            this.qRelaysCommunicating.push(communicating);
+            this.qRelaysProvisioned.push(provisioned);
+            this.qRelaysOperating.push(operating);
+            this.qRelaysRelay.push(relay);
+            this.qRelaysLinesCount.push(linesCount);
+            this.qRelaysLine1Connected.push(line1Connected);
+            this.qRelaysLine2Connected.push(line2Connected);
+            this.qRelaysLine3Connected.push(line3Connected);
+          }
+          this.qRelaysType = type;
+        }
+      }
+
+      //production
+      //microinverters summary 
+      const productionMicroSummarywhToday = productionData.status === 200 ? parseFloat(productionData.data.wattHoursToday / 1000) : 0;
+      const productionMicroSummarywhLastSevenDays = productionData.status === 200 ? parseFloat(productionData.data.wattHoursSevenDays / 1000) : 0;
+      const productionMicroSummarywhLifeTime = productionData.status === 200 ? parseFloat((productionData.data.wattHoursLifetime + this.productionEnergyLifetimeOffset) / 1000) : 0;
+      const productionMicroSummaryWattsNow = productionData.status === 200 ? parseFloat(productionData.data.wattsNow / 1000) : 0;
+
+      if (productionCtData.status === 200) {
+        //microinverters summary CT
+        const productionMicroType = ENVOY_API_CODE[productionCtData.data.production[0].type] || 'undefined';
+        const productionMicroActiveCount = productionCtData.data.production[0].activeCount;
+        const productionMicroReadingTime = new Date(productionCtData.data.production[0].readingTime * 1000).toLocaleString();
+        const productionMicroPower = parseFloat(productionCtData.data.production[0].wNow / 1000);
+        const productionMicroEnergyLifeTime = parseFloat((productionCtData.data.production[0].whLifetime + this.productionEnergyLifetimeOffset) / 1000);
+
+        //current transformers
+        const productionType = meterProductionEnabled ? ENVOY_API_CODE[productionCtData.data.production[1].type] : productionMicroType;
+        const productionActiveCount = meterProductionEnabled ? productionCtData.data.production[1].activeCount : 0;
+        const productionMeasurmentType = meterProductionEnabled ? ENVOY_API_CODE[productionCtData.data.production[1].measurementType] : 'undefined';
+        const productionReadingTime = meterProductionEnabled ? new Date(productionCtData.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
+        const productionPower = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].wNow / 1000) : productionMicroSummaryWattsNow;
+
+        //save and read power max and state
+        const savedProductionPowerMax = await fsPromises.readFile(this.productionPowerMaxFile);
+        this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedProductionPowerMax);
+        const productionPowerMax = parseFloat(savedProductionPowerMax);
+
+        if (productionPower > productionPowerMax) {
+          const write = await fsPromises.writeFile(this.productionPowerMaxFile, productionPower.toString());
+          this.log.debug('Device: %s %s, productionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.productionPowerMaxFile, productionPower);
+
+        }
+
+        //power max state detected
+        const productionPowerMaxDetectedState = (productionPower >= (this.productionPowerMaxDetected / 1000)) ? true : false;
+
+        //energy
+        const productionEnergyLifeTime = meterProductionEnabled ? parseFloat((productionCtData.data.production[1].whLifetime + this.productionEnergyLifetimeOffset) / 1000) : productionMicroSummarywhLifeTime;
+        const productionEnergyVarhLeadLifetime = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].varhLeadLifetime / 1000) : 0;
+        const productionEnergyVarhLagLifetime = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].varhLagLifetime / 1000) : 0;
+        const productionEnergyLastSevenDays = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].whLastSevenDays / 1000) : productionMicroSummarywhLastSevenDays;
+        const productionEnergyToday = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].whToday / 1000) : productionMicroSummarywhToday;
+        const productionEnergyVahToday = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].vahToday / 1000) : 0;
+        const productionEnergyVarhLeadToday = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].varhLeadToday / 1000) : 0;
+        const productionEnergyVarhLagToday = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].varhLagToday / 1000) : 0;
+
+        //param
+        const productionRmsCurrent = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].rmsCurrent) : 0;
+        const productionRmsVoltage = meterProductionEnabled ? parseFloat((productionCtData.data.production[1].rmsVoltage) / 3) : 0;
+        const productionReactivePower = meterProductionEnabled ? parseFloat((productionCtData.data.production[1].reactPwr) / 1000) : 0;
+        const productionApparentPower = meterProductionEnabled ? parseFloat((productionCtData.data.production[1].apprntPwr) / 1000) : 0;
+        const productionPwrFactor = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].pwrFactor) : 0;
+
+        if (this.productionsService) {
+          this.productionsService[0]
+            .updateCharacteristic(Characteristic.enphaseReadingTime, productionReadingTime)
+            .updateCharacteristic(Characteristic.enphasePower, productionPower)
+            .updateCharacteristic(Characteristic.enphasePowerMax, productionPowerMax)
+            .updateCharacteristic(Characteristic.enphasePowerMaxDetected, productionPowerMaxDetectedState)
+            .updateCharacteristic(Characteristic.enphaseEnergyToday, productionEnergyToday)
+            .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, productionEnergyLastSevenDays)
+            .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, productionEnergyLifeTime);
+          if (meterProductionEnabled) {
+            this.productionsService[0]
+              .updateCharacteristic(Characteristic.enphaseRmsCurrent, productionRmsCurrent)
+              .updateCharacteristic(Characteristic.enphaseRmsVoltage, productionRmsVoltage)
+              .updateCharacteristic(Characteristic.enphaseReactivePower, productionReactivePower)
+              .updateCharacteristic(Characteristic.enphaseApparentPower, productionApparentPower)
+              .updateCharacteristic(Characteristic.enphasePwrFactor, productionPwrFactor);
+          }
+        }
+        this.microinvertersActiveCount = productionMicroActiveCount;
+
+        this.productionActiveCount = productionActiveCount;
+        this.productionType = productionType;
+        this.productionMeasurmentType = productionMeasurmentType;
+        this.productionReadingTime = productionReadingTime;
+        this.productionPower = productionPower;
+        this.productionPowerMax = productionPowerMax;
+        this.productionPowerMaxDetectedState = productionPowerMaxDetectedState;
+        this.productionEnergyToday = productionEnergyToday;
+        this.productionEnergyLastSevenDays = productionEnergyLastSevenDays;
+        this.productionEnergyLifeTime = productionEnergyLifeTime;
+
+        this.productionRmsCurrent = productionRmsCurrent;
+        this.productionRmsVoltage = productionRmsVoltage;
+        this.productionReactivePower = productionReactivePower;
+        this.productionApparentPower = productionApparentPower;
+        this.productionPwrFactor = productionPwrFactor;
+
+        //consumption
+        if (meterConsumptionEnabled) {
+          this.consumptionType = new Array();
+          this.consumptionMeasurmentType = new Array();
+          this.consumptionActiveCount = new Array();
+          this.consumptionReadingTime = new Array();
+          this.consumptionPower = new Array();
+          this.consumptionPowerMax = new Array();
+          this.consumptionPowerMaxDetectedState = new Array();
+          this.consumptionEnergyToday = new Array();
+          this.consumptionEnergyLastSevenDays = new Array();
+          this.consumptionEnergyLifeTime = new Array();
+          this.consumptionRmsCurrent = new Array();
+          this.consumptionRmsVoltage = new Array();
+          this.consumptionReactivePower = new Array();
+          this.consumptionApparentPower = new Array();
+          this.consumptionPwrFactor = new Array();
+
+          const metersConsumpionCount = productionCtData.data.consumption.length;
+          for (let i = 0; i < metersConsumpionCount; i++) {
+            //power
+            const consumptionType = ENVOY_API_CODE[productionCtData.data.consumption[i].type] || 'undefined';
+            const consumptionActiveCount = productionCtData.data.consumption[i].activeCount;
+            const consumptionMeasurmentType = ENVOY_API_CODE[productionCtData.data.consumption[i].measurementType] || 'undefined';
+            const consumptionReadingTime = new Date(productionCtData.data.consumption[i].readingTime * 1000).toLocaleString();
+            const consumptionPower = parseFloat(productionCtData.data.consumption[i].wNow / 1000);
+
+            //save and read power max and state
+            const savedConsumptionPowerMax = [await fsPromises.readFile(this.consumptionPowerMaxFile), await fsPromises.readFile(this.consumptionPowerMaxFile1)][i];
+            this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedConsumptionPowerMax);
+            const consumptionPowerMax = parseFloat(savedConsumptionPowerMax);
+
+            if (consumptionPower > consumptionPowerMax) {
+              const write = [await fsPromises.writeFile(this.consumptionPowerMaxFile, consumptionPower.toString()), await fsPromises.writeFile(this.consumptionPowerMaxFile1, consumptionPower.toString())][i];
+              this.log.debug('Device: %s %s, consumptionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.consumptionPowerMaxFile, consumptionPower);
+            }
+
+            //power max state detected
+            const consumptionPowerMaxDetectedState = (consumptionPower >= (([this.consumptionTotalPowerMaxDetected, this.consumptionNetPowerMaxDetected][i]) / 1000)) ? true : false;
+
+            //energy
+            const lifeTimeOffset = [this.consumptionTotalEnergyLifetimeOffset, this.consumptionNetEnergyLifetimeOffset][i];
+            const consumptionEnergyLifeTime = parseFloat((productionCtData.data.consumption[i].whLifetime + lifeTimeOffset) / 1000);
+            const consumptionEnergyVarhLeadLifetime = parseFloat(productionCtData.data.consumption[i].varhLeadLifetime / 1000);
+            const consumptionEnergyVarhLagLifetime = parseFloat(productionCtData.data.consumption[i].varhLagLifetime / 1000);
+            const consumptionEnergyLastSevenDays = parseFloat(productionCtData.data.consumption[i].whLastSevenDays / 1000);
+            const consumptionEnergyToday = parseFloat(productionCtData.data.consumption[i].whToday / 1000);
+            const consumptionEnergyVahToday = parseFloat(productionCtData.data.consumption[i].vahToday / 1000);
+            const consumptionEnergyVarhLeadToday = parseFloat(productionCtData.data.consumption[i].varhLeadToday / 1000);
+            const consumptionEnergyVarhLagToday = parseFloat(productionCtData.data.consumption[i].varhLagToday / 1000);
+
+            //param
+            const consumptionRmsCurrent = parseFloat(productionCtData.data.consumption[i].rmsCurrent);
+            const consumptionRmsVoltage = parseFloat((productionCtData.data.consumption[i].rmsVoltage) / 3);
+            const consumptionReactivePower = parseFloat((productionCtData.data.consumption[i].reactPwr) / 1000);
+            const consumptionApparentPower = parseFloat((productionCtData.data.consumption[i].apprntPwr) / 1000);
+            const consumptionPwrFactor = parseFloat(productionCtData.data.consumption[i].pwrFactor);
+
+            if (this.consumptionsService) {
+              this.consumptionsService[i]
+                .updateCharacteristic(Characteristic.enphaseReadingTime, consumptionReadingTime)
+                .updateCharacteristic(Characteristic.enphasePower, consumptionPower)
+                .updateCharacteristic(Characteristic.enphasePowerMax, consumptionPowerMax)
+                .updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionPowerMaxDetectedState)
+                .updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionEnergyToday)
+                .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionEnergyLastSevenDays)
+                .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, consumptionEnergyLifeTime)
+                .updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionRmsCurrent)
+                .updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionRmsVoltage)
+                .updateCharacteristic(Characteristic.enphaseReactivePower, consumptionReactivePower)
+                .updateCharacteristic(Characteristic.enphaseApparentPower, consumptionApparentPower)
+                .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor);
+            }
+            this.metersConsumpionCount = metersConsumpionCount;
+            this.consumptionType.push(consumptionType);
+            this.consumptionMeasurmentType.push(consumptionMeasurmentType);
+            this.consumptionActiveCount.push(consumptionActiveCount);
+            this.consumptionReadingTime.push(consumptionReadingTime);
+            this.consumptionPower.push(consumptionPower);
+            this.consumptionPowerMax.push(consumptionPowerMax);
+            this.consumptionPowerMaxDetectedState.push(consumptionPowerMaxDetectedState);
+            this.consumptionEnergyToday.push(consumptionEnergyToday);
+            this.consumptionEnergyLastSevenDays.push(consumptionEnergyLastSevenDays);
+            this.consumptionEnergyLifeTime.push(consumptionEnergyLifeTime);
+            this.consumptionRmsCurrent.push(consumptionRmsCurrent);
+            this.consumptionRmsVoltage.push(consumptionRmsVoltage);
+            this.consumptionReactivePower.push(consumptionReactivePower);
+            this.consumptionApparentPower.push(consumptionApparentPower);
+            this.consumptionPwrFactor.push(consumptionPwrFactor);
+          }
+        }
+
+        //ac btteries summary
+        if (acBatteriesCount > 0) {
+          const type = ENVOY_API_CODE[productionCtData.data.storage[0].type] || 'undefined';
+          const activeCount = productionCtData.data.storage[0].activeCount;
+          const readingTime = new Date(productionCtData.data.storage[0].readingTime * 1000).toLocaleString();
+          const wNow = parseFloat((productionCtData.data.storage[0].wNow) / 1000);
+          const whNow = parseFloat((productionCtData.data.storage[0].whNow + this.acBatteriesStorageOffset) / 1000);
+          const chargeStatus = ENVOY_API_CODE[productionCtData.data.storage[0].state] || 'undefined';
+          const percentFull = productionCtData.data.storage[0].percentFull;
+
+          if (this.acBatteriesSummaryService) {
+            this.acBatteriesSummaryService[0]
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime, readingTime)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryPower, wNow)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy, whNow)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull, percentFull)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount, activeCount)
+              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryState, chargeStatus);
+          }
+
+          this.acBatteriesSummaryType = type;
+          this.acBatteriesSummaryActiveCount = activeCount;
+          this.acBatteriesSummaryReadingTime = readingTime;
+          this.acBatteriesSummaryPower = wNow;
+          this.acBatteriesSummaryEnergy = whNow;
+          this.acBatteriesSummaryState = chargeStatus;
+          this.acBatteriesSummaryPercentFull = percentFull;
+        }
       }
 
       //meters
@@ -2571,376 +2992,45 @@ class envoyDevice {
         }
       }
 
-      //production
-      //microinverters summary 
-      const productionMicroSummarywhToday = parseFloat(productionData.data.wattHoursToday / 1000);
-      const productionMicroSummarywhLastSevenDays = parseFloat(productionData.data.wattHoursSevenDays / 1000);
-      const productionMicroSummarywhLifeTime = parseFloat((productionData.data.wattHoursLifetime + this.productionEnergyLifetimeOffset) / 1000);
-      const productionMicroSummaryWattsNow = parseFloat(productionData.data.wattsNow / 1000);
+      //microinverters power
+      if (microinvertersCount > 0 && microinvertersData.status === 200) {
+        this.allMicroinvertersSerialNumber = new Array();
+        this.microinvertersReadingTime = new Array();
+        this.microinvertersDevType = new Array();
+        this.microinvertersLastPower = new Array();
+        this.microinvertersMaxPower = new Array();
 
-      if (productionCtData.status === 200) {
-        //microinverters summary CT
-        const productionMicroType = ENVOY_API_CODE[productionCtData.data.production[0].type] || 'undefined';
-        const productionMicroActiveCount = productionCtData.data.production[0].activeCount;
-        const productionMicroReadingTime = new Date(productionCtData.data.production[0].readingTime * 1000).toLocaleString();
-        const productionMicroPower = parseFloat(productionCtData.data.production[0].wNow / 1000);
-        const productionMicroEnergyLifeTime = parseFloat((productionCtData.data.production[0].whLifetime + this.productionEnergyLifetimeOffset) / 1000);
-
-        //current transformers
-        const productionType = meterProductionEnabled ? ENVOY_API_CODE[productionCtData.data.production[1].type] : productionMicroType;
-        const productionActiveCount = meterProductionEnabled ? productionCtData.data.production[1].activeCount : 0;
-        const productionMeasurmentType = meterProductionEnabled ? ENVOY_API_CODE[productionCtData.data.production[1].measurementType] : 'undefined';
-        const productionReadingTime = meterProductionEnabled ? new Date(productionCtData.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
-        const productionPower = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].wNow / 1000) : productionMicroSummaryWattsNow;
-
-        //save and read power max and state
-        const savedProductionPowerMax = await fsPromises.readFile(this.productionPowerMaxFile);
-        this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedProductionPowerMax);
-        const productionPowerMax = parseFloat(savedProductionPowerMax);
-
-        if (productionPower > productionPowerMax) {
-          const write = await fsPromises.writeFile(this.productionPowerMaxFile, productionPower.toString());
-          this.log.debug('Device: %s %s, productionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.productionPowerMaxFile, productionPower);
-
-        }
-
-        //power max state detected
-        const productionPowerMaxDetectedState = (productionPower >= (this.productionPowerMaxDetected / 1000)) ? true : false;
-
-        //energy
-        const productionEnergyLifeTime = meterProductionEnabled ? parseFloat((productionCtData.data.production[1].whLifetime + this.productionEnergyLifetimeOffset) / 1000) : productionMicroSummarywhLifeTime;
-        const productionEnergyVarhLeadLifetime = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].varhLeadLifetime / 1000) : 0;
-        const productionEnergyVarhLagLifetime = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].varhLagLifetime / 1000) : 0;
-        const productionEnergyLastSevenDays = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].whLastSevenDays / 1000) : productionMicroSummarywhLastSevenDays;
-        const productionEnergyToday = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].whToday / 1000) : productionMicroSummarywhToday;
-        const productionEnergyVahToday = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].vahToday / 1000) : 0;
-        const productionEnergyVarhLeadToday = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].varhLeadToday / 1000) : 0;
-        const productionEnergyVarhLagToday = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].varhLagToday / 1000) : 0;
-
-        //param
-        const productionRmsCurrent = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].rmsCurrent) : 0;
-        const productionRmsVoltage = meterProductionEnabled ? parseFloat((productionCtData.data.production[1].rmsVoltage) / 3) : 0;
-        const productionReactivePower = meterProductionEnabled ? parseFloat((productionCtData.data.production[1].reactPwr) / 1000) : 0;
-        const productionApparentPower = meterProductionEnabled ? parseFloat((productionCtData.data.production[1].apprntPwr) / 1000) : 0;
-        const productionPwrFactor = meterProductionEnabled ? parseFloat(productionCtData.data.production[1].pwrFactor) : 0;
-
-        if (this.productionsService) {
-          this.productionsService[0]
-            .updateCharacteristic(Characteristic.enphaseReadingTime, productionReadingTime)
-            .updateCharacteristic(Characteristic.enphasePower, productionPower)
-            .updateCharacteristic(Characteristic.enphasePowerMax, productionPowerMax)
-            .updateCharacteristic(Characteristic.enphasePowerMaxDetected, productionPowerMaxDetectedState)
-            .updateCharacteristic(Characteristic.enphaseEnergyToday, productionEnergyToday)
-            .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, productionEnergyLastSevenDays)
-            .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, productionEnergyLifeTime);
-          if (meterProductionEnabled) {
-            this.productionsService[0]
-              .updateCharacteristic(Characteristic.enphaseRmsCurrent, productionRmsCurrent)
-              .updateCharacteristic(Characteristic.enphaseRmsVoltage, productionRmsVoltage)
-              .updateCharacteristic(Characteristic.enphaseReactivePower, productionReactivePower)
-              .updateCharacteristic(Characteristic.enphaseApparentPower, productionApparentPower)
-              .updateCharacteristic(Characteristic.enphasePwrFactor, productionPwrFactor);
-          }
-        }
-        this.microinvertersActiveCount = productionMicroActiveCount;
-
-        this.productionActiveCount = productionActiveCount;
-        this.productionType = productionType;
-        this.productionMeasurmentType = productionMeasurmentType;
-        this.productionReadingTime = productionReadingTime;
-        this.productionPower = productionPower;
-        this.productionPowerMax = productionPowerMax;
-        this.productionPowerMaxDetectedState = productionPowerMaxDetectedState;
-        this.productionEnergyToday = productionEnergyToday;
-        this.productionEnergyLastSevenDays = productionEnergyLastSevenDays;
-        this.productionEnergyLifeTime = productionEnergyLifeTime;
-
-        this.productionRmsCurrent = productionRmsCurrent;
-        this.productionRmsVoltage = productionRmsVoltage;
-        this.productionReactivePower = productionReactivePower;
-        this.productionApparentPower = productionApparentPower;
-        this.productionPwrFactor = productionPwrFactor;
-
-        //consumption
-        if (meterConsumptionEnabled) {
-          this.consumptionType = new Array();
-          this.consumptionMeasurmentType = new Array();
-          this.consumptionActiveCount = new Array();
-          this.consumptionReadingTime = new Array();
-          this.consumptionPower = new Array();
-          this.consumptionPowerMax = new Array();
-          this.consumptionPowerMaxDetectedState = new Array();
-          this.consumptionEnergyToday = new Array();
-          this.consumptionEnergyLastSevenDays = new Array();
-          this.consumptionEnergyLifeTime = new Array();
-          this.consumptionRmsCurrent = new Array();
-          this.consumptionRmsVoltage = new Array();
-          this.consumptionReactivePower = new Array();
-          this.consumptionApparentPower = new Array();
-          this.consumptionPwrFactor = new Array();
-
-          const metersConsumpionCount = productionCtData.data.consumption.length;
-          for (let i = 0; i < metersConsumpionCount; i++) {
-            //power
-            const consumptionType = ENVOY_API_CODE[productionCtData.data.consumption[i].type] || 'undefined';
-            const consumptionActiveCount = productionCtData.data.consumption[i].activeCount;
-            const consumptionMeasurmentType = ENVOY_API_CODE[productionCtData.data.consumption[i].measurementType] || 'undefined';
-            const consumptionReadingTime = new Date(productionCtData.data.consumption[i].readingTime * 1000).toLocaleString();
-            const consumptionPower = parseFloat(productionCtData.data.consumption[i].wNow / 1000);
-
-            //save and read power max and state
-            const savedConsumptionPowerMax = [await fsPromises.readFile(this.consumptionPowerMaxFile), await fsPromises.readFile(this.consumptionPowerMaxFile1)][i];
-            this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedConsumptionPowerMax);
-            const consumptionPowerMax = parseFloat(savedConsumptionPowerMax);
-
-            if (consumptionPower > consumptionPowerMax) {
-              const write = [await fsPromises.writeFile(this.consumptionPowerMaxFile, consumptionPower.toString()), await fsPromises.writeFile(this.consumptionPowerMaxFile1, consumptionPower.toString())][i];
-              this.log.debug('Device: %s %s, consumptionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.consumptionPowerMaxFile, consumptionPower);
-            }
-
-            //power max state detected
-            const consumptionPowerMaxDetectedState = (consumptionPower >= (([this.consumptionTotalPowerMaxDetected, this.consumptionNetPowerMaxDetected][i]) / 1000)) ? true : false;
-
-            //energy
-            const lifeTimeOffset = [this.consumptionTotalEnergyLifetimeOffset, this.consumptionNetEnergyLifetimeOffset][i];
-            const consumptionEnergyLifeTime = parseFloat((productionCtData.data.consumption[i].whLifetime + lifeTimeOffset) / 1000);
-            const consumptionEnergyVarhLeadLifetime = parseFloat(productionCtData.data.consumption[i].varhLeadLifetime / 1000);
-            const consumptionEnergyVarhLagLifetime = parseFloat(productionCtData.data.consumption[i].varhLagLifetime / 1000);
-            const consumptionEnergyLastSevenDays = parseFloat(productionCtData.data.consumption[i].whLastSevenDays / 1000);
-            const consumptionEnergyToday = parseFloat(productionCtData.data.consumption[i].whToday / 1000);
-            const consumptionEnergyVahToday = parseFloat(productionCtData.data.consumption[i].vahToday / 1000);
-            const consumptionEnergyVarhLeadToday = parseFloat(productionCtData.data.consumption[i].varhLeadToday / 1000);
-            const consumptionEnergyVarhLagToday = parseFloat(productionCtData.data.consumption[i].varhLagToday / 1000);
-
-            //param
-            const consumptionRmsCurrent = parseFloat(productionCtData.data.consumption[i].rmsCurrent);
-            const consumptionRmsVoltage = parseFloat((productionCtData.data.consumption[i].rmsVoltage) / 3);
-            const consumptionReactivePower = parseFloat((productionCtData.data.consumption[i].reactPwr) / 1000);
-            const consumptionApparentPower = parseFloat((productionCtData.data.consumption[i].apprntPwr) / 1000);
-            const consumptionPwrFactor = parseFloat(productionCtData.data.consumption[i].pwrFactor);
-
-            if (this.consumptionsService) {
-              this.consumptionsService[i]
-                .updateCharacteristic(Characteristic.enphaseReadingTime, consumptionReadingTime)
-                .updateCharacteristic(Characteristic.enphasePower, consumptionPower)
-                .updateCharacteristic(Characteristic.enphasePowerMax, consumptionPowerMax)
-                .updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionPowerMaxDetectedState)
-                .updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionEnergyToday)
-                .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionEnergyLastSevenDays)
-                .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, consumptionEnergyLifeTime)
-                .updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionRmsCurrent)
-                .updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionRmsVoltage)
-                .updateCharacteristic(Characteristic.enphaseReactivePower, consumptionReactivePower)
-                .updateCharacteristic(Characteristic.enphaseApparentPower, consumptionApparentPower)
-                .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor);
-            }
-            this.metersConsumpionCount = metersConsumpionCount;
-            this.consumptionType.push(consumptionType);
-            this.consumptionMeasurmentType.push(consumptionMeasurmentType);
-            this.consumptionActiveCount.push(consumptionActiveCount);
-            this.consumptionReadingTime.push(consumptionReadingTime);
-            this.consumptionPower.push(consumptionPower);
-            this.consumptionPowerMax.push(consumptionPowerMax);
-            this.consumptionPowerMaxDetectedState.push(consumptionPowerMaxDetectedState);
-            this.consumptionEnergyToday.push(consumptionEnergyToday);
-            this.consumptionEnergyLastSevenDays.push(consumptionEnergyLastSevenDays);
-            this.consumptionEnergyLifeTime.push(consumptionEnergyLifeTime);
-            this.consumptionRmsCurrent.push(consumptionRmsCurrent);
-            this.consumptionRmsVoltage.push(consumptionRmsVoltage);
-            this.consumptionReactivePower.push(consumptionReactivePower);
-            this.consumptionApparentPower.push(consumptionApparentPower);
-            this.consumptionPwrFactor.push(consumptionPwrFactor);
-          }
-        }
-      }
-
-      //ac btteries
-      if (acBatteriesCount > 0) {
-        //ac btteries summary
-        if (productionCtData.status === 200) {
-          const type = ENVOY_API_CODE[productionCtData.data.storage[0].type] || 'undefined';
-          const activeCount = productionCtData.data.storage[0].activeCount;
-          const readingTime = new Date(productionCtData.data.storage[0].readingTime * 1000).toLocaleString();
-          const wNow = parseFloat((productionCtData.data.storage[0].wNow) / 1000);
-          const whNow = parseFloat((productionCtData.data.storage[0].whNow + this.acBatteriesStorageOffset) / 1000);
-          const chargeStatus = ENVOY_API_CODE[productionCtData.data.storage[0].state] || 'undefined';
-          const percentFull = productionCtData.data.storage[0].percentFull;
-
-          if (this.acBatteriesSummaryService) {
-            this.acBatteriesSummaryService[0]
-              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime, readingTime)
-              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryPower, wNow)
-              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy, whNow)
-              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull, percentFull)
-              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount, activeCount)
-              .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryState, chargeStatus);
-          }
-
-          this.acBatteriesSummaryType = type;
-          this.acBatteriesSummaryActiveCount = activeCount;
-          this.acBatteriesSummaryReadingTime = readingTime;
-          this.acBatteriesSummaryPower = wNow;
-          this.acBatteriesSummaryEnergy = whNow;
-          this.acBatteriesSummaryState = chargeStatus;
-          this.acBatteriesSummaryPercentFull = percentFull;
-        }
-
-        //ac batteries detail
-        if (inventoryData.status === 200) {
-          this.acBatteriesSerialNumber = new Array();
-          this.acBatteriesStatus = new Array();
-          this.acBatteriesLastReportDate = new Array();
-          this.acBatteriesFirmware = new Array();
-          this.acBatteriesProducing = new Array();
-          this.acBatteriesCommunicating = new Array();
-          this.acBatteriesProvisioned = new Array();
-          this.acBatteriesOperating = new Array();
-          this.acBatteriesSleepEnabled = new Array();
-          this.acBatteriesPercentFull = new Array();
-          this.acBatteriesMaxCellTemp = new Array();
-          this.acBatteriesSleepMinSoc = new Array();
-          this.acBatteriesSleepMaxSoc = new Array();
-          this.acBatteriesChargeStatus = new Array();
-
-          const type = ENVOY_API_CODE[inventoryData.data[1].type] || 'undefined';
-          for (let i = 0; i < acBatteriesCount; i++) {
-            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'undefined'
-            const installed = new Date(inventoryData.data[1].devices[i].installed * 1000).toLocaleString();
-            const serialNumber = inventoryData.data[1].devices[i].serial_num;
-            const deviceStatus = inventoryData.data[1].devices[i].device_status;
-            const lastReportDate = new Date(inventoryData.data[1].devices[i].last_rpt_date * 1000).toLocaleString();
-            const adminState = inventoryData.data[1].devices[i].admin_state;
-            const devType = inventoryData.data[1].devices[i].dev_type;
-            const createdDate = new Date(inventoryData.data[1].devices[i].created_date * 1000).toLocaleString();
-            const imageLoadDate = new Date(inventoryData.data[1].devices[i].img_load_date * 1000).toLocaleString();
-            const firmware = inventoryData.data[1].devices[i].img_pnum_running;
-            const ptpn = inventoryData.data[1].devices[i].ptpn;
-            const chaneId = inventoryData.data[1].devices[i].chaneid;
-            const deviceControl = inventoryData.data[1].devices[i].device_control;
-            const producing = (inventoryData.data[1].devices[i].producing === true);
-            const communicating = (inventoryData.data[1].devices[i].communicating === true);
-            const provisioned = (inventoryData.data[1].devices[i].provisioned === true);
-            const operating = (inventoryData.data[1].devices[i].operating === true);
-            const sleepEnabled = inventoryData.data[1].devices[i].sleep_enabled;
-            const percentFull = inventoryData.data[1].devices[i].percentFull;
-            const maxCellTemp = inventoryData.data[1].devices[i].maxCellTemp;
-            const sleepMinSoc = inventoryData.data[1].devices[i].sleep_min_soc;
-            const sleepMaxSoc = inventoryData.data[1].devices[i].sleep_max_soc;
-            const chargeStatus = ENVOY_API_CODE[inventoryData.data[1].devices[i].charge_status] || 'undefined';
-
-            //convert status
-            const arrStatus = new Array();
-            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
-              for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
-              }
-            }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
-
-            if (this.acBatteriesService) {
-              this.acBatteriesService[i]
-                .updateCharacteristic(Characteristic.enphasAcBatterieStatus, status)
-                .updateCharacteristic(Characteristic.enphasAcBatterieLastReportDate, lastReportDate)
-                .updateCharacteristic(Characteristic.enphasAcBatterieFirmware, firmware)
-                .updateCharacteristic(Characteristic.enphasAcBatterieProducing, producing)
-                .updateCharacteristic(Characteristic.enphasAcBatterieCommunicating, communicating)
-                .updateCharacteristic(Characteristic.enphasAcBatterieProvisioned, provisioned)
-                .updateCharacteristic(Characteristic.enphasAcBatterieOperating, operating)
-                .updateCharacteristic(Characteristic.enphasAcBatterieSleepEnabled, sleepEnabled)
-                .updateCharacteristic(Characteristic.enphasAcBatteriePercentFull, percentFull)
-                .updateCharacteristic(Characteristic.enphasAcBatterieMaxCellTemp, maxCellTemp)
-                .updateCharacteristic(Characteristic.enphasAcBatterieSleepMinSoc, sleepMinSoc)
-                .updateCharacteristic(Characteristic.enphasAcBatterieSleepMaxSoc, sleepMaxSoc)
-                .updateCharacteristic(Characteristic.enphasAcBatterieChargeStatus, chargeStatus);
-            }
-
-            this.acBatteriesSerialNumber.push(serialNumber);
-            this.acBatteriesStatus.push(status);
-            this.acBatteriesLastReportDate.push(lastReportDate);
-            this.acBatteriesFirmware.push(firmware);
-            this.acBatteriesProducing.push(producing);
-            this.acBatteriesCommunicating.push(communicating);
-            this.acBatteriesProvisioned.push(provisioned);
-            this.acBatteriesOperating.push(operating);
-            this.acBatteriesSleepEnabled.push(sleepEnabled);
-            this.acBatteriesPercentFull.push(percentFull);
-            this.acBatteriesMaxCellTemp.push(maxCellTemp);
-            this.acBatteriesSleepMinSoc.push(sleepMinSoc);
-            this.acBatteriesSleepMaxSoc.push(sleepMaxSoc);
-            this.acBatteriesChargeStatus.push(chargeStatus);
-          }
-          this.acBatteriesType = type;
-        }
-      }
-
-      //microinverters
-      if (microinvertersCount > 0 && inventoryData.status === 200) {
-        this.microinvertersSerialNumber = new Array();
-        this.microinvertersStatus = new Array();
-        this.microinvertersLastReportDate = new Array();
-        this.microinvertersFirmware = new Array();
-        this.microinvertersProducing = new Array();
-        this.microinvertersCommunicating = new Array();
-        this.microinvertersProvisioned = new Array();
-        this.microinvertersOperating = new Array();
-
-        const type = ENVOY_API_CODE[inventoryData.data[0].type] || 'undefined';
+        const allMicroinvertersCount = microinvertersData.data.length;
         for (let i = 0; i < microinvertersCount; i++) {
-          const partNum = ENPHASE_PART_NUMBER[inventoryData.data[0].devices[i].part_num] || 'Microinverter';
-          const installed = new Date(inventoryData.data[0].devices[i].installed * 1000).toLocaleString();
-          const serialNumber = inventoryData.data[0].devices[i].serial_num;
-          const deviceStatus = inventoryData.data[0].devices[i].device_status;
-          const lastReportDate = new Date(inventoryData.data[0].devices[i].last_rpt_date * 1000).toLocaleString();
-          const adminState = inventoryData.data[0].devices[i].admin_state;
-          const devType = inventoryData.data[0].devices[i].dev_type;
-          const createdDate = new Date(inventoryData.data[0].devices[i].created_date * 1000).toLocaleString();
-          const imageLoadDate = new Date(inventoryData.data[0].devices[i].img_load_date * 1000).toLocaleString();
-          const firmware = inventoryData.data[0].devices[i].img_pnum_running;
-          const ptpn = inventoryData.data[0].devices[i].ptpn;
-          const chaneId = inventoryData.data[0].devices[i].chaneid;
-          const deviceControl = inventoryData.data[0].devices[i].device_control;
-          const producing = (inventoryData.data[0].devices[i].producing === true);
-          const communicating = (inventoryData.data[0].devices[i].communicating === true);
-          const provisioned = (inventoryData.data[0].devices[i].provisioned === true);
-          const operating = (inventoryData.data[0].devices[i].operating === true);
-
-          //convert status
-          const arrStatus = new Array();
-          if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
-            for (let j = 0; j < deviceStatus.length; j++) {
-              arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
-            }
+          for (let j = 0; j < allMicroinvertersCount; j++) {
+            const serialNumber = microinvertersData.data[j].serialNumber;
+            this.allMicroinvertersSerialNumber.push(serialNumber);
           }
-          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+          const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
+          const lastReportDate = new Date(microinvertersData.data[index].lastReportDate * 1000).toLocaleString();
+          const devType = microinvertersData.data[index].devType;
+          const lastReportWatts = parseInt(microinvertersData.data[index].lastReportWatts);
+          const maxReportWatts = parseInt(microinvertersData.data[index].maxReportWatts);
 
           if (this.microinvertersService) {
             this.microinvertersService[i]
-              .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status)
               .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterProducing, producing)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, communicating)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, provisioned)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating);
-
+              //.updateCharacteristic(Characteristic.enphaseMicroinverterDevType, devType)
+              .updateCharacteristic(Characteristic.enphaseMicroinverterPower, lastReportWatts)
+              .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, maxReportWatts)
           }
 
-          this.microinvertersSerialNumber.push(serialNumber);
-          this.microinvertersStatus.push(status);
-          this.microinvertersLastReportDate.push(lastReportDate);
-          this.microinvertersFirmware.push(firmware);
-          this.microinvertersProducing.push(producing);
-          this.microinvertersCommunicating.push(communicating);
-          this.microinvertersProvisioned.push(provisioned);
-          this.microinvertersOperating.push(operating);
+          this.microinvertersReadingTime.push(lastReportDate);
+          this.microinvertersDevType.push(devType);
+          this.microinvertersLastPower.push(lastReportWatts);
+          this.microinvertersMaxPower.push(maxReportWatts);
         }
-        this.microinvertersType = type;
       }
 
       //ensemble
       if (inventoryEnsembleData.status === 200) {
         //encharges
-        if (acBatteriesCount > 0) {
+        if (enchargesCount > 0) {
           this.enchargesSerialNumber = new Array();
           this.enchargesStatus = new Array();
           this.enchargesLastReportDate = new Array();
@@ -3129,84 +3219,20 @@ class envoyDevice {
         const itemCount = inventoryEnsembleData.data[2].item_count;
 
         this.enpowerGridProfileName = gridProfileName;
-        this.enpowerid = id;
+        this.enpowerId = id;
         this.enpowerGridProfileVersion = gridProfileVersion;
         this.enpowerItemCount = itemCount;
       }
 
       this.checkDeviceState = true;
-
       //start prepare accessory
       if (this.startPrepareAccessory) {
-        this.updateMicroinvertersPower();
         this.prepareAccessory();
       }
     } catch (error) {
       this.log.error('Device: %s %s, update Device state error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
     }
-  }
-
-  async updateMicroinvertersPower() {
-    this.log.debug('Device: %s %s, requesting microinverters power', this.host, this.name);
-    try {
-      const microinvertersCount = this.microinvertersCount;
-      const passSerialNumber = this.envoySerialNumber.substring(6);
-      const passEnvoy = this.envoyPasswd;
-      const passwd = passEnvoy || passSerialNumber;
-      const auth = ENVOY_USER + ':' + passwd;
-      const authEnvoy = {
-        method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: auth,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
-      const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
-      this.log.debug('Debug production inverters: %s', microinvertersData.data);
-      const allMicroinvertersCount = microinvertersData.data.length;
-      const checkMicroinvertersPower = (microinvertersData.status === 200) ? true : false;
-
-      //microinverters power
-      if (checkMicroinvertersPower) {
-        this.allMicroinvertersSerialNumber = new Array();
-        this.microinvertersReadingTime = new Array();
-        this.microinvertersDevType = new Array();
-        this.microinvertersLastPower = new Array();
-        this.microinvertersMaxPower = new Array();
-
-        for (let i = 0; i < microinvertersCount; i++) {
-          for (let j = 0; j < allMicroinvertersCount; j++) {
-            const serialNumber = microinvertersData.data[j].serialNumber;
-            this.allMicroinvertersSerialNumber.push(serialNumber);
-          }
-          const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
-          const lastReportDate = new Date(microinvertersData.data[index].lastReportDate * 1000).toLocaleString();
-          const devType = microinvertersData.data[index].devType;
-          const lastReportWatts = parseInt(microinvertersData.data[index].lastReportWatts);
-          const maxReportWatts = parseInt(microinvertersData.data[index].maxReportWatts);
-
-          if (this.microinvertersService) {
-            this.microinvertersService[i]
-              .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
-              //.updateCharacteristic(Characteristic.enphaseMicroinverterDevType, devType)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterPower, lastReportWatts)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, maxReportWatts)
-          }
-
-          this.microinvertersReadingTime.push(lastReportDate);
-          this.microinvertersDevType.push(devType);
-          this.microinvertersLastPower.push(lastReportWatts);
-          this.microinvertersMaxPower.push(maxReportWatts);
-        }
-      }
-
-      this.checkMicroinvertersPower = checkMicroinvertersPower;
-    } catch (error) {
-      this.log.debug('Device: %s %s, microinverters error: %s', this.host, this.name, error);
-      this.checkMicroinvertersPower = false;
-    };
   }
 
   async updateCommLevel() {
@@ -4113,7 +4139,7 @@ class envoyDevice {
         const enphaseMicroinverterService = new Service.enphaseMicroinverter('Microinverter ' + this.microinvertersSerialNumber[i], 'enphaseMicroinverterService' + i);
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPower)
           .onGet(async () => {
-            let value = (this.checkMicroinvertersPower) ? this.microinvertersLastPower[i] : 0;
+            let value = (this.microinvertersData.status === 200) ? this.microinvertersLastPower[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s last power: %s W', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
@@ -4121,7 +4147,7 @@ class envoyDevice {
           });
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPowerMax)
           .onGet(async () => {
-            const value = (this.checkMicroinvertersPower) ? this.microinvertersMaxPower[i] : 0;
+            const value = (this.microinvertersData.status === 200) ? this.microinvertersMaxPower[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s max power: %s W', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
@@ -4185,7 +4211,7 @@ class envoyDevice {
           });
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
           .onGet(async () => {
-            const value = (this.checkMicroinvertersPower) ? this.microinvertersReadingTime[i] : '0';
+            const value = (this.microinvertersData.status === 200) ? this.microinvertersReadingTime[i] : '0';
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s last report: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
