@@ -2155,7 +2155,7 @@ class envoyDevice {
       this.log.debug('Device %s %s, debug homeData: %s', this.host, this.name, homeData.data);
       this.homeData = homeData;
 
-      this.updateProductionData();
+      const updateProductionData = !this.checkDeviceState ? this.updateProductionData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
@@ -2170,8 +2170,8 @@ class envoyDevice {
       this.log.debug('Debug productionData: %s, productionCtData: %s', productionData.data, productionCtData.data);
       this.productionData = productionData;
       this.productionCtData = productionCtData;
-
-      const updateMetersReadingData = this.startPrepareAccessory ? this.updateMetersReadingData() : false;
+      
+      const updateMetersReadingData = !this.checkDeviceState ? this.updateMetersReadingData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, productionData, productionCtData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
@@ -2185,8 +2185,8 @@ class envoyDevice {
       const metersReadingData = await axios.get(this.url + ENVOY_API_URL.InternalMeterReadings);
       this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
       this.metersReadingData = metersReadingData;
-
-      const updateMicroinvertersData = this.startPrepareAccessory ? this.updateMicroinvertersData() : false;
+      
+      const updateMicroinvertersData = !this.checkDeviceState ? this.updateMicroinvertersData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, metersReadingData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
@@ -2195,7 +2195,7 @@ class envoyDevice {
   }
 
   async updateMicroinvertersData() {
-    this.log.debug('Device: %s %s, requesting microinverters power', this.host, this.name);
+    this.log.debug('Device: %s %s, requesting microinvertersData', this.host, this.name);
     try {
       const passSerialNumber = this.envoySerialNumber.substring(6);
       const passEnvoy = this.envoyPasswd;
@@ -2210,11 +2210,11 @@ class envoyDevice {
       };
       const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
       this.log.debug('Debug production inverters: %s', microinvertersData.data);
-
       this.microinvertersData = microinvertersData;
-      this.updateDeviceState();
+      
+      const updateDeviceState = !this.checkDeviceState ? this.updateDeviceState() : false;
     } catch (error) {
-      this.log.error('Device: %s %s, microinverters error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, microinvertersData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
