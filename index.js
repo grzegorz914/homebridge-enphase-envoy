@@ -1895,10 +1895,10 @@ class envoyDevice {
     this.consumptionNetEnergyLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
 
     //setup variables
-    this.checkDeviceInfo = false;
+    this.checkDeviceInfo = true;
     this.checkDeviceState = false;
     this.checkCommLevel = false;
-    this.startPrepareAccessory = true;
+    this.startPrepareAccessory = false;
 
     this.infoData = { 'status': 0 };
     this.parseInfoData = { 'status': 0 };
@@ -2014,9 +2014,7 @@ class envoyDevice {
       fsPromises.writeFile(this.devInfoFile, '{}');
     }
 
-    this.getDeviceInfo();
-
-    //Check device state
+    //Check device
     setInterval(function () {
       if (this.checkDeviceInfo) {
         this.getDeviceInfo();
@@ -2030,7 +2028,7 @@ class envoyDevice {
       }
     }.bind(this), this.refreshInterval * 1000);
 
-    //Check microinverters power
+    //Check home and microinverters data
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
         this.updateHomeData();
@@ -2193,6 +2191,78 @@ class envoyDevice {
       this.checkDeviceInfo = true;
     };
   }
+  
+  async updateCommLevel() {
+    this.log.debug('Device: %s %s, requesting communications level.', this.host, this.name);
+    try {
+      const authInstaller = {
+        method: 'GET',
+        rejectUnauthorized: false,
+        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
+        dataType: 'json',
+        timeout: [5000, 5000]
+      };
+      const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
+      const commLevel = pcuCommCheckData.data;
+      this.log.debug('Debug pcuCommCheck: %s', commLevel);
+
+      // get devices count
+      const microinvertersCount = this.microinvertersCount
+      const acBatteriesCount = this.acBatteriesCount;
+      const qRelaysCount = this.qRelaysCount;
+
+      //create arrays
+      this.microinvertersCommLevel = new Array();
+      this.acBatteriesCommLevel = new Array();
+      this.qRelaysCommLevel = new Array();
+
+      for (let i = 0; i < microinvertersCount; i++) {
+        const key = '' + this.microinvertersSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+        if (this.microinvertersService) {
+          this.microinvertersService[i]
+            .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
+        }
+        this.microinvertersCommLevel.push(value);
+      }
+
+      for (let i = 0; i < acBatteriesCount; i++) {
+        const key = '' + this.acBatteriesSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.acBatteriesService) {
+          this.acBatteriesService[i]
+            .updateCharacteristic(Characteristic.enphaseAcBatterieCommLevel, value)
+        }
+        this.acBatteriesCommLevel.push(value);
+      }
+      
+      for (let i = 0; i < qRelaysCount; i++) {
+        const key = '' + this.qRelaysSerialNumber[i] + '';
+        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
+
+        if (this.qRelaysService) {
+          this.qRelaysService[i]
+            .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
+        }
+        this.qRelaysCommLevel.push(value);
+      }
+
+      //disable check comm level switch
+      if (this.envoysService) {
+        this.envoysService[0]
+          .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
+      }
+
+      this.checkCommLevel = true;
+      this.envoyCheckCommLevel = false;
+    } catch (error) {
+      this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
+      this.checkCommLevel = false;
+      this.envoyCheckCommLevel = true;
+    };
+  }
+
 
   async updateDeviceState() {
     try {
@@ -3222,6 +3292,7 @@ class envoyDevice {
       }
 
       this.checkDeviceState = true;
+      
       //start prepare accessory
       if (this.startPrepareAccessory) {
         this.prepareAccessory();
@@ -3229,79 +3300,8 @@ class envoyDevice {
     } catch (error) {
       this.log.error('Device: %s %s, update Device state error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     }
-  }
-
-  async updateCommLevel() {
-    this.log.debug('Device: %s %s, requesting communications level.', this.host, this.name);
-    try {
-      const authInstaller = {
-        method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
-      const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
-      const commLevel = pcuCommCheckData.data;
-      this.log.debug('Debug pcuCommCheck: %s', commLevel);
-
-      // get devices count
-      const qRelaysCount = this.qRelaysCount;
-      const microinvertersCount = this.microinvertersCount
-      const acBatteriesCount = this.acBatteriesCount;
-
-      //create arrays
-      this.qRelaysCommLevel = new Array();
-      this.acBatteriesCommLevel = new Array();
-      this.microinvertersCommLevel = new Array();
-
-      for (let i = 0; i < qRelaysCount; i++) {
-        const key = '' + this.qRelaysSerialNumber[i] + '';
-        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-        if (this.qRelaysService) {
-          this.qRelaysService[i]
-            .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
-        }
-        this.qRelaysCommLevel.push(value);
-      }
-
-      for (let i = 0; i < microinvertersCount; i++) {
-        const key = '' + this.microinvertersSerialNumber[i] + '';
-        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-        if (this.microinvertersService) {
-          this.microinvertersService[i]
-            .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
-        }
-        this.microinvertersCommLevel.push(value);
-      }
-
-      for (let i = 0; i < acBatteriesCount; i++) {
-        const key = '' + this.acBatteriesSerialNumber[i] + '';
-        const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
-
-        if (this.acBatteriesService) {
-          this.acBatteriesService[i]
-            .updateCharacteristic(Characteristic.enphaseAcBatterieCommLevel, value)
-        }
-        this.acBatteriesCommLevel.push(value);
-      }
-
-      //disable check comm level switch
-      if (this.envoysService) {
-        this.envoysService[0]
-          .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
-      }
-
-      this.checkCommLevel = true;
-      this.envoyCheckCommLevel = false;
-    } catch (error) {
-      this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
-      this.checkCommLevel = false;
-      this.envoyCheckCommLevel = true;
-    };
   }
 
   //Prepare accessory
