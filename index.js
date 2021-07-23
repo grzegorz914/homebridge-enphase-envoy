@@ -1898,7 +1898,7 @@ class envoyDevice {
     this.checkDeviceInfo = true;
     this.checkDeviceState = false;
     this.checkCommLevel = false;
-    this.startPrepareAccessory = false;
+    this.startPrepareAccessory = true;
 
     this.infoData = { 'status': 0 };
     this.parseInfoData = { 'status': 0 };
@@ -1938,7 +1938,8 @@ class envoyDevice {
     this.envoyCurrentDate = '';
     this.envoyCurrentTime = '';
     this.envoyLastEnlightenReporDate = 0;
-
+    this.envoySupportMeters = false;
+    
     this.envoyEnpowerConnected = false;
     this.envoyEnpowerGridStatus = '';
 
@@ -1949,7 +1950,7 @@ class envoyDevice {
     this.meterConsumptionEnabled = false;
     this.metersConsumpionCount = 0;
     this.metersReadingCount = 0;
-    this.meterReadingChannelsCount = 0;
+    this.metersReadingChannelsCount = 0;
 
     this.productionMeasurmentType = '';
     this.productionActiveCount = 0;
@@ -2014,21 +2015,34 @@ class envoyDevice {
       fsPromises.writeFile(this.devInfoFile, '{}');
     }
 
-    //Check device
+    //Check device info
     setInterval(function () {
       if (this.checkDeviceInfo) {
         this.getDeviceInfo();
       }
+    }.bind(this), 10000);
+    
+    //Check production data
+    setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
-        this.updateProductionConsumptionData();
-        this.updateDeviceState();
+        this.updateProductionData();
         if (this.envoyCheckCommLevel && this.installerPasswd) {
           this.updateCommLevel();
         }
       }
     }.bind(this), this.refreshInterval * 1000);
+    
+    //Check meters reading data
+    setInterval(function () {
+      if (!this.checkDeviceInfo && this.checkDeviceState) {
+        if (this.envoySupportMeters) {
+        this.updateMetersReadingData();
+        };
+        this.updateDeviceState();
+      }
+    }.bind(this), 1000);
 
-    //Check home and microinverters data
+    //Check home and microinverters power data
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
         this.updateHomeData();
@@ -2141,7 +2155,7 @@ class envoyDevice {
       this.log.debug('Device %s %s, debug homeData: %s', this.host, this.name, homeData.data);
       this.homeData = homeData;
 
-      this.updateProductionConsumptionData();
+      this.updateProductionData();
     } catch (error) {
       this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
@@ -2149,18 +2163,32 @@ class envoyDevice {
     };
   }
 
-  async updateProductionConsumptionData() {
-    this.log.debug('Device: %s %s, requesting homeData and inventoryData.', this.host, this.name);
+  async updateProductionData() {
+    this.log.debug('Device: %s %s, requesting productionData and productionCtData.', this.host, this.name);
     try {
-      const [productionData, productionCtData, metersReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats), axios.get(this.url + ENVOY_API_URL.InternalMeterReadings)]);
-      this.log.debug('Debug productionData: %s, productionCtData: %s, metersReadingData: %s', productionData.data, productionCtData.data, metersReadingData.data);
+      const [productionData, productionCtData, metersReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats)]);
+      this.log.debug('Debug productionData: %s, productionCtData: %s', productionData.data, productionCtData.data);
       this.productionData = productionData;
       this.productionCtData = productionCtData;
+
+      const updateMicroinvertersData = this.startPrepareAccessory ? this.updateMetersReadingData() : false;
+    } catch (error) {
+      this.log.error('Device: %s %s, productionData, productionCtData error: %s', this.host, this.name, error);
+      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
+    };
+  }
+  
+  async updateMetersReadingData() {
+    this.log.debug('Device: %s %s, requesting metersReadingData.', this.host, this.name);
+    try {
+      const [productionData, productionCtData, metersReadingData] = await axios.get(this.url + ENVOY_API_URL.InternalMeterReadings);
+      this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
       this.metersReadingData = metersReadingData;
 
       const updateMicroinvertersData = this.startPrepareAccessory ? this.updateMicroinvertersData() : false;
     } catch (error) {
-      this.log.error('Device: %s %s, productionData, productionCtData or metersReadingData error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, metersReadingData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -3017,9 +3045,9 @@ class envoyDevice {
               this.freqSumm.push(freq);
 
               //meters reading phases data
-              const meterReadingChannelsCount = metersReadingData.data[i].channels.length;
-              if (meterReadingChannelsCount > 0) {
-                for (let l = 0; l < meterReadingChannelsCount; l++) {
+              const metersReadingChannelsCount = metersReadingData.data[i].channels.length;
+              if (metersReadingChannelsCount > 0) {
+                for (let l = 0; l < metersReadingChannelsCount; l++) {
                   const eid = metersReadingData.data[i].channels[l].eid;
                   const timestamp = new Date(metersReadingData.data[i].channels[l].timestamp * 1000).toLocaleString();
                   const actEnergyDlvd = parseFloat(metersReadingData.data[i].channels[l].actEnergyDlvd);
@@ -3036,7 +3064,7 @@ class envoyDevice {
                   const current = parseFloat(metersReadingData.data[i].channels[l].current);
                   const freq = parseFloat(metersReadingData.data[i].channels[l].freq);
 
-                  this.meterReadingChannelsCount = meterReadingChannelsCount;
+                  this.metersReadingChannelsCount = metersReadingChannelsCount;
                   this.eidPhase.push(eid);
                   this.timestampPhase.push(timestamp);
                   this.actEnergyDlvdPhase.push(actEnergyDlvd);
