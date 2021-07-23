@@ -1939,7 +1939,7 @@ class envoyDevice {
     this.envoyCurrentTime = '';
     this.envoyLastEnlightenReporDate = 0;
     this.envoySupportMeters = false;
-    
+
     this.envoyEnpowerConnected = false;
     this.envoyEnpowerGridStatus = '';
 
@@ -2021,7 +2021,7 @@ class envoyDevice {
         this.getDeviceInfo();
       }
     }.bind(this), 10000);
-    
+
     //Check production data
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
@@ -2031,12 +2031,12 @@ class envoyDevice {
         }
       }
     }.bind(this), this.refreshInterval * 1000);
-    
+
     //Check meters reading data
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
         if (this.envoySupportMeters) {
-        this.updateMetersReadingData();
+          this.updateMetersReadingData();
         };
         this.updateDeviceState();
       }
@@ -2063,7 +2063,7 @@ class envoyDevice {
       const devInfo = JSON.stringify(obj, null, 2);
       const writeDevInfoFile = await fsPromises.writeFile(this.devInfoFile, devInfo);
       this.log.debug('Device: %s %s, saved Device Info successful.', this.host, this.name);
-      
+
       try {
         const inventoryEnsembleData = await axios.get(this.url + ENVOY_API_URL.InventoryEnsemble);
         this.log.debug('Device %s %s, debug inventoryEnsembleData: %s', this.host, this.name, inventoryEnsembleData.data);
@@ -2166,23 +2166,23 @@ class envoyDevice {
   async updateProductionData() {
     this.log.debug('Device: %s %s, requesting productionData and productionCtData.', this.host, this.name);
     try {
-      const [productionData, productionCtData, metersReadingData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats)]);
+      const [productionData, productionCtData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats)]);
       this.log.debug('Debug productionData: %s, productionCtData: %s', productionData.data, productionCtData.data);
       this.productionData = productionData;
       this.productionCtData = productionCtData;
 
-      const updateMicroinvertersData = this.startPrepareAccessory ? this.updateMetersReadingData() : false;
+      const updateMetersReadingData = this.startPrepareAccessory ? this.updateMetersReadingData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, productionData, productionCtData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
   }
-  
+
   async updateMetersReadingData() {
     this.log.debug('Device: %s %s, requesting metersReadingData.', this.host, this.name);
     try {
-      const [productionData, productionCtData, metersReadingData] = await axios.get(this.url + ENVOY_API_URL.InternalMeterReadings);
+      const metersReadingData = await axios.get(this.url + ENVOY_API_URL.InternalMeterReadings);
       this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
       this.metersReadingData = metersReadingData;
 
@@ -2219,7 +2219,7 @@ class envoyDevice {
       this.checkDeviceInfo = true;
     };
   }
-  
+
   async updateCommLevel() {
     this.log.debug('Device: %s %s, requesting communications level.', this.host, this.name);
     try {
@@ -2264,7 +2264,7 @@ class envoyDevice {
         }
         this.acBatteriesCommLevel.push(value);
       }
-      
+
       for (let i = 0; i < qRelaysCount; i++) {
         const key = '' + this.qRelaysSerialNumber[i] + '';
         const value = (commLevel[key] !== undefined) ? (commLevel[key]) * 20 : 0;
@@ -3320,7 +3320,7 @@ class envoyDevice {
       }
 
       this.checkDeviceState = true;
-      
+
       //start prepare accessory
       if (this.startPrepareAccessory) {
         this.prepareAccessory();
