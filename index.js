@@ -1946,8 +1946,8 @@ class envoyDevice {
     this.qRelaysCount = 0;
 
     this.metersCount = 0;
-    this.meterProductionEnabled = false;
-    this.meterConsumptionEnabled = false;
+    this.metersProductionEnabled = false;
+    this.metersConsumptionEnabled = false;
     this.metersConsumpionCount = 0;
     this.metersReadingCount = 0;
     this.metersReadingChannelsCount = 0;
@@ -2092,8 +2092,8 @@ class envoyDevice {
       const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
 
       const metersCount = deviceImeter ? metersData.data.length : 0;
-      const meterProductionEnabled = deviceImeter ? (metersData.data[0].state === 'enabled') : false;
-      const meterConsumptionEnabled = deviceImeter ? (metersData.data[1].state === 'enabled') : false;
+      const metersProductionEnabled = deviceImeter ? (metersData.data[0].state === 'enabled') : false;
+      const metersConsumptionEnabled = deviceImeter ? (metersData.data[1].state === 'enabled') : false;
 
       const microinvertersCount = inventoryData.data[0].devices.length;
       const acBatteriesCount = inventoryData.data[1].devices.length;
@@ -2113,8 +2113,8 @@ class envoyDevice {
       this.log('--------------------------------');
       this.log('Meters: %s', deviceImeter ? 'Yes' : 'No');
       if (deviceImeter) {
-        this.log('Production: %s', meterProductionEnabled ? 'Enabled' : 'Disabled');
-        this.log('Consumption: %s', meterConsumptionEnabled ? 'Enabled' : 'Disabled');
+        this.log('Production: %s', metersProductionEnabled ? 'Enabled' : 'Disabled');
+        this.log('Consumption: %s', metersConsumptionEnabled ? 'Enabled' : 'Disabled');
         this.log('--------------------------------');
       }
       this.log('Ensemble: %s', this.ensembleInstalled ? 'Yes' : 'No');
@@ -2129,8 +2129,8 @@ class envoyDevice {
       this.envoyFirmware = deviceSoftware;
       this.envoySupportMeters = deviceImeter;
       this.metersCount = metersCount;
-      this.meterProductionEnabled = meterProductionEnabled;
-      this.meterConsumptionEnabled = meterConsumptionEnabled;
+      this.metersProductionEnabled = metersProductionEnabled;
+      this.metersConsumptionEnabled = metersConsumptionEnabled;
       this.microinvertersCount = microinvertersCount;
       this.acBatteriesCount = acBatteriesCount;
       this.qRelaysCount = qRelaysCount;
@@ -2309,8 +2309,8 @@ class envoyDevice {
       //get enabled devices
       const envoySupportMeters = this.envoySupportMeters;
       const metersCount = this.metersCount;
-      const meterProductionEnabled = this.meterProductionEnabled;
-      const meterConsumptionEnabled = this.meterConsumptionEnabled;
+      const metersProductionEnabled = this.metersProductionEnabled;
+      const metersConsumptionEnabled = this.metersConsumptionEnabled;
       const microinvertersCount = this.microinvertersCount
       const acBatteriesCount = this.acBatteriesCount;
       const qRelaysCount = this.qRelaysCount;
@@ -2762,7 +2762,7 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphaseEnergyToday, productionEnergyToday)
             .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, productionEnergyLastSevenDays)
             .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, productionEnergyLifeTime);
-          if (meterProductionEnabled) {
+          if (metersProductionEnabled) {
             this.productionsService[0]
               .updateCharacteristic(Characteristic.enphaseRmsCurrent, productionRmsCurrent)
               .updateCharacteristic(Characteristic.enphaseRmsVoltage, productionRmsVoltage)
@@ -2791,7 +2791,7 @@ class envoyDevice {
         this.productionPwrFactor = productionPwrFactor;
 
         //consumption
-        if (meterConsumptionEnabled) {
+        if (metersConsumptionEnabled) {
           this.consumptionType = new Array();
           this.consumptionMeasurmentType = new Array();
           this.consumptionActiveCount = new Array();
@@ -3360,8 +3360,8 @@ class envoyDevice {
     //get enabled devices
     const envoySupportMeters = this.envoySupportMeters;
     const metersCount = this.metersCount;
-    const meterProductionEnabled = this.meterProductionEnabled;
-    const meterConsumptionEnabled = this.meterConsumptionEnabled;
+    const metersProductionEnabled = this.metersProductionEnabled;
+    const metersConsumptionEnabled = this.metersConsumptionEnabled;
     const metersConsumpionCount = this.metersConsumpionCount;
     const qRelaysCount = this.qRelaysCount;
     const acBatteriesCount = this.acBatteriesCount;
@@ -3826,7 +3826,7 @@ class envoyDevice {
       });
     enphaseProductionService.getCharacteristic(Characteristic.enphaseRmsCurrent)
       .onGet(async () => {
-        const value = (envoySupportMeters && meterProductionEnabled) ? this.productionRmsCurrent : 0;
+        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionRmsCurrent : 0;
         if (!this.disableLogInfo) {
           this.log('Device: %s %s, production current: %s A', this.host, accessoryName, value);
         }
@@ -3834,7 +3834,7 @@ class envoyDevice {
       });
     enphaseProductionService.getCharacteristic(Characteristic.enphaseRmsVoltage)
       .onGet(async () => {
-        const value = (envoySupportMeters && meterProductionEnabled) ? this.productionRmsVoltage : 0;
+        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionRmsVoltage : 0;
         if (!this.disableLogInfo) {
           this.log('Device: %s %s, production voltage: %s V', this.host, accessoryName, value);
         }
@@ -3842,7 +3842,7 @@ class envoyDevice {
       });
     enphaseProductionService.getCharacteristic(Characteristic.enphaseReactivePower)
       .onGet(async () => {
-        const value = (envoySupportMeters && meterProductionEnabled) ? this.productionReactivePower : 0;
+        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionReactivePower : 0;
         if (!this.disableLogInfo) {
           this.log('Device: %s %s, production net reactive power: %s kVAr', this.host, accessoryName, value);
         }
@@ -3850,7 +3850,7 @@ class envoyDevice {
       });
     enphaseProductionService.getCharacteristic(Characteristic.enphaseApparentPower)
       .onGet(async () => {
-        const value = (envoySupportMeters && meterProductionEnabled) ? this.productionApparentPower : 0;
+        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionApparentPower : 0;
         if (!this.disableLogInfo) {
           this.log('Device: %s %s, production net apparent power: %s kVA', this.host, accessoryName, value);
         }
@@ -3858,7 +3858,7 @@ class envoyDevice {
       });
     enphaseProductionService.getCharacteristic(Characteristic.enphasePwrFactor)
       .onGet(async () => {
-        const value = (envoySupportMeters && meterProductionEnabled) ? this.productionPwrFactor : 0;
+        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionPwrFactor : 0;
         if (!this.disableLogInfo) {
           this.log('Device: %s %s, production power factor: %s cos φ', this.host, accessoryName, value);
         }
@@ -3876,7 +3876,7 @@ class envoyDevice {
     accessory.addService(this.productionsService[0]);
 
     //power and energy consumption
-    if (envoySupportMeters && meterConsumptionEnabled) {
+    if (envoySupportMeters && metersConsumptionEnabled) {
       this.consumptionsService = new Array();
       for (let i = 0; i < metersConsumpionCount; i++) {
         const enphaseConsumptionService = new Service.enphasePowerAndEnergy('Power And Energy ' + this.consumptionMeasurmentType[i], 'enphaseConsumptionService' + i);
