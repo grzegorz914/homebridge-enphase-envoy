@@ -2171,7 +2171,7 @@ class envoyDevice {
       this.productionData = productionData;
       this.productionCtData = productionCtData;
       
-      const updateMetersReadingData = !this.checkDeviceState ? this.updateMetersReadingData() : false;
+      const updateMetersReadingData = !this.checkDeviceState ? this.envoySupportMeter ? this.updateMetersReadingData() : this.updateMicroinvertersData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, productionData, productionCtData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
