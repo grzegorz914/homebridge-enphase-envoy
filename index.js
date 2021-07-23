@@ -2051,6 +2051,22 @@ class envoyDevice {
       const devInfo = JSON.stringify(obj, null, 2);
       const writeDevInfoFile = await fsPromises.writeFile(this.devInfoFile, devInfo);
       this.log.debug('Device: %s %s, saved Device Info successful.', this.host, this.name);
+      
+      try {
+        const inventoryEnsembleData = await axios.get(this.url + ENVOY_API_URL.InventoryEnsemble);
+        this.log.debug('Device %s %s, debug inventoryEnsembleData: %s', this.host, this.name, inventoryEnsembleData.data);
+
+        const ensembleInstalled = true;
+        const enchargesCount = inventoryEnsembleData.data[0].devices.length;
+        const enpowersCount = inventoryEnsembleData.data[1].devices.length;
+
+        this.ensembleInstalled = ensembleInstalled;
+        this.enchargesCount = enchargesCount;
+        this.enpowersCount = enpowersCount;
+        this.inventoryEnsembleData = inventoryEnsembleData;
+      } catch (error) {
+        this.log('Device: %s %s, requesting installed Ensemble devices, state: Not installed.', this.host, this.name);
+      };
 
       const time = new Date(parseInfoData.envoy_info.time[0] * 1000).toLocaleString();
       const deviceSn = parseInfoData.envoy_info.device[0].sn[0];
@@ -2070,22 +2086,6 @@ class envoyDevice {
       const microinvertersCount = inventoryData.data[0].devices.length;
       const acBatteriesCount = inventoryData.data[1].devices.length;
       const qRelaysCount = inventoryData.data[2].devices.length;
-
-      try {
-        const inventoryEnsembleData = await axios.get(this.url + ENVOY_API_URL.InventoryEnsemble);
-        this.log.debug('Device %s %s, debug inventoryEnsembleData: %s', this.host, this.name, inventoryEnsembleData.data);
-
-        const ensembleInstalled = true;
-        const enchargesCount = inventoryEnsembleData.data[0].devices.length;
-        const enpowersCount = inventoryEnsembleData.data[1].devices.length;
-
-        this.ensembleInstalled = ensembleInstalled;
-        this.enchargesCount = enchargesCount;
-        this.enpowersCount = enpowersCount;
-        this.inventoryEnsembleData = inventoryEnsembleData;
-      } catch (error) {
-        this.log('Device: %s %s, requesting installed Ensemble devices, state: Not installed.', this.host, this.name);
-      };
 
       this.log('-------- %s --------', this.name);
       this.log('Manufacturer: Enphase');
@@ -2189,7 +2189,6 @@ class envoyDevice {
       this.updateDeviceState();
     } catch (error) {
       this.log.error('Device: %s %s, microinverters error: %s', this.host, this.name, error);
-      this.microinvertersData = 0;
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2198,6 +2197,8 @@ class envoyDevice {
   async updateDeviceState() {
     try {
       //get devices data;
+      const infoData = this.infoData;
+      const parseInfoData = this.parseInfoData;
       const homeData = this.homeData;
       const inventoryData = this.inventoryData;
       const productionData = this.productionData;
@@ -2212,9 +2213,9 @@ class envoyDevice {
       const metersCount = this.metersCount;
       const meterProductionEnabled = this.meterProductionEnabled;
       const meterConsumptionEnabled = this.meterConsumptionEnabled;
-      const qRelaysCount = this.qRelaysCount;
-      const acBatteriesCount = this.acBatteriesCount;
       const microinvertersCount = this.microinvertersCount
+      const acBatteriesCount = this.acBatteriesCount;
+      const qRelaysCount = this.qRelaysCount;
       const enchargesCount = this.enchargesCount;
       const enpowersCount = this.enpowersCount;
 
