@@ -2320,7 +2320,7 @@ class envoyDevice {
       //envoy
       if (homeData.status === 200) {
         const softwareBuildEpoch = new Date(homeData.data.software_build_epoch * 1000).toLocaleString();
-        const isEnvoy = (homeData.data.is_nonvoy == false);
+        const isEnvoy = (homeData.data.is_nonvoy === false);
         const dbSize = homeData.data.db_size;
         const dbPercentFull = homeData.data.db_percent_full;
         const timeZone = homeData.data.timezone;
