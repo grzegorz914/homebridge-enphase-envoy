@@ -1900,14 +1900,16 @@ class envoyDevice {
     this.checkCommLevel = false;
     this.startPrepareAccessory = true;
 
-    this.homeData = 0;
-    this.inventoryData = 0;
-    this.productionData = 0;
-    this.productionCtData = 0;
-    this.metersData = 0;
-    this.metersReadingData = 0;
-    this.microinvertersData = 0;
-    this.inventoryEnsembleData = 0;
+    this.infoData = { 'status': 0 };
+    this.parseInfoData = { 'status': 0 };
+    this.homeData = { 'status': 0 };
+    this.inventoryData = { 'status': 0 };
+    this.productionData = { 'status': 0 };
+    this.productionCtData = { 'status': 0 };
+    this.metersData = { 'status': 0 };
+    this.metersReadingData = { 'status': 0 };
+    this.microinvertersData = { 'status': 0 };
+    this.inventoryEnsembleData = { 'status': 0 };
 
     this.envoyCheckCommLevel = false;
     this.envoySerialNumber = '';
@@ -2042,24 +2044,24 @@ class envoyDevice {
     try {
       const [infoData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.GetInfo), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
       this.log.debug('Device %s %s, debug infoData: %s, inventoryData: %s, metersData: %s', this.host, this.name, infoData.data, inventoryData.data, metersData.data);
-      const resultData = await parseStringPromise(infoData.data);
-      this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(resultData, null, 2));
+      const parseInfoData = await parseStringPromise(infoData.data);
+      this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2));
 
-      const obj = Object.assign(resultData, inventoryData.data, metersData.data);
+      const obj = Object.assign(parseInfoData, inventoryData.data, metersData.data);
       const devInfo = JSON.stringify(obj, null, 2);
       const writeDevInfoFile = await fsPromises.writeFile(this.devInfoFile, devInfo);
       this.log.debug('Device: %s %s, saved Device Info successful.', this.host, this.name);
 
-      const time = new Date(resultData.envoy_info.time[0] * 1000).toLocaleString();
-      const deviceSn = resultData.envoy_info.device[0].sn[0];
-      const devicePn = ENPHASE_PART_NUMBER[resultData.envoy_info.device[0].pn[0]] || 'Envoy'
-      const deviceSoftware = resultData.envoy_info.device[0].software[0];
-      const deviceEuaid = resultData.envoy_info.device[0].euaid[0];
-      const deviceSeqNum = resultData.envoy_info.device[0].seqnum[0];
-      const deviceApiVer = resultData.envoy_info.device[0].apiver[0];
-      const deviceImeter = (resultData.envoy_info.device[0].imeter[0] === 'true');
-      const buildTimeQmt = new Date(resultData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
-      const buildId = resultData.envoy_info.build_info[0].build_id[0];
+      const time = new Date(parseInfoData.envoy_info.time[0] * 1000).toLocaleString();
+      const deviceSn = parseInfoData.envoy_info.device[0].sn[0];
+      const devicePn = ENPHASE_PART_NUMBER[parseInfoData.envoy_info.device[0].pn[0]] || 'Envoy'
+      const deviceSoftware = parseInfoData.envoy_info.device[0].software[0];
+      const deviceEuaid = parseInfoData.envoy_info.device[0].euaid[0];
+      const deviceSeqNum = parseInfoData.envoy_info.device[0].seqnum[0];
+      const deviceApiVer = parseInfoData.envoy_info.device[0].apiver[0];
+      const deviceImeter = (parseInfoData.envoy_info.device[0].imeter[0] === 'true');
+      const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
+      const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
 
       const metersCount = deviceImeter ? metersData.data.length : 0;
       const meterProductionEnabled = deviceImeter ? (metersData.data[0].state === 'enabled') : false;
@@ -2067,7 +2069,7 @@ class envoyDevice {
 
       const microinvertersCount = inventoryData.data[0].devices.length;
       const acBatteriesCount = inventoryData.data[1].devices.length;
-      const qrelaysCount = inventoryData.data[2].devices.length;
+      const qRelaysCount = inventoryData.data[2].devices.length;
 
       try {
         const inventoryEnsembleData = await axios.get(this.url + ENVOY_API_URL.InventoryEnsemble);
@@ -2093,7 +2095,7 @@ class envoyDevice {
       this.log('SerialNr: %s', deviceSn);
       this.log('Time: %s', time);
       this.log('------------------------------');
-      this.log('Q-Relays: %s', qrelaysCount);
+      this.log('Q-Relays: %s', qRelaysCount);
       this.log('Inverters: %s', microinvertersCount);
       this.log('Batteries: %s', acBatteriesCount);
       this.log('--------------------------------');
@@ -2119,8 +2121,10 @@ class envoyDevice {
       this.meterConsumptionEnabled = meterConsumptionEnabled;
       this.microinvertersCount = microinvertersCount;
       this.acBatteriesCount = acBatteriesCount;
-      this.qRelaysCount = qrelaysCount;
+      this.qRelaysCount = qRelaysCount;
 
+      this.infoData = infoData;
+      this.parseInfoData = parseInfoData;
       this.inventoryData = inventoryData;
       this.metersData = metersData;
 
@@ -2128,8 +2132,6 @@ class envoyDevice {
       this.updateHomeData();
     } catch (error) {
       this.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', this.host, this.name, error);
-      this.inventoryData = 0;
-      this.metersData = 0;
       this.checkDeviceInfo = true;
     };
   }
@@ -2144,7 +2146,6 @@ class envoyDevice {
       this.updateProductionConsumptionData();
     } catch (error) {
       this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
-      this.homeData = 0;
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2162,9 +2163,6 @@ class envoyDevice {
       const updateMicroinvertersData = this.startPrepareAccessory ? this.updateMicroinvertersData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, productionData, productionCtData or metersReadingData error: %s', this.host, this.name, error);
-      this.productionData = 0;
-      this.productionCtData = 0;
-      this.metersReadingData = 0;
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
