@@ -2027,7 +2027,7 @@ class envoyDevice {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
         this.updateProductionData();
         if (this.envoyCheckCommLevel && this.installerPasswd) {
-          this.updateCommLevel();
+          this.updateCommLevelData();
         }
       }
     }.bind(this), this.refreshInterval * 1000);
@@ -2220,7 +2220,7 @@ class envoyDevice {
     };
   }
 
-  async updateCommLevel() {
+  async updateCommLevelData() {
     this.log.debug('Device: %s %s, requesting communications level.', this.host, this.name);
     try {
       const authInstaller = {
@@ -2230,8 +2230,8 @@ class envoyDevice {
         dataType: 'json',
         timeout: [5000, 5000]
       };
-      const pcuCommCheckData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
-      const commLevel = pcuCommCheckData.data;
+      const pcuCommLevelData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
+      const commLevel = pcuCommLevelData.data;
       this.log.debug('Debug pcuCommCheck: %s', commLevel);
 
       // get devices count
