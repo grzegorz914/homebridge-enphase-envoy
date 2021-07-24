@@ -1897,7 +1897,7 @@ class envoyDevice {
     //setup variables
     this.checkDeviceInfo = true;
     this.checkDeviceState = false;
-    this.checkCommLevel = false;
+    this.updateCommLevel = false;
     this.startPrepareAccessory = true;
 
     this.infoData = { 'status': 0 };
@@ -2282,12 +2282,10 @@ class envoyDevice {
           .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
       }
 
-      this.checkCommLevel = true;
+      this.updateCommLevel = true;
       this.envoyCheckCommLevel = false;
     } catch (error) {
       this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
-      this.checkCommLevel = false;
-      this.envoyCheckCommLevel = true;
     };
   }
 
@@ -3624,7 +3622,7 @@ class envoyDevice {
           });
         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
           .onGet(async () => {
-            const value = (this.checkCommLevel && this.qRelaysCommLevel[i] !== undefined) ? this.qRelaysCommLevel[i] : 0;
+            const value = (this.updateCommLevel && this.qRelaysCommLevel[i] !== undefined) ? this.qRelaysCommLevel[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, qrelay: %s comm. level: %s', this.host, accessoryName, this.qRelaysSerialNumber[i], value);
             }
@@ -4082,7 +4080,7 @@ class envoyDevice {
           });
         enphaseAcBatterieService.getCharacteristic(Characteristic.enphaseAcBatterieCommLevel)
           .onGet(async () => {
-            const value = (this.checkCommLevel && this.acBatteriesCommLevel[i] !== undefined) ? this.acBatteriesCommLevel[i] : 0;
+            const value = (this.updateCommLevel && this.acBatteriesCommLevel[i] !== undefined) ? this.acBatteriesCommLevel[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, ac batterie: %s comm. level: %s', this.host, accessoryName, this.acBatteriesSerialNumber[i], value);
             }
@@ -4212,7 +4210,7 @@ class envoyDevice {
           });
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
           .onGet(async () => {
-            const value = (this.checkCommLevel && this.microinvertersCommLevel[i] !== undefined) ? this.microinvertersCommLevel[i] : 0;
+            const value = (this.updateCommLevel && this.microinvertersCommLevel[i] !== undefined) ? this.microinvertersCommLevel[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, microinverter: %s comm. level: %s', this.host, accessoryName, this.microinvertersSerialNumber[i], value);
             }
