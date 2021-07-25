@@ -2291,6 +2291,7 @@ class envoyDevice {
 
 
   async updateDeviceState() {
+    this.log.debug('Device: %s %s, update device state.', this.host, this.name);
     try {
       //get devices data;
       const infoData = this.infoData;
