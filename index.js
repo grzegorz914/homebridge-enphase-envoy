@@ -2168,6 +2168,7 @@ class envoyDevice {
     try {
       const [productionData, productionCtData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats)]);
       this.log.debug('Debug productionData: %s, productionCtData: %s', productionData.data, productionCtData.data);
+      
       this.productionData = productionData;
       this.productionCtData = productionCtData;
 
@@ -2183,7 +2184,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting metersReadingData.', this.host, this.name);
     try {
       const metersReadingData = await axios.get(this.url + ENVOY_API_URL.InternalMeterReadings);
-      this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
+      this.log.debug('Debug metersReadingData: %s', metersReadingData.data);            
       this.metersReadingData = metersReadingData;
 
       const updateMicroinvertersData = !this.checkDeviceState ? this.updateMicroinvertersData() : false;
@@ -2806,7 +2807,7 @@ class envoyDevice {
           this.consumptionReactivePower = new Array();
           this.consumptionApparentPower = new Array();
           this.consumptionPwrFactor = new Array();
-
+          
           const metersConsumpionCount = productionCtData.data.consumption.length;
           for (let i = 0; i < metersConsumpionCount; i++) {
             //power
@@ -2862,7 +2863,6 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseApparentPower, consumptionApparentPower)
                 .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor);
             }
-            this.metersConsumpionCount = metersConsumpionCount;
             this.consumptionType.push(consumptionType);
             this.consumptionMeasurmentType.push(consumptionMeasurmentType);
             this.consumptionActiveCount.push(consumptionActiveCount);
@@ -2879,6 +2879,7 @@ class envoyDevice {
             this.consumptionApparentPower.push(consumptionApparentPower);
             this.consumptionPwrFactor.push(consumptionPwrFactor);
           }
+          this.metersConsumpionCount = metersConsumpionCount;
         }
 
         //ac btteries summary
@@ -2978,6 +2979,7 @@ class envoyDevice {
           this.currentSumm = new Array();
           this.freqSumm = new Array();
 
+          this.metersReadingChannelsCount = new Array();
           this.eidPhase = new Array();
           this.timestampPhase = new Array();
           this.actEnergyDlvdPhase = new Array();
@@ -3026,7 +3028,6 @@ class envoyDevice {
                   .updateCharacteristic(Characteristic.enphaseMeterFreq, freq);
               }
 
-              this.metersReadingCount = metersReadingCount;
               this.eidSumm.push(eid);
               this.timestampSumm.push(timestamp);
               this.actEnergyDlvdSumm.push(actEnergyDlvd);
@@ -3063,7 +3064,6 @@ class envoyDevice {
                   const current = parseFloat(metersReadingData.data[i].channels[l].current);
                   const freq = parseFloat(metersReadingData.data[i].channels[l].freq);
 
-                  this.metersReadingChannelsCount = metersReadingChannelsCount;
                   this.eidPhase.push(eid);
                   this.timestampPhase.push(timestamp);
                   this.actEnergyDlvdPhase.push(actEnergyDlvd);
@@ -3081,8 +3081,10 @@ class envoyDevice {
                   this.freqPhase.push(freq);
                 }
               }
+              this.metersReadingChannelsCount.push(metersReadingChannelsCount);
             }
           }
+          this.metersReadingCount = metersReadingCount;
         }
       }
 
