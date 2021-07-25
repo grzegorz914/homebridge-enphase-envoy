@@ -2168,7 +2168,7 @@ class envoyDevice {
     try {
       const [productionData, productionCtData] = await axios.all([axios.get(this.url + ENVOY_API_URL.InverterProductionSumm), axios.get(this.url + ENVOY_API_URL.SystemReadingStats)]);
       this.log.debug('Debug productionData: %s, productionCtData: %s', productionData.data, productionCtData.data);
-      
+
       this.productionData = productionData;
       this.productionCtData = productionCtData;
 
@@ -2184,7 +2184,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting metersReadingData.', this.host, this.name);
     try {
       const metersReadingData = await axios.get(this.url + ENVOY_API_URL.InternalMeterReadings);
-      this.log.debug('Debug metersReadingData: %s', metersReadingData.data);            
+      this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
       this.metersReadingData = metersReadingData;
 
       const updateMicroinvertersData = !this.checkDeviceState ? this.updateMicroinvertersData() : false;
@@ -2807,7 +2807,7 @@ class envoyDevice {
           this.consumptionReactivePower = new Array();
           this.consumptionApparentPower = new Array();
           this.consumptionPwrFactor = new Array();
-          
+
           const metersConsumpionCount = productionCtData.data.consumption.length;
           for (let i = 0; i < metersConsumpionCount; i++) {
             //power
