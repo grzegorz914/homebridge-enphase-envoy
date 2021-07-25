@@ -3825,46 +3825,48 @@ class envoyDevice {
         }
         return value;
       });
-    enphaseProductionService.getCharacteristic(Characteristic.enphaseRmsCurrent)
-      .onGet(async () => {
-        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionRmsCurrent : 0;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, production current: %s A', this.host, accessoryName, value);
-        }
-        return value;
-      });
-    enphaseProductionService.getCharacteristic(Characteristic.enphaseRmsVoltage)
-      .onGet(async () => {
-        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionRmsVoltage : 0;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, production voltage: %s V', this.host, accessoryName, value);
-        }
-        return value;
-      });
-    enphaseProductionService.getCharacteristic(Characteristic.enphaseReactivePower)
-      .onGet(async () => {
-        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionReactivePower : 0;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, production net reactive power: %s kVAr', this.host, accessoryName, value);
-        }
-        return value;
-      });
-    enphaseProductionService.getCharacteristic(Characteristic.enphaseApparentPower)
-      .onGet(async () => {
-        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionApparentPower : 0;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, production net apparent power: %s kVA', this.host, accessoryName, value);
-        }
-        return value;
-      });
-    enphaseProductionService.getCharacteristic(Characteristic.enphasePwrFactor)
-      .onGet(async () => {
-        const value = (envoySupportMeters && metersProductionEnabled) ? this.productionPwrFactor : 0;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, production power factor: %s cos φ', this.host, accessoryName, value);
-        }
-        return value;
-      });
+    if (envoySupportMeters && metersProductionEnabled) {
+      enphaseProductionService.getCharacteristic(Characteristic.enphaseRmsCurrent)
+        .onGet(async () => {
+          const value = this.productionRmsCurrent;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, production current: %s A', this.host, accessoryName, value);
+          }
+          return value;
+        });
+      enphaseProductionService.getCharacteristic(Characteristic.enphaseRmsVoltage)
+        .onGet(async () => {
+          const value = this.productionRmsVoltage;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, production voltage: %s V', this.host, accessoryName, value);
+          }
+          return value;
+        });
+      enphaseProductionService.getCharacteristic(Characteristic.enphaseReactivePower)
+        .onGet(async () => {
+          const value = this.productionReactivePower;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, production net reactive power: %s kVAr', this.host, accessoryName, value);
+          }
+          return value;
+        });
+      enphaseProductionService.getCharacteristic(Characteristic.enphaseApparentPower)
+        .onGet(async () => {
+          const value = this.productionApparentPower;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, production net apparent power: %s kVA', this.host, accessoryName, value);
+          }
+          return value;
+        });
+      enphaseProductionService.getCharacteristic(Characteristic.enphasePwrFactor)
+        .onGet(async () => {
+          const value = this.productionPwrFactor;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, production power factor: %s cos φ', this.host, accessoryName, value);
+          }
+          return value;
+        });
+    }
     enphaseProductionService.getCharacteristic(Characteristic.enphaseReadingTime)
       .onGet(async () => {
         const value = this.productionReadingTime;
