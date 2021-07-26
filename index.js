@@ -3421,7 +3421,7 @@ class envoyDevice {
       .onGet(async () => {
         const value = this.envoyCommNum + ' / ' + this.envoyCommLevel;
         if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s communication devices and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          this.log('Device: %s %s, envoy: %s communication Devices and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
         }
         return value;
       });
@@ -3437,7 +3437,7 @@ class envoyDevice {
       .onGet(async () => {
         const value = this.envoyCommPcuNum + ' / ' + this.envoyCommPcuLevel;
         if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s communication AC Batteries and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          this.log('Device: %s %s, envoy: %s communication Microinverters and level: %s', this.host, accessoryName, this.envoySerialNumber, value);
         }
         return value;
       });
