@@ -1943,6 +1943,9 @@ class envoyDevice {
     this.envoyEnpowerConnected = false;
     this.envoyEnpowerGridStatus = '';
 
+    this.commEnchgLevel24g = 0;
+    this.commEnchagLevelSubg = 0;
+
     this.qRelaysCount = 0;
 
     this.metersCount = 0;
@@ -2375,22 +2378,22 @@ class envoyDevice {
 
         //wireless connection kit
         if (enchargesCount > 0 || enpowersCount > 0) {
-             this.wirelessConnectionSignalStrength = new Array();
-             this.wirelessConnectionSignalStrengthMax = new Array();
-             this.wirelessConnectionType = new Array();
-             this.wirelessConnectionConnected = new Array();
-          
+          this.wirelessConnectionSignalStrength = new Array();
+          this.wirelessConnectionSignalStrengthMax = new Array();
+          this.wirelessConnectionType = new Array();
+          this.wirelessConnectionConnected = new Array();
+
           const wirelessConnectionsCount = homeData.data.wireless_connection.length;
-        for (let i = 0; i < wirelessConnectionsCount; i++) {
-             const wirelessConnectionSignalStrength = (homeData.data.wireless_connection[i].sigmal_strength * 20);
-             const wirelessConnectionSignalStrengthMax = (homeData.data.wireless_connection[i].sigmal_strength_max * 20);
-             const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type] || 'undefined';
-             const wirelessConnectionConnected = homeData.data.wireless_connection[i].connected;
-          
-             this.wirelessConnectionSignalStrength.push(wirelessConnectionSignalStrength);
-             this.wirelessConnectionSignalStrengthMax.push(wirelessConnectionSignalStrengthMax);
-             this.wirelessConnectionType.push(wirelessConnectionType);
-             this.wirelessConnectionConnected.push(wirelessConnectionConnected);
+          for (let i = 0; i < wirelessConnectionsCount; i++) {
+            const wirelessConnectionSignalStrength = (homeData.data.wireless_connection[i].sigmal_strength * 20);
+            const wirelessConnectionSignalStrengthMax = (homeData.data.wireless_connection[i].sigmal_strength_max * 20);
+            const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type] || 'undefined';
+            const wirelessConnectionConnected = homeData.data.wireless_connection[i].connected;
+
+            this.wirelessConnectionSignalStrength.push(wirelessConnectionSignalStrength);
+            this.wirelessConnectionSignalStrengthMax.push(wirelessConnectionSignalStrengthMax);
+            this.wirelessConnectionType.push(wirelessConnectionType);
+            this.wirelessConnectionConnected.push(wirelessConnectionConnected);
           }
         }
 
@@ -2457,7 +2460,9 @@ class envoyDevice {
         this.envoyCommNsrbNum = commNsrbNum;
         this.envoyCommNsrbLevel = commNsrbLevel;
         this.envoyCommEnchgNum = commEnchgNum;
-        this.envoyCommEnchgLevel = commEnchgLevel
+        this.envoyCommEnchgLevel = commEnchgLevel;
+        this.commEnchgLevel24g = commEnchgLevel24g;
+        this.commEnchagLevelSubg = commEnchagLevelSubg;
         this.envoyAllerts = status;
         this.envoyUpdateStatus = updateStatus;
 
