@@ -2408,7 +2408,7 @@ class envoyDevice {
             arrStatus.push(ENVOY_API_CODE[allerts[j]]);
           }
         }
-        const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+        const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No allerts';
 
         if (this.envoysService) {
           this.envoysService[0]
@@ -2509,7 +2509,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
 
             if (this.microinvertersService) {
               this.microinvertersService[i]
@@ -2585,7 +2585,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
 
             if (this.acBatteriesService) {
               this.acBatteriesService[i]
@@ -2956,7 +2956,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_API_CODE[statusFlags[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status flags';
 
 
             if (this.metersService) {
@@ -3196,7 +3196,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
 
             if (this.enchargesService) {
               this.enchargesService[i]
@@ -3289,7 +3289,7 @@ class envoyDevice {
                 arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
               }
             }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
 
             if (this.enpowersService) {
               this.enpowersService[i]
