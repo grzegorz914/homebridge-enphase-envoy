@@ -2815,7 +2815,7 @@ class envoyDevice {
           this.consumptionReadingTime = new Array();
           this.consumptionPower = new Array();
           this.consumptionPowerMax = new Array();
-          this.consumptionPowerMaxDetectedState = new Array();
+          this.consumptionPowerMaxDetected = new Array();
           this.consumptionEnergyToday = new Array();
           this.consumptionEnergyLastSevenDays = new Array();
           this.consumptionEnergyLifeTime = new Array();
@@ -2845,7 +2845,7 @@ class envoyDevice {
             }
 
             //power max state detected
-            const consumptionPowerMaxDetectedState = (consumptionPower >= (([this.consumptionTotalPowerMaxDetected, this.consumptionNetPowerMaxDetected][i]) / 1000)) ? true : false;
+            const consumptionPowerMaxDetected = (consumptionPower >= (([this.consumptionTotalPowerMaxDetected, this.consumptionNetPowerMaxDetected][i]) / 1000)) ? true : false;
 
             //energy
             const lifeTimeOffset = [this.consumptionTotalEnergyLifetimeOffset, this.consumptionNetEnergyLifetimeOffset][i];
@@ -2870,7 +2870,7 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseReadingTime, consumptionReadingTime)
                 .updateCharacteristic(Characteristic.enphasePower, consumptionPower)
                 .updateCharacteristic(Characteristic.enphasePowerMax, consumptionPowerMax)
-                .updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionPowerMaxDetectedState)
+                .updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionPowerMaxDetected)
                 .updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionEnergyToday)
                 .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionEnergyLastSevenDays)
                 .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, consumptionEnergyLifeTime)
@@ -2886,7 +2886,7 @@ class envoyDevice {
             this.consumptionReadingTime.push(consumptionReadingTime);
             this.consumptionPower.push(consumptionPower);
             this.consumptionPowerMax.push(consumptionPowerMax);
-            this.consumptionPowerMaxDetectedState.push(consumptionPowerMaxDetectedState);
+            this.consumptionPowerMaxDetected.push(consumptionPowerMaxDetected);
             this.consumptionEnergyToday.push(consumptionEnergyToday);
             this.consumptionEnergyLastSevenDays.push(consumptionEnergyLastSevenDays);
             this.consumptionEnergyLifeTime.push(consumptionEnergyLifeTime);
@@ -3902,7 +3902,7 @@ class envoyDevice {
         const enphaseConsumptionService = new Service.enphasePowerAndEnergy('Power And Energy ' + this.consumptionMeasurmentType[i], 'enphaseConsumptionService' + i);
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePower)
           .onGet(async () => {
-            const value = this.consumptionPower[i];
+            const value = (this.consumptionPower[i] !== undefined) ? this.consumptionPower[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s power: %s kW', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3910,7 +3910,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMax)
           .onGet(async () => {
-            const value = this.consumptionPowerMax[i];
+            const value = (this.consumptionPowerMax[i] !== undefined) ? this.consumptionPowerMax[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s power max: %s kW', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3918,7 +3918,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMaxDetected)
           .onGet(async () => {
-            const value = this.consumptionPowerMaxDetectedState[i];
+            const value = (this.consumptionPowerMaxDetected[i] !== undefined) ? this.consumptionPowerMaxDetected[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s power max detected: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], value ? 'Yes' : 'No');
             }
@@ -3926,7 +3926,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyToday)
           .onGet(async () => {
-            const value = this.consumptionEnergyToday[i];
+            const value = (this.consumptionEnergyToday[i] !== undefined) ? this.consumptionEnergyToday[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s energy today: %s kWh', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3934,7 +3934,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
           .onGet(async () => {
-            const value = this.consumptionEnergyLastSevenDays[i];
+            const value = (this.consumptionEnergyLastSevenDays[i] !== undefined) ? this.consumptionEnergyLastSevenDays[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s energy last seven days: %s kWh', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3942,7 +3942,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyLifeTime)
           .onGet(async () => {
-            const value = this.consumptionEnergyLifeTime[i];
+            const value = (this.consumptionEnergyLifeTime[i] !== undefined) ? this.consumptionEnergyLifeTime[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s total energy lifetime: %s kWh', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3950,7 +3950,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseRmsCurrent)
           .onGet(async () => {
-            const value = this.consumptionRmsCurrent[i];
+            const value = (this.consumptionRmsCurrent[i] !== undefined) ? this.consumptionRmsCurrent[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s total current: %s A', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3958,7 +3958,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseRmsVoltage)
           .onGet(async () => {
-            const value = this.consumptionRmsVoltage[i];
+            const value = (this.consumptionRmsVoltage[i] !== undefined) ? this.consumptionRmsVoltage[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s total voltage: %s V', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3966,7 +3966,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReactivePower)
           .onGet(async () => {
-            const value = this.consumptionReactivePower[i];
+            const value = (this.consumptionReactivePower[i] !== undefined) ? this.consumptionReactivePower[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s total reactive power: %s kVAr', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3974,7 +3974,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseApparentPower)
           .onGet(async () => {
-            const value = this.consumptionApparentPower[i];
+            const value = (this.consumptionApparentPower[i] !== undefined) ? this.consumptionApparentPower[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s total apparent power: %s kVA', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3982,7 +3982,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePwrFactor)
           .onGet(async () => {
-            const value = this.consumptionPwrFactor[i];
+            const value = (this.consumptionPwrFactor[i] !== undefined) ? this.consumptionPwrFactor[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s total power factor: %s cos φ', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
@@ -3990,7 +3990,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReadingTime)
           .onGet(async () => {
-            const value = this.consumptionReadingTime[i];
+            const value = (this.consumptionReadingTime[i] !== undefined) ? this.consumptionReadingTime[i] : 0;
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s total last report: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
