@@ -3990,7 +3990,7 @@ class envoyDevice {
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReadingTime)
           .onGet(async () => {
-            const value = (this.consumptionReadingTime[i] !== undefined) ? this.consumptionReadingTime[i] : 0;
+            const value = (this.consumptionReadingTime[i] !== undefined) ? this.consumptionReadingTime[i] : '';
             if (!this.disableLogInfo) {
               this.log('Device: %s %s, %s total last report: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             }
