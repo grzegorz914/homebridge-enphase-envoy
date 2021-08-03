@@ -3340,9 +3340,7 @@ class envoyDevice {
       this.checkDeviceState = true;
 
       //start prepare accessory
-      if (this.startPrepareAccessory) {
-        this.prepareAccessory();
-      }
+      const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
     } catch (error) {
       this.log.error('Device: %s %s, update Device state error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
