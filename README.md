@@ -31,7 +31,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 1. Version 4.0.0 whole new concept.
 2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpowers).
 3. Envoy authentication is detected automatically or can be added in config if was chenged.
-4. For best experiences please use *Controller App* or *EVE app* for iOS
+4. For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 5. Installer Password which is nedded to read communications level of (Microinverters, Q-Relays, AC Batteries) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 
 ## Info v3.x.x
@@ -55,7 +55,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 To ease configuration, install and use the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) plugin (highly recomended). 
 
-Alternatively, Tthe sample configuration can be edited and used manually. See the `sample-config.json` file in this repository for an example or copy/paste the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
+Alternatively, the sample configuration can be edited and used manually. See the `sample-config.json` file in this repository for an example or copy/paste the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
 
 ## Configuration Values
 | Key | Description | 
