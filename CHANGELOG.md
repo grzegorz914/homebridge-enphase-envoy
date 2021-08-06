@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Important note v4.5.0 and above!!!
 Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
+## [5.0.0] - (05.08.2021)
+## Changes
+- removed deprecated inherits and moved all characterictics to use ES6 class
+
 ## [4.9.0] - (03.08.2021)
 ## Changes
 - added support for Ensemble (Enpowers and Encharges)

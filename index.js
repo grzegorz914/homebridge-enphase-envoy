@@ -4,7 +4,6 @@ const http = require('urllib');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const inherits = require('util').inherits;
 const parseStringPromise = require('xml2js').parseStringPromise;
 
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
@@ -16,20 +15,48 @@ const INSTALLER_USER = 'installer';
 const ENPHASE_PART_NUMBER = {
   //IQ combiner
   '800-00551-r03': 'X-IQ-AM1-120-B-M',
-  '800-00553-r03': 'X-IQ-AM1-240-B', '800-00554-r03': 'X-IQ-AM1-240-2', '800-00554-r03': 'X-IQ-AM1-240-2-M', '800-00555-r03': 'X-IQ-AM1-240-3', '800-00554-r03': 'X-IQ-AM1-240-3-ES', '800-00556-r03': 'X-IQ-AM1-240-3C', '800-00554-r03': 'X-IQ-AM1-240-3C-ES', '800-00557-r03': 'X-IQ-AM1-240-BM',
+  '800-00553-r03': 'X-IQ-AM1-240-B',
+  '800-00554-r03': 'X-IQ-AM1-240-2',
+  '800-00554-r03': 'X-IQ-AM1-240-2-M',
+  '800-00555-r03': 'X-IQ-AM1-240-3',
+  '800-00554-r03': 'X-IQ-AM1-240-3-ES',
+  '800-00556-r03': 'X-IQ-AM1-240-3C',
+  '800-00554-r03': 'X-IQ-AM1-240-3C-ES',
+  '800-00557-r03': 'X-IQ-AM1-240-BM',
   //Envoys
-  '880-00122-r02': 'ENV-S-AB-120-A', '880-00210-r02': 'ENV-S-AM1-120',
-  '800-00552-r01': 'ENV-S-WM-230', '800-00553-r01': 'ENV-S-WB-230', '800-00553-r02': 'ENV-S-WB-230-F', '800-00554-r03': 'ENV-S-WM-230', '800-00654-r06': 'ENV-S-WM-230',
-  '880-00208-r03': 'ENV-IQ-AM1-240', '880-00208-r02': 'ENV-IQ-AM1-240', '880-00231-r02': 'ENV-IQ-AM1-240', '880-00209-r03': 'ENV-IQ-AM3-3P', '880-00557-r02': 'ENV-IQ-AM3-3P',
+  '880-00122-r02': 'ENV-S-AB-120-A',
+  '880-00210-r02': 'ENV-S-AM1-120',
+  '800-00552-r01': 'ENV-S-WM-230',
+  '800-00553-r01': 'ENV-S-WB-230',
+  '800-00553-r02': 'ENV-S-WB-230-F',
+  '800-00554-r03': 'ENV-S-WM-230',
+  '800-00654-r06': 'ENV-S-WM-230',
+  '880-00208-r03': 'ENV-IQ-AM1-240',
+  '880-00208-r02': 'ENV-IQ-AM1-240',
+  '880-00231-r02': 'ENV-IQ-AM1-240',
+  '880-00209-r03': 'ENV-IQ-AM3-3P',
+  '880-00557-r02': 'ENV-IQ-AM3-3P',
   //qRelays
-  '800-00597-r02': 'Q-RELAY-3P-INT', '860-00152-r02': 'Q-RELAY-1P-INT',
+  '800-00597-r02': 'Q-RELAY-3P-INT',
+  '860-00152-r02': 'Q-RELAY-1P-INT',
   //Microinverters
-  '800-00633-r02': 'IQ7A-72-2-INT', '800-00632-r02': 'IQ7X-96-2-INT', '800-00631-r02': 'IQ7PLUS-72-2-INT', '800-00630-r02': 'IQ7-60-2-INT',
-  '800-00634-r02': 'IQ7A-72-2-US', '800-00635-r02': 'IQ7X-96-2-US', '800-00636-r02': 'IQ7PLUS-72-2-US', '800-00637-r02': 'IQ7-60-2-US',
-  '800-00638-r02': 'IQ7A-72-B-US', '800-00639-r02': 'IQ7X-96-B-US', '800-00640-r02': 'IQ7PLUS-72-B-US', '800-00641-r02': 'IQ7-60-B-US',
+  '800-00633-r02': 'IQ7A-72-2-INT',
+  '800-00632-r02': 'IQ7X-96-2-INT',
+  '800-00631-r02': 'IQ7PLUS-72-2-INT',
+  '800-00630-r02': 'IQ7-60-2-INT',
+  '800-00634-r02': 'IQ7A-72-2-US',
+  '800-00635-r02': 'IQ7X-96-2-US',
+  '800-00636-r02': 'IQ7PLUS-72-2-US',
+  '800-00637-r02': 'IQ7-60-2-US',
+  '800-00638-r02': 'IQ7A-72-B-US',
+  '800-00639-r02': 'IQ7X-96-B-US',
+  '800-00640-r02': 'IQ7PLUS-72-B-US',
+  '800-00641-r02': 'IQ7-60-B-US',
   //CT
-  '121943068536EIM1': 'CT-100-SPLIT-P', '121943068536EIM2': 'CT-100-SPLIT-C',
-  '121943068537EIM1': 'CT-200-SPLIT-P', '121943068537EIM2': 'CT-200-SPLIT-C'
+  '121943068536EIM1': 'CT-100-SPLIT-P',
+  '121943068536EIM2': 'CT-100-SPLIT-C',
+  '121943068537EIM1': 'CT-200-SPLIT-P',
+  '121943068537EIM2': 'CT-200-SPLIT-C'
 };
 
 const ENVOY_API_URL = {
@@ -86,18 +113,62 @@ const ENVOY_API_URL = {
 
 const ENVOY_API_CODE = {
   //types
-  'eim': 'Current meter', 'inverters': 'Microinverters', 'acb': 'AC Batteries', 'encharge': 'Encharge', 'enpower': 'Enpower', 'PCU': 'Microinverter', 'ACB': 'AC Batteries', 'ENCHARGE': 'Encharge',
-  'ENPOWER': 'Enpower', 'NSRB': 'Q-Relay', 'production': 'Production', 'net-consumption': 'Consumption (Net)', 'total-consumption': 'Consumption (Total)',
+  'eim': 'Current meter',
+  'inverters': 'Microinverters',
+  'acb': 'AC Batteries',
+  'encharge': 'Encharge',
+  'enpower': 'Enpower',
+  'PCU': 'Microinverter',
+  'ACB': 'AC Batteries',
+  'ENCHARGE': 'Encharge',
+  'ENPOWER': 'Enpower',
+  'NSRB': 'Q-Relay',
+  'production': 'Production',
+  'net-consumption': 'Consumption (Net)',
+  'total-consumption': 'Consumption (Total)',
   //enpower
-  'multimode-ongrid': 'Multimode on Grid', 'ENPWR_STATE_OPER_CLOSED': 'Enpower state closed', 'ENPWR_STATE_OPER_OPEN': 'Enpower state open',
+  'multimode-ongrid': 'Multimode on Grid',
+  'ENPWR_STATE_OPER_CLOSED': 'Enpower state closed',
+  'ENPWR_STATE_OPER_OPEN': 'Enpower state open',
   //encharge
-  'ready': 'Ready', 'idle': 'Idle', 'discharging': 'Discharging', 'charging': 'Charging', 'ENCHG_STATE_READY': 'Encharge state ready', 'ENCHG_STATE_IDLE': 'Encharge state idle', 'ENCHG_STATE_CHARGING': 'Encharge state charging', 'ENCHG_STATE_DISCHARGING': 'Encharge state discharging',
+  'ready': 'Ready',
+  'idle': 'Idle',
+  'discharging': 'Discharging',
+  'charging': 'Charging',
+  'ENCHG_STATE_READY': 'Encharge state ready',
+  'ENCHG_STATE_IDLE': 'Encharge state idle',
+  'ENCHG_STATE_CHARGING': 'Encharge state charging',
+  'ENCHG_STATE_DISCHARGING': 'Encharge state discharging',
   //qrelay
-  'enabled': 'Enabled', 'disabled': 'Disabled', 'one': 'One', 'two': 'Two', 'three': 'Three', 'split': 'Split', 'normal': 'Normal', 'closed': 'Closed', 'open': 'Open', 'error.nodata': 'No Data',
+  'enabled': 'Enabled',
+  'disabled': 'Disabled',
+  'one': 'One',
+  'two': 'Two',
+  'three': 'Three',
+  'split': 'Split',
+  'normal': 'Normal',
+  'closed': 'Closed',
+  'open': 'Open',
+  'error.nodata': 'No Data',
   //envoy
-  'ethernet': 'Ethernet', 'eth0': 'Ethernet', 'wifi': 'WiFi', 'wlan0': 'WiFi', 'cellurar': 'Cellurar', 'zigbee': 'ZigBee', 'subghz': 'Sub GHz', 'connected': 'Connected', 'disconnected': 'Disconnected',
-  'single_rate': 'Single rate', 'time_to_use': 'Time to use', 'time_of_use': 'Time of use', 'tiered': 'Tiered', 'not_set': 'Not set', 'flat': 'Flat', 'none': 'None',
-  'satisfied': 'Satisfied', 'not-satisfied': 'Not satisfied',
+  'ethernet': 'Ethernet',
+  'eth0': 'Ethernet',
+  'wifi': 'WiFi',
+  'wlan0': 'WiFi',
+  'cellurar': 'Cellurar',
+  'zigbee': 'ZigBee',
+  'subghz': 'Sub GHz',
+  'connected': 'Connected',
+  'disconnected': 'Disconnected',
+  'single_rate': 'Single rate',
+  'time_to_use': 'Time to use',
+  'time_of_use': 'Time of use',
+  'tiered': 'Tiered',
+  'not_set': 'Not set',
+  'flat': 'Flat',
+  'none': 'None',
+  'satisfied': 'Satisfied',
+  'not-satisfied': 'Not satisfied',
   //status code
   'envoy.global.ok': 'Normal',
   'envoy.cond_flags.acb_ctrl.bmuhardwareerror': 'BMU Hardware Error',
@@ -175,7 +246,29 @@ const ENVOY_API_CODE = {
   'envoy.cond_flags.rgm_chan.power_quality': 'Poor Power Quality'
 };
 
-const ENCHARGE_LED_STATUS = { 0: '', 1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: '', 9: '', 10: '', 11: '', 12: '', 13: '', 14: '', 15: '', 16: '', 17: '', 18: '', 19: '', 20: '' };
+const ENCHARGE_LED_STATUS = {
+  0: '',
+  1: '',
+  2: '',
+  3: '',
+  4: '',
+  5: '',
+  6: '',
+  7: '',
+  8: '',
+  9: '',
+  10: '',
+  11: '',
+  12: '',
+  13: '',
+  14: '',
+  15: '',
+  16: '',
+  17: '',
+  18: '',
+  19: '',
+  20: ''
+};
 
 let Accessory, Characteristic, Service, Categories, UUID;
 
@@ -187,1651 +280,1776 @@ module.exports = (api) => {
   UUID = api.hap.uuid;
 
   //Envoy
-  Characteristic.enphaseEnvoyAllerts = function () {
-    Characteristic.call(this, 'Allerts', Characteristic.enphaseEnvoyAllerts.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyAllerts, Characteristic);
-  Characteristic.enphaseEnvoyAllerts.UUID = '00000001-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyAllerts extends Characteristic {
+    constructor() {
+      super('Allerts', '00000001-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyAllerts = enphaseEnvoyAllerts;
 
-  Characteristic.enphaseEnvoyPrimaryInterface = function () {
-    Characteristic.call(this, 'Network interface', Characteristic.enphaseEnvoyPrimaryInterface.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyPrimaryInterface, Characteristic);
-  Characteristic.enphaseEnvoyPrimaryInterface.UUID = '00000011-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyPrimaryInterface extends Characteristic {
+    constructor() {
+      super('Network interface', '00000011-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyPrimaryInterface = enphaseEnvoyPrimaryInterface;
 
-  Characteristic.enphaseEnvoyNetworkWebComm = function () {
-    Characteristic.call(this, 'Web communication', Characteristic.enphaseEnvoyNetworkWebComm.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyNetworkWebComm, Characteristic);
-  Characteristic.enphaseEnvoyNetworkWebComm.UUID = '00000012-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyNetworkWebComm extends Characteristic {
+    constructor() {
+      super('Web communication', '00000012-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyNetworkWebComm = enphaseEnvoyNetworkWebComm;
 
 
-  Characteristic.enphaseEnvoyEverReportedToEnlighten = function () {
-    Characteristic.call(this, 'Report to Enlighten', Characteristic.enphaseEnvoyEverReportedToEnlighten.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyEverReportedToEnlighten, Characteristic);
-  Characteristic.enphaseEnvoyEverReportedToEnlighten.UUID = '00000013-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyEverReportedToEnlighten extends Characteristic {
+    constructor() {
+      super('Report to Enlighten', '00000013-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyEverReportedToEnlighten = enphaseEnvoyEverReportedToEnlighten;
 
-  Characteristic.enphaseEnvoyCommNumAndLevel = function () {
-    Characteristic.call(this, 'Devices and level', Characteristic.enphaseEnvoyCommNumAndLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyCommNumAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAndLevel.UUID = '00000014-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyCommNumAndLevel extends Characteristic {
+    constructor() {
+      super('Devices and level', '00000014-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyCommNumAndLevel = enphaseEnvoyCommNumAndLevel;
 
-  Characteristic.enphaseEnvoyCommNumNsrbAndLevel = function () {
-    Characteristic.call(this, 'Q-Relays and level', Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumNsrbAndLevel.UUID = '00000015-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyCommNumNsrbAndLevel extends Characteristic {
+    constructor() {
+      super('Q-Relays and level', '00000015-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyCommNumNsrbAndLevel = enphaseEnvoyCommNumNsrbAndLevel;
 
-  Characteristic.enphaseEnvoyCommNumPcuAndLevel = function () {
-    Characteristic.call(this, 'Microinverters and level', Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyCommNumPcuAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumPcuAndLevel.UUID = '00000016-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyCommNumPcuAndLevel extends Characteristic {
+    constructor() {
+      super('Microinverters and level', '00000016-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyCommNumPcuAndLevel = enphaseEnvoyCommNumPcuAndLevel;
 
-  Characteristic.enphaseEnvoyCommNumAcbAndLevel = function () {
-    Characteristic.call(this, 'AC Bateries and level', Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyCommNumAcbAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumAcbAndLevel.UUID = '00000017-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyCommNumAcbAndLevel extends Characteristic {
+    constructor() {
+      super('AC Bateries and level', '00000017-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyCommNumAcbAndLevel = enphaseEnvoyCommNumAcbAndLevel;
 
-  Characteristic.enphaseEnvoyCommNumEnchgAndLevel = function () {
-    Characteristic.call(this, 'Encharges and level', Characteristic.enphaseEnvoyCommNumEnchgAndLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, Characteristic);
-  Characteristic.enphaseEnvoyCommNumEnchgAndLevel.UUID = '00000018-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyCommNumEnchgAndLevel extends Characteristic {
+    constructor() {
+      super('Encharges and level', '00000018-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyCommNumEnchgAndLevel = enphaseEnvoyCommNumEnchgAndLevel;
 
-  Characteristic.enphaseEnvoyDbSize = function () {
-    Characteristic.call(this, 'DB size', Characteristic.enphaseEnvoyDbSize.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyDbSize, Characteristic);
-  Characteristic.enphaseEnvoyDbSize.UUID = '00000019-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyDbSize extends Characteristic {
+    constructor() {
+      super('DB size', '00000019-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyDbSize = enphaseEnvoyDbSize;
 
-  Characteristic.enphaseEnvoyTariff = function () {
-    Characteristic.call(this, 'Tariff', Characteristic.enphaseEnvoyTariff.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyTariff, Characteristic);
-  Characteristic.enphaseEnvoyTariff.UUID = '00000021-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyTariff extends Characteristic {
+    constructor() {
+      super('Tariff', '00000021-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyTariff = enphaseEnvoyTariff;
 
-  Characteristic.enphaseEnvoyFirmware = function () {
-    Characteristic.call(this, 'Firmware', Characteristic.enphaseEnvoyFirmware.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyFirmware, Characteristic);
-  Characteristic.enphaseEnvoyFirmware.UUID = '00000022-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyFirmware extends Characteristic {
+    constructor() {
+      super('Firmware', '00000022-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyFirmware = enphaseEnvoyFirmware;
 
-  Characteristic.enphaseEnvoyUpdateStatus = function () {
-    Characteristic.call(this, 'Update status', Characteristic.enphaseEnvoyUpdateStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyUpdateStatus, Characteristic);
-  Characteristic.enphaseEnvoyUpdateStatus.UUID = '00000023-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyUpdateStatus extends Characteristic {
+    constructor() {
+      super('Update status', '00000023-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyUpdateStatus = enphaseEnvoyUpdateStatus;
 
-  Characteristic.enphaseEnvoyTimeZone = function () {
-    Characteristic.call(this, 'Time Zone', Characteristic.enphaseEnvoyTimeZone.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyTimeZone, Characteristic);
-  Characteristic.enphaseEnvoyTimeZone.UUID = '00000024-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyTimeZone extends Characteristic {
+    constructor() {
+      super('Time Zone', '00000024-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyTimeZone = enphaseEnvoyTimeZone;
 
-  Characteristic.enphaseEnvoyCurrentDateTime = function () {
-    Characteristic.call(this, 'Local time', Characteristic.enphaseEnvoyCurrentDateTime.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyCurrentDateTime, Characteristic);
-  Characteristic.enphaseEnvoyCurrentDateTime.UUID = '00000025-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyCurrentDateTime extends Characteristic {
+    constructor() {
+      super('Local time', '00000025-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyCurrentDateTime = enphaseEnvoyCurrentDateTime;
 
-  Characteristic.enphaseEnvoyLastEnlightenReporDate = function () {
-    Characteristic.call(this, 'Last report to Enlighten', Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyLastEnlightenReporDate, Characteristic);
-  Characteristic.enphaseEnvoyLastEnlightenReporDate.UUID = '00000026-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyLastEnlightenReporDate extends Characteristic {
+    constructor() {
+      super('Last report to Enlighten', '00000026-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyLastEnlightenReporDate = enphaseEnvoyLastEnlightenReporDate;
 
-  Characteristic.enphaseEnvoyEnpowerConnected = function () {
-    Characteristic.call(this, 'Enpower connected', Characteristic.enphaseEnvoyEnpowerConnected.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyEnpowerConnected, Characteristic);
-  Characteristic.enphaseEnvoyEnpowerConnected.UUID = '00000027-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyEnpowerConnected extends Characteristic {
+    constructor() {
+      super('Enpower connected', '00000027-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyEnpowerConnected = enphaseEnvoyEnpowerConnected;
 
-  Characteristic.enphaseEnvoyEnpowerGridStatus = function () {
-    Characteristic.call(this, 'Enpower grid status', Characteristic.enphaseEnvoyEnpowerGridStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyEnpowerGridStatus, Characteristic);
-  Characteristic.enphaseEnvoyEnpowerGridStatus.UUID = '00000028-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyEnpowerGridStatus extends Characteristic {
+    constructor() {
+      super('Enpower grid status', '00000028-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyEnpowerGridStatus = enphaseEnvoyEnpowerGridStatus;
 
-  Characteristic.enphaseEnvoyCheckCommLevel = function () {
-    Characteristic.call(this, 'Check comm level', Characteristic.enphaseEnvoyCheckCommLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnvoyCheckCommLevel, Characteristic);
-  Characteristic.enphaseEnvoyCheckCommLevel.UUID = '00000029-000B-1000-8000-0026BB765291';
+  class enphaseEnvoyCheckCommLevel extends Characteristic {
+    constructor() {
+      super('Check comm level', '00000029-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyCheckCommLevel = enphaseEnvoyCheckCommLevel;
 
   //power production service
-  Service.enphaseEnvoy = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseEnvoy.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseEnvoyAllerts);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyDbSize);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTariff);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyFirmware);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyUpdateStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTimeZone);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
-  };
-  inherits(Service.enphaseEnvoy, Service);
-  Service.enphaseEnvoy.UUID = '00000001-000A-1000-8000-0026BB765291';
+  class enphaseEnvoy extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000001-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseEnvoyAllerts);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyDbSize);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTariff);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyFirmware);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyUpdateStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTimeZone);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
+    }
+  }
+  Service.enphaseEnvoy = enphaseEnvoy;
 
   //Q-Relay
-  Characteristic.enphaseQrelayState = function () {
-    Characteristic.call(this, 'Relay state', Characteristic.enphaseQrelayState.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayState, Characteristic);
-  Characteristic.enphaseQrelayState.UUID = '00000031-000B-1000-8000-0026BB765291';
+  class enphaseQrelayState extends Characteristic {
+    constructor() {
+      super('Relay state', '00000031-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayState = enphaseQrelayState;
 
-  Characteristic.enphaseQrelayLinesCount = function () {
-    Characteristic.call(this, 'Lines', Characteristic.enphaseQrelayLinesCount.UUID);
-    this.setProps({
-      format: Characteristic.Formats.INT,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayLinesCount, Characteristic);
-  Characteristic.enphaseQrelayLinesCount.UUID = '00000032-000B-1000-8000-0026BB765291';
+  class enphaseQrelayLinesCount extends Characteristic {
+    constructor() {
+      super('Lines', '00000032-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.INT,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayLinesCount = enphaseQrelayLinesCount;
 
-  Characteristic.enphaseQrelayLine1Connected = function () {
-    Characteristic.call(this, 'Line 1', Characteristic.enphaseQrelayLine1Connected.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayLine1Connected, Characteristic);
-  Characteristic.enphaseQrelayLine1Connected.UUID = '00000033-000B-1000-8000-0026BB765291';
+  class enphaseQrelayLine1Connected extends Characteristic {
+    constructor() {
+      super('Line 1', '00000033-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayLine1Connected = enphaseQrelayLine1Connected;
 
-  Characteristic.enphaseQrelayLine2Connected = function () {
-    Characteristic.call(this, 'Line 2', Characteristic.enphaseQrelayLine2Connected.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayLine2Connected, Characteristic);
-  Characteristic.enphaseQrelayLine2Connected.UUID = '00000034-000B-1000-8000-0026BB765291';
+  class enphaseQrelayLine2Connected extends Characteristic {
+    constructor() {
+      super('Line 2', '00000034-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayLine2Connected = enphaseQrelayLine2Connected;
 
-  Characteristic.enphaseQrelayLine3Connected = function () {
-    Characteristic.call(this, 'Line 3', Characteristic.enphaseQrelayLine3Connected.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayLine3Connected, Characteristic);
-  Characteristic.enphaseQrelayLine3Connected.UUID = '00000035-000B-1000-8000-0026BB765291';
+  class enphaseQrelayLine3Connected extends Characteristic {
+    constructor() {
+      super('Line 3', '00000035-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayLine3Connected = enphaseQrelayLine3Connected;
 
-  Characteristic.enphaseQrelayProducing = function () {
-    Characteristic.call(this, 'Producing', Characteristic.enphaseQrelayProducing.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayProducing, Characteristic);
-  Characteristic.enphaseQrelayProducing.UUID = '00000036-000B-1000-8000-0026BB765291';
+  class enphaseQrelayProducing extends Characteristic {
+    constructor() {
+      super('Producing', '00000036-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayProducing = enphaseQrelayProducing;
 
-  Characteristic.enphaseQrelayCommunicating = function () {
-    Characteristic.call(this, 'Communicating', Characteristic.enphaseQrelayCommunicating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayCommunicating, Characteristic);
-  Characteristic.enphaseQrelayCommunicating.UUID = '00000037-000B-1000-8000-0026BB765291';
+  class enphaseQrelayCommunicating extends Characteristic {
+    constructor() {
+      super('Communicating', '00000037-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayCommunicating = enphaseQrelayCommunicating;
 
-  Characteristic.enphaseQrelayProvisioned = function () {
-    Characteristic.call(this, 'Provisioned', Characteristic.enphaseQrelayProvisioned.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayProvisioned, Characteristic);
-  Characteristic.enphaseQrelayProvisioned.UUID = '00000038-000B-1000-8000-0026BB765291';
+  class enphaseQrelayProvisioned extends Characteristic {
+    constructor() {
+      super('Provisioned', '00000038-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayProvisioned = enphaseQrelayProvisioned;
 
-  Characteristic.enphaseQrelayOperating = function () {
-    Characteristic.call(this, 'Operating', Characteristic.enphaseQrelayOperating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayOperating, Characteristic);
-  Characteristic.enphaseQrelayOperating.UUID = '00000039-000B-1000-8000-0026BB765291';
+  class enphaseQrelayOperating extends Characteristic {
+    constructor() {
+      super('Operating', '00000039-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayOperating = enphaseQrelayOperating;
 
-  Characteristic.enphaseQrelayCommLevel = function () {
-    Characteristic.call(this, 'Comm level', Characteristic.enphaseQrelayCommLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayCommLevel, Characteristic);
-  Characteristic.enphaseQrelayCommLevel.UUID = '00000041-000B-1000-8000-0026BB765291';
+  class enphaseQrelayCommLevel extends Characteristic {
+    constructor() {
+      super('Comm level', '00000041-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayCommLevel = enphaseQrelayCommLevel;
 
-  Characteristic.enphaseQrelayStatus = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseQrelayStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayStatus, Characteristic);
-  Characteristic.enphaseQrelayStatus.UUID = '00000042-000B-1000-8000-0026BB765291';
+  class enphaseQrelayStatus extends Characteristic {
+    constructor() {
+      super('Status', '00000042-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayStatus = enphaseQrelayStatus;
 
-  Characteristic.enphaseQrelayFirmware = function () {
-    Characteristic.call(this, 'Firmware', Characteristic.enphaseQrelayFirmware.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayFirmware, Characteristic);
-  Characteristic.enphaseQrelayFirmware.UUID = '00000043-000B-1000-8000-0026BB765291';
+  class enphaseQrelayFirmware extends Characteristic {
+    constructor() {
+      super('Firmware', '00000043-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayFirmware = enphaseQrelayFirmware;
 
-  Characteristic.enphaseQrelayLastReportDate = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseQrelayLastReportDate.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseQrelayLastReportDate, Characteristic);
-  Characteristic.enphaseQrelayLastReportDate.UUID = '00000044-000B-1000-8000-0026BB765291';
+  class enphaseQrelayLastReportDate extends Characteristic {
+    constructor() {
+      super('Last report', '00000044-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayLastReportDate = enphaseQrelayLastReportDate;
 
   //qrelay service
-  Service.enphaseQrelay = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseQrelay.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseQrelayState);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayLinesCount);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine1Connected);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine2Connected);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine3Connected);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayProducing);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayCommunicating);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayProvisioned);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayOperating);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayCommLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayFirmware);
-    this.addOptionalCharacteristic(Characteristic.enphaseQrelayLastReportDate);
-  };
-  inherits(Service.enphaseQrelay, Service);
-  Service.enphaseQrelay.UUID = '00000002-000A-1000-8000-0026BB765291';
+  class enphaseQrelay extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000002-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseQrelayState);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayLinesCount);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine1Connected);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine2Connected);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine3Connected);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayProducing);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayCommunicating);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayProvisioned);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayOperating);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayCommLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayFirmware);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayLastReportDate);
+    }
+  }
+  Service.enphaseQrelay = enphaseQrelay;
 
   //enphase current meters
-  Characteristic.enphaseMeterState = function () {
-    Characteristic.call(this, 'State', Characteristic.enphaseMeterState.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterState, Characteristic);
-  Characteristic.enphaseMeterState.UUID = '00000051-000B-1000-8000-0026BB765291';
+  class enphaseMeterState extends Characteristic {
+    constructor() {
+      super('State', '00000051-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterState = enphaseMeterState;
 
-  Characteristic.enphaseMeterMeasurementType = function () {
-    Characteristic.call(this, 'Meter type', Characteristic.enphaseMeterMeasurementType.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterMeasurementType, Characteristic);
-  Characteristic.enphaseMeterMeasurementType.UUID = '00000052-000B-1000-8000-0026BB765291';
+  class enphaseMeterMeasurementType extends Characteristic {
+    constructor() {
+      super('Meter type', '00000052-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterMeasurementType = enphaseMeterMeasurementType;
 
-  Characteristic.enphaseMeterPhaseCount = function () {
-    Characteristic.call(this, 'Phase count', Characteristic.enphaseMeterPhaseCount.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterPhaseCount, Characteristic);
-  Characteristic.enphaseMeterPhaseCount.UUID = '00000053-000B-1000-8000-0026BB765291';
+  class enphaseMeterPhaseCount extends Characteristic {
+    constructor() {
+      super('Phase count', '00000053-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterPhaseCount = enphaseMeterPhaseCount;
 
-  Characteristic.enphaseMeterPhaseMode = function () {
-    Characteristic.call(this, 'Phase mode', Characteristic.enphaseMeterPhaseMode.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterPhaseMode, Characteristic);
-  Characteristic.enphaseMeterPhaseMode.UUID = '00000054-000B-1000-8000-0026BB765291';
+  class enphaseMeterPhaseMode extends Characteristic {
+    constructor() {
+      super('Phase mode', '00000054-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterPhaseMode = enphaseMeterPhaseMode;
 
-  Characteristic.enphaseMeterMeteringStatus = function () {
-    Characteristic.call(this, 'Metering status', Characteristic.enphaseMeterMeteringStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterMeteringStatus, Characteristic);
-  Characteristic.enphaseMeterMeteringStatus.UUID = '00000055-000B-1000-8000-0026BB765291';
+  class enphaseMeterMeteringStatus extends Characteristic {
+    constructor() {
+      super('Metering status', '00000055-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterMeteringStatus = enphaseMeterMeteringStatus;
 
-  Characteristic.enphaseMeterStatusFlags = function () {
-    Characteristic.call(this, 'Status flag', Characteristic.enphaseMeterStatusFlags.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterStatusFlags, Characteristic);
-  Characteristic.enphaseMeterStatusFlags.UUID = '00000056-000B-1000-8000-0026BB765291';
+  class enphaseMeterStatusFlags extends Characteristic {
+    constructor() {
+      super('Status flag', '00000056-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterStatusFlags = enphaseMeterStatusFlags;
 
-  Characteristic.enphaseMeterActivePower = function () {
-    Characteristic.call(this, 'Active power', Characteristic.enphaseMeterActivePower.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kW',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterActivePower, Characteristic);
-  Characteristic.enphaseMeterActivePower.UUID = '00000057-000B-1000-8000-0026BB765291';
+  class enphaseMeterActivePower extends Characteristic {
+    constructor() {
+      super('Active power', '00000057-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterActivePower = enphaseMeterActivePower;
 
-  Characteristic.enphaseMeterApparentPower = function () {
-    Characteristic.call(this, 'Apparent power', Characteristic.enphaseMeterApparentPower.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kVA',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterApparentPower, Characteristic);
-  Characteristic.enphaseMeterApparentPower.UUID = '00000058-000B-1000-8000-0026BB765291';
+  class enphaseMeterApparentPower extends Characteristic {
+    constructor() {
+      super('Apparent power', '00000058-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterApparentPower = enphaseMeterApparentPower;
 
-  Characteristic.enphaseMeterReactivePower = function () {
-    Characteristic.call(this, 'Reactive power', Characteristic.enphaseMeterReactivePower.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kVAr',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterReactivePower, Characteristic);
-  Characteristic.enphaseMeterReactivePower.UUID = '00000059-000B-1000-8000-0026BB765291';
+  class enphaseMeterReactivePower extends Characteristic {
+    constructor() {
+      super('Reactive power', '00000059-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVAr',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterReactivePower = enphaseMeterReactivePower;
 
-  Characteristic.enphaseMeterPwrFactor = function () {
-    Characteristic.call(this, 'Power factor', Characteristic.enphaseMeterPwrFactor.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'cos φ',
-      maxValue: 1,
-      minValue: -1,
-      minStep: 0.01,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterPwrFactor, Characteristic);
-  Characteristic.enphaseMeterPwrFactor.UUID = '00000061-000B-1000-8000-0026BB765291';
+  class enphaseMeterPwrFactor extends Characteristic {
+    constructor() {
+      super('Power factor', '00000061-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'cos φ',
+        maxValue: 1,
+        minValue: -1,
+        minStep: 0.01,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterPwrFactor = enphaseMeterPwrFactor;
 
-  Characteristic.enphaseMeterVoltage = function () {
-    Characteristic.call(this, 'Voltage', Characteristic.enphaseMeterVoltage.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'V',
-      maxValue: 1000,
-      minValue: 0,
-      minStep: 0.1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterVoltage, Characteristic);
-  Characteristic.enphaseMeterVoltage.UUID = '00000062-000B-1000-8000-0026BB765291';
+  class enphaseMeterVoltage extends Characteristic {
+    constructor() {
+      super('Voltage', '00000062-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'V',
+        maxValue: 1000,
+        minValue: 0,
+        minStep: 0.1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterVoltage = enphaseMeterVoltage;
 
-  Characteristic.enphaseMeterCurrent = function () {
-    Characteristic.call(this, 'Current', Characteristic.enphaseMeterCurrent.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'A',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterCurrent, Characteristic);
-  Characteristic.enphaseMeterCurrent.UUID = '00000063-000B-1000-8000-0026BB765291';
+  class enphaseMeterCurrent extends Characteristic {
+    constructor() {
+      super('Current', '00000063-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'A',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterCurrent = enphaseMeterCurrent;
 
-  Characteristic.enphaseMeterFreq = function () {
-    Characteristic.call(this, 'Frequency', Characteristic.enphaseMeterFreq.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'Hz',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 0.01,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterFreq, Characteristic);
-  Characteristic.enphaseMeterFreq.UUID = '00000064-000B-1000-8000-0026BB765291';
+  class enphaseMeterFreq extends Characteristic {
+    constructor() {
+      super('Frequency', '00000064-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'Hz',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 0.01,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterFreq = enphaseMeterFreq;
 
-  Characteristic.enphaseMeterReadingTime = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseMeterReadingTime.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMeterReadingTime, Characteristic);
-  Characteristic.enphaseMeterReadingTime.UUID = '00000065-000B-1000-8000-0026BB765291';
+  class enphaseMeterReadingTime extends Characteristic {
+    constructor() {
+      super('Last report', '00000065-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMeterReadingTime = enphaseMeterReadingTime;
 
   //current meters service
-  Service.enphaseMeter = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseMeter.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseMeterState);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseMode);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseCount);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterMeasurementType);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterMeteringStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterStatusFlags);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterActivePower);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterApparentPower);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterReactivePower);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterPwrFactor);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterVoltage);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterCurrent);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterFreq);
-    this.addOptionalCharacteristic(Characteristic.enphaseMeterReadingTime);
-  };
-  inherits(Service.enphaseMeter, Service);
-  Service.enphaseMeter.UUID = '00000003-000A-1000-8000-0026BB765291';
+  class enphaseMeter extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000003-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseMeterState);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseMode);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseCount);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterMeasurementType);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterMeteringStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterStatusFlags);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterActivePower);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterApparentPower);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterReactivePower);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterPwrFactor);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterVoltage);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterCurrent);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterFreq);
+      this.addOptionalCharacteristic(Characteristic.enphaseMeterReadingTime);
+    }
+  }
+  Service.enphaseMeter = enphaseMeter;
 
   //Envoy production/consumption characteristics
-  Characteristic.enphasePower = function () {
-    Characteristic.call(this, 'Power', Characteristic.enphasePower.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kW',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphasePower, Characteristic);
-  Characteristic.enphasePower.UUID = '00000071-000B-1000-8000-0026BB765291';
+  class enphasePower extends Characteristic {
+    constructor() {
+      super('Power', '00000071-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphasePower = enphasePower;
 
-  Characteristic.enphasePowerMax = function () {
-    Characteristic.call(this, 'Power max', Characteristic.enphasePowerMax.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kW',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphasePowerMax, Characteristic);
-  Characteristic.enphasePowerMax.UUID = '00000072-000B-1000-8000-0026BB765291';
+  class enphasePowerMax extends Characteristic {
+    constructor() {
+      super('Power max', '00000072-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphasePowerMax = enphasePowerMax;
 
-  Characteristic.enphasePowerMaxDetected = function () {
-    Characteristic.call(this, 'Power max detected', Characteristic.enphasePowerMaxDetected.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphasePowerMaxDetected, Characteristic);
-  Characteristic.enphasePowerMaxDetected.UUID = '00000073-000B-1000-8000-0026BB765291';
+  class enphasePowerMaxDetected extends Characteristic {
+    constructor() {
+      super('Power max detected', '00000073-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphasePowerMaxDetected = enphasePowerMaxDetected;
 
-  Characteristic.enphaseEnergyToday = function () {
-    Characteristic.call(this, 'Energy today', Characteristic.enphaseEnergyToday.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kWh',
-      maxValue: 1000000,
-      minValue: 0,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnergyToday, Characteristic);
-  Characteristic.enphaseEnergyToday.UUID = '00000074-000B-1000-8000-0026BB765291';
+  class enphaseEnergyToday extends Characteristic {
+    constructor() {
+      super('Energy today', '00000074-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kWh',
+        maxValue: 1000000,
+        minValue: 0,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnergyToday = enphaseEnergyToday;
 
-  Characteristic.enphaseEnergyLastSevenDays = function () {
-    Characteristic.call(this, 'Energy last 7 days', Characteristic.enphaseEnergyLastSevenDays.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kWh',
-      maxValue: 1000000,
-      minValue: 0,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnergyLastSevenDays, Characteristic);
-  Characteristic.enphaseEnergyLastSevenDays.UUID = '00000075-000B-1000-8000-0026BB765291';
+  class enphaseEnergyLastSevenDays extends Characteristic {
+    constructor() {
+      super('Energy last 7 days', '00000075-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kWh',
+        maxValue: 1000000,
+        minValue: 0,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnergyLastSevenDays = enphaseEnergyLastSevenDays;
 
-  Characteristic.enphaseEnergyLifeTime = function () {
-    Characteristic.call(this, 'Energy lifetime', Characteristic.enphaseEnergyLifeTime.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kWh',
-      maxValue: 1000000,
-      minValue: 0,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnergyLifeTime, Characteristic);
-  Characteristic.enphaseEnergyLifeTime.UUID = '00000076-000B-1000-8000-0026BB765291';
+  class enphaseEnergyLifeTime extends Characteristic {
+    constructor() {
+      super('Energy lifetime', '00000076-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kWh',
+        maxValue: 1000000,
+        minValue: 0,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnergyLifeTime = enphaseEnergyLifeTime;
 
-  Characteristic.enphaseRmsCurrent = function () {
-    Characteristic.call(this, 'Current', Characteristic.enphaseRmsCurrent.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'A',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseRmsCurrent, Characteristic);
-  Characteristic.enphaseRmsCurrent.UUID = '00000077-000B-1000-8000-0026BB765291';
+  class enphaseRmsCurrent extends Characteristic {
+    constructor() {
+      super('Current', '00000077-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'A',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseRmsCurrent = enphaseRmsCurrent;
 
-  Characteristic.enphaseRmsVoltage = function () {
-    Characteristic.call(this, 'Voltage', Characteristic.enphaseRmsVoltage.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'V',
-      maxValue: 1000,
-      minValue: 0,
-      minStep: 0.1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseRmsVoltage, Characteristic);
-  Characteristic.enphaseRmsVoltage.UUID = '00000078-000B-1000-8000-0026BB765291';
+  class enphaseRmsVoltage extends Characteristic {
+    constructor() {
+      super('Voltage', '00000078-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'V',
+        maxValue: 1000,
+        minValue: 0,
+        minStep: 0.1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseRmsVoltage = enphaseRmsVoltage;
 
-  Characteristic.enphaseReactivePower = function () {
-    Characteristic.call(this, 'Reactive power', Characteristic.enphaseReactivePower.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kVAr',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseReactivePower, Characteristic);
-  Characteristic.enphaseReactivePower.UUID = '00000079-000B-1000-8000-0026BB765291';
+  class enphaseReactivePower extends Characteristic {
+    constructor() {
+      super('Reactive power', '00000079-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVAr',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseReactivePower = enphaseReactivePower;
 
-  Characteristic.enphaseApparentPower = function () {
-    Characteristic.call(this, 'Apparent power', Characteristic.enphaseApparentPower.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kVA',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseApparentPower, Characteristic);
-  Characteristic.enphaseApparentPower.UUID = '00000081-000B-1000-8000-0026BB765291';
+  class enphaseApparentPower extends Characteristic {
+    constructor() {
+      super('Apparent power', '00000081-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseApparentPower = enphaseApparentPower;
 
-  Characteristic.enphasePwrFactor = function () {
-    Characteristic.call(this, 'Power factor', Characteristic.enphasePwrFactor.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'cos φ',
-      maxValue: 1,
-      minValue: -1,
-      minStep: 0.01,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphasePwrFactor, Characteristic);
-  Characteristic.enphasePwrFactor.UUID = '00000082-000B-1000-8000-0026BB765291';
+  class enphasePwrFactor extends Characteristic {
+    constructor() {
+      super('Power factor', '00000082-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'cos φ',
+        maxValue: 1,
+        minValue: -1,
+        minStep: 0.01,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphasePwrFactor = enphasePwrFactor;
 
-  Characteristic.enphaseReadingTime = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseReadingTime.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseReadingTime, Characteristic);
-  Characteristic.enphaseReadingTime.UUID = '00000083-000B-1000-8000-0026BB765291';
+  class enphaseReadingTime extends Characteristic {
+    constructor() {
+      super('Last report', '00000083-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseReadingTime = enphaseReadingTime;
 
   //power production service
-  Service.enphasePowerAndEnergy = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphasePowerAndEnergy.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphasePower);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphasePowerMax);
-    this.addOptionalCharacteristic(Characteristic.enphasePowerMaxDetected);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnergyToday);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnergyLastSevenDays);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnergyLifeTime);
-    this.addOptionalCharacteristic(Characteristic.enphaseRmsCurrent);
-    this.addOptionalCharacteristic(Characteristic.enphaseRmsVoltage);
-    this.addOptionalCharacteristic(Characteristic.enphaseReactivePower);
-    this.addOptionalCharacteristic(Characteristic.enphaseApparentPower);
-    this.addOptionalCharacteristic(Characteristic.enphasePwrFactor);
-    this.addOptionalCharacteristic(Characteristic.enphaseReadingTime);
-  };
-  inherits(Service.enphasePowerAndEnergy, Service);
-  Service.enphasePowerAndEnergy.UUID = '00000004-000A-1000-8000-0026BB765291';
+  class enphasePowerAndEnergy extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000004-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphasePower);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphasePowerMax);
+      this.addOptionalCharacteristic(Characteristic.enphasePowerMaxDetected);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnergyToday);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnergyLastSevenDays);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnergyLifeTime);
+      this.addOptionalCharacteristic(Characteristic.enphaseRmsCurrent);
+      this.addOptionalCharacteristic(Characteristic.enphaseRmsVoltage);
+      this.addOptionalCharacteristic(Characteristic.enphaseReactivePower);
+      this.addOptionalCharacteristic(Characteristic.enphaseApparentPower);
+      this.addOptionalCharacteristic(Characteristic.enphasePwrFactor);
+      this.addOptionalCharacteristic(Characteristic.enphaseReadingTime);
+    }
+  }
+  Service.enphasePowerAndEnergy = enphasePowerAndEnergy;
 
   //AC Batterie
-  Characteristic.enphaseAcBatterieSummaryPower = function () {
-    Characteristic.call(this, 'Power', Characteristic.enphaseAcBatterieSummaryPower.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kW',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSummaryPower, Characteristic);
-  Characteristic.enphaseAcBatterieSummaryPower.UUID = '00000091-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSummaryPower extends Characteristic {
+    constructor() {
+      super('Power', '00000091-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSummaryPower = enphaseAcBatterieSummaryPower;
 
-  Characteristic.enphaseAcBatterieSummaryEnergy = function () {
-    Characteristic.call(this, 'Energy', Characteristic.enphaseAcBatterieSummaryEnergy.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kWh',
-      maxValue: 1000,
-      minValue: 0,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSummaryEnergy, Characteristic);
-  Characteristic.enphaseAcBatterieSummaryEnergy.UUID = '00000092-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSummaryEnergy extends Characteristic {
+    constructor() {
+      super('Energy', '00000092-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kWh',
+        maxValue: 1000,
+        minValue: 0,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSummaryEnergy = enphaseAcBatterieSummaryEnergy;
 
-  Characteristic.enphaseAcBatterieSummaryPercentFull = function () {
-    Characteristic.call(this, 'Percent full', Characteristic.enphaseAcBatterieSummaryPercentFull.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSummaryPercentFull, Characteristic);
-  Characteristic.enphaseAcBatterieSummaryPercentFull.UUID = '00000093-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSummaryPercentFull extends Characteristic {
+    constructor() {
+      super('Percent full', '00000093-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSummaryPercentFull = enphaseAcBatterieSummaryPercentFull;
 
-  Characteristic.enphaseAcBatterieSummaryActiveCount = function () {
-    Characteristic.call(this, 'Devices count', Characteristic.enphaseAcBatterieSummaryActiveCount.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '',
-      maxValue: 255,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSummaryActiveCount, Characteristic);
-  Characteristic.enphaseAcBatterieSummaryActiveCount.UUID = '00000094-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSummaryActiveCount extends Characteristic {
+    constructor() {
+      super('Devices count', '00000094-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '',
+        maxValue: 255,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSummaryActiveCount = enphaseAcBatterieSummaryActiveCount;
 
-  Characteristic.enphaseAcBatterieSummaryState = function () {
-    Characteristic.call(this, 'State', Characteristic.enphaseAcBatterieSummaryState.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSummaryState, Characteristic);
-  Characteristic.enphaseAcBatterieSummaryState.UUID = '00000095-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSummaryState extends Characteristic {
+    constructor() {
+      super('State', '00000095-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSummaryState = enphaseAcBatterieSummaryState;
 
-  Characteristic.enphaseAcBatterieSummaryReadingTime = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseAcBatterieSummaryReadingTime.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSummaryReadingTime, Characteristic);
-  Characteristic.enphaseAcBatterieSummaryReadingTime.UUID = '00000096-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSummaryReadingTime extends Characteristic {
+    constructor() {
+      super('Last report', '00000096-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSummaryReadingTime = enphaseAcBatterieSummaryReadingTime;
 
   //AC Batterie summary service
-  Service.enphaseAcBatterieSummary = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseAcBatterieSummary.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseAcBatterieSummaryPower);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryState);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime);
-  };
-  inherits(Service.enphaseAcBatterieSummary, Service);
-  Service.enphaseAcBatterieSummary.UUID = '00000005-000A-1000-8000-0026BB765291';
+  class enphaseAcBatterieSummary extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000005-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseAcBatterieSummaryPower);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryState);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime);
+    }
+  }
+  Service.enphaseAcBatterieSummary = enphaseAcBatterieSummary;
 
   //AC Batterie
-  Characteristic.enphaseAcBatterieChargeStatus = function () {
-    Characteristic.call(this, 'Charge status', Characteristic.enphaseAcBatterieChargeStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieChargeStatus, Characteristic);
-  Characteristic.enphaseAcBatterieChargeStatus.UUID = '00000111-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieChargeStatus extends Characteristic {
+    constructor() {
+      super('Charge status', '00000111-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieChargeStatus = enphaseAcBatterieChargeStatus;
 
-  Characteristic.enphaseAcBatterieProducing = function () {
-    Characteristic.call(this, 'Producing', Characteristic.enphaseAcBatterieProducing.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieProducing, Characteristic);
-  Characteristic.enphaseAcBatterieProducing.UUID = '00000112-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieProducing extends Characteristic {
+    constructor() {
+      super('Producing', '00000112-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieProducing = enphaseAcBatterieProducing;
 
-  Characteristic.enphaseAcBatterieCommunicating = function () {
-    Characteristic.call(this, 'Communicating', Characteristic.enphaseAcBatterieCommunicating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieCommunicating, Characteristic);
-  Characteristic.enphaseAcBatterieCommunicating.UUID = '00000113-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieCommunicating extends Characteristic {
+    constructor() {
+      super('Communicating', '00000113-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieCommunicating = enphaseAcBatterieCommunicating;
 
-  Characteristic.enphaseAcBatterieProvisioned = function () {
-    Characteristic.call(this, 'Provisioned', Characteristic.enphaseAcBatterieProvisioned.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieProvisioned, Characteristic);
-  Characteristic.enphaseAcBatterieProvisioned.UUID = '00000114-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieProvisioned extends Characteristic {
+    constructor() {
+      super('Provisioned', '00000114-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieProvisioned = enphaseAcBatterieProvisioned;
 
-  Characteristic.enphaseAcBatterieOperating = function () {
-    Characteristic.call(this, 'Operating', Characteristic.enphaseAcBatterieOperating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieOperating, Characteristic);
-  Characteristic.enphaseAcBatterieOperating.UUID = '00000115-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieOperating extends Characteristic {
+    constructor() {
+      super('Operating', '00000115-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieOperating = enphaseAcBatterieOperating;
 
-  Characteristic.enphaseAcBatterieCommLevel = function () {
-    Characteristic.call(this, 'Comm level', Characteristic.enphaseAcBatterieCommLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieCommLevel, Characteristic);
-  Characteristic.enphaseAcBatterieCommLevel.UUID = '00000116-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieCommLevel extends Characteristic {
+    constructor() {
+      super('Comm level', '00000116-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieCommLevel = enphaseAcBatterieCommLevel;
 
-  Characteristic.enphaseAcBatterieSleepEnabled = function () {
-    Characteristic.call(this, 'Sleep enabled', Characteristic.enphaseAcBatterieSleepEnabled.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSleepEnabled, Characteristic);
-  Characteristic.enphaseAcBatterieSleepEnabled.UUID = '00000117-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSleepEnabled extends Characteristic {
+    constructor() {
+      super('Sleep enabled', '00000117-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSleepEnabled = enphaseAcBatterieSleepEnabled;
 
-  Characteristic.enphaseAcBatteriePercentFull = function () {
-    Characteristic.call(this, 'Percent full', Characteristic.enphaseAcBatteriePercentFull.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatteriePercentFull, Characteristic);
-  Characteristic.enphaseAcBatteriePercentFull.UUID = '00000118-000B-1000-8000-0026BB765291';
+  class enphaseAcBatteriePercentFull extends Characteristic {
+    constructor() {
+      super('Percent full', '00000118-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatteriePercentFull = enphaseAcBatteriePercentFull;
 
-  Characteristic.enphaseAcBatterieMaxCellTemp = function () {
-    Characteristic.call(this, 'Max cell temp', Characteristic.enphaseAcBatterieMaxCellTemp.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: '°C',
-      maxValue: 200,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieMaxCellTemp, Characteristic);
-  Characteristic.enphaseAcBatterieMaxCellTemp.UUID = '00000119-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieMaxCellTemp extends Characteristic {
+    constructor() {
+      super('Max cell temp', '00000119-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: '°C',
+        maxValue: 200,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieMaxCellTemp = enphaseAcBatterieMaxCellTemp;
 
-  Characteristic.enphaseAcBatterieSleepMinSoc = function () {
-    Characteristic.call(this, 'Sleep min soc', Characteristic.enphaseAcBatterieSleepMinSoc.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: 'min',
-      maxValue: 255,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSleepMinSoc, Characteristic);
-  Characteristic.enphaseAcBatterieSleepMinSoc.UUID = '00000121-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSleepMinSoc extends Characteristic {
+    constructor() {
+      super('Sleep min soc', '00000121-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: 'min',
+        maxValue: 255,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSleepMinSoc = enphaseAcBatterieSleepMinSoc;
 
-  Characteristic.enphaseAcBatterieSleepMaxSoc = function () {
-    Characteristic.call(this, 'Sleep max soc', Characteristic.enphaseAcBatterieSleepMaxSoc.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: 'min',
-      maxValue: 255,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieSleepMaxSoc, Characteristic);
-  Characteristic.enphaseAcBatterieSleepMaxSoc.UUID = '00000122-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieSleepMaxSoc extends Characteristic {
+    constructor() {
+      super('Sleep max soc', '00000122-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: 'min',
+        maxValue: 255,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieSleepMaxSoc = enphaseAcBatterieSleepMaxSoc;
 
-  Characteristic.enphaseAcBatterieStatus = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseAcBatterieStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieStatus, Characteristic);
-  Characteristic.enphaseAcBatterieStatus.UUID = '00000123-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieStatus extends Characteristic {
+    constructor() {
+      super('Status', '00000123-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieStatus = enphaseAcBatterieStatus;
 
-  Characteristic.enphaseAcBatterieFirmware = function () {
-    Characteristic.call(this, 'Firmware', Characteristic.enphaseAcBatterieFirmware.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieFirmware, Characteristic);
-  Characteristic.enphaseAcBatterieFirmware.UUID = '00000124-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieFirmware extends Characteristic {
+    constructor() {
+      super('Firmware', '00000124-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieFirmware = enphaseAcBatterieFirmware;
 
-  Characteristic.enphaseAcBatterieLastReportDate = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseAcBatterieLastReportDate.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseAcBatterieLastReportDate, Characteristic);
-  Characteristic.enphaseAcBatterieLastReportDate.UUID = '00000125-000B-1000-8000-0026BB765291';
+  class enphaseAcBatterieLastReportDate extends Characteristic {
+    constructor() {
+      super('Last report', '00000125-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseAcBatterieLastReportDate = enphaseAcBatterieLastReportDate;
 
   //AC Batterie service
-  Service.enphaseAcBatterie = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseAcBatterie.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseAcBatterieChargeStatus);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProducing);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieCommunicating);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProvisioned);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieOperating);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieCommLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepEnabled);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatteriePercentFull);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieMaxCellTemp);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepMinSoc);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepMaxSoc);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieFirmware);
-    this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieLastReportDate);
-  };
-  inherits(Service.enphaseAcBatterie, Service);
-  Service.enphaseAcBatterie.UUID = '00000006-000A-1000-8000-0026BB765291';
+  class enphaseAcBatterie extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000006-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseAcBatterieChargeStatus);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProducing);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieCommunicating);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProvisioned);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieOperating);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieCommLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepEnabled);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatteriePercentFull);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieMaxCellTemp);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepMinSoc);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSleepMaxSoc);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieFirmware);
+      this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieLastReportDate);
+    }
+  }
+  Service.enphaseAcBatterie = enphaseAcBatterie;
 
   //Microinverter
-  Characteristic.enphaseMicroinverterPower = function () {
-    Characteristic.call(this, 'Power', Characteristic.enphaseMicroinverterPower.UUID);
-    this.setProps({
-      format: Characteristic.Formats.INT,
-      unit: 'W',
-      maxValue: 1000,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterPower, Characteristic);
-  Characteristic.enphaseMicroinverterPower.UUID = '00000131-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterPower extends Characteristic {
+    constructor() {
+      super('Power', '00000131-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.INT,
+        unit: 'W',
+        maxValue: 1000,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterPower = enphaseMicroinverterPower;
 
-  Characteristic.enphaseMicroinverterPowerMax = function () {
-    Characteristic.call(this, 'Power max', Characteristic.enphaseMicroinverterPowerMax.UUID);
-    this.setProps({
-      format: Characteristic.Formats.INT,
-      unit: 'W',
-      maxValue: 1000,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterPowerMax, Characteristic);
-  Characteristic.enphaseMicroinverterPowerMax.UUID = '00000132-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterPowerMax extends Characteristic {
+    constructor() {
+      super('Power max', '00000132-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.INT,
+        unit: 'W',
+        maxValue: 1000,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterPowerMax = enphaseMicroinverterPowerMax;
 
-  Characteristic.enphaseMicroinverterProducing = function () {
-    Characteristic.call(this, 'Producing', Characteristic.enphaseMicroinverterProducing.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterProducing, Characteristic);
-  Characteristic.enphaseMicroinverterProducing.UUID = '00000133-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterProducing extends Characteristic {
+    constructor() {
+      super('Producing', '00000133-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterProducing = enphaseMicroinverterProducing;
 
-  Characteristic.enphaseMicroinverterCommunicating = function () {
-    Characteristic.call(this, 'Communicating', Characteristic.enphaseMicroinverterCommunicating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterCommunicating, Characteristic);
-  Characteristic.enphaseMicroinverterCommunicating.UUID = '00000134-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterCommunicating extends Characteristic {
+    constructor() {
+      super('Communicating', '00000134-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterCommunicating = enphaseMicroinverterCommunicating;
 
-  Characteristic.enphaseMicroinverterProvisioned = function () {
-    Characteristic.call(this, 'Provisioned', Characteristic.enphaseMicroinverterProvisioned.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterProvisioned, Characteristic);
-  Characteristic.enphaseMicroinverterProvisioned.UUID = '00000135-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterProvisioned extends Characteristic {
+    constructor() {
+      super('Provisioned', '00000135-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterProvisioned = enphaseMicroinverterProvisioned;
 
-  Characteristic.enphaseMicroinverterOperating = function () {
-    Characteristic.call(this, 'Operating', Characteristic.enphaseMicroinverterOperating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterOperating, Characteristic);
-  Characteristic.enphaseMicroinverterOperating.UUID = '00000136-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterOperating extends Characteristic {
+    constructor() {
+      super('Operating', '00000136-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterOperating = enphaseMicroinverterOperating;
 
-  Characteristic.enphaseMicroinverterCommLevel = function () {
-    Characteristic.call(this, 'Comm level', Characteristic.enphaseMicroinverterCommLevel.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterCommLevel, Characteristic);
-  Characteristic.enphaseMicroinverterCommLevel.UUID = '00000137-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterCommLevel extends Characteristic {
+    constructor() {
+      super('Comm level', '00000137-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterCommLevel = enphaseMicroinverterCommLevel;
 
-  Characteristic.enphaseMicroinverterStatus = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseMicroinverterStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterStatus, Characteristic);
-  Characteristic.enphaseMicroinverterStatus.UUID = '00000138-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterStatus extends Characteristic {
+    constructor() {
+      super('Status', '00000138-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterStatus = enphaseMicroinverterStatus;
 
-  Characteristic.enphaseMicroinverterFirmware = function () {
-    Characteristic.call(this, 'Firmware', Characteristic.enphaseMicroinverterFirmware.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterFirmware, Characteristic);
-  Characteristic.enphaseMicroinverterFirmware.UUID = '00000139-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterFirmware extends Characteristic {
+    constructor() {
+      super('Firmware', '00000139-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterFirmware = enphaseMicroinverterFirmware;
 
-  Characteristic.enphaseMicroinverterLastReportDate = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseMicroinverterLastReportDate.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseMicroinverterLastReportDate, Characteristic);
-  Characteristic.enphaseMicroinverterLastReportDate.UUID = '00000141-000B-1000-8000-0026BB765291';
+  class enphaseMicroinverterLastReportDate extends Characteristic {
+    constructor() {
+      super('Last report', '00000141-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterLastReportDate = enphaseMicroinverterLastReportDate;
 
   //devices service
-  Service.enphaseMicroinverter = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseMicroinverter.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseMicroinverterPower);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterPowerMax);
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterProducing);
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterCommunicating);
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterProvisioned);
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterOperating);
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterCommLevel);
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterFirmware);
-    this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterLastReportDate);
-  };
-  inherits(Service.enphaseMicroinverter, Service);
-  Service.enphaseMicroinverter.UUID = '00000007-000A-1000-8000-0026BB765291';
+  class enphaseMicroinverter extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000007-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseMicroinverterPower);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterPowerMax);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterProducing);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterCommunicating);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterProvisioned);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterOperating);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterCommLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterFirmware);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterLastReportDate);
+    }
+  }
+  Service.enphaseMicroinverter = enphaseMicroinverter;
 
   //Encharge
-  Characteristic.enphaseEnchargeAdminStateStr = function () {
-    Characteristic.call(this, 'Charge status', Characteristic.enphaseEnchargeAdminStateStr.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeAdminStateStr, Characteristic);
-  Characteristic.enphaseEnchargeAdminStateStr.UUID = '00000151-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeAdminStateStr extends Characteristic {
+    constructor() {
+      super('Charge status', '00000151-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeAdminStateStr = enphaseEnchargeAdminStateStr;
 
-  Characteristic.enphaseEnchargeCommunicating = function () {
-    Characteristic.call(this, 'Communicating', Characteristic.enphaseEnchargeCommunicating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeCommunicating, Characteristic);
-  Characteristic.enphaseEnchargeCommunicating.UUID = '00000152-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeCommunicating extends Characteristic {
+    constructor() {
+      super('Communicating', '00000152-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeCommunicating = enphaseEnchargeCommunicating;
 
-  Characteristic.enphaseEnchargeOperating = function () {
-    Characteristic.call(this, 'Operating', Characteristic.enphaseEnchargeOperating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeOperating, Characteristic);
-  Characteristic.enphaseEnchargeOperating.UUID = '00000153-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeOperating extends Characteristic {
+    constructor() {
+      super('Operating', '00000153-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeOperating = enphaseEnchargeOperating;
 
-  Characteristic.enphaseEnchargeCommLevelSubGhz = function () {
-    Characteristic.call(this, 'Comm level sub GHz', Characteristic.enphaseEnchargeCommLevelSubGhz.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeCommLevelSubGhz, Characteristic);
-  Characteristic.enphaseEnchargeCommLevelSubGhz.UUID = '00000154-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeCommLevelSubGhz extends Characteristic {
+    constructor() {
+      super('Comm level sub GHz', '00000154-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeCommLevelSubGhz = enphaseEnchargeCommLevelSubGhz
 
-  Characteristic.enphaseEnchargeCommLevel24Ghz = function () {
-    Characteristic.call(this, 'Comm level 2.4GHz', Characteristic.enphaseEnchargeCommLevel24Ghz.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeCommLevel24Ghz, Characteristic);
-  Characteristic.enphaseEnchargeCommLevel24Ghz.UUID = '00000155-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeCommLevel24Ghz extends Characteristic {
+    constructor() {
+      super('Comm level 2.4GHz', '00000155-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeCommLevel24Ghz = enphaseEnchargeCommLevel24Ghz;
 
-  Characteristic.enphaseEnchargeSleepEnabled = function () {
-    Characteristic.call(this, 'Sleep enabled', Characteristic.enphaseEnchargeSleepEnabled.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeSleepEnabled, Characteristic);
-  Characteristic.enphaseEnchargeSleepEnabled.UUID = '00000156-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeSleepEnabled extends Characteristic {
+    constructor() {
+      super('Sleep enabled', '00000156-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeSleepEnabled = enphaseEnchargeSleepEnabled;
 
-  Characteristic.enphaseEnchargePercentFull = function () {
-    Characteristic.call(this, 'Percent full', Characteristic.enphaseEnchargePercentFull.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargePercentFull, Characteristic);
-  Characteristic.enphaseEnchargePercentFull.UUID = '00000157-000B-1000-8000-0026BB765291';
+  class enphaseEnchargePercentFull extends Characteristic {
+    constructor() {
+      super('Percent full', '00000157-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargePercentFull = enphaseEnchargePercentFull;
 
-  Characteristic.enphaseEnchargeTemperature = function () {
-    Characteristic.call(this, 'Temperature', Characteristic.enphaseEnchargeTemperature.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: '°C',
-      maxValue: 200,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeTemperature, Characteristic);
-  Characteristic.enphaseEnchargeTemperature.UUID = '00000158-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeTemperature extends Characteristic {
+    constructor() {
+      super('Temperature', '00000158-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: '°C',
+        maxValue: 200,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeTemperature = enphaseEnchargeTemperature;
 
-  Characteristic.enphaseEnchargeMaxCellTemp = function () {
-    Characteristic.call(this, 'Max cell temp', Characteristic.enphaseEnchargeMaxCellTemp.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: '°C',
-      maxValue: 200,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeMaxCellTemp, Characteristic);
-  Characteristic.enphaseEnchargeMaxCellTemp.UUID = '00000159-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeMaxCellTemp extends Characteristic {
+    constructor() {
+      super('Max cell temp', '00000159-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: '°C',
+        maxValue: 200,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeMaxCellTemp = enphaseEnchargeMaxCellTemp;
 
-  Characteristic.enphaseEnchargeLedStatus = function () {
-    Characteristic.call(this, 'LED status', Characteristic.enphaseEnchargeLedStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeLedStatus, Characteristic);
-  Characteristic.enphaseEnchargeLedStatus.UUID = '00000161-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeLedStatus extends Characteristic {
+    constructor() {
+      super('LED status', '00000161-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeLedStatus = enphaseEnchargeLedStatus;
 
-  Characteristic.enphaseEnchargeRealPowerW = function () {
-    Characteristic.call(this, 'Real power', Characteristic.enphaseEnchargeRealPowerW.UUID);
-    this.setProps({
-      format: Characteristic.Formats.INT,
-      unit: 'kW',
-      maxValue: 1000,
-      minValue: -1000,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeRealPowerW, Characteristic);
-  Characteristic.enphaseEnchargeRealPowerW.UUID = '00000162-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeRealPowerW extends Characteristic {
+    constructor() {
+      super('Real power', '00000162-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.INT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeRealPowerW = enphaseEnchargeRealPowerW;
 
-  Characteristic.enphaseEnchargeCapacity = function () {
-    Characteristic.call(this, 'Capacity', Characteristic.enphaseEnchargeCapacity.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: 'kWh',
-      maxValue: 1000,
-      minValue: 0,
-      minStep: 0.001,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeCapacity, Characteristic);
-  Characteristic.enphaseEnchargeCapacity.UUID = '00000163-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeCapacity extends Characteristic {
+    constructor() {
+      super('Capacity', '00000163-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kWh',
+        maxValue: 1000,
+        minValue: 0,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeCapacity = enphaseEnchargeCapacity;
 
-  Characteristic.enphaseEnchargeDcSwitchOff = function () {
-    Characteristic.call(this, 'DC switch OFF', Characteristic.enphaseEnchargeDcSwitchOff.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeDcSwitchOff, Characteristic);
-  Characteristic.enphaseEnchargeDcSwitchOff.UUID = '00000164-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeDcSwitchOff extends Characteristic {
+    constructor() {
+      super('DC switch OFF', '00000164-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeDcSwitchOff = enphaseEnchargeDcSwitchOff;
 
-  Characteristic.enphaseEnchargeStatus = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseEnchargeStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeStatus, Characteristic);
-  Characteristic.enphaseEnchargeStatus.UUID = '00000165-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeStatus extends Characteristic {
+    constructor() {
+      super('Status', '00000165-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeStatus = enphaseEnchargeStatus;
 
-  Characteristic.enphaseEnchargeRev = function () {
-    Characteristic.call(this, 'Revision', Characteristic.enphaseEnchargeRev.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '',
-      maxValue: 255,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeRev, Characteristic);
-  Characteristic.enphaseEnchargeRev.UUID = '00000166-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeRev extends Characteristic {
+    constructor() {
+      super('Revision', '00000166-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '',
+        maxValue: 255,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeRev = enphaseEnchargeRev;
 
-  Characteristic.enphaseEnchargeLastReportDate = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseEnchargeLastReportDate.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnchargeLastReportDate, Characteristic);
-  Characteristic.enphaseEnchargeLastReportDate.UUID = '00000167-000B-1000-8000-0026BB765291';
+  class enphaseEnchargeLastReportDate extends Characteristic {
+    constructor() {
+      super('Last report', '00000167-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnchargeLastReportDate = enphaseEnchargeLastReportDate;
 
   //Encharge service
-  Service.enphaseEncharge = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseEncharge.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseEnchargeAdminStateStr);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeOperating);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommunicating);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevelSubGhz);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevel24Ghz);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeSleepEnabled);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargePercentFull);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeTemperature);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLedStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeRealPowerW);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCapacity);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeRev);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLastReportDate);
-  };
-  inherits(Service.enphaseEncharge, Service);
-  Service.enphaseEncharge.UUID = '00000007-000A-1000-8000-0026BB765291';
+  class enphaseEncharge extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000007-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseEnchargeAdminStateStr);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeOperating);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommunicating);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevelSubGhz);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevel24Ghz);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeSleepEnabled);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargePercentFull);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeTemperature);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLedStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeRealPowerW);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCapacity);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeRev);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLastReportDate);
+    }
+  }
+  Service.enphaseEncharge = enphaseEncharge;
 
   //Enpower
-  Characteristic.enphaseEnpowerAdminStateStr = function () {
-    Characteristic.call(this, 'Charge status', Characteristic.enphaseEnpowerAdminStateStr.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerAdminStateStr, Characteristic);
-  Characteristic.enphaseEnpowerAdminStateStr.UUID = '00000171-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerAdminStateStr extends Characteristic {
+    constructor() {
+      super('Charge status', '00000171-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerAdminStateStr = enphaseEnpowerAdminStateStr;
 
-  Characteristic.enphaseEnpowerCommunicating = function () {
-    Characteristic.call(this, 'Communicating', Characteristic.enphaseEnpowerCommunicating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerCommunicating, Characteristic);
-  Characteristic.enphaseEnpowerCommunicating.UUID = '00000172-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerCommunicating extends Characteristic {
+    constructor() {
+      super('Communicating', '00000172-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerCommunicating = enphaseEnpowerCommunicating;
 
-  Characteristic.enphaseEnpowerOperating = function () {
-    Characteristic.call(this, 'Operating', Characteristic.enphaseEnpowerOperating.UUID);
-    this.setProps({
-      format: Characteristic.Formats.BOOL,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerOperating, Characteristic);
-  Characteristic.enphaseEnpowerOperating.UUID = '00000173-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerOperating extends Characteristic {
+    constructor() {
+      super('Operating', '00000173-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerOperating = enphaseEnpowerOperating;
 
-  Characteristic.enphaseEnpowerCommLevelSubGhz = function () {
-    Characteristic.call(this, 'Comm level sub GHz', Characteristic.enphaseEnpowerCommLevelSubGhz.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerCommLevelSubGhz, Characteristic);
-  Characteristic.enphaseEnpowerCommLevelSubGhz.UUID = '00000174-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerCommLevelSubGhz extends Characteristic {
+    constructor() {
+      super('Comm level sub GHz', '00000174-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerCommLevelSubGhz = enphaseEnpowerCommLevelSubGhz;
 
-  Characteristic.enphaseEnpowerCommLevel24Ghz = function () {
-    Characteristic.call(this, 'Comm level 2.4GHz', Characteristic.enphaseEnpowerCommLevel24Ghz.UUID);
-    this.setProps({
-      format: Characteristic.Formats.UINT8,
-      unit: '%',
-      maxValue: 100,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerCommLevel24Ghz, Characteristic);
-  Characteristic.enphaseEnpowerCommLevel24Ghz.UUID = '00000175-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerCommLevel24Ghz extends Characteristic {
+    constructor() {
+      super('Comm level 2.4GHz', '00000175-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerCommLevel24Ghz = enphaseEnpowerCommLevel24Ghz;
 
-  Characteristic.enphaseEnpowerTemperature = function () {
-    Characteristic.call(this, 'Temperature', Characteristic.enphaseEnpowerTemperature.UUID);
-    this.setProps({
-      format: Characteristic.Formats.FLOAT,
-      unit: '°C',
-      maxValue: 200,
-      minValue: 0,
-      minStep: 1,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerTemperature, Characteristic);
-  Characteristic.enphaseEnpowerTemperature.UUID = '00000176-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerTemperature extends Characteristic {
+    constructor() {
+      super('Temperature', '00000176-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: '°C',
+        maxValue: 200,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerTemperature = enphaseEnpowerTemperature;
 
-  Characteristic.enphaseEnpowerMainsAdminState = function () {
-    Characteristic.call(this, 'Admin state', Characteristic.enphaseEnpowerMainsAdminState.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerMainsAdminState, Characteristic);
-  Characteristic.enphaseEnpowerMainsAdminState.UUID = '00000177-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerMainsAdminState extends Characteristic {
+    constructor() {
+      super('Admin state', '00000177-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerMainsAdminState = enphaseEnpowerMainsAdminState;
 
-  Characteristic.enphaseEnpowerMainsOperState = function () {
-    Characteristic.call(this, 'Operating state', Characteristic.enphaseEnpowerMainsOperState.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerMainsOperState, Characteristic);
-  Characteristic.enphaseEnpowerMainsOperState.UUID = '00000178-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerMainsOperState extends Characteristic {
+    constructor() {
+      super('Operating state', '00000178-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerMainsOperState = enphaseEnpowerMainsOperState;
 
-  Characteristic.enphaseEnpowerEnpwrGridMode = function () {
-    Characteristic.call(this, 'Grid mode', Characteristic.enphaseEnpowerEnpwrGridMode.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerEnpwrGridMode, Characteristic);
-  Characteristic.enphaseEnpowerEnpwrGridMode.UUID = '00000179-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerEnpwrGridMode extends Characteristic {
+    constructor() {
+      super('Grid mode', '00000179-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerEnpwrGridMode = enphaseEnpowerEnpwrGridMode;
 
-  Characteristic.enphaseEnpowerEnchgGridMode = function () {
-    Characteristic.call(this, 'Encharge grid mode', Characteristic.enphaseEnpowerEnchgGridMode.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerEnchgGridMode, Characteristic);
-  Characteristic.enphaseEnpowerEnchgGridMode.UUID = '00000181-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerEnchgGridMode extends Characteristic {
+    constructor() {
+      super('Encharge grid mode', '00000181-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerEnchgGridMode = enphaseEnpowerEnchgGridMode;
 
-  Characteristic.enphaseEnpowerStatus = function () {
-    Characteristic.call(this, 'Status', Characteristic.enphaseEnpowerStatus.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerStatus, Characteristic);
-  Characteristic.enphaseEnpowerStatus.UUID = '00000182-000B-1000-8000-0026BB765291'
+  class enphaseEnpowerStatus extends Characteristic {
+    constructor() {
+      super('Status', '00000182-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerStatus = enphaseEnpowerStatus;
 
-  Characteristic.enphaseEnpowerLastReportDate = function () {
-    Characteristic.call(this, 'Last report', Characteristic.enphaseEnpowerLastReportDate.UUID);
-    this.setProps({
-      format: Characteristic.Formats.STRING,
-      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
-  };
-  inherits(Characteristic.enphaseEnpowerLastReportDate, Characteristic);
-  Characteristic.enphaseEnpowerLastReportDate.UUID = '00000183-000B-1000-8000-0026BB765291';
+  class enphaseEnpowerLastReportDate extends Characteristic {
+    constructor() {
+      super('Last report', '00000183-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnpowerLastReportDate = enphaseEnpowerLastReportDate;
 
   //Enpower service
-  Service.enphaseEnpower = function (displayName, subtype) {
-    Service.call(this, displayName, Service.enphaseEnpower.UUID, subtype);
-    // Mandatory Characteristics
-    this.addCharacteristic(Characteristic.enphaseEnpowerAdminStateStr);
-    // Optional Characteristics
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerOperating);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommunicating);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommLevelSubGhz);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommLevel24Ghz);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerTemperature);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerMainsAdminState);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerMainsOperState);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerEnpwrGridMode);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerStatus);
-    this.addOptionalCharacteristic(Characteristic.enphaseEnpowerLastReportDate);
-  };
-  inherits(Service.enphaseEnpower, Service);
-  Service.enphaseEnpower.UUID = '00000008-000A-1000-8000-0026BB765291';
+  class enphaseEnpower extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000008-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseEnpowerAdminStateStr);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerOperating);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommunicating);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommLevelSubGhz);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommLevel24Ghz);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerTemperature);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerMainsAdminState);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerMainsOperState);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerEnpwrGridMode);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerLastReportDate);
+    }
+  }
+  Service.enphaseEnpower = enphaseEnpower;
 
   api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform, true);
 }
@@ -1900,16 +2118,36 @@ class envoyDevice {
     this.updateCommLevel = false;
     this.startPrepareAccessory = true;
 
-    this.infoData = { 'status': 0 };
-    this.parseInfoData = { 'status': 0 };
-    this.homeData = { 'status': 0 };
-    this.inventoryData = { 'status': 0 };
-    this.productionData = { 'status': 0 };
-    this.productionCtData = { 'status': 0 };
-    this.metersData = { 'status': 0 };
-    this.metersReadingData = { 'status': 0 };
-    this.microinvertersData = { 'status': 0 };
-    this.inventoryEnsembleData = { 'status': 0 };
+    this.infoData = {
+      'status': 0
+    };
+    this.parseInfoData = {
+      'status': 0
+    };
+    this.homeData = {
+      'status': 0
+    };
+    this.inventoryData = {
+      'status': 0
+    };
+    this.productionData = {
+      'status': 0
+    };
+    this.productionCtData = {
+      'status': 0
+    };
+    this.metersData = {
+      'status': 0
+    };
+    this.metersReadingData = {
+      'status': 0
+    };
+    this.microinvertersData = {
+      'status': 0
+    };
+    this.inventoryEnsembleData = {
+      'status': 0
+    };
 
     this.envoyCheckCommLevel = false;
     this.envoySerialNumber = '';
@@ -4057,7 +4295,7 @@ class envoyDevice {
       //ac batteries state
       this.acBatteriesService = new Array();
       for (let i = 0; i < acBatteriesCount; i++) {
-        const enphaseAcBatterieService = new Service.enphaseAcBatterie('AC Batterie ', + this.acBatteriesSerialNumber[i], 'enphaseAcBatterieService' + i);
+        const enphaseAcBatterieService = new Service.enphaseAcBatterie('AC Batterie ', +this.acBatteriesSerialNumber[i], 'enphaseAcBatterieService' + i);
         enphaseAcBatterieService.getCharacteristic(Characteristic.enphaseAcBatterieChargeStatus)
           .onGet(async () => {
             const value = this.acBatteriesChargeStatus[i];
@@ -4269,7 +4507,7 @@ class envoyDevice {
     if (enchargesCount > 0) {
       this.enchargesService = new Array();
       for (let i = 0; i < enchargesCount; i++) {
-        const enphaseEnchargeService = new Service.enphaseEncharge('Encharge ', + this.enchargesSerialNumber[i], 'enphaseEnchargeService' + i);
+        const enphaseEnchargeService = new Service.enphaseEncharge('Encharge ', +this.enchargesSerialNumber[i], 'enphaseEnchargeService' + i);
         enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeAdminStateStr)
           .onGet(async () => {
             const value = this.enchargesAdminStateStr[i];
@@ -4407,7 +4645,7 @@ class envoyDevice {
     if (enpowersCount > 0) {
       this.enpowersService = new Array();
       for (let i = 0; i < enpowersCount; i++) {
-        const enphaseEnpowerService = new Service.enphaseEnpower('Enpower ', + this.enpowersSerialNumber[i], 'enphaseEnpowerService' + i);
+        const enphaseEnpowerService = new Service.enphaseEnpower('Enpower ', +this.enpowersSerialNumber[i], 'enphaseEnpowerService' + i);
         enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerAdminStateStr)
           .onGet(async () => {
             const value = this.enpowersAdminStateStr[i];

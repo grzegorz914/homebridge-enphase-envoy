@@ -107,43 +107,41 @@
       }
     }
   },
-  "layout": [
-    {
-      "key": "devices",
-      "type": "tabarray",
-      "title": "{{ value.name || 'new device' }}",
-      "items": [
-        "devices[].name",
-        "devices[].host",
-        {
-          "key": "devices[]",
-          "type": "section",
-          "title": "Authorization",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            "devices[].envoyPasswd",
-            "devices[].installerPasswd"
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
-          "title": "Advanced settings",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            "devices[].disableLogInfo",
-            "devices[].refreshInterval",
-            "devices[].powerProductionMaxDetected",
-            "devices[].energyProductionLifetimeOffset",
-            "devices[].powerConsumptionTotalMaxDetected",
-            "devices[].energyConsumptionTotalLifetimeOffset",
-            "devices[].powerConsumptionNetMaxDetected",
-            "devices[].energyConsumptionNetLifetimeOffset"
-          ]
-        }
-      ]
-    }
-  ]
+  "layout": [{
+    "key": "devices",
+    "type": "tabarray",
+    "title": "{{ value.name || 'new device' }}",
+    "items": [
+      "devices[].name",
+      "devices[].host",
+      {
+        "key": "devices[]",
+        "type": "section",
+        "title": "Authorization",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "devices[].envoyPasswd",
+          "devices[].installerPasswd"
+        ]
+      },
+      {
+        "key": "devices[]",
+        "type": "section",
+        "title": "Advanced settings",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "devices[].disableLogInfo",
+          "devices[].refreshInterval",
+          "devices[].powerProductionMaxDetected",
+          "devices[].energyProductionLifetimeOffset",
+          "devices[].powerConsumptionTotalMaxDetected",
+          "devices[].energyConsumptionTotalLifetimeOffset",
+          "devices[].powerConsumptionNetMaxDetected",
+          "devices[].energyConsumptionNetLifetimeOffset"
+        ]
+      }
+    ]
+  }]
 }

@@ -14,25 +14,21 @@
         "comment": "In this section set the port for Homebridge accessories."
     },
     "accessories": [],
-    "platforms": [
-        {
-            "platform": "enphaseEnvoy",
-            "devices": [
-                {
-                    "name": "Envoy",
-                    "host": "192.168.1.35",
-                    "refreshInterval": 30,
-                    "disableLogInfo": false,
-                    "envoyPasswd": "",
-                    "installerPasswd": "",
-                    "powerProductionMaxDetected": 5400,
-                    "energyProductionLifetimeOffset": 0,
-                    "powerConsumptionTotalMaxDetected": 10000,
-                    "energyConsumptionTotalLifetimeOffset": 0,
-                    "powerConsumptionNetMaxDetected": 10000,
-                    "energyConsumptionNetLifetimeOffset": 0
-                }
-            ]
-        }
-    ]
+    "platforms": [{
+        "platform": "enphaseEnvoy",
+        "devices": [{
+            "name": "Envoy",
+            "host": "192.168.1.35",
+            "refreshInterval": 30,
+            "disableLogInfo": false,
+            "envoyPasswd": "",
+            "installerPasswd": "",
+            "powerProductionMaxDetected": 5400,
+            "energyProductionLifetimeOffset": 0,
+            "powerConsumptionTotalMaxDetected": 10000,
+            "energyConsumptionTotalLifetimeOffset": 0,
+            "powerConsumptionNetMaxDetected": 10000,
+            "energyConsumptionNetLifetimeOffset": 0
+        }]
+    }]
 }
