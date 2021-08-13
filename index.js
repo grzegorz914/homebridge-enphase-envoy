@@ -89,6 +89,7 @@ const ENVOY_API_URL = {
   'InternalMeterCurrentCTSettings': '/ivp/meters/cts',
   'Inventory': '/inventory.json',
   'InventoryEnsemble': '/ivp/ensemble/inventory',
+  'InventoryEnsembleStatus': '/ivp/ensemble/inventory/status',
   'InventoryAll': '/inventory.json?deleted=1',
   'InverterComm': '/installer/pcu_comm_check',
   'InverterProduction': '/api/v1/production/inverters',
@@ -133,9 +134,11 @@ const ENVOY_API_CODE = {
   'net-consumption': 'Consumption (Net)',
   'total-consumption': 'Consumption (Total)',
   //enpower
-  'multimode-ongrid': 'Multimode on Grid',
+  'multimode-ongrid': 'Multimode Grid ON',
+  'multimode-offgrid': 'Multimode Grid OFF',
   'ENPWR_STATE_OPER_CLOSED': 'Enpower state closed',
   'ENPWR_STATE_OPER_OPEN': 'Enpower state open',
+  'ENPWR_STATE_OPER_NO_GRID': 'Enpower state no grid',
   //encharge
   'ready': 'Ready',
   'idle': 'Idle',
