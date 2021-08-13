@@ -77,6 +77,7 @@ const ENVOY_API_URL = {
   'ClearGFIPost': '/admin/lib/admin_dcc_display.json',
   'DhcpGetNewIp': '/admin/lib/network_display.json',
   'DiagnosticNetworkCheck': '/admin/lib/network_display.json',
+  'EnsembleStatus': '/ivp/ensemble/status',
   'EthernetConfigGet': '/admin/lib/network_display.json',
   'EthernetConfigPut': '/admin/lib/network_display.json',
   'EventsGet': '/datatab/event_dt.rb',
@@ -89,7 +90,7 @@ const ENVOY_API_URL = {
   'InternalMeterCurrentCTSettings': '/ivp/meters/cts',
   'Inventory': '/inventory.json',
   'InventoryEnsemble': '/ivp/ensemble/inventory',
-  'InventoryEnsembleStatus': '/ivp/ensemble/inventory/status',
+
   'InventoryAll': '/inventory.json?deleted=1',
   'InverterComm': '/installer/pcu_comm_check',
   'InverterProduction': '/api/v1/production/inverters',
@@ -2157,6 +2158,10 @@ class envoyDevice {
       'status': 0
     };
 
+    this.ensembleData = {
+      'status': 0
+    };
+
     this.envoyCheckCommLevel = false;
     this.envoySerialNumber = '';
     this.envoyFirmware = '';
@@ -2215,6 +2220,16 @@ class envoyDevice {
     this.productionApparentPower = 0;
     this.productionPwrFactor = 0;
     this.productionReadingTime = '';
+
+    this.enpowerFreqBiasHz = 0;
+    this.enpowerVoltageBiasV = 0;
+    this.enpowerFreqBiasHzQ8 = 0;
+    this.enpowerVoltageBiasVQ5 = 0;
+    this.enpowerConfiguredBackupSoc = 0;
+    this.enpowerAdjustedBackupSoc = 0;
+    this.enpowerAggSoc = 0;
+    this.enpowerAggBackupEnergy = 0;
+    this.enpowerAggAvailEnergy = 0;
 
     this.acBatteriesCount = 0;
     this.acBatteriesSummaryType = '';
@@ -2436,9 +2451,24 @@ class envoyDevice {
       this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
       this.metersReadingData = metersReadingData;
 
-      const updateMicroinvertersData = !this.checkDeviceState ? this.updateMicroinvertersData() : false;
+      const updateEnsembleData = (!this.checkDeviceState && this.ensembleInstalled) ? this.updateEnsembleData() : !this.checkDeviceState ? this.updateMicroinvertersData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, metersReadingData error: %s', this.host, this.name, error);
+      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
+    };
+  }
+
+  async updateEnsembleData() {
+    this.log.debug('Device: %s %s, requesting ensembleData.', this.host, this.name);
+    try {
+      const ensembleData = await axios.get(this.url + ENVOY_API_URL.EnsembleStatus);
+      this.log.debug('Debug metersReadingData: %s', ensembleData.data);
+      this.ensembleData = ensembleData;
+
+      const updateMicroinvertersData = !this.checkDeviceState ? this.updateMicroinvertersData() : false;
+    } catch (error) {
+      this.log.error('Device: %s %s, ensembleData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2554,6 +2584,7 @@ class envoyDevice {
       const metersReadingData = this.metersReadingData;
       const microinvertersData = this.microinvertersData
       const inventoryEnsembleData = this.inventoryEnsembleData;
+      const ensembleData = this.inventoryEnsembleData;
 
       //get enabled devices
       const envoySupportMeters = this.envoySupportMeters;
@@ -3581,6 +3612,44 @@ class envoyDevice {
         this.enpowerId = id;
         this.enpowerGridProfileVersion = gridProfileVersion;
         this.enpowerItemCount = itemCount;
+      }
+
+      //enpower status
+      if (ensembleData.status == 200) {
+        if (enpowersCount > 0) {
+          const freqBiasHz = ensembleData.secctrl.freq_bias_hz;
+          const voltageBiasV = new ensembleData.secctrl.voltage_bias_v;
+          const freqBiasHzQ8 = ensembleData.secctrl.freq_bias_hz_q8;
+          const voltageBiasVQ5 = ensembleData.secctrl.voltage_bias_v_q5;
+          const configuredBackupSoc = ensembleData.secctrl.configured_backup_soc;
+          const adjustedBackupSoc = ensembleData.secctrl.adjusted_backup_soc;
+          const aggSoc = ensembleData.secctrl.agg_soc;
+          const aggBackupEnergy = new ensembleData.secctrl.agg_backup_energy;
+          const aggAvailEnergy = new ensembleData.secctrl.agg_avail_energy;
+
+          if (this.enchargesService) {
+            this.enchargesService[i]
+              .updateCharacteristic(Characteristic.enphaseEnpowerFreqBiasHz, freqBiasHz)
+              .updateCharacteristic(Characteristic.enphaseEnpowerVoltageBiasV, voltageBiasV)
+              .updateCharacteristic(Characteristic.enphaseEnpowerFreqBiasHzQ8, freqBiasHzQ8)
+              .updateCharacteristic(Characteristic.enphaseEnpowerVoltageBiasVQ5, voltageBiasVQ5)
+              .updateCharacteristic(Characteristic.enphaseEnpowerConfiguredBackupSoc, configuredBackupSoc)
+              .updateCharacteristic(Characteristic.enphaseEnpowerAdjustedBackupSoc, adjustedBackupSoc)
+              .updateCharacteristic(Characteristic.enphaseEnpowerAggSoc, aggSoc)
+              .updateCharacteristic(Characteristic.enphaseEnpowerAggBackupEnergy, aggBackupEnergy)
+              .updateCharacteristic(Characteristic.enphaseEnpowerAggAvailEnergy, aggAvailEnergy);
+          }
+
+          this.enpowerFreqBiasHz = freqBiasHz;
+          this.enpowerVoltageBiasV = voltageBiasV;
+          this.enpowerFreqBiasHzQ8 = freqBiasHzQ8;
+          this.enpowerVoltageBiasVQ5 = voltageBiasVQ5;
+          this.enpowerConfiguredBackupSoc = configuredBackupSoc;
+          this.enpowerAdjustedBackupSoc = adjustedBackupSoc;
+          this.enpowerAggSoc = aggSoc;
+          this.enpowerAggBackupEnergy = aggBackupEnergy;
+          this.enpowerAggAvailEnergy = aggAvailEnergy;
+        }
       }
 
       this.checkDeviceState = true;
