@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Important note v4.5.0 and above!!!
 Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
+
+## [5.1.0] - (13.08.2021)
+## Changes
+- added system Power Production state(in envoy section)
+- added enpower status service
+- fixed not reconized ensemble (enpower and encharges) devices in previous versions
+- updated SKU and Part Nr.
+- code rebuild and cleanup
+- other fixes and improvements
+
 ## [5.0.0] - (05.08.2021)
 ## Changes
 - removed deprecated inherits and moved all characterictics to use ES6 class

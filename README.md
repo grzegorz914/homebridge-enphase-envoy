@@ -23,13 +23,17 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ## Note
 - For homebridge-enphase-envoy versions 4.5.0 and above the minimum required version of Homebridge is 1.3.x.
+- New authorizatin method (firmware 7.x.x) will be added after Enphase release technical brief about this changes.
 
 ## Know issues
 - If used with Hoobs, there is a possible configuration incompatibilty.
+- Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
+## Info v5.1.x and above!!!
+1. Version 5.1.x finally detects Ensemble, Encharges and Enpowers (Installer password nedded).
 ## Info v4.x.x and above!!!
 1. Version 4.0.0 whole new concept.
-2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpowers).
+2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters,).
 3. Envoy authentication is detected automatically or can be added in config if was chenged.
 4. For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 5. Installer Password which is nedded to read communications level of (Microinverters, Q-Relays, AC Batteries) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
@@ -65,6 +69,7 @@ Alternatively, the sample configuration can be edited and used manually. See the
 | `disableLogInfo`| If `true` then disable log info, all values and state will not be displayed in Homebridge log console |
 | `envoyUser` | here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
 | `envoyPasswd` | here set the envoy password (only if U already changed the default password) |
+| `envoyDevId` | here set the envoy device ID, open http://envoy.local/backbone/application.js and search for *envoyDevId*, this is nedded for check Power Production State |
 | `installerUser` | here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
 | `installerPasswd` | here set the optional installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/" |
 | `enchargeStorage` | check *ON* if AC Batteries are installed. (not available from v3.5.0) |
