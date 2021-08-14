@@ -61,8 +61,9 @@ const ENPHASE_PART_NUMBER = {
   '121943068537EIM2': 'CT-200-SPLIT-C',
   //Enpowers
   '860-00276-r48': 'EP200G101-M240US00',
-  //Encharges
-  '830-00703-r75': 'ENCHARGE-3-1P-NA',
+  //Encharges 3
+  '830-00703-r75': 'B03-A01-US00-1-3',
+  //Encharges 10
   'xxx-xxxxx-xx2': 'ENCHARGE-10-1P-NA'
 };
 
