@@ -2649,7 +2649,15 @@ class envoyDevice {
   async updateEnpowerStatusData() {
     this.log.debug('Device: %s %s, requesting enpowerStatusData.', this.host, this.name);
     try {
-      const enpowerStatusData = await axios.get(this.url + ENVOY_API_URL.EnpowerStatus);
+      const authInstaller = {
+        method: 'GET',
+        rejectUnauthorized: false,
+        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
+        dataType: 'json',
+        timeout: [5000, 5000]
+      };
+
+      const enpowerStatusData = await http.request(this.url + ENVOY_API_URL.EnpowerStatus, authInstaller);
       this.log.debug('Debug metersReadingData: %s', enpowerStatusData.data);
       this.enpowerStatusData = enpowerStatusData;
 
@@ -3746,7 +3754,7 @@ class envoyDevice {
         }
       }
 
-      //ensemble
+      //ensemble inventory
       if (ensembleInventoryData.status == 200) {
         //encharges
         if (enchargesInstalled) {
@@ -3914,7 +3922,18 @@ class envoyDevice {
           this.enpowerRelayStateBm = enpwrRelayStateBm;
           this.enpowerCurrStateId = enpwrCurrStateId;
 
-          //enpower status
+          //grid profile
+          const gridProfileName = ensembleInventoryData.data[2].grid_profile_name;
+          const id = ensembleInventoryData.data[2].id;
+          const gridProfileVersion = ensembleInventoryData.data[2].grid_profile_version;
+          const itemCount = ensembleInventoryData.data[2].item_count;
+
+          this.enpowerGridProfileName = gridProfileName;
+          this.enpowerId = id;
+          this.enpowerGridProfileVersion = gridProfileVersion;
+          this.enpowerItemCount = itemCount;
+
+          //ensemble status
           if (enpowerStatusData.status == 200) {
             const freqBiasHz = enpowerStatusData.inventory.secctrl.freq_bias_hz;
             const voltageBiasV = enpowerStatusData.inventory.secctrl.voltage_bias_v;
@@ -3962,15 +3981,6 @@ class envoyDevice {
             this.enpowerAggAvailEnergy = aggAvailEnergy;
           }
         }
-        const gridProfileName = ensembleInventoryData.data[2].grid_profile_name;
-        const id = ensembleInventoryData.data[2].id;
-        const gridProfileVersion = ensembleInventoryData.data[2].grid_profile_version;
-        const itemCount = ensembleInventoryData.data[2].item_count;
-
-        this.enpowerGridProfileName = gridProfileName;
-        this.enpowerId = id;
-        this.enpowerGridProfileVersion = gridProfileVersion;
-        this.enpowerItemCount = itemCount;
       }
 
       this.checkDeviceState = true;
