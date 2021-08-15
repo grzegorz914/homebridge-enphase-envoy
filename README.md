@@ -32,25 +32,25 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - Open http://envoy.local/backbone/application.js and search for *envoyDevId*.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
-## Know issues
+### Know issues
 - If used with Hoobs, there is a possible configuration incompatibilty.
 - Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
-## Info v5.2.x and above!!!
+### Info v5.2.x and above!!!
 1. Added system Power Production Enable/Disable (in envoy section), required *envoyDevId*.
-## Info v5.1.x and above!!!
+### Info v5.1.x and above!!!
 1. Version 5.1.x finally detects Ensemble, Encharges and Enpowers (Installer password nedded).
-## Info v4.x.x and above!!!
+### Info v4.x.x and above!!!
 1. Version 4.0.0 whole new concept.
 2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters,).
 3. Envoy authentication is detected automatically or can be added in config if was chenged.
 4. For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 5. Installer Password which is nedded to read communications level of (Microinverters, Q-Relays, AC Batteries) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 
-## Info v3.x.x
+### Info v3.x.x
 1. With release v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
 
-## Info v2.3.x
+### Info v2.3.x
 1. The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
 2. Production Current Level (W) - is the current Power production in (W). If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
 3. Consumption Current Level Total (W) - is the Total Power Consumption in (W)).
