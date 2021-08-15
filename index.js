@@ -173,6 +173,7 @@ const ENVOY_API_CODE = {
   'satisfied': 'Satisfied',
   'not-satisfied': 'Not satisfied',
   //status code
+  'prop.done': 'Prop done',
   'envoy.global.ok': 'Normal',
   'envoy.cond_flags.acb_ctrl.bmudatabounds': 'BMU Data Bounds Error',
   'envoy.cond_flags.acb_ctrl.bmuhardwareerror': 'BMU Hardware Error',
@@ -258,7 +259,7 @@ const ENVOY_API_CODE = {
   'envoy.cond_flags.pcu_ctrl.bricked': 'No Grid Profile',
   'envoy.cond_flags.pcu_ctrl.commandedreset': 'Commanded Reset',
   'envoy.cond_flags.pcu_ctrl.criticaltemperature': 'Critical Temperature',
-  'envoy.cond_flags.pcu_ctrl.dc-pwr-lo': 'DC Power Too Low',
+  'envoy.cond_flags.pcu_ctrl.dc-pwr-low': 'DC Power Too Low',
   'envoy.cond_flags.pcu_ctrl.iuplinkproblem': 'IUP Link Problem',
   'envoy.cond_flags.pcu_ctrl.manutestmode': 'In Manu Test Mode',
   'envoy.cond_flags.pcu_ctrl.nsync': 'Grid Perturbation Unsynchronized',
@@ -3024,7 +3025,7 @@ class envoyDevice {
         const arrStatus = new Array();
         if (Array.isArray(allerts) && allerts.length > 0) {
           for (let j = 0; j < allerts.length; j++) {
-            arrStatus.push(ENVOY_API_CODE[allerts[j]]);
+            arrStatus.push(ENVOY_API_CODE[allerts[j]] || allerts[j]);
           }
         }
         const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No allerts';
@@ -3125,7 +3126,7 @@ class envoyDevice {
             const arrStatus = new Array();
             if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
               for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]] || deviceStatus[j]);
               }
             }
             const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
@@ -3201,7 +3202,7 @@ class envoyDevice {
             const arrStatus = new Array();
             if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
               for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]] || deviceStatus[j]);
               }
             }
             const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
@@ -3288,7 +3289,7 @@ class envoyDevice {
             const arrStatus = new Array();
             if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
               for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]] || deviceStatus[j]);
               }
             }
             const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
@@ -3572,7 +3573,7 @@ class envoyDevice {
             const arrStatus = new Array();
             if (Array.isArray(statusFlags) && statusFlags.length > 0) {
               for (let j = 0; j < statusFlags.length; j++) {
-                arrStatus.push(ENVOY_API_CODE[statusFlags[j]]);
+                arrStatus.push(ENVOY_API_CODE[statusFlags[j]] || statusFlags[j]);
               }
             }
             const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status flags';
@@ -3807,7 +3808,7 @@ class envoyDevice {
             const arrStatus = new Array();
             if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
               for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+                arrStatus.push(ENVOY_API_CODE[deviceStatus[j]] || deviceStatus[j]);
               }
             }
             const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
@@ -3883,7 +3884,7 @@ class envoyDevice {
           const arrStatus = new Array();
           if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
             for (let j = 0; j < deviceStatus.length; j++) {
-              arrStatus.push(ENVOY_API_CODE[deviceStatus[j]]);
+              arrStatus.push(ENVOY_API_CODE[deviceStatus[j]] || deviceStatus[j]);
             }
           }
           const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
@@ -3957,17 +3958,17 @@ class envoyDevice {
 
             const fakeInventoryMode = ensembleStatusData.data.fakeit.fake_inventory_mode;
 
-            if (this.ensemblesService) {
-              this.ensemblesService[0]
-                .updateCharacteristic(Characteristic.enphaseEnpowerFreqBiasHz, freqBiasHz)
-                .updateCharacteristic(Characteristic.enphaseEnpowerVoltageBiasV, voltageBiasV)
-                .updateCharacteristic(Characteristic.enphaseEnpowerFreqBiasHzQ8, freqBiasHzQ8)
-                .updateCharacteristic(Characteristic.enphaseEnpowerVoltageBiasVQ5, voltageBiasVQ5)
-                .updateCharacteristic(Characteristic.enphaseEnpowerConfiguredBackupSoc, configuredBackupSoc)
-                .updateCharacteristic(Characteristic.enphaseEnpowerAdjustedBackupSoc, adjustedBackupSoc)
-                .updateCharacteristic(Characteristic.enphaseEnpowerAggSoc, aggSoc)
-                .updateCharacteristic(Characteristic.enphaseEnpowerAggBackupEnergy, aggBackupEnergy)
-                .updateCharacteristic(Characteristic.enphaseEnpowerAggAvailEnergy, aggAvailEnergy);
+            if (this.enpowersStatusService) {
+              this.enpowersStatusService[0]
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusFreqBiasHz, freqBiasHz)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusVoltageBiasV, voltageBiasV)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusFreqBiasHzQ8, freqBiasHzQ8)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusVoltageBiasVQ5, voltageBiasVQ5)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusConfiguredBackupSoc, configuredBackupSoc)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusAdjustedBackupSoc, adjustedBackupSoc)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggSoc, aggSoc)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggBackupEnergy, aggBackupEnergy)
+                .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggAvailEnergy, aggAvailEnergy);
             }
 
             this.enpowerFreqBiasHz = freqBiasHz;
@@ -5092,7 +5093,7 @@ class envoyDevice {
     if (enpowerInstalled) {
       //enpower
       this.enpowersService = new Array();
-      const enphaseEnpowerService = new Service.enphaseEnpowerService('Enpower ', +this.enpowerSerialNumber, 'enphaseEnpowerService' + i);
+      const enphaseEnpowerService = new Service.enphaseEnpowerService('Enpower ', +this.enpowerSerialNumber, 'enphaseEnpowerService');
       enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerAdminStateStr)
         .onGet(async () => {
           const value = this.enpowerAdminStateStr;
@@ -5194,7 +5195,7 @@ class envoyDevice {
 
       //enpower status
       this.enpowersStatusService = new Array();
-      const enphaseEnpowerStatusService = new Service.enphaseEnpowerStatusService('Enpower Status ', +this.enpowerSerialNumber, 'enphaseEnpowerStatusService' + i);
+      const enphaseEnpowerStatusService = new Service.enphaseEnpowerStatusService('Enpower Status ', +this.enpowerSerialNumber, 'enphaseEnpowerStatusService');
       enphaseEnpowerStatusService.getCharacteristic(Characteristic.enphaseEnpowerStatusFreqBasisHz)
         .onGet(async () => {
           const value = this.enpowerFreqBiasHz;
