@@ -3916,15 +3916,27 @@ class envoyDevice {
 
           //enpower status
           if (enpowerStatusData.status == 200) {
-            const freqBiasHz = enpowerStatusData.secctrl.freq_bias_hz;
-            const voltageBiasV = enpowerStatusData.secctrl.voltage_bias_v;
-            const freqBiasHzQ8 = enpowerStatusData.secctrl.freq_bias_hz_q8;
-            const voltageBiasVQ5 = enpowerStatusData.secctrl.voltage_bias_v_q5;
-            const configuredBackupSoc = enpowerStatusData.secctrl.configured_backup_soc; //in %
-            const adjustedBackupSoc = enpowerStatusData.secctrl.adjusted_backup_soc; //in %
-            const aggSoc = enpowerStatusData.secctrl.agg_soc; //in %
-            const aggBackupEnergy = parseFloat((enpowerStatusData.secctrl.agg_backup_energy) / 1000); //in kWh
-            const aggAvailEnergy = parseFloat((enpowerStatusData.secctrl.agg_avail_energy) / 1000); //in kWh
+            const freqBiasHz = enpowerStatusData.inventory.secctrl.freq_bias_hz;
+            const voltageBiasV = enpowerStatusData.inventory.secctrl.voltage_bias_v;
+            const freqBiasHzQ8 = enpowerStatusData.inventory.secctrl.freq_bias_hz_q8;
+            const voltageBiasVQ5 = enpowerStatusData.inventory.secctrl.voltage_bias_v_q5;
+            const configuredBackupSoc = enpowerStatusData.inventory.secctrl.configured_backup_soc; //in %
+            const adjustedBackupSoc = enpowerStatusData.inventory.secctrl.adjusted_backup_soc; //in %
+            const aggSoc = enpowerStatusData.inventory.secctrl.agg_soc; //in %
+            const aggBackupEnergy = parseFloat((enpowerStatusData.inventory.secctrl.agg_backup_energy) / 1000); //in kWh
+            const aggAvailEnergy = parseFloat((enpowerStatusData.inventory.secctrl.agg_avail_energy) / 1000); //in kWh
+
+            const mainsAdminState = ENVOY_API_CODE[enpowerStatusData.inventory.relay.mains_admin_state];
+            const mainsOperState = ENVOY_API_CODE[enpowerStatusData.inventory.relay.mains_oper_sate];
+            const enpwrGridMode = ENVOY_API_CODE[enpowerStatusData.inventory.relay.Enpwr_grid_mode];
+            const enchgGridMode = ENVOY_API_CODE[enpowerStatusData.inventory.relay.Enchg_grid_mode];
+
+            const name = enpowerStatusData.inventory.profile.name;
+            const id = enpowerStatusData.inventory.profile.id;
+            const version = enpowerStatusData.inventory.profile.version;
+            const itemCount = enpowerStatusData.inventory.profile.item_count;
+
+            const fakeInventoryMode = enpowerStatusData.inventory.fakeit.fake_inventory_mode;
 
             if (this.ensemblesService) {
               this.ensemblesService[0]
