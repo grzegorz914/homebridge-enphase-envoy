@@ -4,8 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Important note v4.5.0 and above!!!
-Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
+## Power Production Enable/Disable v5.2.0 and above!!!
+- You can issue a task for the Envoy to Enable/Disable power production on the microinverters that are communicating with it. 
+- On a typical system during daylight hours, the Envoy will receive and execute the task within 15 minutes.
+- This action require *envoyDevId*. 
+- Open http://envoy.local/backbone/application.js and search for *envoyDevId*.
+- More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
+
+## [5.2.0] - (15.08.2021)
+## Changes
+- added possibility Enable/Disable Power Production (in envoy section)
+
 
 ## [5.1.0] - (13.08.2021)
 ## Changes
@@ -43,6 +52,9 @@ Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
 ## Changes
 - added Characteristics for Apparent and Reactive Power
 - fixed some bugs
+
+## Important note v4.5.0 and above!!!
+Version 4.5.0 and above need to be used with Homebridge min. v1.3.0.
 
 ## [4.5.0] - (23.02.2021)
 ## Changes

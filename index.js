@@ -105,7 +105,7 @@ const ENVOY_API_URL = {
   'TimezoneSetGet': '/admin/lib/date_time_display.json', //GET, ?tzlist=1' display all time zones,
   'TariffSettingsPutGet': '/admin/lib/tariff.json',
   'TunnelStatePutGet': '/admin/lib/dba.json',
-  'UpdateMeterConfig': '/ivp/meters/EID',
+  'UpdateMeterConfig': '/ivp/meters/EID', //EID envoy ID
   'UpdateMeterCurrentCTConfig': '/ivp/meters/cts/EID', //EID envoy ID
   'UpdatePassword': '/admin/lib/security_display.json',
   'WifiSettingsJoinGet': '/admin/lib/wireless_display.json'
@@ -135,6 +135,7 @@ const ENVOY_API_CODE = {
   //encharge
   'ready': 'Ready',
   'idle': 'Idle',
+  'full': 'Full',
   'charging': 'Charging',
   'discharging': 'Discharging',
   'ENCHG_STATE_READY': 'Encharge state ready',
@@ -307,20 +308,9 @@ module.exports = (api) => {
   AccessoryUUID = api.hap.uuid;
 
   //Envoy
-  class enphaseEnvoyProductionPowerMode extends Characteristic {
-    constructor() {
-      super('Power production', '00000001-000B-1000-8000-0026BB765291');
-      this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-      });
-      this.value = this.getDefaultValue();
-    }
-  }
-  Characteristic.enphaseEnvoyProductionPowerMode = enphaseEnvoyProductionPowerMode;
   class enphaseEnvoyAllerts extends Characteristic {
     constructor() {
-      super('Allerts', '00000010-000B-1000-8000-0026BB765291');
+      super('Allerts', '00000001-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.STRING,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -547,14 +537,25 @@ module.exports = (api) => {
   }
   Characteristic.enphaseEnvoyCheckCommLevel = enphaseEnvoyCheckCommLevel;
 
+  class enphaseEnvoyProductionPowerMode extends Characteristic {
+    constructor() {
+      super('Power production', '00000030-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyProductionPowerMode = enphaseEnvoyProductionPowerMode;
+
   //power production service
   class enphaseEnvoyService extends Service {
     constructor(displayName, subtype, ) {
       super(displayName, '00000001-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
-      this.addCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode);
+      this.addCharacteristic(Characteristic.enphaseEnvoyAllerts);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyAllerts);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten);
@@ -573,6 +574,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode);
     }
   }
   Service.enphaseEnvoyService = enphaseEnvoyService;
@@ -4016,14 +4018,6 @@ class envoyDevice {
     //envoy
     this.envoysService = new Array();
     const enphaseEnvoyService = new Service.enphaseEnvoyService('Envoy ' + this.envoySerialNumber, 'enphaseEnvoyService');
-    enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode)
-      .onGet(async () => {
-        const state = this.productionPowerMode;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s, production power mode state: %s', this.host, accessoryName, this.envoySerialNumber, state ? 'Enabled' : 'Disabled');
-        }
-        return state;
-      });
     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyAllerts)
       .onGet(async () => {
         const value = this.envoyAllerts;
@@ -4080,7 +4074,7 @@ class envoyDevice {
         }
         return value;
       });
-    if (acBatteriesCount > 0) {
+    if (acBatteriesInstalled) {
       enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel)
         .onGet(async () => {
           const value = this.envoyCommAcbNum + ' / ' + this.envoyCommAcbLevel;
@@ -4090,7 +4084,7 @@ class envoyDevice {
           return value;
         });
     }
-    if (enchargesCount > 0) {
+    if (enchargesInstalled) {
       enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel)
         .onGet(async () => {
           const value = this.envoyCommEnchgNum + ' / ' + this.envoyCommEnchgLevel;
@@ -4188,6 +4182,38 @@ class envoyDevice {
           this.log('Device: %s %s, envoy: %s, check comm level: %s', this.host, accessoryName, this.envoySerialNumber, state ? 'Yes' : 'No');
         }
       });
+    if (this.installerPasswd) {
+      enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode)
+        .onGet(async () => {
+          const state = this.productionPowerMode;
+          if (!this.disableLogInfo) {
+            this.log('Device: %s %s, envoy: %s, production power mode state: %s', this.host, accessoryName, this.envoySerialNumber, state ? 'Enabled' : 'Disabled');
+          }
+          return state;
+        })
+        .onSet(async (state) => {
+          try {
+            const data =
+              JSON.stringify({
+                length: 1,
+                arr: [state ? 0 : 1]
+              });
+            const authInstaller = {
+              method: 'PUT',
+              rejectUnauthorized: false,
+              digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
+              data: data,
+              timeout: [5000, 5000]
+            };
+
+            const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
+            const powerModeData = await http.request(this.url + powerModeUrl, authInstaller);
+            this.log.debug('Debug set powerModeData: %s', powerModeData.res, powerModeData.headers, powerModeData.data);
+          } catch (error) {
+            this.log.debug('Device: %s %s, set powerModeData error: %s', this.host, this.name, error);
+          };
+        });
+    }
 
     this.envoysService.push(enphaseEnvoyService);
     accessory.addService(this.envoysService[0]);
