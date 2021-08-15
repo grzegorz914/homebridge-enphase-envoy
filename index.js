@@ -2347,7 +2347,7 @@ class envoyDevice {
     this.ensembleInventoryData = {
       'status': 0
     };
-    this.enpowerStatusData = {
+    this.ensembleStatusData = {
       'status': 0
     };
 
@@ -2647,7 +2647,7 @@ class envoyDevice {
   }
 
   async updateEnpowerStatusData() {
-    this.log.debug('Device: %s %s, requesting enpowerStatusData.', this.host, this.name);
+    this.log.debug('Device: %s %s, requesting ensembleStatusData.', this.host, this.name);
     try {
       const authInstaller = {
         method: 'GET',
@@ -2657,13 +2657,13 @@ class envoyDevice {
         timeout: [5000, 5000]
       };
 
-      const enpowerStatusData = await http.request(this.url + ENVOY_API_URL.EnpowerStatus, authInstaller);
-      this.log.debug('Debug metersReadingData: %s', enpowerStatusData.data);
-      this.enpowerStatusData = enpowerStatusData;
+      const ensembleStatusData = await http.request(this.url + ENVOY_API_URL.EnpowerStatus, authInstaller);
+      this.log.debug('Debug metersReadingData: %s', ensembleStatusData.data);
+      this.ensembleStatusData = ensembleStatusData;
 
       const updateHomeData = !this.checkDeviceState ? this.updateHomeData() : false;
     } catch (error) {
-      this.log.error('Device: %s %s, enpowerStatusData error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, ensembleStatusData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2917,7 +2917,7 @@ class envoyDevice {
       const metersReadingData = this.metersReadingData;
       const microinvertersData = this.microinvertersData
       const ensembleInventoryData = this.ensembleInventoryData;
-      const enpowerStatusData = this.ensembleInventoryData;
+      const ensembleStatusData = this.ensembleInventoryData;
 
       //get enabled devices
       const envoySupportMeters = this.envoySupportMeters;
@@ -3934,28 +3934,28 @@ class envoyDevice {
           this.enpowerItemCount = itemCount;
 
           //ensemble status
-          if (enpowerStatusData.status == 200) {
-            const freqBiasHz = enpowerStatusData.inventory.secctrl.freq_bias_hz;
-            const voltageBiasV = enpowerStatusData.inventory.secctrl.voltage_bias_v;
-            const freqBiasHzQ8 = enpowerStatusData.inventory.secctrl.freq_bias_hz_q8;
-            const voltageBiasVQ5 = enpowerStatusData.inventory.secctrl.voltage_bias_v_q5;
-            const configuredBackupSoc = enpowerStatusData.inventory.secctrl.configured_backup_soc; //in %
-            const adjustedBackupSoc = enpowerStatusData.inventory.secctrl.adjusted_backup_soc; //in %
-            const aggSoc = enpowerStatusData.inventory.secctrl.agg_soc; //in %
-            const aggBackupEnergy = parseFloat((enpowerStatusData.inventory.secctrl.agg_backup_energy) / 1000); //in kWh
-            const aggAvailEnergy = parseFloat((enpowerStatusData.inventory.secctrl.agg_avail_energy) / 1000); //in kWh
+          if (ensembleStatusData.status == 200) {
+            const freqBiasHz = ensembleStatusData.data.inventory.secctrl.freq_bias_hz;
+            const voltageBiasV = ensembleStatusData.data.inventory.secctrl.voltage_bias_v;
+            const freqBiasHzQ8 = ensembleStatusData.data.inventory.secctrl.freq_bias_hz_q8;
+            const voltageBiasVQ5 = ensembleStatusData.data.inventory.secctrl.voltage_bias_v_q5;
+            const configuredBackupSoc = ensembleStatusData.data.inventory.secctrl.configured_backup_soc; //in %
+            const adjustedBackupSoc = ensembleStatusData.data.inventory.secctrl.adjusted_backup_soc; //in %
+            const aggSoc = ensembleStatusData.data.inventory.secctrl.agg_soc; //in %
+            const aggBackupEnergy = parseFloat((ensembleStatusData.data.inventory.secctrl.agg_backup_energy) / 1000); //in kWh
+            const aggAvailEnergy = parseFloat((ensembleStatusData.data.inventory.secctrl.agg_avail_energy) / 1000); //in kWh
 
-            const mainsAdminState = ENVOY_API_CODE[enpowerStatusData.inventory.relay.mains_admin_state];
-            const mainsOperState = ENVOY_API_CODE[enpowerStatusData.inventory.relay.mains_oper_sate];
-            const enpwrGridMode = ENVOY_API_CODE[enpowerStatusData.inventory.relay.Enpwr_grid_mode];
-            const enchgGridMode = ENVOY_API_CODE[enpowerStatusData.inventory.relay.Enchg_grid_mode];
+            const mainsAdminState = ENVOY_API_CODE[ensembleStatusData.data.inventory.relay.mains_admin_state];
+            const mainsOperState = ENVOY_API_CODE[ensembleStatusData.data.inventory.relay.mains_oper_sate];
+            const enpwrGridMode = ENVOY_API_CODE[ensembleStatusData.data.inventory.relay.Enpwr_grid_mode];
+            const enchgGridMode = ENVOY_API_CODE[ensembleStatusData.data.inventory.relay.Enchg_grid_mode];
 
-            const name = enpowerStatusData.inventory.profile.name;
-            const id = enpowerStatusData.inventory.profile.id;
-            const version = enpowerStatusData.inventory.profile.version;
-            const itemCount = enpowerStatusData.inventory.profile.item_count;
+            const name = ensembleStatusData.data.inventory.profile.name;
+            const id = ensembleStatusData.data.inventory.profile.id;
+            const version = ensembleStatusData.data.inventory.profile.version;
+            const itemCount = ensembleStatusData.data.inventory.profile.item_count;
 
-            const fakeInventoryMode = enpowerStatusData.inventory.fakeit.fake_inventory_mode;
+            const fakeInventoryMode = ensembleStatusData.data.inventory.fakeit.fake_inventory_mode;
 
             if (this.ensemblesService) {
               this.ensemblesService[0]
