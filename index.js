@@ -2505,6 +2505,9 @@ class envoyDevice {
           }
           if (this.ensembleInstalled) {
             this.updateEnsembleInventoryData();
+            if (this.enpowerInstalled) {
+              this.updateEnpowerStatusData();
+            }
           }
         }
       }
