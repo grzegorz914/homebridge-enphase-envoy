@@ -2100,7 +2100,7 @@ module.exports = (api) => {
         format: Characteristic.Formats.FLOAT,
         unit: 'Hz',
         maxValue: 10000,
-        minValue: 0,
+        minValue: -10000,
         minStep: 0.01,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
       });
@@ -2116,7 +2116,7 @@ module.exports = (api) => {
         format: Characteristic.Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
-        minValue: 0,
+        minValue: -1000,
         minStep: 0.1,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
       });
@@ -2131,7 +2131,7 @@ module.exports = (api) => {
       this.setProps({
         unit: 'Hz',
         maxValue: 10000,
-        minValue: 0,
+        minValue: -10000,
         minStep: 0.01,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
       });
@@ -2147,7 +2147,7 @@ module.exports = (api) => {
         format: Characteristic.Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
-        minValue: 0,
+        minValue: -1000,
         minStep: 0.1,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
       });
