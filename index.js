@@ -2917,7 +2917,7 @@ class envoyDevice {
       const metersReadingData = this.metersReadingData;
       const microinvertersData = this.microinvertersData
       const ensembleInventoryData = this.ensembleInventoryData;
-      const ensembleStatusData = this.ensembleInventoryData;
+      const ensembleStatusData = this.ensembleStatusData;
 
       //get enabled devices
       const envoySupportMeters = this.envoySupportMeters;
@@ -3935,27 +3935,27 @@ class envoyDevice {
 
           //ensemble status
           if (ensembleStatusData.status == 200) {
-            const freqBiasHz = ensembleStatusData.data.inventory.secctrl.freq_bias_hz;
-            const voltageBiasV = ensembleStatusData.data.inventory.secctrl.voltage_bias_v;
-            const freqBiasHzQ8 = ensembleStatusData.data.inventory.secctrl.freq_bias_hz_q8;
-            const voltageBiasVQ5 = ensembleStatusData.data.inventory.secctrl.voltage_bias_v_q5;
-            const configuredBackupSoc = ensembleStatusData.data.inventory.secctrl.configured_backup_soc; //in %
-            const adjustedBackupSoc = ensembleStatusData.data.inventory.secctrl.adjusted_backup_soc; //in %
-            const aggSoc = ensembleStatusData.data.inventory.secctrl.agg_soc; //in %
-            const aggBackupEnergy = parseFloat((ensembleStatusData.data.inventory.secctrl.agg_backup_energy) / 1000); //in kWh
-            const aggAvailEnergy = parseFloat((ensembleStatusData.data.inventory.secctrl.agg_avail_energy) / 1000); //in kWh
+            const freqBiasHz = ensembleStatusData.data.secctrl.freq_bias_hz;
+            const voltageBiasV = ensembleStatusData.data.secctrl.voltage_bias_v;
+            const freqBiasHzQ8 = ensembleStatusData.data.secctrl.freq_bias_hz_q8;
+            const voltageBiasVQ5 = ensembleStatusData.data.secctrl.voltage_bias_v_q5;
+            const configuredBackupSoc = ensembleStatusData.data.secctrl.configured_backup_soc; //in %
+            const adjustedBackupSoc = ensembleStatusData.data.secctrl.adjusted_backup_soc; //in %
+            const aggSoc = ensembleStatusData.data.secctrl.agg_soc; //in %
+            const aggBackupEnergy = parseFloat((ensembleStatusData.data.secctrl.agg_backup_energy) / 1000); //in kWh
+            const aggAvailEnergy = parseFloat((ensembleStatusData.data.secctrl.agg_avail_energy) / 1000); //in kWh
 
-            const mainsAdminState = ENVOY_API_CODE[ensembleStatusData.data.inventory.relay.mains_admin_state];
-            const mainsOperState = ENVOY_API_CODE[ensembleStatusData.data.inventory.relay.mains_oper_sate];
-            const enpwrGridMode = ENVOY_API_CODE[ensembleStatusData.data.inventory.relay.Enpwr_grid_mode];
-            const enchgGridMode = ENVOY_API_CODE[ensembleStatusData.data.inventory.relay.Enchg_grid_mode];
+            const mainsAdminState = ENVOY_API_CODE[ensembleStatusData.data.relay.mains_admin_state];
+            const mainsOperState = ENVOY_API_CODE[ensembleStatusData.data.relay.mains_oper_sate];
+            const enpwrGridMode = ENVOY_API_CODE[ensembleStatusData.data.relay.Enpwr_grid_mode];
+            const enchgGridMode = ENVOY_API_CODE[ensembleStatusData.data.relay.Enchg_grid_mode];
 
-            const name = ensembleStatusData.data.inventory.profile.name;
-            const id = ensembleStatusData.data.inventory.profile.id;
-            const version = ensembleStatusData.data.inventory.profile.version;
-            const itemCount = ensembleStatusData.data.inventory.profile.item_count;
+            const name = ensembleStatusData.data.profile.name;
+            const id = ensembleStatusData.data.profile.id;
+            const version = ensembleStatusData.data.profile.version;
+            const itemCount = ensembleStatusData.data.profile.item_count;
 
-            const fakeInventoryMode = ensembleStatusData.data.inventory.fakeit.fake_inventory_mode;
+            const fakeInventoryMode = ensembleStatusData.data.fakeit.fake_inventory_mode;
 
             if (this.ensemblesService) {
               this.ensemblesService[0]
