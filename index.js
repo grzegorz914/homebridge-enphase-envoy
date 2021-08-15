@@ -2488,7 +2488,7 @@ class envoyDevice {
     //Check device info
     setInterval(function () {
       if (this.checkDeviceInfo) {
-        this.getDeviceInfo();
+        this.updateDeviceInfoData();
       }
     }.bind(this), 10000);
 
@@ -2496,11 +2496,16 @@ class envoyDevice {
     setInterval(function () {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
         this.updateProductionData();
-        if (this.envoyCheckCommLevel && this.installerPasswd) {
-          this.updateCommLevelData();
-        }
         if (this.installerPasswd) {
-          this.updateProductionPowerModeData();
+          if (this.envoyCheckCommLevel) {
+            this.updateCommLevelData();
+          }
+          if (this.envoyDevId) {
+            this.updateProductionPowerModeData();
+          }
+          if (this.ensembleInstalled) {
+            this.updateEnsembleInventoryData();
+          }
         }
       }
     }.bind(this), this.refreshInterval * 1000);
@@ -2524,7 +2529,7 @@ class envoyDevice {
     }.bind(this), this.refreshInterval * 5000);
   }
 
-  async getDeviceInfo() {
+  async updateDeviceInfoData() {
     this.log.debug('Device: %s %s, requesting devices info.', this.host, this.name);
     try {
       const [infoData, inventoryData, metersData] = await axios.all([axios.get(this.url + ENVOY_API_URL.Info), axios.get(this.url + ENVOY_API_URL.Inventory), axios.get(this.url + ENVOY_API_URL.InternalMeterInfo)]);
@@ -2536,32 +2541,6 @@ class envoyDevice {
       const devInfo = JSON.stringify(obj, null, 2);
       const writeDevInfoFile = await fsPromises.writeFile(this.devInfoFile, devInfo);
       this.log.debug('Device: %s %s, saved Device Info successful.', this.host, this.name);
-
-      if (this.installerPasswd) {
-        try {
-          const authInstaller = {
-            method: 'GET',
-            rejectUnauthorized: false,
-            digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-            dataType: 'json',
-            timeout: [5000, 5000]
-          };
-
-          const inventoryEnsembleData = await http.request(this.url + ENVOY_API_URL.EnsembleInventory, authInstaller);
-          this.log.debug('Device %s %s, debug inventoryEnsembleData: %s', this.host, this.name, inventoryEnsembleData.data);
-
-          const ensembleInstalled = true;
-          const enchargesCount = inventoryEnsembleData.data[0].devices.length;
-          const enpowerInstalled = (inventoryEnsembleData.data[1].devices.length > 0);
-
-          this.inventoryEnsembleData = inventoryEnsembleData;
-          this.ensembleInstalled = ensembleInstalled;
-          this.enpowerInstalled = enpowerInstalled;
-          this.enchargesCount = enchargesCount;
-        } catch (error) {
-          this.log('Device: %s %s, check Ensemble devices, state: Connection error, probably not installed.', this.host, this.name);
-        };
-      }
 
       const time = new Date(parseInfoData.envoy_info.time[0] * 1000).toLocaleString();
       const deviceSn = parseInfoData.envoy_info.device[0].sn[0];
@@ -2582,31 +2561,6 @@ class envoyDevice {
       const acBatteriesCount = inventoryData.data[1].devices.length;
       const qRelaysCount = inventoryData.data[2].devices.length;
 
-      this.log('-------- %s --------', this.name);
-      this.log('Manufacturer: Enphase');
-      this.log('Model: %s', devicePn);
-      this.log('Api ver: %s', deviceApiVer);
-      this.log('Firmware: %s', deviceSoftware);
-      this.log('SerialNr: %s', deviceSn);
-      this.log('Time: %s', time);
-      this.log('------------------------------');
-      this.log('Q-Relays: %s', qRelaysCount);
-      this.log('Inverters: %s', microinvertersCount);
-      this.log('Batteries: %s', acBatteriesCount);
-      this.log('--------------------------------');
-      this.log('Meters: %s', deviceImeter ? 'Yes' : 'No');
-      if (deviceImeter) {
-        this.log('Production: %s', metersProductionEnabled ? 'Enabled' : 'Disabled');
-        this.log('Consumption: %s', metersConsumptionEnabled ? 'Enabled' : 'Disabled');
-        this.log('--------------------------------');
-      }
-      this.log('Ensemble: %s', this.ensembleInstalled ? 'Yes' : 'No');
-      if (this.ensembleInstalled) {
-        this.log('Enpower: %s', this.enpowerInstalled ? 'Installed' : 'Not installed');
-        this.log('Encharges: %s', this.enchargesCount);
-      }
-      this.log('--------------------------------');
-
       this.envoyTime = time;
       this.envoySerialNumber = deviceSn;
       this.envoyModelName = devicePn;
@@ -2624,10 +2578,57 @@ class envoyDevice {
       this.inventoryData = inventoryData;
       this.metersData = metersData;
 
-      this.checkDeviceInfo = false;
-      this.updateHomeData();
+      const updateEnsembleInventoryOrHomeData = !this.checkDeviceState ? this.installerPasswd ? this.updateEnsembleInventoryData() : this.updateHomeData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', this.host, this.name, error);
+      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
+    };
+  }
+
+  async updateEnsembleInventoryData() {
+    this.log.debug('Device: %s %s, requesting homeData.', this.host, this.name);
+    if (this.installerPasswd) {
+      try {
+        const authInstaller = {
+          method: 'GET',
+          rejectUnauthorized: false,
+          digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
+          dataType: 'json',
+          timeout: [5000, 5000]
+        };
+
+        const inventoryEnsembleData = await http.request(this.url + ENVOY_API_URL.EnsembleInventory, authInstaller);
+        this.log.debug('Device %s %s, debug inventoryEnsembleData: %s', this.host, this.name, inventoryEnsembleData.data);
+
+        const ensembleInstalled = true;
+        const enchargesCount = inventoryEnsembleData.data[0].devices.length;
+        const enpowerInstalled = (inventoryEnsembleData.data[1].devices.length > 0);
+
+        this.inventoryEnsembleData = inventoryEnsembleData;
+        this.ensembleInstalled = ensembleInstalled;
+        this.enpowerInstalled = enpowerInstalled;
+        this.enchargesCount = enchargesCount;
+
+        const updateEnpowerStatusOrHomeData = !this.checkDeviceState ? enpowerInstalled ? this.updateEnpowerStatusData() : this.updateHomeData() : false;
+      } catch (error) {
+        this.log('Device: %s %s, check Ensemble devices, state: Connection error, probably not installed.', this.host, this.name);
+        this.updateHomeData();
+      };
+    }
+  }
+
+  async updateEnpowerStatusData() {
+    this.log.debug('Device: %s %s, requesting enpowerStatusData.', this.host, this.name);
+    try {
+      const enpowerStatusData = await axios.get(this.url + ENVOY_API_URL.EnpowerStatus);
+      this.log.debug('Debug metersReadingData: %s', enpowerStatusData.data);
+      this.enpowerStatusData = enpowerStatusData;
+
+      const updateHomeData = !this.checkDeviceState ? this.updateHomeData() : false;
+    } catch (error) {
+      this.log.error('Device: %s %s, enpowerStatusData error: %s', this.host, this.name, error);
+      this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
   }
@@ -2671,24 +2672,9 @@ class envoyDevice {
       this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
       this.metersReadingData = metersReadingData;
 
-      const updateEnpowerStatusData = (!this.checkDeviceState && this.enpowerInstalled) ? this.updateEnpowerStatusData() : !this.checkDeviceState ? this.updateMicroinvertersData() : false;
+      const updateMicroinvertersData = !this.checkDeviceState ? this.envoyPasswd ? this.updateMicroinvertersData() : this.updateProductionPowerModeData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, metersReadingData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
-    };
-  }
-
-  async updateEnpowerStatusData() {
-    this.log.debug('Device: %s %s, requesting enpowerStatusData.', this.host, this.name);
-    try {
-      const enpowerStatusData = await axios.get(this.url + ENVOY_API_URL.EnpowerStatus);
-      this.log.debug('Debug metersReadingData: %s', enpowerStatusData.data);
-      this.enpowerStatusData = enpowerStatusData;
-
-      const updateMicroinvertersData = !this.checkDeviceState ? this.updateMicroinvertersData() : false;
-    } catch (error) {
-      this.log.error('Device: %s %s, enpowerStatusData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2712,7 +2698,7 @@ class envoyDevice {
       this.log.debug('Debug production inverters: %s', microinvertersData.data);
       this.microinvertersData = microinvertersData;
 
-      const updateDeviceState = !this.checkDeviceState ? this.updateDeviceState() : false;
+      const updateProductionPowerModeDataOrGetDeviceInfo = !this.checkDeviceState ? this.installerPasswd ? this.updateProductionPowerModeData() : this.getDeviceInfo() : false;
     } catch (error) {
       this.log.error('Device: %s %s, microinvertersData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
@@ -2742,8 +2728,11 @@ class envoyDevice {
       }
 
       this.productionPowerMode = productionPowerMode;
+      const getDeviceInfo = !this.checkDeviceState ? this.getDeviceInfo() : false;
     } catch (error) {
       this.log.debug('Device: %s %s, powerModeData error: %s', this.host, this.name, error);
+      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -2803,8 +2792,6 @@ class envoyDevice {
         this.qRelaysCommLevel.push(value);
       }
 
-
-
       //disable check comm level switch
       if (this.envoysService) {
         this.envoysService[0]
@@ -2815,6 +2802,59 @@ class envoyDevice {
       this.envoyCheckCommLevel = false;
     } catch (error) {
       this.log.debug('Device: %s %s, pcuCommCheck error: %s', this.host, this.name, error);
+    };
+  }
+
+  async getDeviceInfo() {
+    this.log.debug('Device: %s %s, get devices info.', this.host, this.name);
+    try {
+      const time = this.envoyTime;
+      const deviceSn = this.envoySerialNumber;
+      const devicePn = this.envoyModelName;
+      const deviceSoftware = this.envoyFirmware;
+      const deviceImeter = this.envoySupportMeters;
+
+      const metersProductionEnabled = this.metersProductionEnabled;
+      const metersConsumptionEnabled = this.metersConsumptionEnabled;
+
+      const microinvertersCount = this.microinvertersCount;
+      const acBatteriesCount = this.acBatteriesCount;
+      const qRelaysCount = this.qRelaysCount;
+
+      const ensembleInstalled = this.ensembleInstalled;
+      const enpowerInstalled = this.enpowerInstalled;
+      const enchargesCount = this.enchargesCount;
+
+      this.log('-------- %s --------', this.name);
+      this.log('Manufacturer: Enphase');
+      this.log('Model: %s', devicePn);
+      this.log('Firmware: %s', deviceSoftware);
+      this.log('SerialNr: %s', deviceSn);
+      this.log('Time: %s', time);
+      this.log('------------------------------');
+      this.log('Q-Relays: %s', qRelaysCount);
+      this.log('Inverters: %s', microinvertersCount);
+      this.log('Batteries: %s', acBatteriesCount);
+      this.log('--------------------------------');
+      this.log('Meters: %s', deviceImeter ? 'Yes' : 'No');
+      if (deviceImeter) {
+        this.log('Production: %s', metersProductionEnabled ? 'Enabled' : 'Disabled');
+        this.log('Consumption: %s', metersConsumptionEnabled ? 'Enabled' : 'Disabled');
+        this.log('--------------------------------');
+      }
+      this.log('Ensemble: %s', ensembleInstalled ? 'Yes' : 'No');
+      if (ensembleInstalled) {
+        this.log('Enpower: %s', enpowerInstalled ? 'Installed' : 'Not installed');
+        this.log('Encharges: %s', enchargesCount);
+      }
+      this.log('--------------------------------');
+
+      const updateDeviceState = !this.checkDeviceState ? this.updateDeviceState() : false;
+      this.checkDeviceInfo = false;
+    } catch (error) {
+      this.log.error('Device: %s %s, get devices info eror: %s.', this.host, this.name, error);
+      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -3933,6 +3973,14 @@ class envoyDevice {
     //envoy
     this.envoysService = new Array();
     const enphaseEnvoyService = new Service.enphaseEnvoyService('Envoy ' + this.envoySerialNumber, 'enphaseEnvoyService');
+    enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode)
+      .onGet(async () => {
+        const state = this.productionPowerMode;
+        if (!this.disableLogInfo) {
+          this.log('Device: %s %s, envoy: %s, production power mode state: %s', this.host, accessoryName, this.envoySerialNumber, state ? 'Enabled' : 'Disabled');
+        }
+        return state;
+      });
     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyAllerts)
       .onGet(async () => {
         const value = this.envoyAllerts;
@@ -4098,14 +4146,6 @@ class envoyDevice {
         }
       });
 
-    enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode)
-      .onGet(async () => {
-        const state = this.productionPowerMode;
-        if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s, production power mode state: %s', this.host, accessoryName, this.envoySerialNumber, state ? 'Enabled' : 'Disabled');
-        }
-        return state;
-      });
     this.envoysService.push(enphaseEnvoyService);
     accessory.addService(this.envoysService[0]);
 

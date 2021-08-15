@@ -50,7 +50,7 @@
             },
             "envoyDevId": {
               "title": "Envoy Device Id",
-              "type": "string",
+              "type": "integer",
               "description": "Here set envoy device Id, open http://envoy.local/backbone/application.js and search for *envoyDevId*",
               "required": false
             },
