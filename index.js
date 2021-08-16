@@ -309,9 +309,9 @@ module.exports = (api) => {
   AccessoryUUID = api.hap.uuid;
 
   //Envoy
-  class enphaseEnvoyAllerts extends Characteristic {
+  class enphaseEnvoyAlerts extends Characteristic {
     constructor() {
-      super('Allerts', '00000001-000B-1000-8000-0026BB765291');
+      super('Alerts', '00000001-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.STRING,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -319,7 +319,7 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnvoyAllerts = enphaseEnvoyAllerts;
+  Characteristic.enphaseEnvoyAlerts = enphaseEnvoyAlerts;
 
   class enphaseEnvoyPrimaryInterface extends Characteristic {
     constructor() {
@@ -555,7 +555,7 @@ module.exports = (api) => {
     constructor(displayName, subtype, ) {
       super(displayName, '00000001-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
-      this.addCharacteristic(Characteristic.enphaseEnvoyAllerts);
+      this.addCharacteristic(Characteristic.enphaseEnvoyAlerts);
       // Optional Characteristics
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm);
@@ -2094,7 +2094,7 @@ module.exports = (api) => {
   Service.enphaseEnpowerService = enphaseEnpowerService;
 
   //Enpower status
-  class enphaseEnpowerStatusFreqBasisHz extends Characteristic {
+  class enphaseEnpowerStatusFreqBiasHz extends Characteristic {
     constructor() {
       super('Frequency bias', '00000191-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2108,7 +2108,7 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnpowerStatusFreqBasisHz = enphaseEnpowerStatusFreqBasisHz;
+  Characteristic.enphaseEnpowerStatusFreqBiasHz = enphaseEnpowerStatusFreqBiasHz;
 
   class enphaseEnpowerStatusVoltageBiasV extends Characteristic {
     constructor() {
@@ -2359,7 +2359,7 @@ class envoyDevice {
     this.envoyFirmware = '';
     this.envoySoftwareBuildEpoch = 0;
     this.envoyIsEnvoy = false;
-    this.envoyAllerts = '';
+    this.envoyAlerts = '';
     this.envoyDbSize = 0;
     this.envoyDbPercentFull = 0;
     this.envoyTariff = '';
@@ -2993,7 +2993,7 @@ class envoyDevice {
         const commEnchgLevel24g = enchargesCount > 0 ? (homeData.data.comm.encharge.level_24g * 20) : 0;
         const commEnchagLevelSubg = enchargesCount > 0 ? (homeData.data.comm.encharge.level_subg * 20) : 0;
 
-        const allerts = homeData.data.allerts;
+        const alerts = homeData.data.alerts;
         const updateStatus = ENVOY_API_CODE[homeData.data.update_status] || 'undefined';
 
         //wireless connection kit
@@ -3023,16 +3023,16 @@ class envoyDevice {
 
         //convert status
         const arrStatus = new Array();
-        if (Array.isArray(allerts) && allerts.length > 0) {
-          for (let j = 0; j < allerts.length; j++) {
-            arrStatus.push(ENVOY_API_CODE[allerts[j]] || allerts[j]);
+        if (Array.isArray(alerts) && alerts.length > 0) {
+          for (let j = 0; j < alerts.length; j++) {
+            arrStatus.push(ENVOY_API_CODE[alerts[j]] || alerts[j]);
           }
         }
-        const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No allerts';
+        const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No alerts';
 
         if (this.envoysService) {
           this.envoysService[0]
-            .updateCharacteristic(Characteristic.enphaseEnvoyAllerts, status)
+            .updateCharacteristic(Characteristic.enphaseEnvoyAlerts, status)
             .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, dbSize + ' / ' + dbPercentFull + '%')
             .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, timeZone)
             .updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, currentDate + ' ' + currentTime)
@@ -3083,7 +3083,7 @@ class envoyDevice {
         this.envoyCommEnchgLevel = commEnchgLevel;
         this.commEnchgLevel24g = commEnchgLevel24g;
         this.commEnchagLevelSubg = commEnchagLevelSubg;
-        this.envoyAllerts = status;
+        this.envoyAlerts = status;
         this.envoyUpdateStatus = updateStatus;
 
         this.envoyEnpowerConnected = enpowerConnected;
@@ -3901,10 +3901,8 @@ class envoyDevice {
               .updateCharacteristic(Characteristic.enphaseEnpowerCommLevel24Ghz, commLevel24Ghz)
               .updateCharacteristic(Characteristic.enphaseEnpowerMainsAdminState, mainsAdminState)
               .updateCharacteristic(Characteristic.enphaseEnpowerMainsOperState, mainsOperState)
-              .updateCharacteristic(Characteristic.enphaseEnpowerGridMode, enpwrGridMode)
+              .updateCharacteristic(Characteristic.enphaseEnpowerEnpwrGridMode, enpwrGridMode)
               .updateCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode, enchgGridMode)
-              .updateCharacteristic(Characteristic.enphaseEnpowerRelayStateBm, enpwrRelayStateBm)
-              .updateCharacteristic(Characteristic.enphaseEnpowerCurrStateId, enpwrCurrStateId)
           }
 
           this.enpowerType = type;
@@ -4041,11 +4039,11 @@ class envoyDevice {
     //envoy
     this.envoysService = new Array();
     const enphaseEnvoyService = new Service.enphaseEnvoyService('Envoy ' + this.envoySerialNumber, 'enphaseEnvoyService');
-    enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyAllerts)
+    enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyAlerts)
       .onGet(async () => {
-        const value = this.envoyAllerts;
+        const value = this.envoyAlerts;
         if (!this.disableLogInfo) {
-          this.log('Device: %s %s, envoy: %s, allerts: %s', this.host, accessoryName, this.envoySerialNumber, value);
+          this.log('Device: %s %s, envoy: %s, alerts: %s', this.host, accessoryName, this.envoySerialNumber, value);
         }
         return value;
       });
@@ -5174,7 +5172,7 @@ class envoyDevice {
           }
           return value;
         });
-      enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnchargeStatus)
+      enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerStatus)
         .onGet(async () => {
           const value = this.enpowerStatus;
           if (!this.disableLogInfo) {
@@ -5196,7 +5194,7 @@ class envoyDevice {
       //enpower status
       this.enpowersStatusService = new Array();
       const enphaseEnpowerStatusService = new Service.enphaseEnpowerStatusService('Enpower Status ', +this.enpowerSerialNumber, 'enphaseEnpowerStatusService');
-      enphaseEnpowerStatusService.getCharacteristic(Characteristic.enphaseEnpowerStatusFreqBasisHz)
+      enphaseEnpowerStatusService.getCharacteristic(Characteristic.enphaseEnpowerStatusFreqBiasHz)
         .onGet(async () => {
           const value = this.enpowerFreqBiasHz;
           if (!this.disableLogInfo) {
