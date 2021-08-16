@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Open http://envoy.local/backbone/application.js and search for *envoyDevId*.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.2.15] - (16.08.2021)
+## Changes
+- finally fixed not reconized ensemble (enpower and encharges) devices in previous versions
+
 ## [5.2.0] - (15.08.2021)
 ## Changes
 - added possibility Enable/Disable Power Production (in envoy section)
