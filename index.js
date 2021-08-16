@@ -3728,19 +3728,19 @@ class envoyDevice {
 
       //microinverters power
       if (microinvertersInstalled && microinvertersData.status == 200) {
-        this.allMicroinvertersSerialNumber = new Array();
         this.microinvertersReadingTime = new Array();
         this.microinvertersDevType = new Array();
         this.microinvertersLastPower = new Array();
         this.microinvertersMaxPower = new Array();
 
+        const allMicroinvertersSerialNumber = new Array();
         const allMicroinvertersCount = microinvertersData.data.length;
         for (let i = 0; i < microinvertersCount; i++) {
           for (let j = 0; j < allMicroinvertersCount; j++) {
             const serialNumber = microinvertersData.data[j].serialNumber;
-            this.allMicroinvertersSerialNumber.push(serialNumber);
+            allMicroinvertersSerialNumber.push(serialNumber);
           }
-          const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
+          const index = allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
           const lastReportDate = new Date(microinvertersData.data[index].lastReportDate * 1000).toLocaleString();
           const devType = microinvertersData.data[index].devType;
           const lastReportWatts = parseInt(microinvertersData.data[index].lastReportWatts);
@@ -3762,9 +3762,9 @@ class envoyDevice {
       }
 
       //ensemble inventory
-      if (ensembleInventoryData.status == 200) {
-        //encharges
-        if (enchargesInstalled) {
+      if (ensembleInstalled) {
+        if (enchargesInstalled && ensembleInventoryData.status == 200) {
+          //encharges
           this.enchargesSerialNumber = new Array();
           this.enchargesStatus = new Array();
           this.enchargesLastReportDate = new Array();
@@ -3802,8 +3802,8 @@ class envoyDevice {
             const percentFull = ensembleInventoryData.data[0].devices[i].percentFull;
             const temperature = ensembleInventoryData.data[0].devices[i].temperature;
             const maxCellTemp = ensembleInventoryData.data[0].devices[i].maxCellTemp;
-            const commLevelSubGhz = ensembleInventoryData.data[0].devices[i].comm_level_sub_ghz;
-            const commLevel24Ghz = ensembleInventoryData.data[0].devices[i].comm_level_2_4_ghz;
+            const commLevelSubGhz = (ensembleInventoryData.data[0].devices[i].comm_level_sub_ghz * 20);
+            const commLevel24Ghz = (ensembleInventoryData.data[0].devices[i].comm_level_2_4_ghz * 20);
             const ledStatus = ENCHARGE_LED_STATUS[ensembleInventoryData.data[0].devices[i].led_status] || 'undefined';
             const realPowerW = parseFloat((ensembleInventoryData.data[0].devices[i].real_power_w) / 1000); // in kW
             const dcSwitchOff = ensembleInventoryData.data[0].devices[i].dc_switch_off;
@@ -3860,8 +3860,9 @@ class envoyDevice {
           this.enchargesType = type;
         }
 
-        //enpower
-        if (enpowerInstalled) {
+        //enpower data
+        if (enpowerInstalled && ensembleInventoryData.status == 200) {
+          //enpower
           const type = ENVOY_API_CODE[ensembleInventoryData.data[1].type] || 'undefined';
           const partNum = ENPHASE_PART_NUMBER[ensembleInventoryData.data[1].devices[0].part_num] || 'undefined'
           const installed = new Date(ensembleInventoryData.data[1].devices[0].installed * 1000).toLocaleString();
@@ -3875,10 +3876,10 @@ class envoyDevice {
           const imgPnumRunning = ensembleInventoryData.data[1].devices[0].img_pnum_running;
           const zigbeeDongleFwVersion = ensembleInventoryData.data[1].devices[0].zigbee_dongle_fw_version;
           const operating = (ensembleInventoryData.data[1].devices[0].operating == true);
-          const communicating = (ensembleInventoryData.data[1].devices[0].communicating == true);;
+          const communicating = (ensembleInventoryData.data[1].devices[0].communicating == true);
           const temperature = ensembleInventoryData.data[1].devices[0].temperature;
-          const commLevelSubGhz = ensembleInventoryData.data[1].devices[0].comm_level_sub_ghz;
-          const commLevel24Ghz = ensembleInventoryData.data[1].devices[0].comm_level_2_4_ghz;
+          const commLevelSubGhz = (ensembleInventoryData.data[1].devices[0].comm_level_sub_ghz * 20);
+          const commLevel24Ghz = (ensembleInventoryData.data[1].devices[0].comm_level_2_4_ghz * 20);
           const mainsAdminState = ENVOY_API_CODE[ensembleInventoryData.data[1].devices[0].mains_admin_state] || 'undefined';
           const mainsOperState = ENVOY_API_CODE[ensembleInventoryData.data[1].devices[0].mains_oper_state] || 'undefined';
           const enpwrGridMode = ENVOY_API_CODE[ensembleInventoryData.data[1].devices[0].Enpwr_grid_mode] || 'undefined';
@@ -3937,184 +3938,185 @@ class envoyDevice {
           this.enpowerId = id;
           this.enpowerGridProfileVersion = gridProfileVersion;
           this.enpowerItemCount = itemCount;
+        }
 
-          //ensemble status
-          if (ensembleStatusData.status == 200) {
-            //inventory
-            const ensembleStatusSerialsNumbers = new Array();
-            ensembleStatusSerialsNumbers.push(this.enchargesSerialNumber, this.enpowerSerialNumber);
+        //ensemble status
+        if (ensembleStatusData.status == 200) {
+          //inventory
+          const serialNumbers = ensembleStatusData.data.inventory.serial_nums;
+          const objSerialNumbers = Object.keys(serialNumbers);
+          const serialNumbersCount = objSerialNumbers.length;
+          for (let i = 0; i < serialNumbersCount; i++) {
+            const key = objSerialNumbers[i];
+            const deviceType = ensembleStatusData.data.inventory.serial_nums[key].device_type;
+            const adminState = ensembleStatusData.data.inventory.serial_nums[key].admin_state;
+            const adminStateStr = ensembleStatusData.data.inventory.serial_nums[key].admin_state_str;
+            const reportedGridMode = ensembleStatusData.data.inventory.serial_nums[key].reported_grid_mode;
+            const msgRetryCoun = ensembleStatusData.data.inventory.serial_nums[key].msg_retry_count;
+            const partNumber = ensembleStatusData.data.inventory.serial_nums[key].part_number;
+            const assemblyNumber = ensembleStatusData.data.inventory.serial_nums[key].assembly_number;
+            const appFwVersion = ensembleStatusData.data.inventory.serial_nums[key].app_fw_version;
+            const zbFwVersion = ensembleStatusData.data.inventory.serial_nums[key].zb_fw_version;
+            const zbBootloaderVers = ensembleStatusData.data.inventory.serial_nums[key].zb_bootloader_vers;
+            const iblFwVersion = ensembleStatusData.data.inventory.serial_nums[key].ibl_fw_version;
+            const swiftAsicFwVersion = ensembleStatusData.data.inventory.serial_nums[key].swift_asic_fw_version;
+            const submodulesCount = ensembleStatusData.data.inventory.serial_nums[key].submodule_count;
+            const submodulesKeys = ensembleStatusData.data.inventory.serial_nums[key].submodules;
 
-            const ensembleDevicesCount = 0 //(ensembleStatusSerialsNumbers.length);
-            const serialNums = ensembleStatusData.data.inventory.serial_nums;
-            for (let i = 0; i < ensembleDevicesCount; i++) {
-              const key = '' + ensembleStatusSerialsNumbers[i] + '';
-              const deviceType = ensembleStatusData.data.inventory.serial_nums[key].device_type;
-              const adminState = ensembleStatusData.data.inventory.serial_nums[key].admin_state;
-              const adminStateStr = ensembleStatusData.data.inventory.serial_nums[key].admin_state_str;
-              const reportedGridMode = ensembleStatusData.data.inventory.serial_nums[key].reported_grid_mode;
-              const msgRetryCoun = ensembleStatusData.data.inventory.serial_nums[key].msg_retry_count;
-              const partNumber = ensembleStatusData.data.inventory.serial_nums[key].part_number;
-              const assemblyNumber = ensembleStatusData.data.inventory.serial_nums[key].assembly_number;
-              const appFwVersion = ensembleStatusData.data.inventory.serial_nums[key].app_fw_version;
-              const serrizbFwVersion = ensembleStatusData.data.inventory.serial_nums[key].zb_fw_version;
-              const zbBootloaderVers = ensembleStatusData.data.inventory.serial_nums[key].zb_bootloader_vers;
-              const iblFwVersion = ensembleStatusData.data.inventory.serial_nums[key].ibl_fw_version;
-              const swiftAsicFwVersion = ensembleStatusData.data.inventory.serial_nums[key].swift_asic_fw_version;
-              const submodulesCount = ensembleStatusData.data.inventory.serial_nums[key].submodule_count;
-              for (let j = 0; j < submodulesCount; j++) {
-                const key1 = '' + ensembleStatusData.data.inventory.serial_nums[key].submodules[j] + '';
-                const submodulesDeviceType = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].device_type;
-                const submodulesAdminState = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].admin_state;
-                const submodulesPartNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].part_number;
-                const submodulesAssemblyNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].assembly_number;
-                const submodulesDmirPartNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].dmir.part_number;
-                const submodulesDmirAssemblyNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].dmir.assembly_number;
-                const submodulesProcloadPartNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].procload.part_number;
-                const submodulesProcloadAssemblyNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].procload.assembly_number;
-              }
+            const submodulesSerialNumbers = ensembleStatusData.data.inventory.serial_numskey[key].submodules;
+            const objSubmodulesSerialNumbers = Object.keys(submodulesSerialNumbers);
+            const submodulesSerialNumbersCount = objSubmodulesSerialNumbers.length;
+            for (let j = 0; j < submodulesSerialNumbersCount; j++) {
+              const key1 = objSubmodulesSerialNumbers[j];
+              const submodulesDeviceType = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].device_type;
+              const submodulesAdminState = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].admin_state;
+              const submodulesPartNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].part_number;
+              const submodulesAssemblyNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].assembly_number;
+              const submodulesDmirPartNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].dmir.part_number;
+              const submodulesDmirAssemblyNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].dmir.assembly_number;
+              const submodulesProcloadPartNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].procload.part_number;
+              const submodulesProcloadAssemblyNumber = ensembleStatusData.data.inventory.serial_nums[key].submodules[key1].procload.assembly_number;
             }
-
-            //counters
-            const apiEcagtInit = ensembleStatusData.data.counters.api_ecagtInit;
-            const apiEcagtTick = ensembleStatusData.data.counters.api_ecagtTick;
-            const apiEcagtDeviceInsert = ensembleStatusData.data.counters.api_ecagtDeviceInsert;
-            const apiEcagtDeviceNetworkStatus = ensembleStatusData.data.counters.api_ecagtDeviceNetworkStatus;
-            const apiEcagtDeviceRemoved = ensembleStatusData.data.counters.api_ecagtDeviceRemoved;
-            const apiEcagtGetDeviceCount = ensembleStatusData.data.counters.api_ecagtGetDeviceCount;
-            const apiEcagtGetDeviceInfo = ensembleStatusData.data.counters.api_ecagtGetDeviceInfo;
-            const apiEcagtGetOneDeviceInfo = ensembleStatusData.data.counters.api_ecagtGetOneDeviceInfo;
-            const apiEcagtDevIdToSerial = ensembleStatusData.data.counters.api_ecagtDevIdToSerial;
-            const apiEcagtHandleMsg = ensembleStatusData.data.counters.api_ecagtHandleMsg;
-            const apiEcagtGetSubmoduleInv = ensembleStatusData.data.counters.api_ecagtGetSubmoduleInv;
-            const apiEcagtGetDataModelRaw = ensembleStatusData.data.counters.api_ecagtGetDataModelRaw;
-            const apiEcagtSetSecCtrlBias = ensembleStatusData.data.counters.api_ecagtSetSecCtrlBias;
-            const apiEcagtGetSecCtrlBias = ensembleStatusData.data.counters.api_ecagtGetSecCtrlBias;
-            const apiEcagtGetSecCtrlBiasQ = ensembleStatusData.data.counters.api_ecagtGetSecCtrlBiasQ;
-            const apiEcagtSetRelayAdmin = ensembleStatusData.data.counters.api_ecagtSetRelayAdmin;
-            const apiEcagtGetRelayState = ensembleStatusData.data.counters.api_ecagtGetRelayState;
-            const apiEcagtSetDataModelCache = ensembleStatusData.data.counters.api_ecagtSetDataModelCache;
-            const apiAggNameplate = ensembleStatusData.data.counters.api_AggNameplate;
-            const apiChgEstimated = ensembleStatusData.data.counters.api_ChgEstimated;
-            const apiEcagtGetGridFreq = ensembleStatusData.data.counters.api_ecagtGetGridFreq;
-            const apiEcagtGetGridVolt = ensembleStatusData.data.counters.api_ecagtGetGridVolt;
-            const apiEcagtGetGridFreqErrNotfound = ensembleStatusData.data.counters.api_ecagtGetGridFreq_err_notfound;
-            const apiEcagtGetGridFreqErrOor = ensembleStatusData.data.counters.api_ecagtGetGridFreq_err_oor;
-            const restStatusGet = ensembleStatusData.data.counters.rest_StatusGet;
-            const restInventoryGet = ensembleStatusData.data.counters.rest_InventoryGet;
-            const restSubmodGet = ensembleStatusData.data.counters.rest_SubmodGet;
-            const restSecCtrlGet = ensembleStatusData.data.counters.rest_SecCtrlGet;
-            const restRelayGet = ensembleStatusData.data.counters.rest_RelayGet;
-            const restRelayPost = ensembleStatusData.data.counters.rest_RelayPost;
-            const restCommCheckGet = ensembleStatusData.data.counters.rest_CommCheckGet;
-            const restPower = ensembleStatusData.data.counters.rest_Power;
-            const extZbRemove = ensembleStatusData.data.counters.ext_zb_remove;
-            const extZbRemoveErr = ensembleStatusData.data.counters.ext_zb_remove_err;
-            const extZbSendMsg = ensembleStatusData.data.counters.ext_zb_send_msg;
-            const extCfgSaveDevice = ensembleStatusData.data.counters.ext_cfg_save_device;
-            const extCfgSaveDeviceErr = ensembleStatusData.data.counters.ext_cfg_save_device_err;
-            const extSendPerfData = ensembleStatusData.data.counters.ext_send_perf_data;
-            const extEventSetStateful = ensembleStatusData.data.counters.ext_event_set_stateful;
-            const extEventSetModgone = ensembleStatusData.data.counters.ext_event_set_modgone;
-            const rxmsgObjMdlMetaRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_META_RSP;
-            const rxmsgObjMdlInvUpdRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_INV_UPD_RSP;
-            const rxmsgObjMdlPollRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_POLL_RSP;
-            const rxmsgObjMdlRelayCtrlRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_RELAY_CTRL_RSP;
-            const rxmsgObjMdlRelayStatusReq = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_RELAY_STATUS_REQ;
-            const rxmsgObjMdlGridStatusRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_GRID_STATUS_RSP;
-            const rxmsgObjMdlEventMsg = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_EVENT_MSG;
-            const rxmsgObjMdlSosConfigRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_SOC_CONFIG_RSP;
-            const txmsgObjMdlMetaReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_META_REQ;
-            const txmsgObjMdlEncRtPollReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_ENC_RT_POLL_REQ;
-            const txmsgObjMdlEnpRtPollReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_ENP_RT_POLL_REQ;
-            const txmsgObjMdlBmuPollReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_BMU_POLL_REQ;
-            const txmsgObjMdlPcuPollReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_PCU_POLL_REQ;
-            const txmsgObjMdlSecondaryCtrlReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_SECONDARY_CTRL_REQ;
-            const txmsgObjMdlRelayCtrlReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_RELAY_CTRL_REQ;
-            const txmsgObjMdlGridStatusReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_GRID_STATUS_REQ
-            const txmsgObjMdlRelayStatusRsp = ensembleStatusData.data.counters.txmsg_OBJ_MDL_RELAY_STATUS_RSP;
-            const txmsgObjMdlcosConfigReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_SOC_CONFIG_REQ;
-            const txmsgObjMdlTnsStart = ensembleStatusData.data.counters.txmsg_OBJ_MDL_TNS_START;
-            const rxmsgObjMdlTnsStartRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_TNS_START_RSP;
-            const txmsgObjMdlSetUdmir = ensembleStatusData.data.counters.txmsg_OBJ_MDL_SET_UDMIR;
-            const rxmsgObjMdlSetUdmirRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_SET_UDMIR_RSP;
-            const txmsgObjMdlTnsEdn = ensembleStatusData.data.counters.txmsg_OBJ_MDL_TNS_END;
-            const rxmsgObjMdlTnsEndRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_TNS_END_RSP;
-            const txmsgLvsPoll = ensembleStatusData.data.counters.txmsg_lvs_poll;
-            const zmqEcaHello = ensembleStatusData.data.counters.zmq_ecaHello;
-            const zmqEcaDevInfo = ensembleStatusData.data.counters.zmq_ecaDevInfo;
-            const zmqEcaNetworkStatus = ensembleStatusData.data.counters.zmq_ecaNetworkStatus;
-            const zmqEcaAppMsg = ensembleStatusData.data.counters.zmq_ecaAppMsg;
-            const zmqStreamdata = ensembleStatusData.data.counters.zmq_streamdata;
-            const zmqLiveDebug = ensembleStatusData.data.counters.zmq_live_debug;
-            const zmqEcaLiveDebugReq = ensembleStatusData.data.counters.zmq_eca_live_debug_req;
-            const zmqNameplate = ensembleStatusData.data.counters.zmq_nameplate;
-            const zmqEcaSecCtrlMsg = ensembleStatusData.data.counters.zmq_ecaSecCtrlMsg;
-            const zmqMeterlogOk = ensembleStatusData.data.counters.zmq_meterlog_ok;
-            const dmdlFilesIndexed = ensembleStatusData.data.counters.dmdl_FILES_INDEXED;
-            const pfStart = ensembleStatusData.data.counters.pf_start;
-            const pfActivate = ensembleStatusData.data.counters.pf_activate;
-            const devPollMissing = ensembleStatusData.data.counters.devPollMissing;
-            const devMsgRspMissing = ensembleStatusData.data.counters.devMsgRspMissing;
-            const gridProfileTransaction = ensembleStatusData.data.counters.gridProfileTransaction;
-            const secctrlNotReady = ensembleStatusData.data.counters.secctrlNotReady;
-            const fsmRetryTimeout = ensembleStatusData.data.counters.fsm_retry_timeout;
-            const profileTxnAck = ensembleStatusData.data.counters.profile_txn_ack;
-            const backupSocLimitSet = ensembleStatusData.data.counters.backupSocLimitSet;
-            const backupSocLimitChanged = ensembleStatusData.data.counters.backupSocLimitChanged;
-            const backupSocLimitAbove100 = ensembleStatusData.data.counters.backupSocLimitAbove100;
-
-
-            //secctrl
-            const freqBiasHz = ensembleStatusData.data.secctrl.freq_bias_hz;
-            const voltageBiasV = ensembleStatusData.data.secctrl.voltage_bias_v;
-            const freqBiasHzQ8 = ensembleStatusData.data.secctrl.freq_bias_hz_q8;
-            const voltageBiasVQ5 = ensembleStatusData.data.secctrl.voltage_bias_v_q5;
-            const configuredBackupSoc = ensembleStatusData.data.secctrl.configured_backup_soc; //in %
-            const adjustedBackupSoc = ensembleStatusData.data.secctrl.adjusted_backup_soc; //in %
-            const aggSoc = ensembleStatusData.data.secctrl.agg_soc; //in %
-            const aggBackupEnergy = parseFloat((ensembleStatusData.data.secctrl.agg_backup_energy) / 1000); //in kWh
-            const aggAvailEnergy = parseFloat((ensembleStatusData.data.secctrl.agg_avail_energy) / 1000); //in kWh
-
-            //relay
-            const mainsAdminState = ENVOY_API_CODE[ensembleStatusData.data.relay.mains_admin_state] || 'undefined';
-            const mainsOperState = ENVOY_API_CODE[ensembleStatusData.data.relay.mains_oper_sate] || 'undefined';
-            const enpwrGridMode = ENVOY_API_CODE[ensembleStatusData.data.relay.Enpwr_grid_mode] || 'undefined';
-            const enchgGridMode = ENVOY_API_CODE[ensembleStatusData.data.relay.Enchg_grid_mode] || 'undefined';
-
-            //profile
-            const name = ensembleStatusData.data.profile.name;
-            const id = ensembleStatusData.data.profile.id;
-            const version = ensembleStatusData.data.profile.version;
-            const itemCount = ensembleStatusData.data.profile.item_count;
-
-            const fakeInventoryMode = ensembleStatusData.data.fakeit.fake_inventory_mode;
-
-            if (this.enpowersStatusService) {
-              this.enpowersStatusService[0]
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusFreqBiasHz, freqBiasHz)
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusVoltageBiasV, voltageBiasV)
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusFreqBiasHzQ8, freqBiasHzQ8)
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusVoltageBiasVQ5, voltageBiasVQ5)
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusConfiguredBackupSoc, configuredBackupSoc)
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusAdjustedBackupSoc, adjustedBackupSoc)
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggSoc, aggSoc)
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggBackupEnergy, aggBackupEnergy)
-                .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggAvailEnergy, aggAvailEnergy);
-            }
-
-            this.enpowerFreqBiasHz = freqBiasHz;
-            this.enpowerVoltageBiasV = voltageBiasV;
-            this.enpowerFreqBiasHzQ8 = freqBiasHzQ8;
-            this.enpowerVoltageBiasVQ5 = voltageBiasVQ5;
-            this.enpowerConfiguredBackupSoc = configuredBackupSoc;
-            this.enpowerAdjustedBackupSoc = adjustedBackupSoc;
-            this.enpowerAggSoc = aggSoc;
-            this.enpowerAggBackupEnergy = aggBackupEnergy;
-            this.enpowerAggAvailEnergy = aggAvailEnergy;
           }
+
+          //counters
+          const apiEcagtInit = ensembleStatusData.data.counters.api_ecagtInit;
+          const apiEcagtTick = ensembleStatusData.data.counters.api_ecagtTick;
+          const apiEcagtDeviceInsert = ensembleStatusData.data.counters.api_ecagtDeviceInsert;
+          const apiEcagtDeviceNetworkStatus = ensembleStatusData.data.counters.api_ecagtDeviceNetworkStatus;
+          const apiEcagtDeviceRemoved = ensembleStatusData.data.counters.api_ecagtDeviceRemoved;
+          const apiEcagtGetDeviceCount = ensembleStatusData.data.counters.api_ecagtGetDeviceCount;
+          const apiEcagtGetDeviceInfo = ensembleStatusData.data.counters.api_ecagtGetDeviceInfo;
+          const apiEcagtGetOneDeviceInfo = ensembleStatusData.data.counters.api_ecagtGetOneDeviceInfo;
+          const apiEcagtDevIdToSerial = ensembleStatusData.data.counters.api_ecagtDevIdToSerial;
+          const apiEcagtHandleMsg = ensembleStatusData.data.counters.api_ecagtHandleMsg;
+          const apiEcagtGetSubmoduleInv = ensembleStatusData.data.counters.api_ecagtGetSubmoduleInv;
+          const apiEcagtGetDataModelRaw = ensembleStatusData.data.counters.api_ecagtGetDataModelRaw;
+          const apiEcagtSetSecCtrlBias = ensembleStatusData.data.counters.api_ecagtSetSecCtrlBias;
+          const apiEcagtGetSecCtrlBias = ensembleStatusData.data.counters.api_ecagtGetSecCtrlBias;
+          const apiEcagtGetSecCtrlBiasQ = ensembleStatusData.data.counters.api_ecagtGetSecCtrlBiasQ;
+          const apiEcagtSetRelayAdmin = ensembleStatusData.data.counters.api_ecagtSetRelayAdmin;
+          const apiEcagtGetRelayState = ensembleStatusData.data.counters.api_ecagtGetRelayState;
+          const apiEcagtSetDataModelCache = ensembleStatusData.data.counters.api_ecagtSetDataModelCache;
+          const apiAggNameplate = ensembleStatusData.data.counters.api_AggNameplate;
+          const apiChgEstimated = ensembleStatusData.data.counters.api_ChgEstimated;
+          const apiEcagtGetGridFreq = ensembleStatusData.data.counters.api_ecagtGetGridFreq;
+          const apiEcagtGetGridVolt = ensembleStatusData.data.counters.api_ecagtGetGridVolt;
+          const apiEcagtGetGridFreqErrNotfound = ensembleStatusData.data.counters.api_ecagtGetGridFreq_err_notfound;
+          const apiEcagtGetGridFreqErrOor = ensembleStatusData.data.counters.api_ecagtGetGridFreq_err_oor;
+          const restStatusGet = ensembleStatusData.data.counters.rest_StatusGet;
+          const restInventoryGet = ensembleStatusData.data.counters.rest_InventoryGet;
+          const restSubmodGet = ensembleStatusData.data.counters.rest_SubmodGet;
+          const restSecCtrlGet = ensembleStatusData.data.counters.rest_SecCtrlGet;
+          const restRelayGet = ensembleStatusData.data.counters.rest_RelayGet;
+          const restRelayPost = ensembleStatusData.data.counters.rest_RelayPost;
+          const restCommCheckGet = ensembleStatusData.data.counters.rest_CommCheckGet;
+          const restPower = ensembleStatusData.data.counters.rest_Power;
+          const extZbRemove = ensembleStatusData.data.counters.ext_zb_remove;
+          const extZbRemoveErr = ensembleStatusData.data.counters.ext_zb_remove_err;
+          const extZbSendMsg = ensembleStatusData.data.counters.ext_zb_send_msg;
+          const extCfgSaveDevice = ensembleStatusData.data.counters.ext_cfg_save_device;
+          const extCfgSaveDeviceErr = ensembleStatusData.data.counters.ext_cfg_save_device_err;
+          const extSendPerfData = ensembleStatusData.data.counters.ext_send_perf_data;
+          const extEventSetStateful = ensembleStatusData.data.counters.ext_event_set_stateful;
+          const extEventSetModgone = ensembleStatusData.data.counters.ext_event_set_modgone;
+          const rxmsgObjMdlMetaRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_META_RSP;
+          const rxmsgObjMdlInvUpdRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_INV_UPD_RSP;
+          const rxmsgObjMdlPollRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_POLL_RSP;
+          const rxmsgObjMdlRelayCtrlRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_RELAY_CTRL_RSP;
+          const rxmsgObjMdlRelayStatusReq = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_RELAY_STATUS_REQ;
+          const rxmsgObjMdlGridStatusRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_GRID_STATUS_RSP;
+          const rxmsgObjMdlEventMsg = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_EVENT_MSG;
+          const rxmsgObjMdlSosConfigRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_SOC_CONFIG_RSP;
+          const txmsgObjMdlMetaReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_META_REQ;
+          const txmsgObjMdlEncRtPollReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_ENC_RT_POLL_REQ;
+          const txmsgObjMdlEnpRtPollReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_ENP_RT_POLL_REQ;
+          const txmsgObjMdlBmuPollReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_BMU_POLL_REQ;
+          const txmsgObjMdlPcuPollReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_PCU_POLL_REQ;
+          const txmsgObjMdlSecondaryCtrlReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_SECONDARY_CTRL_REQ;
+          const txmsgObjMdlRelayCtrlReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_RELAY_CTRL_REQ;
+          const txmsgObjMdlGridStatusReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_GRID_STATUS_REQ
+          const txmsgObjMdlRelayStatusRsp = ensembleStatusData.data.counters.txmsg_OBJ_MDL_RELAY_STATUS_RSP;
+          const txmsgObjMdlcosConfigReq = ensembleStatusData.data.counters.txmsg_OBJ_MDL_SOC_CONFIG_REQ;
+          const txmsgObjMdlTnsStart = ensembleStatusData.data.counters.txmsg_OBJ_MDL_TNS_START;
+          const rxmsgObjMdlTnsStartRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_TNS_START_RSP;
+          const txmsgObjMdlSetUdmir = ensembleStatusData.data.counters.txmsg_OBJ_MDL_SET_UDMIR;
+          const rxmsgObjMdlSetUdmirRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_SET_UDMIR_RSP;
+          const txmsgObjMdlTnsEdn = ensembleStatusData.data.counters.txmsg_OBJ_MDL_TNS_END;
+          const rxmsgObjMdlTnsEndRsp = ensembleStatusData.data.counters.rxmsg_OBJ_MDL_TNS_END_RSP;
+          const txmsgLvsPoll = ensembleStatusData.data.counters.txmsg_lvs_poll;
+          const zmqEcaHello = ensembleStatusData.data.counters.zmq_ecaHello;
+          const zmqEcaDevInfo = ensembleStatusData.data.counters.zmq_ecaDevInfo;
+          const zmqEcaNetworkStatus = ensembleStatusData.data.counters.zmq_ecaNetworkStatus;
+          const zmqEcaAppMsg = ensembleStatusData.data.counters.zmq_ecaAppMsg;
+          const zmqStreamdata = ensembleStatusData.data.counters.zmq_streamdata;
+          const zmqLiveDebug = ensembleStatusData.data.counters.zmq_live_debug;
+          const zmqEcaLiveDebugReq = ensembleStatusData.data.counters.zmq_eca_live_debug_req;
+          const zmqNameplate = ensembleStatusData.data.counters.zmq_nameplate;
+          const zmqEcaSecCtrlMsg = ensembleStatusData.data.counters.zmq_ecaSecCtrlMsg;
+          const zmqMeterlogOk = ensembleStatusData.data.counters.zmq_meterlog_ok;
+          const dmdlFilesIndexed = ensembleStatusData.data.counters.dmdl_FILES_INDEXED;
+          const pfStart = ensembleStatusData.data.counters.pf_start;
+          const pfActivate = ensembleStatusData.data.counters.pf_activate;
+          const devPollMissing = ensembleStatusData.data.counters.devPollMissing;
+          const devMsgRspMissing = ensembleStatusData.data.counters.devMsgRspMissing;
+          const gridProfileTransaction = ensembleStatusData.data.counters.gridProfileTransaction;
+          const secctrlNotReady = ensembleStatusData.data.counters.secctrlNotReady;
+          const fsmRetryTimeout = ensembleStatusData.data.counters.fsm_retry_timeout;
+          const profileTxnAck = ensembleStatusData.data.counters.profile_txn_ack;
+          const backupSocLimitSet = ensembleStatusData.data.counters.backupSocLimitSet;
+          const backupSocLimitChanged = ensembleStatusData.data.counters.backupSocLimitChanged;
+          const backupSocLimitAbove100 = ensembleStatusData.data.counters.backupSocLimitAbove100;
+
+          //secctrl
+          const freqBiasHz = ensembleStatusData.data.secctrl.freq_bias_hz;
+          const voltageBiasV = ensembleStatusData.data.secctrl.voltage_bias_v;
+          const freqBiasHzQ8 = ensembleStatusData.data.secctrl.freq_bias_hz_q8;
+          const voltageBiasVQ5 = ensembleStatusData.data.secctrl.voltage_bias_v_q5;
+          const configuredBackupSoc = ensembleStatusData.data.secctrl.configured_backup_soc; //in %
+          const adjustedBackupSoc = ensembleStatusData.data.secctrl.adjusted_backup_soc; //in %
+          const aggSoc = ensembleStatusData.data.secctrl.agg_soc; //in %
+          const aggBackupEnergy = parseFloat((ensembleStatusData.data.secctrl.agg_backup_energy) / 1000); //in kWh
+          const aggAvailEnergy = parseFloat((ensembleStatusData.data.secctrl.agg_avail_energy) / 1000); //in kWh
+
+          //relay
+          const mainsAdminState = ENVOY_API_CODE[ensembleStatusData.data.relay.mains_admin_state] || 'undefined';
+          const mainsOperState = ENVOY_API_CODE[ensembleStatusData.data.relay.mains_oper_sate] || 'undefined';
+          const enpwrGridMode = ENVOY_API_CODE[ensembleStatusData.data.relay.Enpwr_grid_mode] || 'undefined';
+          const enchgGridMode = ENVOY_API_CODE[ensembleStatusData.data.relay.Enchg_grid_mode] || 'undefined';
+
+          //profile
+          const name = ensembleStatusData.data.profile.name;
+          const id = ensembleStatusData.data.profile.id;
+          const version = ensembleStatusData.data.profile.version;
+          const itemCount = ensembleStatusData.data.profile.item_count;
+
+          const fakeInventoryMode = ensembleStatusData.data.fakeit.fake_inventory_mode;
+
+          if (this.enpowersStatusService) {
+            this.enpowersStatusService[0]
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusFreqBiasHz, freqBiasHz)
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusVoltageBiasV, voltageBiasV)
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusFreqBiasHzQ8, freqBiasHzQ8)
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusVoltageBiasVQ5, voltageBiasVQ5)
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusConfiguredBackupSoc, configuredBackupSoc)
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusAdjustedBackupSoc, adjustedBackupSoc)
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggSoc, aggSoc)
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggBackupEnergy, aggBackupEnergy)
+              .updateCharacteristic(Characteristic.enphaseEnpowerStatusAggAvailEnergy, aggAvailEnergy);
+          }
+
+          this.enpowerFreqBiasHz = freqBiasHz;
+          this.enpowerVoltageBiasV = voltageBiasV;
+          this.enpowerFreqBiasHzQ8 = freqBiasHzQ8;
+          this.enpowerVoltageBiasVQ5 = voltageBiasVQ5;
+          this.enpowerConfiguredBackupSoc = configuredBackupSoc;
+          this.enpowerAdjustedBackupSoc = adjustedBackupSoc;
+          this.enpowerAggSoc = aggSoc;
+          this.enpowerAggBackupEnergy = aggBackupEnergy;
+          this.enpowerAggAvailEnergy = aggAvailEnergy;
         }
       }
-
       this.checkDeviceState = true;
 
       //start prepare accessory
