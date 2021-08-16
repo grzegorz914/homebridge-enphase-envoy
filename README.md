@@ -36,10 +36,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - If used with Hoobs, there is a possible configuration incompatibilty.
 - Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
-### Info v5.2.x and above!!!
-1. Added system Power Production Enable/Disable (in envoy section), required *envoyDevId*.
-### Info v5.1.x and above!!!
-1. Version 5.1.x finally detects Ensemble, Encharges and Enpowers (Installer password nedded).
+### Info v5.2.15 and above!!!
+1. Added system Power Production Enable/Disable (required *envoyDevId*).
+2. Finally detects Ensemble, Encharges and Enpowers (required *installerPasswd*).
 ### Info v4.x.x and above!!!
 1. Version 4.0.0 whole new concept.
 2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters,).
