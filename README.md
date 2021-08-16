@@ -21,16 +21,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | [Homebridge](https://github.com/homebridge/homebridge) | Required | 
 | [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) | Highly Recommended |
 
-## Note
+### Note
 - For homebridge-enphase-envoy versions 4.5.0 and above the minimum required version of Homebridge is 1.3.x.
 - New authorizatin method (firmware 7.x.x) will be added after Enphase release technical brief about this changes.
-
-## Power Production
-- You can issue a task for the Envoy to Enable/Disable power production on the microinverters that are communicating with it. 
-- On a typical system during daylight hours, the Envoy will receive and execute the task within 15 minutes.
-- This action require *envoyDevId*. 
-- Open http://envoy.local/backbone/application.js and search for *envoyDevId*.
-- More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
 ### Know issues
 - If used with Hoobs, there is a possible configuration incompatibilty.
@@ -41,13 +34,13 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 2. Finally detects Ensemble, Encharges and Enpowers (required *installerPasswd*).
 ### Info v4.x.x and above!!!
 1. Version 4.0.0 whole new concept.
-2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters,).
+2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
 3. Envoy authentication is detected automatically or can be added in config if was chenged.
 4. For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 5. Installer Password which is nedded to read communications level of (Microinverters, Q-Relays, AC Batteries) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 
 ### Info v3.x.x
-1. With release v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
+1. From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
 
 ### Info v2.3.x
 1. The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
@@ -57,6 +50,13 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 5. Peak Level (W) - display the maximum Power production/consumption.
 6. Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
 7. Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
+
+## Power Production
+- You can issue a task for the Envoy to Enable/Disable power production on the microinverters that are communicating with it. 
+- On a typical system during daylight hours, the Envoy will receive and execute the task within 15 minutes.
+- This action require *envoyDevId*. 
+- Open http://envoy.local/backbone/application.js and search for *envoyDevId*.
+- More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
 ## Installation
 1. Follow the step-by-step instructions on the [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) for how to install Homebridge.
