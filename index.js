@@ -66,7 +66,9 @@ const ENPHASE_PART_NUMBER = {
   //Encharges 3
   '830-00703-r75': 'B03-A01-US00-1-3',
   //Encharges 10
-  'xxx-xxxxx-xx2': 'ENCHARGE-10-1P-NA'
+  'xxx-xxxxx-xx2': 'ENCHARGE-10-1P-NA',
+  //Wirelles connection kit
+  'xxx-xxxxx-xx3': 'COMMS-KIT-01'
 };
 
 const ENVOY_API_URL = {
@@ -2130,6 +2132,7 @@ module.exports = (api) => {
     constructor() {
       super('Frequency bias Q8', '00000193-000B-1000-8000-0026BB765291');
       this.setProps({
+        format: Characteristic.Formats.FLOAT,
         unit: 'Hz',
         maxValue: 10000,
         minValue: -10000,
@@ -2161,6 +2164,7 @@ module.exports = (api) => {
     constructor() {
       super('Configured backup SoC', '00000195-000B-1000-8000-0026BB765291');
       this.setProps({
+        format: Characteristic.Formats.FLOAT,
         unit: '%',
         maxValue: 100,
         minValue: 0,
@@ -2176,6 +2180,7 @@ module.exports = (api) => {
     constructor() {
       super('Adjusted backup SoC', '00000196-000B-1000-8000-0026BB765291');
       this.setProps({
+        format: Characteristic.Formats.FLOAT,
         unit: '%',
         maxValue: 100,
         minValue: 0,
@@ -2191,6 +2196,7 @@ module.exports = (api) => {
     constructor() {
       super('AGG SoC', '00000197-000B-1000-8000-0026BB765291');
       this.setProps({
+        format: Characteristic.Formats.FLOAT,
         unit: '%',
         maxValue: 100,
         minValue: 0,
@@ -2206,6 +2212,7 @@ module.exports = (api) => {
     constructor() {
       super('AGG backup energy', '00000198-000B-1000-8000-0026BB765291');
       this.setProps({
+        format: Characteristic.Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000,
         minValue: 0,
@@ -2221,6 +2228,7 @@ module.exports = (api) => {
     constructor() {
       super('AGG available energy', '00000199-000B-1000-8000-0026BB765291');
       this.setProps({
+        format: Characteristic.Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000,
         minValue: 0,
@@ -2250,6 +2258,77 @@ module.exports = (api) => {
     }
   }
   Service.enphaseEnpowerStatusService = enphaseEnpowerStatusService;
+
+  //Wireless connection kit
+  class enphaseWirelessConnectionKitType extends Characteristic {
+    constructor() {
+      super('Type', '00000210-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseWirelessConnectionKitType = enphaseWirelessConnectionKitType;
+
+  class enphaseWirelessConnectionKitConnected extends Characteristic {
+    constructor() {
+      super('Connected', '00000211-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseWirelessConnectionKitConnected = enphaseWirelessConnectionKitConnected;
+
+  class enphaseWirelessConnectionKitSignalStrength extends Characteristic {
+    constructor() {
+      super('Signal strength', '00000212-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseWirelessConnectionKitSignalStrength = enphaseWirelessConnectionKitSignalStrength;
+
+  class enphaseWirelessConnectionKitSignalStrengthMax extends Characteristic {
+    constructor() {
+      super('Signal strength max', '00000213-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: '%',
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseWirelessConnectionKitSignalStrengthMax = enphaseWirelessConnectionKitSignalStrengthMax;
+
+  //Wireless connection kit service
+  class enphaseWirelessConnectionKitService extends Service {
+    constructor(displayName, subtype, ) {
+      super(displayName, '00000010-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseWirelessConnectionKitType);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected);
+      this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength);
+      this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax);
+    }
+  }
+  Service.enphaseWirelessConnectionKitService = enphaseWirelessConnectionKitService;
 
   api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, envoyPlatform, true);
 }
@@ -2352,8 +2431,10 @@ class envoyDevice {
       'status': 0
     };
 
+    //power mode
     this.productionPowerMode = false;
 
+    //envoy
     this.envoyCheckCommLevel = false;
     this.envoySerialNumber = '';
     this.envoyFirmware = '';
@@ -2383,15 +2464,19 @@ class envoyDevice {
     this.envoyLastEnlightenReporDate = 0;
     this.envoySupportMeters = false;
 
+    //envoy section ensemble
+    this.envoyWirelessConnectionKitInstalled = false;
+    this.envoyWirelessConnectionKitConnectionsCount = 0;
+    this.envoyCommEnchgLevel24g = 0;
+    this.envoyCommEnchagLevelSubg = 0;
     this.envoyEnpowerConnected = false;
     this.envoyEnpowerGridStatus = '';
 
-    this.commEnchgLevel24g = 0;
-    this.commEnchagLevelSubg = 0;
-
+    //qrelay
     this.qRelaysInstalled = false;
     this.qRelaysCount = 0;
 
+    //ct meters
     this.metersInstalled = false;
     this.metersCount = 0;
     this.metersProductionEnabled = false;
@@ -2401,6 +2486,7 @@ class envoyDevice {
     this.metersReadingCount = 0;
     this.metersReadingChannelsCount = 0;
 
+    //production
     this.productionMeasurmentType = '';
     this.productionActiveCount = 0;
     this.productionPower = 0;
@@ -2416,6 +2502,7 @@ class envoyDevice {
     this.productionPwrFactor = 0;
     this.productionReadingTime = '';
 
+    //ac batterie
     this.acBatteriesInstalled = false;
     this.acBatteriesCount = 0;
     this.acBatteriesSummaryType = '';
@@ -2426,15 +2513,19 @@ class envoyDevice {
     this.acBatteriesSummaryState = '';
     this.acBatteriesSummaryPercentFull = 0;
 
+    //microinverters
     this.microinvertersInstalled = false;
     this.microinvertersCount = 0;
     this.microinvertersActiveCount = 0;
 
+    //ensemble
     this.ensembleInstalled = false;
 
+    //encharges
     this.enchargesInstalled = false;
     this.enchargesCount = 0;
 
+    //enpower
     this.enpowerInstalled = false;
     this.enpowerCount = 0;
     this.enpowerType = '';
@@ -2506,16 +2597,16 @@ class envoyDevice {
       if (!this.checkDeviceInfo && this.checkDeviceState) {
         this.updateProductionData();
         if (this.installerPasswd) {
-          if (this.envoyCheckCommLevel) {
-            this.updateCommLevelData();
-          }
           if (this.envoyDevId) {
             this.updateProductionPowerModeData();
+          }
+          if (this.envoyCheckCommLevel) {
+            this.updateCommLevelData();
           }
           if (this.ensembleInstalled) {
             this.updateEnsembleInventoryData();
             if (this.enpowerInstalled) {
-              this.updateEnpowerStatusData();
+              this.updateEnsembleStatusData();
             }
           }
         }
@@ -2608,9 +2699,38 @@ class envoyDevice {
       this.inventoryData = inventoryData;
       this.metersData = metersData;
 
-      const updateEnsembleInventoryOrHomeData = !this.checkDeviceState ? this.installerPasswd ? this.updateEnsembleInventoryData() : this.updateHomeData() : false;
+      const updateHomeData = !this.checkDeviceState ? this.updateHomeData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, requesting devices info eror: %s, state: Offline trying to reconnect.', this.host, this.name, error);
+      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
+    };
+  }
+
+  async updateHomeData() {
+    this.log.debug('Device: %s %s, requesting homeData.', this.host, this.name);
+    try {
+      const homeData = await axios.get(this.url + ENVOY_API_URL.Home);
+      this.log.debug('Device %s %s, debug homeData: %s', this.host, this.name, homeData.data);
+
+      const objKeys = Object.keys(homeData.data);
+      const objEncharge = Object.keys(homeData.data.comm);
+      const wirelessConnectionKitInstalled = (objKeys == 'wireless_connection');
+      const wirelessConnectionsCount = wirelessConnectionKitInstalled ? homeData.data.wireless_connection.length : 0;
+      const enpowerInstalled = (objKeys == 'enpower');
+      const enchargesInstalled = (objEncharge == 'encharge');
+      const ensembleInstalled = ((enpowerInstalled || enchargesInstalled) == true)
+
+      this.homeData = homeData;
+      this.envoyWirelessConnectionKitInstalled = wirelessConnectionKitInstalled;
+      this.envoyWirelessConnectionKitConnectionsCount = wirelessConnectionsCount;
+      this.enchargesInstalled = enchargesInstalled;
+      this.enpowerInstalled = enpowerInstalled;
+      this.ensembleInstalled = ensembleInstalled;
+
+      const updateEnsembleInventoryOrProductionData = !this.checkDeviceState ? (this.installerPasswd && ensembleInstalled) ? this.updateEnsembleInventoryData() : this.updateProductionData() : false;
+    } catch (error) {
+      this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2631,28 +2751,23 @@ class envoyDevice {
         const ensembleInventoryData = await http.request(this.url + ENVOY_API_URL.EnsembleInventory, authInstaller);
         this.log.debug('Device %s %s, debug ensembleInventoryData: %s', this.host, this.name, ensembleInventoryData.data);
 
-        const ensembleInstalled = true;
-        const enchargesInstalled = (ensembleInventoryData.data[0].devices.length > 0);
         const enchargesCount = ensembleInventoryData.data[0].devices.length;
-        const enpowerInstalled = (ensembleInventoryData.data[1].devices.length > 0);
         const enpowerCount = (ensembleInventoryData.data[1].devices.length);
 
         this.ensembleInventoryData = ensembleInventoryData;
-        this.ensembleInstalled = ensembleInstalled;
-        this.enchargesInstalled = enchargesInstalled;
         this.enchargesCount = enchargesCount;
-        this.enpowerInstalled = enpowerInstalled;
-        this.encpowerCount = enpowerCount;
+        this.enpowerCount = enpowerCount;
 
-        const updateEnpowerStatusOrHomeData = !this.checkDeviceState ? enpowerInstalled ? this.updateEnpowerStatusData() : this.updateHomeData() : false;
+        const updateEnpowerStatusOrProductionData = !this.checkDeviceState ? enpowerInstalled ? this.updateEnsembleStatusData() : this.updateProductionData() : false;
       } catch (error) {
-        this.log.debug('Device: %s %s, check Ensemble devices, state: Connection error, probably not installed.', this.host, this.name);
-        this.updateHomeData();
+        this.log.error('Device: %s %s, check Ensemble devices, state: Connection error, probably not installed.', this.host, this.name);
+        this.checkDeviceState = false;
+        this.checkDeviceInfo = true;
       };
     }
   }
 
-  async updateEnpowerStatusData() {
+  async updateEnsembleStatusData() {
     this.log.debug('Device: %s %s, requesting ensembleStatusData.', this.host, this.name);
     try {
       const authInstaller = {
@@ -2665,26 +2780,13 @@ class envoyDevice {
 
       const ensembleStatusData = await http.request(this.url + ENVOY_API_URL.EnpowerStatus, authInstaller);
       this.log.debug('Debug metersReadingData: %s', ensembleStatusData.data);
+
+
       this.ensembleStatusData = ensembleStatusData;
-
-      const updateHomeData = !this.checkDeviceState ? this.updateHomeData() : false;
-    } catch (error) {
-      this.log.error('Device: %s %s, ensembleStatusData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
-    };
-  }
-
-  async updateHomeData() {
-    this.log.debug('Device: %s %s, requesting homeData.', this.host, this.name);
-    try {
-      const homeData = await axios.get(this.url + ENVOY_API_URL.Home);
-      this.log.debug('Device %s %s, debug homeData: %s', this.host, this.name, homeData.data);
-      this.homeData = homeData;
 
       const updateProductionData = !this.checkDeviceState ? this.updateProductionData() : false;
     } catch (error) {
-      this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, ensembleStatusData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2870,6 +2972,7 @@ class envoyDevice {
       const acBatteriesCount = this.acBatteriesCount;
       const qRelaysCount = this.qRelaysCount;
 
+      const wirelessConnectionKitInstalled = this.envoyWirelessConnectionKitInstalled;
       const ensembleInstalled = this.ensembleInstalled;
       const enpowerInstalled = this.enpowerInstalled;
       const enchargesCount = this.enchargesCount;
@@ -2893,8 +2996,9 @@ class envoyDevice {
       }
       this.log('Ensemble: %s', ensembleInstalled ? 'Yes' : 'Not installed');
       if (ensembleInstalled) {
-        this.log('Enpower: %s', enpowerInstalled ? 'Yes' : 'Not installed');
+        this.log('Enpower: %s', enpowerInstalled ? 'Yes' : 'No');
         this.log('Encharges: %s', enchargesCount);
+        this.log('Wireless Kit: %s', wirelessConnectionKitInstalled ? 'Yes' : 'No');
       }
       this.log('--------------------------------');
 
@@ -2926,6 +3030,8 @@ class envoyDevice {
 
       //get enabled devices
       const envoySupportMeters = this.envoySupportMeters;
+      const envoyWirelessConnectionKitInstalled = this.envoyWirelessConnectionKitInstalled;
+      const envoyWirelessConnectionKitConnectionsCount = this.envoyWirelessConnectionKitConnectionsCount;
       const metersInstalled = this.metersInstalled;
       const metersCount = this.metersCount;
       const metersProductionEnabled = this.metersProductionEnabled;
@@ -3002,23 +3108,31 @@ class envoyDevice {
         const updateStatus = ENVOY_API_CODE[homeData.data.update_status] || 'undefined';
 
         //wireless connection kit
-        if (enchargesInstalled || enpowerInstalled) {
-          this.wirelessConnectionSignalStrength = new Array();
-          this.wirelessConnectionSignalStrengthMax = new Array();
-          this.wirelessConnectionType = new Array();
-          this.wirelessConnectionConnected = new Array();
+        if (envoyWirelessConnectionKitInstalled) {
+          this.wirelessConnectionsSignalStrength = new Array();
+          this.wirelessConnectionsSignalStrengthMax = new Array();
+          this.wirelessConnectionsType = new Array();
+          this.wirelessConnectionsConnected = new Array();
 
-          const wirelessConnectionsCount = homeData.data.wireless_connection.length;
-          for (let i = 0; i < wirelessConnectionsCount; i++) {
+          for (let i = 0; i < envoyWirelessConnectionKitConnectionsCount; i++) {
             const wirelessConnectionSignalStrength = (homeData.data.wireless_connection[i].sigmal_strength * 20);
             const wirelessConnectionSignalStrengthMax = (homeData.data.wireless_connection[i].sigmal_strength_max * 20);
             const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type] || 'undefined';
-            const wirelessConnectionConnected = homeData.data.wireless_connection[i].connected;
+            const wirelessConnectionConnected = (homeData.data.wireless_connection[i].connected == true);
 
-            this.wirelessConnectionSignalStrength.push(wirelessConnectionSignalStrength);
-            this.wirelessConnectionSignalStrengthMax.push(wirelessConnectionSignalStrengthMax);
-            this.wirelessConnectionType.push(wirelessConnectionType);
-            this.wirelessConnectionConnected.push(wirelessConnectionConnected);
+            if (this.wirelessConnektionsKitService) {
+              this.wirelessConnektionsKitService[i]
+                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength, wirelessConnectionSignalStrength)
+                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax, wirelessConnectionSignalStrengthMax)
+                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitType, wirelessConnectionType)
+                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected, wirelessConnectionConnected)
+
+            }
+
+            this.wirelessConnectionsSignalStrength.push(wirelessConnectionSignalStrength);
+            this.wirelessConnectionsSignalStrengthMax.push(wirelessConnectionSignalStrengthMax);
+            this.wirelessConnectionsType.push(wirelessConnectionType);
+            this.wirelessConnectionsConnected.push(wirelessConnectionConnected);
           }
         }
 
@@ -3086,8 +3200,8 @@ class envoyDevice {
         this.envoyCommNsrbLevel = commNsrbLevel;
         this.envoyCommEnchgNum = commEnchgNum;
         this.envoyCommEnchgLevel = commEnchgLevel;
-        this.commEnchgLevel24g = commEnchgLevel24g;
-        this.commEnchagLevelSubg = commEnchagLevelSubg;
+        this.envoyCommEnchgLevel24g = commEnchgLevel24g;
+        this.envoyCommEnchagLevelSubg = commEnchagLevelSubg;
         this.envoyAlerts = status;
         this.envoyUpdateStatus = updateStatus;
 
@@ -4154,6 +4268,8 @@ class envoyDevice {
     this.log.debug('prepareEnphaseServices');
     //get enabled devices
     const envoySupportMeters = this.envoySupportMeters;
+    const wirelessConnectionKitInstalled = this.envoyWirelessConnectionKitInstalled;
+    const wirelessConnectionsCount = this.envoyWirelessConnectionKitConnectionsCount;
     const metersInstalled = this.metersInstalled;
     const metersCount = this.metersCount;
     const metersProductionEnabled = this.metersProductionEnabled;
@@ -5413,6 +5529,44 @@ class envoyDevice {
 
         this.enpowersStatusService.push(enphaseEnpowerStatusService);
         accessory.addService(this.enpowersStatusService[0]);
+      }
+    }
+
+    //wireless connektion kit
+    if (wirelessConnectionKitInstalled) {
+      this.wirelessConnektionsKitService = new Array();
+      for (let i; i < wirelessConnectionsCount; i++) {
+        const enphaseWirelessConnectionKitService = new Service.enphaseWirelessConnectionKitService('Wireless connection ', +this.wirelessConnectionsType[i], 'enphaseWirelessConnectionKitService' + i);
+        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitType)
+        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected)
+          .onGet(async () => {
+            const value = this.wirelessConnectionsConnected[i];
+            if (!this.disableLogInfo) {
+              this.log('Device: %s %s, wireless connection: %s, state: %s', this.host, accessoryName, this.wirelessConnectionsType[i], value ? 'Connected' : 'Disconnected');
+            }
+            return value;
+          });
+
+        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength)
+          .onGet(async () => {
+            const value = this.wirelessConnectionsSignalStrength[i];
+            if (!this.disableLogInfo) {
+              this.log('Device: %s %s, wireless connection: %s, signal strength: %s %', this.host, accessoryName, this.wirelessConnectionsType[i], value);
+            }
+            return value;
+          });
+
+        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax)
+          .onGet(async () => {
+            const value = this.wirelessConnectionsSignalStrengthMax[i];
+            if (!this.disableLogInfo) {
+              this.log('Device: %s %s, wireless connection: %s, signal strength mex: %s %', this.host, accessoryName, this.wirelessConnectionsType[i], value);
+            }
+            return value;
+          });
+
+        this.wirelessConnektionsKitService.push(enphaseWirelessConnectionKitService);
+        accessory.addService(this.wirelessConnektionsKitService[i]);
       }
     }
 
