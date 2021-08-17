@@ -3293,7 +3293,7 @@ class envoyDevice {
 
           const type = ENVOY_API_CODE[inventoryData.data[1].type] || 'undefined';
           for (let i = 0; i < acBatteriesCount; i++) {
-            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'undefined'
+            const partNum = ENPHASE_PART_NUMBER[inventoryData.data[1].devices[i].part_num] || 'AC Batterie'
             const installed = new Date(inventoryData.data[1].devices[i].installed * 1000).toLocaleString();
             const serialNumber = inventoryData.data[1].devices[i].serial_num;
             const deviceStatus = inventoryData.data[1].devices[i].device_status;
@@ -3640,7 +3640,7 @@ class envoyDevice {
 
         //ac btteries summary
         if (acBatteriesInstalled) {
-          const type = ENVOY_API_CODE[productionCtData.data.storage[0].type] || 'undefined';
+          const type = ENVOY_API_CODE[productionCtData.data.storage[0].type] || 'AC Batterie';
           const activeCount = productionCtData.data.storage[0].activeCount;
           const readingTime = new Date(productionCtData.data.storage[0].readingTime * 1000).toLocaleString();
           const wNow = parseFloat((productionCtData.data.storage[0].wNow) / 1000);
@@ -3896,7 +3896,7 @@ class envoyDevice {
           this.enchargesRev = new Array();
           this.enchargesCapacity = new Array();
 
-          const type = ENVOY_API_CODE[ensembleInventoryData.data[0].type] || 'undefined';
+          const type = ENVOY_API_CODE[ensembleInventoryData.data[0].type] || 'Encharge';
           for (let i = 0; i < enchargesCount; i++) {
             const partNum = ENPHASE_PART_NUMBER[ensembleInventoryData.data[0].devices[i].part_num] || 'undefined'
             const installed = new Date(ensembleInventoryData.data[0].devices[i].installed * 1000).toLocaleString();
@@ -3976,7 +3976,7 @@ class envoyDevice {
         //enpower data
         if (enpowerInstalled && ensembleInventoryData.status == 200) {
           //enpower
-          const type = ENVOY_API_CODE[ensembleInventoryData.data[1].type] || 'undefined';
+          const type = ENVOY_API_CODE[ensembleInventoryData.data[1].type] || 'Enpower';
           const partNum = ENPHASE_PART_NUMBER[ensembleInventoryData.data[1].devices[0].part_num] || 'undefined'
           const installed = new Date(ensembleInventoryData.data[1].devices[0].installed * 1000).toLocaleString();
           const serialNumber = ensembleInventoryData.data[1].devices[0].serial_num;
