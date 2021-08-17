@@ -61,9 +61,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
 ## Installation
-1. Follow the step-by-step instructions on the [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki).
-2. Follow the step-by-step instructions on the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki).
-3. Install this plugin using: `npm install -g homebridge-enphase-envoy` or search for `Enphase or Envoy` in Config UI X.
+- Follow the step-by-step instructions on the [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki).
+- Follow the step-by-step instructions on the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki).
+- Install this plugin using: `npm install -g homebridge-enphase-envoy` or search for `Enphase or Envoy` in Config UI X.
 
 ## Configuration
 
