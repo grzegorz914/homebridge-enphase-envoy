@@ -30,18 +30,19 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - If used with Hoobs, there is a possible configuration incompatibilty.
 - Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
-### Info v5.2.15 and above!!!
+### Info v5.2.15 and above!
 1. Added system Power Production Enable/Disable (required *envoyDevId*).
 2. Finally detects Ensemble, Encharges and Enpowers (required *installerPasswd*).
-### Info v4.x.x and above!!!
+### Info v4.x.x and above!
 1. Version 4.0.0 whole new concept.
 2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
 3. Envoy authentication is detected automatically or can be added in config if was chenged.
 4. For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 5. Installer Password which is nedded to read communications level of (Microinverters, Q-Relays, AC Batteries) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 
-### Info v3.x.x
+### Info v3.x.x and above!
 1. From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
+2. For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 
 ### Info v2.3.x
 1. The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
@@ -52,7 +53,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 6. Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
 7. Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
 
-## Power Production
+## Power Production Control
 - You can set task for the Envoy to Enable/Disable power production on the microinverters. 
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - This action require *envoyDevId*. 
