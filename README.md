@@ -22,9 +22,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) | Highly Recommended |
 
 ### Note
-- For homebridge-enphase-envoy versions 4.5.0 and above the minimum required version of Homebridge is 1.3.x.
-- New authorization method (firmware 7.x.x) will be added after Enphase release technical brief about this changes.
-- Right now (17.08.2021) Enphase working on fix this problem and new firmware will be pushed to affected devices soon.
+- Homebridge Enphase Envoy v4.5.0 and above the minimum required version of Homebridge is 1.3.x.
+- New authorization method (fw 7.x.x) will be added after Enphase release technical brief about this changes.
+- Update (17.08.2021) - Enphase working on fix and new firmware will be pushed to affected devices soon.
 
 ### Know issues
 - If used with Hoobs, there is a possible configuration incompatibilty.
