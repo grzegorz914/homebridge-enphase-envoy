@@ -38,7 +38,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
 - Envoy authentication is detected automatically or can be added in config if was chenged.
 - For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
-- Installer Password which is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Emcharge) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
+- Installer password is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Emcharge).
+- Installer password need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/.
 
 ### Info v3.x.x and above!
 - From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
