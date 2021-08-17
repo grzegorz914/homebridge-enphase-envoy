@@ -22,7 +22,7 @@
             "refreshInterval": 30,
             "disableLogInfo": false,
             "envoyPasswd": "",
-            "envoyDevId": "",
+            "envoyDevId": 1234567,
             "installerPasswd": "",
             "powerProductionMaxDetected": 5400,
             "energyProductionLifetimeOffset": 0,
