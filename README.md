@@ -31,27 +31,27 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
 ### Info v5.2.15 and above!
-1. Added system Power Production Enable/Disable (required *envoyDevId*).
-2. Finally detects Ensemble, Encharges and Enpowers (required *installerPasswd*).
+- Added system Power Production Enable/Disable (required *envoyDevId*).
+- Finally detects Ensemble, Encharges and Enpowers (required *installerPasswd*).
 ### Info v4.x.x and above!
-1. Version 4.0.0 whole new concept.
-2. All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
-3. Envoy authentication is detected automatically or can be added in config if was chenged.
-4. For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
-5. Installer Password which is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Emcharge) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
+- Version 4.0.0 whole new concept.
+- All devices in PV are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
+- Envoy authentication is detected automatically or can be added in config if was chenged.
+- For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
+- Installer Password which is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Emcharge) need to be generated in externall app, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/"
 
 ### Info v3.x.x and above!
-1. From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
-2. For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
+- From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
+- For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 
 ### Info v2.3.x
-1. The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
-2. Production Current Level (W) - is the current Power production in (W). If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
-3. Consumption Current Level Total (W) - is the Total Power Consumption in (W)).
-4. Consumption Current Level Net (W) - is the Power Consumption from Grid in (W). If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
-5. Peak Level (W) - display the maximum Power production/consumption.
-6. Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
-7. Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
+- The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
+- Production Current Level (W) - is the current Power production in (W). If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
+- Consumption Current Level Total (W) - is the Total Power Consumption in (W)).
+- Consumption Current Level Net (W) - is the Power Consumption from Grid in (W). If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
+- Peak Level (W) - display the maximum Power production/consumption.
+- Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
+- Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
 
 ## Power Production Control
 - You can set task for the Envoy to Enable/Disable power production on the microinverters. 
@@ -67,9 +67,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ## Configuration
 
-To ease configuration, install and use the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) plugin (highly recomended). 
-
-Alternatively, the sample configuration can be edited and used manually. See the `sample-config.json` file in this repository for an example or copy/paste the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
+- To ease configuration, install and use the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) plugin (highly recomended). 
+- Alternatively, the sample configuration can be edited and used manually. See the `sample-config.json` file in this repository for an example or copy/paste the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
 
 ## Configuration Values
 | Key | Description | 
