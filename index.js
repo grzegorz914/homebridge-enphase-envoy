@@ -2,7 +2,7 @@
 
 const path = require('path');
 const axios = require('axios').default;
-const http = require('urllib');
+const AxiosDigestAuth = require('./src/digestAuth.js');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 const parseStringPromise = require('xml2js').parseStringPromise;
@@ -2711,16 +2711,21 @@ class envoyDevice {
   async updateProductionPowerModeData() {
     this.log.debug('Device: %s %s, requesting powerModeData.', this.host, this.name);
     try {
-      const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
-      const authInstaller = {
-        method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
+      const digestAuth = new AxiosDigestAuth({
+        user: INSTALLER_USER,
+        passwd: this.installerPasswd
+      });
 
-      const powerModeData = await http.request(this.url + powerModeUrl, authInstaller);
+      const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
+      const options = {
+        headers: {
+          Accept: 'application/json'
+        },
+        method: 'GET',
+        url: this.url + powerModeUrl
+      }
+
+      const powerModeData = await digestAuth.request(options);
       this.log.debug('Debug powerModeData: %s', powerModeData.data);
       const productionPowerMode = (powerModeData.data.powerForcedOff == false);
 
@@ -2804,15 +2809,20 @@ class envoyDevice {
   async updateEnsembleInventoryData() {
     this.log.debug('Device: %s %s, requesting ensembleInventoryData.', this.host, this.name);
     try {
-      const authInstaller = {
-        method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
+      const digestAuth = new AxiosDigestAuth({
+        user: INSTALLER_USER,
+        passwd: this.installerPasswd
+      });
 
-      const ensembleInventoryData = await http.request(this.url + ENVOY_API_URL.EnsembleInventory, authInstaller);
+      const options = {
+        headers: {
+          Accept: 'application/json'
+        },
+        method: 'GET',
+        url: this.url + ENVOY_API_URL.EnsembleInventory
+      }
+
+      const ensembleInventoryData = await digestAuth.request(options);
       this.log.debug('Device %s %s, debug ensembleInventoryData: %s', this.host, this.name, ensembleInventoryData.data);
 
       const enchargesCount = ensembleInventoryData.data[0].devices.length;
@@ -2833,15 +2843,20 @@ class envoyDevice {
   async updateEnsembleStatusData() {
     this.log.debug('Device: %s %s, requesting ensembleStatusData.', this.host, this.name);
     try {
-      const authInstaller = {
-        method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
+      const digestAuth = new AxiosDigestAuth({
+        user: INSTALLER_USER,
+        passwd: this.installerPasswd
+      });
 
-      const ensembleStatusData = await http.request(this.url + ENVOY_API_URL.EnsembleStatus, authInstaller);
+      const options = {
+        headers: {
+          Accept: 'application/json'
+        },
+        method: 'GET',
+        url: this.url + ENVOY_API_URL.EnsembleStatus
+      }
+
+      const ensembleStatusData = await digestAuth.request(options);
       this.log.debug('Debug ensembleStatusData: %s', ensembleStatusData.data);
 
       this.ensembleStatusData = ensembleStatusData;
@@ -2892,19 +2907,30 @@ class envoyDevice {
   async updateMicroinvertersData() {
     this.log.debug('Device: %s %s, requesting microinvertersData', this.host, this.name);
     try {
-      const passSerialNumber = this.envoySerialNumber.substring(6);
-      const passEnvoy = this.envoyPasswd;
-      const passwd = passEnvoy || passSerialNumber;
-      const auth = ENVOY_USER + ':' + passwd;
-      const authEnvoy = {
+      const passwd = this.envoyPasswd || this.envoySerialNumber.substring(6);
+      const digestAuth = new AxiosDigestAuth({
+        user: ENVOY_USER,
+        passwd: passwd
+      });
+
+      const options = {
+        headers: {
+          Accept: 'application/json'
+        },
         method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: auth,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
-      const microinvertersData = await http.request(this.url + ENVOY_API_URL.InverterProduction, authEnvoy);
+        url: this.url + ENVOY_API_URL.InverterProduction
+      }
+
+      const microinvertersData = await digestAuth.request(options);
       this.log.debug('Debug microinvertersData: %s', microinvertersData.data);
+
+      this.allMicroinvertersSerialNumber = new Array();
+      const microinvertersCount = microinvertersData.data.length;
+      for (let i = 0; i < microinvertersCount; i++) {
+        const serialNumber = microinvertersData.data[i].serialNumber;
+        this.allMicroinvertersSerialNumber.push(serialNumber);
+      }
+
       this.microinvertersData = microinvertersData;
 
       const updateMetersReadingOrDeviceInfoData = (!this.checkDeviceState && microinvertersData.status == 200) ? this.metersInstalled ? this.updateMetersReadingData() : this.getDeviceInfo() : false;
@@ -2997,26 +3023,32 @@ class envoyDevice {
   async updateCommLevelData() {
     this.log.debug('Device: %s %s, requesting pcuCommLevelData.', this.host, this.name);
     try {
-      const authInstaller = {
+      const digestAuth = new AxiosDigestAuth({
+        user: INSTALLER_USER,
+        passwd: this.installerPasswd,
+      });
+
+      const options = {
+        headers: {
+          Accept: 'application/json'
+        },
         method: 'GET',
-        rejectUnauthorized: false,
-        digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-        dataType: 'json',
-        timeout: [5000, 5000]
-      };
-      const pcuCommLevelData = await http.request(this.url + ENVOY_API_URL.InverterComm, authInstaller);
+        url: this.url + ENVOY_API_URL.InverterComm
+      }
+
+      const pcuCommLevelData = await digestAuth.request(options);
       const commLevel = pcuCommLevelData.data;
       this.log.debug('Debug pcuCommCheck: %s', commLevel);
-
-      // get devices count
-      const microinvertersCount = this.microinvertersCount
-      const acBatteriesCount = this.acBatteriesCount;
-      const qRelaysCount = this.qRelaysCount;
 
       //create arrays
       this.microinvertersCommLevel = new Array();
       this.acBatteriesCommLevel = new Array();
       this.qRelaysCommLevel = new Array();
+
+      // get devices count
+      const microinvertersCount = this.microinvertersCount
+      const acBatteriesCount = this.acBatteriesCount;
+      const qRelaysCount = this.qRelaysCount;
 
       for (let i = 0; i < microinvertersCount; i++) {
         const key = '' + this.microinvertersSerialNumber[i] + '';
@@ -3788,22 +3820,6 @@ class envoyDevice {
               this.currentSumm = new Array();
               this.freqSumm = new Array();
 
-              this.eidPhase = new Array();
-              this.timestampPhase = new Array();
-              this.actEnergyDlvdPhase = new Array();
-              this.actEnergyRcvdPhase = new Array();
-              this.apparentEnergyPhase = new Array();
-              this.reactEnergyLaggPhase = new Array();
-              this.reactEnergyLeadPhase = new Array();
-              this.instantaneousDemandPhase = new Array();
-              this.activePowerPhase = new Array();
-              this.apparentPowerPhase = new Array();
-              this.reactivePowerPhase = new Array();
-              this.pwrFactorPhase = new Array();
-              this.voltagePhase = new Array();
-              this.currentPhase = new Array();
-              this.freqPhase = new Array();
-
               //meters reading summary data
               for (let i = 0; i < metersReadingCount; i++) {
                 const eid = metersReadingData.data[i].eid;
@@ -3852,6 +3868,22 @@ class envoyDevice {
 
                 //meters reading phases data
                 if (metersReadingChannelsCount > 0) {
+                  this.eidPhase = new Array();
+                  this.timestampPhase = new Array();
+                  this.actEnergyDlvdPhase = new Array();
+                  this.actEnergyRcvdPhase = new Array();
+                  this.apparentEnergyPhase = new Array();
+                  this.reactEnergyLaggPhase = new Array();
+                  this.reactEnergyLeadPhase = new Array();
+                  this.instantaneousDemandPhase = new Array();
+                  this.activePowerPhase = new Array();
+                  this.apparentPowerPhase = new Array();
+                  this.reactivePowerPhase = new Array();
+                  this.pwrFactorPhase = new Array();
+                  this.voltagePhase = new Array();
+                  this.currentPhase = new Array();
+                  this.freqPhase = new Array();
+
                   for (let j = 0; j < metersReadingChannelsCount; j++) {
                     const eid = metersReadingData.data[i].channels[j].eid;
                     const timestamp = new Date(metersReadingData.data[i].channels[j].timestamp * 1000).toLocaleString();
@@ -3893,37 +3925,33 @@ class envoyDevice {
       }
 
       //microinverters power
-      if (microinvertersInstalled && microinvertersData.status == 200) {
-        this.microinvertersReadingTime = new Array();
-        this.microinvertersDevType = new Array();
-        this.microinvertersLastPower = new Array();
-        this.microinvertersMaxPower = new Array();
+      if (microinvertersInstalled) {
+        if (microinvertersData.status == 200) {
+          this.microinvertersReadingTime = new Array();
+          this.microinvertersDevType = new Array();
+          this.microinvertersLastPower = new Array();
+          this.microinvertersMaxPower = new Array();
 
-        const allMicroinvertersSerialNumber = new Array();
-        const allMicroinvertersCount = microinvertersData.data.length;
-        for (let i = 0; i < microinvertersCount; i++) {
-          for (let j = 0; j < allMicroinvertersCount; j++) {
-            const serialNumber = microinvertersData.data[j].serialNumber;
-            allMicroinvertersSerialNumber.push(serialNumber);
+          for (let i = 0; i < microinvertersCount; i++) {
+            const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
+            const serialNumber = microinvertersData.data[index].serialNumber;
+            const lastReportDate = new Date(microinvertersData.data[index].lastReportDate * 1000).toLocaleString();
+            const devType = microinvertersData.data[index].devType;
+            const lastReportWatts = parseInt(microinvertersData.data[index].lastReportWatts);
+            const maxReportWatts = parseInt(microinvertersData.data[index].maxReportWatts);
+
+            if (this.microinvertersService) {
+              this.microinvertersService[i]
+                .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
+                .updateCharacteristic(Characteristic.enphaseMicroinverterPower, lastReportWatts)
+                .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, maxReportWatts)
+            }
+
+            this.microinvertersReadingTime.push(lastReportDate);
+            this.microinvertersDevType.push(devType);
+            this.microinvertersLastPower.push(lastReportWatts);
+            this.microinvertersMaxPower.push(maxReportWatts);
           }
-          const index = allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
-          const lastReportDate = new Date(microinvertersData.data[index].lastReportDate * 1000).toLocaleString();
-          const devType = microinvertersData.data[index].devType;
-          const lastReportWatts = parseInt(microinvertersData.data[index].lastReportWatts);
-          const maxReportWatts = parseInt(microinvertersData.data[index].maxReportWatts);
-
-          if (this.microinvertersService) {
-            this.microinvertersService[i]
-              .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
-              //.updateCharacteristic(Characteristic.enphaseMicroinverterDevType, devType)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterPower, lastReportWatts)
-              .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, maxReportWatts)
-          }
-
-          this.microinvertersReadingTime.push(lastReportDate);
-          this.microinvertersDevType.push(devType);
-          this.microinvertersLastPower.push(lastReportWatts);
-          this.microinvertersMaxPower.push(maxReportWatts);
         }
       }
 
@@ -4527,21 +4555,26 @@ class envoyDevice {
         })
         .onSet(async (state) => {
           try {
-            const data =
-              JSON.stringify({
-                length: 1,
-                arr: [state ? 0 : 1]
-              });
-            const authInstaller = {
-              method: 'PUT',
-              rejectUnauthorized: false,
-              digestAuth: INSTALLER_USER + ':' + this.installerPasswd,
-              data: data,
-              timeout: [5000, 5000]
-            };
+            const digestAuth = new AxiosDigestAuth({
+              user: INSTALLER_USER,
+              passwd: this.installerPasswd,
+            });
 
             const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
-            const powerModeData = await http.request(this.url + powerModeUrl, authInstaller);
+            const data = JSON.stringify({
+              length: 1,
+              arr: [state ? 0 : 1]
+            });
+            const options = {
+              headers: {
+                Accept: 'application/json'
+              },
+              method: 'PUT',
+              url: this.url + powerModeUrl,
+              data: data
+            }
+
+            const powerModeData = await digestAuth.request(options);
             this.log.debug('Debug set powerModeData: %s', powerModeData.res, powerModeData.headers, powerModeData.data);
           } catch (error) {
             this.log.debug('Device: %s %s, set powerModeData error: %s', this.host, this.name, error);

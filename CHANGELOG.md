@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Open http://envoy.local/backbone/application.js and search for *envoyDevId*.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.4.0] - (21.08.2021)
+## Changes
+- removed urllib 
+- added digestAuth method to Axios
+- code rebuild and cleanup
+- some fixes and improvements
+
 ## [5.3.1] - (21.08.2021)
 ## Changes
 - charcterristics data format fixes
