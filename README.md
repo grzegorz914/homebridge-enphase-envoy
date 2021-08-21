@@ -111,7 +111,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "disableLogInfo": false,
                     "envoyUser": "envoy", //removed from 4.6.11, not nedded anymore
                     "envoyPasswd": "",
-                    "envoyDevId": 1234567,
+                    "envoyDevId": "",
                     "installerUser": "installer", //removed from 4.6.11 not nedded anymore
                     "installerPasswd": "",
                     "acBatteriesStorageOffset": 0, //removed from 4.9.0 not nedded anymore
