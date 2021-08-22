@@ -41,7 +41,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 
 ### Info v5.2.15 and above!
-- Added system Power Production Enable/Disable.
+- Added system Power Production Enable/Disable (required *installerPasswd*).
 - Finally detects Ensemble, Encharges and Enpower (required *installerPasswd*).
 
 ### Info v4.x.x and above!
@@ -62,7 +62,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
 
 ## Power Production Control
-- You can set task for the Envoy to Enable/Disable power production on the microinverters. 
+- You can set task for the Envoy to Enable/Disable power production on the microinverters (required *installerPasswd*).
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
