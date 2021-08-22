@@ -25,8 +25,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - Homebridge Enphase Envoy v4.5.0 and above the minimum required version of Homebridge is 1.3.x.
 - New authorization method (fw 7.x.x) will be added after Enphase release technical brief about this changes.
 - Update (17.08.2021) - Enphase working on fix and new firmware will be pushed to affected devices soon.
-- If count of all installed devices is grater than 100, the app will stop responding.
-- This is HomeKit limitations, if this happens by You please open the issue, I will look how to fix this.
+- If count of all installed devices is grater than 100, the app will stop responding. This is HomeKit limitations, if this happens by You please open the issue, I will look how to fix this.
 
 ### Know issues
 - If used with Hoobs, there is a possible configuration incompatibilty.
@@ -34,16 +33,16 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ### About the plugin!
 - All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
-- Envoy device ID is detected automatically, is required to read and change Power Production Mode.
+- Envoy device ID is detected automatically, is required to control Power Production.
 - Envoy password is detected automatically or can be added in config if was already chenged by user.
-- Installer password is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharge).
+- Installer password is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharges).
 - Installer password need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/.
 - For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 
 
 ### Info v5.2.15 and above!
 - Added system Power Production Enable/Disable.
-- Finally detects Ensemble, Encharges and Enpowers (required *installerPasswd*).
+- Finally detects Ensemble, Encharges and Enpower (required *installerPasswd*).
 
 ### Info v4.x.x and above!
 - Version 4.0.0 whole new concept.
