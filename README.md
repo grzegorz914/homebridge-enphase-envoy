@@ -33,7 +33,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
 ### About the plugin!
-- All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharge, Enpower, WirelessKit).
+- All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 - Envoy device ID is detected automatically, is required to read and change Power Production Mode.
 - Envoy password is detected automatically or can be added in config if was already chenged by user.
 - Installer password is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharge).
