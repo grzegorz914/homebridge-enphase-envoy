@@ -1,15 +1,13 @@
 "use strict";
 const crypto = require('crypto');
-const axios = require('axios');
+const axios = require('axios').default;
 let count = 0;
 
-class AxiosDigestAuth {
+class axiosDigestAuth {
     constructor({
-        axios: axiosInst,
         user,
         passwd
     }) {
-        this.axios = axiosInst ? axiosInst : axios.default;
         this.user = user;
         this.passwd = passwd;
     }
@@ -51,4 +49,4 @@ class AxiosDigestAuth {
         }
     };
 }
-module.exports = AxiosDigestAuth;
+module.exports = axiosDigestAuth;

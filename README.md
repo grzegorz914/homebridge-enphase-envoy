@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/homebridge-enphase-envoy.png" height="280"></a>
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/homebridge-enphase-envoy.png" height="280"></a>
 </p>
 
 <span align="center">
@@ -31,7 +31,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
 ### Info v5.2.15 and above!
-- Added system Power Production Enable/Disable (required *envoyDevId*).
+- Added system Power Production Enable/Disable.
 - Finally detects Ensemble, Encharges and Enpowers (required *installerPasswd*).
 ### Info v4.x.x and above!
 - Version 4.0.0 whole new concept.
@@ -57,8 +57,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 ## Power Production Control
 - You can set task for the Envoy to Enable/Disable power production on the microinverters. 
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
-- This action require *envoyDevId*. 
-- Open http://envoy.local/backbone/application.js and search for *envoyDevId*.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
 ## Installation
@@ -79,7 +77,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `disableLogInfo`| If `true` then disable log info, all values and state will not be displayed in Homebridge log console |
 | `envoyUser` | here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
 | `envoyPasswd` | here set the envoy password (only if U already changed the default password) |
-| `envoyDevId` | here set the envoy device ID, open http://envoy.local/backbone/application.js and search for *envoyDevId*, this is nedded for Enable/Disable Power Production |
 | `installerUser` | here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
 | `installerPasswd` | here set the optional installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/" |
 | `enchargeStorage` | check *ON* if AC Batteries are installed. (not available from v3.5.0) |
@@ -111,7 +108,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "disableLogInfo": false,
                     "envoyUser": "envoy", //removed from 4.6.11, not nedded anymore
                     "envoyPasswd": "",
-                    "envoyDevId": "",
                     "installerUser": "installer", //removed from 4.6.11 not nedded anymore
                     "installerPasswd": "",
                     "acBatteriesStorageOffset": 0, //removed from 4.9.0 not nedded anymore

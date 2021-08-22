@@ -2,7 +2,7 @@
 
 const path = require('path');
 const axios = require('axios').default;
-const AxiosDigestAuth = require('./src/digestAuth.js');
+const axiosDigestAuth = require('./src/digestAuth.js');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 const parseStringPromise = require('xml2js').parseStringPromise;
@@ -2408,7 +2408,6 @@ class envoyDevice {
     this.refreshInterval = config.refreshInterval || 5;
     this.disableLogInfo = config.disableLogInfo || false;
     this.envoyPasswd = config.envoyPasswd;
-    this.envoyDevId = config.envoyDevId;
     this.installerPasswd = config.installerPasswd;
     this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
@@ -2461,6 +2460,7 @@ class envoyDevice {
     this.productionPowerMode = false;
 
     //envoy
+    this.envoyDevId = '';
     this.envoySerialNumber = '';
     this.envoyFirmware = '';
     this.envoySoftwareBuildEpoch = 0;
@@ -2660,6 +2660,20 @@ class envoyDevice {
       const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
       const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
 
+      //get envoyDevId
+      try {
+        if (this.checkDeviceInfo) {
+          const envoyBackboneAppData = await axios.get(this.url + ENVOY_API_URL.BackboneApplication);
+          const data = envoyBackboneAppData.data;
+          const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
+          if (envoyDevId.length == 9) {
+            this.envoyDevId = envoyDevId;
+          }
+        }
+      } catch (error) {
+        this.log.error('Device: %s %s, requesting envoyDevId error: %s', this.host, this.name, error);
+      };
+
       //data
       this.infoData = infoData;
       this.parseInfoData = parseInfoData;
@@ -2673,7 +2687,7 @@ class envoyDevice {
 
       const updateHomeData = infoData.status == 200 ? this.updateHomeData() : false;
     } catch (error) {
-      this.log.error('Device: %s %s, requesting infoData eror, trying to reconnect, error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, requesting infoData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
@@ -2700,7 +2714,7 @@ class envoyDevice {
       this.enchargesInstalled = enchargesInstalled;
       this.ensembleInstalled = ensembleInstalled;
 
-      const updateProductionPowerModeOrInventoryData = homeData.status == 200 ? (this.installerPasswd && this.envoyDevId) ? this.updateProductionPowerModeData() : this.updateInventoryData() : false;
+      const updateProductionPowerModeOrInventoryData = homeData.status == 200 ? (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.updateInventoryData() : false;
     } catch (error) {
       this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
@@ -2711,7 +2725,7 @@ class envoyDevice {
   async updateProductionPowerModeData() {
     this.log.debug('Device: %s %s, requesting powerModeData.', this.host, this.name);
     try {
-      const digestAuth = new AxiosDigestAuth({
+      const digestAuth = new axiosDigestAuth({
         user: INSTALLER_USER,
         passwd: this.installerPasswd
       });
@@ -2809,7 +2823,7 @@ class envoyDevice {
   async updateEnsembleInventoryData() {
     this.log.debug('Device: %s %s, requesting ensembleInventoryData.', this.host, this.name);
     try {
-      const digestAuth = new AxiosDigestAuth({
+      const digestAuth = new axiosDigestAuth({
         user: INSTALLER_USER,
         passwd: this.installerPasswd
       });
@@ -2843,7 +2857,7 @@ class envoyDevice {
   async updateEnsembleStatusData() {
     this.log.debug('Device: %s %s, requesting ensembleStatusData.', this.host, this.name);
     try {
-      const digestAuth = new AxiosDigestAuth({
+      const digestAuth = new axiosDigestAuth({
         user: INSTALLER_USER,
         passwd: this.installerPasswd
       });
@@ -2908,7 +2922,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting microinvertersData', this.host, this.name);
     try {
       const passwd = this.envoyPasswd || this.envoySerialNumber.substring(6);
-      const digestAuth = new AxiosDigestAuth({
+      const digestAuth = new axiosDigestAuth({
         user: ENVOY_USER,
         passwd: passwd
       });
@@ -3023,7 +3037,7 @@ class envoyDevice {
   async updateCommLevelData() {
     this.log.debug('Device: %s %s, requesting pcuCommLevelData.', this.host, this.name);
     try {
-      const digestAuth = new AxiosDigestAuth({
+      const digestAuth = new axiosDigestAuth({
         user: INSTALLER_USER,
         passwd: this.installerPasswd,
       });
@@ -4544,7 +4558,7 @@ class envoyDevice {
           this.log('Device: %s %s, envoy: %s, check comm level: %s', this.host, accessoryName, this.envoySerialNumber, state ? 'Yes' : 'No');
         }
       });
-    if (this.installerPasswd) {
+    if (this.installerPasswd && this.envoyDevId.length == 9) {
       enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode)
         .onGet(async () => {
           const state = this.productionPowerMode;
@@ -4555,7 +4569,7 @@ class envoyDevice {
         })
         .onSet(async (state) => {
           try {
-            const digestAuth = new AxiosDigestAuth({
+            const digestAuth = new axiosDigestAuth({
               user: INSTALLER_USER,
               passwd: this.installerPasswd,
             });

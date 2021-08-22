@@ -48,12 +48,6 @@
               "description": "Here set envoy password (only if U already changed default password).",
               "required": false
             },
-            "envoyDevId": {
-              "title": "Envoy Device Id",
-              "type": "string",
-              "description": "Here set envoy device Id, open http://envoy.local/backbone/application.js and search for *envoyDevId*",
-              "required": false
-            },
             "installerPasswd": {
               "title": "Installer password",
               "type": "string",
@@ -127,7 +121,6 @@
         "expandable": true,
         "expanded": false,
         "items": [
-          "devices[].envoyDevId",
           "devices[].envoyPasswd",
           "devices[].installerPasswd"
         ]
