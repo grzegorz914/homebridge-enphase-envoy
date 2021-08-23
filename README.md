@@ -33,26 +33,27 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ### About the plugin!
 - All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
-- Envoy device ID is detected automatically, is required to control Power Production.
-- Envoy password is detected automatically or can be added in config if was already chenged by user.
-- Installer password is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharges).
-- Installer password need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/.
+- Envoy *device ID* is detected automatically, is required to control Power Production.
+- Envoy *password* is detected automatically or can be added in config if was already chenged by user.
+- Installer *password* is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharges).
+- Installer *password* need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/.
 - For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 
 
-### Info v5.2.15 and above!
-- Added system Power Production Enable/Disable (required *installerPasswd*).
+### Info
+#### v5.2.15 and above!
+- Added system Power Production - Enable/Disable (required *installerPasswd*).
 - Finally detects Ensemble, Encharges and Enpower (required *installerPasswd*).
 
-### Info v4.x.x and above!
+#### v4.x.x and above!
 - Version 4.0.0 whole new concept.
 - All devices in are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
 
-### Info v3.x.x and above!
+#### v3.x.x and above!
 - From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
 - For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 
-### Info v2.3.x
+#### v2.3.x
 - The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
 - Production Current Level (W) - is the current Power production in (W). If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
 - Consumption Current Level Total (W) - is the Total Power Consumption in (W)).
