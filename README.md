@@ -40,7 +40,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 - For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 
 
-### Info
+### Braking changes
 #### v5.2.15 and above!
 - Added system Power Production - Enable/Disable (required *installerPasswd*).
 - Finally detects Ensemble, Encharges and Enpower (required *installerPasswd*).
