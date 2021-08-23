@@ -2489,6 +2489,7 @@ class envoyDevice {
     this.envoyLastEnlightenReporDate = 0;
     this.envoySupportMeters = false;
     this.envoyCheckCommLevel = false;
+    this.envoyFirmwareSupported = false;
 
     //envoy section ensemble
     this.wirelessConnectionKitInstalled = false;
@@ -2660,6 +2661,9 @@ class envoyDevice {
       const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
       const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
 
+      //check firmware version
+      const envoyFirmwareSupported = (deviceSoftware.substr(1, 1) <= 6);
+
       //get envoyDevId
       try {
         if (this.checkDeviceInfo) {
@@ -2684,10 +2688,15 @@ class envoyDevice {
       this.envoyModelName = devicePn;
       this.envoyFirmware = deviceSoftware;
       this.envoySupportMeters = deviceImeter;
+      this.envoyFirmwareSupported = envoyFirmwareSupported;
 
       const updateHomeData = infoData.status == 200 ? this.updateHomeData() : false;
     } catch (error) {
-      this.log.error('Device: %s %s, requesting infoData error: %s', this.host, this.name, error);
+      if (error.code == 'DEPTH_ZERO_SELF_SIGNED_CERT') {
+        this.log('Device: %s %s, brobably uses new firmware 07.x.xx, this firmware contain new authentication method and is not supported right now', this.host, this.name)
+      } else {
+        this.log.error('Device: %s %s, requesting infoData error: %s', this.host, this.name, error);
+      }
       this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
