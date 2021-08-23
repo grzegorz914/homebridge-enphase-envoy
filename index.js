@@ -2650,7 +2650,10 @@ class envoyDevice {
       const parseInfoData = await parseStringPromise(infoData.data);
       this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2));
 
+      //envoy info
       const time = new Date(parseInfoData.envoy_info.time[0] * 1000).toLocaleString();
+
+      //device
       const deviceSn = parseInfoData.envoy_info.device[0].sn[0];
       const devicePn = ENPHASE_PART_NUMBER[parseInfoData.envoy_info.device[0].pn[0]] || 'Envoy'
       const deviceSoftware = parseInfoData.envoy_info.device[0].software[0];
@@ -2658,8 +2661,19 @@ class envoyDevice {
       const deviceSeqNum = parseInfoData.envoy_info.device[0].seqnum[0];
       const deviceApiVer = parseInfoData.envoy_info.device[0].apiver[0];
       const deviceImeter = (parseInfoData.envoy_info.device[0].imeter[0] == 'true');
-      const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
+
+      //packages
+      const packagesCount = parseInfoData.envoy_info.package.length;
+      for (let i = 0; i < packagesCount; i++) {
+        const packageName = parseInfoData.envoy_info.package[i].$.name;
+        const packagePn = parseInfoData.envoy_info.package[i].pn[0];
+        const packageVersion = parseInfoData.envoy_info.package[i].version[0];
+        const packageBuild = parseInfoData.envoy_info.package[i].build[0];
+      }
+
+      //build info
       const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
+      const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
 
       //check firmware version
       const envoyFirmwareSupported = (deviceSoftware.substr(1, 1) <= 6);
@@ -3122,8 +3136,6 @@ class envoyDevice {
     this.log.debug('Device: %s %s, update device state.', this.host, this.name);
     try {
       //get devices data;
-      const infoData = this.infoData;
-      const parseInfoData = this.parseInfoData;
       const homeData = this.homeData;
       const inventoryData = this.inventoryData;
       const productionData = this.productionData;
