@@ -2933,7 +2933,7 @@ class envoyDevice {
       this.productionCtData = productionCtData;
       this.metersConsumptionCount = metersConsumptionCount;
 
-      const updateMicroinvertersOrMetersReadingOrDeviceInfoData = (!this.checkDeviceState && productionCtData.status == 200) ? this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.metersReadingData() : this.getDeviceInfo() : false;
+      const updateMicroinvertersOrMetersReadingOrDeviceInfoData = (!this.checkDeviceState && productionCtData.status == 200) ? this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : this.getDeviceInfo() : false;
     } catch (error) {
       this.log.error('Device: %s %s, productionCtData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
