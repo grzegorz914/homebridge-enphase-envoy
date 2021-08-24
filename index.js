@@ -2724,17 +2724,17 @@ class envoyDevice {
 
       const objKeys = Object.keys(homeData.data);
       const objKeys1 = Object.keys(homeData.data.comm);
-      const wirelessConnectionKitInstalled = (objKeys == 'wireless_connection');
+      const enchargesInstalled = (objKeys1.indexOf('encharge') >= 0);
+      const enpowerInstalled = (objKeys.indexOf('enpower') >= 0);
+      const wirelessConnectionKitInstalled = (objKeys.indexOf('wireless_connection') >= 0);
       const wirelessConnectionKitConnectionsCount = wirelessConnectionKitInstalled ? homeData.data.wireless_connection.length : 0;
-      const enpowerInstalled = (objKeys == 'enpower');
-      const enchargesInstalled = (objKeys1 == 'encharge');
       const ensembleInstalled = (enpowerInstalled || enchargesInstalled);
 
       this.homeData = homeData;
+      this.enchargesInstalled = enchargesInstalled;
+      this.enpowerInstalled = enpowerInstalled;
       this.wirelessConnectionKitInstalled = wirelessConnectionKitInstalled;
       this.wirelessConnectionKitConnectionsCount = wirelessConnectionKitConnectionsCount;
-      this.enpowerInstalled = enpowerInstalled;
-      this.enchargesInstalled = enchargesInstalled;
       this.ensembleInstalled = ensembleInstalled;
 
       const updateProductionPowerModeOrInventoryData = homeData.status == 200 ? (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.updateInventoryData() : false;
@@ -2785,7 +2785,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting inventoryData.', this.host, this.name);
     try {
       const inventoryData = await axios.get(this.url + ENVOY_API_URL.Inventory);
-      this.log.debug('Device %s %s, debug metersData: %s', this.host, this.name, inventoryData.data);
+      this.log.debug('Device %s %s, debug inventoryData: %s', this.host, this.name, inventoryData.data);
 
       const microinvertersCount = inventoryData.data[0].devices.length;
       const microinvertersInstalled = (microinvertersCount > 0);
