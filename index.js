@@ -3234,8 +3234,8 @@ class envoyDevice {
           this.wirelessConnectionsConnected = new Array();
 
           for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
-            const wirelessConnectionSignalStrength = (homeData.data.wireless_connection[i].sigmal_strength * 20);
-            const wirelessConnectionSignalStrengthMax = (homeData.data.wireless_connection[i].sigmal_strength_max * 20);
+            const wirelessConnectionSignalStrength = (homeData.data.wireless_connection[i].signal_strength * 20);
+            const wirelessConnectionSignalStrengthMax = (homeData.data.wireless_connection[i].signal_strength_max * 20);
             const wirelessConnectionType = ENVOY_API_CODE[homeData.data.wireless_connection[i].type] || 'undefined';
             const wirelessConnectionConnected = (homeData.data.wireless_connection[i].connected == true);
 
