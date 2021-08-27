@@ -3195,38 +3195,38 @@ class envoyDevice {
         const primaryInterface = ENVOY_API_CODE[homeData.data.network.primary_interface] || 'undefined';
         if (envoyInterfacesCount > 0) {
           if (envoyInterfaceCellurar) {
-            const signalStrength = (homeData.data.network.interfaces[0].signal_strength * 20);
-            const signalStrengthMax = (homeData.data.network.interfaces[1].signal_strength_max * 20);
-            const network = homeData.data.network.interfaces[0].network;
-            const type = ENVOY_API_CODE[homeData.data.network.interfaces[0].type] || 'undefined';
-            const interface = homeData.data.network.interfaces[0].interface;
-            const dhcp = homeData.data.network.interfaces[0].dhcp;
-            const ip = homeData.data.network.interfaces[0].ip;
-            const carrier = homeData.data.network.interfaces[0].carrier;
+            const envoyInterfaceSignalStrength = (homeData.data.network.interfaces[0].signal_strength * 20);
+            const envoyInterfaceSignalStrengthMax = (homeData.data.network.interfaces[0].signal_strength_max * 20);
+            const envoyInterfaceNetwork = homeData.data.network.interfaces[0].network;
+            const envoyInterfaceType = ENVOY_API_CODE[homeData.data.network.interfaces[0].type] || 'undefined';
+            const envoyInterfaceInterface = homeData.data.network.interfaces[0].interface;
+            const envoyInterfaceDhcp = homeData.data.network.interfaces[0].dhcp;
+            const envoyInterfaceIp = homeData.data.network.interfaces[0].ip;
+            const envoyInterfaceCarrier = homeData.data.network.interfaces[0].carrier;
           }
           if (envoyInterfaceLan) {
-            const type = ENVOY_API_CODE[homeData.data.network.interfaces[0].type] || 'undefined';
-            const interface = homeData.data.network.interfaces[0].interface;
-            const mac = homeData.data.network.interfaces[0].mac;
-            const dhcp = homeData.data.network.interfaces[0].dhcp;
-            const ip = homeData.data.network.interfaces[0].ip;
-            const signalStrength = (homeData.data.network.interfaces[0].signal_strength * 20);
-            const signalStrengthMax = (homeData.data.network.interfaces[1].signal_strength_max * 20);
-            const carrier = homeData.data.network.interfaces[0].carrier;
+            const envoyInterfaceType = ENVOY_API_CODE[homeData.data.network.interfaces[1].type] || 'undefined';
+            const envoyInterfaceInterface = homeData.data.network.interfaces[1].interface;
+            const envoyInterfaceMac = homeData.data.network.interfaces[1].mac;
+            const envoyInterfaceDhcp = homeData.data.network.interfaces[1].dhcp;
+            const envoyInterfaceIp = homeData.data.network.interfaces[1].ip;
+            const envoyInterfaceSignalStrength = (homeData.data.network.interfaces[1].signal_strength * 20);
+            const envoyInterfaceSignalStrengthMax = (homeData.data.network.interfaces[1].signal_strength_max * 20);
+            const envoyInterfaceCarrier = homeData.data.network.interfaces[1].carrier;
           }
           if (envoyInterfaceWlan) {
-            const signalStrenth = (homeData.data.network.interfaces[1].signal_strength * 20);
-            const signalStrengthMax = (homeData.data.network.interfaces[1].signal_strength_max * 20);
-            const type = ENVOY_API_CODE[homeData.data.network.interfaces[1].type] || 'undefined';
-            const interface = homeData.data.network.interfaces[1].interface;
-            const mac = homeData.data.network.interfaces[0].mac;
-            const dhcp = homeData.data.network.interfaces[1].dhcp;
-            const ip = homeData.data.network.interfaces[1].ip;
-            const carrier = homeData.data.network.interfaces[1].carrier;
-            const supported = homeData.data.network.interfaces[1].supported;
-            const present = homeData.data.network.interfaces[1].present;
-            const configured = homeData.data.network.interfaces[1].configured;
-            const status = ENVOY_API_CODE[homeData.data.network.interfaces[1].status] || 'undefined';
+            const envoyInterfaceSignalStrenth = (homeData.data.network.interfaces[2].signal_strength * 20);
+            const envoyInterfaceSignalStrengthMax = (homeData.data.network.interfaces[2].signal_strength_max * 20);
+            const envoyInterfaceType = ENVOY_API_CODE[homeData.data.network.interfaces[2].type] || 'undefined';
+            const envoyInterfaceInterface = homeData.data.network.interfaces[2].interface;
+            const envoyInterfaceMac = homeData.data.network.interfaces[2].mac;
+            const envoyInterfaceDhcp = homeData.data.network.interfaces[2].dhcp;
+            const envoyInterfaceIp = homeData.data.network.interfaces[2].ip;
+            const envoyInterfaceCarrier = homeData.data.network.interfaces[2].carrier;
+            const envoyInterfaceSupported = homeData.data.network.interfaces[2].supported;
+            const envoyInterfacePresent = homeData.data.network.interfaces[2].present;
+            const envoyInterfaceConfigured = homeData.data.network.interfaces[2].configured;
+            const envoyInterfaceStatus = ENVOY_API_CODE[homeData.data.network.interfaces[2].status] || 'undefined';
           }
         }
         const tariff = ENVOY_API_CODE[homeData.data.tariff] || 'undefined';
