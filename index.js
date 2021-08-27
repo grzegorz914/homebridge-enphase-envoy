@@ -2724,15 +2724,15 @@ class envoyDevice {
 
       const objKeys = Object.keys(homeData.data);
       const objKeys1 = Object.keys(homeData.data.comm);
-      const enchargesInstalled = (objKeys1.indexOf('encharge') >= 0);
       const enpowerInstalled = (objKeys.indexOf('enpower') >= 0);
+      const enchargesInstalled = (objKeys1.indexOf('encharge') >= 0);
       const wirelessConnectionKitInstalled = (objKeys.indexOf('wireless_connection') >= 0);
       const wirelessConnectionKitConnectionsCount = wirelessConnectionKitInstalled ? homeData.data.wireless_connection.length : 0;
       const ensembleInstalled = (enpowerInstalled || enchargesInstalled);
 
       this.homeData = homeData;
-      this.enchargesInstalled = enchargesInstalled;
       this.enpowerInstalled = enpowerInstalled;
+      this.enchargesInstalled = enchargesInstalled;
       this.wirelessConnectionKitInstalled = wirelessConnectionKitInstalled;
       this.wirelessConnectionKitConnectionsCount = wirelessConnectionKitConnectionsCount;
       this.ensembleInstalled = ensembleInstalled;
@@ -3218,10 +3218,10 @@ class envoyDevice {
         const commNsrbLevel = (homeData.data.comm.nsrb.level * 20);
 
         //encharge
-        const commEnchgNum = enchargesInstalled ? homeData.data.comm.encharge.num : 0;
-        const commEnchgLevel = enchargesInstalled ? (homeData.data.comm.encharge.level * 20) : 0;
-        const commEnchgLevel24g = enchargesInstalled ? (homeData.data.comm.encharge.level_24g * 20) : 0;
-        const commEnchagLevelSubg = enchargesInstalled ? (homeData.data.comm.encharge.level_subg * 20) : 0;
+        const commEnchgNum = enchargesInstalled ? homeData.data.comm.encharge[0].num : 0;
+        const commEnchgLevel = enchargesInstalled ? (homeData.data.comm.encharge[0].level * 20) : 0;
+        const commEnchgLevel24g = enchargesInstalled ? (homeData.data.comm.encharge[0].level_24g * 20) : 0;
+        const commEnchagLevelSubg = enchargesInstalled ? (homeData.data.comm.encharge[0].level_subg * 20) : 0;
 
         const alerts = homeData.data.alerts;
         const updateStatus = ENVOY_API_CODE[homeData.data.update_status] || 'undefined';
