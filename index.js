@@ -2367,7 +2367,6 @@ class envoyPlatform {
       return;
     }
     this.log = log;
-    this.config = config;
     this.api = api;
     this.devices = config.devices || [];
     this.accessories = [];
@@ -2386,12 +2385,12 @@ class envoyPlatform {
   }
 
   configureAccessory(accessory) {
-    this.log.debug('configureAccessory');
+    this.log.debug('configurePlatformAccessory');
     this.accessories.push(accessory);
   }
 
   removeAccessory(accessory) {
-    this.log.debug('removeAccessory');
+    this.log.debug('removePlatformAccessory');
     this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
   }
 }
@@ -2400,7 +2399,6 @@ class envoyDevice {
   constructor(log, config, api) {
     this.log = log;
     this.api = api;
-    this.config = config;
 
     //device configuration
     this.name = config.name || 'Envoy';
@@ -2595,23 +2593,16 @@ class envoyDevice {
     this.consumptionPowerMaxFile1 = this.prefDir + '/' + 'consumptionPowerMax1_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
 
-    //check if prefs directory ends with a /, if not then add it
-    if (this.prefDir.endsWith('/') == false) {
-      this.prefDir = this.prefDir + '/';
-    }
     //check if the directory exists, if not then create it
     if (fs.existsSync(this.prefDir) == false) {
       fsPromises.mkdir(this.prefDir);
     }
-    //check if the files exists, if not then create it
     if (fs.existsSync(this.productionPowerMaxFile) == false) {
       fsPromises.writeFile(this.productionPowerMaxFile, '0.0');
     }
-    //check if the files exists, if not then create it
     if (fs.existsSync(this.consumptionPowerMaxFile) == false) {
       fsPromises.writeFile(this.consumptionPowerMaxFile, '0.0');
     }
-    //check if the files exists, if not then create it
     if (fs.existsSync(this.consumptionPowerMaxFile1) == false) {
       fsPromises.writeFile(this.consumptionPowerMaxFile1, '0.0');
     }
@@ -2733,7 +2724,7 @@ class envoyDevice {
         const envoyInterfaceCellular = (objValues.indexOf('cellular') >= 0);
         const envoyInterfaceLan = (objValues.indexOf('ethernet') >= 0);
         const envoyInterfaceWlan = (objValues.indexOf('wifi') >= 0);
-        const envoyInterfaceStartIndex = envoyInterfaceCellular ? 1 : 0
+        const envoyInterfaceStartIndex = envoyInterfaceCellular ? 1 : 0;
 
         this.envoyInterfaceCellular = envoyInterfaceCellular;
         this.envoyInterfaceLan = envoyInterfaceLan;
