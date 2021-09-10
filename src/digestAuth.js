@@ -1,6 +1,6 @@
 "use strict";
 const crypto = require('crypto');
-const axios = require('axios').default;
+const axios = require('axios');
 let count = 0;
 
 class axiosDigestAuth {
