@@ -2593,7 +2593,7 @@ class envoyDevice {
     this.consumptionPowerMaxFile1 = this.prefDir + '/' + 'consumptionPowerMax1_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
 
-    this.envoy = axios.create({
+    this.axiosInstance = axios.create({
       method: 'GET',
       baseURL: this.url,
       timeout: 12000
@@ -2647,7 +2647,7 @@ class envoyDevice {
   async updateInfoData() {
     this.log.debug('Device: %s %s, requesting infoData.', this.host, this.name);
     try {
-      const infoData = await this.envoy(ENVOY_API_URL.Info);
+      const infoData = await this.axiosInstance(ENVOY_API_URL.Info);
       this.log.debug('Device %s %s, debug infoData: %s', this.host, this.name, infoData.data);
       const parseInfoData = await parseStringPromise(infoData.data);
       this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2));
@@ -2683,7 +2683,7 @@ class envoyDevice {
       //get envoyDevId
       try {
         if (this.checkDeviceInfo) {
-          const envoyBackboneAppData = await this.envoy(ENVOY_API_URL.BackboneApplication);
+          const envoyBackboneAppData = await this.axiosInstance(ENVOY_API_URL.BackboneApplication);
           const data = envoyBackboneAppData.data;
           const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
           if (envoyDevId.length == 9) {
@@ -2721,7 +2721,7 @@ class envoyDevice {
   async updateHomeData() {
     this.log.debug('Device: %s %s, requesting homeData.', this.host, this.name);
     try {
-      const homeData = await this.envoy(ENVOY_API_URL.Home);
+      const homeData = await this.axiosInstance(ENVOY_API_URL.Home);
       this.log.debug('Device %s %s, debug homeData: %s', this.host, this.name, homeData.data);
 
       const envoyInterfacesCount = homeData.data.network.interfaces.length;
@@ -2802,7 +2802,7 @@ class envoyDevice {
   async updateInventoryData() {
     this.log.debug('Device: %s %s, requesting inventoryData.', this.host, this.name);
     try {
-      const inventoryData = await this.envoy(ENVOY_API_URL.Inventory);
+      const inventoryData = await this.axiosInstance(ENVOY_API_URL.Inventory);
       this.log.debug('Device %s %s, debug inventoryData: %s', this.host, this.name, inventoryData.data);
 
       const microinvertersCount = inventoryData.data[0].devices.length;
@@ -2838,7 +2838,7 @@ class envoyDevice {
   async updateMetersData() {
     this.log.debug('Device: %s %s, requesting metersData.', this.host, this.name);
     try {
-      const metersData = await this.envoy(ENVOY_API_URL.InternalMeterInfo);
+      const metersData = await this.axiosInstance(ENVOY_API_URL.InternalMeterInfo);
       this.log.debug('Device %s %s, debug metersData: %s', this.host, this.name, metersData.data);
 
       const metersCount = metersData.data.length;
@@ -2927,7 +2927,7 @@ class envoyDevice {
   async updateProductionData() {
     this.log.debug('Device: %s %s, requesting productionData.', this.host, this.name);
     try {
-      const productionData = await this.envoy(ENVOY_API_URL.InverterProductionSumm);
+      const productionData = await this.axiosInstance(ENVOY_API_URL.InverterProductionSumm);
       this.log.debug('Debug productionData: %s', productionData.data);
 
       this.productionData = productionData;
@@ -2943,7 +2943,7 @@ class envoyDevice {
   async updateProductionCtData() {
     this.log.debug('Device: %s %s, requesting productionCtData.', this.host, this.name);
     try {
-      const productionCtData = await this.envoy(ENVOY_API_URL.SystemReadingStats);
+      const productionCtData = await this.axiosInstance(ENVOY_API_URL.SystemReadingStats);
       this.log.debug('Debug productionCtData: %s', productionCtData.data);
 
       const metersConsumptionCount = this.metersConsumptionEnabled ? productionCtData.data.consumption.length : 0;
@@ -2999,7 +2999,7 @@ class envoyDevice {
   async updateMetersReadingData() {
     this.log.debug('Device: %s %s, requesting metersReadingData.', this.host, this.name);
     try {
-      const metersReadingData = await this.envoy(ENVOY_API_URL.InternalMeterReadings);
+      const metersReadingData = await this.axiosInstance(ENVOY_API_URL.InternalMeterReadings);
       this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
       const metersReadingCount = metersReadingData.data.length;
       const metersReadingInstalled = (metersReadingCount > 0);

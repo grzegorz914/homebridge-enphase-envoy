@@ -117,6 +117,30 @@
       {
         "key": "devices[]",
         "type": "section",
+        "title": "Production",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "devices[].powerProductionMaxDetected",
+          "devices[].energyProductionLifetimeOffset"
+        ]
+      },
+      {
+        "key": "devices[]",
+        "type": "section",
+        "title": "Consumption",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "devices[].powerConsumptionTotalMaxDetected",
+          "devices[].energyConsumptionTotalLifetimeOffset",
+          "devices[].powerConsumptionNetMaxDetected",
+          "devices[].energyConsumptionNetLifetimeOffset"
+        ]
+      },
+      {
+        "key": "devices[]",
+        "type": "section",
         "title": "Authorization",
         "expandable": true,
         "expanded": false,
@@ -133,13 +157,7 @@
         "expanded": false,
         "items": [
           "devices[].disableLogInfo",
-          "devices[].refreshInterval",
-          "devices[].powerProductionMaxDetected",
-          "devices[].energyProductionLifetimeOffset",
-          "devices[].powerConsumptionTotalMaxDetected",
-          "devices[].energyConsumptionTotalLifetimeOffset",
-          "devices[].powerConsumptionNetMaxDetected",
-          "devices[].energyConsumptionNetLifetimeOffset"
+          "devices[].refreshInterval"
         ]
       }
     ]
