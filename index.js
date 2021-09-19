@@ -4,7 +4,7 @@ const path = require('path');
 const axios = require('axios');
 const axiosDigestAuth = require('./src/digestAuth.js');
 const fs = require('fs');
-const fsPromises = require('fs').promises;
+const fsPromises = fs.promises;
 const parseStringPromise = require('xml2js').parseStringPromise;
 
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
@@ -2587,29 +2587,35 @@ class envoyDevice {
     this.enpowerAggBackupEnergy = 0;
     this.enpowerAggAvailEnergy = 0;
 
-    this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoyService');
-    this.productionPowerMaxFile = this.prefDir + '/' + 'productionPowerMax_' + this.host.split('.').join('');
-    this.consumptionPowerMaxFile = this.prefDir + '/' + 'consumptionPowerMax_' + this.host.split('.').join('');
-    this.consumptionPowerMaxFile1 = this.prefDir + '/' + 'consumptionPowerMax1_' + this.host.split('.').join('');
+    const prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
+    this.productionPowerMaxFile = prefDir + '/' + 'productionPowerMax_' + this.host.split('.').join('');
+    this.consumptionPowerMaxFile = prefDir + '/' + 'consumptionPowerMax_' + this.host.split('.').join('');
+    this.consumptionPowerMaxFile1 = prefDir + '/' + 'consumptionPowerMax1_' + this.host.split('.').join('');
     this.url = 'http://' + this.host;
 
+    //create axios instanse
     this.axiosInstance = axios.create({
       method: 'GET',
-      baseURL: this.url,
-      timeout: 12000
+      baseURL: this.url
+    });
+
+    //digest auth installer
+    this.digestAuth = new axiosDigestAuth({
+      user: INSTALLER_USER,
+      passwd: this.installerPasswd
     });
 
     //check if the directory exists, if not then create it
-    if (fs.existsSync(this.prefDir) == false) {
-      fsPromises.mkdir(this.prefDir);
+    if (!fs.existsSync(prefDir)) {
+      fsPromises.mkdir(prefDir);
     }
-    if (fs.existsSync(this.productionPowerMaxFile) == false) {
+    if (!fs.existsSync(this.productionPowerMaxFile)) {
       fsPromises.writeFile(this.productionPowerMaxFile, '0.0');
     }
-    if (fs.existsSync(this.consumptionPowerMaxFile) == false) {
+    if (!fs.existsSync(this.consumptionPowerMaxFile)) {
       fsPromises.writeFile(this.consumptionPowerMaxFile, '0.0');
     }
-    if (fs.existsSync(this.consumptionPowerMaxFile1) == false) {
+    if (!fs.existsSync(this.consumptionPowerMaxFile1)) {
       fsPromises.writeFile(this.consumptionPowerMaxFile1, '0.0');
     }
 
@@ -2766,11 +2772,6 @@ class envoyDevice {
   async updateProductionPowerModeData() {
     this.log.debug('Device: %s %s, requesting powerModeData.', this.host, this.name);
     try {
-      const digestAuth = new axiosDigestAuth({
-        user: INSTALLER_USER,
-        passwd: this.installerPasswd
-      });
-
       const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
       const options = {
         headers: {
@@ -2780,7 +2781,7 @@ class envoyDevice {
         url: this.url + powerModeUrl
       }
 
-      const powerModeData = await digestAuth.request(options);
+      const powerModeData = await this.digestAuth.request(options);
       this.log.debug('Debug powerModeData: %s', powerModeData.data);
       const productionPowerMode = (powerModeData.data.powerForcedOff == false);
 
@@ -2864,11 +2865,6 @@ class envoyDevice {
   async updateEnsembleInventoryData() {
     this.log.debug('Device: %s %s, requesting ensembleInventoryData.', this.host, this.name);
     try {
-      const digestAuth = new axiosDigestAuth({
-        user: INSTALLER_USER,
-        passwd: this.installerPasswd
-      });
-
       const options = {
         headers: {
           Accept: 'application/json'
@@ -2877,7 +2873,7 @@ class envoyDevice {
         url: this.url + ENVOY_API_URL.EnsembleInventory
       }
 
-      const ensembleInventoryData = await digestAuth.request(options);
+      const ensembleInventoryData = await this.digestAuth.request(options);
       this.log.debug('Device %s %s, debug ensembleInventoryData: %s', this.host, this.name, ensembleInventoryData.data);
 
       const enchargesCount = ensembleInventoryData.data[0].devices.length;
@@ -2898,11 +2894,6 @@ class envoyDevice {
   async updateEnsembleStatusData() {
     this.log.debug('Device: %s %s, requesting ensembleStatusData.', this.host, this.name);
     try {
-      const digestAuth = new axiosDigestAuth({
-        user: INSTALLER_USER,
-        passwd: this.installerPasswd
-      });
-
       const options = {
         headers: {
           Accept: 'application/json'
@@ -2911,7 +2902,7 @@ class envoyDevice {
         url: this.url + ENVOY_API_URL.EnsembleStatus
       }
 
-      const ensembleStatusData = await digestAuth.request(options);
+      const ensembleStatusData = await this.digestAuth.request(options);
       this.log.debug('Debug ensembleStatusData: %s', ensembleStatusData.data);
 
       this.ensembleStatusData = ensembleStatusData;
@@ -3078,11 +3069,6 @@ class envoyDevice {
   async updateCommLevelData() {
     this.log.debug('Device: %s %s, requesting pcuCommLevelData.', this.host, this.name);
     try {
-      const digestAuth = new axiosDigestAuth({
-        user: INSTALLER_USER,
-        passwd: this.installerPasswd,
-      });
-
       const options = {
         headers: {
           Accept: 'application/json'
@@ -3091,7 +3077,7 @@ class envoyDevice {
         url: this.url + ENVOY_API_URL.InverterComm
       }
 
-      const pcuCommLevelData = await digestAuth.request(options);
+      const pcuCommLevelData = await this.digestAuth.request(options);
       const commLevel = pcuCommLevelData.data;
       this.log.debug('Debug pcuCommCheck: %s', commLevel);
 
@@ -4625,11 +4611,6 @@ class envoyDevice {
         })
         .onSet(async (state) => {
           try {
-            const digestAuth = new axiosDigestAuth({
-              user: INSTALLER_USER,
-              passwd: this.installerPasswd,
-            });
-
             const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
             const data = JSON.stringify({
               length: 1,
@@ -4644,7 +4625,7 @@ class envoyDevice {
               data: data
             }
 
-            const powerModeData = await digestAuth.request(options);
+            const powerModeData = await this.digestAuth.request(options);
             this.log.debug('Debug set powerModeData: %s', powerModeData.res, powerModeData.headers, powerModeData.data);
           } catch (error) {
             this.log.debug('Device: %s %s, set powerModeData error: %s', this.host, this.name, error);
