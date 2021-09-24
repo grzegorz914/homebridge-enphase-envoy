@@ -2596,7 +2596,7 @@ class envoyDevice {
 
     //Check data
     setInterval(function () {
-      if (!this.checkDeviceState) {
+      if (this.checkDeviceInfo) {
         this.updateEnvoyBackboneAppData();
       } else {
         this.updateHomeData();
@@ -2605,17 +2605,13 @@ class envoyDevice {
 
     //Check microinverters data
     setInterval(function () {
-      if (this.checkDeviceState && this.envoyPasswd) {
-        this.updateMicroinvertersData();
-      }
+      const updateData = (this.checkDeviceState && this.envoyPasswd) ? this.updateMicroinvertersData() : false;
     }.bind(this), 60000);
 
     //Check meters reading data
     setInterval(function () {
-      if (this.checkDeviceState) {
-        if (this.envoySupportMeters) {
-          this.updateMetersReadingData();
-        };
+      if (!this.checkDeviceInfo) {
+        const updateData = (this.checkDeviceState && this.envoySupportMeters) ? this.updateMetersReadingData() : false;
       }
     }.bind(this), 2000);
 
@@ -2634,7 +2630,7 @@ class envoyDevice {
       this.updateInfoData();
     } catch (error) {
       this.log.error('Device: %s %s, requesting envoyBackboneAppData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -2692,7 +2688,7 @@ class envoyDevice {
       } else {
         this.log.error('Device: %s %s, requesting infoData error: %s', this.host, this.name, error);
       }
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -2902,7 +2898,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -3180,7 +3176,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.log.error('Device: %s %s, inventoryData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -3252,7 +3248,6 @@ class envoyDevice {
       }
     } catch (error) {
       this.log.error('Device: %s %s, metersData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
   }
@@ -3459,7 +3454,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.log.error('Device: %s %s, ensembleInventoryData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -3662,7 +3657,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.log.error('Device: %s %s, ensembleStatusData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -3690,7 +3685,6 @@ class envoyDevice {
       }
     } catch (error) {
       this.log.error('Device: %s %s, productionData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
       this.checkDeviceInfo = true;
     };
   }
@@ -3920,11 +3914,11 @@ class envoyDevice {
           this.acBatteriesSummaryState = chargeStatus;
           this.acBatteriesSummaryPercentFull = percentFull;
         }
-        const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = this.checkDeviceState ? false : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
+        const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? false : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.log.error('Device: %s %s, productionCtData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -3982,11 +3976,11 @@ class envoyDevice {
           this.microinvertersMaxPower.push(maxReportWatts);
         }
         this.microinvertersUpdatePower = true;
-        const updateMetersReadingOrProductionPowerModeOrDeviceInfo = this.checkDeviceState ? false : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
+        const updateMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? false : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.log.error('Device: %s %s, microinvertersData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
       this.microinvertersUpdatePower = false;
     };
   }
@@ -4125,11 +4119,11 @@ class envoyDevice {
         this.metersReadingCount = metersReadingCount;
         this.metersReadingInstalled = metersReadingInstalled;
 
-        const updateProductionPowerModeOrDeviceInfo = this.checkDeviceState ? false : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
+        const updateProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? false : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.log.error('Device: %s %s, metersReadingData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -4157,11 +4151,11 @@ class envoyDevice {
         }
         this.productionPowerMode = productionPowerMode;
 
-        const getaDeviceInfo = this.checkDeviceState ? false : this.getDeviceInfo();
+        const getaDeviceInfo = !this.checkDeviceInfo ? false : this.getDeviceInfo();
       }
     } catch (error) {
       this.log.error('Device: %s %s, powerModeData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
@@ -4285,11 +4279,12 @@ class envoyDevice {
       }
       this.log('--------------------------------');
 
+      this.checkDeviceInfo = false;
       this.checkDeviceState = true;
       const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
     } catch (error) {
       this.log.error('Device: %s %s, getDeviceInfo eror: %s.', this.host, this.name, error);
-      this.checkDeviceState = false;
+      this.checkDeviceInfo = true;
     };
   }
 
