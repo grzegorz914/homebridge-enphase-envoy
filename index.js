@@ -301,14 +301,14 @@ const ENCHARGE_LED_STATUS = {
   20: '20'
 };
 
-let Accessory, Characteristic, Service, Categories, AccessoryUUID;
+let Accessory, Characteristic, Service, Categories, UUID;
 
 module.exports = (api) => {
   Accessory = api.platformAccessory;
   Characteristic = api.hap.Characteristic;
   Service = api.hap.Service;
   Categories = api.hap.Categories;
-  AccessoryUUID = api.hap.uuid;
+  UUID = api.hap.uuid;
 
   //Envoy
   class enphaseEnvoyAlerts extends Characteristic {
@@ -2479,9 +2479,10 @@ class envoyDevice {
     this.metersProductionPhaseCount = 1;
     this.metersConsumptionEnabled = false;
     this.metersConsumpionPhaseCount = 1;
+    this.metersConsumptionCount = 0;
     this.metersReadingInstalled = false;
     this.metersReadingCount = 0;
-    this.metersReadingChannelsCount = 0;
+    this.metersReadingPhaseCount = 0;
 
     //production
     this.productionMicroSummarywhToday = 0;
@@ -2595,12 +2596,10 @@ class envoyDevice {
 
     //Check data
     setInterval(function () {
-      if (this.checkDeviceInfo) {
-        this.updateInfoData();
+      if (!this.checkDeviceState) {
+        this.updateEnvoyBackboneAppData();
       } else {
-        if (this.checkDeviceState) {
-          this.updateHomeData();
-        }
+        this.updateHomeData();
       }
     }.bind(this), this.refreshInterval * 1000);
 
@@ -2620,7 +2619,23 @@ class envoyDevice {
       }
     }.bind(this), 2000);
 
-    this.updateInfoData();
+    this.updateEnvoyBackboneAppData();
+  }
+
+  async updateEnvoyBackboneAppData() {
+    this.log.debug('Device: %s %s, requesting envoyBackboneAppData.', this.host, this.name);
+    try {
+      const envoyBackboneAppData = await this.axiosInstance(ENVOY_API_URL.BackboneApplication);
+      this.log.debug('Device %s %s, debug envoyBackboneAppData: %s', this.host, this.name, envoyBackboneAppData.data);
+      const data = envoyBackboneAppData.data;
+      const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
+
+      this.envoyDevId = envoyDevId;
+      this.updateInfoData();
+    } catch (error) {
+      this.log.error('Device: %s %s, requesting envoyBackboneAppData error: %s', this.host, this.name, error);
+      this.checkDeviceState = false;
+    };
   }
 
   async updateInfoData() {
@@ -2628,60 +2643,49 @@ class envoyDevice {
     try {
       const infoData = await this.axiosInstance(ENVOY_API_URL.Info);
       this.log.debug('Device %s %s, debug infoData: %s', this.host, this.name, infoData.data);
-      const parseInfoData = await parseStringPromise(infoData.data);
-      this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2));
 
-      //envoy info
-      const time = new Date(parseInfoData.envoy_info.time[0] * 1000).toLocaleString();
+      if (infoData.status == 200) {
+        const parseInfoData = await parseStringPromise(infoData.data);
+        this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2));
 
-      //device
-      const deviceSn = parseInfoData.envoy_info.device[0].sn[0];
-      const devicePn = ENPHASE_PART_NUMBER[parseInfoData.envoy_info.device[0].pn[0]] || 'Envoy'
-      const deviceSoftware = parseInfoData.envoy_info.device[0].software[0];
-      const deviceEuaid = parseInfoData.envoy_info.device[0].euaid[0];
-      const deviceSeqNum = parseInfoData.envoy_info.device[0].seqnum[0];
-      const deviceApiVer = parseInfoData.envoy_info.device[0].apiver[0];
-      const deviceImeter = (parseInfoData.envoy_info.device[0].imeter[0] == 'true');
+        //envoy info
+        const time = new Date(parseInfoData.envoy_info.time[0] * 1000).toLocaleString();
 
-      //packages
-      const packagesCount = parseInfoData.envoy_info.package.length;
-      for (let i = 0; i < packagesCount; i++) {
-        const packageName = parseInfoData.envoy_info.package[i].$.name;
-        const packagePn = parseInfoData.envoy_info.package[i].pn[0];
-        const packageVersion = parseInfoData.envoy_info.package[i].version[0];
-        const packageBuild = parseInfoData.envoy_info.package[i].build[0];
-      }
+        //device
+        const deviceSn = parseInfoData.envoy_info.device[0].sn[0];
+        const devicePn = ENPHASE_PART_NUMBER[parseInfoData.envoy_info.device[0].pn[0]] || 'Envoy'
+        const deviceSoftware = parseInfoData.envoy_info.device[0].software[0];
+        const deviceEuaid = parseInfoData.envoy_info.device[0].euaid[0];
+        const deviceSeqNum = parseInfoData.envoy_info.device[0].seqnum[0];
+        const deviceApiVer = parseInfoData.envoy_info.device[0].apiver[0];
+        const deviceImeter = (parseInfoData.envoy_info.device[0].imeter[0] == 'true');
 
-      //build info
-      const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
-      const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
-
-      //check firmware version
-      const envoyFirmwareSupported = (deviceSoftware.substr(1, 1) <= 6);
-
-      //get envoyDevId
-      try {
-        if (this.checkDeviceInfo) {
-          const envoyBackboneAppData = await this.axiosInstance(ENVOY_API_URL.BackboneApplication);
-          const data = envoyBackboneAppData.data;
-          const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
-          if (envoyDevId.length == 9) {
-            this.envoyDevId = envoyDevId;
-          }
+        //packages
+        const packagesCount = parseInfoData.envoy_info.package.length;
+        for (let i = 0; i < packagesCount; i++) {
+          const packageName = parseInfoData.envoy_info.package[i].$.name;
+          const packagePn = parseInfoData.envoy_info.package[i].pn[0];
+          const packageVersion = parseInfoData.envoy_info.package[i].version[0];
+          const packageBuild = parseInfoData.envoy_info.package[i].build[0];
         }
-      } catch (error) {
-        this.log.error('Device: %s %s, requesting envoyDevId error: %s', this.host, this.name, error);
-      };
 
-      //envoy
-      this.envoyTime = time;
-      this.envoySerialNumber = deviceSn;
-      this.envoyModelName = devicePn;
-      this.envoyFirmware = deviceSoftware;
-      this.envoySupportMeters = deviceImeter;
-      this.envoyFirmwareSupported = envoyFirmwareSupported;
+        //build info
+        const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
+        const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
 
-      const updateHomeData = infoData.status == 200 ? this.updateHomeData() : false;
+        //check firmware version
+        const envoyFirmwareSupported = (deviceSoftware.substr(1, 1) <= 6);
+
+        //envoy
+        this.envoyTime = time;
+        this.envoySerialNumber = deviceSn;
+        this.envoyModelName = devicePn;
+        this.envoyFirmware = deviceSoftware;
+        this.envoySupportMeters = deviceImeter;
+        this.envoyFirmwareSupported = envoyFirmwareSupported;
+
+        this.updateHomeData();
+      }
     } catch (error) {
       if (error.code == 'DEPTH_ZERO_SELF_SIGNED_CERT') {
         this.log('Device: %s %s, brobably uses new firmware 07.x.xx, this firmware contain new authentication method and is not supported right now', this.host, this.name)
@@ -2689,7 +2693,6 @@ class envoyDevice {
         this.log.error('Device: %s %s, requesting infoData error: %s', this.host, this.name, error);
       }
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
     };
   }
 
@@ -2895,46 +2898,14 @@ class envoyDevice {
         this.envoyEnpowerGridStatus = enpowerGridStatus;
         this.envoyInterfacesCount = envoyInterfacesCount;
 
-        const updateProductionPowerModeOrInventoryData = (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.updateInventoryData();
+        this.updateInventoryData();
       }
     } catch (error) {
       this.log.error('Device: %s %s, homeData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
     };
   }
 
-  async updateProductionPowerModeData() {
-    this.log.debug('Device: %s %s, requesting powerModeData.', this.host, this.name);
-    try {
-      const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
-      const options = {
-        headers: {
-          Accept: 'application/json'
-        },
-        method: 'GET',
-        url: this.url + powerModeUrl
-      }
-
-      const powerModeData = await this.digestAuth.request(options);
-      this.log.debug('Debug powerModeData: %s', powerModeData.data);
-
-      if (powerModeData.status == 200) {
-        const productionPowerMode = (powerModeData.data.powerForcedOff == false);
-
-        if (this.envoysService) {
-          this.envoysService[0]
-            .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, productionPowerMode)
-        }
-        this.productionPowerMode = productionPowerMode;
-        this.updateInventoryData()
-      }
-    } catch (error) {
-      this.log.error('Device: %s %s, powerModeData error: %s', this.host, this.name, error);
-      this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
-    };
-  }
 
   async updateInventoryData() {
     this.log.debug('Device: %s %s, requesting inventoryData.', this.host, this.name);
@@ -3210,7 +3181,6 @@ class envoyDevice {
     } catch (error) {
       this.log.error('Device: %s %s, inventoryData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
     };
   }
 
@@ -3490,7 +3460,6 @@ class envoyDevice {
     } catch (error) {
       this.log.error('Device: %s %s, ensembleInventoryData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
     };
   }
 
@@ -3694,7 +3663,6 @@ class envoyDevice {
     } catch (error) {
       this.log.error('Device: %s %s, ensembleStatusData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
     };
   }
 
@@ -3952,12 +3920,11 @@ class envoyDevice {
           this.acBatteriesSummaryState = chargeStatus;
           this.acBatteriesSummaryPercentFull = percentFull;
         }
-        const updateMicroinvertersOrMetersReadingOrDeviceInfoData = !this.checkDeviceState ? this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : this.getDeviceInfo() : false;
+        const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = this.checkDeviceState ? false : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.log.error('Device: %s %s, productionCtData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
     };
   }
 
@@ -4015,12 +3982,11 @@ class envoyDevice {
           this.microinvertersMaxPower.push(maxReportWatts);
         }
         this.microinvertersUpdatePower = true;
-        const updateMetersReadingOrDeviceInfoData = !this.checkDeviceState ? this.metersInstalled ? this.updateMetersReadingData() : this.getDeviceInfo() : false;
+        const updateMetersReadingOrProductionPowerModeOrDeviceInfo = this.checkDeviceState ? false : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.log.error('Device: %s %s, microinvertersData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
       this.microinvertersUpdatePower = false;
     };
   }
@@ -4101,8 +4067,8 @@ class envoyDevice {
             this.freqSumm.push(freq);
 
             //meters reading phases data
-            const metersReadingChannelsCount = metersReadingData.data[i].channels.length;
-            if (metersReadingChannelsCount > 0) {
+            const metersReadingPhaseCount = metersReadingData.data[i].channels.length;
+            if (metersReadingPhaseCount > 0) {
               this.eidPhase = new Array();
               this.timestampPhase = new Array();
               this.actEnergyDlvdPhase = new Array();
@@ -4119,7 +4085,7 @@ class envoyDevice {
               this.currentPhase = new Array();
               this.freqPhase = new Array();
 
-              for (let j = 0; j < metersReadingChannelsCount; j++) {
+              for (let j = 0; j < metersReadingPhaseCount; j++) {
                 const eid = metersReadingData.data[i].channels[j].eid;
                 const timestamp = new Date(metersReadingData.data[i].channels[j].timestamp * 1000).toLocaleString();
                 const actEnergyDlvd = parseFloat(metersReadingData.data[i].channels[j].actEnergyDlvd);
@@ -4153,17 +4119,49 @@ class envoyDevice {
                 this.freqPhase.push(freq);
               }
             }
-            this.metersReadingChannelsCount = metersReadingChannelsCount;
+            this.metersReadingPhaseCount = metersReadingPhaseCount;
           }
         }
         this.metersReadingCount = metersReadingCount;
         this.metersReadingInstalled = metersReadingInstalled;
-        const getaDeviceInfo = !this.checkDeviceState ? this.getDeviceInfo() : false;
+
+        const updateProductionPowerModeOrDeviceInfo = this.checkDeviceState ? false : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.log.error('Device: %s %s, metersReadingData error: %s', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
+    };
+  }
+
+  async updateProductionPowerModeData() {
+    this.log.debug('Device: %s %s, requesting powerModeData.', this.host, this.name);
+    try {
+      const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
+      const options = {
+        headers: {
+          Accept: 'application/json'
+        },
+        method: 'GET',
+        url: this.url + powerModeUrl
+      }
+
+      const powerModeData = await this.digestAuth.request(options);
+      this.log.debug('Debug powerModeData: %s', powerModeData.data);
+
+      if (powerModeData.status == 200) {
+        const productionPowerMode = (powerModeData.data.powerForcedOff == false);
+
+        if (this.envoysService) {
+          this.envoysService[0]
+            .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, productionPowerMode)
+        }
+        this.productionPowerMode = productionPowerMode;
+
+        const getaDeviceInfo = this.checkDeviceState ? false : this.getDeviceInfo();
+      }
+    } catch (error) {
+      this.log.error('Device: %s %s, powerModeData error: %s', this.host, this.name, error);
+      this.checkDeviceState = false;
     };
   }
 
@@ -4287,15 +4285,11 @@ class envoyDevice {
       }
       this.log('--------------------------------');
 
-      this.checkDeviceInfo = false;
       this.checkDeviceState = true;
-
-      //start prepare accessory
       const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
     } catch (error) {
       this.log.error('Device: %s %s, getDeviceInfo eror: %s.', this.host, this.name, error);
       this.checkDeviceState = false;
-      this.checkDeviceInfo = true;
     };
   }
 
@@ -4303,7 +4297,7 @@ class envoyDevice {
   prepareAccessory() {
     this.log.debug('prepareAccessory');
     const accessoryName = this.name;
-    const accessoryUUID = AccessoryUUID.generate(accessoryName);
+    const accessoryUUID = UUID.generate(this.envoySerialNumber);
     const accessoryCategory = Categories.OTHER;
     const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
 
