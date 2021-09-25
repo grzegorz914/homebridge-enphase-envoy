@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.4.21] - (25.09.2021)
+## Changes
+- code cleanup
+
 ## [5.4.19] - (24.09.2021)
 ## Changes
 ### WARNING - after this update nedd to remove and add accessory to the HomeKit again
