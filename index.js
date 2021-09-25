@@ -4003,7 +4003,6 @@ class envoyDevice {
       if (metersReadingData.status == 200) {
         const metersReadingCount = metersReadingData.data.length;
         const metersReadingInstalled = (metersReadingCount > 0);
-        const metersReadingPhaseCount = metersReadingData.data[i].channels.length;
 
         //meters
         if (metersReadingInstalled) {
@@ -4071,6 +4070,7 @@ class envoyDevice {
             this.freqSumm.push(freq);
 
             //meters reading phases data
+            const metersReadingPhaseCount = metersReadingData.data[i].channels.length;
             if (metersReadingPhaseCount > 0) {
               this.eidPhase = new Array();
               this.timestampPhase = new Array();
@@ -4122,11 +4122,11 @@ class envoyDevice {
                 this.freqPhase.push(freq);
               }
             }
+            this.metersReadingPhaseCount = metersReadingPhaseCount;
           }
         }
         this.metersReadingCount = metersReadingCount;
         this.metersReadingInstalled = metersReadingInstalled;
-        this.metersReadingPhaseCount = metersReadingPhaseCount;
 
         const updateProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? false : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
