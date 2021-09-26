@@ -39,6 +39,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Installer *password* is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharges).
 * Installer [password need to be generated](https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/).
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
+* Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
 
 ### Important changes
 #### v5.2.15 and above!
