@@ -95,8 +95,7 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | `energyConsumptionTotalLifetimeOffset` | set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
 | `powerConsumptionNetMaxDetected` | set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionNetLifetimeOffset` | set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
-| `manufacturer` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
-| `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
+| `manufacturer`, `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
 
 ```json
         {
