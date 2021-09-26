@@ -77,24 +77,25 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 ## Configuration Values
 | Key | Description | 
 | --- | --- |
-| `host` | set the *IP Address* or *host Name* or leave empy (will be used default path `envoy.local`) |
-| `refreshInterval` | Set the data refresh time in seconds, default is every 5 seconds |
-| `disableLogInfo`| If `true` then disable log info, all values and state will not be displayed in Homebridge log console |
-| `envoyUser` | here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
-| `envoyPasswd` | here set the envoy password (only if U already changed the default password) |
-| `installerUser` | here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
-| `installerPasswd` | here set the optional installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/" |
+| `name` | Here set the accessory *Name* to be displayed in *Homebridge/HomeKit*. |
+| `host` | Here set the *IP Address* or *Hostname* or leave empy (will be used default path `envoy.local`) |
+| `refreshInterval` | Here set the data refresh time in seconds, default is every 5 seconds |
+| `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
+| `envoyUser` | Here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
+| `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
+| `installerUser` | Here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
+| `installerPasswd` | Here set the optional installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/" |
 | `enchargeStorage` | check *ON* if AC Batteries are installed. (not available from v3.5.0) |
-| `acBatteriesStorageOffset` | set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) (not available from v4.9.0)|
-| `powerConsumptionMetersInstalled` | check *ON* if consumption meters are installed. (not available from v3.5.0) |
-| `powerProductionMeter` | select which *meter* will be used to display Power production. (not available from v3.5.0) |
-| `powerProductionMaxDetected` | set the *maximum production Power*, if the Power production will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
-| `energyProductionLifetimeOffset` | set the *Offset* of lifetime energy production if nedded in (Wh),(+/-) |
-| `powerConsumptionMeter` | select which *meter* will be used to display Power consumption. (not available from v3.5.0)
-| `powerConsumptionTotalMaxDetected` | set the *maximum total consumption Power*, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit |
-| `energyConsumptionTotalLifetimeOffset` | set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
-| `powerConsumptionNetMaxDetected` | set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
-| `energyConsumptionNetLifetimeOffset` | set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
+| `acBatteriesStorageOffset` | Here set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) (not available from v4.9.0)|
+| `powerConsumptionMetersInstalled` | Here check *ON* if consumption meters are installed. (not available from v3.5.0) |
+| `powerProductionMeter` | Here select which *meter* will be used to display Power production. (not available from v3.5.0) |
+| `powerProductionMaxDetected` | Here set the *maximum production Power*, if the Power production will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
+| `energyProductionLifetimeOffset` | Here set the *Offset* of lifetime energy production if nedded in (Wh),(+/-) |
+| `powerConsumptionMeter` | Here select which *meter* will be used to display Power consumption. (not available from v3.5.0)
+| `powerConsumptionTotalMaxDetected` | Here set the *maximum total consumption Power*, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit |
+| `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
+| `powerConsumptionNetMaxDetected` | Here set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
+| `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
 | `manufacturer`, `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
 
 ```json
