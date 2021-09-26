@@ -173,8 +173,7 @@ Data refresh time
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" width="200"></a>
 </p>
 
-## What's new:
-https://github.com/grzegorz914/homebridge-enphase-envoy/blob/master/CHANGELOG.md
+## [What's New](https://github.com/grzegorz914/homebridge-enphase-envoy/blob/master/CHANGELOG.md)
 
 ## Development
 Please feel free to create a Pull request and help in development. It will be highly appreciated.
