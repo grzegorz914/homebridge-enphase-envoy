@@ -143,6 +143,8 @@ Each accessory needs to be manually paired.
   * AC Batteries.
   * Ensemble.
   * Encharges.
+  * Production.
+  * Consumption.
 
 # Bonus Top Bar on Mac!!!
 1. Download `enphase_envoy.15s.rb`.
