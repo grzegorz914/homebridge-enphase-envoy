@@ -133,16 +133,16 @@ Each accessory needs to be manually paired.
 5. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
 
 ## Limitations
-* Due to a HomeKit limitation, that maximum services for 1 accessory is 100. Acessory containing > 100 services will not respond.
-* The services in this accessory are:
-  * Information service.
-  * Envoy service.
-  * Q-Relays service.
-  * Meters service.
-  * Microinverters service.
-  * AC Batteries service.
-  * Ensemble service.
-  * Encharges Service.
+* That maximum Services for 1 accessory is 100. If Services > 100, accessory stop responding.
+* The Services in this accessory are:
+  * Information.
+  * Envoy.
+  * Q-Relays.
+  * Meters.
+  * Microinverters.
+  * AC Batteries.
+  * Ensemble.
+  * Encharges.
 
 # Bonus Top Bar on Mac!!!
 1. Download `enphase_envoy.15s.rb`.
