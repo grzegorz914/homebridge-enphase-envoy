@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/homebridge-enphase-envoy.png" height="280"></a>
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/homebridge-enphase-envoy.png" width="840"></a>
 </p>
 
 <span align="center">
@@ -16,66 +16,63 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 </span>
 
 ## Package Requirements
-| Package Link | Required |
-| --- | --- |
-| [Homebridge](https://github.com/homebridge/homebridge) | Required | 
-| [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) | Highly Recommended |
+| Package Link | Installation | Role | Required |
+| --- | --- | --- | --- |
+| [Homebridge](https://github.com/homebridge/homebridge) | [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) | HomeKit Bridge | Required |
+| [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) | [Homebridge Config UI X Wiki](https://github.com/oznu/homebridge-config-ui-x/wiki) | Web User Interface | Recommended |
+| [Homebridge Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | `npm npm install -g homebridge-enphase-envoy` | Plug-In | Required |
 
 ### Note
-- Homebridge Enphase Envoy v4.5.0 and above the minimum required version of Homebridge is 1.3.x.
-- New authorization method (fw 7.x.x) will be added after Enphase release technical brief about this changes.
-- Update (17.08.2021) - Enphase working on fix and new firmware will be pushed to affected devices soon.
-- If count of all installed devices is grater than 100, the app will stop responding. This is HomeKit limitations, if this happens by You please open the issue, I will look how to fix this.
+* Homebridge Enphase Envoy v4.5.0 and above the minimum required version of Homebridge is 1.3.x.
+* New authorization method (fw 7.x.x) will be added after Enphase release technical brief about this changes.
+* Update (17.08.2021) - Enphase working on fix and new firmware will be pushed to affected devices soon.
+* If count of all installed devices is grater than 100, the app will stop responding. This is HomeKit limitations, if this happens by You please open the issue, I will look how to fix this.
 
 ### Know issues
-- If used with Hoobs, there is a possible configuration incompatibilty.
-- Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
+* If used with Hoobs, there is a possible configuration incompatibilty.
+* Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
 ### About the plugin!
-- All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
-- Envoy *device ID* is detected automatically, is required to control Power Production.
-- Envoy *password* is detected automatically or can be added in config if was already chenged by user.
-- Installer *password* is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharges).
-- Installer *password* need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/.
-- For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
-
+* All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
+* Envoy *device ID* is detected automatically, is required to control Power Production.
+* Envoy *password* is detected automatically or can be added in config if was already chenged by user.
+* Installer *password* is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharges).
+* Installer *password* need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/.
+* For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 
 ### Important changes
 #### v5.2.15 and above!
-- Added system Power Production - Enable/Disable (required *installerPasswd*).
-- Finally detects Ensemble, Encharges and Enpower (required *installerPasswd*).
+* Added system Power Production - Enable/Disable (required *installerPasswd*).
+* Finally detects Ensemble, Encharges and Enpower (required *installerPasswd*).
 
 #### v4.x.x and above!
-- Version 4.0.0 whole new concept.
-- All devices in are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
+* Version 4.0.0 whole new concept.
+* All devices in are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
 
 #### v3.x.x and above!
-- From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
-- For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
+* From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
+* For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 
 #### v2.3.x
-- The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
-- Production Current Level (W) - is the current Power production in (W). If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
-- Consumption Current Level Total (W) - is the Total Power Consumption in (W)).
-- Consumption Current Level Net (W) - is the Power Consumption from Grid in (W). If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
-- Peak Level (W) - display the maximum Power production/consumption.
-- Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
-- Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
+* The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
++ Production Current Level (W) - is the current Power production in (W). If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
+* Consumption Current Level Total (W) - is the Total Power Consumption in (W)).
+* Consumption Current Level Net (W) - is the Power Consumption from Grid in (W). If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
+* Peak Level (W) - display the maximum Power production/consumption.
+* Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
+* Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
 
 ## Power Production Control
-- You can set task for the Envoy to Enable/Disable power production on the microinverters (required *installerPasswd*).
-- On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
-- More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
-
-## Installation
-- Follow the step-by-step instructions on the [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki).
-- Follow the step-by-step instructions on the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki).
-- Install this plugin using: `npm install -g homebridge-enphase-envoy` or search for `Enphase or Envoy` in Config UI X.
+* You can set task for the Envoy to Enable/Disable power production on the microinverters (required *installerPasswd*).
+* On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
+* More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
 ## Configuration
+Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) plugin to configure this plugin (Highly Recommended). The sample configuration can be edited and used manually as an alternative. See the `sample-config.json` file in this repository for an example or copy the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
 
-- To ease configuration, install and use the [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x) plugin (highly recomended). 
-- Alternatively, the sample configuration can be edited and used manually. See the `sample-config.json` file in this repository for an example or copy/paste the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
+<p align="left">
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" width="840"></a>
+</p>
 
 ## Configuration Values
 | Key | Description | 
@@ -100,10 +97,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `energyConsumptionNetLifetimeOffset` | set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
 | `manufacturer` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
 | `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
-
-<p align="left">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" height="170"></a>
-</p>
 
 ```json
         {
@@ -134,11 +127,23 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ## Adding to HomeKit
 Each accessory needs to be manually paired. 
-1. Open the Home <img src='https://user-images.githubusercontent.com/3979615/78010622-4ea1d380-738e-11ea-8a17-e6a465eeec35.png' height='16.42px'> app on your device. 
-2. Tap the Home tab, then tap <img src='https://user-images.githubusercontent.com/3979615/78010869-9aed1380-738e-11ea-9644-9f46b3633026.png' height='16.42px'>. 
+1. Open the Home <img src='https://user-images.githubusercontent.com/3979615/78010622-4ea1d380-738e-11ea-8a17-e6a465eeec35.png' width='16.42px'> app on your device. 
+2. Tap the Home tab, then tap <img src='https://user-images.githubusercontent.com/3979615/78010869-9aed1380-738e-11ea-9644-9f46b3633026.png' width='16.42px'>. 
 3. Tap *Add Accessory*, and select *I Don't Have a Code or Cannot Scan*. 
 4. Select Your accessory. 
 5. Enter the Homebridge PIN, this can be found under the QR code in Homebridge UI or your Homebridge logs, alternatively you can select *Use Camera* and scan the QR code again.
+
+## Limitations
+* Due to a HomeKit limitation, that maximum services for 1 accessory is 100. Acessory containing > 100 services will not respond.
+* The services in this accessory are:
+  * Information service.
+  * Envoy service.
+  * Q-Relays service.
+  * Meters service.
+  * Microinverters service.
+  * AC Batteries service.
+  * Ensemble service.
+  * Encharges Service.
 
 # Bonus Top Bar on Mac!!!
 1. Download `enphase_envoy.15s.rb`.
@@ -163,7 +168,7 @@ Data refresh time
 * 1h - 1 hour
 
 <p align="left">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" height="350"></a>
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" width="200"></a>
 </p>
 
 ## What's new:
