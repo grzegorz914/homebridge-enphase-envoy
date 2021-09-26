@@ -65,7 +65,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 ## Power Production Control
 * You can set task for the Envoy to Enable/Disable power production on the microinverters (required *installerPasswd*).
 * On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
-* More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
+* More info about [Power Production task](https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production).
 
 ## Configuration
 Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) plugin to configure this plugin (Highly Recommended). The sample configuration can be edited and used manually as an alternative. See the `sample-config.json` file in this repository for an example or copy the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
