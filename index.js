@@ -149,8 +149,9 @@ const ENVOY_API_CODE = {
   'disabled': 'Disabled',
   'one': 'One',
   'two': 'Two',
-  'three': 'Three',
+  'single': 'Single',
   'split': 'Split',
+  'three': 'Three',
   'normal': 'Normal',
   'closed': 'Closed',
   'open': 'Open',
@@ -2476,9 +2477,9 @@ class envoyDevice {
     this.metersInstalled = false;
     this.metersCount = 0;
     this.metersProductionEnabled = false;
-    this.metersProductionPhaseCount = 1;
+    this.metersProductionVoltageDivide = 1;
     this.metersConsumptionEnabled = false;
-    this.metersConsumpionPhaseCount = 1;
+    this.metersConsumpionVoltageDivide = 1;
     this.metersConsumptionCount = 0;
     this.metersReadingInstalled = false;
     this.metersReadingCount = 0;
@@ -3242,9 +3243,9 @@ class envoyDevice {
           }
 
           this.metersProductionEnabled = this.metersState[0];
-          this.metersProductionPhaseCount = this.metersPhaseCount[0];
+          this.metersProductionVoltageDivide = (this.metersPhaseMode[0] === 'Split') ? 1 : this.metersPhaseCount[0];
           this.metersConsumptionEnabled = this.metersState[1];
-          this.metersConsumpionPhaseCount = this.metersPhaseCount[1];
+          this.metersConsumpionVoltageDivide = (this.metersPhaseMode[1] === 'Split') ? 1 : this.metersPhaseCount[1];
         }
         this.metersCount = metersCount;
         this.metersInstalled = metersInstalled;
@@ -3707,9 +3708,9 @@ class envoyDevice {
       if (productionCtData.status == 200) {
         //get enabled devices
         const metersProductionEnabled = this.metersProductionEnabled;
-        const metersProductionPhaseCount = this.metersProductionPhaseCount;
+        const metersProductionVoltageDivide = this.metersProductionVoltageDivide;
         const metersConsumptionEnabled = this.metersConsumptionEnabled;
-        const metersConsumpionPhaseCount = this.metersConsumpionPhaseCount;
+        const metersConsumpionVoltageDivide = this.metersConsumpionVoltageDivide;
         const acBatteriesInstalled = this.acBatteriesInstalled;
         const productionEnergyLifetimeOffset = this.productionEnergyLifetimeOffset;
         const consumptionTotalEnergyLifetimeOffset = this.consumptionTotalEnergyLifetimeOffset;
@@ -3760,7 +3761,7 @@ class envoyDevice {
 
         //param
         const productionRmsCurrent = metersProductionEnabled ? parseFloat(productionCtData.data.production[1].rmsCurrent) : 0;
-        const productionRmsVoltage = metersProductionEnabled ? parseFloat((productionCtData.data.production[1].rmsVoltage) / metersProductionPhaseCount) : 0;
+        const productionRmsVoltage = metersProductionEnabled ? parseFloat((productionCtData.data.production[1].rmsVoltage) / metersProductionVoltageDivide) : 0;
         const productionReactivePower = metersProductionEnabled ? parseFloat((productionCtData.data.production[1].reactPwr) / 1000) : 0;
         const productionApparentPower = metersProductionEnabled ? parseFloat((productionCtData.data.production[1].apprntPwr) / 1000) : 0;
         const productionPwrFactor = metersProductionEnabled ? parseFloat(productionCtData.data.production[1].pwrFactor) : 0;
@@ -3854,7 +3855,7 @@ class envoyDevice {
 
             //net param
             const consumptionRmsCurrent = parseFloat(productionCtData.data.consumption[i].rmsCurrent);
-            const consumptionRmsVoltage = parseFloat((productionCtData.data.consumption[i].rmsVoltage) / metersConsumpionPhaseCount);
+            const consumptionRmsVoltage = parseFloat((productionCtData.data.consumption[i].rmsVoltage) / metersConsumpionVoltageDivide);
             const consumptionReactivePower = parseFloat((productionCtData.data.consumption[i].reactPwr) / 1000);
             const consumptionApparentPower = parseFloat((productionCtData.data.consumption[i].apprntPwr) / 1000);
             const consumptionPwrFactor = parseFloat(productionCtData.data.consumption[i].pwrFactor);
@@ -4024,7 +4025,7 @@ class envoyDevice {
 
           //meters reading summary data
           for (let i = 0; i < metersReadingCount; i++) {
-            const metersPhaseCount = this.metersPhaseCount[i];
+            const metersVoltageDivide = (this.metersPhaseMode[i] == 'Split') ? 1 : this.metersPhaseCount[i];
             const eid = metersReadingData.data[i].eid;
             const timestamp = new Date(metersReadingData.data[i].timestamp * 1000).toLocaleString();
             const actEnergyDlvd = parseFloat(metersReadingData.data[i].actEnergyDlvd);
@@ -4037,7 +4038,7 @@ class envoyDevice {
             const apparentPower = parseFloat((metersReadingData.data[i].apparentPower) / 1000);
             const reactivePower = parseFloat((metersReadingData.data[i].reactivePower) / 1000);
             const pwrFactor = parseFloat(metersReadingData.data[i].pwrFactor);
-            const voltage = parseFloat((metersReadingData.data[i].voltage) / metersPhaseCount);
+            const voltage = parseFloat((metersReadingData.data[i].voltage) / metersVoltageDivide);
             const current = parseFloat(metersReadingData.data[i].current);
             const freq = parseFloat(metersReadingData.data[i].freq);
 
@@ -4722,7 +4723,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.activePowerSumm[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, meter: %s, active power: %s kW', this.host, accessoryName, this.metersMeasurementType[i], value);
+              this.log('Device: %s %s, Meter: %s, active power: %s kW', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
@@ -4730,7 +4731,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.apparentPowerSumm[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, meter: %s, apparent power: %s kVA', this.host, accessoryName, this.metersMeasurementType[i], value);
+              this.log('Device: %s %s, Meter: %s, apparent power: %s kVA', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
@@ -4738,7 +4739,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.reactivePowerSumm[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, meter: %s, reactive power: %s kVAr', this.host, accessoryName, this.metersMeasurementType[i], value);
+              this.log('Device: %s %s, Meter: %s, reactive power: %s kVAr', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
@@ -4746,7 +4747,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.pwrFactorSumm[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, meter: %s, power factor: %s cos φ', this.host, accessoryName, this.metersMeasurementType[i], value);
+              this.log('Device: %s %s, Meter: %s, power factor: %s cos φ', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
@@ -4754,7 +4755,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.voltageSumm[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, meter: %s, voltage: %s V', this.host, accessoryName, this.metersMeasurementType[i], value);
+              this.log('Device: %s %s, Meter: %s, voltage: %s V', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
@@ -4762,7 +4763,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.currentSumm[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, meter: %s, current: %s A', this.host, accessoryName, this.metersMeasurementType[i], value);
+              this.log('Device: %s %s, Meter: %s, current: %s A', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
@@ -4770,7 +4771,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.freqSumm[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, meter: %s, frequency: %s Hz', this.host, accessoryName, this.metersMeasurementType[i], value);
+              this.log('Device: %s %s, Meter: %s, frequency: %s Hz', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
@@ -4778,7 +4779,7 @@ class envoyDevice {
           .onGet(async () => {
             const value = this.timestampSumm[i];
             if (!this.disableLogInfo) {
-              this.log('Device: %s %s, meter: %s, last report: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
+              this.log('Device: %s %s, Meter: %s, last report: %s', this.host, accessoryName, this.metersMeasurementType[i], value);
             }
             return value;
           });
