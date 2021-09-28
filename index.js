@@ -2682,6 +2682,7 @@ class envoyDevice {
         this.envoyFirmware = deviceSoftware;
         this.envoySupportMeters = deviceImeter;
         this.envoyFirmwareSupported = envoyFirmwareSupported;
+        this.envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
 
         this.updateHomeData();
       }
@@ -3934,7 +3935,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting microinvertersData', this.host, this.name);
 
     try {
-      const passwd = this.envoyPasswd || this.envoySerialNumber.substring(6);
+      const passwd = this.envoyPasswd;
       const digestAuth = new axiosDigestAuth({
         user: ENVOY_USER,
         passwd: passwd
