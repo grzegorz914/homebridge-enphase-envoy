@@ -19,8 +19,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | Package Link | Installation | Role | Required |
 | --- | --- | --- | --- |
 | [Homebridge](https://github.com/homebridge/homebridge) | [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) | HomeKit Bridge | Required |
-| [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) | [Homebridge Config UI X Wiki](https://github.com/oznu/homebridge-config-ui-x/wiki) | Web User Interface | Recommended |
-| [Homebridge Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | `npm install -g homebridge-enphase-envoy` | Plug-In | Required |
+| [Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) | [Config UI X Wiki](https://github.com/oznu/homebridge-config-ui-x/wiki) | Web User Interface | Recommended |
+| [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | `npm install -g homebridge-enphase-envoy` | Plug-In | Required |
 
 ### Note
 * Homebridge Enphase Envoy v4.5.0 and above the minimum required version of Homebridge is 1.3.x.
