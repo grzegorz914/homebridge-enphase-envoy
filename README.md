@@ -75,7 +75,6 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" width="840"></a>
 </p>
 
-## Configuration Values
 | Key | Description | 
 | --- | --- |
 | `name` | Here set the accessory *Name* to be displayed in *Homebridge/HomeKit*. |
