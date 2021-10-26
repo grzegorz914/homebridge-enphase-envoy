@@ -2563,10 +2563,10 @@ class envoyDevice {
     this.enpowerAggBackupEnergy = 0;
     this.enpowerAggAvailEnergy = 0;
 
-    const prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
-    this.productionPowerMaxFile = `${prefDir}/productionPowerMax_${this.host.split('.').join('')}`;
-    this.consumptionPowerMaxFile = `${prefDir}/consumptionPowerMax_${this.host.split('.').join('')}`;
-    this.consumptionPowerMaxFile1 = `${prefDir}/consumptionPowerMax1_${this.host.split('.').join('')}`;
+    this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
+    this.productionPowerMaxFile = `${this.prefDir}/productionPowerMax_${this.host.split('.').join('')}`;
+    this.consumptionPowerMaxFile = `${this.prefDir}/consumptionPowerMax_${this.host.split('.').join('')}`;
+    this.consumptionPowerMaxFile1 = `${this.prefDir}/consumptionPowerMax1_${this.host.split('.').join('')}`;
     this.url = `http://${this.host}`;
 
     //create axios instanse
@@ -2581,24 +2581,11 @@ class envoyDevice {
       passwd: this.installerPasswd
     });
 
-    //check if the directory exists, if not then create it
-    if (!fs.existsSync(prefDir)) {
-      fsPromises.mkdir(prefDir);
-    }
-    if (!fs.existsSync(this.productionPowerMaxFile)) {
-      fsPromises.writeFile(this.productionPowerMaxFile, '0.0');
-    }
-    if (!fs.existsSync(this.consumptionPowerMaxFile)) {
-      fsPromises.writeFile(this.consumptionPowerMaxFile, '0.0');
-    }
-    if (!fs.existsSync(this.consumptionPowerMaxFile1)) {
-      fsPromises.writeFile(this.consumptionPowerMaxFile1, '0.0');
-    }
 
     //Check data
     setInterval(function () {
       if (this.checkDeviceInfo) {
-        this.updateEnvoyBackboneAppData();
+        this.prepareDirectoryAndFiles();
       } else {
         this.updateHomeData();
       }
@@ -2616,8 +2603,33 @@ class envoyDevice {
       }
     }.bind(this), 2000);
 
-    this.updateEnvoyBackboneAppData();
+    this.prepareDirectoryAndFiles();
   }
+
+  async prepareDirectoryAndFiles() {
+    this.log.debug('Device: %s %s, prepare directory and files.', this.host, this.name);
+
+    try {
+      //check if the directory exists, if not then create it
+      if (!fs.existsSync(this.prefDir)) {
+        await fsPromises.mkdir(this.prefDir);
+      }
+      if (!fs.existsSync(this.productionPowerMaxFile)) {
+        await fsPromises.writeFile(this.productionPowerMaxFile, '0.0');
+      }
+      if (!fs.existsSync(this.consumptionPowerMaxFile)) {
+        await fsPromises.writeFile(this.consumptionPowerMaxFile, '0.0');
+      }
+      if (!fs.existsSync(this.consumptionPowerMaxFile1)) {
+        await fsPromises.writeFile(this.consumptionPowerMaxFile1, '0.0');
+      }
+
+      this.updateEnvoyBackboneAppData();
+    } catch (error) {
+      this.log.error('Device: %s %s, prepare directory and files error: %s', this.host, this.name, error);
+      this.checkDeviceInfo = true;
+    };
+  };
 
   async updateEnvoyBackboneAppData() {
     this.log.debug('Device: %s %s, requesting envoyBackboneAppData.', this.host, this.name);
