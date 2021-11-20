@@ -2576,10 +2576,11 @@ class envoyDevice {
     });
 
     //digest auth installer
-    this.digestAuth = new axiosDigestAuth({
+    const auth = {
       user: INSTALLER_USER,
       passwd: this.installerPasswd
-    });
+    };
+    this.digestAuth = new axiosDigestAuth(auth);
 
 
     //Check data
