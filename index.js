@@ -2567,8 +2567,26 @@ class envoyDevice {
     this.productionPowerMaxFile = `${this.prefDir}/productionPowerMax_${this.host.split('.').join('')}`;
     this.consumptionPowerMaxFile = `${this.prefDir}/consumptionPowerMax_${this.host.split('.').join('')}`;
     this.consumptionPowerMaxFile1 = `${this.prefDir}/consumptionPowerMax1_${this.host.split('.').join('')}`;
-    this.url = `http://${this.host}`;
 
+    try {
+      //check if the directory exists, if not then create it
+      if (!fs.existsSync(this.prefDir)) {
+        fs.mkdirSync(this.prefDir);
+      }
+      if (!fs.existsSync(this.productionPowerMaxFile)) {
+        fs.writeFileSync(this.productionPowerMaxFile, '0.0');
+      }
+      if (!fs.existsSync(this.consumptionPowerMaxFile)) {
+        fs.writeFileSync(this.consumptionPowerMaxFile, '0.0');
+      }
+      if (!fs.existsSync(this.consumptionPowerMaxFile1)) {
+        fs.writeFileSync(this.consumptionPowerMaxFile1, '0.0');
+      }
+    } catch (error) {
+      this.log.error('Device: %s %s, prepare directory and files error: %s', this.host, this.name, error);
+    };
+
+    this.url = `http://${this.host}`;
     //create axios instanse
     this.axiosInstance = axios.create({
       method: 'GET',
@@ -2604,33 +2622,8 @@ class envoyDevice {
       }
     }.bind(this), 2000);
 
-    this.prepareDirectoryAndFiles();
+    this.updateEnvoyBackboneAppData();
   }
-
-  async prepareDirectoryAndFiles() {
-    this.log.debug('Device: %s %s, prepare directory and files.', this.host, this.name);
-
-    try {
-      //check if the directory exists, if not then create it
-      if (!fs.existsSync(this.prefDir)) {
-        await fsPromises.mkdir(this.prefDir);
-      }
-      if (!fs.existsSync(this.productionPowerMaxFile)) {
-        await fsPromises.writeFile(this.productionPowerMaxFile, '0.0');
-      }
-      if (!fs.existsSync(this.consumptionPowerMaxFile)) {
-        await fsPromises.writeFile(this.consumptionPowerMaxFile, '0.0');
-      }
-      if (!fs.existsSync(this.consumptionPowerMaxFile1)) {
-        await fsPromises.writeFile(this.consumptionPowerMaxFile1, '0.0');
-      }
-
-      this.updateEnvoyBackboneAppData();
-    } catch (error) {
-      this.log.error('Device: %s %s, prepare directory and files error: %s', this.host, this.name, error);
-      this.checkDeviceInfo = true;
-    };
-  };
 
   async updateEnvoyBackboneAppData() {
     this.log.debug('Device: %s %s, requesting envoyBackboneAppData.', this.host, this.name);
