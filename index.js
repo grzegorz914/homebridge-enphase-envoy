@@ -2604,7 +2604,7 @@ class envoyDevice {
     //Check data
     setInterval(function () {
       if (this.checkDeviceInfo) {
-        this.prepareDirectoryAndFiles();
+        this.updateEnvoyBackboneAppData();
       } else {
         this.updateHomeData();
       }
