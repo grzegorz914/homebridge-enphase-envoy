@@ -33,9 +33,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ### Troubleshoot
 * If for some reason the device will not be displayed in Home app try this procedure:
-   * Go to `./homebridge/persist`
-   * Remove `AccessoryInfo.xxx` file which contain Your device data: `{"displayName":"Envoy"}`
-   * Next remove `IdentifierCashe.xxx` file with same name as `AccessoryInfo.xxx`
+   * Go to `./homebridge/persist`.
+   * Remove `AccessoryInfo.xxx` file which contain Your device data: `{"displayName":"Envoy"}`.
+   * Next remove `IdentifierCashe.xxx` file with same name as `AccessoryInfo.xxx`.
    * Restart Homebridge and try add it to the Home app again.
 
 ### About the plugin!
