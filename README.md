@@ -24,13 +24,12 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ### Note
 * Homebridge Enphase Envoy v4.5.0 and above the minimum required version of Homebridge is 1.3.x.
-* New authorization method (fw 7.x.x) will be added after Enphase release technical brief about this changes.
-* Update (17.08.2021) - Enphase working on fix and new firmware will be pushed to affected devices soon.
+* Envoy firmware 7.x.x and above not supported right now due to authentication method changed and lack of real time data.
+* More info and discusion about lack of access to the real time data with Envoy firmware 7.x.x [Here](https://support.enphase.com/s/question/0D53m00006ySLuRCAW/unimpressed-with-loss-of-local-api-connectivity-to-envoys)
 * If count of all installed devices is grater than 100, the app will stop responding. This is HomeKit limitations, if this happens by You please open the issue, I will look how to fix this.
 
 ### Know issues
 * If used with Hoobs, there is a possible configuration incompatibilty.
-* Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
 ### Troubleshoot
 * If for some reason the device will not be displayed in Home app try this procedure:
