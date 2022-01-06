@@ -32,6 +32,13 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * If used with Hoobs, there is a possible configuration incompatibilty.
 * Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
+## Troubleshoot
+* If for some reason the device will not be displayed in Home app try this procedure:
+   * Go to `./homebridge/persist`
+   * Open the file `AccessoryInfo.xxx` one by one and remove only this one which contain Your device data, something like this: `{"displayName":"Envoy","category":34}`
+   * Also remove the file `IdentifierCashe.xxx` with same name as `AccessoryInfo.xxx`
+   * Restart Homebridge and try add it to the Home app again.
+
 ### About the plugin!
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 * Envoy *device ID* is detected automatically, is required to control Power Production.
