@@ -32,7 +32,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * If used with Hoobs, there is a possible configuration incompatibilty.
 * Envoy firmware 7.x.x and above not supported right now due to authentication method changed by Enphase.
 
-# Troubleshoot
+### Troubleshoot
 * If for some reason the device will not be displayed in Home app try this procedure:
    * Go to `./homebridge/persist`
    * Open the file `AccessoryInfo.xxx` one by one and remove only this one which contain Your device data, something like this: `{"displayName":"Envoy","category":34}`
