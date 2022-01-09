@@ -32,7 +32,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * If used with Hoobs, there is a possible configuration incompatibilty.
 
 ### Troubleshooting
-* If for some reason the device will not be displayed in Home app try this procedure:
+* If for some reason the device is not displayed in HomeKit app try this procedure:
    * Go to `./homebridge/persist`.
    * Remove `AccessoryInfo.xxx` file which contain Your device data: `{"displayName":"Envoy"}`.
    * Next remove `IdentifierCashe.xxx` file with same name as `AccessoryInfo.xxx`.
