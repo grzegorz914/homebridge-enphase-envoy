@@ -2,281 +2,22 @@
 
 const path = require('path');
 const axios = require('axios');
+const axiosEntrezAuth = require('./src/entrezAuth.js');
 const axiosDigestAuth = require('./src/digestAuth.js');
+const mqttClient = require('./src/mqtt.js');
 const fs = require('fs');
 const fsPromises = fs.promises;
 const parseStringPromise = require('xml2js').parseStringPromise;
+
+const API_URL = require('./src/apiurl.json');
+const ENPHASE_PART_NUMBER = require('./src/partNumber.json');
+const ENVOY_API_CODE = require('./src/apiCode.json');
 
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 
 const ENVOY_USER = 'envoy';
 const INSTALLER_USER = 'installer';
-
-const ENPHASE_PART_NUMBER = {
-  //IQ combiner
-  '800-00551-r03': 'X-IQ-AM1-120-B-M',
-  '800-00553-r03': 'X-IQ-AM1-240-B',
-  '800-00557-r03': 'X-IQ-AM1-240-BM',
-  '800-00554-r04': 'X-IQ-AM1-240-2',
-  '800-00554-r05': 'X-IQ-AM1-240-2-M',
-  '800-00555-r03': 'X-IQ-AM1-240-3',
-  '800-00655-r09': 'X-IQ-AM1-240-3-ES',
-  '800-00556-r03': 'X-IQ-AM1-240-3C',
-  '800-00554-r07': 'X-IQ-AM1-240-3C-ES',
-  //Envoys
-  '880-00122-r02': 'ENV-S-AB-120-A',
-  '880-00210-r02': 'ENV-S-AM1-120',
-  '800-00552-r01': 'ENV-S-WM-230',
-  '800-00553-r01': 'ENV-S-WB-230',
-  '800-00554-r03': 'ENV-S-WM-230',
-  '800-00654-r06': 'ENV-S-WM-230',
-  '800-00553-r02': 'ENV-S-WB-230-F',
-  '880-00208-r02': 'ENV-IQ-AM1-240',
-  '880-00208-r03': 'ENV-IQ-AM1-240',
-  '880-00231-r02': 'ENV-IQ-AM1-240',
-  '880-00209-r03': 'ENV-IQ-AM3-3P',
-  '880-00557-r02': 'ENV-IQ-AM3-3P',
-  //qRelays
-  '860-00152-r02': 'Q-RELAY-1P-INT',
-  '800-00597-r02': 'Q-RELAY-3P-INT',
-  //Microinverters
-  '800-00630-r02': 'IQ7-60-2-INT',
-  '800-00637-r02': 'IQ7-60-2-US',
-  '800-00641-r02': 'IQ7-60-B-US',
-  '800-00633-r02': 'IQ7A-72-2-INT',
-  '800-00634-r02': 'IQ7A-72-2-US',
-  '800-00638-r02': 'IQ7A-72-B-US',
-  '800-00632-r02': 'IQ7X-96-2-INT',
-  '800-00635-r02': 'IQ7X-96-2-US',
-  '800-00639-r02': 'IQ7X-96-B-US',
-  '800-00631-r02': 'IQ7PLUS-72-2-INT',
-  '800-00636-r02': 'IQ7PLUS-72-2-US',
-  '800-00640-r02': 'IQ7PLUS-72-B-US',
-  '883-00852-r09': 'IQ7PLUS-72-2-US',
-  //CT
-  '121943068536EIM1': 'CT-100-SPLIT-P',
-  '121943068536EIM2': 'CT-100-SPLIT-C',
-  '121943068537EIM1': 'CT-200-SPLIT-P',
-  '121943068537EIM2': 'CT-200-SPLIT-C',
-  //AC Bateries
-  'xxx-xxxx-xx0': 'IQ7-B1200-LN-I-INT01-RV0',
-  //Enpowers
-  '860-00276-r48': 'EP200G101-M240US00',
-  //Encharges 3
-  '830-00703-r75': 'B03-A01-US00-1-3',
-  //Encharges 10
-  'xxx-xxxxx-xx2': 'ENCHARGE-10-1P-NA',
-  //Wirelles connection kit
-  'xxx-xxxxx-xx3': 'COMMS-KIT-01'
-};
-
-const ENVOY_API_URL = {
-  'BackboneApplication': '/backbone/application.js',
-  'AcbSleepModeSetGetCancel': '/admin/lib/acb_config.json',
-  'AgfProfileIndex': '/installer/agf/index.json?simplified=true',
-  'AgfProfileDetails': '/installer/agf/details.json',
-  'AgfProfileInverterStatus': '/installer/agf/inverters_status.json',
-  'AgfProfileSet': '/installer/agf/set_profile.json',
-  'CellularConfig': '/admin/lib/network_display.json?cellular=1',
-  'ClearGFIPost': '/admin/lib/admin_dcc_display.json',
-  'DhcpGetNewIp': '/admin/lib/network_display.json',
-  'DiagnosticNetworkCheck': '/admin/lib/network_display.json',
-  'EnsembleInventory': '/ivp/ensemble/inventory', //installer login nedded
-  'EnsembleStatus': '/ivp/ensemble/status', //installer login nedded
-  'EthernetConfigPutGet': '/admin/lib/network_display.json',
-  'Events': '/datatab/event_dt.rb', //?locale=en&start=0&length=2&search[value]=123&search[regex]=false installer login nedded
-  'Home': '/home.json',
-  'Info': '/info.xml',
-  'InternalMeterInfo': '/ivp/meters',
-  'InternalMeterStream': '/stream/meter',
-  'InternalMeterReadings': '/ivp/meters/readings',
-  'InternalMeterCurrentCTSettings': '/ivp/meters/cts',
-  'Inventory': '/inventory.json',
-  'InventoryAll': '/inventory.json?deleted=1',
-  'InverterComm': '/installer/pcu_comm_check', //installer login nedded
-  'InverterProduction': '/api/v1/production/inverters', //envoy login nedded
-  'InverterProductionSumm': '/api/v1/production',
-  'InverterPutDelete': '/prov',
-  'NewScanPDGet': '/ivp/peb/newscan',
-  'PowerForcedModePutGet': '/ivp/mod/EID/mode/power', //EID envoy ID, installer login nedded
-  'PMUPostGet': '/admin/lib/admin_pmu_display.json',
-  'RedeterminePhase': '/ivp/grest/local/gs/redeterminephase',
-  'ReportSettingsPutGet': '/ivp/peb/reportsettings',
-  'SystemReadingStats': '/production.json?details=1',
-  'TimezoneSetGet': '/admin/lib/date_time_display.json', //GET, ?tzlist=1' display all time zones,
-  'TariffSettingsPutGet': '/admin/lib/tariff.json',
-  'TunnelStatePutGet': '/admin/lib/dba.json',
-  'UpdateMeterConfig': '/ivp/meters/EID', //EID envoy ID
-  'UpdateMeterCurrentCTConfig': '/ivp/meters/cts/EID', //EID envoy ID
-  'UpdatePassword': '/admin/lib/security_display.json',
-  'WifiSettingsJoinGet': '/admin/lib/wireless_display.json'
-};
-
-const ENVOY_API_CODE = {
-  //types
-  'eim': 'Current meter',
-  'production': 'Production',
-  'net-consumption': 'Consumption (Net)',
-  'total-consumption': 'Consumption (Total)',
-  'inverters': 'Microinverters',
-  'acb': 'AC Batterie',
-  'encharge': 'Encharge',
-  'enpower': 'Enpower',
-  'PCU': 'Microinverter',
-  'ACB': 'AC Batterie',
-  'ENCHARGE': 'Encharge',
-  'ENPOWER': 'Enpower',
-  'NSRB': 'Q-Relay',
-  //enpower
-  'multimode-ongrid': 'Multimode Grid ON',
-  'multimode-offgrid': 'Multimode Grid OFF',
-  'ENPWR_STATE_OPER_CLOSED': 'Enpower state closed',
-  'ENPWR_STATE_OPER_OPEN': 'Enpower state open',
-  'ENPWR_STATE_OPER_NO_GRID': 'Enpower state no grid',
-  //encharge
-  'ready': 'Ready',
-  'idle': 'Idle',
-  'full': 'Full',
-  'charging': 'Charging',
-  'discharging': 'Discharging',
-  'ENCHG_STATE_READY': 'Encharge state ready',
-  'ENCHG_STATE_IDLE': 'Encharge state idle',
-  'ENCHG_STATE_CHARGING': 'Encharge state charging',
-  'ENCHG_STATE_DISCHARGING': 'Encharge state discharging',
-  //qrelay
-  'enabled': 'Enabled',
-  'disabled': 'Disabled',
-  'one': 'One',
-  'two': 'Two',
-  'single': 'Single',
-  'split': 'Split',
-  'three': 'Three',
-  'normal': 'Normal',
-  'closed': 'Closed',
-  'open': 'Open',
-  'error.nodata': 'No Data',
-  //envoy
-  'ethernet': 'Ethernet',
-  'eth0': 'Ethernet',
-  'wifi': 'WiFi',
-  'wlan0': 'WiFi',
-  'cellurar': 'Cellurar',
-  'zigbee': 'ZigBee',
-  'subghz': 'Sub GHz',
-  'connected': 'Connected',
-  'disconnected': 'Disconnected',
-  'single_rate': 'Single rate',
-  'time_to_use': 'Time to use',
-  'time_of_use': 'Time of use',
-  'tiered': 'Tiered',
-  'not_set': 'Not set',
-  'flat': 'Flat',
-  'none': 'None',
-  'satisfied': 'Satisfied',
-  'not-satisfied': 'Not satisfied',
-  //status code
-  'prop.done': 'Prop done',
-  'envoy.global.ok': 'Normal',
-  'envoy.cond_flags.acb_ctrl.bmudatabounds': 'BMU Data Bounds Error',
-  'envoy.cond_flags.acb_ctrl.bmuhardwareerror': 'BMU Hardware Error',
-  'envoy.cond_flags.acb_ctrl.bmuimageerror': 'BMU Image Error',
-  'envoy.cond_flags.acb_ctrl.bmumaxcurrentwarning': 'BMU Max Current Warning',
-  'envoy.cond_flags.acb_ctrl.bmusenseerror': 'BMU Sense Error',
-  'envoy.cond_flags.acb_ctrl.cellmaxtemperror': 'Cell Max Temperature Error',
-  'envoy.cond_flags.acb_ctrl.cellmaxtempwarning': 'Cell Max Temperature Warning',
-  'envoy.cond_flags.acb_ctrl.cellmaxvoltageerror': 'Cell Max Voltage Error',
-  'envoy.cond_flags.acb_ctrl.cellmaxvoltagewarning': 'Cell Max Voltage Warning',
-  'envoy.cond_flags.acb_ctrl.cellmintemperror': 'Cell Min Temperature Error',
-  'envoy.cond_flags.acb_ctrl.cellmintempwarning': 'Cell Min Temperature Warning',
-  'envoy.cond_flags.acb_ctrl.cellminvoltageerror': 'Cell Min Voltage Error',
-  'envoy.cond_flags.acb_ctrl.cellminvoltagewarning': 'Cell Min Voltage Warning',
-  'envoy.cond_flags.acb_ctrl.cibcanerror': 'CIB CAN Error',
-  'envoy.cond_flags.acb_ctrl.cibimageerror': 'CIB Image Error',
-  'envoy.cond_flags.acb_ctrl.cibspierror': 'CIB SPI Error',
-  'envoy.cond_flags.nsrb_ctrl.acfreqhigh': 'AC Frequency High',
-  'envoy.cond_flags.nsrb_ctrl.acfreqlow': 'AC Frequency Low',
-  'envoy.cond_flags.nsrb_ctrl.acfrequencyoor': 'AC Frequency Out Of Range',
-  'envoy.cond_flags.nsrb_ctrl.acvoltageavgline1': 'AC Voltage Avg Out Of Range - Phase 1',
-  'envoy.cond_flags.nsrb_ctrl.acvoltageavgline2': 'AC Voltage Avg Out Of Range - Phase 2',
-  'envoy.cond_flags.nsrb_ctrl.acvoltageavgline3': 'AC Voltage Avg Out Of Range - Phase 3',
-  'envoy.cond_flags.nsrb_ctrl.acvoltagehighline1': 'AC Voltage High - Phase 1',
-  'envoy.cond_flags.nsrb_ctrl.acvoltagehighline2': 'AC Voltage Out Of Range - Phase 2',
-  'envoy.cond_flags.nsrb_ctrl.acvoltagehighline3': 'AC Voltage High - Phase 3',
-  'envoy.cond_flags.nsrb_ctrl.acvoltagelowline1': 'AC Voltage Low - Phase 1',
-  'envoy.cond_flags.nsrb_ctrl.acvoltagelowline2': 'AC Voltage Out Of Range - Phase 2',
-  'envoy.cond_flags.nsrb_ctrl.acvoltagelowline3': 'AC Voltage Low - Phase 3',
-  'envoy.cond_flags.nsrb_ctrl.acvoltageoorline1': 'AC Voltage Out Of Range - Phase 1',
-  'envoy.cond_flags.nsrb_ctrl.acvoltageoorline2': 'AC Voltage Out Of Range - Phase 2',
-  'envoy.cond_flags.nsrb_ctrl.acvoltageoorline3': 'AC Voltage Out Of Range - Phase 3',
-  'envoy.cond_flags.nsrb_ctrl.buttonpress': 'Button Pressed',
-  'envoy.cond_flags.nsrb_ctrl.dcgriderror': 'DC Grid Current Error',
-  'envoy.cond_flags.nsrb_ctrl.dcgridhigh': 'DC Grid Current High',
-  'envoy.cond_flags.nsrb_ctrl.dcgridlow': 'DC Grid Current Low',
-  'envoy.cond_flags.nsrb_ctrl.relayforced': 'Relay Forced',
-  'envoy.cond_flags.nsrb_ctrl.relayopen': 'Relay Open',
-  'envoy.cond_flags.nsrb_ctrl.rocof': 'Rate of Change of Frequency Error',
-  'envoy.cond_flags.obs_strs.discovering': 'Discovering',
-  'envoy.cond_flags.obs_strs.failure': 'Failure to report',
-  'envoy.cond_flags.obs_strs.flasherror': 'Flash Error',
-  'envoy.cond_flags.obs_strs.notmonitored': 'Not Monitored',
-  'envoy.cond_flags.obs_strs.ok': 'Normal',
-  'envoy.cond_flags.obs_strs.plmerror': 'PLM Error',
-  'envoy.cond_flags.obs_strs.secmodeenterfailure': 'Secure mode enter failure',
-  'envoy.cond_flags.obs_strs.secmodeexitfailure': 'Secure mode exit failure',
-  'envoy.cond_flags.obs_strs.sleeping': 'Sleep Mode On',
-  'envoy.cond_flags.obs_strs.verifing': 'Verifying Device',
-  'envoy.cond_flags.pcu_chan.acMonitorError': 'AC Monitor Error',
-  'envoy.cond_flags.pcu_chan.acfrequencyhigh': 'AC Frequency High',
-  'envoy.cond_flags.pcu_chan.acfrequencylow': 'AC Frequency Low',
-  'envoy.cond_flags.pcu_chan.acfrequencyoor': 'AC Frequency Out Of Range',
-  'envoy.cond_flags.pcu_chan.acvoltage_avg_hi': 'AC Voltage Average High',
-  'envoy.cond_flags.pcu_chan.acvoltagehigh': 'AC Voltage High',
-  'envoy.cond_flags.pcu_chan.acvoltagelow': 'AC Voltage Low',
-  'envoy.cond_flags.pcu_chan.acvoltageoor': 'AC Voltage Out Of Range',
-  'envoy.cond_flags.pcu_chan.acvoltageoosp1': 'AC Voltage Out Of Range - Phase 1',
-  'envoy.cond_flags.pcu_chan.acvoltageoosp2': 'AC Voltage Out Of Range - Phase 2',
-  'envoy.cond_flags.pcu_chan.acvoltageoosp3': 'AC Voltage Out Of Range - Phase 3',
-  'envoy.cond_flags.pcu_chan.agfpowerlimiting': 'AGF Power Limiting',
-  'envoy.cond_flags.pcu_chan.dcresistancelow': 'DC Resistance Low',
-  'envoy.cond_flags.pcu_chan.dcresistancelowpoweroff': 'DC Resistance Low - Power Off',
-  'envoy.cond_flags.pcu_chan.dcvoltagetoohigh': 'DC Voltage Too High',
-  'envoy.cond_flags.pcu_chan.dcvoltagetoolow': 'DC Voltage Too Low',
-  'envoy.cond_flags.pcu_chan.dfdt': 'AC Frequency Changing too Fast',
-  'envoy.cond_flags.pcu_chan.gfitripped': 'GFI Tripped',
-  'envoy.cond_flags.pcu_chan.gridgone': 'Grid Gone',
-  'envoy.cond_flags.pcu_chan.gridinstability': 'Grid Instability',
-  'envoy.cond_flags.pcu_chan.gridoffsethi': 'Grid Offset Hi',
-  'envoy.cond_flags.pcu_chan.gridoffsetlow': 'Grid Offset Low',
-  'envoy.cond_flags.pcu_chan.hardwareError': 'Hardware Error',
-  'envoy.cond_flags.pcu_chan.hardwareWarning': 'Hardware Warning',
-  'envoy.cond_flags.pcu_chan.highskiprate': 'High Skip Rate',
-  'envoy.cond_flags.pcu_chan.invalidinterval': 'Invalid Interval',
-  'envoy.cond_flags.pcu_chan.pwrgenoffbycmd': 'Power generation off by command',
-  'envoy.cond_flags.pcu_chan.skippedcycles': 'Skipped Cycles',
-  'envoy.cond_flags.pcu_chan.vreferror': 'Voltage Ref Error',
-  'envoy.cond_flags.pcu_ctrl.lertactive': 'Alert Active',
-  'envoy.cond_flags.pcu_ctrl.altpwrgenmode': 'Alternate Power Generation Mode',
-  'envoy.cond_flags.pcu_ctrl.altvfsettings': 'Alternate Voltage and Frequency Settings',
-  'envoy.cond_flags.pcu_ctrl.badflashimage': 'Bad Flash Image',
-  'envoy.cond_flags.pcu_ctrl.bricked': 'No Grid Profile',
-  'envoy.cond_flags.pcu_ctrl.commandedreset': 'Commanded Reset',
-  'envoy.cond_flags.pcu_ctrl.criticaltemperature': 'Critical Temperature',
-  'envoy.cond_flags.pcu_ctrl.dc-pwr-low': 'DC Power Too Low',
-  'envoy.cond_flags.pcu_ctrl.iuplinkproblem': 'IUP Link Problem',
-  'envoy.cond_flags.pcu_ctrl.manutestmode': 'In Manu Test Mode',
-  'envoy.cond_flags.pcu_ctrl.nsync': 'Grid Perturbation Unsynchronized',
-  'envoy.cond_flags.pcu_ctrl.overtemperature': 'Over Temperature',
-  'envoy.cond_flags.pcu_ctrl.poweronreset': 'Power On Reset',
-  'envoy.cond_flags.pcu_ctrl.pwrgenoffbycmd': 'Power generation off by command',
-  'envoy.cond_flags.pcu_ctrl.runningonac': 'Running on AC',
-  'envoy.cond_flags.pcu_ctrl.sleep-mode': 'Sleep Mode On',
-  'envoy.cond_flags.pcu_ctrl.tpmtest': 'Transient Grid Profile',
-  'envoy.cond_flags.pcu_ctrl.unexpectedreset': 'Unexpected Reset',
-  'envoy.cond_flags.pcu_ctrl.watchdogreset': 'Watchdog Reset',
-  'envoy.cond_flags.rgm_chan.check_meter': 'Meter Error',
-  'envoy.cond_flags.rgm_chan.power_quality': 'Poor Power Quality'
-}
 
 const ENCHARGE_LED_STATUS = {
   0: '0',
@@ -2406,14 +2147,26 @@ class envoyDevice {
     this.host = config.host || 'envoy.local';
     this.refreshInterval = config.refreshInterval || 5;
     this.disableLogInfo = config.disableLogInfo || false;
+    this.enableDebugMode = config.enableDebugMode || false;
     this.envoyPasswd = config.envoyPasswd;
     this.installerPasswd = config.installerPasswd;
+    this.entrezAuthorization = false //config.entrezAuthorization || false;
+    this.envoySerial = config.envoySerial;
+    this.enphaseUser = config.enphaseUser;
+    this.enphasePasswd = config.enphasePasswd;
     this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
     this.consumptionTotalPowerMaxDetected = config.powerConsumptionTotalMaxDetected || 0;
     this.consumptionTotalEnergyLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
     this.consumptionNetPowerMaxDetected = config.powerConsumptionNetMaxDetected || 0;
     this.consumptionNetEnergyLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
+    this.enableMqtt = config.enableMqtt || false;
+    this.mqttHost = config.mqttHost;
+    this.mqttPort = config.mqttPort || 1883;
+    this.mqttPrefix = config.mqttPrefix;
+    this.mqttAuth = config.mqttAuth || false;
+    this.mqttUser = config.mqttUser;
+    this.mqttPasswd = config.mqttPasswd;
 
     //setup variables
     this.checkDeviceInfo = true;
@@ -2564,6 +2317,7 @@ class envoyDevice {
     this.enpowerAggAvailEnergy = 0;
 
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
+    this.tokenFile = `${this.prefDir}/token_${this.host.split('.').join('')}`;
     this.productionPowerMaxFile = `${this.prefDir}/productionPowerMax_${this.host.split('.').join('')}`;
     this.consumptionPowerMaxFile = `${this.prefDir}/consumptionPowerMax_${this.host.split('.').join('')}`;
     this.consumptionPowerMaxFile1 = `${this.prefDir}/consumptionPowerMax1_${this.host.split('.').join('')}`;
@@ -2586,25 +2340,61 @@ class envoyDevice {
       this.log.error('Device: %s %s, prepare directory and files error: %s', this.host, this.name, error);
     };
 
-    this.url = `http://${this.host}`;
-    //create axios instanse
-    this.axiosInstance = axios.create({
-      method: 'GET',
-      baseURL: this.url
-    });
+    this.url = this.entrezAuthorization ? `https://${this.host}` : `http://${this.host}`;
+
+    if (!this.entrezAuthorization) {
+      this.axiosInstance = axios.create({
+        method: 'GET',
+        baseURL: this.url
+      });
+    }
+
+    //antrez auth installer
+    const entrezOptions = {
+      user: this.enphaseUser,
+      passwd: this.enphasePasswd,
+      envoySerial: this.envoySerial,
+      tokenFile: this.tokenFile
+    };
+    this.entrezAuth = new axiosEntrezAuth(entrezOptions);
 
     //digest auth installer
-    const auth = {
+    const digestAuthOptions = {
       user: INSTALLER_USER,
       passwd: this.installerPasswd
     };
-    this.digestAuth = new axiosDigestAuth(auth);
+    this.digestAuth = new axiosDigestAuth(digestAuthOptions);
+
+    //mqtt client
+    const mqttOptions = {
+      enabled: this.enableMqtt,
+      host: this.mqttHost,
+      port: this.mqttPort,
+      prefix: this.mqttPrefix,
+      auth: this.mqttAuth,
+      user: this.mqttUser,
+      passwd: this.mqttPasswd
+    };
+    this.mqttClient = new mqttClient(mqttOptions);
+
+    this.mqttClient.on('connected', (message) => {
+        this.log('Device: %s %s, %s', this.host, this.name, message);
+      })
+      .on('error', (error) => {
+        this.log('Device: %s %s, %s', this.host, this.name, error);
+      })
+      .on('debug', (message) => {
+        const debug = this.enableDebugMode ? this.log('Device: %s %s, %s', this.host, this.name, message) : false;
+      })
+      .on('disconnected', (message) => {
+        this.log('Device: %s %s, %s', this.host, this.name, message);
+      });
 
 
     //Check data
     setInterval(function () {
       if (this.checkDeviceInfo) {
-        this.updateEnvoyBackboneAppData();
+        const getTokenOrNot = this.entrezAuthorization ? this.getToken() : this.updateEnvoyBackboneAppData();
       } else {
         this.updateHomeData();
       }
@@ -2621,15 +2411,32 @@ class envoyDevice {
         const updateData = (this.checkDeviceState && this.envoySupportMeters) ? this.updateMetersReadingData() : false;
       }
     }.bind(this), 2000);
-
-    this.updateEnvoyBackboneAppData();
   }
+
+  async getToken() {
+    try {
+      const token = await this.entrezAuth.getToken();
+      this.axiosInstance = axios.create({
+        method: 'GET',
+        baseURL: this.url,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      this.updateEnvoyBackboneAppData();
+    } catch (error) {
+      this.log.error('Device: %s %s, get entrez token error: %s', this.host, this.name, error);
+      this.checkDeviceInfo = true;
+    };
+  };
 
   async updateEnvoyBackboneAppData() {
     this.log.debug('Device: %s %s, requesting envoyBackboneAppData.', this.host, this.name);
 
     try {
-      const envoyBackboneAppData = await this.axiosInstance(ENVOY_API_URL.BackboneApplication);
+      const envoyBackboneAppData = await this.axiosInstance(API_URL.BackboneApplication);
       this.log.debug('Device %s %s, debug envoyBackboneAppData: %s', this.host, this.name, envoyBackboneAppData.data);
       const data = envoyBackboneAppData.data;
       const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
@@ -2646,7 +2453,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting infoData.', this.host, this.name);
 
     try {
-      const infoData = await this.axiosInstance(ENVOY_API_URL.Info);
+      const infoData = await this.axiosInstance(API_URL.Info);
       this.log.debug('Device %s %s, debug infoData: %s', this.host, this.name, infoData.data);
 
       if (infoData.status == 200) {
@@ -2690,6 +2497,7 @@ class envoyDevice {
         this.envoyFirmwareSupported = envoyFirmwareSupported;
         this.envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
 
+        this.mqttClient.send('Info', JSON.stringify(parseInfoData, null, 2));
         this.updateHomeData();
       }
     } catch (error) {
@@ -2706,7 +2514,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting homeData.', this.host, this.name);
 
     try {
-      const homeData = await this.axiosInstance(ENVOY_API_URL.Home);
+      const homeData = await this.axiosInstance(API_URL.Home);
       this.log.debug('Device %s %s, debug homeData: %s', this.host, this.name, homeData.data);
 
       if (homeData.status == 200) {
@@ -2905,6 +2713,7 @@ class envoyDevice {
         this.envoyEnpowerConnected = enpowerConnected;
         this.envoyEnpowerGridStatus = enpowerGridStatus;
 
+        this.mqttClient.send('Home', JSON.stringify(homeData.data, null, 2));
         this.updateInventoryData();
       }
     } catch (error) {
@@ -2918,7 +2727,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting inventoryData.', this.host, this.name);
 
     try {
-      const inventoryData = await this.axiosInstance(ENVOY_API_URL.Inventory);
+      const inventoryData = await this.axiosInstance(API_URL.Inventory);
       this.log.debug('Device %s %s, debug inventoryData: %s', this.host, this.name, inventoryData.data);
 
       if (inventoryData.status == 200) {
@@ -3184,6 +2993,7 @@ class envoyDevice {
         this.qRelaysCount = qRelaysCount;
         this.qRelaysInstalled = qRelaysInstalled;
 
+        this.mqttClient.send('Inventory', JSON.stringify(inventoryData.data, null, 2));
         const updateMetersOrEnsembleInventoryOrProductionData = this.envoySupportMeters ? this.updateMetersData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.updateProductionData();
       }
     } catch (error) {
@@ -3196,7 +3006,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting metersData.', this.host, this.name);
 
     try {
-      const metersData = await this.axiosInstance(ENVOY_API_URL.InternalMeterInfo);
+      const metersData = await this.axiosInstance(API_URL.InternalMeterInfo);
       this.log.debug('Device %s %s, debug metersData: %s', this.host, this.name, metersData.data);
 
       if (metersData.status == 200) {
@@ -3257,6 +3067,7 @@ class envoyDevice {
         this.metersCount = metersCount;
         this.metersInstalled = metersInstalled;
 
+        this.mqttClient.send('Production', JSON.stringify(metersData.data, null, 2));
         const updateEnsembleInventoryOrProductionData = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.updateProductionData();
       }
     } catch (error) {
@@ -3271,7 +3082,7 @@ class envoyDevice {
     try {
       const options = {
         method: 'GET',
-        url: this.url + ENVOY_API_URL.EnsembleInventory,
+        url: this.url + API_URL.EnsembleInventory,
         headers: {
           Accept: 'application/json'
         }
@@ -3464,6 +3275,7 @@ class envoyDevice {
         this.ensembleGridProfileVersion = gridProfileVersion;
         this.ensembleItemCount = itemCount;
 
+        this.mqttClient.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2));
         const updateEnsembleStatusOrProductionData = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleStatusData() : this.updateProductionData();
       }
     } catch (error) {
@@ -3478,7 +3290,7 @@ class envoyDevice {
     try {
       const options = {
         method: 'GET',
-        url: this.url + ENVOY_API_URL.EnsembleStatus,
+        url: this.url + API_URL.EnsembleStatus,
         headers: {
           Accept: 'application/json'
         }
@@ -3668,6 +3480,7 @@ class envoyDevice {
         const fakeInventoryMode = ensembleStatusData.data.fakeit.fake_inventory_mode;
         this.ensembleFakeInventoryMode = (fakeInventoryMode == true);
 
+        this.mqttClient.send('Ensemble Status', JSON.stringify(ensembleStatusData.data, null, 2));
         this.updateProductionData();
       }
     } catch (error) {
@@ -3680,7 +3493,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting productionData.', this.host, this.name);
 
     try {
-      const productionData = await this.axiosInstance(ENVOY_API_URL.InverterProductionSumm);
+      const productionData = await this.axiosInstance(API_URL.InverterProductionSumm);
       this.log.debug('Debug productionData: %s', productionData.data);
 
       //microinverters summary 
@@ -3696,6 +3509,7 @@ class envoyDevice {
         this.productionMicroSummarywhLifeTime = productionMicroSummarywhLifeTime;
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
+        this.mqttClient.send('Production', JSON.stringify(productionData.data, null, 2));
         this.updateProductionCtData();
       }
     } catch (error) {
@@ -3708,7 +3522,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting productionCtData.', this.host, this.name);
 
     try {
-      const productionCtData = await this.axiosInstance(ENVOY_API_URL.SystemReadingStats);
+      const productionCtData = await this.axiosInstance(API_URL.SystemReadingStats);
       this.log.debug('Debug productionCtData: %s', productionCtData.data);
 
       //production CT
@@ -3929,6 +3743,7 @@ class envoyDevice {
           this.acBatteriesSummaryState = chargeStatus;
           this.acBatteriesSummaryPercentFull = percentFull;
         }
+        this.mqttClient.send('Production CT', JSON.stringify(productionCtData.data, null, 2));
         const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? false : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
@@ -3949,7 +3764,7 @@ class envoyDevice {
 
       const options = {
         method: 'GET',
-        url: this.url + ENVOY_API_URL.InverterProduction,
+        url: this.url + API_URL.InverterProduction,
         headers: {
           Accept: 'application/json'
         }
@@ -3992,6 +3807,8 @@ class envoyDevice {
           this.microinvertersMaxPower.push(maxReportWatts);
         }
         this.microinvertersUpdatePower = true;
+
+        this.mqttClient.send('Microinverters', JSON.stringify(microinvertersData.data, null, 2));
         const updateMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? false : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
@@ -4005,7 +3822,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting metersReadingData.', this.host, this.name);
 
     try {
-      const metersReadingData = await this.axiosInstance(ENVOY_API_URL.InternalMeterReadings);
+      const metersReadingData = await this.axiosInstance(API_URL.InternalMeterReadings);
       this.log.debug('Debug metersReadingData: %s', metersReadingData.data);
 
       if (metersReadingData.status == 200) {
@@ -4136,6 +3953,7 @@ class envoyDevice {
         this.metersReadingCount = metersReadingCount;
         this.metersReadingInstalled = metersReadingInstalled;
 
+        this.mqttClient.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2));
         const updateProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? false : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
@@ -4148,7 +3966,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting powerModeData.', this.host, this.name);
 
     try {
-      const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
+      const powerModeUrl = API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
       const options = {
         method: 'GET',
         url: this.url + powerModeUrl,
@@ -4169,6 +3987,7 @@ class envoyDevice {
         }
         this.productionPowerMode = productionPowerMode;
 
+        this.mqttClient.send('Power Mode', JSON.stringify(powerModeData.data, null, 2));
         const getaDeviceInfo = !this.checkDeviceInfo ? false : this.getDeviceInfo();
       }
     } catch (error) {
@@ -4183,7 +4002,7 @@ class envoyDevice {
     try {
       const options = {
         method: 'GET',
-        url: this.url + ENVOY_API_URL.InverterComm,
+        url: this.url + API_URL.InverterComm,
         headers: {
           Accept: 'application/json'
         }
@@ -4246,6 +4065,8 @@ class envoyDevice {
 
         this.updateCommLevel = true;
         this.envoyCheckCommLevel = false;
+
+        this.mqttClient.send('PCU Comm Level', JSON.stringify(pcuCommLevelData.data, null, 2));
       }
     } catch (error) {
       this.log.error('Device: %s %s, pcuCommLevelData error: %s', this.host, this.name, error);
@@ -4535,7 +4356,7 @@ class envoyDevice {
         })
         .onSet(async (state) => {
           try {
-            const powerModeUrl = ENVOY_API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
+            const powerModeUrl = API_URL.PowerForcedModePutGet.replace("EID", this.envoyDevId);
             const data = JSON.stringify({
               length: 1,
               arr: [state ? 0 : 1]

@@ -20,7 +20,7 @@
               "required": true
             },
             "host": {
-              "title": "Address IP",
+              "title": "IP/Hostname",
               "type": "string",
               "default": "192.168.1.35",
               "required": false,
@@ -42,6 +42,13 @@
               "required": false,
               "description": "This disable log info, all values and state will not be displayed in Homebridge log console."
             },
+            "enableDebugMode": {
+              "title": "Enable Debug Mode",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable debug mode.",
+              "required": false
+            },
             "envoyPasswd": {
               "title": "Envoy password",
               "type": "string",
@@ -53,6 +60,40 @@
               "type": "string",
               "description": "Here set installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/",
               "required": false
+            },
+            "entrezAuthorization": {
+              "title": "Entrez authorization (Comming soon)",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable Entrez authorization for Envoy with firmware 7.x.x."
+            },
+            "envoySerial": {
+              "title": "Envoy serial number",
+              "type": "string",
+              "description": "Here set the Envoy serial number.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].entrezAuthorization === true;"
+              }
+            },
+            "enphaseUser": {
+              "title": "Enphase user",
+              "type": "string",
+              "description": "Here set the Enphase Energy account user.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].entrezAuthorization === true;"
+              }
+            },
+            "enphasePasswd": {
+              "title": "Enphase password",
+              "type": "string",
+              "description": "Here set the Enphase Energy account password.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].entrezAuthorization === true;"
+              }
             },
             "powerProductionMaxDetected": {
               "title": "Power production max detected",
@@ -101,6 +142,74 @@
               "maximum": 65535,
               "description": "Here set energy consumption *Offset* in (Wh) for lifetime net energy if nedded.",
               "required": false
+            },
+            "enableMqtt": {
+              "title": "Enable MQTT",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable MQTT client."
+            },
+            "mqttHost": {
+              "title": "IP/Hostname",
+              "type": "string",
+              "default": "192.168.1.35",
+              "required": true,
+              "format": "hostname",
+              "description": "Here set the IP/Hostname of MQTT Broker.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
+              }
+            },
+            "mqttPort": {
+              "title": "Port",
+              "type": "integer",
+              "placeholder": 1883,
+              "required": true,
+              "description": "Here set the port of MQTT Broker.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
+              }
+            },
+            "mqttPrefix": {
+              "title": "Prefix",
+              "type": "string",
+              "placeholder": "home/envoy",
+              "required": false,
+              "description": "Here set the prefix.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
+              }
+            },
+            "mqttAuth": {
+              "title": "Authorization",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable authorization for MQTT Broker.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
+              }
+            },
+            "mqttUser": {
+              "title": "User",
+              "type": "string",
+              "placeholder": "user",
+              "required": false,
+              "description": "Here set the user of MQTT Broker.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true && model.devices[arrayIndices].mqttAuth === true;"
+              }
+            },
+            "mqttPasswd": {
+              "title": "MQTT broker Host/IP",
+              "type": "string",
+              "placeholder": "password",
+              "required": false,
+              "description": "Here set the password of MQTT Broker.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true && model.devices[arrayIndices].mqttAuth === true;"
+              }
             }
           }
         }
@@ -141,12 +250,32 @@
       {
         "key": "devices[]",
         "type": "section",
+        "title": "MQTT Client",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "devices[].enableMqtt",
+          "devices[].mqttHost",
+          "devices[].mqttPort",
+          "devices[].mqttPrefix",
+          "devices[].mqttAuth",
+          "devices[].mqttUser",
+          "devices[].mqttPasswd"
+        ]
+      },
+      {
+        "key": "devices[]",
+        "type": "section",
         "title": "Authorization",
         "expandable": true,
         "expanded": false,
         "items": [
           "devices[].envoyPasswd",
-          "devices[].installerPasswd"
+          "devices[].installerPasswd",
+          "devices[].entrezAuthorization",
+          "devices[].envoySerial",
+          "devices[].enphaseUser",
+          "devices[].enphasePasswd"
         ]
       },
       {
@@ -156,6 +285,7 @@
         "expandable": true,
         "expanded": false,
         "items": [
+          "devices[].enableDebugMode",
           "devices[].disableLogInfo",
           "devices[].refreshInterval"
         ]

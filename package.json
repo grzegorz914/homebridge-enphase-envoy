@@ -2,7 +2,7 @@
     "private": false,
     "displayName": "Enphase Envoy",
     "name": "homebridge-enphase-envoy",
-    "version": "5.4.35",
+    "version": "5.5.0",
     "description": "Homebridge plugin (https://github.com/homebridge/homebridge) to read data from Enphase Envoy.",
     "license": "MIT",
     "author": "grzegorz914",
@@ -33,6 +33,7 @@
         "homebridge": ">=1.3.0"
     },
     "dependencies": {
+        "async-mqtt": "^2.6.2",
         "axios": "^0.26.0",
         "xml2js": ">=0.4.23"
     },

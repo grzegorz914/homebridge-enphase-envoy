@@ -46,8 +46,12 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Installer [password need to be generated](https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/).
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 * Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
+* MQTT Client publisch all available data from all installed devices.
 
 ### Important changes
+#### v5.5.0 and above!
+* Added MQTT Client.
+
 #### v5.2.15 and above!
 * Added system Power Production - Enable/Disable (required *installerPasswd*).
 * Finally detects Ensemble, Encharges and Enpower (required *installerPasswd*).
@@ -86,6 +90,7 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | `name` | Here set the accessory *Name* to be displayed in *Homebridge/HomeKit*. |
 | `host` | Here set the *IP Address* or *Hostname* or leave empy (will be used default path `envoy.local`) |
 | `refreshInterval` | Here set the data refresh time in seconds, default is every 5 seconds |
+| `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `envoyUser` | Here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
@@ -102,6 +107,12 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
 | `powerConsumptionNetMaxDetected` | Here set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
+| `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
+| `mqttHost` | Here set the *IP Address* or *Hostname* for MQTT Broker.) |
+| `mqttPort` | Here set the *Port* for MQTT Broker, default 1883.) |
+| `mqttAuth` | If enabled, MQTT Broker will use authorization credentials. |
+| `mqttUser` | Here set the MQTT Broker user. |
+| `mqttPasswd` | Here set the MQTT Broker password. |
 | `manufacturer`, `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
 
 ```json
@@ -112,6 +123,7 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "refreshInterval": 30,
+                    "enableDebugMode": false,
                     "disableLogInfo": false,
                     "envoyUser": "envoy", //removed from 4.6.11, not nedded anymore
                     "envoyPasswd": "",
@@ -124,6 +136,13 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "enableMqtt": false,
+                    "mqttHost": "192.168.1.33",
+                    "mqttPort": 1883,
+                    "mqttPrefix": "home/envoy",
+                    "mqttAuth": false,
+                    "mqttUser": "user",
+                    "mqttPass": "password",
                     "manufacturer": "Manufacturer", //removed from 4.7.0 not nedded anymore
                     "modelName": "Model" //removed from 4.7.0 not nedded anymore
                 }

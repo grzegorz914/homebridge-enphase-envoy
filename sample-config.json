@@ -20,6 +20,7 @@
             "name": "Envoy",
             "host": "192.168.1.35",
             "refreshInterval": 30,
+            "enableDebugMode": false,
             "disableLogInfo": false,
             "envoyPasswd": "",
             "installerPasswd": "",
@@ -28,7 +29,14 @@
             "powerConsumptionTotalMaxDetected": 10000,
             "energyConsumptionTotalLifetimeOffset": 0,
             "powerConsumptionNetMaxDetected": 10000,
-            "energyConsumptionNetLifetimeOffset": 0
+            "energyConsumptionNetLifetimeOffset": 0,
+            "enableMqtt": false,
+            "mqttHost": "192.168.1.33",
+            "mqttPort": 1883,
+            "mqttPrefix": "home/envoy",
+            "mqttAuth": false,
+            "mqttUser": "user",
+            "mqttPass": "password"
         }]
     }]
 }
