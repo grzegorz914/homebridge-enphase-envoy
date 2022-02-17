@@ -144,7 +144,7 @@
               "required": false
             },
             "enableMqtt": {
-              "title": "Enable MQTT",
+              "title": "Enable",
               "type": "boolean",
               "default": false,
               "required": false,
@@ -153,7 +153,7 @@
             "mqttHost": {
               "title": "IP/Hostname",
               "type": "string",
-              "default": "192.168.1.35",
+              "placeholder": "ip or hostname",
               "required": true,
               "format": "hostname",
               "description": "Here set the IP/Hostname of MQTT Broker.",
@@ -202,7 +202,7 @@
               }
             },
             "mqttPasswd": {
-              "title": "MQTT broker Host/IP",
+              "title": "Password",
               "type": "string",
               "placeholder": "password",
               "required": false,
