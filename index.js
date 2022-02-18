@@ -2350,32 +2350,30 @@ class envoyDevice {
     }
 
     //antrez auth installer
-    const entrezOptions = {
+    this.entrezAuth = new axiosEntrezAuth({
       user: this.enphaseUser,
       passwd: this.enphasePasswd,
       envoySerial: this.envoySerial,
       tokenFile: this.tokenFile
-    };
-    this.entrezAuth = new axiosEntrezAuth(entrezOptions);
+    });
 
     //digest auth installer
-    const digestAuthOptions = {
+    this.digestAuth = new axiosDigestAuth({
       user: INSTALLER_USER,
       passwd: this.installerPasswd
-    };
-    this.digestAuth = new axiosDigestAuth(digestAuthOptions);
+    });
 
     //mqtt client
-    const mqttOptions = {
+    this.mqttClient = new mqttClient({
       enabled: this.enableMqtt,
       host: this.mqttHost,
       port: this.mqttPort,
       prefix: this.mqttPrefix,
+      topic: this.name,
       auth: this.mqttAuth,
       user: this.mqttUser,
       passwd: this.mqttPasswd
-    };
-    this.mqttClient = new mqttClient(mqttOptions);
+    });
 
     this.mqttClient.on('connected', (message) => {
         this.log('Device: %s %s, %s', this.host, this.name, message);
@@ -2385,6 +2383,9 @@ class envoyDevice {
       })
       .on('debug', (message) => {
         const debug = this.enableDebugMode ? this.log('Device: %s %s, %s', this.host, this.name, message) : false;
+      })
+      .on('message', (message) => {
+        const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, %s', this.host, this.name, message);
       })
       .on('disconnected', (message) => {
         this.log('Device: %s %s, %s', this.host, this.name, message);
