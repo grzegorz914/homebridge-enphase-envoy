@@ -61,38 +61,20 @@
               "description": "Here set installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/",
               "required": false
             },
-            "entrezAuthorization": {
-              "title": "Entrez authorization (Comming soon)",
+            "entrezAuth": {
+              "title": "Entrez authorization",
               "type": "boolean",
               "default": false,
               "required": false,
               "description": "This enable Entrez authorization for Envoy with firmware 7.x.x."
             },
-            "envoySerial": {
-              "title": "Envoy serial number",
+            "entrezToken": {
+              "title": "Token",
               "type": "string",
-              "description": "Here set the Envoy serial number.",
+              "description": "Here set the entrez authorization token, more info here: https://entrez.enphaseenergy.com",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].entrezAuthorization === true;"
-              }
-            },
-            "enphaseUser": {
-              "title": "Enphase user",
-              "type": "string",
-              "description": "Here set the Enphase Energy account user.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].entrezAuthorization === true;"
-              }
-            },
-            "enphasePasswd": {
-              "title": "Enphase password",
-              "type": "string",
-              "description": "Here set the Enphase Energy account password.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].entrezAuthorization === true;"
+                "functionBody": "return model.devices[arrayIndices].entrezAuth === true;"
               }
             },
             "powerProductionMaxDetected": {
@@ -272,10 +254,8 @@
         "items": [
           "devices[].envoyPasswd",
           "devices[].installerPasswd",
-          "devices[].entrezAuthorization",
-          "devices[].envoySerial",
-          "devices[].enphaseUser",
-          "devices[].enphasePasswd"
+          "devices[].entrezAuth",
+          "devices[].entrezToken"
         ]
       },
       {

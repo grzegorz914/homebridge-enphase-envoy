@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - You can set task for the Envoy to Enable/Disable power production on the microinverters. 
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
+## [5.6.0] - (19.02.2022)
+## Added
+- Entrez Authorization for Envoy with firmware 7.x.x (test phase)
 
 ## [5.5.0] - (17.02.2022)
 ## Added

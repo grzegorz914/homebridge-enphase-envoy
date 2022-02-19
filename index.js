@@ -2,7 +2,6 @@
 
 const path = require('path');
 const axios = require('axios');
-const axiosEntrezAuth = require('./src/entrezAuth.js');
 const axiosDigestAuth = require('./src/digestAuth.js');
 const mqttClient = require('./src/mqtt.js');
 const fs = require('fs');
@@ -2150,10 +2149,8 @@ class envoyDevice {
     this.enableDebugMode = config.enableDebugMode || false;
     this.envoyPasswd = config.envoyPasswd;
     this.installerPasswd = config.installerPasswd;
-    this.entrezAuthorization = false //config.entrezAuthorization || false;
-    this.envoySerial = config.envoySerial;
-    this.enphaseUser = config.enphaseUser;
-    this.enphasePasswd = config.enphasePasswd;
+    this.entrezAuth = config.entrezAuth || false;
+    this.entrezToken = config.entrezToken;
     this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
     this.consumptionTotalPowerMaxDetected = config.powerConsumptionTotalMaxDetected || 0;
@@ -2340,22 +2337,23 @@ class envoyDevice {
       this.log.error('Device: %s %s, prepare directory and files error: %s', this.host, this.name, error);
     };
 
-    this.url = this.entrezAuthorization ? `https://${this.host}` : `http://${this.host}`;
+    this.url = this.entrezAuth ? `https://${this.host}` : `http://${this.host}`;
 
-    if (!this.entrezAuthorization) {
+    if (this.entrezAuth && this.entrezToken) {
       this.axiosInstance = axios.create({
         method: 'GET',
-        baseURL: this.url
+        baseURL: this.url,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${this.entrezToken}`
+        }
+      });
+    } else {
+      this.axiosInstance = axios.create({
+        method: 'GET',
+        baseURL: this.url,
       });
     }
-
-    //antrez auth installer
-    this.entrezAuth = new axiosEntrezAuth({
-      user: this.enphaseUser,
-      passwd: this.enphasePasswd,
-      envoySerial: this.envoySerial,
-      tokenFile: this.tokenFile
-    });
 
     //digest auth installer
     this.digestAuth = new axiosDigestAuth({
@@ -2395,7 +2393,7 @@ class envoyDevice {
     //Check data
     setInterval(function () {
       if (this.checkDeviceInfo) {
-        const getTokenOrNot = this.entrezAuthorization ? this.getToken() : this.updateEnvoyBackboneAppData();
+        this.updateEnvoyBackboneAppData();
       } else {
         this.updateHomeData();
       }
@@ -2413,25 +2411,6 @@ class envoyDevice {
       }
     }.bind(this), 2000);
   }
-
-  async getToken() {
-    try {
-      const token = await this.entrezAuth.getToken();
-      this.axiosInstance = axios.create({
-        method: 'GET',
-        baseURL: this.url,
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      this.updateEnvoyBackboneAppData();
-    } catch (error) {
-      this.log.error('Device: %s %s, get entrez token error: %s', this.host, this.name, error);
-      this.checkDeviceInfo = true;
-    };
-  };
 
   async updateEnvoyBackboneAppData() {
     this.log.debug('Device: %s %s, requesting envoyBackboneAppData.', this.host, this.name);

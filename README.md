@@ -24,7 +24,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ### Note
 * Homebridge Enphase Envoy v4.5.0 and above the minimum required version of Homebridge is 1.3.x.
-* Envoy firmware 7.x.x and above not supported right now due to authentication method changed and loss of local API connectivity.
+* Envoy with firmware 7.x.x need entrez token, [token can be generated here.](https://entrez.enphaseenergy.com) (test phase).
 * More info and discusion about authentication method changed and loss of local API connectivity [here](https://support.enphase.com/s/question/0D53m00006ySLuRCAW/unimpressed-with-loss-of-local-api-connectivity-to-envoys)
 * If count of all installed devices is grater than 100, the app will stop responding. This is HomeKit limitations, if this happens by You please open the issue, I will look how to fix this.
 
@@ -96,6 +96,8 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `installerUser` | Here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
 | `installerPasswd` | Here set the optional installer password, [password need to be generated](https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/). |
+| `entrezAuth` | If enabled, entrez token will be used, enable only for Envoy with firmware 7.x.x, |
+| `entrezToken` | Here set the entrez token, use only for Envoy with firmware 7.x.x, [token casn be generated](https://entrez.enphaseenergy.com). |
 | `enchargeStorage` | check *ON* if AC Batteries are installed. (not available from v3.5.0) |
 | `acBatteriesStorageOffset` | Here set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) (not available from v4.9.0)|
 | `powerConsumptionMetersInstalled` | Here check *ON* if consumption meters are installed. (not available from v3.5.0) |
@@ -130,6 +132,8 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
                     "envoyPasswd": "",
                     "installerUser": "installer", //removed from 4.6.11 not nedded anymore
                     "installerPasswd": "",
+                    "entrezAuth": false,
+                    "entrezToken": "",
                     "acBatteriesStorageOffset": 0, //removed from 4.9.0 not nedded anymore
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
