@@ -2314,7 +2314,7 @@ class envoyDevice {
     this.enpowerAggAvailEnergy = 0;
 
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
-    this.tokenFile = `${this.prefDir}/token_${this.host.split('.').join('')}`;
+    this.envoyIdFile = `${this.prefDir}/envoyId_${this.host.split('.').join('')}`;
     this.productionPowerMaxFile = `${this.prefDir}/productionPowerMax_${this.host.split('.').join('')}`;
     this.consumptionPowerMaxFile = `${this.prefDir}/consumptionPowerMax_${this.host.split('.').join('')}`;
     this.consumptionPowerMaxFile1 = `${this.prefDir}/consumptionPowerMax1_${this.host.split('.').join('')}`;
@@ -2323,6 +2323,9 @@ class envoyDevice {
       //check if the directory exists, if not then create it
       if (!fs.existsSync(this.prefDir)) {
         fs.mkdirSync(this.prefDir);
+      }
+      if (!fs.existsSync(this.envoyIdFile)) {
+        fs.writeFileSync(this.envoyIdFile, '');
       }
       if (!fs.existsSync(this.productionPowerMaxFile)) {
         fs.writeFileSync(this.productionPowerMaxFile, '0.0');
@@ -2410,21 +2413,35 @@ class envoyDevice {
         const updateData = (this.checkDeviceState && this.envoySupportMeters) ? this.updateMetersReadingData() : false;
       }
     }.bind(this), 2000);
+
+    this.updateEnvoyBackboneAppData();
   }
 
   async updateEnvoyBackboneAppData() {
     this.log.debug('Device: %s %s, requesting envoyBackboneAppData.', this.host, this.name);
 
     try {
-      const envoyBackboneAppData = await this.axiosInstance(API_URL.BackboneApplication);
-      this.log.debug('Device %s %s, debug envoyBackboneAppData: %s', this.host, this.name, envoyBackboneAppData.data);
-      const data = envoyBackboneAppData.data;
-      const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
-
-      this.envoyDevId = envoyDevId;
-      this.updateInfoData();
+      const savedEnvoyId = await fsPromises.readFile(this.envoyIdFile);
+      const envoyId = savedEnvoyId.toString();
+      if (envoyId.length != 9) {
+        try {
+          const envoyBackboneAppData = await this.axiosInstance(API_URL.BackboneApplication);
+          this.log.debug('Device %s %s, debug envoyBackboneAppData: %s', this.host, this.name, envoyBackboneAppData.data);
+          const data = envoyBackboneAppData.data;
+          const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
+          await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
+          this.envoyDevId = envoyDevId;
+          this.updateInfoData();
+        } catch (error) {
+          this.log.error('Device: %s %s, requesting envoyBackboneAppData or wrire envoy id error: %s', this.host, this.name, error);
+          this.checkDeviceInfo = true;
+        };
+      } else {
+        this.envoyDevId = envoyId;
+        this.updateInfoData();
+      }
     } catch (error) {
-      this.log.error('Device: %s %s, requesting envoyBackboneAppData error: %s', this.host, this.name, error);
+      this.log.error('Device: %s %s, requesting envoy id error: %s', this.host, this.name, error);
       this.checkDeviceInfo = true;
     };
   }
