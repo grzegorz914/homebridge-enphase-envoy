@@ -2433,16 +2433,20 @@ class envoyDevice {
           this.envoyDevId = envoyDevId;
           this.updateInfoData();
         } catch (error) {
-          this.log.error('Device: %s %s, requesting envoyBackboneAppData or wrire envoy id error: %s', this.host, this.name, error);
           this.checkDeviceInfo = true;
+          if (error.code == 'DEPTH_ZERO_SELF_SIGNED_CERT') {
+            this.log('Device: %s %s, probably uses new firmware 7.x.x, please enable authorization token support in plugin settings.', this.host, this.name)
+          } else {
+            this.log.error('Device: %s %s, requesting envoyBackboneAppData or save envoy id error: %s', this.host, this.name, error);
+          };
         };
       } else {
         this.envoyDevId = envoyId;
         this.updateInfoData();
       }
     } catch (error) {
-      this.log.error('Device: %s %s, requesting envoy id error: %s', this.host, this.name, error);
       this.checkDeviceInfo = true;
+      this.log.error('Device: %s %s, read envoy id from file error: %s', this.host, this.name, error);
     };
   }
 
@@ -2498,12 +2502,12 @@ class envoyDevice {
         this.updateHomeData();
       }
     } catch (error) {
+      this.checkDeviceInfo = true;
       if (error.code == 'DEPTH_ZERO_SELF_SIGNED_CERT') {
-        this.log('Device: %s %s, probably Envoy uses new firmware 07.x.xx, this firmware contain new authentication method and is not supported right now', this.host, this.name)
+        this.log('Device: %s %s, probably uses new firmware 7.x.x with entrez authorization, please enable it in plugin settings.', this.host, this.name)
       } else {
         this.log.error('Device: %s %s, requesting infoData error: %s', this.host, this.name, error);
       }
-      this.checkDeviceInfo = true;
     };
   }
 
