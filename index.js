@@ -2,7 +2,6 @@
 
 const path = require('path');
 const axios = require('axios');
-const https = require('https');
 const axiosDigestAuth = require('./src/digestAuth.js');
 const mqttClient = require('./src/mqtt.js');
 const fs = require('fs');
@@ -2320,35 +2319,15 @@ class envoyDevice {
       this.log.error('Device: %s %s, prepare directory and files error: %s', this.host, this.name, error);
     };
 
-    if (this.entrezAuth && this.entrezToken) {
-      this.axiosInstanceEntrez = axios.create({
-        method: 'GET',
-        baseURL: `https://${this.host}`,
-        httpsAgent: new https.Agent({
-          rejectUnauthorized: false
-        }),
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${this.entrezToken}`
-        }
-      });
-    }
-
     this.axiosInstance = axios.create({
       method: 'GET',
-      baseURL: `http://${this.host}`
+      baseURL: this.url
     });
 
     //digest auth installer
     this.digestAuthInstaller = new axiosDigestAuth({
       user: INSTALLER_USER,
       passwd: this.installerPasswd
-    });
-
-    //digest auth envoy
-    this.digestAuthEnvoy = new axiosDigestAuth({
-      user: ENVOY_USER,
-      passwd: this.envoyPasswd
     });
 
     //mqtt client
@@ -2380,12 +2359,12 @@ class envoyDevice {
         this.log('Device: %s %s, %s', this.host, this.name, message);
       });
 
-    const connect = (this.entrezAuth && this.entrezToken) ? this.updateInfoData() : this.updateEnvoyBackboneAppData();
+    this.updateEnvoyBackboneAppData();
   }
 
   reconnect() {
     setTimeout(() => {
-      const connect = (this.entrezAuth && this.entrezToken) ? this.updateInfoData() : this.updateEnvoyBackboneAppData();
+      this.updateEnvoyBackboneAppData();
     }, 7500)
   };
 
@@ -2442,12 +2421,12 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting info.', this.host, this.name);
 
     try {
-      const infoData = (this.entrezAuth && this.entrezToken) ? await this.axiosInstanceEntrez(API_URL.Info) : await this.axiosInstance(API_URL.Info);
+      const infoData = await this.axiosInstance(API_URL.Info);
       const debug = this.enableDebugMode ? this.log('Device: %s %s, debug infoData: %s', this.host, this.name, JSON.stringify(infoData.data, null, 2)) : false;
 
       if (infoData.status == 200) {
         const parseInfoData = await parseStringPromise(infoData.data);
-        this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2));
+        const debug1 = this.enableDebugMode ? this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2)) : false;
 
         //envoy info
         const time = new Date(parseInfoData.envoy_info.time[0] * 1000).toLocaleString();
@@ -2496,7 +2475,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting home.', this.host, this.name);
 
     try {
-      const homeData = (this.entrezAuth && this.entrezToken) ? await this.axiosInstanceEntrez(API_URL.Home) : await this.axiosInstance(API_URL.Home);
+      const homeData = await this.axiosInstance(API_URL.Home);
       const debug = this.enableDebugMode ? this.log('Device: %s %s, debug homeData: %s', this.host, this.name, JSON.stringify(homeData.data, null, 2)) : false;
 
       if (homeData.status == 200) {
@@ -3480,7 +3459,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting production.', this.host, this.name);
 
     try {
-      const productionData = (this.entrezAuth && this.entrezToken) ? await this.axiosInstanceEntrez(API_URL.InverterProductionSumm) : await this.axiosInstance(API_URL.InverterProductionSumm);
+      const productionData = await this.axiosInstance(API_URL.InverterProductionSumm);
       this.log.debug('Device: %s %s, productionData: %s', productionData.data);
 
       //microinverters summary 
@@ -3510,7 +3489,7 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting production current transformer.', this.host, this.name);
 
     try {
-      const productionCtData = (this.entrezAuth && this.entrezToken) ? await this.axiosInstanceEntrez(API_URL.SystemReadingStats) : await this.axiosInstance(API_URL.SystemReadingStats);
+      const productionCtData = await this.axiosInstance(API_URL.SystemReadingStats);
       const debug = this.enableDebugMode ? this.log('Device: %s %s, debug productionCtData: %s', this.host, this.name, JSON.stringify(productionCtData.data, null, 2)) : false;
 
       //production CT
@@ -3745,6 +3724,13 @@ class envoyDevice {
     this.log.debug('Device: %s %s, requesting microinverters', this.host, this.name);
 
     try {
+      //digest auth envoy
+      const passwd = this.envoyPasswd;
+      const digestAuth = new axiosDigestAuth({
+        user: ENVOY_USER,
+        passwd: passwd
+      });
+
       const options = {
         method: 'GET',
         url: this.url + API_URL.InverterProduction,
@@ -3753,7 +3739,7 @@ class envoyDevice {
         }
       }
 
-      const microinvertersData = await this.digestAuthEnvoy.request(options);
+      const microinvertersData = await digestAuth.request(options);
       const debug = this.enableDebugMode ? this.log('Device: %s %s, debug microinvertersData: %s', this.host, this.name, JSON.stringify(microinvertersData.data, null, 2)) : false;
 
       if (microinvertersData.status == 200) {

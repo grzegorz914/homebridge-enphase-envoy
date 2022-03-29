@@ -95,7 +95,7 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `installerUser` | Here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
 | `installerPasswd` | Here set the optional installer password, [password need to be generated](https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/). |
-| `entrezAuth` | If enabled, entrez token will be used, enable only for Envoy with firmware 7.x.x, |
+| `entrezAuth` | If enabled, entrez token will be used, enable only for Envoy with firmware 7.x.x |
 | `entrezToken` | Here set the entrez token, use only for Envoy with firmware 7.x.x, [generate token](https://entrez.enphaseenergy.com). |
 | `enchargeStorage` | check *ON* if AC Batteries are installed. (not available from v3.5.0) |
 | `acBatteriesStorageOffset` | Here set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) (not available from v4.9.0)|
