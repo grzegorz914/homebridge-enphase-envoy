@@ -19,7 +19,6 @@
         "devices": [{
             "name": "Envoy",
             "host": "192.168.1.35",
-            "refreshInterval": 30,
             "enableDebugMode": false,
             "disableLogInfo": false,
             "envoyPasswd": "",
@@ -38,7 +37,8 @@
             "mqttPrefix": "home/envoy",
             "mqttAuth": false,
             "mqttUser": "user",
-            "mqttPass": "password"
+            "mqttPass": "password",
+            "mqttDebug": false
         }]
     }]
 }

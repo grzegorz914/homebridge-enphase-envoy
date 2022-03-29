@@ -13,6 +13,7 @@ class MQTTCLIENT extends EventEmitter {
         this.mqttAuth = config.auth;
         this.mqttUser = config.user;
         this.mqttPasswd = config.passwd;
+        this.mqttDebug = config.debug;
         this.isConnected = false;
 
         const run = this.mqttEnabled ? this.connect() : false;
@@ -29,7 +30,8 @@ class MQTTCLIENT extends EventEmitter {
             this.isConnected = true;
             this.emit('connected', 'MQTT Connected.');
         } catch (error) {
-            this.emit('error', error);
+            this.isConnected = false;
+            this.emit('error', `MQTT Connect error: ${error}, trying to reconnect.`);
         };
     };
 
@@ -39,17 +41,11 @@ class MQTTCLIENT extends EventEmitter {
         };
 
         try {
-            const fullTopic = `${this.mqttPrefix}/${this.mqttTopic}/${topic}`;;
+            const fullTopic = `${this.mqttPrefix}/${this.mqttTopic}/${topic}`;
             await this.mqttClient.publish(fullTopic, message);
-            this.emit('debug', `MQTT publish: ${fullTopic}: ${message}`);
+            const emitDebug = this.mqttDebug ? this.emit('debug', `MQTT publish: ${fullTopic}: ${message}`) : false;
         } catch (error) {
-            this.isConnected = false;
-            this.emit('disconnected', 'MQTT Disconnected, trying to reconnect.');
-            await this.mqttClient.end();
-
-            setTimeout(() => {
-                this.connect();
-            }, 5000);
+            this.emit('disconnected', `MQTT Publish error: ${error}, trying to reconnect.`);
         };
     };
 };

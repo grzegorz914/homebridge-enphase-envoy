@@ -2,7 +2,7 @@
   "EntrezLogin": "https://entrez.enphaseenergy.com/login",
   "EntrezToken": "https://entrez.enphaseenergy.com/entrez_tokens",
   "EnphaseLogin": "https://enlighten.enphaseenergy.com/login",
-  "EnphaseToken": "https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=%3cenvoy_serial_number%3e",
+  "EnphaseToken": "https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=",
   "BackboneApplication": "/backbone/application.js",
   "AcbSleepModeSetGetCancel": "/admin/lib/acb_config.json",
   "AgfProfileIndex": "/installer/agf/index.json?simplified=true",

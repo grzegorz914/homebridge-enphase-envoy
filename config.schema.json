@@ -26,15 +26,6 @@
               "required": false,
               "format": "hostname"
             },
-            "refreshInterval": {
-              "title": "Refresh interval (sec)",
-              "type": "integer",
-              "default": 5,
-              "minimum": 0,
-              "maximum": 60,
-              "description": "Here set data refresh time in (sec).",
-              "required": false
-            },
             "disableLogInfo": {
               "title": "Disable log info",
               "type": "boolean",
@@ -43,7 +34,7 @@
               "description": "This disable log info, all values and state will not be displayed in Homebridge log console."
             },
             "enableDebugMode": {
-              "title": "Enable Debug Mode",
+              "title": "Debug",
               "type": "boolean",
               "default": false,
               "description": "This enable debug mode.",
@@ -192,6 +183,16 @@
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true && model.devices[arrayIndices].mqttAuth === true;"
               }
+            },
+            "mqttDebug": {
+              "title": "Debug",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable debug mode for MQTT.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
+              }
             }
           }
         }
@@ -242,7 +243,8 @@
           "devices[].mqttPrefix",
           "devices[].mqttAuth",
           "devices[].mqttUser",
-          "devices[].mqttPasswd"
+          "devices[].mqttPasswd",
+          "devices[].mqttDebug"
         ]
       },
       {
@@ -266,8 +268,7 @@
         "expanded": false,
         "items": [
           "devices[].enableDebugMode",
-          "devices[].disableLogInfo",
-          "devices[].refreshInterval"
+          "devices[].disableLogInfo"
         ]
       }
     ]

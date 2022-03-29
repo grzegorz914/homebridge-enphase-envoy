@@ -89,7 +89,6 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | --- | --- |
 | `name` | Here set the accessory *Name* to be displayed in *Homebridge/HomeKit*. |
 | `host` | Here set the *IP Address* or *Hostname* or leave empy (will be used default path `envoy.local`) |
-| `refreshInterval` | Here set the data refresh time in seconds, default is every 5 seconds |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `envoyUser` | Here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
@@ -116,6 +115,7 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | `mqttAuth` | If enabled, MQTT Broker will use authorization credentials. |
 | `mqttUser` | Here set the MQTT Broker user. |
 | `mqttPasswd` | Here set the MQTT Broker password. |
+| `mqttDebug` | If enabled, deep log will be present in homebridge console for MQTT. |
 | `manufacturer`, `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
 
 ```json
@@ -148,6 +148,7 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
                     "mqttAuth": false,
                     "mqttUser": "user",
                     "mqttPass": "password",
+                    "mqttDebug": false,
                     "manufacturer": "Manufacturer", //removed from 4.7.0 not nedded anymore
                     "modelName": "Model" //removed from 4.7.0 not nedded anymore
                 }
