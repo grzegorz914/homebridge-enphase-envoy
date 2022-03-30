@@ -47,6 +47,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 * Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
 * MQTT Client publisch all available data from all installed devices.
+* Meters Reading Data is refresh every 1.5 sec.
+* Production CT Data is refresh every 3.0 sec.
 
 ### Important changes
 #### v5.5.0 and above!
