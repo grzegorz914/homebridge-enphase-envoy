@@ -2370,19 +2370,25 @@ class envoyDevice {
 
   updateHome() {
     setTimeout(() => {
-      this.updateHomeData()
+      this.updateHomeData();
     }, 17000)
+  };
+
+  updateProductionCt() {
+    setTimeout(() => {
+      this.updateProductionCtData();
+    }, 3000)
   };
 
   updateMicroinverters() {
     setTimeout(() => {
-      this.updateMicroinvertersData()
+      this.updateMicroinvertersData();
     }, 8000)
   };
 
   updateMetersReading() {
     setTimeout(() => {
-      this.updateMetersReadingData()
+      this.updateMetersReadingData();
     }, 1500)
   };
 
@@ -2956,7 +2962,7 @@ class envoyDevice {
         this.qRelaysInstalled = qRelaysInstalled;
 
         this.mqttClient.send('Inventory', JSON.stringify(inventoryData.data, null, 2));
-        const updateMetersOrEnsembleInventoryOrProductionData = this.envoySupportMeters ? this.updateMetersData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.updateProductionData();
+        const updateMetersOrEnsembleInventoryOrProductionData = this.envoySupportMeters ? this.updateMetersData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3031,7 +3037,7 @@ class envoyDevice {
         this.metersInstalled = metersInstalled;
 
         this.mqttClient.send('Production', JSON.stringify(metersData.data, null, 2));
-        const updateEnsembleInventoryOrProductionData = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.updateProductionData();
+        const updateEnsembleInventoryOrProductionData = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3240,7 +3246,7 @@ class envoyDevice {
         this.ensembleItemCount = itemCount;
 
         this.mqttClient.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2));
-        const updateEnsembleStatusOrProductionData = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleStatusData() : this.updateProductionData();
+        const updateEnsembleStatusOrProductionData = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleStatusData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3476,7 +3482,7 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         this.mqttClient.send('Production', JSON.stringify(productionData.data, null, 2));
-        this.updateProductionCtData();
+        const updateProductionCt = this.checkDeviceInfo ? this.updateProductionCtData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3711,7 +3717,7 @@ class envoyDevice {
           this.acBatteriesSummaryPercentFull = percentFull;
         }
         this.mqttClient.send('Production CT', JSON.stringify(productionCtData.data, null, 2));
-        const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? this.updateHome() : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
+        const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? this.updateProductionCt() : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -4092,6 +4098,7 @@ class envoyDevice {
 
     this.checkDeviceInfo = false;
     this.updateHome();
+    this.updateProductionCt();
     this.updateMicroinverters();
     this.updateMetersReading();
     const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
