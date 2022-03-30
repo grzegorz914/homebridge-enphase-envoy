@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.6.6] - (30.03.2022)
+## Changes
+- prevent poll Meters Reading Data if no Meters are installed
+- prevent poll Microinverters Power Data if envoy password is not set
+
 ## [5.6.5] - (30.03.2022)
 ## Changes
 - refresh time for Meters Reading Data to 1,5sec and Production CT Data to 3 sec.

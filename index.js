@@ -4099,8 +4099,8 @@ class envoyDevice {
     this.checkDeviceInfo = false;
     this.updateHome();
     this.updateProductionCt();
-    this.updateMicroinverters();
-    this.updateMetersReading();
+    const startMicroinverters = this.envoyPasswd ? this.updateMicroinverters() : false;
+    const startMeterReading = this.metersInstalled ? this.updateMetersReading() : false;
     const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
   }
 
