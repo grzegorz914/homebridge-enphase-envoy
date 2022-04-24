@@ -2127,8 +2127,6 @@ class envoyDevice {
     this.enableDebugMode = config.enableDebugMode || false;
     this.envoyPasswd = config.envoyPasswd;
     this.installerPasswd = config.installerPasswd;
-    this.entrezAuth = false;
-    this.entrezToken = config.entrezToken;
     this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
     this.consumptionTotalPowerMaxDetected = config.powerConsumptionTotalMaxDetected || 0;

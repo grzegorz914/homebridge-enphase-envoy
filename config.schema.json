@@ -52,22 +52,6 @@
               "description": "Here set installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/",
               "required": false
             },
-            "entrezAuth": {
-              "title": "Entrez authorization",
-              "type": "boolean",
-              "default": false,
-              "required": false,
-              "description": "This enable Entrez authorization for Envoy with firmware 7.x.x."
-            },
-            "entrezToken": {
-              "title": "Token",
-              "type": "string",
-              "description": "Here set the entrez authorization token, more info here: https://entrez.enphaseenergy.com",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].entrezAuth === true;"
-              }
-            },
             "powerProductionMaxDetected": {
               "title": "Power production max detected",
               "type": "integer",
@@ -233,31 +217,12 @@
       {
         "key": "devices[]",
         "type": "section",
-        "title": "MQTT Client",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          "devices[].enableMqtt",
-          "devices[].mqttHost",
-          "devices[].mqttPort",
-          "devices[].mqttPrefix",
-          "devices[].mqttAuth",
-          "devices[].mqttUser",
-          "devices[].mqttPasswd",
-          "devices[].mqttDebug"
-        ]
-      },
-      {
-        "key": "devices[]",
-        "type": "section",
         "title": "Authorization",
         "expandable": true,
         "expanded": false,
         "items": [
           "devices[].envoyPasswd",
-          "devices[].installerPasswd",
-          "devices[].entrezAuth",
-          "devices[].entrezToken"
+          "devices[].installerPasswd"
         ]
       },
       {
@@ -269,6 +234,23 @@
         "items": [
           "devices[].enableDebugMode",
           "devices[].disableLogInfo"
+        ]
+      },
+      {
+        "key": "devices[]",
+        "type": "section",
+        "title": "MQTT",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "devices[].enableMqtt",
+          "devices[].mqttHost",
+          "devices[].mqttPort",
+          "devices[].mqttPrefix",
+          "devices[].mqttAuth",
+          "devices[].mqttUser",
+          "devices[].mqttPasswd",
+          "devices[].mqttDebug"
         ]
       }
     ]

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.6.7] - (24.04.2022)
+## Changes
+- update config.schema.json
+
 ## [5.6.6] - (30.03.2022)
 ## Changes
 - prevent poll Meters Reading Data if no Meters are installed
