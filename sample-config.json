@@ -23,8 +23,6 @@
             "disableLogInfo": false,
             "envoyPasswd": "",
             "installerPasswd": "",
-            "entrezAuth": false,
-            "entrezToken": "",
             "powerProductionMaxDetected": 5400,
             "energyProductionLifetimeOffset": 0,
             "powerConsumptionTotalMaxDetected": 10000,
