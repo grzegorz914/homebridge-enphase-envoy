@@ -4105,26 +4105,23 @@ class envoyDevice {
   //Prepare accessory
   prepareAccessory() {
     this.log.debug('prepareAccessory');
-    const accessoryName = this.name;
-    const accessoryUUID = UUID.generate(this.envoySerialNumber);
-    const accessoryCategory = Categories.OTHER;
-    const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
-
-    this.log.debug('prepareInformationService');
     const manufacturer = 'Enphase';
     const modelName = this.envoyModelName;
     const serialNumber = this.envoySerialNumber;
     const firmwareRevision = this.envoyFirmware;
 
-    accessory.removeService(accessory.getService(Service.AccessoryInformation));
-    const informationService = new Service.AccessoryInformation();
-    informationService
-      .setCharacteristic(Characteristic.Name, accessoryName)
+    const accessoryName = this.name;
+    const accessoryUUID = UUID.generate(this.envoySerialNumber);
+    const accessoryCategory = Categories.OTHER;
+    const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
+
+    //information service
+    this.log.debug('prepareInformationService');
+    accessory.getService(Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, manufacturer)
       .setCharacteristic(Characteristic.Model, modelName)
       .setCharacteristic(Characteristic.SerialNumber, serialNumber)
       .setCharacteristic(Characteristic.FirmwareRevision, firmwareRevision);
-    accessory.addService(informationService);
 
     this.log.debug('prepareEnphaseServices');
     //get enabled devices
