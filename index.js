@@ -3514,7 +3514,7 @@ class envoyDevice {
         const productionMicroSummaryWattsNow = this.productionMicroSummaryWattsNow;
 
         //microinverters data
-        const productionMicroType = ENVOY_API_CODE[productionCtData.data.production[0].type] || 'undefined';
+        const productionMicroType = ENVOY_API_CODE[productionCtData.data.production[0].type];
         const productionMicroActiveCount = productionCtData.data.production[0].activeCount;
         const productionMicroReadingTime = new Date(productionCtData.data.production[0].readingTime * 1000).toLocaleString();
         const productionMicroPower = parseFloat(productionCtData.data.production[0].wNow / 1000);
@@ -3523,7 +3523,7 @@ class envoyDevice {
         //production data
         const productionType = metersProductionEnabled ? ENVOY_API_CODE[productionCtData.data.production[1].type] : productionMicroType;
         const productionActiveCount = metersProductionEnabled ? productionCtData.data.production[1].activeCount : productionMicroActiveCount;
-        const productionMeasurmentType = metersProductionEnabled ? ENVOY_API_CODE[productionCtData.data.production[1].measurementType] : 'undefined';
+        const productionMeasurmentType = metersProductionEnabled ? ENVOY_API_CODE[productionCtData.data.production[1].measurementType] : productionMicroType;
         const productionReadingTime = metersProductionEnabled ? new Date(productionCtData.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
         const productionPower = metersProductionEnabled ? parseFloat(productionCtData.data.production[1].wNow / 1000) : productionMicroSummaryWattsNow;
 
@@ -3615,9 +3615,9 @@ class envoyDevice {
           const metersConsumptionCount = productionCtData.data.consumption.length;
           for (let i = 0; i < metersConsumptionCount; i++) {
             //power
-            const consumptionType = ENVOY_API_CODE[productionCtData.data.consumption[i].type] || 'undefined';
+            const consumptionType = ENVOY_API_CODE[productionCtData.data.consumption[i].type];
             const consumptionActiveCount = productionCtData.data.consumption[i].activeCount;
-            const consumptionMeasurmentType = ENVOY_API_CODE[productionCtData.data.consumption[i].measurementType] || 'undefined';
+            const consumptionMeasurmentType = ENVOY_API_CODE[productionCtData.data.consumption[i].measurementType];
             const consumptionReadingTime = new Date(productionCtData.data.consumption[i].readingTime * 1000).toLocaleString();
             const consumptionPower = parseFloat(productionCtData.data.consumption[i].wNow / 1000);
 

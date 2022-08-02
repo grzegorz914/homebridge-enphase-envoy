@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.6.14] - (02.08.2022)
+## Changes
+- fix display undefinded Power and Energy type if no meters are installed
+
 ## [5.6.13] - (23.07.2022)
 ## Changes
 - refactor information service
