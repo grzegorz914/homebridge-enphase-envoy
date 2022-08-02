@@ -2319,8 +2319,7 @@ class envoyDevice {
 
     this.axiosInstance = axios.create({
       method: 'GET',
-      baseURL: this.url,
-      timeOut: 10000
+      baseURL: this.url
     });
 
     //digest auth installer
@@ -2373,9 +2372,8 @@ class envoyDevice {
     }, 17000)
   };
 
-  updateProduction() {
+  updateProductionCt() {
     setTimeout(() => {
-      this.updateProductionData();
       this.updateProductionCtData();
     }, 3000)
   };
@@ -3452,7 +3450,7 @@ class envoyDevice {
         this.ensembleFakeInventoryMode = (fakeInventoryMode == true);
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Ensemble Status', JSON.stringify(ensembleStatusData.data, null, 2)) : false;
-        const updateProduction = this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
+        this.updateProductionData();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3466,7 +3464,7 @@ class envoyDevice {
 
     try {
       const productionData = await this.axiosInstance(API_URL.InverterProductionSumm);
-      this.log.debug('Device: %s %s, productionData: %s', productionData.data);
+      const debug = this.enableDebugMode ? this.log('Device: %s %s, debug productionData: %s', this.host, this.name, JSON.stringify(productionData.data, null, 2)) : false;
 
       //microinverters summary 
       if (productionData.status == 200) {
@@ -3482,7 +3480,7 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
-        this.updateProductionCtData();
+        const updateProductionCt = this.checkDeviceInfo ? this.updateProductionCtData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3717,7 +3715,7 @@ class envoyDevice {
           this.acBatteriesSummaryPercentFull = percentFull;
         }
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
-        const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? this.updateProduction() : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
+        const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? this.updateProductionCt() : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -4098,7 +4096,7 @@ class envoyDevice {
 
     this.checkDeviceInfo = false;
     this.updateHome();
-    this.updateProduction();
+    this.updateProductionCt();
     const startMicroinverters = this.envoyPasswd ? this.updateMicroinverters() : false;
     const startMeterReading = this.metersInstalled ? this.updateMetersReading() : false;
     const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
