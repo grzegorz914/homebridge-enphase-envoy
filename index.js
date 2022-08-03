@@ -2370,6 +2370,7 @@ class envoyDevice {
   updateHome() {
     setTimeout(() => {
       this.updateHomeData();
+      this.updateProductionData();
     }, 17000)
   };
 
@@ -3451,7 +3452,7 @@ class envoyDevice {
         this.ensembleFakeInventoryMode = (fakeInventoryMode == true);
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Ensemble Status', JSON.stringify(ensembleStatusData.data, null, 2)) : false;
-        this.updateProductionData();
+        const updateProduction = this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3481,7 +3482,7 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
-        const updateProductionCt = this.checkDeviceInfo ? this.updateProductionCtData() : this.updateHome();
+        const updateProductionCt = this.checkDeviceInfo ? this.updateProductionCtData() : false;
       }
     } catch (error) {
       this.checkDeviceInfo = true;
