@@ -21,6 +21,7 @@
             "host": "192.168.1.35",
             "enableDebugMode": false,
             "disableLogInfo": false,
+            "disableLogDeviceInfo": false,
             "envoyPasswd": "",
             "installerPasswd": "",
             "powerProductionMaxDetected": 5400,
