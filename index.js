@@ -2124,6 +2124,7 @@ class envoyDevice {
     this.host = config.host || 'envoy.local';
 
     this.disableLogInfo = config.disableLogInfo || false;
+    this.disableLogDeviceInfo = config.disableLogDeviceInfo || false;
     this.enableDebugMode = config.enableDebugMode || false;
     this.envoyPasswd = config.envoyPasswd;
     this.installerPasswd = config.installerPasswd;
@@ -2430,7 +2431,7 @@ class envoyDevice {
 
       if (infoData.status == 200) {
         const parseInfoData = await parseStringPromise(infoData.data);
-        const debug1 = this.enableDebugMode ? this.log.debug('Device: %s %s, parse info.xml successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2)) : false;
+        const debug1 = this.enableDebugMode ? this.log.debug('Device: %s %s,debug parse infoData successful: %s', this.host, this.name, JSON.stringify(parseInfoData, null, 2)) : false;
 
         //envoy info
         const time = new Date(parseInfoData.envoy_info.time[0] * 1000).toLocaleString();
@@ -4069,37 +4070,45 @@ class envoyDevice {
     const enchargesCount = this.enchargesCount;
     const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
 
-    this.log('-------- %s --------', this.name);
-    this.log('Manufacturer: Enphase');
-    this.log('Model: %s', devicePn);
-    this.log('Firmware: %s', deviceSoftware);
-    this.log('SerialNr: %s', deviceSn);
-    this.log('Time: %s', time);
-    this.log('------------------------------');
-    this.log('Q-Relays: %s', qRelaysCount);
-    this.log('Inverters: %s', microinvertersCount);
-    this.log('Batteries: %s', acBatteriesCount);
-    this.log('--------------------------------');
-    this.log('Meters: %s', metersInstalled ? 'Yes' : 'No');
-    if (metersInstalled) {
-      this.log('Production: %s', metersProductionEnabled ? 'Enabled' : 'Disabled');
-      this.log('Consumption: %s', metersConsumptionEnabled ? 'Enabled' : 'Disabled');
+    if (!this.disableLogDeviceInfo) {
+      this.log('-------- %s --------', this.name);
+      this.log('Manufacturer: Enphase');
+      this.log('Model: %s', devicePn);
+      this.log('Firmware: %s', deviceSoftware);
+      this.log('SerialNr: %s', deviceSn);
+      this.log('Time: %s', time);
+      this.log('------------------------------');
+      this.log('Q-Relays: %s', qRelaysCount);
+      this.log('Inverters: %s', microinvertersCount);
+      this.log('Batteries: %s', acBatteriesCount);
+      this.log('--------------------------------');
+      this.log('Meters: %s', metersInstalled ? 'Yes' : 'No');
+      if (metersInstalled) {
+        this.log('Production: %s', metersProductionEnabled ? 'Enabled' : 'Disabled');
+        this.log('Consumption: %s', metersConsumptionEnabled ? 'Enabled' : 'Disabled');
+        this.log('--------------------------------');
+      }
+      this.log('Ensemble: %s', ensembleInstalled ? 'Yes' : 'Not installed');
+      if (ensembleInstalled) {
+        this.log('Enpower: %s', enpowerInstalled ? 'Yes' : 'No');
+        this.log('Encharges: %s', enchargesCount);
+        this.log('Wireless Kit: %s', wirelessConnectionKitInstalled ? 'Yes' : 'No');
+      }
       this.log('--------------------------------');
     }
-    this.log('Ensemble: %s', ensembleInstalled ? 'Yes' : 'Not installed');
-    if (ensembleInstalled) {
-      this.log('Enpower: %s', enpowerInstalled ? 'Yes' : 'No');
-      this.log('Encharges: %s', enchargesCount);
-      this.log('Wireless Kit: %s', wirelessConnectionKitInstalled ? 'Yes' : 'No');
-    }
-    this.log('--------------------------------');
 
-    this.checkDeviceInfo = false;
-    this.updateHome();
-    this.updateProductionCt();
-    const startMicroinverters = this.envoyPasswd ? this.updateMicroinverters() : false;
-    const startMeterReading = this.metersInstalled ? this.updateMetersReading() : false;
-    const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
+    if (this.envoySerialNumber) {
+      this.checkDeviceInfo = false;
+
+      this.updateHome();
+      this.updateProductionCt();
+      const startMicroinverters = this.envoyPasswd ? this.updateMicroinverters() : false;
+      const startMeterReading = this.metersInstalled ? this.updateMetersReading() : false;
+
+      const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
+    } else {
+      this.reconnect();
+    };
   }
 
   //Prepare accessory

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.6.20] - (03.08.2022)
+## Changes
+- added possibility to disable display device info in log after plugin restart
+- check required properties to create accessory
+- correct some logs typos
+
 ## [5.6.15] - (02.08.2022)
 ## Changes
 - fix refresh power and energy production data if no meters are installed

@@ -33,6 +33,13 @@
               "required": false,
               "description": "This disable log info, all values and state will not be displayed in Homebridge log console."
             },
+            "disableLogDeviceInfo": {
+              "title": "Disable log device info",
+              "type": "boolean",
+              "default": false,
+              "description": "This disable log device info by every connections device to the network.",
+              "required": false
+            },
             "enableDebugMode": {
               "title": "Debug",
               "type": "boolean",
@@ -233,7 +240,8 @@
         "expanded": false,
         "items": [
           "devices[].enableDebugMode",
-          "devices[].disableLogInfo"
+          "devices[].disableLogInfo",
+          "devices[].disableLogDeviceInfo"
         ]
       },
       {
