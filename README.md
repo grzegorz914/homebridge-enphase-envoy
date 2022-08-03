@@ -93,6 +93,7 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | `host` | Here set the *IP Address* or *Hostname* or leave empy (will be used default path `envoy.local`) |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
+| `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
 | `envoyUser` | Here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `installerUser` | Here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
@@ -128,6 +129,7 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
                     "refreshInterval": 30,
                     "enableDebugMode": false,
                     "disableLogInfo": false,
+                    "disableLogDeviceInfo": false,
                     "envoyUser": "envoy", //removed from 4.6.11, not nedded anymore
                     "envoyPasswd": "",
                     "installerUser": "installer", //removed from 4.6.11 not nedded anymore
