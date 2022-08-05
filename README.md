@@ -71,7 +71,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 + Production Current Level (W) - is the current Power production in (W). If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
 * Consumption Current Level Total (W) - is the Total Power Consumption in (W)).
 * Consumption Current Level Net (W) - is the Power Consumption from Grid in (W). If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
-* Peak Level (W) - display the maximum Power production/consumption.
+* Peak Level (W) - display the Peak Power production/consumption.
 * Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
 * Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
 

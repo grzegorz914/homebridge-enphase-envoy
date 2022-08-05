@@ -724,7 +724,7 @@ module.exports = (api) => {
 
   class enphasePowerMax extends Characteristic {
     constructor() {
-      super('Power max', '00000072-000B-1000-8000-0026BB765291');
+      super('Power peak', '00000072-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -740,7 +740,7 @@ module.exports = (api) => {
 
   class enphasePowerMaxDetected extends Characteristic {
     constructor() {
-      super('Power max detected', '00000073-000B-1000-8000-0026BB765291');
+      super('Power peak detected', '00000073-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.BOOL,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
@@ -1249,7 +1249,7 @@ module.exports = (api) => {
 
   class enphaseMicroinverterPowerMax extends Characteristic {
     constructor() {
-      super('Power max', '00000132-000B-1000-8000-0026BB765291');
+      super('Power peak', '00000132-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.INT,
         unit: 'W',
@@ -2364,14 +2364,19 @@ class envoyDevice {
   reconnect() {
     setTimeout(() => {
       this.updateEnvoyBackboneAppData();
-    }, 7500)
+    }, 15000)
   };
 
   updateHome() {
     setTimeout(() => {
       this.updateHomeData();
+    }, 31000)
+  };
+
+  updateProduction() {
+    setTimeout(() => {
       this.updateProductionData();
-    }, 17000)
+    }, 61000)
   };
 
   updateProductionCt() {
@@ -2383,7 +2388,7 @@ class envoyDevice {
   updateMicroinverters() {
     setTimeout(() => {
       this.updateMicroinvertersData();
-    }, 8000)
+    }, 10000)
   };
 
   updateMetersReading() {
@@ -2410,7 +2415,7 @@ class envoyDevice {
         } catch (error) {
           this.checkDeviceInfo = true;
           this.reconnect();
-          this.log.error('Device: %s %s, requesting envoyBackboneAppData or save envoy id error: %s, trying again.', this.host, this.name, error);
+          this.log.error('Device: %s %s, requesting envoyBackboneAppData or save envoy id error: %s, trying again in 15s.', this.host, this.name, error);
         };
       } else {
         this.envoyDevId = envoyId;
@@ -2419,7 +2424,7 @@ class envoyDevice {
     } catch (error) {
       this.checkDeviceInfo = true;
       this.reconnect();
-      this.log.error('Device: %s %s, read envoy id from file error: %s, trying again.', this.host, this.name, error);
+      this.log.error('Device: %s %s, read envoy id from file error: %s, trying again in 15s.', this.host, this.name, error);
     };
   }
 
@@ -2473,7 +2478,7 @@ class envoyDevice {
     } catch (error) {
       this.checkDeviceInfo = true;
       this.reconnect();
-      this.log.error('Device: %s %s, requesting infoData error: %s, trying again.', this.host, this.name, error);
+      this.log.error('Device: %s %s, requesting infoData error: %s, trying again in 15s.', this.host, this.name, error);
     };
   }
 
@@ -3482,7 +3487,7 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
-        const updateProductionCt = this.checkDeviceInfo ? this.updateProductionCtData() : false;
+        const updateProductionCt = this.checkDeviceInfo ? this.updateProductionCtData() : this.updateProduction();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3529,7 +3534,7 @@ class envoyDevice {
         const productionReadingTime = metersProductionEnabled ? new Date(productionCtData.data.production[1].readingTime * 1000).toLocaleString() : productionMicroReadingTime;
         const productionPower = metersProductionEnabled ? parseFloat(productionCtData.data.production[1].wNow / 1000) : productionMicroSummaryWattsNow;
 
-        //save and read power max and state
+        //save and read power peak and state
         const savedProductionPowerMax = await fsPromises.readFile(this.productionPowerMaxFile);
         this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedProductionPowerMax);
         const productionPowerMax = parseFloat(savedProductionPowerMax);
@@ -3537,10 +3542,9 @@ class envoyDevice {
         if (productionPower > productionPowerMax) {
           const write = await fsPromises.writeFile(this.productionPowerMaxFile, productionPower.toString());
           this.log.debug('Device: %s %s, productionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.productionPowerMaxFile, productionPower);
-
         }
 
-        //power max state detected
+        //power peak state detected
         const productionPowerMaxDetectedState = (productionPower >= (this.productionPowerMaxDetected / 1000)) ? true : false;
 
         //energy
@@ -3623,7 +3627,7 @@ class envoyDevice {
             const consumptionReadingTime = new Date(productionCtData.data.consumption[i].readingTime * 1000).toLocaleString();
             const consumptionPower = parseFloat(productionCtData.data.consumption[i].wNow / 1000);
 
-            //save and read power max and state
+            //save and read power peak and state
             const savedConsumptionPowerMax = [await fsPromises.readFile(this.consumptionPowerMaxFile), await fsPromises.readFile(this.consumptionPowerMaxFile1)][i];
             this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedConsumptionPowerMax);
             const consumptionPowerMax = parseFloat(savedConsumptionPowerMax);
@@ -3633,7 +3637,7 @@ class envoyDevice {
               this.log.debug('Device: %s %s, consumptionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.consumptionPowerMaxFile, consumptionPower);
             }
 
-            //power max state detected
+            //power peak state detected
             const consumptionPowerMaxDetected = (consumptionPower >= (([this.consumptionTotalPowerMaxDetected, this.consumptionNetPowerMaxDetected][i]) / 1000)) ? true : false;
 
             //energy
@@ -4102,6 +4106,7 @@ class envoyDevice {
       this.checkDeviceInfo = false;
 
       this.updateHome();
+      this.updateProduction();
       this.updateProductionCt();
       const startMicroinverters = this.envoyPasswd ? this.updateMicroinverters() : false;
       const startMeterReading = this.metersInstalled ? this.updateMetersReading() : false;
@@ -4511,13 +4516,13 @@ class envoyDevice {
     enphaseProductionService.getCharacteristic(Characteristic.enphasePowerMax)
       .onGet(async () => {
         const value = this.productionPowerMax;
-        const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, production power max: %s kW', this.host, accessoryName, value);
+        const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, production power peak: %s kW', this.host, accessoryName, value);
         return value;
       });
     enphaseProductionService.getCharacteristic(Characteristic.enphasePowerMaxDetected)
       .onGet(async () => {
         const value = this.productionPowerMaxDetectedState;
-        const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, production power max detected: %s', this.host, accessoryName, value ? 'Yes' : 'No');
+        const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, production power peak detected: %s', this.host, accessoryName, value ? 'Yes' : 'No');
         return value;
       });
     enphaseProductionService.getCharacteristic(Characteristic.enphaseEnergyToday)
@@ -4593,13 +4598,13 @@ class envoyDevice {
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMax)
           .onGet(async () => {
             const value = (this.consumptionPowerMax[i] != undefined) ? this.consumptionPowerMax[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s %s, power max: %s kW', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
+            const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s %s, power peak: %s kW', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMaxDetected)
           .onGet(async () => {
             const value = (this.consumptionPowerMaxDetected[i] != undefined) ? this.consumptionPowerMaxDetected[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s %s, power max detected: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], value ? 'Yes' : 'No');
+            const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s %s, power peak detected: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], value ? 'Yes' : 'No');
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyToday)
