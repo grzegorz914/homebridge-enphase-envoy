@@ -4621,7 +4621,6 @@ class envoyDevice {
           const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset production power peak: On', this.host, accessoryName);
         } catch (error) {
           this.log.error('Device: %s %s, reset production power peak error: %s', this.host, this.name, error);
-          this.envoyCheckCommLevel = false;
         };
         setTimeout(() => {
           enphaseProductionService.updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
@@ -4719,7 +4718,6 @@ class envoyDevice {
               const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset %s power peak: On', this.host, accessoryName, this.consumptionMeasurmentType[i]);
             } catch (error) {
               this.log.error('Device: %s %s, reset %s power peak error: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], error);
-              this.envoyCheckCommLevel = false;
             };
             setTimeout(() => {
               enphaseConsumptionService.updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
