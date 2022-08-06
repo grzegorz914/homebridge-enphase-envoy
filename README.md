@@ -51,6 +51,10 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Production CT Data is refresh every 3.0 sec.
 
 ### Important changes
+#### v5.7.0 and above!
+* added manuall *Power peak* reset in accesorry.
+* added automatically *Power peak* reset at midnight.
+
 #### v5.5.0 and above!
 * Added MQTT Client.
 
