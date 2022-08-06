@@ -59,48 +59,69 @@
               "description": "Here set installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/",
               "required": false
             },
+            "powerProductionMaxAutoReset": {
+              "title": "Power peak auto reset",
+              "type": "boolean",
+              "default": false,
+              "description": "This enabled auto reset *Power peak* at midnight.",
+              "required": false
+            },
             "powerProductionMaxDetected": {
-              "title": "Power production max detected",
+              "title": "Power peak detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set *max production Power* in (W) at which You get notyfication message.",
+              "description": "Here set *Power peak* in (W) at which You get notyfication message.",
               "required": false
             },
             "energyProductionLifetimeOffset": {
-              "title": "Energy production lifetime offset",
+              "title": "Energy lifetime offset",
               "type": "integer",
               "default": 0,
               "maximum": 100000,
               "description": "Here set energy production *Offset* in (Wh) for lifetime energy if nedded.",
               "required": false
             },
+            "powerConsumptionTotalMaxAutoReset": {
+              "title": "Power peak auto reset",
+              "type": "boolean",
+              "default": false,
+              "description": "This enabled auto reset *Power peak* at midnight.",
+              "required": false
+            },
             "powerConsumptionTotalMaxDetected": {
-              "title": "Total - Power consumption max detected",
+              "title": "Power peak detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set *consumption-total max Power* in (W) at which You get notification message.",
+              "description": "Here set *Power peak* in (W) at which You get notification message.",
               "required": false
             },
             "energyConsumptionTotalLifetimeOffset": {
-              "title": "Total - Energy consumption lifetime offset",
+              "title": "Energy lifetime offset",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
               "description": "Here set energy consumption *Offset* in (Wh) for lifetime total energy if nedded.",
               "required": false
             },
+            "powerConsumptionNetMaxAutoReset": {
+              "title": "Power peak auto reset",
+              "type": "boolean",
+              "default": false,
+              "description": "This enabled auto reset *Power peak* at midnight.",
+              "required": false
+            },
             "powerConsumptionNetMaxDetected": {
-              "title": "Net - Power consumption max detected",
+              "title": "Power peak detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set *consumption-net max Power* in (W) at which You get notification message.",
+              "description": "Here set *Power peak* in (W) at which You get notification message.",
               "required": false
             },
             "energyConsumptionNetLifetimeOffset": {
-              "title": "Net - Energy consumption lifetime offset",
+              "title": "Energy lifetime offset",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
@@ -204,6 +225,7 @@
         "expandable": true,
         "expanded": false,
         "items": [
+          "devices[].powerProductionMaxAutoReset",
           "devices[].powerProductionMaxDetected",
           "devices[].energyProductionLifetimeOffset"
         ]
@@ -211,14 +233,25 @@
       {
         "key": "devices[]",
         "type": "section",
-        "title": "Consumption",
+        "title": "Consumption Net",
         "expandable": true,
         "expanded": false,
         "items": [
-          "devices[].powerConsumptionTotalMaxDetected",
-          "devices[].energyConsumptionTotalLifetimeOffset",
+          "devices[].powerConsumptionNetMaxAutoReset",
           "devices[].powerConsumptionNetMaxDetected",
           "devices[].energyConsumptionNetLifetimeOffset"
+        ]
+      },
+      {
+        "key": "devices[]",
+        "type": "section",
+        "title": "Consumption Total",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "devices[].powerConsumptionTotalMaxAutoReset",
+          "devices[].powerConsumptionTotalMaxDetected",
+          "devices[].energyConsumptionTotalLifetimeOffset"
         ]
       },
       {

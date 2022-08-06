@@ -890,6 +890,18 @@ module.exports = (api) => {
   }
   Characteristic.enphaseReadingTime = enphaseReadingTime;
 
+  class enphasePowerMaxReset extends Characteristic {
+    constructor() {
+      super('Power peak reset', '00000084-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.BOOL,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphasePowerMaxReset = enphasePowerMaxReset;
+
   //power production service
   class enphasePowerAndEnergyService extends Service {
     constructor(displayName, subtype, ) {
@@ -908,6 +920,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseApparentPower);
       this.addOptionalCharacteristic(Characteristic.enphasePwrFactor);
       this.addOptionalCharacteristic(Characteristic.enphaseReadingTime);
+      this.addOptionalCharacteristic(Characteristic.enphasePowerMaxReset);
     }
   }
   Service.enphasePowerAndEnergyService = enphasePowerAndEnergyService;
@@ -2128,10 +2141,13 @@ class envoyDevice {
     this.enableDebugMode = config.enableDebugMode || false;
     this.envoyPasswd = config.envoyPasswd;
     this.installerPasswd = config.installerPasswd;
+    this.productionPowerMaxAutoReset = config.powerProductionMaxAutoReset || false;
     this.productionPowerMaxDetected = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
+    this.consumptionTotalPowerMaxAutoReset = config.powerConsumptionTotalMaxAutoReset || false;
     this.consumptionTotalPowerMaxDetected = config.powerConsumptionTotalMaxDetected || 0;
     this.consumptionTotalEnergyLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
+    this.consumptionNetPowerMaxAutoReset = config.powerConsumptionNetMaxAutoReset || false;
     this.consumptionNetPowerMaxDetected = config.powerConsumptionNetMaxDetected || 0;
     this.consumptionNetEnergyLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
     this.enableMqtt = config.enableMqtt || false;
@@ -2288,6 +2304,10 @@ class envoyDevice {
     this.enpowerAggSoc = 0;
     this.enpowerAggBackupEnergy = 0;
     this.enpowerAggAvailEnergy = 0;
+
+    //current day
+    const date = new Date();
+    this.currentDay = date.getDay();
 
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
     this.envoyIdFile = `${this.prefDir}/envoyId_${this.host.split('.').join('')}`;
@@ -3503,6 +3523,14 @@ class envoyDevice {
       const productionCtData = await this.axiosInstance(API_URL.SystemReadingStats);
       const debug = this.enableDebugMode ? this.log('Device: %s %s, debug productionCtData: %s', this.host, this.name, JSON.stringify(productionCtData.data, null, 2)) : false;
 
+      //auto reset peak power
+      const date = new Date();
+      const currentDay = date.getDay();
+      const resetProductionPowerPeak = (this.productionPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
+      const resetConsumptionTotalPowerPeak = (this.consumptionTotalPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
+      const resetConsumptionNetPowerPeak = (this.consumptionNetPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
+      this.currentDay = currentDay;
+
       //production CT
       if (productionCtData.status == 200) {
         //get enabled devices
@@ -3539,10 +3567,9 @@ class envoyDevice {
         this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedProductionPowerMax);
         const productionPowerMax = parseFloat(savedProductionPowerMax);
 
-        if (productionPower > productionPowerMax) {
-          const write = await fsPromises.writeFile(this.productionPowerMaxFile, productionPower.toString());
-          this.log.debug('Device: %s %s, productionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.productionPowerMaxFile, productionPower);
-        }
+        const powerProductionToWrite = resetProductionPowerPeak ? '0' : productionPower.toString();
+        const write = (productionPower > productionPowerMax || resetProductionPowerPeak) ? await fsPromises.writeFile(this.productionPowerMaxFile, powerProductionToWrite) : false;
+        this.log.debug('Device: %s %s, productionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.productionPowerMaxFile, powerProductionToWrite);
 
         //power peak state detected
         const productionPowerMaxDetectedState = (productionPower >= (this.productionPowerMaxDetected / 1000)) ? true : false;
@@ -3632,10 +3659,9 @@ class envoyDevice {
             this.log.debug('Device: %s %s, savedProductionPowerMax: %s kW', this.host, this.name, savedConsumptionPowerMax);
             const consumptionPowerMax = parseFloat(savedConsumptionPowerMax);
 
-            if (consumptionPower > consumptionPowerMax) {
-              const write = [await fsPromises.writeFile(this.consumptionPowerMaxFile, consumptionPower.toString()), await fsPromises.writeFile(this.consumptionPowerMaxFile1, consumptionPower.toString())][i];
-              this.log.debug('Device: %s %s, consumptionPowerMaxFile saved successful in: %s %s kW', this.host, this.name, this.consumptionPowerMaxFile, consumptionPower);
-            }
+            const consumptionPowerToWrite = [resetConsumptionNetPowerPeak ? '0' : consumptionPower.toString(), resetConsumptionTotalPowerPeak ? '0' : consumptionPower.toString()][i];
+            const write = (consumptionPower > consumptionPowerMax || resetConsumptionNetPowerPeak || resetConsumptionTotalPowerPeak) ? [await fsPromises.writeFile(this.consumptionPowerMaxFile, consumptionPowerToWrite), await fsPromises.writeFile(this.consumptionPowerMaxFile1, consumptionPowerToWrite)][i] : false;
+            this.log.debug('Device: %s %s, %s saved successful in: %s %s kW', this.host, this.name, ['consumption total', 'consumption net'][i], [this.consumptionPowerMaxFile, this.consumptionPowerMaxFile1][i], consumptionPowerToWrite);
 
             //power peak state detected
             const consumptionPowerMaxDetected = (consumptionPower >= (([this.consumptionTotalPowerMaxDetected, this.consumptionNetPowerMaxDetected][i]) / 1000)) ? true : false;
@@ -4581,6 +4607,24 @@ class envoyDevice {
         const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, production last report: %s', this.host, accessoryName, value);
         return value;
       });
+    enphaseProductionService.getCharacteristic(Characteristic.enphasePowerMaxReset)
+      .onGet(async () => {
+        const state = false;
+        const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, production power peak reset: %s', this.host, accessoryName, value);
+        return state;
+      })
+      .onSet(async (state) => {
+        try {
+          const write = state ? await fsPromises.writeFile(this.productionPowerMaxFile, '0') : false;
+          const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset production power peak: Done', this.host, accessoryName);
+        } catch (error) {
+          this.log.error('Device: %s %s, reset production power peak error: %s', this.host, this.name, error);
+          this.envoyCheckCommLevel = false;
+        };
+        setTimeout(() => {
+          enphaseProductionService.updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
+        }, 150);
+      });
     this.productionsService.push(enphaseProductionService);
     accessory.addService(this.productionsService[0]);
 
@@ -4660,6 +4704,24 @@ class envoyDevice {
             const value = (this.consumptionReadingTime[i] != undefined) ? this.consumptionReadingTime[i] : '';
             const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s %s, total last report: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
             return value;
+          });
+        enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMaxReset)
+          .onGet(async () => {
+            const state = false;
+            const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s %s, power peak reset: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
+            return state;
+          })
+          .onSet(async (state) => {
+            try {
+              const write = state ? [await fsPromises.writeFile(this.consumptionPowerMaxFile, '0'), await fsPromises.writeFile(this.consumptionPowerMaxFile1, '0')][i] : false;
+              const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset %s power peak: Done', this.host, accessoryName, this.consumptionMeasurmentType[i]);
+            } catch (error) {
+              this.log.error('Device: %s %s, reset %s power peak error: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], error);
+              this.envoyCheckCommLevel = false;
+            };
+            setTimeout(() => {
+              enphaseConsumptionService.updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
+            }, 150);
           });
         this.consumptionsService.push(enphaseConsumptionService);
         accessory.addService(this.consumptionsService[i]);

@@ -102,12 +102,15 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
 | `acBatteriesStorageOffset` | Here set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) (not available from v4.9.0)|
 | `powerConsumptionMetersInstalled` | Here check *ON* if consumption meters are installed. (not available from v3.5.0) |
 | `powerProductionMeter` | Here select which *meter* will be used to display Power production. (not available from v3.5.0) |
-| `powerProductionMaxDetected` | Here set the *maximum production Power*, if the Power production will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
+| `powerProductionMaxAutoReset` | If enabled, *Power Peak* will be auto reset at midnight. |
+| `powerProductionMaxDetected` | Here set the *production Power peak*, if the Power will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
 | `energyProductionLifetimeOffset` | Here set the *Offset* of lifetime energy production if nedded in (Wh),(+/-) |
 | `powerConsumptionMeter` | Here select which *meter* will be used to display Power consumption. (not available from v3.5.0)
-| `powerConsumptionTotalMaxDetected` | Here set the *maximum total consumption Power*, if the total Power consumption will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit |
+| `powerConsumptionTotalMaxAutoReset` | If enabled, *Power Peak* will be auto reset at midnight. |
+| `powerConsumptionTotalMaxDetected` | Here set the *consumption-total Power peak*, if the Power will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
-| `powerConsumptionNetMaxDetected` | Here set the maximum Power consumption from Grid, if the Power consumption will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
+| `powerConsumptionNetMaxAutoReset` | If enabled, *Power Peak* will be auto reset at midnight. |
+| `powerConsumptionNetMaxDetected` | Here set the *consumption-net Power peak*, if the Power will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
 | `mqttHost` | Here set the *IP Address* or *Hostname* for MQTT Broker.) |
@@ -135,10 +138,13 @@ Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-conf
                     "installerUser": "installer", //removed from 4.6.11 not nedded anymore
                     "installerPasswd": "",
                     "acBatteriesStorageOffset": 0, //removed from 4.9.0 not nedded anymore
+                    "powerProductionMaxAutoReset": false,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
+                    "powerConsumptionTotalMaxAutoReset": false,
                     "powerConsumptionTotalMaxDetected": 10000,
                     "energyConsumptionTotalLifetimeOffset": 0,
+                    "powerConsumptionNetMaxAutoReset": false,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
                     "enableMqtt": false,
