@@ -3528,9 +3528,9 @@ class envoyDevice {
         //auto reset peak power
         const date = new Date();
         const currentDay = date.getDay();
-        const resetProductionPowerPeak = (this.productionPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
-        const resetConsumptionTotalPowerPeak = (this.consumptionTotalPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
-        const resetConsumptionNetPowerPeak = (this.consumptionNetPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
+        const resetProductionPowerPeak = (this.productionPowerMaxAutoReset && (currentDay != this.currentDay)) ? true : false;
+        const resetConsumptionTotalPowerPeak = (this.consumptionTotalPowerMaxAutoReset && (currentDay != this.currentDay)) ? true : false;
+        const resetConsumptionNetPowerPeak = (this.consumptionNetPowerMaxAutoReset && (currentDay != this.currentDay)) ? true : false;
 
         //get enabled devices
         const metersProductionEnabled = this.metersProductionEnabled;
