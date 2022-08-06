@@ -4612,13 +4612,13 @@ class envoyDevice {
     enphaseProductionService.getCharacteristic(Characteristic.enphasePowerMaxReset)
       .onGet(async () => {
         const state = false;
-        const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, production power peak reset: %s', this.host, accessoryName, value);
+        const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, production power peak reset: Off', this.host, accessoryName);
         return state;
       })
       .onSet(async (state) => {
         try {
           const write = state ? await fsPromises.writeFile(this.productionPowerMaxFile, '0') : false;
-          const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset production power peak: Done', this.host, accessoryName);
+          const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset production power peak: On', this.host, accessoryName);
         } catch (error) {
           this.log.error('Device: %s %s, reset production power peak error: %s', this.host, this.name, error);
           this.envoyCheckCommLevel = false;
@@ -4710,13 +4710,13 @@ class envoyDevice {
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMaxReset)
           .onGet(async () => {
             const state = false;
-            const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s %s, power peak reset: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], value);
+            const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s %s, power peak reset: Off', this.host, accessoryName, this.consumptionMeasurmentType[i]);
             return state;
           })
           .onSet(async (state) => {
             try {
               const write = state ? [await fsPromises.writeFile(this.consumptionPowerMaxFile, '0'), await fsPromises.writeFile(this.consumptionPowerMaxFile1, '0')][i] : false;
-              const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset %s power peak: Done', this.host, accessoryName, this.consumptionMeasurmentType[i]);
+              const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset %s power peak: On', this.host, accessoryName, this.consumptionMeasurmentType[i]);
             } catch (error) {
               this.log.error('Device: %s %s, reset %s power peak error: %s', this.host, accessoryName, this.consumptionMeasurmentType[i], error);
               this.envoyCheckCommLevel = false;
