@@ -3599,7 +3599,8 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphasePowerMaxDetected, productionPowerMaxDetectedState)
             .updateCharacteristic(Characteristic.enphaseEnergyToday, productionEnergyToday)
             .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, productionEnergyLastSevenDays)
-            .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, productionEnergyLifeTime);
+            .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, productionEnergyLifeTime)
+            .updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
           if (metersProductionEnabled) {
             this.productionsService[0]
               .updateCharacteristic(Characteristic.enphaseRmsCurrent, productionRmsCurrent)
@@ -3697,7 +3698,8 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionRmsVoltage)
                 .updateCharacteristic(Characteristic.enphaseReactivePower, consumptionReactivePower)
                 .updateCharacteristic(Characteristic.enphaseApparentPower, consumptionApparentPower)
-                .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor);
+                .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor)
+                .updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
             }
             this.consumptionType.push(consumptionType);
             this.consumptionMeasurmentType.push(consumptionMeasurmentType);
