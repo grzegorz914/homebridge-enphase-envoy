@@ -3523,16 +3523,15 @@ class envoyDevice {
       const productionCtData = await this.axiosInstance(API_URL.SystemReadingStats);
       const debug = this.enableDebugMode ? this.log('Device: %s %s, debug productionCtData: %s', this.host, this.name, JSON.stringify(productionCtData.data, null, 2)) : false;
 
-      //auto reset peak power
-      const date = new Date();
-      const currentDay = date.getDay();
-      const resetProductionPowerPeak = (this.productionPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
-      const resetConsumptionTotalPowerPeak = (this.consumptionTotalPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
-      const resetConsumptionNetPowerPeak = (this.consumptionNetPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
-      this.currentDay = currentDay;
-
       //production CT
       if (productionCtData.status == 200) {
+        //auto reset peak power
+        const date = new Date();
+        const currentDay = date.getDay();
+        const resetProductionPowerPeak = (this.productionPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
+        const resetConsumptionTotalPowerPeak = (this.consumptionTotalPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
+        const resetConsumptionNetPowerPeak = (this.consumptionNetPowerMaxAutoReset && (currentDay > this.currentDay)) ? true : false;
+
         //get enabled devices
         const metersProductionEnabled = this.metersProductionEnabled;
         const metersProductionVoltageDivide = this.metersProductionVoltageDivide;
@@ -3661,7 +3660,7 @@ class envoyDevice {
             const consumptionPowerMax = parseFloat(savedConsumptionPowerMax);
 
             const consumptionPowerToWrite = [resetConsumptionNetPowerPeak ? '0' : consumptionPower.toString(), resetConsumptionTotalPowerPeak ? '0' : consumptionPower.toString()][i];
-            const write = (consumptionPower > consumptionPowerMax || resetConsumptionNetPowerPeak || resetConsumptionTotalPowerPeak) ? [await fsPromises.writeFile(this.consumptionPowerMaxFile, consumptionPowerToWrite), await fsPromises.writeFile(this.consumptionPowerMaxFile1, consumptionPowerToWrite)][i] : false;
+            const write = [(consumptionPower > consumptionPowerMax || resetConsumptionNetPowerPeak) ? await fsPromises.writeFile(this.consumptionPowerMaxFile, consumptionPowerToWrite) : false, (consumptionPower > consumptionPowerMax || resetConsumptionTotalPowerPeak) ? await fsPromises.writeFile(this.consumptionPowerMaxFile1, consumptionPowerToWrite) : false][i];
             this.log.debug('Device: %s %s, %s saved successful in: %s %s kW', this.host, this.name, ['consumption total', 'consumption net'][i], [this.consumptionPowerMaxFile, this.consumptionPowerMaxFile1][i], consumptionPowerToWrite);
 
             //power peak state detected
@@ -3748,6 +3747,7 @@ class envoyDevice {
           this.acBatteriesSummaryState = chargeStatus;
           this.acBatteriesSummaryPercentFull = percentFull;
         }
+        this.currentDay = currentDay;
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
         const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? this.updateProductionCt() : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }

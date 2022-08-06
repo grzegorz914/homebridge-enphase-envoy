@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.7.3] - (07.08.2022)
+## Changes
+- fix auto 'Power peak reset' at midnight
+
 ## [5.7.2] - (06.08.2022)
 ## Changes
 - fix characteristic 'Power peak reset' warning
