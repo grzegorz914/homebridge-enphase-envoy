@@ -3568,7 +3568,7 @@ class envoyDevice {
 
         //save power peak
         const powerProductionToWrite = resetProductionPowerPeak ? '0' : productionPower.toString();
-        const write = (productionPower > productionPowerPeak || resetProductionPowerPeak) ? await fsPromises.writeFile(this.productionPowerPeakFile, powerProductionToWrite) : false;
+        const write = ((productionPower > productionPowerPeak) || resetProductionPowerPeak) ? await fsPromises.writeFile(this.productionPowerPeakFile, powerProductionToWrite) : false;
         const showLog = (write != false) ? this.log.debug('Device: %s %s, saved production power peak successful: %s kW', this.host, this.name, powerProductionToWrite) : false;
 
         //power peak state detected
@@ -3656,16 +3656,15 @@ class envoyDevice {
             const consumptionPower = parseFloat(productionCtData.data.consumption[i].wNow / 1000);
 
             //read saved power peak
-            const readFile = [this.consumptionNetPowerPeakFile, this.consumptionTotalPowerPeakFile][i];
-            const savedConsumptionPowerPeak = await fsPromises.readFile(readFile);
+            const consumptionFile = [this.consumptionTotalPowerPeakFile, this.consumptionNetPowerPeakFile][i];
+            const savedConsumptionPowerPeak = await fsPromises.readFile(consumptionFile);
             this.log.debug('Device: %s %s, read %s: %s kW', this.host, this.name, ['consumption total', 'consumption net'][i], savedConsumptionPowerPeak);
             const consumptionPowerPeak = parseFloat(savedConsumptionPowerPeak);
 
             //save power peak
-            const autoReset = [resetConsumptionNetPowerPeak, resetConsumptionTotalPowerPeak][i]
-            const writeToFile = [this.consumptionNetPowerPeakFile, this.consumptionTotalPowerPeakFile][i];
+            const autoReset = [resetConsumptionTotalPowerPeak, resetConsumptionNetPowerPeak][i]
             const consumptionPowerToWrite = autoReset ? '0' : consumptionPower.toString();
-            const write = ((consumptionPower > consumptionPowerPeak) || autoReset) ? await fsPromises.writeFile(writeToFile, consumptionPowerToWrite) : false;
+            const write = ((consumptionPower > consumptionPowerPeak) || autoReset) ? await fsPromises.writeFile(consumptionFile, consumptionPowerToWrite) : false;
             const showLog = (write != false) ? this.log.debug('Device: %s %s, saved %s successful : %s kW', this.host, this.name, ['consumption total', 'consumption net'][i], consumptionPowerToWrite) : false;
 
             //power peak state detected
@@ -4717,7 +4716,8 @@ class envoyDevice {
           })
           .onSet(async (state) => {
             try {
-              const write = state ? [await fsPromises.writeFile(this.consumptionNetPowerPeakFile, '0'), await fsPromises.writeFile(this.consumptionTotalPowerPeakFile, '0')][i] : false;
+              const consumptionFile = [this.consumptionTotalPowerPeakFile, this.consumptionNetPowerPeakFile][i];
+              const write = state ? await fsPromises.writeFile(consumptionFile, '0') : false;
               const logInfo = this.disableLogInfo ? false : this.log('Device: %s %s, reset %s power peak: On', this.host, accessoryName, this.consumptionsMeasurmentType[i]);
               enphaseConsumptionService.updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
             } catch (error) {
