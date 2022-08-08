@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/homebridge-enphase-envoy.png" width="540"></a>
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/homebridge-enphase-envoy.png" width="540"></a>
 </p>
 
 <span align="center">
@@ -92,7 +92,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * The sample configuration can be edited and used manually as an alternative. See the `sample-config.json` file in this repository for an example or copy the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
 
 <p align="left">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/ustawienia.png" width="840"></a>
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/ustawienia.png" width="840"></a>
 </p>
 
 | Key | Description | 
@@ -196,7 +196,7 @@ Each accessory needs to be manually paired.
 # Bonus Top Bar on Mac!!!
 1. Download `enphase_envoy.15s.rb`.
 2. Open the Terminal app. 
-3. Install homebrew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`.
+3. Install homebrew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/main/install)"`.
 4. Install digest auth: `gem install net-http-digest_auth`.
 5. Install [xBar](https://github.com/matryer/xbar/releases)
 6. Edit the `enphase_envoy.15s.rb` file and change the `MICROINVERTERS_SUM_WATTS = 5400` to Your microinverters power.
@@ -216,10 +216,10 @@ Data refresh time
 * 1h - 1 hour
 
 <p align="left">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/master/graphics/envoy_topbar.png" width="200"></a>
+  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/envoy_topbar.png" width="200"></a>
 </p>
 
-## [What's New](https://github.com/grzegorz914/homebridge-enphase-envoy/blob/master/CHANGELOG.md)
+## [What's New](https://github.com/grzegorz914/homebridge-enphase-envoy/blob/main/CHANGELOG.md)
 
 ## Development
 Please feel free to create a Pull request and help in development. It will be highly appreciated.
