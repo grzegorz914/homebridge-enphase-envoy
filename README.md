@@ -175,6 +175,7 @@ Each accessory needs to be manually paired.
 3. Tap *Add Accessory*, and select *I Don't Have a Code, Cannot Scan* or *More options*. 
 4. Select Your accessory and press add anyway. 
 5. Enter the PIN or scan the QR code, this can be found in Homebridge UI or Homebridge logs.
+6. Complete the accessory setup.
 
 ## Limitations
 * That maximum Services for 1 accessory is 100. If Services > 100, accessory stop responding.
