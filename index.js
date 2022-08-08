@@ -4639,79 +4639,79 @@ class envoyDevice {
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePower)
           .onGet(async () => {
             const value = (this.consumptionsPower[i] != undefined) ? this.consumptionsPower[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power: ${value} kW'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power: ${value} kW'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMax)
           .onGet(async () => {
             const value = (this.consumptionsPowerPeak[i] != undefined) ? this.consumptionsPowerPeak[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power peak: ${value} kW'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power peak: ${value} kW'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMaxDetected)
           .onGet(async () => {
             const value = (this.consumptionsPowerPeakDetected[i] != undefined) ? this.consumptionsPowerPeakDetected[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power peak detected: ${value ? 'Yes' : 'No'}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power peak detected: ${value ? 'Yes' : 'No'}`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyToday)
           .onGet(async () => {
             const value = (this.consumptionsEnergyToday[i] != undefined) ? this.consumptionsEnergyToday[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, energy today: ${value} kWh'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, energy today: ${value} kWh'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
           .onGet(async () => {
             const value = (this.consumptionsEnergyLastSevenDays[i] != undefined) ? this.consumptionsEnergyLastSevenDays[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, energy last seven days: ${value} kWh'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, energy last seven days: ${value} kWh'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyLifeTime)
           .onGet(async () => {
             const value = (this.consumptionsEnergyLifeTime[i] != undefined) ? this.consumptionsEnergyLifeTime[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, energy lifetime: ${value} kWh'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, energy lifetime: ${value} kWh'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseRmsCurrent)
           .onGet(async () => {
             const value = (this.consumptionsRmsCurrent[i] != undefined) ? this.consumptionsRmsCurrent[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, current: ${value} A'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, current: ${value} A'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseRmsVoltage)
           .onGet(async () => {
             const value = (this.consumptionsRmsVoltage[i] != undefined) ? this.consumptionsRmsVoltage[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, voltage: ${value} V'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, voltage: ${value} V'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReactivePower)
           .onGet(async () => {
             const value = (this.consumptionsReactivePower[i] != undefined) ? this.consumptionsReactivePower[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, reactive power: ${value} kVAr'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, reactive power: ${value} kVAr'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseApparentPower)
           .onGet(async () => {
             const value = (this.consumptionsApparentPower[i] != undefined) ? this.consumptionsApparentPower[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, apparent power: ${value} kVA'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, apparent power: ${value} kVA'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePwrFactor)
           .onGet(async () => {
             const value = (this.consumptionsPwrFactor[i] != undefined) ? this.consumptionsPwrFactor[i] : 0;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power factor: ${value} cos φ'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power factor: ${value} cos φ'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReadingTime)
           .onGet(async () => {
             const value = (this.consumptionsReadingTime[i] != undefined) ? this.consumptionsReadingTime[i] : '';
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, last report: ${value}'`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, last report: ${value}'`);
             return value;
           });
         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMaxReset)
           .onGet(async () => {
             const state = false;
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${his.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power peak reset: Off`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName} ${this.consumptionsMeasurmentType[i]}, power peak reset: Off`);
             return state;
           })
           .onSet(async (state) => {
