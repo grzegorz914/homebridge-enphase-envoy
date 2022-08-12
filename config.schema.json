@@ -61,10 +61,37 @@
             },
             "powerProductionMaxAutoReset": {
               "title": "Power peak auto reset",
-              "type": "boolean",
-              "default": false,
-              "description": "This enabled auto reset *Power peak* at midnight.",
-              "required": false
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0,
+              "description": "Here select at which period of time the *Power peak* will reset.",
+              "oneOf": [{
+                  "title": "None",
+                  "enum": [
+                    0
+                  ]
+                },
+                {
+                  "title": "Every day",
+                  "enum": [
+                    1
+                  ]
+                },
+                {
+                  "title": "Every week",
+                  "enum": [
+                    2
+                  ]
+                },
+                {
+                  "title": "Every month",
+                  "enum": [
+                    3
+                  ]
+                }
+              ],
+              "required": true
             },
             "powerProductionMaxDetected": {
               "title": "Power peak detected",
@@ -84,10 +111,37 @@
             },
             "powerConsumptionTotalMaxAutoReset": {
               "title": "Power peak auto reset",
-              "type": "boolean",
-              "default": false,
-              "description": "This enabled auto reset *Power peak* at midnight.",
-              "required": false
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0,
+              "description": "Here select at which period of time the *Power peak* will reset.",
+              "oneOf": [{
+                  "title": "None",
+                  "enum": [
+                    0
+                  ]
+                },
+                {
+                  "title": "Every day",
+                  "enum": [
+                    1
+                  ]
+                },
+                {
+                  "title": "Every week",
+                  "enum": [
+                    2
+                  ]
+                },
+                {
+                  "title": "Every month",
+                  "enum": [
+                    3
+                  ]
+                }
+              ],
+              "required": true
             },
             "powerConsumptionTotalMaxDetected": {
               "title": "Power peak detected",
@@ -107,10 +161,37 @@
             },
             "powerConsumptionNetMaxAutoReset": {
               "title": "Power peak auto reset",
-              "type": "boolean",
-              "default": false,
-              "description": "This enabled auto reset *Power peak* at midnight.",
-              "required": false
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0,
+              "description": "Here select at which period of time the *Power peak* will reset.",
+              "oneOf": [{
+                  "title": "None",
+                  "enum": [
+                    0
+                  ]
+                },
+                {
+                  "title": "Every day",
+                  "enum": [
+                    1
+                  ]
+                },
+                {
+                  "title": "Every week",
+                  "enum": [
+                    2
+                  ]
+                },
+                {
+                  "title": "Every month",
+                  "enum": [
+                    3
+                  ]
+                }
+              ],
+              "required": true
             },
             "powerConsumptionNetMaxDetected": {
               "title": "Power peak detected",

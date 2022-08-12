@@ -2141,13 +2141,13 @@ class envoyDevice {
     this.enableDebugMode = config.enableDebugMode || false;
     this.envoyPasswd = config.envoyPasswd;
     this.installerPasswd = config.installerPasswd;
-    this.productionPowerPeakAutoReset = config.powerProductionMaxAutoReset || false;
+    this.productionPowerPeakAutoReset = config.powerProductionMaxAutoReset || 0;
     this.productionPowerPeakDetectedPower = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
-    this.consumptionTotalPowerPeakAutoReset = config.powerConsumptionTotalMaxAutoReset || false;
+    this.consumptionTotalPowerPeakAutoReset = config.powerConsumptionTotalMaxAutoReset || 0;
     this.consumptionTotalPowerPeakDetectedPower = config.powerConsumptionTotalMaxDetected || 0;
     this.consumptionTotalEnergyLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
-    this.consumptionNetPowerPeakAutoReset = config.powerConsumptionNetMaxAutoReset || false;
+    this.consumptionNetPowerPeakAutoReset = config.powerConsumptionNetMaxAutoReset || 0;
     this.consumptionNetPowerPeakDetectedPower = config.powerConsumptionNetMaxDetected || 0;
     this.consumptionNetEnergyLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
     this.enableMqtt = config.enableMqtt || false;
@@ -2307,7 +2307,8 @@ class envoyDevice {
 
     //current day of week
     const date = new Date();
-    this.currentDay = date.getDay();
+    this.currentDayOfWeek = date.getDay();
+    this.currentDayOfMonth = date.getDate();
 
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
     this.envoyIdFile = (`${this.prefDir}/envoyId_${this.host.split('.').join('')}`);
@@ -3527,10 +3528,11 @@ class envoyDevice {
       if (productionCtData.status == 200) {
         //auto reset peak power
         const date = new Date();
-        const currentDay = date.getDay();
-        const resetProductionPowerPeak = (this.productionPowerPeakAutoReset && (currentDay != this.currentDay)) ? true : false;
-        const resetConsumptionTotalPowerPeak = (this.consumptionTotalPowerPeakAutoReset && (currentDay != this.currentDay)) ? true : false;
-        const resetConsumptionNetPowerPeak = (this.consumptionNetPowerPeakAutoReset && (currentDay != this.currentDay)) ? true : false;
+        const currentDayOfWeek = date.getDay();
+        const currentDayOfMonth = date.getDate();
+        const resetProductionPowerPeak = [false, currentDayOfWeek != this.currentDayOfWeek, (currentDayOfWeek == 6) ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.productionPowerPeakAutoReset];
+        const resetConsumptionTotalPowerPeak = [false, currentDayOfWeek != this.currentDayOfWeek, (currentDayOfWeek == 6) ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.consumptionTotalPowerPeakAutoReset];
+        const resetConsumptionNetPowerPeak = [false, currentDayOfWeek != this.currentDayOfWeek, (currentDayOfWeek == 6) ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.consumptionNetPowerPeakAutoReset];
 
         //get enabled devices
         const metersProductionEnabled = this.metersProductionEnabled;
@@ -3751,7 +3753,8 @@ class envoyDevice {
           this.acBatteriesSummaryState = chargeStatus;
           this.acBatteriesSummaryPercentFull = percentFull;
         }
-        this.currentDay = currentDay;
+        this.currentDayOfWeek = currentDayOfWeek;
+        this.currentDayOfMonth = currentDayOfMonth;
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
         const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = !this.checkDeviceInfo ? this.updateProductionCt() : this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
