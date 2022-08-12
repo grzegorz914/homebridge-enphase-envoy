@@ -110,14 +110,14 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `acBatteriesStorageOffset` | Here set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) (not available from v4.9.0)|
 | `powerConsumptionMetersInstalled` | Here check *ON* if consumption meters are installed. (not available from v3.5.0) |
 | `powerProductionMeter` | Here select which *meter* will be used to display Power production. (not available from v3.5.0) |
-| `powerProductionMaxAutoReset` | Here select which at which period of time the *Power Peak* will auto reset. |
+| `powerProductionMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerProductionMaxDetected` | Here set the *production Power peak*, if the Power will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
 | `energyProductionLifetimeOffset` | Here set the *Offset* of lifetime energy production if nedded in (Wh),(+/-) |
 | `powerConsumptionMeter` | Here select which *meter* will be used to display Power consumption. (not available from v3.5.0)
-| `powerConsumptionTotalMaxAutoReset` | Here select which at which period of time the *Power Peak* will auto reset. |
+| `powerConsumptionTotalMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerConsumptionTotalMaxDetected` | Here set the *consumption-total Power peak*, if the Power will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
-| `powerConsumptionNetMaxAutoReset` | Here select which at which period of time the *Power Peak* will auto reset. |
+| `powerConsumptionNetMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerConsumptionNetMaxDetected` | Here set the *consumption-net Power peak*, if the Power will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
