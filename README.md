@@ -141,11 +141,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "enableDebugMode": false,
                     "disableLogInfo": false,
                     "disableLogDeviceInfo": false,
-                    "envoyUser": "envoy", //removed from 4.6.11, not nedded anymore
                     "envoyPasswd": "",
-                    "installerUser": "installer", //removed from 4.6.11 not nedded anymore
                     "installerPasswd": "",
-                    "acBatteriesStorageOffset": 0, //removed from 4.9.0 not nedded anymore
                     "powerProductionMaxAutoReset": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
@@ -162,9 +159,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "mqttAuth": false,
                     "mqttUser": "user",
                     "mqttPass": "password",
-                    "mqttDebug": false,
-                    "manufacturer": "Manufacturer", //removed from 4.7.0 not nedded anymore
-                    "modelName": "Model" //removed from 4.7.0 not nedded anymore
+                    "mqttDebug": false
                 }
             ]
         }
