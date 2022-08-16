@@ -1251,7 +1251,7 @@ module.exports = (api) => {
         format: Characteristic.Formats.INT,
         unit: 'W',
         maxValue: 1000,
-        minValue: 0,
+        minValue: -1000,
         minStep: 1,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
       });
@@ -1267,7 +1267,7 @@ module.exports = (api) => {
         format: Characteristic.Formats.INT,
         unit: 'W',
         maxValue: 1000,
-        minValue: 0,
+        minValue: -1000,
         minStep: 1,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
       });
