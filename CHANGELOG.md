@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.8.2] - (21.08.2022)
+## Changes
+- code cleanup
+- better fix Power characteristic warning negative value [#54](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/54)
+
 ## [5.8.1] - (13.08.2022)
 ## Changes
 - fix Power characteristic warning negative value [#54](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/54)

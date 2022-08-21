@@ -35,7 +35,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ### Troubleshooting
 * If for some reason the device is not displayed in HomeKit app try this procedure:
-   * Go to `./homebridge/persist` or `/var/lib/homebridge/persist` for RPI.
+   * Go to `./homebridge/persist` macOS or `/var/lib/homebridge/persist` for RPI.
    * Remove `AccessoryInfo.xxx` file which contain Your device data: `{"displayName":"Envoy"}`.
    * Next remove `IdentifierCashe.xxx` file with same name as `AccessoryInfo.xxx`.
    * Restart Homebridge and try add it to the Home app again.
@@ -53,6 +53,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Production CT Data is refresh every 3.0 sec.
 
 ### Important changes
+#### v5.8.0 and above!
+* added automatically *Power peak* reset every day, week, month.
+
 #### v5.7.0 and above!
 * added manuall *Power peak* reset in accesorry.
 * added automatically *Power peak* reset at midnight.
@@ -102,18 +105,11 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
-| `envoyUser` | Here set the envoy user or leave empty, standard is `envoy` (removed from 4.6.11, not nedded anymore) |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
-| `installerUser` | Here set the optional installer user, standard is `installer` (removed from 4.6.11, not nedded anymore) |
 | `installerPasswd` | Here set the optional installer password, [password need to be generated](https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/). |
-| `enchargeStorage` | check *ON* if AC Batteries are installed. (not available from v3.5.0) |
-| `acBatteriesStorageOffset` | Here set the *Offset* of AC Batteries energy if nedded in (Wh),(+/-) (not available from v4.9.0)|
-| `powerConsumptionMetersInstalled` | Here check *ON* if consumption meters are installed. (not available from v3.5.0) |
-| `powerProductionMeter` | Here select which *meter* will be used to display Power production. (not available from v3.5.0) |
 | `powerProductionMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerProductionMaxDetected` | Here set the *production Power peak*, if the Power will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
 | `energyProductionLifetimeOffset` | Here set the *Offset* of lifetime energy production if nedded in (Wh),(+/-) |
-| `powerConsumptionMeter` | Here select which *meter* will be used to display Power consumption. (not available from v3.5.0)
 | `powerConsumptionTotalMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerConsumptionTotalMaxDetected` | Here set the *consumption-total Power peak*, if the Power will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
@@ -128,7 +124,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `mqttUser` | Here set the MQTT Broker user. |
 | `mqttPasswd` | Here set the MQTT Broker password. |
 | `mqttDebug` | If enabled, deep log will be present in homebridge console for MQTT. |
-| `manufacturer`, `modelName` | Optional free-form informational data that will be displayed in the Home.app if it is filled in (not available from v4.7.0)|
 
 ```json
         {
