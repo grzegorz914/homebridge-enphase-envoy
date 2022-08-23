@@ -2506,7 +2506,7 @@ class envoyDevice {
 
     try {
       const homeData = await this.axiosInstance(API_URL.Home);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug home data: ${JSON.stringify(homeData, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug home data: ${JSON.stringify(homeData.data, null, 2)}`) : false;
 
       if (homeData.status == 200) {
         const objKeys = Object.keys(homeData.data);
