@@ -2385,37 +2385,43 @@ class envoyDevice {
   reconnect() {
     setTimeout(() => {
       this.updateEnvoyBackboneAppData();
-    }, 10000)
+    }, 15000)
   };
 
   updateHome() {
     setTimeout(() => {
       this.updateHomeData();
-    }, 31000)
-  };
-
-  updateProduction() {
-    setTimeout(() => {
-      this.updateProductionData();
-    }, 61000)
-  };
-
-  updateProductionCt() {
-    setTimeout(() => {
-      this.updateProductionCtData();
-    }, 3000)
-  };
-
-  updateMicroinverters() {
-    setTimeout(() => {
-      this.updateMicroinvertersData();
-    }, 10000)
+    }, 45000)
   };
 
   updateMetersReading() {
     setTimeout(() => {
       this.updateMetersReadingData();
     }, 1500)
+  };
+
+  updateEnsembleInventory() {
+    setTimeout(() => {
+      this.updateEnsembleInventoryData();
+    }, 25000)
+  };
+
+  updateProduction() {
+    setTimeout(() => {
+      this.updateProductionData();
+    }, 30000)
+  };
+
+  updateProductionCt() {
+    setTimeout(() => {
+      this.updateProductionCtData();
+    }, 5000)
+  };
+
+  updateMicroinverters() {
+    setTimeout(() => {
+      this.updateMicroinvertersData();
+    }, 40000)
   };
 
   async updateEnvoyBackboneAppData() {
@@ -2435,7 +2441,7 @@ class envoyDevice {
           this.updateInfoData();
         } catch (error) {
           this.checkDeviceInfo = true;
-          this.log.error(`Device: ${this.host} ${this.name}, requesting envoyBackboneAppData or save envoy id error: ${error}, reconnect in 10s.`);
+          this.log.error(`Device: ${this.host} ${this.name}, requesting envoyBackboneAppData or save envoy id error: ${error}, reconnect in 15s.`);
           this.reconnect();
         };
       } else {
@@ -2443,7 +2449,7 @@ class envoyDevice {
         this.updateInfoData();
       }
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, read envoy id from file error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, read envoy id from file error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -2496,7 +2502,7 @@ class envoyDevice {
         this.updateHomeData();
       }
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, requesting info data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, requesting info data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -2708,7 +2714,7 @@ class envoyDevice {
         this.updateInventoryData();
       }
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, home data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, home data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -2984,12 +2990,11 @@ class envoyDevice {
         this.qRelaysCount = qRelaysCount;
         this.qRelaysInstalled = qRelaysInstalled;
 
-        const mqtt = this.enableMqtt ? this.mqttClient.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
-        const updateMetersOrEnsembleInventoryOrProductionData = this.checkDeviceInfo ? this.envoySupportMeters ? this.updateMetersData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.updateProductionData() : this.updateHome();
+        const updateNext = this.envoySupportMeters ? this.updateMetersData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, inventory data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, inventory data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3060,11 +3065,156 @@ class envoyDevice {
         this.metersInstalled = metersInstalled;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production', JSON.stringify(metersData.data, null, 2)) : false;
-        const updateEnsembleInventoryOrProductionData = this.checkDeviceInfo ? (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.updateProductionData() : this.updateHome();
+        const updateNext = this.metersInstalled ? this.updateMetersReadingData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, meters data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, meters data error: ${error}, reconnect in 15s.`);
+      this.reconnect();
+    };
+  };
+
+  async updateMetersReadingData() {
+    this.log.debug(`Device: ${this.host} ${this.name}, requesting meters reading.`);
+
+    try {
+      const metersReadingData = await this.axiosInstance(API_URL.InternalMeterReadings);
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug meters reading data: ${JSON.stringify(metersReadingData.data, null, 2)}`) : false;
+
+      if (metersReadingData.status == 200) {
+        const metersReadingCount = metersReadingData.data.length;
+        const metersReadingInstalled = (metersReadingCount > 0);
+
+        //meters
+        if (metersReadingInstalled) {
+          this.eidSumm = new Array();
+          this.timestampSumm = new Array();
+          this.actEnergyDlvdSumm = new Array();
+          this.actEnergyRcvdSumm = new Array();
+          this.apparentEnergySumm = new Array();
+          this.reactEnergyLaggSumm = new Array();
+          this.reactEnergyLeadSumm = new Array();
+          this.instantaneousDemandSumm = new Array();
+          this.activePowerSumm = new Array();
+          this.apparentPowerSumm = new Array();
+          this.reactivePowerSumm = new Array();
+          this.pwrFactorSumm = new Array();
+          this.voltageSumm = new Array();
+          this.currentSumm = new Array();
+          this.freqSumm = new Array();
+
+          //meters reading summary data
+          for (let i = 0; i < metersReadingCount; i++) {
+            const metersVoltageDivide = (this.metersPhaseMode[i] == 'Split') ? 1 : this.metersPhaseCount[i];
+            const eid = metersReadingData.data[i].eid;
+            const timestamp = new Date(metersReadingData.data[i].timestamp * 1000).toLocaleString();
+            const actEnergyDlvd = parseFloat(metersReadingData.data[i].actEnergyDlvd);
+            const actEnergyRcvd = parseFloat(metersReadingData.data[i].actEnergyRcvd);
+            const apparentEnergy = parseFloat(metersReadingData.data[i].apparentEnergy);
+            const reactEnergyLagg = parseFloat(metersReadingData.data[i].reactEnergyLagg);
+            const reactEnergyLead = parseFloat(metersReadingData.data[i].reactEnergyLead);
+            const instantaneousDemand = parseFloat(metersReadingData.data[i].instantaneousDemand);
+            const activePower = parseFloat((metersReadingData.data[i].activePower) / 1000);
+            const apparentPower = parseFloat((metersReadingData.data[i].apparentPower) / 1000);
+            const reactivePower = parseFloat((metersReadingData.data[i].reactivePower) / 1000);
+            const pwrFactor = parseFloat(metersReadingData.data[i].pwrFactor);
+            const voltage = parseFloat((metersReadingData.data[i].voltage) / metersVoltageDivide);
+            const current = parseFloat(metersReadingData.data[i].current);
+            const freq = parseFloat(metersReadingData.data[i].freq);
+
+            if (this.metersService) {
+              this.metersService[i]
+                .updateCharacteristic(Characteristic.enphaseMeterReadingTime, timestamp)
+                .updateCharacteristic(Characteristic.enphaseMeterActivePower, activePower)
+                .updateCharacteristic(Characteristic.enphaseMeterApparentPower, apparentPower)
+                .updateCharacteristic(Characteristic.enphaseMeterReactivePower, reactivePower)
+                .updateCharacteristic(Characteristic.enphaseMeterPwrFactor, pwrFactor)
+                .updateCharacteristic(Characteristic.enphaseMeterVoltage, voltage)
+                .updateCharacteristic(Characteristic.enphaseMeterCurrent, current)
+                .updateCharacteristic(Characteristic.enphaseMeterFreq, freq);
+            }
+
+            this.eidSumm.push(eid);
+            this.timestampSumm.push(timestamp);
+            this.actEnergyDlvdSumm.push(actEnergyDlvd);
+            this.actEnergyRcvdSumm.push(actEnergyRcvd);
+            this.apparentEnergySumm.push(apparentEnergy);
+            this.reactEnergyLaggSumm.push(reactEnergyLagg);
+            this.reactEnergyLeadSumm.push(reactEnergyLead);
+            this.instantaneousDemandSumm.push(instantaneousDemand);
+            this.activePowerSumm.push(activePower);
+            this.apparentPowerSumm.push(apparentPower);
+            this.reactivePowerSumm.push(reactivePower);
+            this.pwrFactorSumm.push(pwrFactor);
+            this.voltageSumm.push(voltage);
+            this.currentSumm.push(current);
+            this.freqSumm.push(freq);
+
+            //meters reading phases data
+            const metersReadingPhaseCount = metersReadingData.data[i].channels.length;
+            if (metersReadingPhaseCount > 0) {
+              this.eidPhase = new Array();
+              this.timestampPhase = new Array();
+              this.actEnergyDlvdPhase = new Array();
+              this.actEnergyRcvdPhase = new Array();
+              this.apparentEnergyPhase = new Array();
+              this.reactEnergyLaggPhase = new Array();
+              this.reactEnergyLeadPhase = new Array();
+              this.instantaneousDemandPhase = new Array();
+              this.activePowerPhase = new Array();
+              this.apparentPowerPhase = new Array();
+              this.reactivePowerPhase = new Array();
+              this.pwrFactorPhase = new Array();
+              this.voltagePhase = new Array();
+              this.currentPhase = new Array();
+              this.freqPhase = new Array();
+
+              for (let j = 0; j < metersReadingPhaseCount; j++) {
+                const eid = metersReadingData.data[i].channels[j].eid;
+                const timestamp = new Date(metersReadingData.data[i].channels[j].timestamp * 1000).toLocaleString();
+                const actEnergyDlvd = parseFloat(metersReadingData.data[i].channels[j].actEnergyDlvd);
+                const actEnergyRcvd = parseFloat(metersReadingData.data[i].channels[j].actEnergyRcvd);
+                const apparentEnergy = parseFloat(metersReadingData.data[i].channels[j].apparentEnergy);
+                const reactEnergyLagg = parseFloat(metersReadingData.data[i].channels[j].reactEnergyLagg);
+                const reactEnergyLead = parseFloat(metersReadingData.data[i].channels[j].reactEnergyLead);
+                const instantaneousDemand = parseFloat(metersReadingData.data[i].channels[j].instantaneousDemand);
+                const activePower = parseFloat((metersReadingData.data[i].channels[j].activePower) / 1000);
+                const apparentPower = parseFloat((metersReadingData.data[i].channels[j].apparentPower) / 1000);
+                const reactivePower = parseFloat((metersReadingData.data[i].channels[j].reactivePower) / 1000);
+                const pwrFactor = parseFloat(metersReadingData.data[i].channels[j].pwrFactor);
+                const voltage = parseFloat(metersReadingData.data[i].channels[j].voltage);
+                const current = parseFloat(metersReadingData.data[i].channels[j].current);
+                const freq = parseFloat(metersReadingData.data[i].channels[j].freq);
+
+                this.eidPhase.push(eid);
+                this.timestampPhase.push(timestamp);
+                this.actEnergyDlvdPhase.push(actEnergyDlvd);
+                this.actEnergyRcvdPhase.push(actEnergyRcvd);
+                this.apparentEnergyPhase.push(apparentEnergy);
+                this.reactEnergyLaggPhase.push(reactEnergyLagg);
+                this.reactEnergyLeadPhase.push(reactEnergyLead);
+                this.instantaneousDemandPhase.push(instantaneousDemand);
+                this.activePowerPhase.push(activePower);
+                this.apparentPowerPhase.push(apparentPower);
+                this.reactivePowerPhase.push(reactivePower);
+                this.pwrFactorPhase.push(pwrFactor);
+                this.voltagePhase.push(voltage);
+                this.currentPhase.push(current);
+                this.freqPhase.push(freq);
+              }
+            }
+            this.metersReadingPhaseCount = metersReadingPhaseCount;
+          }
+        }
+        this.metersReadingCount = metersReadingCount;
+        this.metersReadingInstalled = metersReadingInstalled;
+
+        const mqtt = this.enableMqtt ? this.mqttClient.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
+        const updateNext = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateMetersReading();
+      }
+    } catch (error) {
+      this.checkDeviceInfo = true;
+      this.log.error(`Device: ${this.host} ${this.name}, meters reading data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3269,11 +3419,11 @@ class envoyDevice {
         this.ensembleItemCount = itemCount;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2)) : false;
-        const updateEnsembleStatusOrProductionData = this.checkDeviceInfo ? (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleStatusData() : this.updateProductionData() : this.updateHome();
+        const updateNext = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleStatusData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateEnsembleInventory();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, ensemble inventory data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ensemble inventory data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3473,13 +3623,12 @@ class envoyDevice {
 
         const fakeInventoryMode = ensembleStatusData.data.fakeit.fake_inventory_mode;
         this.ensembleFakeInventoryMode = (fakeInventoryMode == true);
-
         const mqtt = this.enableMqtt ? this.mqttClient.send('Ensemble Status', JSON.stringify(ensembleStatusData.data, null, 2)) : false;
-        const updateProduction = this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
+        const updateNext = this.checkDeviceInfo ? this.updateProductionData() : this.updateEnsembleInventory();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, ensemble status data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ensemble status data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3505,11 +3654,11 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
-        const updateProductionCt = this.checkDeviceInfo ? this.updateProductionCtData() : this.updateProduction();
+        const updateNext = this.checkDeviceInfo ? this.updateProductionCtData() : this.updateProduction();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, production data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, production data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3753,11 +3902,11 @@ class envoyDevice {
         this.currentDayOfWeek = currentDayOfWeek;
         this.currentDayOfMonth = currentDayOfMonth;
         const mqtt = this.enableMqtt ? this.mqttClient.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
-        const updateMicroinvertersOrMetersReadingOrProductionPowerModeOrDeviceInfo = this.checkDeviceInfo ? this.envoyPasswd ? this.updateMicroinvertersData() : this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo() : this.updateProductionCt();
+        const updateNext = !this.checkDeviceInfo ? this.updateProductionCt() : this.envoyPasswd ? this.updateMicroinvertersData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, production current meters data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, production current meters data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3821,157 +3970,12 @@ class envoyDevice {
         this.microinvertersUpdatePower = true;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Microinverters', JSON.stringify(microinvertersData.data, null, 2)) : false;
-        const updateMetersReadingOrProductionPowerModeOrDeviceInfo = this.checkDeviceInfo ? this.metersInstalled ? this.updateMetersReadingData() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo() : this.updateMicroinverters();
+        const updateNext = !this.checkDeviceInfo ? this.updateMicroinverters() : (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
       this.microinvertersUpdatePower = false;
-      this.log.error(`Device: ${this.host} ${this.name}, microinverters data error: ${error}, reconnect in 10s.`);
-      this.reconnect();
-    };
-  };
-
-  async updateMetersReadingData() {
-    this.log.debug(`Device: ${this.host} ${this.name}, requesting meters reading.`);
-
-    try {
-      const metersReadingData = await this.axiosInstance(API_URL.InternalMeterReadings);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug meters reading data: ${JSON.stringify(metersReadingData.data, null, 2)}`) : false;
-
-      if (metersReadingData.status == 200) {
-        const metersReadingCount = metersReadingData.data.length;
-        const metersReadingInstalled = (metersReadingCount > 0);
-
-        //meters
-        if (metersReadingInstalled) {
-          this.eidSumm = new Array();
-          this.timestampSumm = new Array();
-          this.actEnergyDlvdSumm = new Array();
-          this.actEnergyRcvdSumm = new Array();
-          this.apparentEnergySumm = new Array();
-          this.reactEnergyLaggSumm = new Array();
-          this.reactEnergyLeadSumm = new Array();
-          this.instantaneousDemandSumm = new Array();
-          this.activePowerSumm = new Array();
-          this.apparentPowerSumm = new Array();
-          this.reactivePowerSumm = new Array();
-          this.pwrFactorSumm = new Array();
-          this.voltageSumm = new Array();
-          this.currentSumm = new Array();
-          this.freqSumm = new Array();
-
-          //meters reading summary data
-          for (let i = 0; i < metersReadingCount; i++) {
-            const metersVoltageDivide = (this.metersPhaseMode[i] == 'Split') ? 1 : this.metersPhaseCount[i];
-            const eid = metersReadingData.data[i].eid;
-            const timestamp = new Date(metersReadingData.data[i].timestamp * 1000).toLocaleString();
-            const actEnergyDlvd = parseFloat(metersReadingData.data[i].actEnergyDlvd);
-            const actEnergyRcvd = parseFloat(metersReadingData.data[i].actEnergyRcvd);
-            const apparentEnergy = parseFloat(metersReadingData.data[i].apparentEnergy);
-            const reactEnergyLagg = parseFloat(metersReadingData.data[i].reactEnergyLagg);
-            const reactEnergyLead = parseFloat(metersReadingData.data[i].reactEnergyLead);
-            const instantaneousDemand = parseFloat(metersReadingData.data[i].instantaneousDemand);
-            const activePower = parseFloat((metersReadingData.data[i].activePower) / 1000);
-            const apparentPower = parseFloat((metersReadingData.data[i].apparentPower) / 1000);
-            const reactivePower = parseFloat((metersReadingData.data[i].reactivePower) / 1000);
-            const pwrFactor = parseFloat(metersReadingData.data[i].pwrFactor);
-            const voltage = parseFloat((metersReadingData.data[i].voltage) / metersVoltageDivide);
-            const current = parseFloat(metersReadingData.data[i].current);
-            const freq = parseFloat(metersReadingData.data[i].freq);
-
-            if (this.metersService) {
-              this.metersService[i]
-                .updateCharacteristic(Characteristic.enphaseMeterReadingTime, timestamp)
-                .updateCharacteristic(Characteristic.enphaseMeterActivePower, activePower)
-                .updateCharacteristic(Characteristic.enphaseMeterApparentPower, apparentPower)
-                .updateCharacteristic(Characteristic.enphaseMeterReactivePower, reactivePower)
-                .updateCharacteristic(Characteristic.enphaseMeterPwrFactor, pwrFactor)
-                .updateCharacteristic(Characteristic.enphaseMeterVoltage, voltage)
-                .updateCharacteristic(Characteristic.enphaseMeterCurrent, current)
-                .updateCharacteristic(Characteristic.enphaseMeterFreq, freq);
-            }
-
-            this.eidSumm.push(eid);
-            this.timestampSumm.push(timestamp);
-            this.actEnergyDlvdSumm.push(actEnergyDlvd);
-            this.actEnergyRcvdSumm.push(actEnergyRcvd);
-            this.apparentEnergySumm.push(apparentEnergy);
-            this.reactEnergyLaggSumm.push(reactEnergyLagg);
-            this.reactEnergyLeadSumm.push(reactEnergyLead);
-            this.instantaneousDemandSumm.push(instantaneousDemand);
-            this.activePowerSumm.push(activePower);
-            this.apparentPowerSumm.push(apparentPower);
-            this.reactivePowerSumm.push(reactivePower);
-            this.pwrFactorSumm.push(pwrFactor);
-            this.voltageSumm.push(voltage);
-            this.currentSumm.push(current);
-            this.freqSumm.push(freq);
-
-            //meters reading phases data
-            const metersReadingPhaseCount = metersReadingData.data[i].channels.length;
-            if (metersReadingPhaseCount > 0) {
-              this.eidPhase = new Array();
-              this.timestampPhase = new Array();
-              this.actEnergyDlvdPhase = new Array();
-              this.actEnergyRcvdPhase = new Array();
-              this.apparentEnergyPhase = new Array();
-              this.reactEnergyLaggPhase = new Array();
-              this.reactEnergyLeadPhase = new Array();
-              this.instantaneousDemandPhase = new Array();
-              this.activePowerPhase = new Array();
-              this.apparentPowerPhase = new Array();
-              this.reactivePowerPhase = new Array();
-              this.pwrFactorPhase = new Array();
-              this.voltagePhase = new Array();
-              this.currentPhase = new Array();
-              this.freqPhase = new Array();
-
-              for (let j = 0; j < metersReadingPhaseCount; j++) {
-                const eid = metersReadingData.data[i].channels[j].eid;
-                const timestamp = new Date(metersReadingData.data[i].channels[j].timestamp * 1000).toLocaleString();
-                const actEnergyDlvd = parseFloat(metersReadingData.data[i].channels[j].actEnergyDlvd);
-                const actEnergyRcvd = parseFloat(metersReadingData.data[i].channels[j].actEnergyRcvd);
-                const apparentEnergy = parseFloat(metersReadingData.data[i].channels[j].apparentEnergy);
-                const reactEnergyLagg = parseFloat(metersReadingData.data[i].channels[j].reactEnergyLagg);
-                const reactEnergyLead = parseFloat(metersReadingData.data[i].channels[j].reactEnergyLead);
-                const instantaneousDemand = parseFloat(metersReadingData.data[i].channels[j].instantaneousDemand);
-                const activePower = parseFloat((metersReadingData.data[i].channels[j].activePower) / 1000);
-                const apparentPower = parseFloat((metersReadingData.data[i].channels[j].apparentPower) / 1000);
-                const reactivePower = parseFloat((metersReadingData.data[i].channels[j].reactivePower) / 1000);
-                const pwrFactor = parseFloat(metersReadingData.data[i].channels[j].pwrFactor);
-                const voltage = parseFloat(metersReadingData.data[i].channels[j].voltage);
-                const current = parseFloat(metersReadingData.data[i].channels[j].current);
-                const freq = parseFloat(metersReadingData.data[i].channels[j].freq);
-
-                this.eidPhase.push(eid);
-                this.timestampPhase.push(timestamp);
-                this.actEnergyDlvdPhase.push(actEnergyDlvd);
-                this.actEnergyRcvdPhase.push(actEnergyRcvd);
-                this.apparentEnergyPhase.push(apparentEnergy);
-                this.reactEnergyLaggPhase.push(reactEnergyLagg);
-                this.reactEnergyLeadPhase.push(reactEnergyLead);
-                this.instantaneousDemandPhase.push(instantaneousDemand);
-                this.activePowerPhase.push(activePower);
-                this.apparentPowerPhase.push(apparentPower);
-                this.reactivePowerPhase.push(reactivePower);
-                this.pwrFactorPhase.push(pwrFactor);
-                this.voltagePhase.push(voltage);
-                this.currentPhase.push(current);
-                this.freqPhase.push(freq);
-              }
-            }
-            this.metersReadingPhaseCount = metersReadingPhaseCount;
-          }
-        }
-        this.metersReadingCount = metersReadingCount;
-        this.metersReadingInstalled = metersReadingInstalled;
-
-        const mqtt = this.enableMqtt ? this.mqttClient.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
-        const updateProductionPowerModeOrDeviceInfo = this.checkDeviceInfo ? (this.installerPasswd && this.envoyDevId.length == 9) ? this.updateProductionPowerModeData() : this.getDeviceInfo() : this.updateMetersReading();
-      }
-    } catch (error) {
-      this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, meters reading data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, microinverters data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3999,14 +4003,14 @@ class envoyDevice {
           this.envoysService[0]
             .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, productionPowerMode)
         }
-        this.productionPowerMode = productionPowerMode;
 
+        this.productionPowerMode = productionPowerMode;
         const mqtt = this.enableMqtt ? this.mqttClient.send('Power Mode', JSON.stringify(powerModeData.data, null, 2)) : false;
-        const getaDeviceInfo = this.checkDeviceInfo ? this.getDeviceInfo() : false;
+        const getaDeviceInfo = !this.checkDeviceInfo ? false : this.getDeviceInfo();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, power mode data error: ${error}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, power mode data error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   }
@@ -4139,16 +4143,17 @@ class envoyDevice {
       this.checkDeviceInfo = false;
     };
 
-    if (this.envoySerialNumber) {
-      this.updateHome();
-      this.updateProduction();
-      this.updateProductionCt();
-      const startMicroinverters = this.envoyPasswd ? this.updateMicroinverters() : false;
-      const startMeterReading = this.metersInstalled ? this.updateMetersReading() : false;
+    this.updateHome();
+    const startMeterReading = this.metersInstalled ? this.updateMetersReading() : false;
+    const startEnsembleInventory = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventory() : false;
+    this.updateProduction();
+    this.updateProductionCt();
+    const startMicroinverters = this.envoyPasswd ? this.updateMicroinverters() : false;
 
+    if (this.envoySerialNumber) {
       const startPrepareAccessory = this.startPrepareAccessory ? this.prepareAccessory() : false;
     } else {
-      this.log.error(`Device: ${this.host} ${this.name}, serial number of envoy unknown: ${this.envoySerialNumbe}, reconnect in 10s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, serial number of envoy unknown: ${this.envoySerialNumbe}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -5241,8 +5246,8 @@ class envoyDevice {
       }
     }
 
-    this.startPrepareAccessory = false;
-    this.log.debug(`Device: ${this.host}, publish external accessory: ${accessoryName}`);
     this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
+    const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${accessoryName}, published as external accessory.`) : false;
+    this.startPrepareAccessory = false;
   }
 }

@@ -314,25 +314,34 @@
       {
         "key": "devices[]",
         "type": "section",
-        "title": "Consumption Net",
+        "title": "Consumption",
         "expandable": true,
         "expanded": false,
         "items": [
-          "devices[].powerConsumptionNetMaxAutoReset",
-          "devices[].powerConsumptionNetMaxDetected",
-          "devices[].energyConsumptionNetLifetimeOffset"
-        ]
-      },
-      {
-        "key": "devices[]",
-        "type": "section",
-        "title": "Consumption Total",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          "devices[].powerConsumptionTotalMaxAutoReset",
-          "devices[].powerConsumptionTotalMaxDetected",
-          "devices[].energyConsumptionTotalLifetimeOffset"
+          {
+            "key": "devices[]",
+            "type": "section",
+            "title": "Net",
+            "expandable": true,
+            "expanded": false,
+            "items": [
+              "devices[].powerConsumptionNetMaxAutoReset",
+              "devices[].powerConsumptionNetMaxDetected",
+              "devices[].energyConsumptionNetLifetimeOffset"
+            ]
+          },
+          {
+            "key": "devices[]",
+            "type": "section",
+            "title": "Total",
+            "expandable": true,
+            "expanded": false,
+            "items": [
+              "devices[].powerConsumptionTotalMaxAutoReset",
+              "devices[].powerConsumptionTotalMaxDetected",
+              "devices[].energyConsumptionTotalLifetimeOffset"
+            ]
+          }
         ]
       },
       {
@@ -349,7 +358,7 @@
       {
         "key": "devices[]",
         "type": "section",
-        "title": "Advanced settings",
+        "title": "Advanced Settings",
         "expandable": true,
         "expanded": false,
         "items": [
