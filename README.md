@@ -102,7 +102,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | Key | Description | 
 | --- | --- |
 | `name` | Here set the accessory *Name* to be displayed in *Homebridge/HomeKit*. |
-| `host` | Here set the *IP Address* or *Hostname* or leave empy (will be used default path `envoy.local`) |
+| `host` | Here set the envoy *IP Address* or *Hostname* or leave empy (will be used default path `envoy.local`) |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
