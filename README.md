@@ -45,7 +45,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy *device ID* is detected automatically, is required to control Power Production.
 * Envoy *password* is detected automatically or can be added in config if was already chenged by user.
 * Installer *password* is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharges).
-* Installer [password need to be generated](https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/).
+* Installer [password need to be generated](https://blahnana.com/passwordcalc.html).
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 * Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
 * MQTT Client publisch all available data from all installed devices.
