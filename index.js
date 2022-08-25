@@ -3,6 +3,7 @@
 const path = require('path');
 const axios = require('axios');
 const axiosDigestAuth = require('./src/digestAuth.js');
+const passwdCalc = require('./src/passwdCalc.js');
 const mqttClient = require('./src/mqtt.js');
 const fs = require('fs');
 const fsPromises = fs.promises;
@@ -272,7 +273,7 @@ module.exports = (api) => {
 
   //power production service
   class enphaseEnvoyService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000001-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnvoyAlerts);
@@ -463,7 +464,7 @@ module.exports = (api) => {
 
   //qrelay service
   class enphaseQrelayService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000002-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseQrelayState);
@@ -683,7 +684,7 @@ module.exports = (api) => {
 
   //current meters service
   class enphaseMeterService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000003-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseMeterState);
@@ -904,7 +905,7 @@ module.exports = (api) => {
 
   //power production service
   class enphasePowerAndEnergyService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000004-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphasePower);
@@ -1016,7 +1017,7 @@ module.exports = (api) => {
 
   //AC Batterie summary service
   class enphaseAcBatterieSummaryService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000005-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseAcBatterieSummaryPower);
@@ -1221,7 +1222,7 @@ module.exports = (api) => {
 
   //AC Batterie service
   class enphaseAcBatterieService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000006-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseAcBatterieChargeStatus);
@@ -1378,7 +1379,7 @@ module.exports = (api) => {
 
   //devices service
   class enphaseMicroinverterService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000007-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseMicroinverterPower);
@@ -1635,7 +1636,7 @@ module.exports = (api) => {
 
   //Encharge service
   class enphaseEnchargeService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000007-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnchargeAdminStateStr);
@@ -1831,7 +1832,7 @@ module.exports = (api) => {
 
   //Enpower service
   class enphaseEnpowerService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000008-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnpowerAdminStateStr);
@@ -1999,7 +2000,7 @@ module.exports = (api) => {
 
   //Enpower service
   class enphaseEnpowerStatusService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000009-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnpowerStatusFreqBiasHz);
@@ -2075,7 +2076,7 @@ module.exports = (api) => {
 
   //Wireless connection kit service
   class enphaseWirelessConnectionKitService extends Service {
-    constructor(displayName, subtype, ) {
+    constructor(displayName, subtype) {
       super(displayName, '00000010-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseWirelessConnectionKitType);
@@ -2140,7 +2141,6 @@ class envoyDevice {
     this.disableLogDeviceInfo = config.disableLogDeviceInfo || false;
     this.enableDebugMode = config.enableDebugMode || false;
     this.envoyPasswd = config.envoyPasswd;
-    this.installerPasswd = config.installerPasswd;
     this.productionPowerPeakAutoReset = config.powerProductionMaxAutoReset || 0;
     this.productionPowerPeakDetectedPower = config.powerProductionMaxDetected || 0;
     this.productionEnergyLifetimeOffset = config.energyProductionLifetimeOffset || 0;
@@ -2344,12 +2344,6 @@ class envoyDevice {
       baseURL: this.url
     });
 
-    //digest auth installer
-    this.digestAuthInstaller = new axiosDigestAuth({
-      user: INSTALLER_USER,
-      passwd: this.installerPasswd
-    });
-
     //mqtt client
     this.mqttClient = new mqttClient({
       enabled: this.enableMqtt,
@@ -2364,8 +2358,8 @@ class envoyDevice {
     });
 
     this.mqttClient.on('connected', (message) => {
-        this.log(`Device: ${this.host} ${this.name}, ${message}`);
-      })
+      this.log(`Device: ${this.host} ${this.name}, ${message}`);
+    })
       .on('error', (error) => {
         this.log(`Device: ${this.host} ${this.name}, ${error}`);
       })
@@ -2490,6 +2484,19 @@ class envoyDevice {
         const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
         const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
 
+        //generate installer password
+        const passwdCalcData = new passwdCalc({
+          serialNumber: deviceSn
+        });
+        const installerPasswd = passwdCalcData.password;
+        const debug2 = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug installer password: ${installerPasswd}`) : false;
+
+        //digest auth installer
+        this.digestAuthInstaller = new axiosDigestAuth({
+          user: INSTALLER_USER,
+          passwd: installerPasswd
+        });
+
         //envoy
         this.envoyTime = time;
         this.envoySerialNumber = deviceSn;
@@ -2497,6 +2504,7 @@ class envoyDevice {
         this.envoyFirmware = deviceSoftware;
         this.envoySupportMeters = deviceImeter;
         this.envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
+        this.installerPasswd = installerPasswd;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
         this.updateHomeData();
@@ -4116,7 +4124,7 @@ class envoyDevice {
     const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
 
     if (!this.disableLogDeviceInfo && this.checkDeviceInfo) {
-      this.log(`-------- ${this.name} --------`, );
+      this.log(`-------- ${this.name} --------`);
       this.log(`Manufacturer: Enphase`);
       this.log(`Model: ${devicePn}`);
       this.log(`Firmware: ${deviceSoftware}`);

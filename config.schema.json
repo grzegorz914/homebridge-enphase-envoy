@@ -53,12 +53,6 @@
               "description": "Here set envoy password (only if U already changed default password).",
               "required": false
             },
-            "installerPasswd": {
-              "title": "Installer password",
-              "type": "string",
-              "description": "Here set installer password, need to be generated, more info here: https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/",
-              "required": false
-            },
             "powerProductionMaxAutoReset": {
               "title": "Power peak auto reset",
               "type": "integer",
@@ -351,8 +345,7 @@
         "expandable": true,
         "expanded": false,
         "items": [
-          "devices[].envoyPasswd",
-          "devices[].installerPasswd"
+          "devices[].envoyPasswd"
         ]
       },
       {

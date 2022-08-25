@@ -44,8 +44,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 * Envoy *device ID* is detected automatically, is required to control Power Production.
 * Envoy *password* is detected automatically or can be added in config if was already chenged by user.
-* Installer *password* is required to read communications level of (Microinverters, Q-Relays, AC Batteries) and data from Ensemble devices (Enpower, Encharges).
-* Installer [password need to be generated](https://blahnana.com/passwordcalc.html).
+* Installer *password* is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 * Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
 * MQTT Client publisch all available data from all installed devices.
@@ -53,6 +52,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Production CT Data is refresh every 3.0 sec.
 
 ### Important changes
+#### v5.9.0 and above!
+* added installer password generator, no need generate it manually in external generator anymore.
+
 #### v5.8.0 and above!
 * added automatically *Power peak* reset every day, week, month.
 
@@ -107,7 +109,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
-| `installerPasswd` | Here set the optional installer password, [password need to be generated](https://thecomputerperson.wordpress.com/2016/08/28/reverse-engineering-the-enphase-installer-toolkit/). |
 | `powerProductionMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerProductionMaxDetected` | Here set the *production Power peak*, if the Power will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
 | `energyProductionLifetimeOffset` | Here set the *Offset* of lifetime energy production if nedded in (Wh),(+/-) |
@@ -138,7 +139,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "disableLogInfo": false,
                     "disableLogDeviceInfo": false,
                     "envoyPasswd": "",
-                    "installerPasswd": "",
                     "powerProductionMaxAutoReset": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,

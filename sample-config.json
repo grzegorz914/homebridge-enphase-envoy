@@ -14,33 +14,36 @@
         "comment": "In this section set the port for Homebridge accessories."
     },
     "accessories": [],
-    "platforms": [{
-        "platform": "enphaseEnvoy",
-        "devices": [{
-            "name": "Envoy",
-            "host": "192.168.1.35",
-            "enableDebugMode": false,
-            "disableLogInfo": false,
-            "disableLogDeviceInfo": false,
-            "envoyPasswd": "",
-            "installerPasswd": "",
-            "powerProductionMaxAutoReset": 0,
-            "powerProductionMaxDetected": 5400,
-            "energyProductionLifetimeOffset": 0,
-            "powerConsumptionTotalMaxAutoReset": 0,
-            "powerConsumptionTotalMaxDetected": 10000,
-            "energyConsumptionTotalLifetimeOffset": 0,
-            "powerConsumptionNetMaxAutoReset": 0,
-            "powerConsumptionNetMaxDetected": 10000,
-            "energyConsumptionNetLifetimeOffset": 0,
-            "enableMqtt": false,
-            "mqttHost": "192.168.1.33",
-            "mqttPort": 1883,
-            "mqttPrefix": "home/envoy",
-            "mqttAuth": false,
-            "mqttUser": "user",
-            "mqttPass": "password",
-            "mqttDebug": false
-        }]
-    }]
+    "platforms": [
+        {
+            "platform": "enphaseEnvoy",
+            "devices": [
+                {
+                    "name": "Envoy",
+                    "host": "192.168.1.35",
+                    "enableDebugMode": false,
+                    "disableLogInfo": false,
+                    "disableLogDeviceInfo": false,
+                    "envoyPasswd": "",
+                    "powerProductionMaxAutoReset": 0,
+                    "powerProductionMaxDetected": 5400,
+                    "energyProductionLifetimeOffset": 0,
+                    "powerConsumptionTotalMaxAutoReset": 0,
+                    "powerConsumptionTotalMaxDetected": 10000,
+                    "energyConsumptionTotalLifetimeOffset": 0,
+                    "powerConsumptionNetMaxAutoReset": 0,
+                    "powerConsumptionNetMaxDetected": 10000,
+                    "energyConsumptionNetLifetimeOffset": 0,
+                    "enableMqtt": false,
+                    "mqttHost": "192.168.1.33",
+                    "mqttPort": 1883,
+                    "mqttPrefix": "home/envoy",
+                    "mqttAuth": false,
+                    "mqttUser": "user",
+                    "mqttPass": "password",
+                    "mqttDebug": false
+                }
+            ]
+        }
+    ]
 }
