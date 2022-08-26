@@ -3,14 +3,14 @@ const crypto = require('crypto');
 
 class passwdCalc {
     constructor(config) {
-        this.userName = config.userName;
+        this.user = config.user;
         this.realm = config.realm;
     };
 
     generatePasswd(serialNumber) {
         return new Promise((resolve, reject) => {
             try {
-                const hashstring = `[e]${this.userName}@${this.realm}#${serialNumber} EnPhAsE eNeRgY `;
+                const hashstring = `[e]${this.user}@${this.realm}#${serialNumber} EnPhAsE eNeRgY `;
                 const inputString = crypto.createHash('md5').update(hashstring).digest("hex");
                 const digestIterator = this.digestSnippet(inputString);
 
@@ -85,4 +85,5 @@ class passwdCalc {
         return iterationCount;
     };
 };
+
 module.exports = passwdCalc;

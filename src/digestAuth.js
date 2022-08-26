@@ -43,4 +43,5 @@ class axiosDigestAuth {
         };
     };
 };
+
 module.exports = axiosDigestAuth;

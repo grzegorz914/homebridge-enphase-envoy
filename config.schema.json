@@ -14,7 +14,7 @@
           "type": "object",
           "properties": {
             "name": {
-              "title": "Device name",
+              "title": "Name",
               "type": "string",
               "default": "Envoy-S",
               "required": true
@@ -27,14 +27,14 @@
               "format": "hostname"
             },
             "disableLogInfo": {
-              "title": "Disable log info",
+              "title": "Disable Log Info",
               "type": "boolean",
               "default": false,
               "required": false,
               "description": "This disable log info, all values and state will not be displayed in Homebridge log console."
             },
             "disableLogDeviceInfo": {
-              "title": "Disable log device info",
+              "title": "Disable Log Device Info",
               "type": "boolean",
               "default": false,
               "description": "This disable log device info by every connections device to the network.",
@@ -48,13 +48,13 @@
               "required": false
             },
             "envoyPasswd": {
-              "title": "Envoy password",
+              "title": "Envoy Password",
               "type": "string",
               "description": "Here set envoy password (only if U already changed default password).",
               "required": false
             },
             "powerProductionMaxAutoReset": {
-              "title": "Power peak auto reset",
+              "title": "Power Peak Auto Reset",
               "type": "integer",
               "minimum": 0,
               "maximum": 3,
@@ -67,19 +67,19 @@
                   ]
                 },
                 {
-                  "title": "Every day",
+                  "title": "Every Day",
                   "enum": [
                     1
                   ]
                 },
                 {
-                  "title": "Every week",
+                  "title": "Every Week",
                   "enum": [
                     2
                   ]
                 },
                 {
-                  "title": "Every month",
+                  "title": "Every Month",
                   "enum": [
                     3
                   ]
@@ -88,7 +88,7 @@
               "required": true
             },
             "powerProductionMaxDetected": {
-              "title": "Power peak detected",
+              "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
@@ -96,7 +96,7 @@
               "required": false
             },
             "energyProductionLifetimeOffset": {
-              "title": "Energy lifetime offset",
+              "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
               "maximum": 100000,
@@ -104,7 +104,7 @@
               "required": false
             },
             "powerConsumptionTotalMaxAutoReset": {
-              "title": "Power peak auto reset",
+              "title": "Power Peak Auto Reset",
               "type": "integer",
               "minimum": 0,
               "maximum": 3,
@@ -117,19 +117,19 @@
                   ]
                 },
                 {
-                  "title": "Every day",
+                  "title": "Every Day",
                   "enum": [
                     1
                   ]
                 },
                 {
-                  "title": "Every week",
+                  "title": "Every Week",
                   "enum": [
                     2
                   ]
                 },
                 {
-                  "title": "Every month",
+                  "title": "Every Month",
                   "enum": [
                     3
                   ]
@@ -138,7 +138,7 @@
               "required": true
             },
             "powerConsumptionTotalMaxDetected": {
-              "title": "Power peak detected",
+              "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
@@ -146,7 +146,7 @@
               "required": false
             },
             "energyConsumptionTotalLifetimeOffset": {
-              "title": "Energy lifetime offset",
+              "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
@@ -154,7 +154,7 @@
               "required": false
             },
             "powerConsumptionNetMaxAutoReset": {
-              "title": "Power peak auto reset",
+              "title": "Power Peak Auto Reset",
               "type": "integer",
               "minimum": 0,
               "maximum": 3,
@@ -167,19 +167,19 @@
                   ]
                 },
                 {
-                  "title": "Every day",
+                  "title": "Every Day",
                   "enum": [
                     1
                   ]
                 },
                 {
-                  "title": "Every week",
+                  "title": "Every Eeek",
                   "enum": [
                     2
                   ]
                 },
                 {
-                  "title": "Every month",
+                  "title": "Every Month",
                   "enum": [
                     3
                   ]
@@ -188,7 +188,7 @@
               "required": true
             },
             "powerConsumptionNetMaxDetected": {
-              "title": "Power peak detected",
+              "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
@@ -196,7 +196,7 @@
               "required": false
             },
             "energyConsumptionNetLifetimeOffset": {
-              "title": "Energy lifetime offset",
+              "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
