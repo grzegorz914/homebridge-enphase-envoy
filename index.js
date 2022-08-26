@@ -19,6 +19,7 @@ const PLATFORM_NAME = 'enphaseEnvoy';
 
 const ENVOY_USER = 'envoy';
 const INSTALLER_USER = 'installer';
+const REALM = 'enphaseenergy.com'
 
 let Accessory, Characteristic, Service, Categories, UUID;
 
@@ -2344,6 +2345,11 @@ class envoyDevice {
       baseURL: this.url
     });
 
+    this.passwdCalc = new passwdCalc({
+      userName: INSTALLER_USER,
+      realm: REALM
+    });
+
     //mqtt client
     this.mqttClient = new mqttClient({
       enabled: this.enableMqtt,
@@ -2484,12 +2490,13 @@ class envoyDevice {
         const buildId = parseInfoData.envoy_info.build_info[0].build_id[0];
         const buildTimeQmt = new Date(parseInfoData.envoy_info.build_info[0].build_time_gmt[0] * 1000).toLocaleString();
 
-        //generate installer password
-        const passwdCalcData = new passwdCalc({
-          serialNumber: deviceSn
-        });
-        const installerPasswd = passwdCalcData.password;
-        const debug2 = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug installer password: ${installerPasswd}`) : false;
+        //envoy password
+        const envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
+        const debug2 = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy password: ${envoyPasswd}`) : false;
+
+        //installer password
+        const installerPasswd = await this.passwdCalc.generatePasswd(deviceSn);
+        const debug3 = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug installer password: ${installerPasswd}`) : false;
 
         //digest auth installer
         this.digestAuthInstaller = new axiosDigestAuth({
@@ -2503,7 +2510,7 @@ class envoyDevice {
         this.envoyModelName = devicePn;
         this.envoyFirmware = deviceSoftware;
         this.envoySupportMeters = deviceImeter;
-        this.envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
+        this.envoyPasswd = envoyPasswd;
         this.installerPasswd = installerPasswd;
 
         const mqtt = this.enableMqtt ? this.mqttClient.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
