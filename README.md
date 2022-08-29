@@ -47,9 +47,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Installer *password* is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 * Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
-* MQTT Client publisch all available data from all installed devices.
-* Meters Reading Data is refresh every 1.5 sec.
-* Production CT Data is refresh every 3.0 sec.
+* MQTT publisch topic *Info*, *Home*, *Inventory*, *Meters*, *Meters Reading*, *Ensemble Inventor*, *Ensemble Status*, *Production*, *Production CT*, *Microinverter*, *Power Mode*, *PCU Comm Level* as payload JSON data.
 
 ### Important changes
 #### v5.9.0 and above!
@@ -95,7 +93,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Run this plugin as a child bridge (Highly Recommended).
 * Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) to configure this plugin (Highly Recommended). 
 * The sample configuration can be edited and used manually as an alternative. 
-* See the `sample-config.json` file in this repository for an example or copy the example below into your config.json file, making the apporpriate changes before saving it. Be sure to always make a backup copy of your config.json file before making any changes to it.
+* See the `sample-config.json` file example or copy the example below into your config.json file, making the apporpriate changes before saving it. 
+* Be sure to always make a backup copy of your config.json file before making any changes to it.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/ustawienia.png" width="840"></a>

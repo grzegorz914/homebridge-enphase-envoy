@@ -2424,7 +2424,7 @@ class envoyDevice {
       if (envoyId.length != 9) {
         try {
           const envoyBackboneAppData = await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
-          const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy backbone app data: ${envoyBackboneAppData.data}`) : false;
+          const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy backbone app: ${envoyBackboneAppData.data}`) : false;
           const data = envoyBackboneAppData.data;
           const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
           await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
@@ -2450,11 +2450,11 @@ class envoyDevice {
 
     try {
       const infoData = await this.axiosInstance(CONSTANS.ApiUrls.Info);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug info data:${JSON.stringify(infoData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug info:${JSON.stringify(infoData.data, null, 2)}`) : false;
 
       if (infoData.status == 200) {
         const parseInfoData = await parseStringPromise(infoData.data);
-        const debug1 = this.enableDebugMode ? this.log.debug(`Device: ${this.host} ${this.name}, debug parse info data successful: ${JSON.stringify(parseInfoData, null, 2)}`) : false;
+        const debug1 = this.enableDebugMode ? this.log.debug(`Device: ${this.host} ${this.name}, debug parse info: ${JSON.stringify(parseInfoData, null, 2)}`) : false;
 
         //envoy info
         const envoyInfo = parseInfoData.envoy_info;
@@ -2512,7 +2512,7 @@ class envoyDevice {
         this.updateHomeData();
       }
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, requesting info data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, requesting info error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -2522,7 +2522,7 @@ class envoyDevice {
 
     try {
       const homeData = await this.axiosInstance(CONSTANS.ApiUrls.Home);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug home data: ${JSON.stringify(homeData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug home: ${JSON.stringify(homeData.data, null, 2)}`) : false;
 
       if (homeData.status == 200) {
         const envoy = homeData.data;
@@ -2731,7 +2731,7 @@ class envoyDevice {
         this.updateInventoryData();
       }
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, home data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, home error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -2742,7 +2742,7 @@ class envoyDevice {
 
     try {
       const inventoryData = await this.axiosInstance(CONSTANS.ApiUrls.Inventory);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug inventory data: ${JSON.stringify(inventoryData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug inventory: ${JSON.stringify(inventoryData.data, null, 2)}`) : false;
 
       if (inventoryData.status == 200) {
 
@@ -3011,12 +3011,12 @@ class envoyDevice {
         }
         this.qRelaysCount = qRelaysCount;
         this.qRelaysInstalled = qRelaysInstalled;
-
+        const mqtt = this.mqttEnabled ? this.mqttClient.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
         const updateNext = this.envoySupportMeters ? this.updateMetersData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, inventory data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, inventory error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3026,7 +3026,7 @@ class envoyDevice {
 
     try {
       const metersData = await this.axiosInstance(CONSTANS.ApiUrls.InternalMeterInfo);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug meters data: ${JSON.stringify(metersData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug meters: ${JSON.stringify(metersData.data, null, 2)}`) : false;
 
       if (metersData.status == 200) {
         const metersCount = metersData.data.length;
@@ -3087,12 +3087,12 @@ class envoyDevice {
         this.metersCount = metersCount;
         this.metersInstalled = metersInstalled;
 
-        const mqtt = this.mqttEnabled ? this.mqttClient.send('Production', JSON.stringify(metersData.data, null, 2)) : false;
+        const mqtt = this.mqttEnabled ? this.mqttClient.send('Meters', JSON.stringify(metersData.data, null, 2)) : false;
         const updateNext = this.metersInstalled ? this.updateMetersReadingData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, meters data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, meters error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3102,7 +3102,7 @@ class envoyDevice {
 
     try {
       const metersReadingData = await this.axiosInstance(CONSTANS.ApiUrls.InternalMeterReadings);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug meters reading data: ${JSON.stringify(metersReadingData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug meters reading: ${JSON.stringify(metersReadingData.data, null, 2)}`) : false;
 
       if (metersReadingData.status == 200) {
         const metersReadingCount = metersReadingData.data.length;
@@ -3239,7 +3239,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, meters reading data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, meters reading error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3257,7 +3257,7 @@ class envoyDevice {
       }
 
       const ensembleInventoryData = await this.digestAuthInstaller.request(options);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug ensemble inventory data: ${JSON.stringify(ensembleInventoryData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug ensemble inventory: ${JSON.stringify(ensembleInventoryData.data, null, 2)}`) : false;
 
       if (ensembleInventoryData.status == 200) {
         //encharges inventory
@@ -3452,7 +3452,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, ensemble inventory data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ensemble inventory error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3470,7 +3470,7 @@ class envoyDevice {
       }
 
       const ensembleStatusData = await this.digestAuthInstaller.request(options);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug ensemble status data: ${JSON.stringify(ensembleStatusData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug ensemble status: ${JSON.stringify(ensembleStatusData.data, null, 2)}`) : false;
 
       //ensemble status
       if (ensembleStatusData.status == 200) {
@@ -3665,7 +3665,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, ensemble status data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ensemble status error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3675,7 +3675,7 @@ class envoyDevice {
 
     try {
       const productionData = await this.axiosInstance(CONSTANS.ApiUrls.InverterProductionSumm);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug production data: ${JSON.stringify(productionData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug production: ${JSON.stringify(productionData.data, null, 2)}`) : false;
 
       //microinverters summary 
       if (productionData.status == 200) {
@@ -3695,7 +3695,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, production data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, production error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3705,7 +3705,7 @@ class envoyDevice {
 
     try {
       const productionCtData = await this.axiosInstance(CONSTANS.ApiUrls.SystemReadingStats);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug production current meters data: ${JSON.stringify(productionCtData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug production ct: ${JSON.stringify(productionCtData.data, null, 2)}`) : false;
 
       //production CT
       if (productionCtData.status == 200) {
@@ -3947,7 +3947,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, production current meters data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, production ct error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -3972,7 +3972,7 @@ class envoyDevice {
       }
 
       const microinvertersData = await digestAuth.request(options);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug microinverters data: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
       if (microinvertersData.status == 200) {
         this.allMicroinvertersSerialNumber = new Array();
@@ -4017,7 +4017,7 @@ class envoyDevice {
     } catch (error) {
       this.checkDeviceInfo = true;
       this.microinvertersUpdatePower = false;
-      this.log.error(`Device: ${this.host} ${this.name}, microinverters data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, microinverters error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -4036,7 +4036,7 @@ class envoyDevice {
       }
 
       const powerModeData = await this.digestAuthInstaller.request(options);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug power mode data: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug power mode: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
 
       if (powerModeData.status == 200) {
         const productionPowerMode = (powerModeData.data.powerForcedOff == false);
@@ -4052,7 +4052,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.checkDeviceInfo = true;
-      this.log.error(`Device: ${this.host} ${this.name}, power mode data error: ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, power mode error: ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   }
@@ -4070,7 +4070,7 @@ class envoyDevice {
       }
 
       const pcuCommLevelData = await this.digestAuthInstaller.request(options);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug pcu comm level data: ${JSON.stringify(pcuCommLevelData.data, null, 2)}`) : false;
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug pcu comm level: ${JSON.stringify(pcuCommLevelData.data, null, 2)}`) : false;
 
       if (pcuCommLevelData.status == 200) {
         //create arrays
@@ -4130,7 +4130,7 @@ class envoyDevice {
       }
     } catch (error) {
       this.envoyCheckCommLevel = false;
-      this.log.error(`Device: ${this.host} ${this.name}, pcu comm level data error: ${error}`);
+      this.log.error(`Device: ${this.host} ${this.name}, pcu comm level error: ${error}`);
     };
   };
 

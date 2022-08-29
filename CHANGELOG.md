@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [5.9.3] - (29.08.2022)
+## Changes
+- cleanup 
+- update mqtt topics
+
 ## [5.9.2] - (26.08.2022)
 ## Changes
 - cleanup 
