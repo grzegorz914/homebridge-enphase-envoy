@@ -21,24 +21,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | Package | Installation | Role | Required |
 | --- | --- | --- | --- |
 | [Homebridge](https://github.com/homebridge/homebridge) | [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) | HomeKit Bridge | Required |
-| [Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) | [Config UI X Wiki](https://github.com/oznu/homebridge-config-ui-x/wiki) | Web User Interface | Recommended |
-| [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | `npm install -g homebridge-enphase-envoy` | Plug-In | Required |
-
-### Note
-* Homebridge Enphase Envoy v4.5.0 and above the minimum required version of Homebridge is 1.3.x.
-* If count of all installed devices is grater than 100, the app will stop responding. This is HomeKit limitations, if this happens by You please open the issue, I will look how to fix this.
-
-### Know issues
-* If used with Hoobs, there is a possible configuration incompatibilty.
-* Envoy with firmware 7.x.x will not work due to new authentications method.
-* More info and discusion about authentication method changed and loss of local API connectivity [here](https://support.enphase.com/s/question/0D53m00006ySLuRCAW/unimpressed-with-loss-of-local-api-connectivity-to-envoys)
-
-### Troubleshooting
-* If for some reason the device is not displayed in HomeKit app try this procedure:
-   * Go to `./homebridge/persist` macOS or `/var/lib/homebridge/persist` for RPI.
-   * Remove `AccessoryInfo.xxx` file which contain Your device data: `{"displayName":"Envoy"}`.
-   * Next remove `IdentifierCashe.xxx` file with same name as `AccessoryInfo.xxx`.
-   * Restart Homebridge and try add it to the Home app again.
+| [Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) | [Config UI X Wiki](https://github.com/oznu/homebridge-config-ui-x/wiki) | Homebridge Web User Interface | Recommended |
+| [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ### About the plugin
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
@@ -48,46 +32,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 * Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
 * MQTT publisch topic *Info*, *Home*, *Inventory*, *Meters*, *Meters Reading*, *Ensemble Inventor*, *Ensemble Status*, *Production*, *Production CT*, *Microinverter*, *Power Mode*, *PCU Comm Level* as payload JSON data.
-
-### Important changes
-#### v5.9.0 and above!
-* added installer password generator, no need generate it manually in external generator anymore.
-
-#### v5.8.0 and above!
-* added automatically *Power peak* reset every day, week, month.
-
-#### v5.7.0 and above!
-* added manuall *Power peak* reset in accesorry.
-* added automatically *Power peak* reset at midnight.
-
-#### v5.5.0 and above!
-* Added MQTT Client.
-
-#### v5.2.15 and above!
-* Added system Power Production - Enable/Disable (required *installerPasswd*).
-* Finally detects Ensemble, Encharges and Enpower (required *installerPasswd*).
-
-#### v4.x.x and above!
-* Version 4.0.0 whole new concept.
-* All devices in are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters).
-
-#### v3.x.x and above!
-* From v3.0.0 the plugin is present as Power Meter and the Power is displayed in (kW) and Energy in (kWh).
-* For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
-
-#### v2.3.x
-* The plugin is present as C02(ppm) sensors and the Power is displayed in Watt and Energy in Wh/kWh.
-+ Production Current Level (W) - is the current Power production in (W). If the value is (< 0) and display (`-`values) then the PV consumed power from Grid.
-* Consumption Current Level Total (W) - is the Total Power Consumption in (W)).
-* Consumption Current Level Net (W) - is the Power Consumption from Grid in (W). If the value is (< 0) and display (`-`values) then the Power is exported to the Grid.
-* Peak Level (W) - display the Peak Power production/consumption.
-* Production Current Level (Wh)/(kWh) - is the Energy production (Lifetime and 7Days in kWh, Today in Wh).
-* Consumption Current Level (Wh)/(kWh) - is the Total and Net Energy Consumption (Lifetime and 7Days in kWh, Today in Wh).
-
-## Power Production Control
-* You can set task for the Envoy to Enable/Disable power production on the microinverters (required *installerPasswd*).
-* On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
-* More info about [Power Production task](https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production).
 
 ### Configuration
 * Run this plugin as a child bridge (Highly Recommended).
@@ -160,56 +104,3 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
         }
 ```
 
-### Adding to HomeKit
-* Each accessory needs to be manually paired. 
-  * Open the Home <img src='https://user-images.githubusercontent.com/3979615/78010622-4ea1d380-738e-11ea-8a17-e6a465eeec35.png' width='16.42px'> app on your device. 
-  * Tap the Home tab, then tap <img src='https://user-images.githubusercontent.com/3979615/78010869-9aed1380-738e-11ea-9644-9f46b3633026.png' width='16.42px'>. 
-  * Tap *Add Accessory*, and select *I Don't Have a Code, Cannot Scan* or *More options*. 
-  * Select Your accessory and press add anyway. 
-  * Enter the PIN or scan the QR code, this can be found in Homebridge UI or Homebridge logs.
-  * Complete the accessory setup.
-
-## Limitations
-* That maximum Services for 1 accessory is 100. If Services > 100, accessory stop responding.
-* The Services in this accessory are:
-  * Information.
-  * Envoy.
-  * Q-Relays.
-  * Meters.
-  * Microinverters.
-  * AC Batteries.
-  * Ensemble.
-  * Encharges.
-  * Production.
-  * Consumption.
-
-# Bonus Top Bar on Mac!!!
-1. Download `enphase_envoy.15s.rb`.
-2. Open the Terminal app. 
-3. Install homebrew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/main/install)"`.
-4. Install digest auth: `gem install net-http-digest_auth`.
-5. Install [xBar](https://github.com/matryer/xbar/releases)
-6. Edit the `enphase_envoy.15s.rb` file and change the `MICROINVERTERS_SUM_WATTS = 5400` to Your microinverters power.
-7. Edit the `enphase_envoy.15s.rb` file and change `ENVOY_IP = envoy.local` to IP Address of Your Envoy if nedded.
-8. If You already changed Your standard Envoy password, edit the `enphase_envoy.15s.rb` file and change `uri.password = envoySerial[-6,6]`.
-9. Run [xBar](https://github.com/matryer/xbar) and go to xbar>>>Open Plugin Folder and chose folder where You placed the `enphase_envoy.15s.rb`.
-10. After a few seconds You will see all data on the Top Bar:
-
-### Quick info about file name and its function:
-1. The `enphase_envoy` just the file name.
-2. The `15s` data refresh time.
-3. The `rb` file extension.
-
-Data refresh time
-* 15s - 15 seconds
-* 1m - 1 minute
-* 1h - 1 hour
-
-<p align="left">
-  <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/envoy_topbar.png" width="200"></a>
-</p>
-
-## [What's New](https://github.com/grzegorz914/homebridge-enphase-envoy/blob/main/CHANGELOG.md)
-
-## Development
-Please feel free to create a Pull request and help in development. It will be highly appreciated.
