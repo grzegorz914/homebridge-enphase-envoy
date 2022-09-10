@@ -3958,7 +3958,7 @@ class envoyDevice {
     try {
       //digest auth envoy
       const passwd = this.envoyPasswd;
-      const digestAuth = new axiosDigestAuth({
+      const digestAuth = new AxiosDigestAuth({
         user: CONSTANS.EnvoyUser,
         passwd: passwd
       });
