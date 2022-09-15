@@ -3088,7 +3088,7 @@ class envoyDevice {
         this.metersInstalled = metersInstalled;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters', JSON.stringify(metersData.data, null, 2)) : false;
-        const updateNext = this.metersInstalled ? this.updateMetersReadingData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
+        const updateNext = !this.checkDeviceInfo ? this.updateHome() : this.metersInstalled ? this.updateMetersReadingData() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.updateProductionData();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3235,7 +3235,7 @@ class envoyDevice {
         this.metersReadingInstalled = metersReadingInstalled;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
-        const updateNext = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateMetersReading();
+        const updateNext = !this.checkDeviceInfo ? this.updateMetersReading() : (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleInventoryData() : this.updateProductionData();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3448,7 +3448,7 @@ class envoyDevice {
         this.ensembleItemCount = gridProfileIdItemCount;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2)) : false;
-        const updateNext = (this.ensembleInstalled && this.installerPasswd) ? this.updateEnsembleStatusData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateEnsembleInventory();
+        this.updateEnsembleStatusData();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3661,7 +3661,7 @@ class envoyDevice {
         const fakeInventoryMode = ensembleStatus.fakeit.fake_inventory_mode;
         this.ensembleFakeInventoryMode = (fakeInventoryMode == true);
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Status', JSON.stringify(ensembleStatus, null, 2)) : false;
-        const updateNext = this.checkDeviceInfo ? this.updateProductionData() : this.updateEnsembleInventory();
+        const updateNext = !this.checkDeviceInfo ? this.updateEnsembleInventory() : this.updateProductionData();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3691,7 +3691,7 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
-        const updateNext = this.checkDeviceInfo ? this.updateProductionCtData() : this.updateProduction();
+        const updateNext = !this.checkDeviceInfo ? this.updateProduction() : this.updateProductionCtData();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3994,8 +3994,8 @@ class envoyDevice {
           const lastReportDate = new Date(microinverter.lastReportDate * 1000).toLocaleString();
           const devType = microinverter.devType;
           const lastReportWatts = parseInt(microinverter.lastReportWatts);
-          const maxReportWatts = parseInt(microinverter.maxReportWatts);
           const microinverterPower = (lastReportWatts < 0) ? 0 : lastReportWatts;
+          const maxReportWatts = parseInt(microinverter.maxReportWatts);
 
           if (this.microinvertersService) {
             this.microinvertersService[i]
