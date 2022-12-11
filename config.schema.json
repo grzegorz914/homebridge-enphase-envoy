@@ -16,15 +16,41 @@
             "name": {
               "title": "Name",
               "type": "string",
-              "default": "Envoy-S",
+              "placeholder": "Envoy-S",
               "required": true
             },
             "host": {
               "title": "IP/Hostname",
               "type": "string",
-              "default": "192.168.1.35",
+              "placeholder": "192.168.1.35",
               "required": false,
               "format": "hostname"
+            },
+            "envoyFirmware7xx": {
+              "title": "Firmware 7.x.x",
+              "type": "boolean",
+              "default": false,
+              "required": true,
+              "description": "This enable support for Envoy with firmware 7.x.x"
+            },
+            "envoyFirmware7xxToken": {
+              "title": "Envoy Token",
+              "type": "string",
+              "placeholder": "xdDe32Dsgf6hgEz68JHdsseg)",
+              "required": false,
+              "description": "Here paste your envoy token generated here: https://entrez.enphaseenergy.com",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
+            "envoyPasswd": {
+              "title": "Envoy Password",
+              "type": "string",
+              "description": "Here set envoy password (only if U already changed default password).",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
+              }
             },
             "disableLogInfo": {
               "title": "Disable Log Info",
@@ -47,12 +73,6 @@
               "description": "This enable debug mode.",
               "required": false
             },
-            "envoyPasswd": {
-              "title": "Envoy Password",
-              "type": "string",
-              "description": "Here set envoy password (only if U already changed default password).",
-              "required": false
-            },
             "powerProductionMaxAutoReset": {
               "title": "Power Peak Auto Reset",
               "type": "integer",
@@ -60,7 +80,8 @@
               "maximum": 3,
               "default": 0,
               "description": "Here select at which period of time the *Power peak* will reset.",
-              "oneOf": [{
+              "oneOf": [
+                {
                   "title": "None",
                   "enum": [
                     0
@@ -110,7 +131,8 @@
               "maximum": 3,
               "default": 0,
               "description": "Here select at which period of time the *Power peak* will reset.",
-              "oneOf": [{
+              "oneOf": [
+                {
                   "title": "None",
                   "enum": [
                     0
@@ -160,7 +182,8 @@
               "maximum": 3,
               "default": 0,
               "description": "Here select at which period of time the *Power peak* will reset.",
-              "oneOf": [{
+              "oneOf": [
+                {
                   "title": "None",
                   "enum": [
                     0
@@ -286,97 +309,101 @@
       }
     }
   },
-  "layout": [{
-    "key": "devices",
-    "type": "tabarray",
-    "title": "{{ value.name || 'new device' }}",
-    "items": [
-      "devices[].name",
-      "devices[].host",
-      {
-        "key": "devices[]",
-        "type": "section",
-        "title": "Production",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          "devices[].powerProductionMaxAutoReset",
-          "devices[].powerProductionMaxDetected",
-          "devices[].energyProductionLifetimeOffset"
-        ]
-      },
-      {
-        "key": "devices[]",
-        "type": "section",
-        "title": "Consumption",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          {
-            "key": "devices[]",
-            "type": "section",
-            "title": "Net",
-            "expandable": true,
-            "expanded": false,
-            "items": [
-              "devices[].powerConsumptionNetMaxAutoReset",
-              "devices[].powerConsumptionNetMaxDetected",
-              "devices[].energyConsumptionNetLifetimeOffset"
-            ]
-          },
-          {
-            "key": "devices[]",
-            "type": "section",
-            "title": "Total",
-            "expandable": true,
-            "expanded": false,
-            "items": [
-              "devices[].powerConsumptionTotalMaxAutoReset",
-              "devices[].powerConsumptionTotalMaxDetected",
-              "devices[].energyConsumptionTotalLifetimeOffset"
-            ]
-          }
-        ]
-      },
-      {
-        "key": "devices[]",
-        "type": "section",
-        "title": "Authorization",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          "devices[].envoyPasswd"
-        ]
-      },
-      {
-        "key": "devices[]",
-        "type": "section",
-        "title": "Advanced Settings",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          "devices[].enableDebugMode",
-          "devices[].disableLogInfo",
-          "devices[].disableLogDeviceInfo"
-        ]
-      },
-      {
-        "key": "devices[]",
-        "type": "section",
-        "title": "MQTT",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          "devices[].enableMqtt",
-          "devices[].mqttHost",
-          "devices[].mqttPort",
-          "devices[].mqttPrefix",
-          "devices[].mqttAuth",
-          "devices[].mqttUser",
-          "devices[].mqttPasswd",
-          "devices[].mqttDebug"
-        ]
-      }
-    ]
-  }]
+  "layout": [
+    {
+      "key": "devices",
+      "type": "tabarray",
+      "title": "{{ value.name || 'new device' }}",
+      "items": [
+        "devices[].name",
+        "devices[].host",
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "Production",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].powerProductionMaxAutoReset",
+            "devices[].powerProductionMaxDetected",
+            "devices[].energyProductionLifetimeOffset"
+          ]
+        },
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "Consumption",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            {
+              "key": "devices[]",
+              "type": "section",
+              "title": "Net",
+              "expandable": true,
+              "expanded": false,
+              "items": [
+                "devices[].powerConsumptionNetMaxAutoReset",
+                "devices[].powerConsumptionNetMaxDetected",
+                "devices[].energyConsumptionNetLifetimeOffset"
+              ]
+            },
+            {
+              "key": "devices[]",
+              "type": "section",
+              "title": "Total",
+              "expandable": true,
+              "expanded": false,
+              "items": [
+                "devices[].powerConsumptionTotalMaxAutoReset",
+                "devices[].powerConsumptionTotalMaxDetected",
+                "devices[].energyConsumptionTotalLifetimeOffset"
+              ]
+            }
+          ]
+        },
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "Authorization",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].envoyFirmware7xx",
+            "devices[].envoyPasswd",
+            "devices[].envoyFirmware7xxToken"
+          ]
+        },
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "Advanced Settings",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].enableDebugMode",
+            "devices[].disableLogInfo",
+            "devices[].disableLogDeviceInfo"
+          ]
+        },
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "MQTT",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].enableMqtt",
+            "devices[].mqttHost",
+            "devices[].mqttPort",
+            "devices[].mqttPrefix",
+            "devices[].mqttAuth",
+            "devices[].mqttUser",
+            "devices[].mqttPasswd",
+            "devices[].mqttDebug"
+          ]
+        }
+      ]
+    }
+  ]
 }

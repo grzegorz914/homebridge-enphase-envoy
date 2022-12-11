@@ -24,6 +24,8 @@
                     "enableDebugMode": false,
                     "disableLogInfo": false,
                     "disableLogDeviceInfo": false,
+                    "envoyFirmware7xx": false,
+                    "envoyFirmware7xxToken": "",
                     "envoyPasswd": "",
                     "powerProductionMaxAutoReset": 0,
                     "powerProductionMaxDetected": 5400,

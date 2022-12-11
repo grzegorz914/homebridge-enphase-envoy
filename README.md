@@ -25,6 +25,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ### About The Plugin
+* All Envoy firmware are supported from plugin verion 6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 * Envoy *device ID* is detected automatically, is required to control Power Production.
 * Envoy *password* is detected automatically or can be added in config if was already chenged by user.
@@ -51,6 +52,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
+| `envoyFirmware7xx` | This enable support for Envoy with firmware 7.x.x |
+| `envoyFirmware7xxToken` | Here paste your envoy token generated here: https://entrez.enphaseenergy.com |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerProductionMaxDetected` | Here set the *production Power peak*, if the Power will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
@@ -81,6 +84,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "enableDebugMode": false,
                     "disableLogInfo": false,
                     "disableLogDeviceInfo": false,
+                    "envoyFirmware7xx": false,
+                    "envoyFirmware7xxToken": "",
                     "envoyPasswd": "",
                     "powerProductionMaxAutoReset": 0,
                     "powerProductionMaxDetected": 5400,
