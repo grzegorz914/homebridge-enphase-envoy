@@ -53,7 +53,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
 | `envoyFirmware7xx` | This enable support for Envoy with firmware 7.x.x |
-| `envoyFirmware7xxToken` | Here paste your envoy token generated here: https://entrez.enphaseenergy.com |
+| `envoyFirmware7xxToken` | Here paste your envoy token generated here: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=12345 replace 12345 with Your Envoy serial number |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerProductionMaxDetected` | Here set the *production Power peak*, if the Power will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
