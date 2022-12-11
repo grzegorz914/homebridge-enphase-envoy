@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
-## [6.0.0] - (xx.x.2022)
+## [6.0.0] - (11.12.2022)
 ## Changes
 - added support for Envoy with firmware 7.x.x and Token Authorization
 - config schema updated
