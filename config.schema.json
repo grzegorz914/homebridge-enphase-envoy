@@ -38,7 +38,7 @@
               "type": "string",
               "placeholder": "xdDe32Dsgf6hgEz68JHdsseg)",
               "required": false,
-              "description": "Here paste your envoy token generated here: https://entrez.enphaseenergy.com",
+              "description": "Here paste your envoy token generated here: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNumber",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
