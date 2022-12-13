@@ -2157,6 +2157,7 @@ class envoyDevice {
     //setup variables
     this.checkDeviceInfo = true;
     this.updateCommLevel = false;
+    this.checkCommLevel = false;
     this.startPrepareAccessory = true;
 
     //power mode
@@ -2195,8 +2196,7 @@ class envoyDevice {
     this.envoyCurrentDate = '';
     this.envoyCurrentTime = '';
     this.envoyLastEnlightenReporDate = 0;
-    this.envoySupportMeters = false;
-    this.envoyCheckCommLevel = false;
+    this.metersSupported = false;
 
     //envoy section ensemble
     this.wirelessConnectionKitSupported = false;
@@ -2207,6 +2207,7 @@ class envoyDevice {
     this.envoyEnpowerGridStatus = '';
 
     //qrelay
+    this.qRelaysSupported = false;
     this.qRelaysInstalled = false;
     this.qRelaysCount = 0;
 
@@ -2245,6 +2246,7 @@ class envoyDevice {
     this.productionReadingTime = '';
 
     //ac batterie
+    this.acBatteriesSupported = false;
     this.acBatteriesInstalled = false;
     this.acBatteriesCount = 0;
     this.acBatteriesSummaryType = '';
@@ -2256,9 +2258,15 @@ class envoyDevice {
     this.acBatteriesSummaryPercentFull = 0;
 
     //microinverters
+    this.microinvertersSupported = false;
     this.microinvertersInstalled = false;
     this.microinvertersCount = 0;
     this.microinvertersUpdatePower = false;
+
+    //esub
+    this.esubsSupported = false;
+    this.esubsInstalled = false;
+    this.esubsCount = 0;
 
     //ensemble
     this.ensembleSupported = false;
@@ -2314,8 +2322,6 @@ class envoyDevice {
     this.consumptionNetPowerPeakFile = (`${this.prefDir}/consumptionNetPowerPeak_${this.host.split('.').join('')}`);
     this.consumptionTotalPowerPeakFile = (`${this.prefDir}/consumptionTotalPowerPeak_${this.host.split('.').join('')}`);
 
-    this.url = this.envoyFirmware7xx ? `https://${this.host}` : `http://${this.host}`;
-
     try {
       //check if the directory exists, if not then create it
       if (!fs.existsSync(this.prefDir)) {
@@ -2337,6 +2343,8 @@ class envoyDevice {
       this.log.error(`Device: ${this.host} ${this.name}, prepare directory and files error: ${error}`);
     };
 
+    //create axios instance
+    this.url = this.envoyFirmware7xx ? `https://${this.host}` : `http://${this.host}`;
     this.axiosInstance = this.envoyFirmware7xx ? axios.create({
       method: 'GET',
       baseURL: this.url,
@@ -2344,15 +2352,20 @@ class envoyDevice {
         Accept: 'application/json',
         Authorization: `Bearer ${this.envoyFirmware7xxToken}`
       },
+      withCredentials: true,
       httpsAgent: new https.Agent({
+        keepAlive: true,
         rejectUnauthorized: false
-      }),
-      withCredentials: true
+      })
     }) : axios.create({
       method: 'GET',
-      baseURL: this.url
+      baseURL: this.url,
+      headers: {
+        Accept: 'application/json'
+      }
     });
 
+    //password calc
     this.passwdCalc = new PasswdCalc({
       user: CONSTANS.InstallerUser,
       realm: CONSTANS.Realm
@@ -2387,12 +2400,12 @@ class envoyDevice {
         this.log(`Device: ${this.host} ${this.name}, ${message}`);
       });
 
-    this.updateEnvoyBackboneAppData();
+    this.envoyFirmware7xx ? this.checkJwtToken() : this.updateEnvoyBackboneAppData();
   }
 
   reconnect() {
     setTimeout(() => {
-      this.updateEnvoyBackboneAppData();
+      this.envoyFirmware7xx ? this.checkJwtToken() : this.updateEnvoyBackboneAppData();
     }, 15000)
   };
 
@@ -2432,23 +2445,62 @@ class envoyDevice {
     }, 40000)
   };
 
+  async checkJwtToken() {
+    this.log.debug(`Device: ${this.host} ${this.name}, requesting jwt token.`);
+
+    try {
+      const jwtTokenData = await this.axiosInstance(CONSTANS.ApiUrls.CheckJwt);
+      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug jwt token: ${jwtTokenData.data}, ${jwtTokenData.headers}`) : false;
+      const cookie = jwtTokenData.headers['set-cookie'];
+
+      //axios instance token
+      this.axiosInstance1 = axios.create({
+        method: 'GET',
+        baseURL: this.url,
+        headers: {
+          Accept: 'application/json',
+          Cookie: cookie
+        },
+        withCredentials: true,
+        httpsAgent: new https.Agent({
+          keepAlive: true,
+          rejectUnauthorized: false
+        })
+      })
+      this.updateEnvoyBackboneAppData();
+    } catch (error) {
+      this.log.error(`Device: ${this.host} ${this.name}, read jwt token error: ${error}, reconnect in 15s.`);
+      this.checkDeviceInfo = true;
+      this.reconnect();
+    };
+  };
+
   async updateEnvoyBackboneAppData() {
     this.log.debug(`Device: ${this.host} ${this.name}, requesting envoy backbone app.`);
 
     try {
       const savedEnvoyId = await fsPromises.readFile(this.envoyIdFile);
       const envoyId = savedEnvoyId.toString();
+
+      // Check if the envoy ID is the correct length
       if (envoyId.length != 9) {
+        // Request the envoy backbone app data
         try {
           const envoyBackboneAppData = await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
           const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy backbone app: ${envoyBackboneAppData.data}`) : false;
           const data = envoyBackboneAppData.data;
           const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
-          await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
-          this.envoyDevId = envoyDevId;
-          this.updateInfoData();
+          try {
+            await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
+            this.envoyDevId = envoyDevId;
+            this.updateInfoData();
+          } catch (error) {
+            this.log.error(`Device: ${this.host} ${this.name}, save envoy id error: ${error}, reconnect in 15s.`);
+            this.checkDeviceInfo = true;
+            this.reconnect();
+          };
         } catch (error) {
-          this.log.error(`Device: ${this.host} ${this.name}, requesting envoyBackboneAppData or save envoy id error: ${error}, reconnect in 15s.`);
+          this.log.error(`Device: ${this.host} ${this.name}, requesting envoyBackboneAppData error: ${error}, reconnect in 15s.`);
           this.checkDeviceInfo = true;
           this.reconnect();
         };
@@ -2488,43 +2540,45 @@ class envoyDevice {
         const deviceApiVer = device.apiver[0];
         const deviceImeter = (device.imeter[0] == 'true');
 
+        //web tokens
+        const webTokens = this.envoyFirmware7xx ? (envoyInfo['web-tokens'][0] == 'true') : false;
+
         //packages
-        const packagesCount = envoyInfo.package.length;
-        for (let i = 0; i < packagesCount; i++) {
-          const devicePackage = envoyInfo.package[i];
+        const packages = envoyInfo.package;
+        packages.forEach(devicePackage => {
           const packageName = devicePackage.$.name;
           const packagePn = devicePackage.pn[0];
           const packageVersion = devicePackage.version[0];
           const packageBuild = devicePackage.build[0];
-        }
+        });
 
         //build info
         const build = envoyInfo.build_info[0];
         const buildId = build.build_id[0];
         const buildTimeQmt = new Date(build.build_time_gmt[0] * 1000).toLocaleString();
 
-        //envoy password
-        const envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
-        const debug2 = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy password: ${envoyPasswd}`) : false;
-
-        //installer password
-        const installerPasswd = await this.passwdCalc.generatePasswd(deviceSn);
-        const debug3 = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug installer password: ${installerPasswd}`) : false;
-
-        //digest auth installer
-        this.digestAuthInstaller = new AxiosDigestAuth({
-          user: CONSTANS.InstallerUser,
-          passwd: installerPasswd
-        });
-
         //envoy
         this.envoyTime = time;
         this.envoySerialNumber = deviceSn;
         this.envoyModelName = devicePn;
         this.envoyFirmware = deviceSoftware;
-        this.envoySupportMeters = deviceImeter;
+        this.metersSupported = deviceImeter;
+
+        //envoy password
+        const envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
+        const debug2 = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy password: ${envoyPasswd}`) : false;
         this.envoyPasswd = envoyPasswd;
+
+        //installer password
+        const installerPasswd = await this.passwdCalc.generatePasswd(deviceSn);
+        const debug3 = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug installer password: ${installerPasswd}`) : false;
         this.installerPasswd = installerPasswd;
+
+        //digest authorization installer
+        this.digestAuthInstaller = new AxiosDigestAuth({
+          user: CONSTANS.InstallerUser,
+          passwd: installerPasswd
+        });
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
         this.updateHomeData();
@@ -2546,10 +2600,14 @@ class envoyDevice {
         const envoy = homeData.data;
         const objKeys = Object.keys(envoy);
         const objKeys1 = Object.keys(envoy.comm);
-        const enpowersSupported = (objKeys.indexOf('enpower') >= 0);
+        const microinvertersSupported = (objKeys1.indexOf('pcu') >= 0);
+        const acBatteriesSupported = (objKeys1.indexOf('acb') >= 0);
+        const qRelaysSupported = (objKeys1.indexOf('nsrb') >= 0);
+        const esubsSupported = (objKeys1.indexOf('esub') >= 0);
         const enchargesSupported = (objKeys1.indexOf('encharge') >= 0);
-        const ensembleSupported = (enpowersSupported || enchargesSupported);
         const wirelessConnectionKitSupported = (objKeys.indexOf('wireless_connection') >= 0);
+        const enpowersSupported = (objKeys.indexOf('enpower') >= 0);
+        const ensembleSupported = (enpowersSupported || enchargesSupported);
         const envoyNework = envoy.network;
         const envoyNetworkInterfaces = envoyNework.interfaces;
         const envoyNetworkInterfacesCount = envoyNetworkInterfaces.length;
@@ -2625,6 +2683,11 @@ class envoyDevice {
         const commNsrbNum = comm.nsrb.num;
         const commNsrbLevel = (comm.nsrb.level * 20);
 
+        //esub
+        const commEsub = esubsSupported ? comm.esub : {};
+        const commEsubNum = esubsSupported ? commEsub.num : 0;
+        const commEsubLevel = esubsSupported ? (commEsub.level * 20) : 0;
+
         //encharge
         const commEncharge = enchargesSupported ? comm.encharge[0] : {};
         const commEnchgNum = enchargesSupported ? commEncharge.num : 0;
@@ -2673,13 +2736,7 @@ class envoyDevice {
         const enpowerGridStatus = enpowersSupported ? CONSTANS.ApiCodes[enpower.grid_status] || 'undefined' : '';
 
         //convert status
-        const arrStatus = new Array();
-        if (Array.isArray(alerts) && alerts.length > 0) {
-          for (let j = 0; j < alerts.length; j++) {
-            arrStatus.push(CONSTANS.ApiCodes[alerts[j]] || alerts[j]);
-          }
-        }
-        const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No alerts';
+        const status = (Array.isArray(alerts) && alerts.length > 0) ? (alerts.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No alerts';
 
         if (this.envoysService) {
           this.envoysService[0]
@@ -2710,9 +2767,13 @@ class envoyDevice {
           }
         }
 
-        this.ensembleSupported = ensembleSupported;
-        this.enpowersSupported = enpowersSupported;
+        this.microinvertersSupported = microinvertersSupported;
+        this.acBatteriesSupported = acBatteriesSupported;
+        this.qRelaysSupported = qRelaysSupported;
+        this.esubsSupported = esubsSupported;
         this.enchargesSupported = enchargesSupported;
+        this.enpowersSupported = enpowersSupported;
+        this.ensembleSupported = ensembleSupported;
 
         this.envoySoftwareBuildEpoch = softwareBuildEpoch;
         this.envoyIsEnvoy = isEnvoy;
@@ -2758,7 +2819,7 @@ class envoyDevice {
     this.log.debug(`Device: ${this.host} ${this.name}, requesting inventory.`);
 
     try {
-      const inventoryData = await this.axiosInstance(CONSTANS.ApiUrls.Inventory);
+      const inventoryData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.Inventory) : await this.axiosInstance(CONSTANS.ApiUrls.Inventory);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug inventory: ${JSON.stringify(inventoryData.data, null, 2)}`) : false;
 
       if (inventoryData.status == 200) {
@@ -2800,13 +2861,7 @@ class envoyDevice {
             const operating = (microinverter.operating == true);
 
             //convert status
-            const arrStatus = new Array();
-            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
-              for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(CONSTANS.ApiCodes[deviceStatus[j]] || deviceStatus[j]);
-              }
-            }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
+            const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
             if (this.microinvertersService) {
               this.microinvertersService[i]
@@ -2817,7 +2872,6 @@ class envoyDevice {
                 .updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, communicating)
                 .updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, provisioned)
                 .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating);
-
             }
 
             this.microinvertersSerialNumber.push(serialNumber);
@@ -2830,9 +2884,9 @@ class envoyDevice {
             this.microinvertersOperating.push(operating);
           }
           this.microinvertersType = type;
+          this.microinvertersCount = microinvertersCount;
+          this.microinvertersInstalled = microinvertersInstalled;
         }
-        this.microinvertersCount = microinvertersCount;
-        this.microinvertersInstalled = microinvertersInstalled;
 
         //ac btteries inventoty
         const acBatteries = inventoryData.data[1];
@@ -2883,13 +2937,7 @@ class envoyDevice {
             const chargeStatus = CONSTANS.ApiCodes[acBaterie.charge_status] || 'undefined';
 
             //convert status
-            const arrStatus = new Array();
-            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
-              for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(CONSTANS.ApiCodes[deviceStatus[j]] || deviceStatus[j]);
-              }
-            }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
+            const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
             if (this.acBatteriesService) {
               this.acBatteriesService[i]
@@ -2924,9 +2972,9 @@ class envoyDevice {
             this.acBatteriesChargeStatus.push(chargeStatus);
           }
           this.acBatteriesType = type;
+          this.acBatteriesCount = acBatteriesCount;
+          this.acBatteriesInstalled = acBatteriesInstalled;
         }
-        this.acBatteriesCount = acBatteriesCount;
-        this.acBatteriesInstalled = acBatteriesInstalled;
 
         //qrelays inventory
         const qRelays = inventoryData.data[2];
@@ -2978,12 +3026,7 @@ class envoyDevice {
 
             //convert status
             const arrStatus = new Array();
-            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
-              for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(CONSTANS.ApiCodes[deviceStatus[j]] || deviceStatus[j]);
-              }
-            }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'undefined';
+            const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
             if (this.qRelaysService) {
               this.qRelaysService[i]
@@ -3025,31 +3068,32 @@ class envoyDevice {
             this.qRelaysLine3Connected.push(line3Connected);
           }
           this.qRelaysType = type;
+          this.qRelaysCount = qRelaysCount;
+          this.qRelaysInstalled = qRelaysInstalled;
         }
-        this.qRelaysCount = qRelaysCount;
-        this.qRelaysInstalled = qRelaysInstalled;
 
-        //esub
-        //const esub = inventoryData.data[3];
-        //const esubCount = esub.devices.length;
-        const esubInstalled = false//(esubCount > 0);
+        //esubs
+        const esubs = this.esubsSupported ? inventoryData.data[3] : {};
+        const esubsCount = this.esubsSupported ? esubs.devices.length : 0;
+        const esubsInstalled = (esubsCount > 0);
 
-        if (esubInstalled) {
-          this.esubSerialNumber = new Array();
-          const type = CONSTANS.ApiCodes[esub.type] || 'undefined';
-          for (let i = 0; i < esubCount; i++) {
-            const esubDevice = esub.devices[i];
+        if (esubsInstalled) {
+          this.esubsSerialNumber = new Array();
+          const type = CONSTANS.ApiCodes[esubs.type] || 'undefined';
+          for (let i = 0; i < esubsCount; i++) {
+            const esubDevice = esubs.devices[i];
           }
+          this.esubsType = type;
+          this.esubsCount = esubsCount;
+          this.esubsInstalled = esubsInstalled;
         }
-        this.esubCount = 0//esubCount;
-        this.esubInstalled = esubInstalled;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
-        const updateNext = this.envoySupportMeters ? this.updateMetersData() : ((this.envoyFirmware7xx && this.ensembleInstalled) || (!this.envoyFirmware7xx && this.ensembleInstalled && this.installerPasswd)) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
+        const updateNext = this.metersSupported ? this.updateMetersData() : ((this.envoyFirmware7xx && this.ensembleInstalled) || (!this.envoyFirmware7xx && this.ensembleInstalled && this.installerPasswd)) ? this.updateEnsembleInventoryData() : this.checkDeviceInfo ? this.updateProductionData() : this.updateHome();
       }
     } catch (error) {
-      this.checkDeviceInfo = true;
       this.log.error(`Device: ${this.host} ${this.name}, inventory error: ${error}, reconnect in 15s.`);
+      this.checkDeviceInfo = true;
       this.reconnect();
     };
   };
@@ -3058,7 +3102,7 @@ class envoyDevice {
     this.log.debug(`Device: ${this.host} ${this.name}, requesting meters info.`);
 
     try {
-      const metersData = await this.axiosInstance(CONSTANS.ApiUrls.InternalMeterInfo);
+      const metersData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.InternalMeterInfo) : await this.axiosInstance(CONSTANS.ApiUrls.InternalMeterInfo);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug meters: ${JSON.stringify(metersData.data, null, 2)}`) : false;
 
       if (metersData.status == 200) {
@@ -3085,14 +3129,7 @@ class envoyDevice {
             const statusFlags = meter.statusFlags;
 
             // convert status
-            const arrStatus = new Array();
-            if (Array.isArray(statusFlags) && statusFlags.length > 0) {
-              for (let j = 0; j < statusFlags.length; j++) {
-                arrStatus.push(CONSTANS.ApiCodes[statusFlags[j]] || statusFlags[j]);
-              }
-            }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status flags';
-
+            const status = (Array.isArray(statusFlags) && statusFlags.length > 0) ? (statusFlags.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
             if (this.metersService) {
               this.metersService[i]
@@ -3134,7 +3171,7 @@ class envoyDevice {
     this.log.debug(`Device: ${this.host} ${this.name}, requesting meters reading.`);
 
     try {
-      const metersReadingData = await this.axiosInstance(CONSTANS.ApiUrls.InternalMeterReadings);
+      const metersReadingData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.InternalMeterReadings) : await this.axiosInstance(CONSTANS.ApiUrls.InternalMeterReadings);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug meters reading: ${JSON.stringify(metersReadingData.data, null, 2)}`) : false;
 
       if (metersReadingData.status == 200) {
@@ -3289,7 +3326,7 @@ class envoyDevice {
         }
       }
 
-      const ensembleInventoryData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.EnsembleInventory) : await this.digestAuthInstaller.request(options)
+      const ensembleInventoryData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.EnsembleInventory) : await this.digestAuthInstaller.request(options);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug ensemble inventory: ${JSON.stringify(ensembleInventoryData.data, null, 2)}`) : false;
 
       if (ensembleInventoryData.status == 200) {
@@ -3346,13 +3383,7 @@ class envoyDevice {
             const capacity = parseFloat((encharge.encharge_capacity) / 1000); //in kWh
 
             //convert status
-            const arrStatus = new Array();
-            if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
-              for (let j = 0; j < deviceStatus.length; j++) {
-                arrStatus.push(CONSTANS.ApiCodes[deviceStatus[j]] || deviceStatus[j]);
-              }
-            }
-            const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
+            const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
             if (this.enchargesService) {
               this.enchargesService[i]
@@ -3429,13 +3460,7 @@ class envoyDevice {
           const enpwrCurrStateId = enpower.Enpwr_curr_state_id;
 
           //convert status
-          const arrStatus = new Array();
-          if (Array.isArray(deviceStatus) && deviceStatus.length > 0) {
-            for (let j = 0; j < deviceStatus.length; j++) {
-              arrStatus.push(CONSTANS.ApiCodes[deviceStatus[j]] || deviceStatus[j]);
-            }
-          }
-          const status = (arrStatus.length > 0) ? (arrStatus.join(', ')).substring(0, 64) : 'No status';
+          const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
           if (this.enpowersService) {
             this.enpowersService[0]
@@ -3507,7 +3532,7 @@ class envoyDevice {
         }
       }
 
-      const ensembleStatusData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.EnsembleStatus) : await this.digestAuthInstaller.request(options)
+      const ensembleStatusData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.EnsembleStatus) : await this.digestAuthInstaller.request(options);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug ensemble status: ${JSON.stringify(ensembleStatusData.data, null, 2)}`) : false;
 
       //ensemble status
@@ -3712,7 +3737,7 @@ class envoyDevice {
     this.log.debug(`Device: ${this.host} ${this.name}, requesting production.`);
 
     try {
-      const productionData = await this.axiosInstance(CONSTANS.ApiUrls.InverterProductionSumm);
+      const productionData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.InverterProductionSumm) : await this.axiosInstance(CONSTANS.ApiUrls.InverterProductionSumm);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug production: ${JSON.stringify(productionData.data, null, 2)}`) : false;
 
       //microinverters summary 
@@ -3729,7 +3754,7 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
-        const updateNext = !this.checkDeviceInfo ? this.updateProduction() : this.updateProductionCtData();
+        const updateNext = this.checkDeviceInfo ? this.updateProductionCtData() : this.updateProduction();
       }
     } catch (error) {
       this.checkDeviceInfo = true;
@@ -3742,7 +3767,7 @@ class envoyDevice {
     this.log.debug(`Device: ${this.host} ${this.name}, requesting production current transformer.`);
 
     try {
-      const productionCtData = await this.axiosInstance(CONSTANS.ApiUrls.SystemReadingStats);
+      const productionCtData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.SystemReadingStats) : await this.axiosInstance(CONSTANS.ApiUrls.SystemReadingStats);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug production ct: ${JSON.stringify(productionCtData.data, null, 2)}`) : false;
 
       //production CT
@@ -4009,7 +4034,7 @@ class envoyDevice {
         }
       }
 
-      const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.InverterProduction) : await digestAuth.request(options)
+      const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.InverterProduction) : await digestAuth.request(options);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
       if (microinvertersData.status == 200) {
@@ -4073,7 +4098,7 @@ class envoyDevice {
         }
       }
 
-      const powerModeData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(options)
+      const powerModeData = this.envoyFirmware7xx ? await this.axiosInstance1(powerModeUrl) : await this.digestAuthInstaller.request(options);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug power mode: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
 
       if (powerModeData.status == 200) {
@@ -4107,7 +4132,7 @@ class envoyDevice {
         }
       }
 
-      const pcuCommLevelData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(options)
+      const pcuCommLevelData = this.envoyFirmware7xx ? await this.axiosInstance1(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(options);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug pcu comm level: ${JSON.stringify(pcuCommLevelData.data, null, 2)}`) : false;
 
       if (pcuCommLevelData.status == 200) {
@@ -4163,11 +4188,11 @@ class envoyDevice {
         }
 
         this.updateCommLevel = true;
-        this.envoyCheckCommLevel = false;
+        this.checkCommLevel = false;
         const mqtt = this.mqttEnabled ? this.mqtt.send('PCU Comm Level', JSON.stringify(pcuCommLevelData.data, null, 2)) : false;
       }
     } catch (error) {
-      this.envoyCheckCommLevel = false;
+      this.checkCommLevel = false;
       this.log.error(`Device: ${this.host} ${this.name}, pcu comm level error: ${error}`);
     };
   };
@@ -4263,7 +4288,7 @@ class envoyDevice {
 
     this.log.debug('prepareEnphaseServices');
     //get enabled devices
-    const envoySupportMeters = this.envoySupportMeters;
+    const metersSupported = this.metersSupported;
     const metersInstalled = this.metersInstalled;
     const metersCount = this.metersCount;
     const metersProductionEnabled = this.metersProductionEnabled;
@@ -4401,12 +4426,12 @@ class envoyDevice {
     }
     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel)
       .onGet(async () => {
-        const state = this.envoyCheckCommLevel;
+        const state = this.checkCommLevel;
         const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, checking comm level: ${state ? `Yes` : `No`}`);
         return state;
       })
       .onSet(async (state) => {
-        this.envoyCheckCommLevel = state;
+        this.checkCommLevel = state;
         this.updateCommLevelData();
         const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, check comm level: ${state ? `Yes` : `No`}`);
       });
@@ -4434,7 +4459,7 @@ class envoyDevice {
               }
             }
 
-            const powerModeData = await this.digestAuthInstaller.request(options);
+            const powerModeData = this.envoyFirmware7xx ? await this.axiosInstance1(powerModeUrl) : await this.digestAuthInstaller.request(options);
             const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${accessoryName}, debug set powerModeData: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
           } catch (error) {
             this.log.debug(`Device: ${this.host} ${accessoryName}, envoy: ${serialNumber}, set powerModeData error: ${error}`);
