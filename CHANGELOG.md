@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [6.0.1] - (13.12.2022)
 ## Changes
 - fixed JWT authorization proces and store cookies for data request
+- code optimization
 - big thanks @NoSnow3 and @BenouGui for test
 
 ## [6.0.0] - (11.12.2022)
