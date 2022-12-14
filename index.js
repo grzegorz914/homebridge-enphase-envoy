@@ -2199,6 +2199,7 @@ class envoyDevice {
 
     //envoy section ensemble
     this.wirelessConnectionKitSupported = false;
+    this.wirelessConnectionKitInstalled = false;
     this.wirelessConnectionKitConnectionsCount = 0;
     this.envoyCommEnchgLevel24g = 0;
     this.envoyCommEnchagLevelSubg = 0;
@@ -2316,33 +2317,33 @@ class envoyDevice {
     this.currentDayOfWeek = date.getDay();
     this.currentDayOfMonth = date.getDate();
 
-    //prepare directory and file
+    //check the directory and files exists, if not then create it
     this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
     this.envoyIdFile = (`${this.prefDir}/envoyId_${this.host.split('.').join('')}`);
     this.productionPowerPeakFile = (`${this.prefDir}/productionPowerPeak_${this.host.split('.').join('')}`);
     this.consumptionNetPowerPeakFile = (`${this.prefDir}/consumptionNetPowerPeak_${this.host.split('.').join('')}`);
     this.consumptionTotalPowerPeakFile = (`${this.prefDir}/consumptionTotalPowerPeak_${this.host.split('.').join('')}`);
 
-    //check if the directory exists, if not then create it
     try {
+      const files = [
+        this.envoyIdFile,
+        this.productionPowerPeakFile,
+        this.consumptionNetPowerPeakFile,
+        this.consumptionTotalPowerPeakFile,
+      ];
+
       if (!fs.existsSync(this.prefDir)) {
         fs.mkdirSync(this.prefDir);
       }
-      if (!fs.existsSync(this.envoyIdFile)) {
-        fs.writeFileSync(this.envoyIdFile, '');
-      }
-      if (!fs.existsSync(this.productionPowerPeakFile)) {
-        fs.writeFileSync(this.productionPowerPeakFile, '0.0');
-      }
-      if (!fs.existsSync(this.consumptionNetPowerPeakFile)) {
-        fs.writeFileSync(this.consumptionNetPowerPeakFile, '0.0');
-      }
-      if (!fs.existsSync(this.consumptionTotalPowerPeakFile)) {
-        fs.writeFileSync(this.consumptionTotalPowerPeakFile, '0.0');
-      }
+
+      files.forEach((file) => {
+        if (!fs.existsSync(file)) {
+          fs.writeFileSync(file, '0');
+        }
+      });
     } catch (error) {
       this.log.error(`Device: ${this.host} ${this.name}, prepare directory and files error: ${error}`);
-    };
+    }
 
     //create axios instance
     this.url = this.envoyFirmware7xx ? `https://${this.host}` : `http://${this.host}`;
@@ -2456,7 +2457,7 @@ class envoyDevice {
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug validate jwt token: ${jwtTokenData.data}, ${jwtTokenData.headers}`) : false;
       const cookie = jwtTokenData.headers['set-cookie'];
 
-      //axios instance cookie
+      //create axios instance with cookie
       this.axiosInstanceCookie = axios.create({
         method: 'GET',
         baseURL: this.url,
@@ -2731,6 +2732,7 @@ class envoyDevice {
             this.wirelessConnectionsConnected.push(wirelessConnectionConnected);
           }
           this.wirelessConnectionKitSupported = wirelessConnectionKitSupported;
+          this.wirelessConnectionKitInstalled = this.wirelessConnectionsConnected.includes(true);
           this.wirelessConnectionKitConnectionsCount = wirelessConnectionKitConnectionsCount;
         }
 
@@ -4219,10 +4221,10 @@ class envoyDevice {
     const acBatteriesCount = this.acBatteriesCount;
     const qRelaysCount = this.qRelaysCount;
 
-    const ensembleSupported = this.ensembleSupported;
+    const ensembleInstalled = this.ensembleInstalled;
     const enpowersInstalled = this.enpowersInstalled;
     const enchargesInstalled = this.enchargesInstalled;
-    const wirelessConnectionKitSupported = this.wirelessConnectionKitSupported;
+    const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
 
     if (!this.disableLogDeviceInfo && this.checkDeviceInfo) {
       this.log(`-------- ${this.name} --------`);
@@ -4242,13 +4244,11 @@ class envoyDevice {
         this.log(`Consumption: ${metersConsumptionEnabled ? `Enabled` : `Disabled`}`);
         this.log(`--------------------------------`);
       }
-      this.log(`Ensemble Supported: ${ensembleSupported ? `Yes` : `No`}`);
-      if (ensembleSupported) {
+      this.log(`Ensemble: ${ensembleInstalled ? `Yes` : `No`}`);
+      if (ensembleInstalled) {
         this.log(`Enpower: ${enpowersInstalled ? `Yes` : `No`}`);
         this.log(`Encharges: ${enchargesInstalled ? `Yes` : `No`}`);
-        if (wirelessConnectionKitSupported) {
-          this.log(`Wireless Kit Supported: ${wirelessConnectionKitSupported ? `Yes` : `No`}`);
-        }
+        this.log(`Wireless Kit: ${wirelessConnectionKitInstalled ? `Yes` : `No`}`);
       }
       this.log(`--------------------------------`);
       this.checkDeviceInfo = false;
@@ -4307,7 +4307,7 @@ class envoyDevice {
     const enpowersInstalled = this.enpowersInstalled;
     const enchargesInstalled = this.enchargesInstalled;
     const enchargesCount = this.enchargesCount;
-    const wirelessConnectionKitSupported = this.wirelessConnectionKitSupported;
+    const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
     const wirelessConnectionKitConnectionsCount = this.wirelessConnectionKitConnectionsCount;
 
     //envoy
@@ -4469,7 +4469,6 @@ class envoyDevice {
           };
         });
     }
-
     this.envoysService.push(enphaseEnvoyService);
     accessory.addService(this.envoysService[0]);
 
@@ -5332,7 +5331,7 @@ class envoyDevice {
       }
 
       //wireless connektion kit
-      if (wirelessConnectionKitSupported) {
+      if (wirelessConnectionKitInstalled) {
         this.wirelessConnektionsKitService = new Array();
         for (let i; i < wirelessConnectionKitConnectionsCount; i++) {
           const wirelessConnectionsType = this.wirelessConnectionsType[i];
