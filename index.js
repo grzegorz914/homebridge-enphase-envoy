@@ -2489,7 +2489,7 @@ class envoyDevice {
       // Check if the envoy ID is the correct length
       if (envoyId.length != 9) {
         try {
-          const envoyBackboneAppData = await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
+          const envoyBackboneAppData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.BackboneApplication) : await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
           const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy backbone app: ${envoyBackboneAppData.data}`) : false;
           const data = envoyBackboneAppData.data;
           const envoyDevId = data.substr(data.indexOf('envoyDevId:') + 11, 9);
@@ -2522,7 +2522,7 @@ class envoyDevice {
     this.log.debug(`Device: ${this.host} ${this.name}, requesting info.`);
 
     try {
-      const infoData = await this.axiosInstance(CONSTANS.ApiUrls.Info);
+      const infoData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.Info) : await this.axiosInstance(CONSTANS.ApiUrls.Info);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug info: ${JSON.stringify(infoData.data, null, 2)}`) : false;
 
       if (infoData.status == 200) {
@@ -2597,7 +2597,7 @@ class envoyDevice {
     this.log.debug(`Device: ${this.host} ${this.name}, requesting home.`);
 
     try {
-      const homeData = await this.axiosInstance(CONSTANS.ApiUrls.Home);
+      const homeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.Home) : await this.axiosInstance(CONSTANS.ApiUrls.Home);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug home: ${JSON.stringify(homeData.data, null, 2)}`) : false;
 
       if (homeData.status == 200) {
