@@ -4025,7 +4025,7 @@ class envoyDevice {
     try {
       //digest auth envoy
       const passwd = this.envoyPasswd;
-      const digestAuth = new AxiosDigestAuth({
+      const digestAuthEnvoy = new AxiosDigestAuth({
         user: CONSTANS.EnvoyUser,
         passwd: passwd
       });
@@ -4038,7 +4038,7 @@ class envoyDevice {
         }
       }
 
-      const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProduction) : await digestAuth.request(options);
+      const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProduction) : await digestAuthEnvoy.request(options);
       const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
       if (microinvertersData.status == 200) {
