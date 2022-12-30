@@ -2846,7 +2846,7 @@ class envoyDevice {
               this.wirelessConnectionsType.push(wirelessConnectionType);
               this.wirelessConnectionsConnected.push(wirelessConnectionConnected);
             }
-            this.wirelessConnectionKitInstalled = false;
+            this.wirelessConnectionKitInstalled = true;
           }
           this.wirelessConnectionKitSupported = true;
           this.wirelessConnectionKitConnectionsCount = wirelessConnectionKitConnectionsCount;
