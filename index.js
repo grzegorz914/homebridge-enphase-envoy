@@ -2817,35 +2817,38 @@ class envoyDevice {
 
         //wireless connection kit
         if (wirelessConnectionKitSupported) {
-          this.wirelessConnectionsSignalStrength = new Array();
-          this.wirelessConnectionsSignalStrengthMax = new Array();
-          this.wirelessConnectionsType = new Array();
-          this.wirelessConnectionsConnected = new Array();
-
           const wirelessConnections = envoy.wireless_connection;
           const wirelessConnectionKitConnectionsCount = wirelessConnections.length;
-          for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
-            const wirelessConnection = wirelessConnections[i];
-            const wirelessConnectionSignalStrength = (wirelessConnection.signal_strength * 20);
-            const wirelessConnectionSignalStrengthMax = (wirelessConnection.signal_strength_max * 20);
-            const wirelessConnectionType = CONSTANS.ApiCodes[wirelessConnection.type] || 'undefined';
-            const wirelessConnectionConnected = (wirelessConnection.connected == true);
+          const wirelessConnectionKitInstalled = (wirelessConnectionKitConnectionsCount > 0);
+          if (wirelessConnectionKitInstalled) {
+            this.wirelessConnectionsSignalStrength = new Array();
+            this.wirelessConnectionsSignalStrengthMax = new Array();
+            this.wirelessConnectionsType = new Array();
+            this.wirelessConnectionsConnected = new Array();
 
-            if (this.wirelessConnektionsKitService) {
-              this.wirelessConnektionsKitService[i]
-                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength, wirelessConnectionSignalStrength)
-                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax, wirelessConnectionSignalStrengthMax)
-                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitType, wirelessConnectionType)
-                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected, wirelessConnectionConnected)
+            for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
+              const wirelessConnection = wirelessConnections[i];
+              const wirelessConnectionSignalStrength = (wirelessConnection.signal_strength * 20);
+              const wirelessConnectionSignalStrengthMax = (wirelessConnection.signal_strength_max * 20);
+              const wirelessConnectionType = CONSTANS.ApiCodes[wirelessConnection.type] || 'undefined';
+              const wirelessConnectionConnected = (wirelessConnection.connected == true);
+
+              if (this.wirelessConnektionsKitService) {
+                this.wirelessConnektionsKitService[i]
+                  .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength, wirelessConnectionSignalStrength)
+                  .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax, wirelessConnectionSignalStrengthMax)
+                  .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitType, wirelessConnectionType)
+                  .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected, wirelessConnectionConnected)
+              }
+
+              this.wirelessConnectionsSignalStrength.push(wirelessConnectionSignalStrength);
+              this.wirelessConnectionsSignalStrengthMax.push(wirelessConnectionSignalStrengthMax);
+              this.wirelessConnectionsType.push(wirelessConnectionType);
+              this.wirelessConnectionsConnected.push(wirelessConnectionConnected);
             }
-
-            this.wirelessConnectionsSignalStrength.push(wirelessConnectionSignalStrength);
-            this.wirelessConnectionsSignalStrengthMax.push(wirelessConnectionSignalStrengthMax);
-            this.wirelessConnectionsType.push(wirelessConnectionType);
-            this.wirelessConnectionsConnected.push(wirelessConnectionConnected);
+            this.wirelessConnectionKitInstalled = false;
           }
           this.wirelessConnectionKitSupported = true;
-          this.wirelessConnectionKitInstalled = false;
           this.wirelessConnectionKitConnectionsCount = wirelessConnectionKitConnectionsCount;
         }
 
@@ -5655,7 +5658,7 @@ class envoyDevice {
       //wireless connektion kit
       if (wirelessConnectionKitInstalled) {
         this.wirelessConnektionsKitService = new Array();
-        for (let i; i < wirelessConnectionKitConnectionsCount; i++) {
+        for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
           const wirelessConnectionType = this.wirelessConnectionsType[i];
           const enphaseWirelessConnectionKitService = new Service.enphaseWirelessConnectionKitService(`Wireless connection ${wirelessConnectionType}`, `enphaseWirelessConnectionKitService${i}`);
           enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitType)
