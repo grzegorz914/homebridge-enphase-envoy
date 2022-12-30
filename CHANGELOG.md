@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.0.7] - (30.12.2022)
 ## Changes
-- fixed wireless connection kit st to true
+- fixed wireless connection kit set to true
 
 ## [6.0.6] - (30.12.2022)
 ## Changes
