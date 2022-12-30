@@ -4616,13 +4616,13 @@ class envoyDevice {
     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm)
       .onGet(async () => {
         const value = this.envoyWebComm;
-        const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, web communication: ${value}`);
+        const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, web communication: ${value ? 'Yes' : 'No'}`);
         return value;
       });
     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten)
       .onGet(async () => {
         const value = this.envoyEverReportedToEnlighten;
-        const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, report to enlighten: ${value}`);
+        const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, report to enlighten: ${value ? 'Yes' : 'No'}`);
         return value;
       });
     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel)
@@ -4705,7 +4705,7 @@ class envoyDevice {
       enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected)
         .onGet(async () => {
           const value = this.envoyEnpowerConnected;
-          const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, enpower connected: ${value}`);
+          const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, enpower connected: ${value ? 'Yes' : 'No'}`);
           return value;
         });
       enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus)
@@ -4769,7 +4769,7 @@ class envoyDevice {
         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayState)
           .onGet(async () => {
             const value = this.qRelaysRelay[i];
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Q-Relay: ${qRelaySerialNumber}, relay state: ${value}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Q-Relay: ${qRelaySerialNumber}, relay state: ${value ? 'Closed' : 'Open'}`);
             return value;
           });
         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayLinesCount)
@@ -4864,7 +4864,7 @@ class envoyDevice {
         enphaseMeterService.getCharacteristic(Characteristic.enphaseMeterState)
           .onGet(async () => {
             const value = this.metersState[i];
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Meter: ${meterMeasurementType}, state: ${value}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Meter: ${meterMeasurementType}, state: ${value ? 'Enabled' : 'Disabled'}`);
             return value;
           });
         enphaseMeterService.getCharacteristic(Characteristic.enphaseMeterPhaseMode)
@@ -5296,25 +5296,25 @@ class envoyDevice {
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterProducing)
           .onGet(async () => {
             const value = this.microinvertersProducing[i];
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, producing: ${value}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, producing: ${value ? 'Yes' : 'No'}`);
             return value;
           });
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommunicating)
           .onGet(async () => {
             const value = this.microinvertersCommunicating[i];
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, communicating: ${value}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, communicating: ${value ? 'Yes' : 'No'}`);
             return value;
           });
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterProvisioned)
           .onGet(async () => {
             const value = this.microinvertersProvisioned[i];
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, provisioned: ${value}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, provisioned: ${value ? 'Yes' : 'No'}`);
             return value;
           });
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterOperating)
           .onGet(async () => {
             const value = this.microinvertersOperating[i];
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, operating: ${value}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, operating: ${value ? 'Yes' : 'No'}`);
             return value;
           });
         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
@@ -5456,7 +5456,7 @@ class envoyDevice {
           enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeLedStatus)
             .onGet(async () => {
               const value = this.enchargesLedStatus[i];
-              const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Encharge: ${enchargeSerialNumber}, LED status: ${value} min`);
+              const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Encharge: ${enchargeSerialNumber}, LED status: ${value}`);
               return value;
             });
           enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeCapacity)
