@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [6.0.8] - (05.01.2023)
+## Changes
+- code cleanup
+- log units and text corrections
+- added auto check plc communication level on startup
+- added encharges plc level characteristic
+
 ## [6.0.7] - (30.12.2022)
 ## Changes
 - fixed wireless connection kit set to true
