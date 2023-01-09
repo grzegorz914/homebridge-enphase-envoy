@@ -36,6 +36,8 @@
                     "powerConsumptionNetMaxAutoReset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "supportProductionPowerMode": false,
+                    "supportPlcLevel": false,
                     "enableMqtt": false,
                     "mqttHost": "192.168.1.33",
                     "mqttPort": 1883,

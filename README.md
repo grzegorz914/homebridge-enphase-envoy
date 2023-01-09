@@ -26,7 +26,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ### About The Plugin
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
-* Envoy *device ID* is detected automatically, is required to control Power Production.
+* Envoy *device ID* is detected automatically, is required to control Production Power Mode.
 * Envoy *password* is detected automatically or can be added in config if was already chenged by user.
 * Installer *password* is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
@@ -64,6 +64,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerConsumptionNetMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerConsumptionNetMaxDetected` | Here set the *consumption-net Power peak*, if the Power will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
+| `supportProductionPowerMode` | If enabled, check/control production *Power Mode* will be possible. |
+| `supportPlcLevel` | If enabled, check *PLC Level* will be possible. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
 | `mqttHost` | Here set the *IP Address* or *Hostname* for MQTT Broker.) |
 | `mqttPort` | Here set the *Port* for MQTT Broker, default 1883.) |
@@ -96,6 +98,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "powerConsumptionNetMaxAutoReset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "supportProductionPowerMode": false,
+                    "supportPlcLevel": false,
                     "enableMqtt": false,
                     "mqttHost": "192.168.1.33",
                     "mqttPort": 1883,

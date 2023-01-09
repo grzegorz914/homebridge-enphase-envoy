@@ -226,6 +226,20 @@
               "description": "Here set energy consumption *Offset* in (Wh) for lifetime net energy if nedded.",
               "required": false
             },
+            "supportProductionPowerMode": {
+              "title": "Power Mode",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable support to check/control production *Power Mode*."
+            },
+            "supportPlcLevel": {
+              "title": "PLC Level",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable support to check *PLC Level*."
+            },
             "enableMqtt": {
               "title": "Enable",
               "type": "boolean",
@@ -381,6 +395,8 @@
           "expandable": true,
           "expanded": false,
           "items": [
+            "devices[].supportProductionPowerMode",
+            "devices[].supportPlcLevel",
             "devices[].enableDebugMode",
             "devices[].disableLogInfo",
             "devices[].disableLogDeviceInfo"
