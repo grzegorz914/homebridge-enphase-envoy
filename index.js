@@ -2268,7 +2268,8 @@ class envoyDevice {
     this.consumptionNetPowerPeakAutoReset = config.powerConsumptionNetMaxAutoReset || 0;
     this.consumptionNetPowerPeakDetectedPower = config.powerConsumptionNetMaxDetected || 0;
     this.consumptionNetEnergyLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
-    this.supportEnsembleStatus = config.supportEnsembleStatus || false;
+    this.supportEnsembleStatus = this.envoyFirmware7xx ? config.supportEnsembleStatus : false || false;
+    this.supportLiveData = this.envoyFirmware7xx ? config.supportLiveData : false || false;
     this.supportProductionPowerMode = config.supportProductionPowerMode || false;
     this.supportPlcLevel = config.supportPlcLevel || false;
     this.mqttEnabled = config.enableMqtt || false;
@@ -2535,43 +2536,37 @@ class envoyDevice {
   updateHome() {
     setTimeout(() => {
       this.updateHomeData();
-    }, 45000)
+    }, 60000)
   };
 
-  updateMetersReading() {
+  updateMeters() {
     setTimeout(() => {
-      this.updateMetersReadingData();
-    }, 1500)
-  };
-
-  updateLive() {
-    setTimeout(() => {
-      this.updateLiveData();
-    }, 2500)
+      this.updateMetersData();
+    }, 2000)
   };
 
   updateEnsembleInventory() {
     setTimeout(() => {
       this.updateEnsembleInventoryData();
-    }, 25000)
+    }, 65000)
+  };
+
+  updateLive() {
+    setTimeout(() => {
+      this.updateLiveData();
+    }, 3000)
   };
 
   updateProduction() {
     setTimeout(() => {
       this.updateProductionData();
-    }, 30000)
-  };
-
-  updateProductionCt() {
-    setTimeout(() => {
-      this.updateProductionCtData();
     }, 5000)
   };
 
   updateMicroinverters() {
     setTimeout(() => {
       this.updateMicroinvertersData();
-    }, 40000)
+    }, 55000)
   };
 
   async checkJwtToken() {
@@ -3317,15 +3312,14 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
-          this.updateHome()
+          this.updateHome();
           return;
         }
 
         const updateMetersData = this.metersSupported ? await this.updateMetersData() : false;
         const updateEnsembleInventoryData = (this.envoyFirmware7xx && esubsInstalled) || (!this.envoyFirmware7xx && esubsInstalled && this.installerPasswd) ? await this.updateEnsembleInventoryData() : false;
-        const updateLiveData = this.envoyFirmware7xx ? await this.updateLiveData() : false;
+        const updateLiveData = this.supportLiveData ? await this.updateLiveData() : false;
         const updateProductionData = await this.updateProductionData();
-        const updateProductionCtData = await this.updateProductionCtData();
         const updateMicroinvertersData = (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd)) ? await this.updateMicroinvertersData() : false;
         const updateProductionPowerModeData = (this.supportProductionPowerMode && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd && this.envoyDevId.length === 9))) ? await this.updateProductionPowerModeData() : false;
         const updatePlcLevelData = (this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd))) ? await this.updatePlcLevelData() : false;
@@ -3405,7 +3399,8 @@ class envoyDevice {
         }
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters', JSON.stringify(metersData.data, null, 2)) : false;
-        const updateMetersReadingData = this.checkDeviceInfo && metersInstalled ? await this.updateMetersReadingData() : false;
+        const updateMetersReadingData = metersInstalled ? await this.updateMetersReadingData() : false;
+        const updateMeters = this.checkDeviceInfo ? false : this.updateMeters();
         resolve(true);
       } catch (error) {
         this.log.error(`Device: ${this.host} ${this.name}, meters error: ${error}, reconnect in 15s.`);
@@ -3560,7 +3555,6 @@ class envoyDevice {
         }
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
-        const updateMetersReading = this.checkDeviceInfo ? false : this.updateMetersReading();
         resolve(true);
       } catch (error) {
         this.log.error(`Device: ${this.host} ${this.name}, meters reading error: ${error}, reconnect in 15s.`);
@@ -4161,6 +4155,7 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
+        const updateProductionCtData = await this.updateProductionCtData();
         const updateProduction = this.checkDeviceInfo ? false : this.updateProduction();
         resolve(true);
       } catch (error) {
@@ -4421,7 +4416,6 @@ class envoyDevice {
         this.currentDayOfMonth = currentDayOfMonth;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
-        const updateProductionCt = this.checkDeviceInfo ? false : this.updateProductionCt();
         resolve(true);
       } catch (error) {
         this.log.error(`Device: ${this.host} ${this.name}, production ct error: ${error}, reconnect in 15s.`);
@@ -4530,7 +4524,6 @@ class envoyDevice {
         }
 
         const productionPowerMode = (powerModeData.data.powerForcedOff === false);
-
         if (this.envoysService) {
           this.envoysService[0]
             .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, productionPowerMode)
@@ -4550,7 +4543,7 @@ class envoyDevice {
 
   updatePlcLevelData() {
     return new Promise(async (resolve, reject) => {
-      this.log.debug(`Device: ${this.host} ${this.name}, requesting pcu communication level.`);
+      this.log.debug(`Device: ${this.host} ${this.name}, requesting plc level.`);
       this.checkCommLevel = true;
 
       try {
@@ -4562,22 +4555,22 @@ class envoyDevice {
           }
         }
 
-        const pcuCommLevelData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(options);
-        const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug pcu comm level: ${JSON.stringify(pcuCommLevelData.data, null, 2)}`) : false;
+        const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(options);
+        const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug plc level: ${JSON.stringify(plcLevelData.data, null, 2)}`) : false;
 
-        if (pcuCommLevelData.status !== 200) {
-          reject(`Get plc levele data status: ${pcuCommLevelData.status}`);
+        if (plcLevelData.status !== 200) {
+          reject(`Get plc levele data status: ${plcLevelData.status}`);
           return;
         }
+
+        // get comm level data
+        const commLevel = plcLevelData.data;
 
         //create arrays
         this.microinvertersCommLevel = new Array();
         this.acBatteriesCommLevel = new Array();
         this.qRelaysCommLevel = new Array();
         this.enchargesCommLevel = new Array();
-
-        // get comm level data
-        const commLevel = pcuCommLevelData.data;
 
         // get devices count
         const microinvertersCount = this.microinvertersCount
@@ -4636,10 +4629,10 @@ class envoyDevice {
         }
 
         this.checkCommLevel = false;
-        const mqtt = this.mqttEnabled ? this.mqtt.send('PCU Comm Level', JSON.stringify(commLevel, null, 2)) : false;
+        const mqtt = this.mqttEnabled ? this.mqtt.send('PLC Level', JSON.stringify(commLevel, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, pcu comm level error: ${error}`);
+        this.log.error(`Device: ${this.host} ${this.name}, plc level error: ${error}`);
         this.checkCommLevel = false;
         reject(error);
       };
@@ -4708,11 +4701,10 @@ class envoyDevice {
     this.checkDeviceInfo = false;
     this.prepareAccessory();
     this.updateHome();
-    const startMeterReading = this.metersInstalled ? this.updateMetersReading() : false;
-    const startLive = this.envoyFirmware7xx ? this.updateLive() : false;
+    const startMeterReading = this.metersSupported ? this.updateMeters() : false;
+    const startLive = this.supportLiveData ? this.updateLive() : false;
     const startEnsembleInventory = ((this.envoyFirmware7xx && this.esubsInstalled) || (!this.envoyFirmware7xx && this.esubsInstalled && this.installerPasswd)) ? this.updateEnsembleInventory() : false;
     this.updateProduction();
-    this.updateProductionCt();
     const startMicroinverters = (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd)) ? this.updateMicroinverters() : false;
   };
 

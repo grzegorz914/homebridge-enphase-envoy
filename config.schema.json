@@ -236,6 +236,16 @@
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
             },
+            "supportLiveData": {
+              "title": "LiveData",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable support to check *Live Data*.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
             "supportProductionPowerMode": {
               "title": "Power Mode",
               "type": "boolean",
@@ -408,9 +418,10 @@
             "devices[].enableDebugMode",
             "devices[].disableLogInfo",
             "devices[].disableLogDeviceInfo",
-            "devices[].supportEnsembleStatus",
             "devices[].supportProductionPowerMode",
-            "devices[].supportPlcLevel"
+            "devices[].supportPlcLevel",
+            "devices[].supportEnsembleStatus",
+            "devices[].supportLiveData"
           ]
         },
         {

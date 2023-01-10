@@ -65,6 +65,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerConsumptionNetMaxDetected` | Here set the *consumption-net Power peak*, if the Power will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
 | `supportEnsembleStatus` | If enabled, check *Ensemble Status* will be possible (only fw. 7.x.x). |
+| `supportLiveData` | If enabled, check *Live Data* will be possible (only fw. 7.x.x). |
 | `supportProductionPowerMode` | If enabled, check/control production *Power Mode* will be possible. |
 | `supportPlcLevel` | If enabled, check *PLC Level* will be possible. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
