@@ -101,6 +101,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
                     "supportEnsembleStatus": false,
+                    "supportLiveData": false,
                     "supportProductionPowerMode": false,
                     "supportPlcLevel": false,
                     "enableMqtt": false,
