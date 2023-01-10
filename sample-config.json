@@ -36,6 +36,7 @@
                     "powerConsumptionNetMaxAutoReset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "supportEnsembleStatus": false,
                     "supportProductionPowerMode": false,
                     "supportPlcLevel": false,
                     "enableMqtt": false,

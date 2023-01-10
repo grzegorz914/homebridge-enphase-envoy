@@ -226,6 +226,16 @@
               "description": "Here set energy consumption *Offset* in (Wh) for lifetime net energy if nedded.",
               "required": false
             },
+            "supportEnsembleStatus": {
+              "title": "Ensemble Status",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable support to check *Ensemble Status*.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
             "supportProductionPowerMode": {
               "title": "Power Mode",
               "type": "boolean",
@@ -395,11 +405,12 @@
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].supportProductionPowerMode",
-            "devices[].supportPlcLevel",
             "devices[].enableDebugMode",
             "devices[].disableLogInfo",
-            "devices[].disableLogDeviceInfo"
+            "devices[].disableLogDeviceInfo",
+            "devices[].supportEnsembleStatus",
+            "devices[].supportProductionPowerMode",
+            "devices[].supportPlcLevel"
           ]
         },
         {

@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [6.2.0] - (10.01.2023)
+## Changes
+- added possibility enable/disable support to check *Ensemble Status*
+- code cleanup/refactor
+- config schema updated
+
 ## [6.1.0] - (09.01.2023)
 ## Changes
 - fix [#70](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/70)
