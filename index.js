@@ -2612,8 +2612,14 @@ class envoyDevice {
         const savedEnvoyId = await fsPromises.readFile(this.envoyIdFile);
         const envoyId = savedEnvoyId.toString();
 
-        // Check if the envoy ID is the correct length
-        if (envoyId.length != 9) {
+        // Check if the envoy ID is stored and correct length
+        if (envoyId.length === 9) {
+          this.envoyDevId = envoyId;
+          await this.updateInfoData();
+          resolve(true);
+          return;
+        }
+        
           try {
             const envoyBackboneAppData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.BackboneApplication) : await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
             const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy backbone app: ${envoyBackboneAppData.data}`) : false;
@@ -2636,11 +2642,6 @@ class envoyDevice {
             this.reconnect();
             reject(error);
           };
-        } else {
-          this.envoyDevId = envoyId;
-          await this.updateInfoData();
-          resolve(true);
-        }
       } catch (error) {
         this.log.error(`Device: ${this.host} ${this.name}, read envoy id from file error: ${error}, reconnect in 15s.`);
         this.checkDeviceInfo = true;
