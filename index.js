@@ -2524,89 +2524,127 @@ class envoyDevice {
         this.log(`Device: ${this.host} ${this.name}, ${message}`);
       });
 
-    this.envoyFirmware7xx ? this.checkJwtToken() : this.updateEnvoyBackboneAppData();
+    this.start();
   }
 
-  reconnect() {
-    setTimeout(() => {
-      this.envoyFirmware7xx ? this.checkJwtToken() : this.updateEnvoyBackboneAppData();
-    }, 15000)
+  startUpdateData() {
+    this.updateHome();
+    const startMeterReading = this.metersSupported ? this.updateMeters() : false;
+    const startLive = this.supportLiveData ? this.updateLive() : false;
+    const startEnsembleInventory = ((this.envoyFirmware7xx && this.esubsInstalled) || (!this.envoyFirmware7xx && this.esubsInstalled && this.installerPasswd)) ? this.updateEnsembleInventory() : false;
+    this.updateProduction();
+    const startMicroinverters = (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd)) ? this.updateMicroinverters() : false;
   };
 
-  updateHome() {
-    setTimeout(() => {
-      this.updateHomeData();
-    }, 60000)
+  async reconnect() {
+    await new Promise(resolve => setTimeout(resolve, 15000));
+    this.start();
   };
 
-  updateMeters() {
-    setTimeout(() => {
-      this.updateMetersData();
-    }, 2000)
+  async updateHome() {
+    await new Promise(resolve => setTimeout(resolve, 60000));
+    this.updateHomeData();
+    this.updateInventoryData();
   };
 
-  updateEnsembleInventory() {
-    setTimeout(() => {
-      this.updateEnsembleInventoryData();
-    }, 65000)
+  async updateMeters() {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    this.updateMetersData();
+    const updateMetersReadingData = this.metersInstalled ? this.updateMetersReadingData() : false;
   };
 
-  updateLive() {
-    setTimeout(() => {
-      this.updateLiveData();
-    }, 3000)
+  async updateEnsembleInventory() {
+    await new Promise(resolve => setTimeout(resolve, 65000));
+    this.updateEnsembleInventoryData();
+    const updateEnsembleStatusData = this.supportEnsembleStatus ? this.updateEnsembleStatusData() : false;
   };
 
-  updateProduction() {
-    setTimeout(() => {
-      this.updateProductionData();
-    }, 5000)
+  async updateLive() {
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    this.updateLiveData();
   };
 
-  updateMicroinverters() {
-    setTimeout(() => {
-      this.updateMicroinvertersData();
-    }, 55000)
+  async updateProduction() {
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    this.updateProductionData();
+    this.updateProductionCtData();
   };
 
-  async checkJwtToken() {
-    this.log.debug(`Device: ${this.host} ${this.name}, validate jwt token.`);
+  async updateMicroinverters() {
+    await new Promise(resolve => setTimeout(resolve, 70000));
+    this.updateMicroinvertersData();
+  };
+
+  async start() {
+    this.log.debug(`Device: ${this.host} ${this.name}, start.`);
+    this.checkDeviceInfo = true;
 
     try {
-      const jwtTokenData = await this.axiosInstanceToken(CONSTANS.ApiUrls.CheckJwt);
-      const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug validate jwt token: ${jwtTokenData.data}, ${jwtTokenData.headers}`) : false;
+      this.envoyFirmware7xx ? await this.checkJwtToken() : await this.getEnvoyBackboneAppData();
+      await this.updateInfoData();
+      await this.updateHomeData();
+      await this.updateInventoryData();
+      const updateMetersData = this.metersSupported ? await this.updateMetersData() : false;
+      const updateMetersReadingData = this.metersInstalled ? await this.updateMetersReadingData() : false;
+      const updateEnsembleInventoryData = (this.envoyFirmware7xx && this.esubsInstalled) || (!this.envoyFirmware7xx && this.esubsInstalled && this.installerPasswd) ? await this.updateEnsembleInventoryData() : false;
+      const updateEnsembleStatusData = this.supportEnsembleStatus ? await this.updateEnsembleStatusData() : false;
+      const updateLiveData = this.supportLiveData ? await this.updateLiveData() : false;
+      const updateProductionData = await this.updateProductionData();
+      const updateProductionCtData = await this.updateProductionCtData();
+      const updateMicroinvertersData = (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd)) ? await this.updateMicroinvertersData() : false;
+      const updateProductionPowerModeData = (this.supportProductionPowerMode && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd && this.envoyDevId.length === 9))) ? await this.updateProductionPowerModeData() : false;
+      const updatePlcLevelData = (this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd))) ? await this.updatePlcLevelData() : false;
+      const getDeviceInfo = await this.getDeviceInfo();
 
-      //jwt token
-      if (jwtTokenData.status !== 200) {
-        reject(`Get jwt token data status: ${jwtTokenData.status}`);
-        return;
-      }
+      //prepare accessory
+      this.prepareAccessory();
 
-      //create axios instance with cookie
-      const cookie = jwtTokenData.headers['set-cookie'];
-      this.axiosInstanceCookie = axios.create({
-        method: 'GET',
-        baseURL: this.url,
-        headers: {
-          Accept: 'application/json',
-          Cookie: cookie
-        },
-        withCredentials: true,
-        httpsAgent: new https.Agent({
-          keepAlive: true,
-          rejectUnauthorized: false
-        })
-      })
-
-      await this.updateEnvoyBackboneAppData();
+      //start update data
+      this.startUpdateData();
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, validate jwt token error: ${error}, reconnect in 15s.`);
-      this.checkDeviceInfo = true;
+      this.log.error(`Device: ${this.host} ${this.name}, ${error}, reconnect in 15s.`);
       this.reconnect();
     };
   };
 
-  updateEnvoyBackboneAppData() {
+  checkJwtToken() {
+    return new Promise(async (resolve, reject) => {
+      this.log.debug(`Device: ${this.host} ${this.name}, validate jwt token.`);
+
+      try {
+        const jwtTokenData = await this.axiosInstanceToken(CONSTANS.ApiUrls.CheckJwt);
+        const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug validate jwt token: ${jwtTokenData.data}, ${jwtTokenData.headers}`) : false;
+
+        //jwt token
+        if (jwtTokenData.status !== 200) {
+          reject(`Validate jwt token data status: ${jwtTokenData.status}`);
+          return;
+        }
+
+        //create axios instance with cookie
+        const cookie = jwtTokenData.headers['set-cookie'];
+        this.axiosInstanceCookie = axios.create({
+          method: 'GET',
+          baseURL: this.url,
+          headers: {
+            Accept: 'application/json',
+            Cookie: cookie
+          },
+          withCredentials: true,
+          httpsAgent: new https.Agent({
+            keepAlive: true,
+            rejectUnauthorized: false
+          })
+        })
+
+        resolve(true);
+      } catch (error) {
+        reject(`Validate jwt token data error: ${error}`);
+      };
+    });
+  };
+
+  getEnvoyBackboneAppData() {
     return new Promise(async (resolve, reject) => {
       this.log.debug(`Device: ${this.host} ${this.name}, requesting envoy backbone app.`);
 
@@ -2618,7 +2656,6 @@ class envoyDevice {
         // Check if the envoy ID is correct length
         if (envoyId.length === 9) {
           this.envoyDevId = envoyId;
-          await this.updateInfoData();
           resolve(true);
           return;
         }
@@ -2627,9 +2664,9 @@ class envoyDevice {
           const envoyBackboneAppData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.BackboneApplication) : await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
           const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug envoy backbone app: ${envoyBackboneAppData.data}`) : false;
 
-          //backbone
+          //backbone request status
           if (envoyBackboneAppData.status !== 200) {
-            reject(`Get backbone data status: ${envoyBackboneAppData.status}`);
+            reject(`Get backbone app data status: ${envoyBackboneAppData.status}`);
             return;
           }
 
@@ -2638,25 +2675,15 @@ class envoyDevice {
           try {
             await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
             this.envoyDevId = envoyDevId;
-            await this.updateInfoData();
             resolve(true);
           } catch (error) {
-            this.log.error(`Device: ${this.host} ${this.name}, save envoy id error: ${error}, reconnect in 15s.`);
-            this.checkDeviceInfo = true;
-            this.reconnect();
-            reject(error);
+            reject(`Save envoy id error: ${error}`);
           };
         } catch (error) {
-          this.log.error(`Device: ${this.host} ${this.name}, requesting envoyBackboneAppData error: ${error}, reconnect in 15s.`);
-          this.checkDeviceInfo = true;
-          this.reconnect();
-          reject(error);
+          reject(`Get backbone app data error: ${error}`);
         };
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, read envoy id from file error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Read envoy id from file error: ${error}`);
       };
     });
   };
@@ -2671,7 +2698,7 @@ class envoyDevice {
 
         //info
         if (infoData.status !== 200) {
-          reject(`Get home data status: ${infoData.status}`);
+          reject(`Update info data status: ${infoData.status}`);
           return;
         }
 
@@ -2733,13 +2760,9 @@ class envoyDevice {
         });
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
-        await this.updateHomeData();
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, requesting info error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update info data error: ${error}`);
       };
     })
   };
@@ -2754,7 +2777,7 @@ class envoyDevice {
 
         //home
         if (homeData.status !== 200) {
-          reject(`Get home data status: ${homeData.status}`);
+          reject(`Update home data status: ${homeData.status}`);
           return;
         }
 
@@ -2977,13 +3000,9 @@ class envoyDevice {
         this.envoyEnpowerGridStatus = enpowerGridStatus;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Home', JSON.stringify(envoy, null, 2)) : false;
-        await this.updateInventoryData();
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, home error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update home data error: ${error}`);
       };
     });
   };
@@ -2999,7 +3018,7 @@ class envoyDevice {
 
         //inventory
         if (inventoryData.status !== 200) {
-          reject(`Get inventory data status: ${inventoryData.status}`);
+          reject(`Update inventory data status: ${inventoryData.status}`);
           return;
         }
 
@@ -3309,6 +3328,7 @@ class envoyDevice {
           this.esubsCount = esubsCount;
           this.esubsInstalled = true;
         }
+
         const mqtt = this.mqttEnabled ? this.mqtt.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -3316,20 +3336,9 @@ class envoyDevice {
           return;
         }
 
-        const updateMetersData = this.metersSupported ? await this.updateMetersData() : false;
-        const updateEnsembleInventoryData = (this.envoyFirmware7xx && esubsInstalled) || (!this.envoyFirmware7xx && esubsInstalled && this.installerPasswd) ? await this.updateEnsembleInventoryData() : false;
-        const updateLiveData = this.supportLiveData ? await this.updateLiveData() : false;
-        const updateProductionData = await this.updateProductionData();
-        const updateMicroinvertersData = (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd)) ? await this.updateMicroinvertersData() : false;
-        const updateProductionPowerModeData = (this.supportProductionPowerMode && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd && this.envoyDevId.length === 9))) ? await this.updateProductionPowerModeData() : false;
-        const updatePlcLevelData = (this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd))) ? await this.updatePlcLevelData() : false;
-        const getDeviceInfo = this.getDeviceInfo();
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, inventory error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update inventory data error: ${error}`);
       };
     });
   };
@@ -3344,7 +3353,7 @@ class envoyDevice {
 
         //meters
         if (metersData.status !== 200) {
-          reject(`Get meters data status: ${metersData.status}`);
+          reject(`Update meters data status: ${metersData.status}`);
           return;
         }
 
@@ -3399,14 +3408,15 @@ class envoyDevice {
         }
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters', JSON.stringify(metersData.data, null, 2)) : false;
-        const updateMetersReadingData = metersInstalled ? await this.updateMetersReadingData() : false;
-        const updateMeters = this.checkDeviceInfo ? false : this.updateMeters();
+
+        if (!this.checkDeviceInfo) {
+          this.updateMeters();
+          return;
+        }
+
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, meters error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update meters data error: ${error}`);
       };
     });
   };
@@ -3421,7 +3431,7 @@ class envoyDevice {
 
         //meters reading
         if (metersReadingData.status !== 200) {
-          reject(`Get meters reading data status: ${metersReadingData.status}`);
+          reject(`Update meters reading data status: ${metersReadingData.status}`);
           return;
         }
 
@@ -3557,10 +3567,7 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, meters reading error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update meters reading data error: ${error}`);
       };
     });
   };
@@ -3583,7 +3590,7 @@ class envoyDevice {
 
         //ensemble inventory
         if (ensembleInventoryData.status !== 200) {
-          reject(`Get ensemble inventory data status: ${ensembleInventoryData.status}`);
+          reject(`Update ensemble inventory data status: ${ensembleInventoryData.status}`);
           return;
         }
 
@@ -3770,14 +3777,15 @@ class envoyDevice {
         }
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2)) : false;
-        const updateEnsembleStatusData = this.supportEnsembleStatus ? await this.updateEnsembleStatusData() : false;
-        const updateEnsembleInventory = this.checkDeviceInfo ? false : this.updateEnsembleInventory();
+
+        if (!this.checkDeviceInfo) {
+          this.updateEnsembleInventory();
+          return;
+        }
+
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, ensemble inventory error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update ensemble inventory data error: ${error}`);
       };
     });
   };
@@ -3800,7 +3808,7 @@ class envoyDevice {
 
         //ensemble status
         if (ensembleStatusData.status !== 200) {
-          reject(`Get ensemble status data status: ${ensembleStatusData.status}`);
+          reject(`Update ensemble status data status: ${ensembleStatusData.status}`);
           return;
         }
 
@@ -3992,12 +4000,14 @@ class envoyDevice {
         this.ensembleFakeInventoryMode = fakeInventoryMode;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Status', JSON.stringify(ensembleStatus, null, 2)) : false;
+
+        if (!this.checkDeviceInfo) {
+          return;
+        }
+
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, ensemble status error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update ensemble status data error: ${error}`);
       };
     });
   };
@@ -4012,7 +4022,7 @@ class envoyDevice {
 
         //live data 
         if (liveData.status !== 200) {
-          reject(`Get live data status: ${liveData.status}`);
+          reject(`Update live data status: ${liveData.status}`);
           return;
         }
 
@@ -4119,12 +4129,15 @@ class envoyDevice {
         const countersRestStatus = counters.rest_Status;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Live Data', JSON.stringify(liveData.data, null, 2)) : false;
-        const updateLive = this.checkDeviceInfo ? false : this.updateLive();
+
+        if (!this.checkDeviceInfo) {
+          this.updateLive();
+          return;
+        }
+
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, live data error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
+        reject(`Update live data error: ${error}`);
       };
     });
   };
@@ -4139,7 +4152,7 @@ class envoyDevice {
 
         //microinverters summary 
         if (productionData.status !== 200) {
-          reject(`Get production data status: ${productionData.status}`);
+          reject(`Update production data status: ${productionData.status}`);
           return;
         }
 
@@ -4155,14 +4168,15 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
-        const updateProductionCtData = await this.updateProductionCtData();
-        const updateProduction = this.checkDeviceInfo ? false : this.updateProduction();
+
+        if (!this.checkDeviceInfo) {
+          this.updateProduction();
+          return;
+        }
+
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, production error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update production data error: ${error}`);
       };
     });
   };
@@ -4177,7 +4191,7 @@ class envoyDevice {
 
         //production CT
         if (productionCtData.status !== 200) {
-          reject(`Get production ct data status: ${productionCtData.status}`);
+          reject(`Update production ct data status: ${productionCtData.status}`);
           return;
         }
 
@@ -4416,12 +4430,14 @@ class envoyDevice {
         this.currentDayOfMonth = currentDayOfMonth;
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
+
+        if (!this.checkDeviceInfo) {
+          return;
+        }
+
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, production ct error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update production ct data error: ${error}.`);
       };
     });
   };
@@ -4450,7 +4466,7 @@ class envoyDevice {
         const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
         if (microinvertersData.status !== 200) {
-          reject(`Get microinverters data status: ${microinvertersData.status}`);
+          reject(`Update microinverters data status: ${microinvertersData.status}`);
           return;
         }
 
@@ -4490,13 +4506,15 @@ class envoyDevice {
         }
 
         const mqtt = this.mqttEnabled ? this.mqtt.send('Microinverters', JSON.stringify(microinvertersData.data, null, 2)) : false;
-        const updateMicroinverters = this.checkDeviceInfo ? false : this.updateMicroinverters();
+
+        if (!this.checkDeviceInfo) {
+          this.updateMicroinverters();
+          return;
+        }
+
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, microinverters error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update microinverters data error: ${error}`);
       };
     });
   };
@@ -4519,7 +4537,7 @@ class envoyDevice {
         const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug power mode: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
 
         if (powerModeData.status !== 200) {
-          reject(`Get production power mode data status: ${powerModeData.status}`);
+          reject(`Update production power mode data status: ${powerModeData.status}`);
           return;
         }
 
@@ -4533,10 +4551,7 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Power Mode', JSON.stringify(powerModeData.data, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, power mode error: ${error}, reconnect in 15s.`);
-        this.checkDeviceInfo = true;
-        this.reconnect();
-        reject(error);
+        reject(`Update power mode error: ${error}`);
       };
     });
   }
@@ -4559,7 +4574,7 @@ class envoyDevice {
         const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug plc level: ${JSON.stringify(plcLevelData.data, null, 2)}`) : false;
 
         if (plcLevelData.status !== 200) {
-          reject(`Get plc levele data status: ${plcLevelData.status}`);
+          reject(`Update plc levele data status: ${plcLevelData.status}`);
           return;
         }
 
@@ -4632,80 +4647,73 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('PLC Level', JSON.stringify(commLevel, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        this.log.error(`Device: ${this.host} ${this.name}, plc level error: ${error}`);
         this.checkCommLevel = false;
-        reject(error);
+        reject(`Update plc level data error: ${error}`);
       };
     });
   };
 
   getDeviceInfo() {
-    this.log.debug(`Device: ${this.host} ${this.name}, requesting device info.`);
+    return new Promise((resolve, reject) => {
+      this.log.debug(`Device: ${this.host} ${this.name}, requesting device info.`);
 
-    //envoy
-    const time = this.envoyTime;
-    const deviceSn = this.envoySerialNumber;
-    const devicePn = this.envoyModelName;
-    const deviceSoftware = this.envoyFirmware;
+      //envoy
+      const time = this.envoyTime;
+      const deviceSn = this.envoySerialNumber;
+      const devicePn = this.envoyModelName;
+      const deviceSoftware = this.envoyFirmware;
 
-    //inventory
-    const metersInstalled = this.metersInstalled;
-    const metersProductionEnabled = this.metersProductionEnabled;
-    const metersConsumptionEnabled = this.metersConsumptionEnabled;
+      //inventory
+      const metersInstalled = this.metersInstalled;
+      const metersProductionEnabled = this.metersProductionEnabled;
+      const metersConsumptionEnabled = this.metersConsumptionEnabled;
 
-    const microinvertersCount = this.microinvertersCount;
-    const acBatteriesCount = this.acBatteriesCount;
-    const qRelaysCount = this.qRelaysCount;
+      const microinvertersCount = this.microinvertersCount;
+      const acBatteriesCount = this.acBatteriesCount;
+      const qRelaysCount = this.qRelaysCount;
 
-    const esubsInstalled = this.esubsInstalled;
-    const enpowersInstalled = this.enpowersInstalled;
-    const enpowersCount = this.enpowersCount;
-    const enchargesInstalled = this.enchargesInstalled;
-    const enchargesCount = this.enchargesCount;
-    const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
+      const esubsInstalled = this.esubsInstalled;
+      const enpowersInstalled = this.enpowersInstalled;
+      const enpowersCount = this.enpowersCount;
+      const enchargesInstalled = this.enchargesInstalled;
+      const enchargesCount = this.enchargesCount;
+      const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
 
-    if (!this.disableLogDeviceInfo && this.checkDeviceInfo) {
-      this.log(`-------- ${this.name} --------`);
-      this.log(`Manufacturer: Enphase`);
-      this.log(`Model: ${devicePn}`);
-      this.log(`Firmware: ${deviceSoftware}`);
-      this.log(`SerialNr: ${deviceSn}`);
-      this.log(`Time: ${time}`);
-      this.log(`------------------------------`);
-      this.log(`Q-Relays: ${qRelaysCount}`);
-      this.log(`Inverters: ${microinvertersCount}`);
-      this.log(`Batteries: ${acBatteriesCount}`);
-      this.log(`--------------------------------`);
-      this.log(`Meters: ${metersInstalled ? `Yes` : `No`}`);
-      if (metersInstalled) {
-        this.log(`Production: ${metersProductionEnabled ? `Enabled` : `Disabled`}`);
-        this.log(`Consumption: ${metersConsumptionEnabled ? `Enabled` : `Disabled`}`);
+      if (!this.disableLogDeviceInfo && this.checkDeviceInfo) {
+        this.log(`-------- ${this.name} --------`);
+        this.log(`Manufacturer: Enphase`);
+        this.log(`Model: ${devicePn}`);
+        this.log(`Firmware: ${deviceSoftware}`);
+        this.log(`SerialNr: ${deviceSn}`);
+        this.log(`Time: ${time}`);
+        this.log(`------------------------------`);
+        this.log(`Q-Relays: ${qRelaysCount}`);
+        this.log(`Inverters: ${microinvertersCount}`);
+        this.log(`Batteries: ${acBatteriesCount}`);
         this.log(`--------------------------------`);
-      }
-      this.log(`Ensemble: ${esubsInstalled ? `Yes` : `No`}`);
-      if (esubsInstalled) {
-        this.log(`Enpowers: ${enpowersInstalled ? `Yes ${enpowersCount}` : `No`}`);
-        this.log(`Encharges: ${enchargesInstalled ? `Yes ${enchargesCount}` : `No`}`);
-        this.log(`Wireless Kit: ${wirelessConnectionKitInstalled ? `Yes` : `No`}`);
-      }
-      this.log(`--------------------------------`);
-    };
+        this.log(`Meters: ${metersInstalled ? `Yes` : `No`}`);
+        if (metersInstalled) {
+          this.log(`Production: ${metersProductionEnabled ? `Enabled` : `Disabled`}`);
+          this.log(`Consumption: ${metersConsumptionEnabled ? `Enabled` : `Disabled`}`);
+          this.log(`--------------------------------`);
+        }
+        this.log(`Ensemble: ${esubsInstalled ? `Yes` : `No`}`);
+        if (esubsInstalled) {
+          this.log(`Enpowers: ${enpowersInstalled ? `Yes ${enpowersCount}` : `No`}`);
+          this.log(`Encharges: ${enchargesInstalled ? `Yes ${enchargesCount}` : `No`}`);
+          this.log(`Wireless Kit: ${wirelessConnectionKitInstalled ? `Yes` : `No`}`);
+        }
+        this.log(`--------------------------------`);
+      };
 
-    if (!deviceSn || !this.startPrepareAccessory) {
-      this.log.error(`Device: ${this.host} ${this.name}, serial number of envoy unknown: ${deviceSn}, reconnect in 15s.`);
-      this.checkDeviceInfo = true;
-      this.reconnect();
-      return;
-    };
+      if (!deviceSn || !this.startPrepareAccessory) {
+        reject(`Serial number of envoy unknown: ${deviceSn}`);
+        return;
+      };
 
-    this.checkDeviceInfo = false;
-    this.prepareAccessory();
-    this.updateHome();
-    const startMeterReading = this.metersSupported ? this.updateMeters() : false;
-    const startLive = this.supportLiveData ? this.updateLive() : false;
-    const startEnsembleInventory = ((this.envoyFirmware7xx && this.esubsInstalled) || (!this.envoyFirmware7xx && this.esubsInstalled && this.installerPasswd)) ? this.updateEnsembleInventory() : false;
-    this.updateProduction();
-    const startMicroinverters = (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd)) ? this.updateMicroinverters() : false;
+      this.checkDeviceInfo = false;
+      resolve(true);
+    });
   };
 
   //Prepare accessory
@@ -4877,8 +4885,12 @@ class envoyDevice {
           return state;
         })
         .onSet(async (state) => {
-          const checkCommLevel = state ? await this.updatePlcLevelData() : false;
-          const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, check plc level: ${state ? `Yes` : `No`}`);
+          try {
+            const checkCommLevel = state ? await this.updatePlcLevelData() : false;
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, check plc level: ${state ? `Yes` : `No`}`);
+          } catch (error) {
+            this.log.debug(`Device: ${this.host} ${accessoryName}, envoy: ${serialNumber}, ${error}`);
+          };
         });
     }
     if (this.supportProductionPowerMode && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd && this.envoyDevId.length === 9))) {
