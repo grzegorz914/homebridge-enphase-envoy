@@ -1,12 +1,14 @@
 {
-    "EnvoyUser": "envoy",
-    "InstallerUser": "installer",
-    "Realm": "enphaseenergy.com",
+    "Authorization": {
+        "EnvoyUser": "envoy",
+        "InstallerUser": "installer",
+        "Realm": "enphaseenergy.com"
+    },
     "EnphaseUrls": {
         "EntrezLogin": "https://entrez.enphaseenergy.com/login",
         "EntrezToken": "https://entrez.enphaseenergy.com/entrez_tokens",
         "EnphaseLogin": "https://enlighten.enphaseenergy.com/login",
-        "EnphaseToken": "https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num="
+        "EnphaseToken": "https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNum"
     },
     "ApiUrls": {
         "AcbSleepModeSetGetCancel": "/admin/lib/acb_config.json",
