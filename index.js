@@ -2760,6 +2760,7 @@ class envoyDevice {
           passwd: installerPasswd
         });
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
         resolve(true);
       } catch (error) {
@@ -3000,6 +3001,7 @@ class envoyDevice {
         this.envoyEnpowerConnected = enpowerConnected;
         this.envoyEnpowerGridStatus = enpowerGridStatus;
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Home', JSON.stringify(envoy, null, 2)) : false;
         resolve(true);
       } catch (error) {
@@ -3330,6 +3332,7 @@ class envoyDevice {
           this.esubsInstalled = true;
         }
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -3408,6 +3411,7 @@ class envoyDevice {
           this.metersConsumpionVoltageDivide = (this.metersPhaseMode[1] === 'Split') ? 1 : this.metersPhaseCount[1];
         }
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters', JSON.stringify(metersData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -3565,6 +3569,7 @@ class envoyDevice {
           this.metersReadingInstalled = metersReadingInstalled;
         }
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
         resolve(true);
       } catch (error) {
@@ -3597,7 +3602,7 @@ class envoyDevice {
         //devices count
         const ensembleDevicesCount = ensembleInventoryData.data.length;
 
-        //encharges inventory
+        //encharges
         const encharges = ensembleInventoryData.data[0];
         const enchargesCount = encharges.devices.length;
         const enchargesInstalled = (enchargesCount > 0);
@@ -3693,7 +3698,7 @@ class envoyDevice {
           this.enchargesInstalled = true;
         }
 
-        //enpowers inventory
+        //enpowers
         const enpowers = ensembleDevicesCount === 2 ? ensembleInventoryData.data[1] : {};
         const enpowersCount = ensembleDevicesCount === 2 ? enpowers.devices.length : 0;
         const enpowersInstalled = (enpowersCount > 0);
@@ -3782,6 +3787,7 @@ class envoyDevice {
           this.enpowersInstalled = true;
         }
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -4028,6 +4034,7 @@ class envoyDevice {
         this.ensembleItemCount = itemCount;
         this.ensembleFakeInventoryMode = fakeInventoryMode;
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Status', JSON.stringify(ensembleStatus, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -4049,7 +4056,7 @@ class envoyDevice {
         const profileData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.Profile) : await this.axiosInstance(CONSTANS.ApiUrls.Profile);
         const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug profile: ${JSON.stringify(profileData.data, null, 2)}`) : false;
 
-        //meters
+        //profile
         if (profileData.status !== 200) {
           reject(`Update profile data status: ${profileData.status}`);
           return;
@@ -4179,6 +4186,7 @@ class envoyDevice {
         const countersScSendDemandRspCtrl = counters.sc_SendDemandRspCtrl;
         const countersRestStatus = counters.rest_Status;
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Live Data', JSON.stringify(liveData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -4218,6 +4226,7 @@ class envoyDevice {
         this.productionMicroSummarywhLifeTime = productionMicroSummarywhLifeTime;
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -4482,6 +4491,7 @@ class envoyDevice {
         this.currentDayOfWeek = currentDayOfWeek;
         this.currentDayOfMonth = currentDayOfMonth;
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -4558,6 +4568,7 @@ class envoyDevice {
           this.microinvertersMaxPower.push(maxReportWatts);
         }
 
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Microinverters', JSON.stringify(microinvertersData.data, null, 2)) : false;
 
         if (!this.checkDeviceInfo) {
@@ -4599,8 +4610,9 @@ class envoyDevice {
           this.envoysService[0]
             .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, productionPowerMode)
         }
-
         this.productionPowerMode = productionPowerMode;
+
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Power Mode', JSON.stringify(powerModeData.data, null, 2)) : false;
         resolve(true);
       } catch (error) {
@@ -4695,8 +4707,9 @@ class envoyDevice {
           this.envoysService[0]
             .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
         }
-
         this.checkCommLevel = false;
+
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('PLC Level', JSON.stringify(commLevel, null, 2)) : false;
         resolve(true);
       } catch (error) {
