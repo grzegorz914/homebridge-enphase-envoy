@@ -31,7 +31,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Installer *password* is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
 * Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
-* MQTT publisch topic *Info*, *Home*, *Inventory*, *Meters*, *Meters Reading*, *Ensemble Inventory*, *Ensemble Status*, *Live Data*, *Production*, *Production CT*, *Microinverter*, *Power Mode*, *PCU Comm Level* as payload JSON data.
+* MQTT publisch topic *Info*, *Home*, *Inventory*, *Meters*, *Meters Reading*, *Ensemble Inventory*, *Ensemble Status*, *Grid Profile*, *Live Data*, *Production*, *Production CT*, *Microinverter*, *Power Mode*, *PCU Comm Level* as payload JSON data.
 * Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
 
 ### Configuration
