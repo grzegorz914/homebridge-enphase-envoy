@@ -3980,7 +3980,7 @@ class envoyDevice {
         const encCommissionedCapacity = parseFloat(secctrl.Enc_commissioned_capacity / 1000); //in kWh
         const encMaxAvailableCapacity = parseFloat(secctrl.Enc_max_available_capacity / 1000); //in kWh
         const acbAggSoc = secctrl.ACB_agg_soc; //in %
-        const acbAggEnergy = (secctrl.ACB_agg_energy / 1000); //in kWh
+        const acbAggEnergy = parseFloat(secctrl.ACB_agg_energy / 1000); //in kWh
 
         if (this.ensembleStatusService) {
           this.ensembleStatusService[0]
