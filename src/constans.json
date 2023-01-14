@@ -2,7 +2,7 @@
     "EnvoyUser": "envoy",
     "InstallerUser": "installer",
     "Realm": "enphaseenergy.com",
-    'EnphaseUrls"; {
+    "EnphaseUrls"; {
         "EntrezLogin": "https://entrez.enphaseenergy.com/login",
         "EntrezToken": "https://entrez.enphaseenergy.com/entrez_tokens",
         "EnphaseLogin": "https://enlighten.enphaseenergy.com/login",
