@@ -73,13 +73,20 @@
               "description": "This enable debug mode.",
               "required": false
             },
+            "powerProductionMax": {
+              "title": "Power Peak",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Power Peak* monitoring for production and create contact sensor in HomeKit.",
+              "required": false
+            },
             "powerProductionMaxAutoReset": {
-              "title": "Power Peak Auto Reset",
+              "title": "Power Peak Reset",
               "type": "integer",
               "minimum": 0,
               "maximum": 3,
               "default": 0,
-              "description": "Here select at which period of time the *Power peak* will reset.",
+              "description": "Here select at which period of time the *Power Peak* will reset.",
               "oneOf": [
                 {
                   "title": "None",
@@ -106,31 +113,44 @@
                   ]
                 }
               ],
-              "required": true
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerProductionMax === true;"
+              }
             },
             "powerProductionMaxDetected": {
               "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set *Power peak* in (W) at which You get notyfication message.",
-              "required": false
+              "description": "Here set *Power Peak* in (W) at which the contact sensor fired.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerProductionMax === true;"
+              }
             },
             "energyProductionLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
               "maximum": 100000,
-              "description": "Here set energy production *Offset* in (Wh) for lifetime energy if nedded.",
+              "description": "Here set *Offset* in (Wh) for energy production, if nedded.",
+              "required": false
+            },
+            "powerConsumptionTotalMax": {
+              "title": "Power Peak",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Power Peak* monitoring for consumption (Total) and create contact sensor in HomeKit.",
               "required": false
             },
             "powerConsumptionTotalMaxAutoReset": {
-              "title": "Power Peak Auto Reset",
+              "title": "Power Peak Reset",
               "type": "integer",
               "minimum": 0,
               "maximum": 3,
               "default": 0,
-              "description": "Here select at which period of time the *Power peak* will reset.",
+              "description": "Here select at which period of time the *Power Peak* will reset.",
               "oneOf": [
                 {
                   "title": "None",
@@ -157,31 +177,44 @@
                   ]
                 }
               ],
-              "required": true
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalMax === true;"
+              }
             },
             "powerConsumptionTotalMaxDetected": {
               "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set *Power peak* in (W) at which You get notification message.",
-              "required": false
+              "description": "Here set *Power Peak* in (W) at which the contact sensor fired.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalMax === true;"
+              }
             },
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set energy consumption *Offset* in (Wh) for lifetime total energy if nedded.",
+              "description": "Here set *Offset* in (Wh) for energy consumption (Total), if nedded.",
+              "required": false
+            },
+            "powerConsumptionNetMax": {
+              "title": "Power Peak",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Power Peak* monitoring for consumption (Net) and create contact sensor in HomeKit.",
               "required": false
             },
             "powerConsumptionNetMaxAutoReset": {
-              "title": "Power Peak Auto Reset",
+              "title": "Power Peak Reset",
               "type": "integer",
               "minimum": 0,
               "maximum": 3,
               "default": 0,
-              "description": "Here select at which period of time the *Power peak* will reset.",
+              "description": "Here select at which period of time the *Power Peak* will reset.",
               "oneOf": [
                 {
                   "title": "None",
@@ -196,7 +229,7 @@
                   ]
                 },
                 {
-                  "title": "Every Eeek",
+                  "title": "Every Week",
                   "enum": [
                     2
                   ]
@@ -208,22 +241,28 @@
                   ]
                 }
               ],
-              "required": true
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionNetMax === true;"
+              }
             },
             "powerConsumptionNetMaxDetected": {
               "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set *Power peak* in (W) at which You get notification message.",
-              "required": false
+              "description": "Here set *Power Peak* in (W) at which the contact sensor fired.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].powerConsumptionNetMax === true;"
+              }
             },
             "energyConsumptionNetLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
               "maximum": 65535,
-              "description": "Here set energy consumption *Offset* in (Wh) for lifetime net energy if nedded.",
+              "description": "Here set *Offset* in (Wh) for energy consumption (Net), if nedded.",
               "required": false
             },
             "supportEnsembleStatus": {
@@ -241,7 +280,7 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check *Live Data*.",
+              "description": "This enable support to chec *Live Data*.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
@@ -358,6 +397,7 @@
           "expandable": true,
           "expanded": false,
           "items": [
+            "devices[].powerProductionMax",
             "devices[].powerProductionMaxAutoReset",
             "devices[].powerProductionMaxDetected",
             "devices[].energyProductionLifetimeOffset"
@@ -373,25 +413,27 @@
             {
               "key": "devices[]",
               "type": "section",
-              "title": "Net",
+              "title": "Total",
               "expandable": true,
               "expanded": false,
               "items": [
-                "devices[].powerConsumptionNetMaxAutoReset",
-                "devices[].powerConsumptionNetMaxDetected",
-                "devices[].energyConsumptionNetLifetimeOffset"
+                "devices[].powerConsumptionTotalMax",
+                "devices[].powerConsumptionTotalMaxAutoReset",
+                "devices[].powerConsumptionTotalMaxDetected",
+                "devices[].energyConsumptionTotalLifetimeOffset"
               ]
             },
             {
               "key": "devices[]",
               "type": "section",
-              "title": "Total",
+              "title": "Net",
               "expandable": true,
               "expanded": false,
               "items": [
-                "devices[].powerConsumptionTotalMaxAutoReset",
-                "devices[].powerConsumptionTotalMaxDetected",
-                "devices[].energyConsumptionTotalLifetimeOffset"
+                "devices[].powerConsumptionNetMax",
+                "devices[].powerConsumptionNetMaxAutoReset",
+                "devices[].powerConsumptionNetMaxDetected",
+                "devices[].energyConsumptionNetLifetimeOffset"
               ]
             }
           ]

@@ -30,7 +30,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy *password* is detected automatically or can be added in config if was already chenged by user.
 * Installer *password* is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
-* Home automations and shortcuts can be used to check *Devices* communication level and change *Power Production Mode*.
+* Home automations and shortcuts can be used with *PLC Level*, *Production Power Mode* and *Power Peak*.
 * MQTT publisch topic *Info*, *Home*, *Inventory*, *Meters*, *Meters Reading*, *Ensemble Inventory*, *Ensemble Status*, *Grid Profile*, *Live Data*, *Production*, *Production CT*, *Microinverter*, *Power Mode*, *PCU Comm Level* as payload JSON data.
 * Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
 
@@ -55,18 +55,21 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `envoyFirmware7xx` | This enable support for Envoy with firmware 7.x.x |
 | `envoyFirmware7xxToken` | Here paste your envoy token generated here: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNumber |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
+| `powerProductionMax` | This enable *Power Peak* monitoring for production and create contact sensor in HomeKit which can be used for notification and automations. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
-| `powerProductionMaxDetected` | Here set the *production Power peak*, if the Power will be >= `powerProductionMaxDetected` then You get notification message from the HomeKit |
+| `powerProductionMaxDetected` | Here set the production *Power Peak*, if the Power >= `powerProductionMaxDetected` the contact sensor fired. |
 | `energyProductionLifetimeOffset` | Here set the *Offset* of lifetime energy production if nedded in (Wh),(+/-) |
+| `powerConsumptionTotalMax` | This enable *Power Peak* monitoring for consumption (Total) and create contact sensor in HomeKit which can be used for notification and automations. |
 | `powerConsumptionTotalMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
-| `powerConsumptionTotalMaxDetected` | Here set the *consumption-total Power peak*, if the Power will be >= `powerConsumptionTotalMaxDetected` then You get notyfication message from the HomeKit |
+| `powerConsumptionTotalMaxDetected` | Here set the consumption (Total) *Power Peak*, if the Power >= `powerConsumptionTotalMaxDetected` the contact sensor fired.|
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
+| `powerConsumptionNetMax` | This enable *Power Peak* monitoring for consumption (Net) and create contact sensor in HomeKit which can be used for notification and automations. |
 | `powerConsumptionNetMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
-| `powerConsumptionNetMaxDetected` | Here set the *consumption-net Power peak*, if the Power will be >= `powerConsumptionNetMaxDetected` then You get notyfication message from the HomeKit |
+| `powerConsumptionNetMaxDetected` | Here set the consumption (Net) *Power Peak*, if the Power >= `powerConsumptionNetMaxDetected` the contact sensor fired. |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
 | `supportEnsembleStatus` | If enabled, check *Ensemble Status* will be possible (only fw. 7.x.x). |
 | `supportLiveData` | If enabled, check *Live Data* will be possible (only fw. 7.x.x). |
-| `supportProductionPowerMode` | If enabled, check/control production *Power Mode* will be possible. |
+| `supportProductionPowerMode` | If enabled, check/control production *Production Power Mode* will be possible. |
 | `supportPlcLevel` | If enabled, check *PLC Level* will be possible. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
 | `mqttHost` | Here set the *IP Address* or *Hostname* for MQTT Broker.) |
@@ -91,12 +94,15 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "envoyFirmware7xx": false,
                     "envoyFirmware7xxToken": "",
                     "envoyPasswd": "",
+                    "powerProductionMax": false,
                     "powerProductionMaxAutoReset": 0,
                     "powerProductionMaxDetected": 5400,
                     "energyProductionLifetimeOffset": 0,
+                    "powerConsumptionTotalMax": false,
                     "powerConsumptionTotalMaxAutoReset": 0,
                     "powerConsumptionTotalMaxDetected": 10000,
                     "energyConsumptionTotalLifetimeOffset": 0,
+                    "powerConsumptionNetMax": false,
                     "powerConsumptionNetMaxAutoReset": 0,
                     "powerConsumptionNetMaxDetected": 10000,
                     "energyConsumptionNetLifetimeOffset": 0,

@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [6.4.0] - (15.01.2023)
+## Changes
+- code cleanup
+- config schema updated
+- stability improvements
+- reduce memory and cpu ussage
+- added *Power Peak* contact sensors for production, consumption total/net which can be used for notification and automations in HomeKit.
+- fix display wirelesskit characteristics hovewer is not instlled
+- fix [#73](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/73)
+
 ## [6.3.2] - (14.01.2023)
 ## Changes
 - fix [#71](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/71)
