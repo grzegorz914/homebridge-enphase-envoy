@@ -87,7 +87,6 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                 {
                     "name": "Envoy",
                     "host": "192.168.1.35",
-                    "refreshInterval": 30,
                     "enableDebugMode": false,
                     "disableLogInfo": false,
                     "disableLogDeviceInfo": false,
