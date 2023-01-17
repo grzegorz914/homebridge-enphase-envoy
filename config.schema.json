@@ -276,7 +276,7 @@
               }
             },
             "supportLiveData": {
-              "title": "LiveData",
+              "title": "Live Data",
               "type": "boolean",
               "default": false,
               "required": false,
@@ -284,6 +284,36 @@
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
+            },
+            "liveDataRefreshTime": {
+              "title": "Live Data Refresh Time",
+              "type": "integer",
+              "default": 1000,
+              "minimum": 500,
+              "maximum": 30000,
+              "required": false,
+              "description": "Here set *Live Data* rfresh time in (ms).",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportLiveData === true;"
+              }
+            },
+            "metersDataRefreshTime": {
+              "title": "Meters Refresh Time",
+              "type": "integer",
+              "default": 2500,
+              "minimum": 500,
+              "maximum": 30000,
+              "required": false,
+              "description": "Here set *Meters Data* rfresh time in (ms)."
+            },
+            "productionDataRefreshTime": {
+              "title": "Production Refresh Time",
+              "type": "integer",
+              "default": 5000,
+              "minimum": 500,
+              "maximum": 30000,
+              "required": false,
+              "description": "Here set *Production Data* rfresh time in (ms)."
             },
             "supportProductionPowerMode": {
               "title": "Power Mode",
@@ -446,8 +476,8 @@
           "expanded": false,
           "items": [
             "devices[].envoyFirmware7xx",
-            "devices[].envoyPasswd",
-            "devices[].envoyFirmware7xxToken"
+            "devices[].envoyFirmware7xxToken",
+            "devices[].envoyPasswd"
           ]
         },
         {
@@ -463,7 +493,10 @@
             "devices[].supportProductionPowerMode",
             "devices[].supportPlcLevel",
             "devices[].supportEnsembleStatus",
-            "devices[].supportLiveData"
+            "devices[].supportLiveData",
+            "devices[].liveDataRefreshTime",
+            "devices[].metersDataRefreshTime",
+            "devices[].productionDataRefreshTime"
           ]
         },
         {

@@ -2273,6 +2273,9 @@ class envoyDevice {
     this.energyConsumptionNetLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
     this.supportEnsembleStatus = this.envoyFirmware7xx ? config.supportEnsembleStatus : false || false;
     this.supportLiveData = this.envoyFirmware7xx ? config.supportLiveData : false || false;
+    this.liveDataRefreshTime = config.liveDataRefreshTime || 1000;
+    this.metersDataRefreshTime = config.metersDataRefreshTime || 2500;
+    this.productionDataRefreshTime = config.productionDataRefreshTime || 5000;
     this.supportProductionPowerMode = config.supportProductionPowerMode || false;
     this.supportPlcLevel = config.supportPlcLevel || false;
     this.mqttEnabled = config.enableMqtt || false;
@@ -2566,7 +2569,7 @@ class envoyDevice {
   };
 
   async updateMeters() {
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, this.metersDataRefreshTime));
     this.updateMetersData();
     const updateMetersReadingData = this.metersInstalled ? this.updateMetersReadingData() : false;
   };
@@ -2578,12 +2581,12 @@ class envoyDevice {
   };
 
   async updateLive() {
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, this.liveDataRefreshTime));
     this.updateLiveData();
   };
 
   async updateProduction() {
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, this.productionDataRefreshTime));
     this.updateProductionData();
     this.updateProductionCtData();
   };

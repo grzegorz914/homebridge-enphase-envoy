@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [6.5.0] - (15.01.2023)
+## Changes
+- added possibility to set refresh time for live dta, meters data and production ct
+
+## [6.4.1] - (16.01.2023)
+## Changes
+- fix wirreles konnections kit crash
+
+
 ## [6.4.0] - (15.01.2023)
 ## Changes
 - code cleanup

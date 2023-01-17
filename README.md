@@ -69,6 +69,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
 | `supportEnsembleStatus` | If enabled, check *Ensemble Status* will be possible (only fw. 7.x.x). |
 | `supportLiveData` | If enabled, check *Live Data* will be possible (only fw. 7.x.x). |
+| `liveDataRefreshTime` | Here set *Live Data* rfresh time in (ms). |
+| `metersDataRefreshTime` | Here set *Meters Data* rfresh time in (ms). |
+| `productionDataRefreshTime` | Here set *Production Data* rfresh time in (ms). |
 | `supportProductionPowerMode` | If enabled, check/control production *Production Power Mode* will be possible. |
 | `supportPlcLevel` | If enabled, check *PLC Level* will be possible. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
@@ -107,6 +110,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "energyConsumptionNetLifetimeOffset": 0,
                     "supportEnsembleStatus": false,
                     "supportLiveData": false,
+                    "liveDataRefreshTime": 1000,
+                    "metersDataRefreshTime": 3000,
+                    "productionDataRefreshTime": 5000,
                     "supportProductionPowerMode": false,
                     "supportPlcLevel": false,
                     "enableMqtt": false,
