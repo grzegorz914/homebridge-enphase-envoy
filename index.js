@@ -2904,10 +2904,10 @@ class envoyDevice {
           const wirelessConnectionKitConnectionsCount = wirelessConnections.length;
           const wirelessConnectionKitInstalled = (wirelessConnectionKitConnectionsCount > 0);
           if (wirelessConnectionKitInstalled) {
-            this.wirelessConnectionsSignalStrength = new Array();
-            this.wirelessConnectionsSignalStrengthMax = new Array();
-            this.wirelessConnectionsType = new Array();
-            this.wirelessConnectionsConnected = new Array();
+            this.wirelessConnectionsSignalStrength = [];
+            this.wirelessConnectionsSignalStrengthMax = [];
+            this.wirelessConnectionsType = [];
+            this.wirelessConnectionsConnected = [];
 
             for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
               const wirelessConnection = wirelessConnections[i];
@@ -3041,14 +3041,14 @@ class envoyDevice {
         const microinvertersInstalled = (microinvertersCount > 0);
 
         if (microinvertersInstalled) {
-          this.microinvertersSerialNumber = new Array();
-          this.microinvertersStatus = new Array();
-          this.microinvertersLastReportDate = new Array();
-          this.microinvertersFirmware = new Array();
-          this.microinvertersProducing = new Array();
-          this.microinvertersCommunicating = new Array();
-          this.microinvertersProvisioned = new Array();
-          this.microinvertersOperating = new Array();
+          this.microinvertersSerialNumber = [];
+          this.microinvertersStatus = [];
+          this.microinvertersLastReportDate = [];
+          this.microinvertersFirmware = [];
+          this.microinvertersProducing = [];
+          this.microinvertersCommunicating = [];
+          this.microinvertersProvisioned = [];
+          this.microinvertersOperating = [];
 
           const type = CONSTANS.ApiCodes[microinverters.type] || 'undefined';
           for (let i = 0; i < microinvertersCount; i++) {
@@ -3105,20 +3105,20 @@ class envoyDevice {
         const acBatteriesInstalled = (acBatteriesCount > 0);
 
         if (acBatteriesInstalled) {
-          this.acBatteriesSerialNumber = new Array();
-          this.acBatteriesStatus = new Array();
-          this.acBatteriesLastReportDate = new Array();
-          this.acBatteriesFirmware = new Array();
-          this.acBatteriesProducing = new Array();
-          this.acBatteriesCommunicating = new Array();
-          this.acBatteriesProvisioned = new Array();
-          this.acBatteriesOperating = new Array();
-          this.acBatteriesSleepEnabled = new Array();
-          this.acBatteriesPercentFull = new Array();
-          this.acBatteriesMaxCellTemp = new Array();
-          this.acBatteriesSleepMinSoc = new Array();
-          this.acBatteriesSleepMaxSoc = new Array();
-          this.acBatteriesChargeStatus = new Array();
+          this.acBatteriesSerialNumber = [];
+          this.acBatteriesStatus = [];
+          this.acBatteriesLastReportDate = [];
+          this.acBatteriesFirmware = [];
+          this.acBatteriesProducing = [];
+          this.acBatteriesCommunicating = [];
+          this.acBatteriesProvisioned = [];
+          this.acBatteriesOperating = [];
+          this.acBatteriesSleepEnabled = [];
+          this.acBatteriesPercentFull = [];
+          this.acBatteriesMaxCellTemp = [];
+          this.acBatteriesSleepMinSoc = [];
+          this.acBatteriesSleepMaxSoc = [];
+          this.acBatteriesChargeStatus = [];
 
           const type = CONSTANS.ApiCodes[acBatteries.type] || 'undefined';
           for (let i = 0; i < acBatteriesCount; i++) {
@@ -3193,19 +3193,19 @@ class envoyDevice {
         const qRelaysInstalled = (qRelaysCount > 0);
 
         if (qRelaysInstalled) {
-          this.qRelaysSerialNumber = new Array();
-          this.qRelaysStatus = new Array();
-          this.qRelaysLastReportDate = new Array();
-          this.qRelaysFirmware = new Array();
-          this.qRelaysProducing = new Array();
-          this.qRelaysCommunicating = new Array();
-          this.qRelaysProvisioned = new Array();
-          this.qRelaysOperating = new Array();
-          this.qRelaysRelay = new Array();
-          this.qRelaysLinesCount = new Array();
-          this.qRelaysLine1Connected = new Array();
-          this.qRelaysLine2Connected = new Array();
-          this.qRelaysLine3Connected = new Array();
+          this.qRelaysSerialNumber = [];
+          this.qRelaysStatus = [];
+          this.qRelaysLastReportDate = [];
+          this.qRelaysFirmware = [];
+          this.qRelaysProducing = [];
+          this.qRelaysCommunicating = [];
+          this.qRelaysProvisioned = [];
+          this.qRelaysOperating = [];
+          this.qRelaysRelay = [];
+          this.qRelaysLinesCount = [];
+          this.qRelaysLine1Connected = [];
+          this.qRelaysLine2Connected = [];
+          this.qRelaysLine3Connected = [];
 
           const type = CONSTANS.ApiCodes[qRelays.type] || 'undefined';
           for (let i = 0; i < qRelaysCount; i++) {
@@ -3288,13 +3288,13 @@ class envoyDevice {
         const esubsInstalled = (esubsCount > 0);
 
         if (esubsInstalled) {
-          this.esubsSerialNumber = new Array();
-          this.esubsStatus = new Array();
-          this.esubsLastReportDate = new Array();
-          this.esubsFirmware = new Array();
-          this.esubsProducing = new Array();
-          this.esubsCommunicating = new Array();
-          this.esubsOperating = new Array();
+          this.esubsSerialNumber = [];
+          this.esubsStatus = [];
+          this.esubsLastReportDate = [];
+          this.esubsFirmware = [];
+          this.esubsProducing = [];
+          this.esubsCommunicating = [];
+          this.esubsOperating = [];
 
           const type = CONSTANS.ApiCodes[esubs.type] || 'undefined';
           for (let i = 0; i < esubsCount; i++) {
@@ -3375,13 +3375,13 @@ class envoyDevice {
         const metersInstalled = (metersCount > 0);
 
         if (metersInstalled) {
-          this.metersEid = new Array();
-          this.metersState = new Array();
-          this.metersMeasurementType = new Array();
-          this.metersPhaseMode = new Array();
-          this.metersPhaseCount = new Array();
-          this.metersMeteringStatus = new Array();
-          this.metersStatusFlags = new Array();
+          this.metersEid = [];
+          this.metersState = [];
+          this.metersMeasurementType = [];
+          this.metersPhaseMode = [];
+          this.metersPhaseCount = [];
+          this.metersMeteringStatus = [];
+          this.metersStatusFlags = [];
 
           for (let i = 0; i < metersCount; i++) {
             const meter = metersData.data[i];
@@ -3455,21 +3455,21 @@ class envoyDevice {
 
         //meters
         if (metersReadingInstalled) {
-          this.eidSumm = new Array();
-          this.timestampSumm = new Array();
-          this.actEnergyDlvdSumm = new Array();
-          this.actEnergyRcvdSumm = new Array();
-          this.apparentEnergySumm = new Array();
-          this.reactEnergyLaggSumm = new Array();
-          this.reactEnergyLeadSumm = new Array();
-          this.instantaneousDemandSumm = new Array();
-          this.activePowerSumm = new Array();
-          this.apparentPowerSumm = new Array();
-          this.reactivePowerSumm = new Array();
-          this.pwrFactorSumm = new Array();
-          this.voltageSumm = new Array();
-          this.currentSumm = new Array();
-          this.freqSumm = new Array();
+          this.eidSumm = [];
+          this.timestampSumm = [];
+          this.actEnergyDlvdSumm = [];
+          this.actEnergyRcvdSumm = [];
+          this.apparentEnergySumm = [];
+          this.reactEnergyLaggSumm = [];
+          this.reactEnergyLeadSumm = [];
+          this.instantaneousDemandSumm = [];
+          this.activePowerSumm = [];
+          this.apparentPowerSumm = [];
+          this.reactivePowerSumm = [];
+          this.pwrFactorSumm = [];
+          this.voltageSumm = [];
+          this.currentSumm = [];
+          this.freqSumm = [];
 
           //meters reading summary data
           for (let i = 0; i < metersReadingCount; i++) {
@@ -3522,21 +3522,21 @@ class envoyDevice {
             //meters reading phases data
             const metersReadingPhaseCount = meter.channels.length;
             if (metersReadingPhaseCount > 0) {
-              this.eidPhase = new Array();
-              this.timestampPhase = new Array();
-              this.actEnergyDlvdPhase = new Array();
-              this.actEnergyRcvdPhase = new Array();
-              this.apparentEnergyPhase = new Array();
-              this.reactEnergyLaggPhase = new Array();
-              this.reactEnergyLeadPhase = new Array();
-              this.instantaneousDemandPhase = new Array();
-              this.activePowerPhase = new Array();
-              this.apparentPowerPhase = new Array();
-              this.reactivePowerPhase = new Array();
-              this.pwrFactorPhase = new Array();
-              this.voltagePhase = new Array();
-              this.currentPhase = new Array();
-              this.freqPhase = new Array();
+              this.eidPhase = [];
+              this.timestampPhase = [];
+              this.actEnergyDlvdPhase = [];
+              this.actEnergyRcvdPhase = [];
+              this.apparentEnergyPhase = [];
+              this.reactEnergyLaggPhase = [];
+              this.reactEnergyLeadPhase = [];
+              this.instantaneousDemandPhase = [];
+              this.activePowerPhase = [];
+              this.apparentPowerPhase = [];
+              this.reactivePowerPhase = [];
+              this.pwrFactorPhase = [];
+              this.voltagePhase = [];
+              this.currentPhase = [];
+              this.freqPhase = [];
 
               for (let j = 0; j < metersReadingPhaseCount; j++) {
                 const meterChannel = meter.channels[j]
@@ -3617,23 +3617,23 @@ class envoyDevice {
         const enchargesInstalled = (enchargesCount > 0);
 
         if (enchargesInstalled) {
-          this.enchargesSerialNumber = new Array();
-          this.enchargesStatus = new Array();
-          this.enchargesLastReportDate = new Array();
-          this.enchargesAdminStateStr = new Array();
-          this.enchargesOperating = new Array();
-          this.enchargesCommunicating = new Array();
-          this.enchargesSleepEnabled = new Array();
-          this.enchargesPercentFull = new Array();
-          this.enchargesTemperature = new Array();
-          this.enchargesMaxCellTemp = new Array();
-          this.enchargesCommLevelSubGhz = new Array();
-          this.enchargesCommLevel24Ghz = new Array();
-          this.enchargesLedStatus = new Array();
-          this.enchargesRealPowerW = new Array();
-          this.enchargesDcSwitchOff = new Array();
-          this.enchargesRev = new Array();
-          this.enchargesCapacity = new Array();
+          this.enchargesSerialNumber = [];
+          this.enchargesStatus = [];
+          this.enchargesLastReportDate = [];
+          this.enchargesAdminStateStr = [];
+          this.enchargesOperating = [];
+          this.enchargesCommunicating = [];
+          this.enchargesSleepEnabled = [];
+          this.enchargesPercentFull = [];
+          this.enchargesTemperature = [];
+          this.enchargesMaxCellTemp = [];
+          this.enchargesCommLevelSubGhz = [];
+          this.enchargesCommLevel24Ghz = [];
+          this.enchargesLedStatus = [];
+          this.enchargesRealPowerW = [];
+          this.enchargesDcSwitchOff = [];
+          this.enchargesRev = [];
+          this.enchargesCapacity = [];
 
           const type = CONSTANS.ApiCodes[encharges.type] || 'Encharge';
           for (let i = 0; i < enchargesCount; i++) {
@@ -3713,21 +3713,21 @@ class envoyDevice {
         const enpowersInstalled = (enpowersCount > 0);
 
         if (enpowersInstalled) {
-          this.enpowersSerialNumber = new Array();
-          this.enpowersStatus = new Array();
-          this.enpowersLastReportDate = new Array();
-          this.enpowersAdminStateStr = new Array();
-          this.enpowersOperating = new Array();
-          this.enpowersCommunicating = new Array();
-          this.enpowersTemperature = new Array();
-          this.enpowersCommLevelSubGhz = new Array();
-          this.enpowersCommLevel24Ghz = new Array();
-          this.enpowersMainsAdminState = new Array();
-          this.enpowersMainsOperState = new Array();
-          this.enpowersGridMode = new Array();
-          this.enpowersEnchgGridMode = new Array();
-          this.enpowersRelayStateBm = new Array();
-          this.enpowersCurrStateId = new Array();
+          this.enpowersSerialNumber = [];
+          this.enpowersStatus = [];
+          this.enpowersLastReportDate = [];
+          this.enpowersAdminStateStr = [];
+          this.enpowersOperating = [];
+          this.enpowersCommunicating = [];
+          this.enpowersTemperature = [];
+          this.enpowersCommLevelSubGhz = [];
+          this.enpowersCommLevel24Ghz = [];
+          this.enpowersMainsAdminState = [];
+          this.enpowersMainsOperState = [];
+          this.enpowersGridMode = [];
+          this.enpowersEnchgGridMode = [];
+          this.enpowersRelayStateBm = [];
+          this.enpowersCurrStateId = [];
 
           const type = CONSTANS.ApiCodes[enpowers.type] || 'Enpower';
           for (let i = 0; i < enpowersCount; i++) {
@@ -4367,21 +4367,21 @@ class envoyDevice {
 
         //consumption data
         if (metersConsumptionEnabled) {
-          this.consumptionsType = new Array();
-          this.consumptionsMeasurmentType = new Array();
-          this.consumptionsActiveCount = new Array();
-          this.consumptionsReadingTime = new Array();
-          this.consumptionsPower = new Array();
-          this.consumptionsPowerPeak = new Array();
-          this.consumptionsPowerPeakDetected = new Array();
-          this.consumptionsEnergyToday = new Array();
-          this.consumptionsEnergyLastSevenDays = new Array();
-          this.consumptionsEnergyLifeTime = new Array();
-          this.consumptionsRmsCurrent = new Array();
-          this.consumptionsRmsVoltage = new Array();
-          this.consumptionsReactivePower = new Array();
-          this.consumptionsApparentPower = new Array();
-          this.consumptionsPwrFactor = new Array();
+          this.consumptionsType = [];
+          this.consumptionsMeasurmentType = [];
+          this.consumptionsActiveCount = [];
+          this.consumptionsReadingTime = [];
+          this.consumptionsPower = [];
+          this.consumptionsPowerPeak = [];
+          this.consumptionsPowerPeakDetected = [];
+          this.consumptionsEnergyToday = [];
+          this.consumptionsEnergyLastSevenDays = [];
+          this.consumptionsEnergyLifeTime = [];
+          this.consumptionsRmsCurrent = [];
+          this.consumptionsRmsVoltage = [];
+          this.consumptionsReactivePower = [];
+          this.consumptionsApparentPower = [];
+          this.consumptionsPwrFactor = [];
 
           const metersConsumptionCount = productionCtData.data.consumption.length;
           for (let i = 0; i < metersConsumptionCount; i++) {
@@ -4554,7 +4554,7 @@ class envoyDevice {
           return;
         }
 
-        this.allMicroinvertersSerialNumber = new Array();
+        this.allMicroinvertersSerialNumber = [];
         const allMicroinvertersCount = microinvertersData.data.length;
         for (let i = 0; i < allMicroinvertersCount; i++) {
           const allSerialNumber = microinvertersData.data[i].serialNumber;
@@ -4562,10 +4562,10 @@ class envoyDevice {
         }
 
         //microinverters power
-        this.microinvertersReadingTime = new Array();
-        this.microinvertersDevType = new Array();
-        this.microinvertersLastPower = new Array();
-        this.microinvertersMaxPower = new Array();
+        this.microinvertersReadingTime = [];
+        this.microinvertersDevType = [];
+        this.microinvertersLastPower = [];
+        this.microinvertersMaxPower = [];
 
         for (let i = 0; i < this.microinvertersCount; i++) {
           const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
@@ -4668,10 +4668,10 @@ class envoyDevice {
         const commLevel = plcLevelData.data;
 
         //create arrays
-        this.microinvertersCommLevel = new Array();
-        this.acBatteriesCommLevel = new Array();
-        this.qRelaysCommLevel = new Array();
-        this.enchargesCommLevel = new Array();
+        this.microinvertersCommLevel = [];
+        this.acBatteriesCommLevel = [];
+        this.qRelaysCommLevel = [];
+        this.enchargesCommLevel = [];
 
         // get devices count
         const microinvertersCount = this.microinvertersCount
@@ -4850,7 +4850,7 @@ class envoyDevice {
       const wirelessConnectionKitConnectionsCount = this.wirelessConnectionKitConnectionsCount;
 
       //envoy
-      this.envoysService = new Array();
+      this.envoysService = [];
       const enphaseEnvoyService = new Service.enphaseEnvoyService(`Envoy ${serialNumber}`, 'enphaseEnvoyService');
       enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyAlerts)
         .onGet(async () => {
@@ -5018,7 +5018,7 @@ class envoyDevice {
 
       //qrelays
       if (qRelaysInstalled) {
-        this.qRelaysService = new Array();
+        this.qRelaysService = [];
         for (let i = 0; i < qRelaysCount; i++) {
           const qRelaySerialNumber = this.qRelaysSerialNumber[i];
           const enphaseQrelayService = new Service.enphaseQrelayService(`Q-Relay ${qRelaySerialNumber}`, `enphaseQrelayService${i}`);
@@ -5115,7 +5115,7 @@ class envoyDevice {
 
       //meters
       if (metersInstalled) {
-        this.metersService = new Array();
+        this.metersService = [];
         for (let i = 0; i < metersCount; i++) {
           const meterMeasurementType = this.metersMeasurementType[i];
           const enphaseMeterService = new Service.enphaseMeterService(`Meter ${meterMeasurementType}`, `enphaseMeterService${i}`);
@@ -5203,7 +5203,7 @@ class envoyDevice {
       }
 
       //power and energy production
-      this.productionsService = new Array();
+      this.productionsService = [];
       const enphaseProductionService = new Service.enphasePowerAndEnergyService(`Power And Energy ${this.productionMeasurmentType}`, 'enphaseProductionService');
       enphaseProductionService.getCharacteristic(Characteristic.enphasePower)
         .onGet(async () => {
@@ -5311,7 +5311,7 @@ class envoyDevice {
 
       //power and energy consumption
       if (metersInstalled && metersConsumptionEnabled) {
-        this.consumptionsService = new Array();
+        this.consumptionsService = [];
         for (let i = 0; i < metersConsumptionCount; i++) {
           const consumptionMeasurmentType = this.consumptionsMeasurmentType[i];
           const enphaseConsumptionService = new Service.enphasePowerAndEnergyService(`Power And Energy ${consumptionMeasurmentType}`, `enphaseConsumptionService${i}`);
@@ -5434,7 +5434,7 @@ class envoyDevice {
 
       //ac batteries summary
       if (acBatteriesInstalled) {
-        this.acBatteriesSummaryService = new Array();
+        this.acBatteriesSummaryService = [];
         const enphaseAcBatterieSummaryService = new Service.enphaseAcBatterieSummaryService('AC Batteries Summary', 'enphaseAcBatterieSummaryService');
         enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryPower)
           .onGet(async () => {
@@ -5476,7 +5476,7 @@ class envoyDevice {
         accessory.addService(this.acBatteriesSummaryService[0]);
 
         //ac batteries state
-        this.acBatteriesService = new Array();
+        this.acBatteriesService = [];
         for (let i = 0; i < acBatteriesCount; i++) {
           const acBatterieSerialNumber = this.acBatteriesSerialNumber[i];
           const enphaseAcBatterieService = new Service.enphaseAcBatterieService(`AC Batterie ${acBatterieSerialNumber}`, `enphaseAcBatterieService${i}`);
@@ -5573,7 +5573,7 @@ class envoyDevice {
 
       //microinverters
       if (microinvertersInstalled) {
-        this.microinvertersService = new Array();
+        this.microinvertersService = [];
         for (let i = 0; i < microinvertersCount; i++) {
           const microinverterSerialNumber = this.microinvertersSerialNumber[i];
           const enphaseMicroinverterService = new Service.enphaseMicroinverterService(`Microinverter ${microinverterSerialNumber}`, `enphaseMicroinverterService${i}`);
@@ -5648,7 +5648,7 @@ class envoyDevice {
 
       //ensemble
       if (esubsInstalled) {
-        this.esubsService = new Array();
+        this.esubsService = [];
         for (let i = 0; i < esubsCount; i++) {
           const esubSerialNumber = this.esubsSerialNumber[i];
           const enphaseEsubService = new Service.enphaseEsubService(`Ensemble ${esubSerialNumber}`, `enphaseEsubService${i}`);
@@ -5696,7 +5696,7 @@ class envoyDevice {
 
       //encharges inventory
       if (enchargesInstalled) {
-        this.enchargesService = new Array();
+        this.enchargesService = [];
         for (let i = 0; i < enchargesCount; i++) {
           const enchargeSerialNumber = this.enchargesSerialNumber[i];
           const enphaseEnchargeService = new Service.enphaseEnchargeService(`Encharge ${enchargeSerialNumber}`, `enphaseEnchargeService${i}`);
@@ -5812,7 +5812,7 @@ class envoyDevice {
       //enpower
       if (enpowersInstalled) {
         //enpower inventory
-        this.enpowersService = new Array();
+        this.enpowersService = [];
         for (let i = 0; i < enpowersCount; i++) {
           const enpowerSerialNumber = this.enpowersSerialNumber[i];
           const enphaseEnpowerService = new Service.enphaseEnpowerService(`Enpower: ${enpowerSerialNumber}`, `enphaseEnpowerService${i}`);
@@ -5901,7 +5901,7 @@ class envoyDevice {
 
       //ensemble status summary
       if (ensembleStatusInstalled) {
-        this.ensembleStatusService = new Array();
+        this.ensembleStatusService = [];
         const enphaseEnsembleStatusService = new Service.enphaseEnsembleStatusService(`Ensemble summary`, 'enphaseEnsembleStatusService');
         enphaseEnsembleStatusService.getCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHz)
           .onGet(async () => {
@@ -5963,7 +5963,7 @@ class envoyDevice {
 
       //wireless connektion kit
       if (wirelessConnectionKitInstalled) {
-        this.wirelessConnektionsKitService = new Array();
+        this.wirelessConnektionsKitService = [];
         for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
           const wirelessConnectionType = this.wirelessConnectionsType[i];
           const enphaseWirelessConnectionKitService = new Service.enphaseWirelessConnectionKitService(`Wireless connection ${wirelessConnectionType}`, `enphaseWirelessConnectionKitService${i}`);
