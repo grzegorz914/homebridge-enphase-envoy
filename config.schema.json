@@ -280,7 +280,7 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to chec *Live Data*.",
+              "description": "This enable support to check *Live Data*.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
@@ -292,7 +292,7 @@
               "minimum": 500,
               "maximum": 30000,
               "required": false,
-              "description": "Here set *Live Data* rfresh time in (ms).",
+              "description": "Here set *Live Data* refresh time in (ms).",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportLiveData === true;"
               }
@@ -304,7 +304,7 @@
               "minimum": 500,
               "maximum": 30000,
               "required": false,
-              "description": "Here set *Meters Data* rfresh time in (ms)."
+              "description": "Here set *Meters Data* refresh time in (ms)."
             },
             "productionDataRefreshTime": {
               "title": "Production Refresh Time",
