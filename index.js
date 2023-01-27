@@ -4547,6 +4547,7 @@ class envoyDevice {
         }
 
         const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProduction) : await digestAuthEnvoy.request(options);
+        const microinverters = microinvertersData.data;
         const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
         if (microinvertersData.status !== 200) {
@@ -4555,10 +4556,9 @@ class envoyDevice {
         }
 
         this.allMicroinvertersSerialNumber = [];
-        const allMicroinvertersCount = microinvertersData.data.length;
-        for (let i = 0; i < allMicroinvertersCount; i++) {
-          const allSerialNumber = microinvertersData.data[i].serialNumber;
-          this.allMicroinvertersSerialNumber.push(allSerialNumber);
+        for (const microinverter of microinverters) {
+          const serialNumber = microinverter.serialNumber;
+          this.allMicroinvertersSerialNumber.push(serialNumber);
         }
 
         //microinverters power
@@ -4568,12 +4568,12 @@ class envoyDevice {
         this.microinvertersMaxPower = [];
 
         for (let i = 0; i < this.microinvertersCount; i++) {
-          const index = this.allMicroinvertersSerialNumber.indexOf(this.microinvertersSerialNumber[i]);
-          const microinverter = microinvertersData.data[index];
+          const index = this.allMicroinvertersSerialNumber.findIndex(index => index === this.microinvertersSerialNumber[i]);
+          const microinverter = microinverters[index];
           const lastReportDate = new Date(microinverter.lastReportDate * 1000).toLocaleString();
           const devType = microinverter.devType;
           const lastReportWatts = parseInt(microinverter.lastReportWatts);
-          const microinverterPower = (lastReportWatts < 0) ? 0 : lastReportWatts;
+          const microinverterPower = lastReportWatts >= 0 ? lastReportWatts : 0;
           const maxReportWatts = parseInt(microinverter.maxReportWatts);
 
           if (this.microinvertersService) {
@@ -4680,8 +4680,8 @@ class envoyDevice {
         const enchargesCount = this.enchargesCount;
 
         for (let i = 0; i < microinvertersCount; i++) {
-          const key = (`${this.microinvertersSerialNumber[i]}`);
-          const value = (commLevel[key]) ? (commLevel[key]) * 20 : 0;
+          const key = `${this.microinvertersSerialNumber[i]}`;
+          const value = (commLevel[key] || 0) * 20;
 
           if (this.microinvertersService) {
             this.microinvertersService[i]
@@ -4691,8 +4691,8 @@ class envoyDevice {
         }
 
         for (let i = 0; i < acBatteriesCount; i++) {
-          const key = (`${this.acBatteriesSerialNumber[i]}`);
-          const value = (commLevel[key]) ? (commLevel[key]) * 20 : 0;
+          const key = `${this.acBatteriesSerialNumber[i]}`;
+          const value = (commLevel[key] || 0) * 20;
 
           if (this.acBatteriesService) {
             this.acBatteriesService[i]
@@ -4702,8 +4702,8 @@ class envoyDevice {
         }
 
         for (let i = 0; i < qRelaysCount; i++) {
-          const key = (`${this.qRelaysSerialNumber[i]}`);
-          const value = (commLevel[key]) ? (commLevel[key]) * 20 : 0;
+          const key = `${this.qRelaysSerialNumber[i]}`;
+          const value = (commLevel[key] || 0) * 20;
 
           if (this.qRelaysService) {
             this.qRelaysService[i]
@@ -4713,8 +4713,8 @@ class envoyDevice {
         }
 
         for (let i = 0; i < enchargesCount; i++) {
-          const key = (`${this.enchargesSerialNumber[i]}`);
-          const value = (commLevel[key]) ? (commLevel[key]) * 20 : 0;
+          const key = `${this.enchargesSerialNumber[i]}`;
+          const value = (commLevel[key] || 0) * 20;
 
           if (this.enchargesService) {
             this.enchargesService[i]
