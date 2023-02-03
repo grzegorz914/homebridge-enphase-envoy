@@ -265,6 +265,20 @@
               "description": "Here set *Offset* in (Wh) for energy consumption (Net), if nedded.",
               "required": false
             },
+            "supportProductionPowerMode": {
+              "title": "Power Mode",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable support to check/control production *Power Mode*."
+            },
+            "supportPlcLevel": {
+              "title": "PLC Level",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable support to check *PLC Level*."
+            },
             "supportEnsembleStatus": {
               "title": "Ensemble Status",
               "type": "boolean",
@@ -314,20 +328,6 @@
               "maximum": 30000,
               "required": false,
               "description": "Here set *Production Data* rfresh time in (ms)."
-            },
-            "supportProductionPowerMode": {
-              "title": "Power Mode",
-              "type": "boolean",
-              "default": false,
-              "required": false,
-              "description": "This enable support to check/control production *Power Mode*."
-            },
-            "supportPlcLevel": {
-              "title": "PLC Level",
-              "type": "boolean",
-              "default": false,
-              "required": false,
-              "description": "This enable support to check *PLC Level*."
             },
             "enableMqtt": {
               "title": "Enable",
