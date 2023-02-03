@@ -33,6 +33,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Home automations and shortcuts can be used with *PLC Level*, *Production Power Mode* and *Power Peak*.
 * MQTT publisch topic *Info*, *Home*, *Inventory*, *Meters*, *Meters Reading*, *Ensemble Inventory*, *Ensemble Status*, *Grid Profile*, *Live Data*, *Production*, *Production CT*, *Microinverter*, *Power Mode*, *PCU Comm Level* as payload JSON data.
 * Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
+* Support *Ensemble Status* and * Production Power Mode* may not working in all envoy firmwares, if you get error, please disable it in plugin settings *Advanced Section*.
 
 ### Configuration
 * Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
@@ -67,13 +68,13 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerConsumptionNetMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
 | `powerConsumptionNetMaxDetected` | Here set the consumption (Net) *Power Peak*, if the Power >= `powerConsumptionNetMaxDetected` the contact sensor fired. |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
-| `supportEnsembleStatus` | If enabled, check *Ensemble Status* will be possible (only fw. 7.x.x). |
+| `supportProductionPowerMode` | If enabled, check/control production *Production Power Mode* will be possible, more info in *About The Plugin* section. |
+| `supportPlcLevel` | If enabled, check *PLC Level* will be possible. |
+| `supportEnsembleStatus` | If enabled, check *Ensemble Status* will be possible (only fw. 7.x.x), more info in *About The Plugin* section. |
 | `supportLiveData` | If enabled, check *Live Data* will be possible (only fw. 7.x.x). |
 | `liveDataRefreshTime` | Here set *Live Data* rfresh time in (ms). |
 | `metersDataRefreshTime` | Here set *Meters Data* rfresh time in (ms). |
 | `productionDataRefreshTime` | Here set *Production Data* rfresh time in (ms). |
-| `supportProductionPowerMode` | If enabled, check/control production *Production Power Mode* will be possible. |
-| `supportPlcLevel` | If enabled, check *PLC Level* will be possible. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
 | `mqttHost` | Here set the *IP Address* or *Hostname* for MQTT Broker.) |
 | `mqttPort` | Here set the *Port* for MQTT Broker, default 1883.) |
