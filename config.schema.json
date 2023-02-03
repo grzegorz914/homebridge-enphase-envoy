@@ -270,7 +270,7 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check/control production *Power Mode*."
+              "description": "This enable support to check/control production *Power Mode*, may not working with all envoy firmwares, if error occur, please disable it."
             },
             "supportPlcLevel": {
               "title": "PLC Level",
@@ -284,7 +284,7 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check *Ensemble Status*.",
+              "description": "This enable support to check *Ensemble Status*, may not working with all envoy firmwares, if error occur, please disable it.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
