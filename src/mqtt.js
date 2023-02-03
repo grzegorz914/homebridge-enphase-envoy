@@ -37,7 +37,7 @@ class MQTTCLIENT extends EventEmitter {
 
     async send(topic, message) {
         if (!this.isConnected) {
-            return
+            return;
         };
 
         try {
