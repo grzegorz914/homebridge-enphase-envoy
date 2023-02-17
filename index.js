@@ -2558,7 +2558,7 @@ class envoyDevice {
       this.updateProduction();
       const startMicroinverters = this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd) ? this.updateMicroinverters() : false;
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, ${error}, reconnect in 15s.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ${error} Reconnect in 15s.`);
       this.reconnect();
     };
   };
@@ -2569,7 +2569,7 @@ class envoyDevice {
       await this.updateHomeData();
       await this.updateInventoryData();
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, ${error}, trying again in: 60 sec.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ${error} Trying again in: 60 sec.`);
       this.updateHome();
     };
   };
@@ -2580,7 +2580,7 @@ class envoyDevice {
       await this.updateMetersData();
       const updateMetersReadingData = this.metersInstalled ? await this.updateMetersReadingData() : false;
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, ${error}, trying again in: ${this.metersDataRefreshTime / 1000} sec.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ${error} Trying again in: ${this.metersDataRefreshTime / 1000} sec.`);
       this.updateMeters();
     };
   };
@@ -2591,7 +2591,7 @@ class envoyDevice {
       const updateEnsembleInventoryData = await this.updateEnsembleInventoryData();
       const updateEnsembleStatusData = this.supportEnsembleStatus && updateEnsembleInventoryData ? await this.updateEnsembleStatusData() : false;
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, ${error}, trying again in: 65 sec.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ${error} Trying again in: 65 sec.`);
       this.updateEnsembleInventory();
     };
   };
@@ -2601,7 +2601,7 @@ class envoyDevice {
       await new Promise(resolve => setTimeout(resolve, this.liveDataRefreshTime));
       await this.updateLiveData();
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, ${error}, trying again in: ${this.liveDataRefreshTime / 1000} sec.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ${error} Trying again in: ${this.liveDataRefreshTime / 1000} sec.`);
       this.updateLive();
     };
   };
@@ -2612,7 +2612,7 @@ class envoyDevice {
       await this.updateProductionData();
       await this.updateProductionCtData();
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, ${error}, trying again in: in: ${this.productionDataRefreshTime / 1000} sec.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ${error} Trying again in: in: ${this.productionDataRefreshTime / 1000} sec.`);
       this.updateProduction();
     };
   };
@@ -2622,7 +2622,7 @@ class envoyDevice {
       await new Promise(resolve => setTimeout(resolve, 70000));
       await this.updateMicroinvertersData();
     } catch (error) {
-      this.log.error(`Device: ${this.host} ${this.name}, ${error}, trying again in: 70 sec.`);
+      this.log.error(`Device: ${this.host} ${this.name}, ${error} Trying again in: 70 sec.`);
       this.updateMicroinverters();
     };
   };
@@ -2712,13 +2712,13 @@ class envoyDevice {
             this.envoyDevId = envoyDevId;
             resolve(true);
           } catch (error) {
-            reject(`Save envoy id error: ${error}`);
+            reject(`Save envoy id error: ${error}.`);
           };
         } catch (error) {
-          reject(`Get backbone app data error: ${error}`);
+          reject(`Get backbone app data error: ${error}.`);
         };
       } catch (error) {
-        reject(`Read envoy id from file error: ${error}`);
+        reject(`Read envoy id from file error: ${error}.`);
       };
     });
   };
@@ -2805,7 +2805,7 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        reject(`Update info data error: ${error}`);
+        reject(`Update info data error: ${error}.`);
       };
     })
   };
@@ -3046,7 +3046,7 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Home', JSON.stringify(envoy, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        reject(`Update home data error: ${error}`);
+        reject(`Update home data error: ${error}.`);
       };
     });
   };
@@ -3379,7 +3379,7 @@ class envoyDevice {
 
         const update = this.checkDeviceInfo ? false : this.updateHome();
       } catch (error) {
-        reject(`Update inventory data error: ${error}`);
+        reject(`Update inventory data error: ${error}.`);
       };
     });
   };
@@ -3454,7 +3454,7 @@ class envoyDevice {
 
         const update = this.checkDeviceInfo ? false : this.updateMeters();
       } catch (error) {
-        reject(`Update meters data error: ${error}`);
+        reject(`Update meters data error: ${error}.`);
       };
     });
   };
@@ -3606,7 +3606,7 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        reject(`Update meters reading data error: ${error}`);
+        reject(`Update meters reading data error: ${error}.`);
       };
     });
   };
@@ -3825,7 +3825,7 @@ class envoyDevice {
 
         const update = this.checkDeviceInfo ? false : this.updateEnsembleInventory();
       } catch (error) {
-        reject(`Update ensemble inventory data error: ${error}`);
+        reject(`Update ensemble inventory data error: ${error}.`);
       };
     });
   };
@@ -4057,7 +4057,7 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Status', JSON.stringify(ensembleStatus, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        reject(`Update ensemble status data error: ${error}`);
+        reject(`Update ensemble status data error: ${error}.`);
       };
     });
   };
@@ -4079,7 +4079,7 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Grid Profile', JSON.stringify(profileData.data, null, 2)) : false;
         resolve(profileData.data);
       } catch (error) {
-        reject(`Update meters data error: ${error}`);
+        reject(`Update meters data error: ${error}.`);
       };
     });
   };
@@ -4206,7 +4206,7 @@ class envoyDevice {
 
         const update = this.checkDeviceInfo ? false : this.updateLive();
       } catch (error) {
-        reject(`Update live data error: ${error}`);
+        reject(`Update live data error: ${error}.`);
       };
     });
   };
@@ -4242,7 +4242,7 @@ class envoyDevice {
 
         const update = this.checkDeviceInfo ? false : this.updateProduction();
       } catch (error) {
-        reject(`Update production data error: ${error}`);
+        reject(`Update production data error: ${error}.`);
       };
     });
   };
@@ -4414,8 +4414,8 @@ class envoyDevice {
             const showLog = write ? this.log.debug(`Device: ${this.host} ${this.name}, saved %s successful : ${consumptionsName} ${consumptionPowerToWrite} kW`) : false;
 
             //power peak state detected
-            const consumptionsPowerPeakDetected = [this.powerConsumptionTotalMaxDetected, this.powerConsumptionNetMaxDetected][i];
-            const consumptionPowerPeakDetected = (consumptionPower >= (consumptionsPowerPeakDetected / 1000)) ? true : false;
+            const consumptionsPowerPeakDetected = [this.powerConsumptionTotalMaxDetected / 1000, this.powerConsumptionNetMaxDetected / 1000][i];
+            const consumptionPowerPeakDetected = consumptionPower >= consumptionsPowerPeakDetected || false;
 
             //energy
             const consumptionsLifeTimeOffset = [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][i];
@@ -4468,23 +4468,23 @@ class envoyDevice {
             this.consumptionsReactivePower.push(consumptionReactivePower);
             this.consumptionsApparentPower.push(consumptionApparentPower);
             this.consumptionsPwrFactor.push(consumptionPwrFactor);
-          }
 
-          const consumptionTotalPowerPeakDetected = metersConsumptionCount >= 1 ? this.consumptionsPowerPeakDetected[0] : false;
-          const consumptionNetPowerPeakDetected = metersConsumptionCount === 2 ? this.consumptionsPowerPeakDetected[1] : false;
+            const consumptionTotalPowerPeakDetected = i === 0 ? this.consumptionsPowerPeakDetected[i] : false;
+            const consumptionNetPowerPeakDetected = i === 1 ? this.consumptionsPowerPeakDetected[i] : false;
 
-          if (this.consumptionTotalPowerPeakService) {
-            this.consumptionTotalPowerPeakService
-              .updateCharacteristic(Characteristic.ContactSensorState, consumptionTotalPowerPeakDetected)
-          }
+            if (this.consumptionTotalPowerPeakService) {
+              this.consumptionTotalPowerPeakService
+                .updateCharacteristic(Characteristic.ContactSensorState, consumptionTotalPowerPeakDetected)
+            }
 
-          if (this.consumptionNetPowerPeakService) {
-            this.consumptionNetPowerPeakService
-              .updateCharacteristic(Characteristic.ContactSensorState, consumptionNetPowerPeakDetected)
+            if (this.consumptionNetPowerPeakService) {
+              this.consumptionNetPowerPeakService
+                .updateCharacteristic(Characteristic.ContactSensorState, consumptionNetPowerPeakDetected)
+            }
+            this.consumptionTotalPowerPeakDetected = consumptionTotalPowerPeakDetected;
+            this.consumptionNetPowerPeakDetected = consumptionNetPowerPeakDetected;
+            this.metersConsumptionCount = metersConsumptionCount;
           }
-          this.consumptionTotalPowerPeakDetected = consumptionTotalPowerPeakDetected;
-          this.consumptionNetPowerPeakDetected = consumptionNetPowerPeakDetected;
-          this.metersConsumptionCount = metersConsumptionCount;
         }
 
         //ac btteries summary
@@ -4597,7 +4597,7 @@ class envoyDevice {
 
         const update = this.checkDeviceInfo ? false : this.updateMicroinverters();
       } catch (error) {
-        reject(`Update microinverters data error: ${error}`);
+        reject(`Update microinverters data error: ${error}.`);
       };
     });
   };
@@ -4635,7 +4635,7 @@ class envoyDevice {
         const mqtt = this.mqttEnabled ? this.mqtt.send('Power Mode', JSON.stringify(powerModeData.data, null, 2)) : false;
         resolve(true);
       } catch (error) {
-        reject(`Update power mode error: ${error}`);
+        reject(`Update power mode error: ${error}.`);
       };
     });
   }
@@ -4733,7 +4733,7 @@ class envoyDevice {
         resolve(true);
       } catch (error) {
         this.checkCommLevel = false;
-        reject(`Update plc level data error: ${error}`);
+        reject(`Update plc level data error: ${error}.`);
       };
     });
   };
@@ -4793,7 +4793,7 @@ class envoyDevice {
       };
 
       if (!deviceSn) {
-        reject(`Envoy serial number unknown: ${deviceSn}`);
+        reject(`Envoy serial number unknown: ${deviceSn}.`);
         return;
       };
 
@@ -5102,7 +5102,7 @@ class envoyDevice {
             });
           enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayLastReportDate)
             .onGet(async () => {
-              const value = this.qRelaysLastReportDate[i];
+              const value = this.qRelaysLastReportDate[i] || '';
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Q-Relay: ${qRelaySerialNumber}, last report: ${value}`);
               return value;
             });
@@ -5191,7 +5191,7 @@ class envoyDevice {
             });
           enphaseMeterService.getCharacteristic(Characteristic.enphaseMeterReadingTime)
             .onGet(async () => {
-              const value = this.timestampSumm[i];
+              const value = this.timestampSumm[i] || '';
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Meter: ${meterMeasurementType}, last report: ${value}`);
               return value;
             });
@@ -5315,73 +5315,73 @@ class envoyDevice {
           const enphaseConsumptionService = new Service.enphasePowerAndEnergyService(`Power And Energy ${consumptionMeasurmentType}`, `enphaseConsumptionService${i}`);
           enphaseConsumptionService.getCharacteristic(Characteristic.enphasePower)
             .onGet(async () => {
-              const value = (this.consumptionsPower[i]) ? this.consumptionsPower[i] : 0;
+              const value = this.consumptionsPower[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, power: ${value} kW`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMax)
             .onGet(async () => {
-              const value = (this.consumptionsPowerPeak[i]) ? this.consumptionsPowerPeak[i] : 0;
+              const value = this.consumptionsPowerPeak[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, power peak: ${value} kW`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMaxDetected)
             .onGet(async () => {
-              const value = (this.consumptionsPowerPeakDetected[i]) ? this.consumptionsPowerPeakDetected[i] : 0;
+              const value = this.consumptionsPowerPeakDetected[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, power peak detected: ${value ? 'Yes' : 'No'}`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyToday)
             .onGet(async () => {
-              const value = (this.consumptionsEnergyToday[i]) ? this.consumptionsEnergyToday[i] : 0;
+              const value = this.consumptionsEnergyToday[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, energy today: ${value} kWh`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
             .onGet(async () => {
-              const value = (this.consumptionsEnergyLastSevenDays[i]) ? this.consumptionsEnergyLastSevenDays[i] : 0;
+              const value = this.consumptionsEnergyLastSevenDays[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, energy last seven days: ${value} kWh`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyLifeTime)
             .onGet(async () => {
-              const value = (this.consumptionsEnergyLifeTime[i]) ? this.consumptionsEnergyLifeTime[i] : 0;
+              const value = this.consumptionsEnergyLifeTime[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, energy lifetime: ${value} kWh`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphaseRmsCurrent)
             .onGet(async () => {
-              const value = (this.consumptionsRmsCurrent[i]) ? this.consumptionsRmsCurrent[i] : 0;
+              const value = this.consumptionsRmsCurrent[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, current: ${value} A`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphaseRmsVoltage)
             .onGet(async () => {
-              const value = (this.consumptionsRmsVoltage[i]) ? this.consumptionsRmsVoltage[i] : 0;
+              const value = this.consumptionsRmsVoltage[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, voltage: ${value} V`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReactivePower)
             .onGet(async () => {
-              const value = (this.consumptionsReactivePower[i]) ? this.consumptionsReactivePower[i] : 0;
+              const value = this.consumptionsReactivePower[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, reactive power: ${value} kVAr`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphaseApparentPower)
             .onGet(async () => {
-              const value = (this.consumptionsApparentPower[i]) ? this.consumptionsApparentPower[i] : 0;
+              const value = this.consumptionsApparentPower[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, apparent power: ${value} kVA`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphasePwrFactor)
             .onGet(async () => {
-              const value = (this.consumptionsPwrFactor[i]) ? this.consumptionsPwrFactor[i] : 0;
+              const value = this.consumptionsPwrFactor[i] || 0;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, power factor: ${value} cos φ`);
               return value;
             });
           enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReadingTime)
             .onGet(async () => {
-              const value = (this.consumptionsReadingTime[i]) ? this.consumptionsReadingTime[i] : '';
+              const value = this.consumptionsReadingTime[i] || '';
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, ${consumptionMeasurmentType}, last report: ${value}`);
               return value;
             });
@@ -5403,31 +5403,31 @@ class envoyDevice {
             });
           this.consumptionsService.push(enphaseConsumptionService);
           accessory.addService(this.consumptionsService[i]);
+
+          //prepare consumption total power peak sensor service
+          if (this.powerConsumptionTotalMax && i === 0) {
+            this.log.debug('prepareConsumptionTotalPowerPeakService')
+            this.consumptionTotalPowerPeakService = new Service.ContactSensor(`${accessoryName} Power Peak Total`, `Power Peak Total`);
+            this.consumptionTotalPowerPeakService.getCharacteristic(Characteristic.ContactSensorState)
+              .onGet(async () => {
+                const state = this.consumptionTotalPowerPeakDetected || false;
+                return state;
+              });
+            accessory.addService(this.consumptionTotalPowerPeakService)
+          };
+
+          //prepare consumption net power peak sensor service
+          if (this.powerConsumptionNetMax && i === 1) {
+            this.log.debug('prepareConsumptionNetPowerPeakService')
+            this.consumptionNetPowerPeakService = new Service.ContactSensor(`${accessoryName} Power Peak Net`, `Power Peak Net`);
+            this.consumptionNetPowerPeakService.getCharacteristic(Characteristic.ContactSensorState)
+              .onGet(async () => {
+                const state = this.consumptionNetPowerPeakDetected || false;
+                return state;
+              });
+            accessory.addService(this.consumptionNetPowerPeakService)
+          };
         }
-
-        //prepare consumption total power peak sensor service
-        if (this.powerConsumptionTotalMax && metersConsumptionCount >= 1) {
-          this.log.debug('prepareConsumptionTotalPowerPeakService')
-          this.consumptionTotalPowerPeakService = new Service.ContactSensor(`${accessoryName} Power Peak Total`, `Power Peak Total`);
-          this.consumptionTotalPowerPeakService.getCharacteristic(Characteristic.ContactSensorState)
-            .onGet(async () => {
-              const state = this.consumptionTotalPowerPeakDetected;
-              return state;
-            });
-          accessory.addService(this.consumptionTotalPowerPeakService)
-        };
-
-        //prepare consumption net power peak sensor service
-        if (this.powerConsumptionNetMax && metersConsumptionCount === 2) {
-          this.log.debug('prepareConsumptionNetPowerPeakService')
-          this.consumptionNetPowerPeakService = new Service.ContactSensor(`${accessoryName} Power Peak Net`, `Power Peak Net`);
-          this.consumptionNetPowerPeakService.getCharacteristic(Characteristic.ContactSensorState)
-            .onGet(async () => {
-              const state = this.consumptionNetPowerPeakDetected;
-              return state;
-            });
-          accessory.addService(this.consumptionNetPowerPeakService)
-        };
       }
 
       //ac batteries summary
@@ -5466,7 +5466,7 @@ class envoyDevice {
           });
         enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime)
           .onGet(async () => {
-            const value = this.acBatteriesSummaryReadingTime;
+            const value = this.acBatteriesSummaryReadingTime || '';
             const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, AC Batteries: %s last report: ${value}`);
             return value;
           });
@@ -5635,7 +5635,7 @@ class envoyDevice {
             });
           enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
             .onGet(async () => {
-              const value = this.microinvertersReadingTime[i] || 'Unknown';
+              const value = this.microinvertersReadingTime[i] || '';
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Microinverter: ${microinverterSerialNumber}, last report: ${value}`);
               return value;
             });
@@ -5682,7 +5682,7 @@ class envoyDevice {
             });
           enphaseEsubService.getCharacteristic(Characteristic.enphaseEsubLastReportDate)
             .onGet(async () => {
-              const value = this.esubsLastReportDate[i];
+              const value = this.esubsLastReportDate[i] || '';
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Ensemble: ${esubSerialNumber}, last report: ${value}`);
               return value;
             });
@@ -5798,7 +5798,7 @@ class envoyDevice {
             });
           enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeLastReportDate)
             .onGet(async () => {
-              const value = this.enchargesLastReportDate[i];
+              const value = this.enchargesLastReportDate[i] || '';
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Encharge: ${enchargeSerialNumber}, last report: ${value}`);
               return value;
             });
@@ -5888,7 +5888,7 @@ class envoyDevice {
             });
           enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerLastReportDate)
             .onGet(async () => {
-              const value = this.enpowersLastReportDate[i];
+              const value = this.enpowersLastReportDate[i] || '';
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Enpower: ${enpowerSerialNumber}, last report: ${value}`);
               return value;
             });
