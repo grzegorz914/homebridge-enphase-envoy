@@ -1976,7 +1976,7 @@ module.exports = (api) => {
   }
   Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseB = enphaseEnsembleStatusVoltageBiasVPhaseB;
 
-  class enphaseEnsembleStatusFreqBiasHzQ8haseB extends Characteristic {
+  class enphaseEnsembleStatusFreqBiasHzQ8PhaseB extends Characteristic {
     constructor() {
       super('Frequency bias Q8 L2', '00000197-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -1990,9 +1990,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusFreqBiasHzQ8haseB = enphaseEnsembleStatusFreqBiasHzQ8haseB;
+  Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseB = enphaseEnsembleStatusFreqBiasHzQ8PhaseB;
 
-  class enphaseEnsembleStatusVoltageBiasVQ5haseB extends Characteristic {
+  class enphaseEnsembleStatusVoltageBiasVQ5PhaseB extends Characteristic {
     constructor() {
       super('Voltage bias Q5 L2', '00000198-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2006,7 +2006,7 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusVoltageBiasVQ5haseB = enphaseEnsembleStatusVoltageBiasVQ5haseB;
+  Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseB = enphaseEnsembleStatusVoltageBiasVQ5PhaseB;
 
   class enphaseEnsembleStatusFreqBiasHzPhaseC extends Characteristic {
     constructor() {
