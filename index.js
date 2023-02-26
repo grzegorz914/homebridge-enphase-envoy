@@ -6156,7 +6156,7 @@ class envoyDevice {
           const enphaseEnsembleStatusService = new Service.enphaseEnsembleStatusService(`Ensemble summary`, 'enphaseEnsembleStatusService');
           enphaseEnsembleStatusService.getCharacteristic(Characteristic.enphaseEnsembleStatusRestPower)
             .onGet(async () => {
-              const value = this.enchargesRestPower;
+              const value = this.ensembleRestPower;
               const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Ensemble summary, rest power: ${value} kW`);
               return value;
             });
