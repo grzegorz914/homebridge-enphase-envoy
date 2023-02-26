@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [6.6.0] - (26.02.2023)
+## Changes
+- added for ensemble summary Rest Power
+- added for ensemble summary AGG Max Energy
+- added for ensemble summary Encharges AGG SoC
+- added for ensemble summary Encharges AGG Rated Power
+- added for ensemble summary bias frequency, voltage for phasa L2/B and L3/C
+- prevent HB crash if for some reason prepare accessory fail
+- properties updated/added
+- bump dependencies
+- cleanup
+
 ## [6.5.0] - (17.01.2023)
 ## Changes
 - added possibility to set refresh time for live dta, meters data and production ct
