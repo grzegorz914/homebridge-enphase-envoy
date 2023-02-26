@@ -1866,7 +1866,7 @@ module.exports = (api) => {
   //Ensemble status summary
   class enphaseEnsembleStatusRestPower extends Characteristic {
     constructor() {
-      super('Rest power', '00000192-000B-1000-8000-0026BB765291');
+      super('Rest power', '00000190-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -1882,7 +1882,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusFreqBiasHz extends Characteristic {
     constructor() {
-      super('Frequency bias L1', '00000192-000B-1000-8000-0026BB765291');
+      super('Frequency bias L1', '00000191-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'Hz',
@@ -1898,7 +1898,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusVoltageBiasV extends Characteristic {
     constructor() {
-      super('Voltage bias L1', '00000193-000B-1000-8000-0026BB765291');
+      super('Voltage bias L1', '00000192-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'V',
@@ -1914,7 +1914,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusFreqBiasHzQ8 extends Characteristic {
     constructor() {
-      super('Frequency bias Q8 L1', '00000194-000B-1000-8000-0026BB765291');
+      super('Frequency bias Q8 L1', '00000193-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'Hz',
@@ -1930,7 +1930,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusVoltageBiasVQ5 extends Characteristic {
     constructor() {
-      super('Voltage bias Q5 L1', '00000195-000B-1000-8000-0026BB765291');
+      super('Voltage bias Q5 L1', '00000194-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'V',
@@ -1946,7 +1946,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusFreqBiasHzPhaseB extends Characteristic {
     constructor() {
-      super('Frequency bias L2', '00000196-000B-1000-8000-0026BB765291');
+      super('Frequency bias L2', '00000195-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'Hz',
@@ -1962,7 +1962,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusVoltageBiasVPhaseB extends Characteristic {
     constructor() {
-      super('Voltage bias L2', '00000197-000B-1000-8000-0026BB765291');
+      super('Voltage bias L2', '00000196-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'V',
@@ -1978,7 +1978,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusFreqBiasHzQ8haseB extends Characteristic {
     constructor() {
-      super('Frequency bias Q8 L2', '00000198-000B-1000-8000-0026BB765291');
+      super('Frequency bias Q8 L2', '00000197-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'Hz',
@@ -1994,7 +1994,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusVoltageBiasVQ5haseB extends Characteristic {
     constructor() {
-      super('Voltage bias Q5 L2', '00000199-000B-1000-8000-0026BB765291');
+      super('Voltage bias Q5 L2', '00000198-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'V',
@@ -2010,7 +2010,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusFreqBiasHzPhaseC extends Characteristic {
     constructor() {
-      super('Frequency bias L3', '00000200-000B-1000-8000-0026BB765291');
+      super('Frequency bias L3', '00000199-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'Hz',
@@ -2026,7 +2026,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusVoltageBiasVPhaseC extends Characteristic {
     constructor() {
-      super('Voltage bias L3', '00000201-000B-1000-8000-0026BB765291');
+      super('Voltage bias L3', '00000200-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'V',
@@ -2042,7 +2042,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusFreqBiasHzQ8PhaseC extends Characteristic {
     constructor() {
-      super('Frequency bias Q8 L3', '00000202-000B-1000-8000-0026BB765291');
+      super('Frequency bias Q8 L3', '00000201-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'Hz',
@@ -2058,7 +2058,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusVoltageBiasVQ5PhaseC extends Characteristic {
     constructor() {
-      super('Voltage bias Q5 L3', '00000203-000B-1000-8000-0026BB765291');
+      super('Voltage bias Q5 L3', '00000202-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'V',
@@ -2074,7 +2074,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusConfiguredBackupSoc extends Characteristic {
     constructor() {
-      super('Configured backup SoC', '00000204-000B-1000-8000-0026BB765291');
+      super('Configured backup SoC', '00000203-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.UINT8,
         unit: '%',
@@ -2090,7 +2090,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusAdjustedBackupSoc extends Characteristic {
     constructor() {
-      super('Adjusted backup SoC', '00000205-000B-1000-8000-0026BB765291');
+      super('Adjusted backup SoC', '00000204-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.UINT8,
         unit: '%',
@@ -2106,7 +2106,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusAggSoc extends Characteristic {
     constructor() {
-      super('AGG SoC', '00000206-000B-1000-8000-0026BB765291');
+      super('AGG SoC', '00000205-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.UINT8,
         unit: '%',
@@ -2122,7 +2122,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusAggMaxEnergy extends Characteristic {
     constructor() {
-      super('AGG max energy', '00000207-000B-1000-8000-0026BB765291');
+      super('AGG max energy', '00000206-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kWh',
@@ -2138,7 +2138,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusEncAggSoc extends Characteristic {
     constructor() {
-      super('ENC SoC', '00000208-000B-1000-8000-0026BB765291');
+      super('ENC SoC', '00000207-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.UINT8,
         unit: '%',
@@ -2154,7 +2154,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusEncAggRatedPower extends Characteristic {
     constructor() {
-      super('ENC rated power', '00000209-000B-1000-8000-0026BB765291');
+      super('ENC rated power', '00000208-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -2170,7 +2170,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusEncAggBackupEnergy extends Characteristic {
     constructor() {
-      super('ENC backup energy', '00000210-000B-1000-8000-0026BB765291');
+      super('ENC backup energy', '00000209-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kWh',
@@ -2186,7 +2186,7 @@ module.exports = (api) => {
 
   class enphaseEnsembleStatusEncAggAvailEnergy extends Characteristic {
     constructor() {
-      super('ENC available energy', '00000211-000B-1000-8000-0026BB765291');
+      super('ENC available energy', '00000210-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kWh',
