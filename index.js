@@ -2968,7 +2968,7 @@ class envoyDevice {
         const deviceEuaid = device.euaid[0];
         const deviceSeqNum = device.seqnum[0];
         const deviceApiVer = device.apiver[0];
-        const deviceImeter = (device.imeter[0] === 'true');
+        const deviceImeter = device.imeter[0] === 'true';
 
         //web tokens
         const webTokens = envoyKeys.includes('web-tokens') ? (envoyInfo['web-tokens'][0] === 'true') : false;
@@ -3063,8 +3063,8 @@ class envoyDevice {
 
         //network
         const envoyNework = envoy.network;
-        const webComm = (envoyNework.web_comm === true);
-        const everReportedToEnlighten = (envoyNework.ever_reported_to_enlighten === true);
+        const webComm = envoyNework.web_comm === true;
+        const everReportedToEnlighten = envoyNework.ever_reported_to_enlighten === true;
         const lastEnlightenReporDate = new Date(envoyNework.last_enlighten_report_time * 1000).toLocaleString();
         const primaryInterface = CONSTANS.ApiCodes[envoyNework.primary_interface] || 'undefined';
         const envoyNetworkInterfaces = envoyNework.interfaces;
@@ -3078,14 +3078,14 @@ class envoyDevice {
             const envoyInterfaceStartIndex = envoyInterfaceCellular ? 1 : 0;
 
             if (envoyInterfaceCellular) {
-              const envoyInterfaceSignalStrength = (envoyNetworkInterfaces[0].signal_strength * 20);
-              const envoyInterfaceSignalStrengthMax = (envoyNetworkInterfaces[0].signal_strength_max * 20);
+              const envoyInterfaceSignalStrength = envoyNetworkInterfaces[0].signal_strength * 20;
+              const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[0].signal_strength_max * 20;
               const envoyInterfaceNetwork = envoyNetworkInterfaces[0].network;
               const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[0].type] || 'undefined';
               const envoyInterfaceInterface = envoyNetworkInterfaces[0].interface;
               const envoyInterfaceDhcp = envoyNetworkInterfaces[0].dhcp;
               const envoyInterfaceIp = envoyNetworkInterfaces[0].ip;
-              const envoyInterfaceCarrier = (envoyNetworkInterfaces[0].carrier === true);
+              const envoyInterfaceCarrier = envoyNetworkInterfaces[0].carrier === true;
               this.envoyInterfaceCellular = true;
             }
             if (envoyInterfaceLan) {
@@ -3094,20 +3094,20 @@ class envoyDevice {
               const envoyInterfaceMac = envoyNetworkInterfaces[envoyInterfaceStartIndex].mac;
               const envoyInterfaceDhcp = envoyNetworkInterfaces[envoyInterfaceStartIndex].dhcp;
               const envoyInterfaceIp = envoyNetworkInterfaces[envoyInterfaceStartIndex].ip;
-              const envoyInterfaceSignalStrength = (envoyNetworkInterfaces[envoyInterfaceStartIndex].signal_strength * 20);
-              const envoyInterfaceSignalStrengthMax = (envoyNetworkInterfaces[envoyInterfaceStartIndex].signal_strength_max * 20);
-              const envoyInterfaceCarrier = (envoyNetworkInterfaces[envoyInterfaceStartIndex].carrier === true);
+              const envoyInterfaceSignalStrength = envoyNetworkInterfaces[envoyInterfaceStartIndex].signal_strength * 20;
+              const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[envoyInterfaceStartIndex].signal_strength_max * 20;
+              const envoyInterfaceCarrier = envoyNetworkInterfaces[envoyInterfaceStartIndex].carrier === true;
               this.envoyInterfaceLan = true;
             }
             if (envoyInterfaceWlan) {
-              const envoyInterfaceSignalStrenth = (envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength * 20);
-              const envoyInterfaceSignalStrengthMax = (envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength_max * 20);
+              const envoyInterfaceSignalStrenth = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength * 20;
+              const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength_max * 20;
               const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].type] || 'undefined';
               const envoyInterfaceInterface = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].interface;
               const envoyInterfaceMac = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].mac;
               const envoyInterfaceDhcp = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].dhcp;
               const envoyInterfaceIp = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].ip;
-              const envoyInterfaceCarrier = (envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].carrier === true);
+              const envoyInterfaceCarrier = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].carrier === true;
               const envoyInterfaceSupported = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].supported;
               const envoyInterfacePresent = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].present;
               const envoyInterfaceConfigured = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].configured;
@@ -3133,14 +3133,14 @@ class envoyDevice {
         //comm esub
         const commEsub = esubsSupported ? comm.esub : {};
         const commEsubNum = esubsSupported ? commEsub.num : 0;
-        const commEsubLevel = esubsSupported ? (commEsub.level * 20) : 0;
+        const commEsubLevel = esubsSupported ? commEsub.level * 20 : 0;
 
         //comm encharge
         const commEncharge = enchargesSupported ? comm.encharge[0] : {};
         const commEnchgNum = enchargesSupported ? commEncharge.num : 0;
-        const commEnchgLevel = enchargesSupported ? (commEncharge.level * 20) : 0;
-        const commEnchgLevel24g = enchargesSupported ? (commEncharge.level_24g * 20) : 0;
-        const commEnchagLevelSubg = enchargesSupported ? (commEncharge.level_subg * 20) : 0;
+        const commEnchgLevel = enchargesSupported ? commEncharge.level * 20 : 0;
+        const commEnchgLevel24g = enchargesSupported ? commEncharge.level_24g * 20 : 0;
+        const commEnchagLevelSubg = enchargesSupported ? commEncharge.level_subg * 20 : 0;
 
         const alerts = envoy.alerts;
         const updateStatus = CONSTANS.ApiCodes[envoy.update_status] || 'undefined';
@@ -3158,10 +3158,10 @@ class envoyDevice {
 
             for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
               const wirelessConnection = wirelessConnections[i];
-              const wirelessConnectionSignalStrength = (wirelessConnection.signal_strength * 20);
-              const wirelessConnectionSignalStrengthMax = (wirelessConnection.signal_strength_max * 20);
+              const wirelessConnectionSignalStrength = wirelessConnection.signal_strength * 20;
+              const wirelessConnectionSignalStrengthMax = wirelessConnection.signal_strength_max * 20;
               const wirelessConnectionType = CONSTANS.ApiCodes[wirelessConnection.type] || 'undefined';
-              const wirelessConnectionConnected = (wirelessConnection.connected === true);
+              const wirelessConnectionConnected = wirelessConnection.connected === true;
 
               if (this.wirelessConnektionsKitService) {
                 this.wirelessConnektionsKitService[i]
@@ -3176,7 +3176,7 @@ class envoyDevice {
               this.wirelessConnectionsType.push(wirelessConnectionType);
               this.wirelessConnectionsConnected.push(wirelessConnectionConnected);
             }
-            this.wirelessConnectionKitInstalled = this.wirelessConnectionsConnected.includes(true) ? true : false;
+            this.wirelessConnectionKitInstalled = this.wirelessConnectionsConnected.includes(true);
           }
           this.wirelessConnectionKitSupported = true;
           this.wirelessConnectionKitConnectionsCount = wirelessConnectionKitConnectionsCount;
@@ -3722,11 +3722,11 @@ class envoyDevice {
             const reactEnergyLagg = parseFloat(meter.reactEnergyLagg);
             const reactEnergyLead = parseFloat(meter.reactEnergyLead);
             const instantaneousDemand = parseFloat(meter.instantaneousDemand);
-            const activePower = parseFloat((meter.activePower) / 1000);
-            const apparentPower = parseFloat((meter.apparentPower) / 1000);
-            const reactivePower = parseFloat((meter.reactivePower) / 1000);
+            const activePower = parseFloat(meter.activePower) / 1000;
+            const apparentPower = parseFloat(meter.apparentPower) / 1000;
+            const reactivePower = parseFloat(meter.reactivePower) / 1000;
             const pwrFactor = parseFloat(meter.pwrFactor);
-            const voltage = parseFloat((meter.voltage) / metersVoltageDivide);
+            const voltage = parseFloat(meter.voltage / metersVoltageDivide);
             const current = parseFloat(meter.current);
             const freq = parseFloat(meter.freq);
 
@@ -3787,9 +3787,9 @@ class envoyDevice {
                 const reactEnergyLagg = parseFloat(meterChannel.reactEnergyLagg);
                 const reactEnergyLead = parseFloat(meterChannel.reactEnergyLead);
                 const instantaneousDemand = parseFloat(meterChannel.instantaneousDemand);
-                const activePower = parseFloat((meterChannel.activePower) / 1000);
-                const apparentPower = parseFloat((meterChannel.apparentPower) / 1000);
-                const reactivePower = parseFloat((meterChannel.reactivePower) / 1000);
+                const activePower = parseFloat(meterChannel.activePower) / 1000;
+                const apparentPower = parseFloat(meterChannel.apparentPower) / 1000;
+                const reactivePower = parseFloat(meterChannel.reactivePower) / 1000;
                 const pwrFactor = parseFloat(meterChannel.pwrFactor);
                 const voltage = parseFloat(meterChannel.voltage);
                 const current = parseFloat(meterChannel.current);
@@ -3889,18 +3889,18 @@ class envoyDevice {
             const imgPnumRunning = encharge.img_pnum_running;
             const zigbeeDongleFwVersion = encharge.zigbee_dongle_fw_version;
             const bmuFwVersion = encharge.bmu_fw_version;
-            const operating = (encharge.operating === true);
-            const communicating = (encharge.communicating === true);
+            const operating = encharge.operating === true;
+            const communicating = encharge.communicating === true;
             const sleepEnabled = encharge.sleep_enabled;
             const percentFull = encharge.percentFull;
             const temperature = encharge.temperature;
             const maxCellTemp = encharge.maxCellTemp;
-            const commLevelSubGhz = (encharge.comm_level_sub_ghz * 20);
-            const commLevel24Ghz = (encharge.comm_level_2_4_ghz * 20);
+            const commLevelSubGhz = encharge.comm_level_sub_ghz * 20;
+            const commLevel24Ghz = encharge.comm_level_2_4_ghz * 20;
             const ledStatus = CONSTANS.LedStatus[encharge.led_status] || 'undefined';
             const dcSwitchOff = encharge.dc_switch_off;
             const enchargeRev = encharge.encharge_rev;
-            const enchargeCapacity = parseFloat((encharge.encharge_capacity) / 1000); //in kWh
+            const enchargeCapacity = parseFloat(encharge.encharge_capacity) / 1000; //in kWh
 
             //convert status
             const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
@@ -3983,11 +3983,11 @@ class envoyDevice {
             const imgLoadDate = new Date(enpower.img_load_date * 1000).toLocaleString();
             const imgPnumRunning = enpower.img_pnum_running;
             const zigbeeDongleFwVersion = enpower.zigbee_dongle_fw_version;
-            const operating = (enpower.operating === true);
-            const communicating = (enpower.communicating === true);
+            const operating = enpower.operating === true;
+            const communicating = enpower.communicating === true;
             const temperature = enpower.temperature;
-            const commLevelSubGhz = (enpower.comm_level_sub_ghz * 20);
-            const commLevel24Ghz = (enpower.comm_level_2_4_ghz * 20);
+            const commLevelSubGhz = enpower.comm_level_sub_ghz * 20;
+            const commLevel24Ghz = enpower.comm_level_2_4_ghz * 20;
             const mainsAdminState = CONSTANS.ApiCodes[enpower.mains_admin_state] || 'undefined';
             const mainsOperState = CONSTANS.ApiCodes[enpower.mains_oper_state] || 'undefined';
             const enpwrGridMode = CONSTANS.ApiCodes[enpower.Enpwr_grid_mode] || 'undefined';
@@ -4078,8 +4078,8 @@ class envoyDevice {
           const reportedGridMode = CONSTANS.ApiCodes[ensembleDevice.reported_grid_mode] || 'undefined';
           const phase = ensembleDevice.phase;
           const enchargeRevision = ensembleDevice.encharge_revision;
-          const enchargeCapacity = parseFloat(ensembleDevice.encharge_capacity / 1000); //in kWh
-          const enchargeRatedPower = parseFloat(ensembleDevice.encharge_rated_power / 1000); //in kW
+          const enchargeCapacity = parseFloat(ensembleDevice.encharge_capacity) / 1000; //in kWh
+          const enchargeRatedPower = parseFloat(ensembleDevice.encharge_rated_power) / 1000; //in kW
           const msgRetryCoun1 = ensembleDevice.msg_retry_count;
           const partNumber = ensembleDevice.part_number;
           const assemblyNumber = ensembleDevice.assembly_number;
@@ -4148,7 +4148,7 @@ class envoyDevice {
         const restRelayGet = counter.rest_RelayGet;
         const restRelayPost = counter.rest_RelayPost;
         const restCommCheckGet = counter.rest_CommCheckGet;
-        const restPower = parseFloat(counter.rest_Power / 1000);  //in kW
+        const restPower = parseFloat(counter.rest_Power) / 1000;  //in kW
         const extZbRemove = counter.ext_zb_remove;
         const extZbRemoveErr = counter.ext_zb_remove_err;
         const extZbSendMsg = counter.ext_zb_send_msg;
@@ -4225,15 +4225,15 @@ class envoyDevice {
         const configuredBackupSoc = secctrl.configured_backup_soc; //in %
         const adjustedBackupSoc = secctrl.adjusted_backup_soc; //in %
         const aggSoc = secctrl.agg_soc; //in %
-        const aggMaxEnergy = parseFloat(secctrl.Max_energy / 1000); //in kWh
+        const aggMaxEnergy = parseFloat(secctrl.Max_energy) / 1000; //in kWh
         const encAggSoc = secctrl.ENC_agg_soc; //in %
         const encAggSoh = secctrl.ENC_agg_soh; //in %
-        const encAggBackupEnergy = parseFloat(secctrl.ENC_agg_backup_energy / 1000); //in kWh
-        const encAggAvailEnergy = parseFloat(secctrl.ENC_agg_avail_energy / 1000); //in kWh
-        const encCommissionedCapacity = parseFloat(secctrl.Enc_commissioned_capacity / 1000); //in kWh
-        const encMaxAvailableCapacity = parseFloat(secctrl.Enc_max_available_capacity / 1000); //in kWh
+        const encAggBackupEnergy = parseFloat(secctrl.ENC_agg_backup_energy) / 1000; //in kWh
+        const encAggAvailEnergy = parseFloat(secctrl.ENC_agg_avail_energy) / 1000; //in kWh
+        const encCommissionedCapacity = parseFloat(secctrl.Enc_commissioned_capacity) / 1000; //in kWh
+        const encMaxAvailableCapacity = parseFloat(secctrl.Enc_max_available_capacity) / 1000; //in kWh
         const acbAggSoc = secctrl.ACB_agg_soc; //in %
-        const acbAggEnergy = parseFloat(secctrl.ACB_agg_energy / 1000); //in kWh
+        const acbAggEnergy = parseFloat(secctrl.ACB_agg_energy) / 1000; //in kWh
 
         if (this.ensembleStatusService) {
           this.ensembleStatusService[0]
@@ -4292,7 +4292,7 @@ class envoyDevice {
 
         //profile
         const profile = ensembleStatus.profile;
-        const message = (profile.message === 'Obsolete API, please use ivp/arf/profile') || false;
+        const message = profile.message === 'Obsolete API, please use ivp/arf/profile';
         const profileData = message ? await this.updateProfileData() : profile;
         const name = profileData.name;
         const id = profileData.id;
@@ -4300,7 +4300,7 @@ class envoyDevice {
         const itemCount = profileData.item_count;
 
         //fakeit
-        const fakeInventoryMode = (ensembleStatus.fakeit.fake_inventory_mode === true);
+        const fakeInventoryMode = ensembleStatus.fakeit.fake_inventory_mode === true;
 
         this.ensembleGridProfileName = name;
         this.ensembleId = id;
@@ -4482,10 +4482,10 @@ class envoyDevice {
         }
 
         const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
-        const productionMicroSummarywhToday = parseFloat(productionData.data.wattHoursToday / 1000);
-        const productionMicroSummarywhLastSevenDays = parseFloat(productionData.data.wattHoursSevenDays / 1000);
-        const productionMicroSummarywhLifeTime = parseFloat((productionData.data.wattHoursLifetime + productionEnergyLifetimeOffset) / 1000);
-        const productionMicroSummaryWattsNow = parseFloat(productionData.data.wattsNow / 1000);
+        const productionMicroSummarywhToday = parseFloat(productionData.data.wattHoursToday) / 1000;
+        const productionMicroSummarywhLastSevenDays = parseFloat(productionData.data.wattHoursSevenDays) / 1000;
+        const productionMicroSummarywhLifeTime = parseFloat(productionData.data.wattHoursLifetime + productionEnergyLifetimeOffset) / 1000;
+        const productionMicroSummaryWattsNow = parseFloat(productionData.data.wattsNow) / 1000;
 
         this.productionMicroSummarywhToday = productionMicroSummarywhToday;
         this.productionMicroSummarywhLastSevenDays = productionMicroSummarywhLastSevenDays;
@@ -4543,8 +4543,8 @@ class envoyDevice {
         const productionMicroType = CONSTANS.ApiCodes[productionMicro.type];
         const productionMicroActiveCount = productionMicro.activeCount;
         const productionMicroReadingTime = new Date(productionMicro.readingTime * 1000).toLocaleString();
-        const productionMicroPower = parseFloat(productionMicro.wNow / 1000);
-        const productionMicroEnergyLifeTime = parseFloat((productionMicro.whLifetime + productionEnergyLifetimeOffset) / 1000);
+        const productionMicroPower = parseFloat(productionMicro.wNow) / 1000;
+        const productionMicroEnergyLifeTime = parseFloat(productionMicro.whLifetime + productionEnergyLifetimeOffset) / 1000;
 
         //production data
         const production = productionCtData.data.production[1];
@@ -4552,7 +4552,7 @@ class envoyDevice {
         const productionActiveCount = metersProductionEnabled ? production.activeCount : productionMicroActiveCount;
         const productionMeasurmentType = metersProductionEnabled ? CONSTANS.ApiCodes[production.measurementType] : productionMicroType;
         const productionReadingTime = metersProductionEnabled ? new Date(production.readingTime * 1000).toLocaleString() : productionMicroReadingTime;
-        const productionPower = metersProductionEnabled ? parseFloat(production.wNow / 1000) : productionMicroSummaryWattsNow;
+        const productionPower = metersProductionEnabled ? parseFloat(production.wNow) / 1000 : productionMicroSummaryWattsNow;
 
         //read power peak
         const savedProductionPowerPeak = await fsPromises.readFile(this.productionPowerPeakFile);
@@ -4561,30 +4561,30 @@ class envoyDevice {
 
         //save power peak
         const powerProductionToWrite = resetProductionPowerPeak ? '0' : productionPower.toString();
-        const write = ((productionPower > productionPowerPeak) || resetProductionPowerPeak) ? await fsPromises.writeFile(this.productionPowerPeakFile, powerProductionToWrite) : false;
-        const showLog = write ? this.log.debug(`Device: ${this.host} ${this.name}, saved production power peak successful: ${powerProductionToWrite} kW`) : false;
+        const write = (productionPower > productionPowerPeak) || resetProductionPowerPeak ? await fsPromises.writeFile(this.productionPowerPeakFile, powerProductionToWrite) : false;
+        const showLog = write ? this.log.debug(`Device: ${this.host} ${this.name}, saved production power peak: ${powerProductionToWrite} kW`) : false;
 
         //power peak state detected
-        const productionPowerPeakDetected = (productionPower >= (this.powerProductionMaxDetected / 1000)) ? true : false;
+        const productionPowerPeakDetected = productionPower >= (this.powerProductionMaxDetected / 1000);
 
         //energy
         const productionEnergyLifeTime = metersProductionEnabled ? parseFloat((production.whLifetime + productionEnergyLifetimeOffset) / 1000) : productionMicroSummarywhLifeTime;
-        const productionEnergyVarhLeadLifetime = metersProductionEnabled ? parseFloat(production.varhLeadLifetime / 1000) : 0;
-        const productionEnergyVarhLagLifetime = metersProductionEnabled ? parseFloat(production.varhLagLifetime / 1000) : 0;
-        const productionEnergyLastSevenDays = metersProductionEnabled ? parseFloat(production.whLastSevenDays / 1000) : productionMicroSummarywhLastSevenDays;
-        const productionEnergyToday = metersProductionEnabled ? parseFloat(production.whToday / 1000) : productionMicroSummarywhToday;
-        const productionEnergyVahToday = metersProductionEnabled ? parseFloat(production.vahToday / 1000) : 0;
-        const productionEnergyVarhLeadToday = metersProductionEnabled ? parseFloat(production.varhLeadToday / 1000) : 0;
-        const productionEnergyVarhLagToday = metersProductionEnabled ? parseFloat(production.varhLagToday / 1000) : 0;
+        const productionEnergyVarhLeadLifetime = metersProductionEnabled ? parseFloat(production.varhLeadLifetime) / 1000 : 0;
+        const productionEnergyVarhLagLifetime = metersProductionEnabled ? parseFloat(production.varhLagLifetime) / 1000 : 0;
+        const productionEnergyLastSevenDays = metersProductionEnabled ? parseFloat(production.whLastSevenDays) / 1000 : productionMicroSummarywhLastSevenDays;
+        const productionEnergyToday = metersProductionEnabled ? parseFloat(production.whToday) / 1000 : productionMicroSummarywhToday;
+        const productionEnergyVahToday = metersProductionEnabled ? parseFloat(production.vahToday) / 1000 : 0;
+        const productionEnergyVarhLeadToday = metersProductionEnabled ? parseFloat(production.varhLeadToday) / 1000 : 0;
+        const productionEnergyVarhLagToday = metersProductionEnabled ? parseFloat(production.varhLagToday) / 1000 : 0;
 
         //param
         const productionRmsCurrent = metersProductionEnabled ? parseFloat(production.rmsCurrent) : 0;
-        const productionRmsVoltage = metersProductionEnabled ? parseFloat((production.rmsVoltage) / metersProductionVoltageDivide) : 0;
-        const productionReactivePower = metersProductionEnabled ? parseFloat((production.reactPwr) / 1000) : 0;
-        const productionApparentPower = metersProductionEnabled ? parseFloat((production.apprntPwr) / 1000) : 0;
+        const productionRmsVoltage = metersProductionEnabled ? parseFloat(production.rmsVoltage / metersProductionVoltageDivide) : 0;
+        const productionReactivePower = metersProductionEnabled ? parseFloat(production.reactPwr) / 1000 : 0;
+        const productionApparentPower = metersProductionEnabled ? parseFloat(production.apprntPwr) / 1000 : 0;
         const productionPwrFactor = metersProductionEnabled ? parseFloat(production.pwrFactor) : 0;
 
-        const productionEnergyLifeTimeFix = (productionEnergyLifeTime < 0) ? 0 : productionEnergyLifeTime;
+        const productionEnergyLifeTimeFix = productionEnergyLifeTime < 0 ? 0 : productionEnergyLifeTime;
 
         if (this.productionsService) {
           this.productionsService[0]
@@ -4654,20 +4654,20 @@ class envoyDevice {
             const consumptionActiveCount = consumption.activeCount;
             const consumptionMeasurmentType = CONSTANS.ApiCodes[consumption.measurementType];
             const consumptionReadingTime = new Date(consumption.readingTime * 1000).toLocaleString();
-            const consumptionPower = parseFloat(consumption.wNow / 1000);
+            const consumptionPower = parseFloat(consumption.wNow) / 1000;
 
             //read saved power peak
             const consumptionsName = ['consumption total', 'consumption net'][i];
             const consumptionsFile = [this.consumptionTotalPowerPeakFile, this.consumptionNetPowerPeakFile][i];
             const savedConsumptionPowerPeak = await fsPromises.readFile(consumptionsFile);
-            const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug read ${consumptionsName} power peak successful: ${savedConsumptionPowerPeak} kW`) : false;
+            const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug read ${consumptionsName} power peak: ${savedConsumptionPowerPeak} kW`) : false;
             const consumptionPowerPeak = parseFloat(savedConsumptionPowerPeak);
 
             //save power peak
             const autoReset = [resetConsumptionTotalPowerPeak, resetConsumptionNetPowerPeak][i]
             const consumptionPowerToWrite = autoReset ? '0' : consumptionPower.toString();
-            const write = ((consumptionPower > consumptionPowerPeak) || autoReset) ? await fsPromises.writeFile(consumptionsFile, consumptionPowerToWrite) : false;
-            const showLog = write ? this.log.debug(`Device: ${this.host} ${this.name}, saved %s successful : ${consumptionsName} ${consumptionPowerToWrite} kW`) : false;
+            const write = (consumptionPower > consumptionPowerPeak) || autoReset ? await fsPromises.writeFile(consumptionsFile, consumptionPowerToWrite) : false;
+            const showLog = write ? this.log.debug(`Device: ${this.host} ${this.name}, saved ${consumptionsName} power peak: ${consumptionPowerToWrite} kW`) : false;
 
             //power peak state detected
             const consumptionsPowerPeakDetected = [this.powerConsumptionTotalMaxDetected / 1000, this.powerConsumptionNetMaxDetected / 1000][i];
@@ -4675,22 +4675,22 @@ class envoyDevice {
 
             //energy
             const consumptionsLifeTimeOffset = [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][i];
-            const consumptionEnergyLifeTime = parseFloat((consumption.whLifetime + consumptionsLifeTimeOffset) / 1000);
-            const consumptionEnergyVarhLeadLifetime = parseFloat(consumption.varhLeadLifetime / 1000);
-            const consumptionEnergyVarhLagLifetime = parseFloat(consumption.varhLagLifetime / 1000);
-            const consumptionEnergyLastSevenDays = parseFloat(consumption.whLastSevenDays / 1000);
-            const consumptionEnergyToday = parseFloat(consumption.whToday / 1000);
-            const consumptionEnergyVahToday = parseFloat(consumption.vahToday / 1000);
-            const consumptionEnergyVarhLeadToday = parseFloat(consumption.varhLeadToday / 1000);
-            const consumptionEnergyVarhLagToday = parseFloat(consumption.varhLagToday / 1000);
+            const consumptionEnergyLifeTime = parseFloat(consumption.whLifetime + consumptionsLifeTimeOffset) / 1000;
+            const consumptionEnergyVarhLeadLifetime = parseFloat(consumption.varhLeadLifetime) / 1000;
+            const consumptionEnergyVarhLagLifetime = parseFloat(consumption.varhLagLifetime) / 1000;
+            const consumptionEnergyLastSevenDays = parseFloat(consumption.whLastSevenDays) / 1000;
+            const consumptionEnergyToday = parseFloat(consumption.whToday) / 1000;
+            const consumptionEnergyVahToday = parseFloat(consumption.vahToday) / 1000;
+            const consumptionEnergyVarhLeadToday = parseFloat(consumption.varhLeadToday) / 1000;
+            const consumptionEnergyVarhLagToday = parseFloat(consumption.varhLagToday) / 1000;
 
             //net param
             const consumptionRmsCurrent = parseFloat(consumption.rmsCurrent);
-            const consumptionRmsVoltage = parseFloat((consumption.rmsVoltage) / metersConsumpionVoltageDivide);
-            const consumptionReactivePower = parseFloat((consumption.reactPwr) / 1000);
-            const consumptionApparentPower = parseFloat((consumption.apprntPwr) / 1000);
+            const consumptionRmsVoltage = parseFloat(consumption.rmsVoltage / metersConsumpionVoltageDivide);
+            const consumptionReactivePower = parseFloat(consumption.reactPwr) / 1000;
+            const consumptionApparentPower = parseFloat(consumption.apprntPwr) / 1000;
             const consumptionPwrFactor = parseFloat(consumption.pwrFactor);
-            const consumptionEnergyLifeTimeFix = (consumptionEnergyLifeTime < 0) ? 0 : consumptionEnergyLifeTime;
+            const consumptionEnergyLifeTimeFix = consumptionEnergyLifeTime < 0 ? 0 : consumptionEnergyLifeTime;
 
             if (this.consumptionsService) {
               this.consumptionsService[i]
@@ -4749,8 +4749,8 @@ class envoyDevice {
           const type = CONSTANS.ApiCodes[acBaterie.type] || 'AC Batterie';
           const activeCount = acBaterie.activeCount;
           const readingTime = new Date(acBaterie.readingTime * 1000).toLocaleString();
-          const wNow = parseFloat((acBaterie.wNow) / 1000);
-          const whNow = parseFloat((acBaterie.whNow + this.acBatteriesStorageOffset) / 1000);
+          const wNow = parseFloat(acBaterie.wNow) / 1000;
+          const whNow = parseFloat(acBaterie.whNow + this.acBatteriesStorageOffset) / 1000;
           const chargeStatus = CONSTANS.ApiCodes[acBaterie.state] || 'undefined';
           const percentFull = acBaterie.percentFull;
 
@@ -4880,7 +4880,7 @@ class envoyDevice {
           return;
         }
 
-        const productionPowerMode = (powerModeData.data.powerForcedOff === false);
+        const productionPowerMode = powerModeData.data.powerForcedOff === false;
         if (this.envoysService) {
           this.envoysService[0]
             .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, productionPowerMode)
@@ -5049,7 +5049,7 @@ class envoyDevice {
       };
 
       if (!deviceSn) {
-        reject(`Envoy serial number unknown: ${deviceSn}.`);
+        reject(`Envoy serial number: ${deviceSn}.`);
         return;
       };
 
@@ -5129,42 +5129,42 @@ class envoyDevice {
           });
         enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel)
           .onGet(async () => {
-            const value = (`${this.envoyCommNum} / ${this.envoyCommLevel} %`);
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication devices and level: ${value}`);
+            const value = (`${this.envoyCommNum} / ${this.envoyCommLevel}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication devices and level: ${value} %`);
             return value;
           });
         enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel)
           .onGet(async () => {
-            const value = (`${this.envoyCommNsrbNum} / ${this.envoyCommNsrbLevel} %`);
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication qRelays and level: ${value}`);
+            const value = (`${this.envoyCommNsrbNum} / ${this.envoyCommNsrbLevel}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication qRelays and level: ${value} %`);
             return value;
           });
         enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel)
           .onGet(async () => {
-            const value = (`${this.envoyCommPcuNum} / ${this.envoyCommPcuLevel} %`);
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication Microinverters and level: ${value}`);
+            const value = (`${this.envoyCommPcuNum} / ${this.envoyCommPcuLevel}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication Microinverters and level: ${value} %`);
             return value;
           });
         if (acBatteriesInstalled) {
           enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel)
             .onGet(async () => {
-              const value = (`${this.envoyCommAcbNum} / ${this.envoyCommAcbLevel} %`);
-              const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication AC Batteries and level ${value}`);
+              const value = (`${this.envoyCommAcbNum} / ${this.envoyCommAcbLevel}`);
+              const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication AC Batteries and level ${value} %`);
               return value;
             });
         }
         if (enchargesInstalled) {
           enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel)
             .onGet(async () => {
-              const value = (`${this.envoyCommEnchgNum} / ${this.envoyCommEnchgLevel} %`);
-              const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication Encharges and level ${value}`);
+              const value = (`${this.envoyCommEnchgNum} / ${this.envoyCommEnchgLevel}`);
+              const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, communication Encharges and level ${value} %`);
               return value;
             });
         }
         enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
           .onGet(async () => {
-            const value = (`${this.envoyDbSize} / ${this.envoyDbPercentFull} %`);
-            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, data base size: ${value}`);
+            const value = (`${this.envoyDbSize} / ${this.envoyDbPercentFull}`);
+            const logInfo = this.disableLogInfo ? false : this.log(`Device: ${this.host} ${accessoryName}, Envoy: ${serialNumber}, data base size: ${value} %`);
             return value;
           });
         enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyTariff)
