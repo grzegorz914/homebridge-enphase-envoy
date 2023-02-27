@@ -2863,11 +2863,11 @@ class envoyDevice {
         });
 
         const jwtTokenData = await axiosInstanceToken(CONSTANS.ApiUrls.CheckJwt);
-        const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug jwt token data: ${jwtTokenData.data}, headers: ${jwtTokenData.headers}`) : false;
+        const debug = this.enableDebugMode ? this.log(`Device: ${this.host} ${this.name}, debug JWT token: ${jwtTokenData.data}, headers: ${jwtTokenData.headers}`) : false;
 
         //jwt token
         if (jwtTokenData.status !== 200) {
-          reject(`Validate jwt token data status: ${jwtTokenData.status}`);
+          reject(`Validate JWT token status: ${jwtTokenData.status}`);
           return;
         }
 
@@ -2889,7 +2889,7 @@ class envoyDevice {
 
         resolve(true);
       } catch (error) {
-        reject(`Validate jwt token data error: ${error}`);
+        reject(`validate JWT token error: ${error}`);
       };
     });
   };
