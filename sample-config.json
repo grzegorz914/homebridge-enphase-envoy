@@ -46,6 +46,8 @@
                     "productionDataRefreshTime": 5000,
                     "supportProductionPowerMode": false,
                     "supportPlcLevel": false,
+                    "enableRestFull": false,
+                    "restFullPort": 3000,
                     "enableMqtt": false,
                     "mqttHost": "192.168.1.33",
                     "mqttPort": 1883,

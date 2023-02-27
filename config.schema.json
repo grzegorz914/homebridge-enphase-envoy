@@ -329,6 +329,23 @@
               "required": false,
               "description": "Here set *Production Data* rfresh time in (ms)."
             },
+            "enableRestFull": {
+              "title": "Enable",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable RESTFull server."
+            },
+            "restFullPort": {
+              "title": "Port",
+              "type": "integer",
+              "placeholder": 3000,
+              "required": true,
+              "description": "Here set the listening Port for RESTFull server.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableRestFull === true;"
+              }
+            },
             "enableMqtt": {
               "title": "Enable",
               "type": "boolean",
@@ -497,6 +514,17 @@
             "devices[].liveDataRefreshTime",
             "devices[].metersDataRefreshTime",
             "devices[].productionDataRefreshTime"
+          ]
+        },
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "RESTFull",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].enableRestFull",
+            "devices[].restFullPort"
           ]
         },
         {

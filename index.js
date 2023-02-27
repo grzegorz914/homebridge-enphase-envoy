@@ -1,4 +1,5 @@
 'use strict';
+const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const fsPromises = fs.promises;
@@ -12,6 +13,7 @@ const Mqtt = require('./src/mqtt.js');
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 const CONSTANS = require('./src/constans.json');
+const restFull = express();
 
 let Accessory, Characteristic, Service, Categories, UUID;
 
@@ -2482,6 +2484,8 @@ class envoyDevice {
     this.productionDataRefreshTime = config.productionDataRefreshTime || 5000;
     this.supportProductionPowerMode = config.supportProductionPowerMode || false;
     this.supportPlcLevel = config.supportPlcLevel || false;
+    this.restFullEnable = config.enableRestFull || false;
+    this.restFullPort = config.restFullPort;
     this.mqttEnabled = config.enableMqtt || false;
     this.mqttHost = config.mqttHost;
     this.mqttPort = config.mqttPort || 1883;
@@ -2688,6 +2692,13 @@ class envoyDevice {
       });
     } catch (error) {
       this.log.error(`Device: ${this.host} ${this.name}, prepare directory and files error: ${error}`);
+    }
+
+    //RESTFull server
+    if (this.restFullEnable) {
+      restFull.listen(this.restFullPort, () => {
+        this.log(`RESTFull listening on port: ${this.restFullPort}`)
+      })
     }
 
     //mqtt client
@@ -3017,6 +3028,11 @@ class envoyDevice {
         this.envoyFirmware = deviceSoftware;
         this.metersSupported = deviceImeter;
 
+        //restfull
+        restFull.get('/info', (req, res) => {
+          res.send(JSON.stringify(parseInfoData, null, 2));
+        });
+
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
         resolve(true);
@@ -3257,6 +3273,11 @@ class envoyDevice {
 
         this.envoyEnpowerConnected = enpowerConnected;
         this.envoyEnpowerGridStatus = enpowerGridStatus;
+
+        //restfull
+        restFull.get('/home', (req, res) => {
+          res.send(JSON.stringify(envoy, null, 2));
+        });
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Home', JSON.stringify(envoy, null, 2)) : false;
@@ -3589,6 +3610,11 @@ class envoyDevice {
           this.esubsInstalled = true;
         }
 
+        //restfull
+        restFull.get('/inventory', (req, res) => {
+          res.send(JSON.stringify(inventoryData.data, null, 2));
+        });
+
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
         resolve(true);
@@ -3663,6 +3689,11 @@ class envoyDevice {
           this.metersConsumptionEnabled = this.metersState[1];
           this.metersConsumpionVoltageDivide = (this.metersPhaseMode[1] === 'Split') ? 1 : this.metersPhaseCount[1];
         }
+
+        //restfull
+        restFull.get('/meters', (req, res) => {
+          res.send(JSON.stringify(metersData.data, null, 2));
+        });
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters', JSON.stringify(metersData.data, null, 2)) : false;
@@ -3817,6 +3848,11 @@ class envoyDevice {
           this.metersReadingCount = metersReadingCount;
           this.metersReadingInstalled = metersReadingInstalled;
         }
+
+        //restfull
+        restFull.get('/metersreading', (req, res) => {
+          res.send(JSON.stringify(metersReadingData.data, null, 2));
+        });
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
@@ -4035,6 +4071,11 @@ class envoyDevice {
           this.enpowersCount = enpowersCount;
           this.enpowersInstalled = true;
         }
+
+        //restfull
+        restFull.get('/ensembleinventory', (req, res) => {
+          res.send(JSON.stringify(ensembleInventoryData.data, null, 2));
+        });
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2)) : false;
@@ -4309,6 +4350,11 @@ class envoyDevice {
         this.ensembleFakeInventoryMode = fakeInventoryMode;
         this.ensembleStatusInstalled = true;
 
+        //restfull
+        restFull.get('/ensemblestatus', (req, res) => {
+          res.send(JSON.stringify(ensembleStatus, null, 2));
+        });
+
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Status', JSON.stringify(ensembleStatus, null, 2)) : false;
         resolve(true);
@@ -4332,6 +4378,12 @@ class envoyDevice {
           return;
         }
 
+        //restfull
+        restFull.get('/gridprofile', (req, res) => {
+          res.send(JSON.stringify(profileData.data, null, 2));
+        });
+
+        //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Grid Profile', JSON.stringify(profileData.data, null, 2)) : false;
         resolve(profileData.data);
       } catch (error) {
@@ -4456,6 +4508,11 @@ class envoyDevice {
         const countersScSendDemandRspCtrl = counters.sc_SendDemandRspCtrl;
         const countersRestStatus = counters.rest_Status;
 
+        //restfull
+        restFull.get('/live', (req, res) => {
+          res.send(JSON.stringify(liveData.data, null, 2));
+        });
+
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Live Data', JSON.stringify(liveData.data, null, 2)) : false;
         resolve(true);
@@ -4491,6 +4548,11 @@ class envoyDevice {
         this.productionMicroSummarywhLastSevenDays = productionMicroSummarywhLastSevenDays;
         this.productionMicroSummarywhLifeTime = productionMicroSummarywhLifeTime;
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
+
+        //restfull
+        restFull.get('/production', (req, res) => {
+          res.send(JSON.stringify(productionData.data, null, 2));
+        });
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
@@ -4775,6 +4837,11 @@ class envoyDevice {
         this.currentDayOfWeek = currentDayOfWeek;
         this.currentDayOfMonth = currentDayOfMonth;
 
+        //restfull
+        restFull.get('/productionct', (req, res) => {
+          res.send(JSON.stringify(productionCtData.data, null, 2));
+        });
+
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
         resolve(true);
@@ -4847,6 +4914,11 @@ class envoyDevice {
           this.microinvertersMaxPower.push(maxReportWatts);
         }
 
+        //restfull
+        restFull.get('/microinverters', (req, res) => {
+          res.send(JSON.stringify(microinvertersData.data, null, 2));
+        });
+
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Microinverters', JSON.stringify(microinvertersData.data, null, 2)) : false;
         resolve(true);
@@ -4886,6 +4958,11 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, productionPowerMode)
         }
         this.productionPowerMode = productionPowerMode;
+
+        //restfull
+        restFull.get('/powermode', (req, res) => {
+          res.send(JSON.stringify(powerModeData.data, null, 2));
+        });
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Power Mode', JSON.stringify(powerModeData.data, null, 2)) : false;
@@ -4983,6 +5060,11 @@ class envoyDevice {
             .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
         }
         this.checkCommLevel = false;
+
+        //restfull
+        restFull.get('/plclevel', (req, res) => {
+          res.send(JSON.stringify(commLevel, null, 2));
+        });
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('PLC Level', JSON.stringify(commLevel, null, 2)) : false;
