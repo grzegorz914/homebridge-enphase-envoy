@@ -54,7 +54,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
 | `envoyFirmware7xx` | This enable support for Envoy with firmware 7.x.x |
-| `envoyFirmware7xxToken` | Here paste your envoy token generated here: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNumber |
+| `envoyFirmware7xxToken` | Here paste generated token: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNumber, If for some reason after use this token in log You get `Validate jwt token data error`, try login to Envoy from web browser with this token first. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionMax` | This enable *Power Peak* monitoring for production and create contact sensor in HomeKit which can be used for notification and automations. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
