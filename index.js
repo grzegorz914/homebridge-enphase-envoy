@@ -13,7 +13,7 @@ const Mqtt = require('./src/mqtt.js');
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 const CONSTANS = require('./src/constans.json');
-const restFull = express();
+const restFul = express();
 
 let Accessory, Characteristic, Service, Categories, UUID;
 
@@ -2484,8 +2484,8 @@ class envoyDevice {
     this.productionDataRefreshTime = config.productionDataRefreshTime || 5000;
     this.supportProductionPowerMode = config.supportProductionPowerMode || false;
     this.supportPlcLevel = config.supportPlcLevel || false;
-    this.restFullEnable = config.enableRestFull || false;
-    this.restFullPort = config.restFullPort;
+    this.restFulEnable = config.enableRestFul || false;
+    this.restFulPort = config.restFulPort;
     this.mqttEnabled = config.enableMqtt || false;
     this.mqttHost = config.mqttHost;
     this.mqttPort = config.mqttPort || 1883;
@@ -2694,10 +2694,10 @@ class envoyDevice {
       this.log.error(`Device: ${this.host} ${this.name}, prepare directory and files error: ${error}`);
     }
 
-    //RESTFull server
-    if (this.restFullEnable) {
-      restFull.listen(this.restFullPort, () => {
-        this.log(`RESTFull listening on port: ${this.restFullPort}`)
+    //RESTFul server
+    if (this.restFulEnable) {
+      restFul.listen(this.restFulPort, () => {
+        this.log(`RESTFul listening on port: ${this.restFulPort}`)
       })
     }
 
@@ -3028,8 +3028,8 @@ class envoyDevice {
         this.envoyFirmware = deviceSoftware;
         this.metersSupported = deviceImeter;
 
-        //restfull
-        restFull.get('/info', (req, res) => {
+        //restful
+        restFul.get('/info', (req, res) => {
           res.send(JSON.stringify(parseInfoData, null, 2));
         });
 
@@ -3274,8 +3274,8 @@ class envoyDevice {
         this.envoyEnpowerConnected = enpowerConnected;
         this.envoyEnpowerGridStatus = enpowerGridStatus;
 
-        //restfull
-        restFull.get('/home', (req, res) => {
+        //restful
+        restFul.get('/home', (req, res) => {
           res.send(JSON.stringify(envoy, null, 2));
         });
 
@@ -3610,8 +3610,8 @@ class envoyDevice {
           this.esubsInstalled = true;
         }
 
-        //restfull
-        restFull.get('/inventory', (req, res) => {
+        //restful
+        restFul.get('/inventory', (req, res) => {
           res.send(JSON.stringify(inventoryData.data, null, 2));
         });
 
@@ -3690,8 +3690,8 @@ class envoyDevice {
           this.metersConsumpionVoltageDivide = (this.metersPhaseMode[1] === 'Split') ? 1 : this.metersPhaseCount[1];
         }
 
-        //restfull
-        restFull.get('/meters', (req, res) => {
+        //restful
+        restFul.get('/meters', (req, res) => {
           res.send(JSON.stringify(metersData.data, null, 2));
         });
 
@@ -3849,8 +3849,8 @@ class envoyDevice {
           this.metersReadingInstalled = metersReadingInstalled;
         }
 
-        //restfull
-        restFull.get('/metersreading', (req, res) => {
+        //restful
+        restFul.get('/metersreading', (req, res) => {
           res.send(JSON.stringify(metersReadingData.data, null, 2));
         });
 
@@ -4072,8 +4072,8 @@ class envoyDevice {
           this.enpowersInstalled = true;
         }
 
-        //restfull
-        restFull.get('/ensembleinventory', (req, res) => {
+        //restful
+        restFul.get('/ensembleinventory', (req, res) => {
           res.send(JSON.stringify(ensembleInventoryData.data, null, 2));
         });
 
@@ -4350,8 +4350,8 @@ class envoyDevice {
         this.ensembleFakeInventoryMode = fakeInventoryMode;
         this.ensembleStatusInstalled = true;
 
-        //restfull
-        restFull.get('/ensemblestatus', (req, res) => {
+        //restful
+        restFul.get('/ensemblestatus', (req, res) => {
           res.send(JSON.stringify(ensembleStatus, null, 2));
         });
 
@@ -4378,8 +4378,8 @@ class envoyDevice {
           return;
         }
 
-        //restfull
-        restFull.get('/gridprofile', (req, res) => {
+        //restful
+        restFul.get('/gridprofile', (req, res) => {
           res.send(JSON.stringify(profileData.data, null, 2));
         });
 
@@ -4508,8 +4508,8 @@ class envoyDevice {
         const countersScSendDemandRspCtrl = counters.sc_SendDemandRspCtrl;
         const countersRestStatus = counters.rest_Status;
 
-        //restfull
-        restFull.get('/live', (req, res) => {
+        //restful
+        restFul.get('/live', (req, res) => {
           res.send(JSON.stringify(liveData.data, null, 2));
         });
 
@@ -4549,8 +4549,8 @@ class envoyDevice {
         this.productionMicroSummarywhLifeTime = productionMicroSummarywhLifeTime;
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
-        //restfull
-        restFull.get('/production', (req, res) => {
+        //restful
+        restFul.get('/production', (req, res) => {
           res.send(JSON.stringify(productionData.data, null, 2));
         });
 
@@ -4837,8 +4837,8 @@ class envoyDevice {
         this.currentDayOfWeek = currentDayOfWeek;
         this.currentDayOfMonth = currentDayOfMonth;
 
-        //restfull
-        restFull.get('/productionct', (req, res) => {
+        //restful
+        restFul.get('/productionct', (req, res) => {
           res.send(JSON.stringify(productionCtData.data, null, 2));
         });
 
@@ -4914,8 +4914,8 @@ class envoyDevice {
           this.microinvertersMaxPower.push(maxReportWatts);
         }
 
-        //restfull
-        restFull.get('/microinverters', (req, res) => {
+        //restful
+        restFul.get('/microinverters', (req, res) => {
           res.send(JSON.stringify(microinvertersData.data, null, 2));
         });
 
@@ -4959,8 +4959,8 @@ class envoyDevice {
         }
         this.productionPowerMode = productionPowerMode;
 
-        //restfull
-        restFull.get('/powermode', (req, res) => {
+        //restful
+        restFul.get('/powermode', (req, res) => {
           res.send(JSON.stringify(powerModeData.data, null, 2));
         });
 
@@ -5061,8 +5061,8 @@ class envoyDevice {
         }
         this.checkCommLevel = false;
 
-        //restfull
-        restFull.get('/plclevel', (req, res) => {
+        //restful
+        restFul.get('/plclevel', (req, res) => {
           res.send(JSON.stringify(commLevel, null, 2));
         });
 

@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.7.0] - (27.02.2023)
 ## Changes
-- added powerfull RESTFull server to use with own automations
+- added powerful RESTFul server to use with own automations
 - cleanup
 - config.schema updated
 
