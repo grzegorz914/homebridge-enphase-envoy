@@ -334,14 +334,14 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable RESTFul server."
+              "description": "This enable RESTful server."
             },
             "restFulPort": {
               "title": "Port",
               "type": "integer",
               "placeholder": 3000,
               "required": true,
-              "description": "Here set the listening Port for RESTFul server.",
+              "description": "Here set the listening Port for RESTful server.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableRestFul === true;"
               }
@@ -519,7 +519,7 @@
         {
           "key": "devices[]",
           "type": "section",
-          "title": "RESTFul",
+          "title": "RESTful",
           "expandable": true,
           "expanded": false,
           "items": [
