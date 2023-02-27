@@ -31,7 +31,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use `Controller App` or `EVE app`, iOS Home app display it as unsupported.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
-* RESTFul server respond to `http//ipaddress:port/path` requests, where path are: `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverter`, `powermode`, `plclevel`.
+* RESTful server respond to `http//ipaddress:port/path` requests, where path are: `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverter`, `powermode`, `plclevel`.
 * MQTT publisch topic `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverter`, `Power Mode`, `PCU Comm Level` as payload JSON data.
 * Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
 * Support `Ensemble Status` and ` Production Power Mode` may not working in all envoy firmwares, if you get error, please disable it in plugin settings `Advanced Section`.
@@ -76,8 +76,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (ms). |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (ms). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
-| `enableRestFul` | If enabled, RESTFull server will start automatically and respond to any path request. |
-| `restFulPort` | Here set the listening `Port` for RESTFull server. |
+| `enableRestFul` | If enabled, RESTful server will start automatically and respond to any path request. |
+| `restFulPort` | Here set the listening `Port` for RESTful server. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
 | `mqttHost` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
 | `mqttPort` | Here set the `Port` for MQTT Broker, default 1883. |
