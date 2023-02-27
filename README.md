@@ -26,15 +26,15 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 ### About The Plugin
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
-* Envoy *device ID* is detected automatically, is required to control Production Power Mode.
-* Envoy *password* is detected automatically or can be added in config if was already chenged by user.
-* Installer *password* is generated automatically, no need generate it manually in external generator anymore.
-* For best experiences please use *Controller App* or *EVE app* for iOS, Home app display it as unsupported.
-* Home automations and shortcuts can be used with *PLC Level*, *Production Power Mode* and *Power Peak*.
-* RESTFull server respond to http//ipaddress:port/path requests, where path are: *info*, *home*, *inventory*, *meters*, *metersreading*, *ensembleinventory*, *ensemblestatus*, *gridprofile*, *livedata*, *production*, *productionct*, *microinverter*, *powermode*, *plclevel*.
-* MQTT publisch topic *Info*, *Home*, *Inventory*, *Meters*, *Meters Reading*, *Ensemble Inventory*, *Ensemble Status*, *Grid Profile*, *Live Data*, *Production*, *Production CT*, *Microinverter*, *Power Mode*, *PCU Comm Level* as payload JSON data.
+* Envoy `device ID` is detected automatically, is required to control Production Power Mode.
+* Envoy `password` is detected automatically or can be added in config if was already chenged by user.
+* Installer `password` is generated automatically, no need generate it manually in external generator anymore.
+* For best experiences please use `Controller App` or `EVE app` for iOS, Home app display it as unsupported.
+* Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
+* RESTFull server respond to `http//ipaddress:port/path` requests, where path are: `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverter`, `powermode`, `plclevel`.
+* MQTT publisch topic `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverter`, `Power Mode`, `PCU Comm Level` as payload JSON data.
 * Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
-* Support *Ensemble Status* and * Production Power Mode* may not working in all envoy firmwares, if you get error, please disable it in plugin settings *Advanced Section*.
+* Support `Ensemble Status` and ` Production Power Mode` may not working in all envoy firmwares, if you get error, please disable it in plugin settings `Advanced Section`.
 
 ### Configuration
 * Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
@@ -49,39 +49,39 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 | Key | Description | 
 | --- | --- |
-| `name` | Here set the accessory *Name* to be displayed in *Homebridge/HomeKit*. |
-| `host` | Here set the envoy *IP Address* or *Hostname* or leave empy (will be used default path `envoy.local`) |
+| `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
+| `host` | Here set the envoy `IP Address` or `Hostname` or leave empy (will be used default path `envoy.local`) |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
 | `envoyFirmware7xx` | This enable support for Envoy with firmware 7.x.x |
 | `envoyFirmware7xxToken` | Here paste generated token: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNumber, If for some reason after use this token in log You get `validate JWT token error`, login with this token to Envoy from web browser first. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
-| `powerProductionMax` | This enable *Power Peak* monitoring for production and create contact sensor in HomeKit which can be used for notification and automations. |
-| `powerProductionMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
-| `powerProductionMaxDetected` | Here set the production *Power Peak*, if the Power >= `powerProductionMaxDetected` the contact sensor fired. |
-| `energyProductionLifetimeOffset` | Here set the *Offset* of lifetime energy production if nedded in (Wh),(+/-) |
-| `powerConsumptionTotalMax` | This enable *Power Peak* monitoring for consumption (Total) and create contact sensor in HomeKit which can be used for notification and automations. |
-| `powerConsumptionTotalMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
-| `powerConsumptionTotalMaxDetected` | Here set the consumption (Total) *Power Peak*, if the Power >= `powerConsumptionTotalMaxDetected` the contact sensor fired.|
+| `powerProductionMax` | This enable `Power Peak` monitoring for production and create contact sensor in HomeKit which can be used for notification and automations. |
+| `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
+| `powerProductionMaxDetected` | Here set the production `Power Peak`, if the Power >= `powerProductionMaxDetected` the contact sensor fired. |
+| `energyProductionLifetimeOffset` | Here set the `Offset` of lifetime energy production if nedded in (Wh),(+/-) |
+| `powerConsumptionTotalMax` | This enable `Power Peak` monitoring for consumption (Total) and create contact sensor in HomeKit which can be used for notification and automations. |
+| `powerConsumptionTotalMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
+| `powerConsumptionTotalMaxDetected` | Here set the consumption (Total) `Power Peak`, if the Power >= `powerConsumptionTotalMaxDetected` the contact sensor fired.|
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
-| `powerConsumptionNetMax` | This enable *Power Peak* monitoring for consumption (Net) and create contact sensor in HomeKit which can be used for notification and automations. |
-| `powerConsumptionNetMaxAutoReset` | Here select at which period of time the *Power Peak* will auto reset. |
-| `powerConsumptionNetMaxDetected` | Here set the consumption (Net) *Power Peak*, if the Power >= `powerConsumptionNetMaxDetected` the contact sensor fired. |
+| `powerConsumptionNetMax` | This enable `Power Peak` monitoring for consumption (Net) and create contact sensor in HomeKit which can be used for notification and automations. |
+| `powerConsumptionNetMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
+| `powerConsumptionNetMaxDetected` | Here set the consumption (Net) `Power Peak`, if the Power >= `powerConsumptionNetMaxDetected` the contact sensor fired. |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
-| `supportProductionPowerMode` | If enabled, check/control production *Production Power Mode* will be possible, more info in *About The Plugin* section. |
-| `supportPlcLevel` | If enabled, check *PLC Level* will be possible. |
-| `supportEnsembleStatus` | If enabled, check *Ensemble Status* will be possible (only fw. 7.x.x), more info in *About The Plugin* section. |
-| `supportLiveData` | If enabled, check *Live Data* will be possible (only fw. 7.x.x). |
-| `liveDataRefreshTime` | Here set *Live Data* rfresh time in (ms). |
-| `metersDataRefreshTime` | Here set *Meters Data* rfresh time in (ms). |
-| `productionDataRefreshTime` | Here set *Production Data* rfresh time in (ms). |
+| `supportProductionPowerMode` | If enabled, check/control production `Production Power Mode` will be possible, more info in `About The Plugin` section. |
+| `supportPlcLevel` | If enabled, check `PLC Level` will be possible. |
+| `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only fw. 7.x.x), more info in `About The Plugin` section. |
+| `supportLiveData` | If enabled, check `Live Data` will be possible (only fw. 7.x.x). |
+| `liveDataRefreshTime` | Here set `Live Data` rfresh time in (ms). |
+| `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (ms). |
+| `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
 | `enableRestFull` | If enabled, RESTFull server will start automatically and respond to any path request. |
-| `restFullPort` | Here set the listening *Port* for RESTFull server. |
+| `restFullPort` | Here set the listening `Port` for RESTFull server. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
-| `mqttHost` | Here set the *IP Address* or *Hostname* for MQTT Broker. |
-| `mqttPort` | Here set the *Port* for MQTT Broker, default 1883. |
-| `mqttPrefix` | Here set the *Prefix* for *Topic* or leave empty. |
+| `mqttHost` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
+| `mqttPort` | Here set the `Port` for MQTT Broker, default 1883. |
+| `mqttPrefix` | Here set the `Prefix` for `Topic` or leave empty. |
 | `mqttAuth` | If enabled, MQTT Broker will use authorization credentials. |
 | `mqttUser` | Here set the MQTT Broker user. |
 | `mqttPasswd` | Here set the MQTT Broker password. |
