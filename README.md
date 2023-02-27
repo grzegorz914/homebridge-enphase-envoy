@@ -29,7 +29,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy `device ID` is detected automatically, is required to control Production Power Mode.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
-* For best experiences please use `Controller App` or `EVE app` for iOS, Home app display it as unsupported.
+* For best experiences please use `Controller App` or `EVE app`, iOS Home app display it as unsupported.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
 * RESTFul server respond to `http//ipaddress:port/path` requests, where path are: `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverter`, `powermode`, `plclevel`.
 * MQTT publisch topic `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverter`, `Power Mode`, `PCU Comm Level` as payload JSON data.
