@@ -122,7 +122,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "productionDataRefreshTime": 5000,
                     "supportProductionPowerMode": false,
                     "supportPlcLevel": false,
-                    "enableRestFull": false,
+                    "enableRestFul": false,
                     "restFulPort": 3000,
                     "enableMqtt": false,
                     "mqttHost": "192.168.1.33",
