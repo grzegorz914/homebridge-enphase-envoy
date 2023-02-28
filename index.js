@@ -3037,9 +3037,7 @@ class envoyDevice {
         this.metersSupported = deviceImeter;
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/info', (req, res) => {
-          res.json(parseInfoData);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/info', (req, res) => { res.json(parseInfoData) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
@@ -3283,13 +3281,10 @@ class envoyDevice {
         this.envoyEnpowerGridStatus = enpowerGridStatus;
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/home', (req, res) => {
-          res.json(homeData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/home', (req, res) => { res.json(homeData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Home', JSON.stringify(homeData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update home data error: ${error}.`);
@@ -3620,13 +3615,10 @@ class envoyDevice {
         }
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/inventory', (req, res) => {
-          res.json(inventoryData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/inventory', (req, res) => { res.json(inventoryData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update inventory data error: ${error}.`);
@@ -3699,13 +3691,10 @@ class envoyDevice {
         }
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/meters', (req, res) => {
-          res.json(metersData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/meters', (req, res) => { res.json(metersData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters', JSON.stringify(metersData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update meters data error: ${error}.`);
@@ -3857,13 +3846,10 @@ class envoyDevice {
         }
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/metersreading', (req, res) => {
-          res.json(metersReadingData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/metersreading', (req, res) => { res.json(metersReadingData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update meters reading data error: ${error}.`);
@@ -4081,13 +4067,10 @@ class envoyDevice {
         }
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/ensembleinventory', (req, res) => {
-          res.json(ensembleInventoryData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/ensembleinventory', (req, res) => { res.json(ensembleInventoryData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2)) : false;
-
         resolve(true);
       } catch (error) {
         reject(`Update ensemble inventory data error: ${error}.`);
@@ -4358,13 +4341,10 @@ class envoyDevice {
         this.ensembleStatusInstalled = true;
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/ensemblestatus', (req, res) => {
-          res.json(ensembleStatusData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/ensemblestatus', (req, res) => { res.json(ensembleStatusData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Ensemble Status', JSON.stringify(ensembleStatusData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update ensemble status data error: ${error}.`);
@@ -4387,13 +4367,10 @@ class envoyDevice {
         }
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/gridprofile', (req, res) => {
-          res.json(profileData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/gridprofile', (req, res) => { res.json(profileData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Grid Profile', JSON.stringify(profileData.data, null, 2)) : false;
-
         resolve(profileData.data);
       } catch (error) {
         reject(`Update meters data error: ${error}.`);
@@ -4518,13 +4495,10 @@ class envoyDevice {
         const countersRestStatus = counters.rest_Status;
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/live', (req, res) => {
-          res.json(liveData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/live', (req, res) => { res.json(liveData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Live Data', JSON.stringify(liveData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update live data error: ${error}.`);
@@ -4558,13 +4532,10 @@ class envoyDevice {
         this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/production', (req, res) => {
-          res.json(productionData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/production', (req, res) => { res.json(productionData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update production data error: ${error}.`);
@@ -4845,13 +4816,10 @@ class envoyDevice {
         this.currentDayOfMonth = currentDayOfMonth;
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/productionct', (req, res) => {
-          res.json(productionCtData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/productionct', (req, res) => { res.json(productionCtData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update production ct data error: ${error}.`);
@@ -4923,13 +4891,10 @@ class envoyDevice {
         }
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/microinverters', (req, res) => {
-          res.json(microinvertersData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/microinverters', (req, res) => { res.json(microinvertersData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Microinverters', JSON.stringify(microinvertersData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update microinverters data error: ${error}.`);
@@ -4967,13 +4932,10 @@ class envoyDevice {
         this.productionPowerMode = productionPowerMode;
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/powermode', (req, res) => {
-          res.json(powerModeData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/powermode', (req, res) => { res.json(powerModeData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('Power Mode', JSON.stringify(powerModeData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         reject(`Update power mode error: ${error}.`);
@@ -5070,13 +5032,10 @@ class envoyDevice {
         this.checkCommLevel = false;
 
         //restful
-        const restFulGet = this.restFulEnabled ? restFulServer.get('/plclevel', (req, res) => {
-          res.json(plcLevelData.data);
-        }) : false;
+        const restFulGet = this.restFulEnabled ? restFulServer.get('/plclevel', (req, res) => { res.json(plcLevelData.data) }) : false;
 
         //mqtt
         const mqtt = this.mqttEnabled ? this.mqtt.send('PLC Level', JSON.stringify(plcLevelData.data, null, 2)) : false;
-
         resolve();
       } catch (error) {
         this.checkCommLevel = false;
