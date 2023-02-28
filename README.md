@@ -31,10 +31,13 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use `Controller App` or `EVE app`, iOS Home app display it as unsupported.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
-* RESTful server respond to `http//ipaddress:port/path` requests, where path are: `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverter`, `powermode`, `plclevel`.
-* MQTT publisch topic `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverter`, `Power Mode`, `PCU Comm Level` as payload JSON data.
 * Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
 * Support `Ensemble Status` and ` Production Power Mode` may not working in all envoy firmwares, if you get error, please disable it in plugin settings `Advanced Section`.
+* RESTful:
+  * Request `http//ipaddress:port/path`, where path are: `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverter`, `powermode`, `plclevel`.
+  * Respone is JSON data.
+* MQTT:
+  * Publisch topics `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverter`, `Power Mode`, `PCU Comm Level` as payload JSON data.
 
 ### Configuration
 * Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
