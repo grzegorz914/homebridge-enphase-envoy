@@ -4370,7 +4370,7 @@ class envoyDevice {
         }
 
         //live data keys
-        const liveDadaKeys = Objest.keys(liveData.data)
+        const liveDadaKeys = Object.keys(liveData.data)
 
         //connection
         const connection = liveData.data.connection;
