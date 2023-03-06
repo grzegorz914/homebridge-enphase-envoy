@@ -13,7 +13,6 @@ const Mqtt = require('./src/mqtt.js');
 const PLUGIN_NAME = 'homebridge-enphase-envoy';
 const PLATFORM_NAME = 'enphaseEnvoy';
 const CONSTANS = require('./src/constans.json');
-const restFulServer = express();
 
 let Accessory, Characteristic, Service, Categories, UUID;
 
@@ -5023,21 +5022,22 @@ class envoyDevice {
   restFulServer() {
     return new Promise(async (resolve, reject) => {
       try {
-        restFulServer.get('/info', (req, res) => { res.json(this.infoData) });
-        restFulServer.get('/home', (req, res) => { res.json(this.homeData) });
-        restFulServer.get('/inventory', (req, res) => { res.json(this.inventoryData) });
-        restFulServer.get('/meters', (req, res) => { res.json(this.metersData) });
-        restFulServer.get('/metersreading', (req, res) => { res.json(this.metersReadingData) });
-        restFulServer.get('/ensembleinventory', (req, res) => { res.json(this.ensembleInventoryData) });
-        restFulServer.get('/ensemblestatus', (req, res) => { res.json(this.ensembleStatusData) });
-        restFulServer.get('/livedata', (req, res) => { res.json(this.liveData) });
-        restFulServer.get('/production', (req, res) => { res.json(this.productionData) });
-        restFulServer.get('/productionct', (req, res) => { res.json(this.productionCtData) });
-        restFulServer.get('/microinverters', (req, res) => { res.json(this.microinvertersData) });
-        restFulServer.get('/powermode', (req, res) => { res.json(this.powerModeData) });
-        restFulServer.get('/plclevel', (req, res) => { res.json(this.plcLevelData) });
+        const server = express();
+        server.get('/info', (req, res) => { res.json(this.infoData) });
+        server.get('/home', (req, res) => { res.json(this.homeData) });
+        server.get('/inventory', (req, res) => { res.json(this.inventoryData) });
+        server.get('/meters', (req, res) => { res.json(this.metersData) });
+        server.get('/metersreading', (req, res) => { res.json(this.metersReadingData) });
+        server.get('/ensembleinventory', (req, res) => { res.json(this.ensembleInventoryData) });
+        server.get('/ensemblestatus', (req, res) => { res.json(this.ensembleStatusData) });
+        server.get('/livedata', (req, res) => { res.json(this.liveData) });
+        server.get('/production', (req, res) => { res.json(this.productionData) });
+        server.get('/productionct', (req, res) => { res.json(this.productionCtData) });
+        server.get('/microinverters', (req, res) => { res.json(this.microinvertersData) });
+        server.get('/powermode', (req, res) => { res.json(this.powerModeData) });
+        server.get('/plclevel', (req, res) => { res.json(this.plcLevelData) });
 
-        restFulServer.listen(this.restFulPort, () => {
+        server.listen(this.restFulPort, () => {
           this.log(`Device: ${this.host} ${this.name}, RESTful started on port: ${this.restFulPort}`)
           this.startRestFulServer = false;
           resolve();

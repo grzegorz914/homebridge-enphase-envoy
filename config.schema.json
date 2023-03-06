@@ -353,6 +353,16 @@
               "required": false,
               "description": "This enable MQTT client."
             },
+            "mqttDebug": {
+              "title": "Debug",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable debug mode for MQTT.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
+              }
+            },
             "mqttHost": {
               "title": "IP/Hostname",
               "type": "string",
@@ -412,16 +422,6 @@
               "description": "Here set the password of MQTT Broker.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true && model.devices[arrayIndices].mqttAuth === true;"
-              }
-            },
-            "mqttDebug": {
-              "title": "Debug",
-              "type": "boolean",
-              "default": false,
-              "required": false,
-              "description": "This enable debug mode for MQTT.",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
               }
             }
           }
