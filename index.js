@@ -5606,7 +5606,7 @@ class envoyDevice {
         //prepare production power peak sensor service
         if (this.powerProductionMax) {
           this.log.debug('prepareProductionPowerPeakService')
-          this.productionPowerPeakService = new Service.ContactSensor(`Production Power Peak`, `Power Peak Production`);
+          this.productionPowerPeakService = new Service.ContactSensor(`${accessoryName} Power Peak Production`, `Power Peak Production`);
           this.productionPowerPeakService.getCharacteristic(Characteristic.ContactSensorState)
             .onGet(async () => {
               const state = this.productionPowerPeakDetected;
