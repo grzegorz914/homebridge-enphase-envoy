@@ -2488,7 +2488,7 @@ class envoyDevice {
     this.mqttEnabled = config.enableMqtt || false;
     this.mqttHost = config.mqttHost;
     this.mqttPort = config.mqttPort || 1883;
-    this.mqttClientId = account.mqttClientId || '';
+    this.mqttClientId = config.mqttClientId || '';
     this.mqttPrefix = config.mqttPrefix;
     this.mqttAuth = config.mqttAuth || false;
     this.mqttUser = config.mqttUser;

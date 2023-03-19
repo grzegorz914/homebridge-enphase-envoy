@@ -391,7 +391,7 @@
               "required": false,
               "description": "Here optional set the Client ID of MQTT Broker.",
               "condition": {
-                "functionBody": "return model.accounts[arrayIndices].enableMqtt === true"
+                "functionBody": "return model.devices[arrayIndices].enableMqtt === true"
               }
             },
             "mqttPrefix": {
