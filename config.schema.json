@@ -548,7 +548,7 @@
             "devices[].mqttDebug",
             "devices[].mqttHost",
             "devices[].mqttPort",
-            "accounts[].mqttClientId",
+            "devices[].mqttClientId",
             "devices[].mqttPrefix",
             "devices[].mqttAuth",
             "devices[].mqttUser",
