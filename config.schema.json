@@ -384,6 +384,16 @@
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
               }
             },
+            "mqttClientId": {
+              "title": "Client ID",
+              "type": "string",
+              "placeholder": "client id",
+              "required": false,
+              "description": "Here optional set the Client ID of MQTT Broker.",
+              "condition": {
+                "functionBody": "return model.accounts[arrayIndices].enableMqtt === true"
+              }
+            },
             "mqttPrefix": {
               "title": "Prefix",
               "type": "string",
@@ -535,13 +545,14 @@
           "expanded": false,
           "items": [
             "devices[].enableMqtt",
+            "devices[].mqttDebug",
             "devices[].mqttHost",
             "devices[].mqttPort",
+            "accounts[].mqttClientId",
             "devices[].mqttPrefix",
             "devices[].mqttAuth",
             "devices[].mqttUser",
-            "devices[].mqttPasswd",
-            "devices[].mqttDebug"
+            "devices[].mqttPasswd"
           ]
         }
       ]

@@ -2488,6 +2488,7 @@ class envoyDevice {
     this.mqttEnabled = config.enableMqtt || false;
     this.mqttHost = config.mqttHost;
     this.mqttPort = config.mqttPort || 1883;
+    this.mqttClientId = account.mqttClientId || '';
     this.mqttPrefix = config.mqttPrefix;
     this.mqttAuth = config.mqttAuth || false;
     this.mqttUser = config.mqttUser;
@@ -2699,8 +2700,7 @@ class envoyDevice {
       this.mqtt = new Mqtt({
         host: this.mqttHost,
         port: this.mqttPort,
-        prefix: this.mqttPrefix,
-        topic: this.name,
+        prefix: `${this.mqttPrefix}/${this.name}`,
         auth: this.mqttAuth,
         user: this.mqttUser,
         passwd: this.mqttPasswd,
