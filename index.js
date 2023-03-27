@@ -37,7 +37,6 @@ class EnvoyPlatform {
   }
 
   configureAccessory(accessory) {
-    this.log.debug('configureAccessory');
     this.accessories.push(accessory);
   }
 }
