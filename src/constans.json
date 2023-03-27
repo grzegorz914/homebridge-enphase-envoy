@@ -1,4 +1,6 @@
 {
+    "PlatformName": "enphaseEnvoy",
+    "PluginName": "homebridge-enphase-envoy",
     "Authorization": {
         "EnvoyUser": "envoy",
         "InstallerUser": "installer",
