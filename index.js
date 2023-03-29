@@ -20,7 +20,7 @@ class EnvoyPlatform {
         }
 
         //denon device
-        const envoyDevice = new EnvoyDevice(log, api, device);
+        const envoyDevice = new EnvoyDevice(api, device);
         envoyDevice.on('publishAccessory', (accessory) => {
           api.publishExternalAccessories(CONSTANS.PluginName, [accessory]);
           const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, published as external accessory.`) : false;
@@ -28,6 +28,15 @@ class EnvoyPlatform {
           .on('removeAccessory', (accessory) => {
             api.unregisterPlatformAccessories(CONSTANS.PluginName, CONSTANS.PlatformName, [accessory]);
             const debug = device.enableDebugMode ? log(`Accessory: ${accessory}, removed.`) : false;
+          })
+          .on('devInfo', (devInfo) => {
+            log(devInfo);
+          })
+          .on('message', (message) => {
+            log(`Device: ${device.host} ${device.name}, ${message}`);
+          })
+          .on('debug', (debug) => {
+            log(`Device: ${device.host} ${device.name}, ${debug}`);
           })
           .on('error', (error) => {
             log.error(`Device: ${device.host} ${device.name}, ${error}`);
