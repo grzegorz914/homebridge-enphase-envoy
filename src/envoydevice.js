@@ -8,8 +8,8 @@ const parseString = require('xml2js').parseStringPromise;
 const EventEmitter = require('events');
 const RestFul = require('./restful.js');
 const Mqtt = require('./mqtt.js');
-const AxiosDigestAuth = require('./digestAuth.js');
-const PasswdCalc = require('./passwdCalc.js');
+const DigestAuth = require('./digestauth.js');
+const PasswdCalc = require('./passwdcalc.js');
 const CONSTANS = require('./constans.json');
 let Accessory, Characteristic, Service, Categories, UUID;
 
@@ -595,7 +595,7 @@ class EnvoyDevice extends EventEmitter {
                     this.installerPasswd = installerPasswd;
 
                     //digest authorization installer
-                    this.digestAuthInstaller = new AxiosDigestAuth({
+                    this.digestAuthInstaller = new DigestAuth({
                         user: CONSTANS.Authorization.InstallerUser,
                         passwd: installerPasswd
                     });
@@ -1938,7 +1938,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //restFul
-                const restFul = this.restFulEnabled && this.restFulConnected ? this.restFul.update('profile', profileData.data) : false;
+                const restFul = this.restFulEnabled && this.restFulConnected ? this.restFul.update('gridProfile', profileData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttEnabled && this.mqttConnected ? this.mqtt.send('Grid Profile', JSON.stringify(profileData.data, null, 2)) : false;
@@ -2415,7 +2415,7 @@ class EnvoyDevice extends EventEmitter {
             try {
                 //digest auth envoy
                 const passwd = this.envoyPasswd;
-                const digestAuthEnvoy = new AxiosDigestAuth({
+                const digestAuthEnvoy = new DigestAuth({
                     user: CONSTANS.Authorization.EnvoyUser,
                     passwd: passwd
                 });

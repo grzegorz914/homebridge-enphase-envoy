@@ -1,7 +1,7 @@
 "use strict";
 const crypto = require('crypto');
 
-class passwdCalc {
+class PasswdCalc {
     constructor(config) {
         this.user = config.user;
         this.realm = config.realm;
@@ -86,4 +86,4 @@ class passwdCalc {
     };
 };
 
-module.exports = passwdCalc;
+module.exports = PasswdCalc;

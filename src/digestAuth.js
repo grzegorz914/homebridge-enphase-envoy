@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const axios = require('axios');
 
-class axiosDigestAuth {
+class DigestAuth {
     constructor(config) {
         this.user = config.user;
         this.passwd = config.passwd;
@@ -48,4 +48,4 @@ class axiosDigestAuth {
     };
 };
 
-module.exports = axiosDigestAuth;
+module.exports = DigestAuth;

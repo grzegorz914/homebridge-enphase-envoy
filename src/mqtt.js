@@ -1,8 +1,8 @@
 "use strict";
-const MQTT = require("async-mqtt");
+const mqtt = require("async-mqtt");
 const EventEmitter = require('events');
 
-class MQTTCLIENT extends EventEmitter {
+class Mqtt extends EventEmitter {
     constructor(config) {
         super();
         this.mqttHost = config.host;
@@ -24,7 +24,7 @@ class MQTTCLIENT extends EventEmitter {
                 password: this.mqttPasswd
             }
             const url = `mqtt://${this.mqttHost}:${this.mqttPort}`;
-            this.mqttClient = await MQTT.connectAsync(url, options);
+            this.mqttClient = await mqtt.connectAsync(url, options);
             this.isConnected = true;
             this.emit('connected', 'MQTT Connected.');
         } catch (error) {
@@ -48,4 +48,4 @@ class MQTTCLIENT extends EventEmitter {
         };
     };
 };
-module.exports = MQTTCLIENT;
+module.exports = Mqtt;
