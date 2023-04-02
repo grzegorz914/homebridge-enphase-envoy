@@ -2,6 +2,7 @@
 const EnvoyDevice = require('./src/envoydevice');
 const CONSTANS = require('./src/constans.json');
 let Characteristic, Service;
+
 class EnvoyPlatform {
   constructor(log, config, api) {
     // only load if configured
@@ -15,7 +16,7 @@ class EnvoyPlatform {
       log.debug('didFinishLaunching');
       for (const device of config.devices) {
         if (!device.name || (device.envoyFirmware7xx && !device.envoyFirmware7xxToken)) {
-          this.log.warn('Device name or token missing!');
+            log.warn('Device name or token missing!');
           return;
         }
 
