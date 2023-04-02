@@ -339,7 +339,7 @@ class EnvoyDevice extends EventEmitter {
             const updateProductionData = await this.updateProductionData();
             const updateProductionCtData = await this.updateProductionCtData();
             const updateMicroinvertersData = this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd) ? await this.updateMicroinvertersData() : false;
-            const updateProductionPowerModeData = this.supportProductionPowerMode && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
+            const updateProductionPowerModeData = getEnvoyBackboneAppData && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
             const updatePlcLevelData = this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
             const getDeviceInfo = await this.getDeviceInfo();
 
@@ -496,7 +496,7 @@ class EnvoyDevice extends EventEmitter {
                 // Check if the envoy ID is correct length
                 if (envoyId.length === 9) {
                     this.envoyDevId = envoyId;
-                    resolve();
+                    resolve(true);
                     return;
                 }
 
@@ -515,7 +515,7 @@ class EnvoyDevice extends EventEmitter {
                     try {
                         await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
                         this.envoyDevId = envoyDevId;
-                        resolve();
+                        resolve(true);
                     } catch (error) {
                         reject(`Save envoy id error: ${error}.`);
                     };
