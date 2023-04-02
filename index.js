@@ -1,4 +1,6 @@
 'use strict';
+const path = require('path');
+const fs = require('fs');
 const EnvoyDevice = require('./src/envoydevice');
 const CONSTANS = require('./src/constans.json');
 
@@ -11,6 +13,12 @@ class EnvoyPlatform {
     }
     this.accessories = [];
 
+    //check if the directory exists, if not then create it
+    const prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
+    if (!fs.existsSync(prefDir)) {
+      fs.mkdirSync(prefDir);
+    };
+
     api.on('didFinishLaunching', () => {
       for (const device of config.devices) {
         if (!device.name || (device.envoyFirmware7xx && !device.envoyFirmware7xxToken)) {
@@ -20,7 +28,7 @@ class EnvoyPlatform {
         const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, did finish launching.`) : false;
 
         //denon device
-        const envoyDevice = new EnvoyDevice(api, device);
+        const envoyDevice = new EnvoyDevice(api, prefDir, device);
         envoyDevice.on('publishAccessory', (accessory) => {
           api.publishExternalAccessories(CONSTANS.PluginName, [accessory]);
           const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, published as external accessory.`) : false;

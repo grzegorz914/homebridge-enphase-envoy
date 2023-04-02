@@ -1,5 +1,4 @@
 "use strict";;
-const path = require('path');
 const fs = require('fs');
 const fsPromises = fs.promises;
 const https = require('https');
@@ -14,7 +13,7 @@ const CONSTANS = require('./constans.json');
 let Accessory, Characteristic, Service, Categories, UUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, config) {
+    constructor(api, prefDir, config) {
         super();
 
         Accessory = api.platformAccessory;
@@ -236,12 +235,11 @@ class EnvoyDevice extends EventEmitter {
         this.currentDayOfWeek = date.getDay();
         this.currentDayOfMonth = date.getDate();
 
-        //check the directory and files exists, if not then create it
-        this.prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
-        this.envoyIdFile = (`${this.prefDir}/envoyId_${this.host.split('.').join('')}`);
-        this.productionPowerPeakFile = (`${this.prefDir}/productionPowerPeak_${this.host.split('.').join('')}`);
-        this.consumptionNetPowerPeakFile = (`${this.prefDir}/consumptionNetPowerPeak_${this.host.split('.').join('')}`);
-        this.consumptionTotalPowerPeakFile = (`${this.prefDir}/consumptionTotalPowerPeak_${this.host.split('.').join('')}`);
+        //check files exists, if not then create it
+        this.envoyIdFile = (`${prefDir}/envoyId_${this.host.split('.').join('')}`);
+        this.productionPowerPeakFile = (`${prefDir}/productionPowerPeak_${this.host.split('.').join('')}`);
+        this.consumptionNetPowerPeakFile = (`${prefDir}/consumptionNetPowerPeak_${this.host.split('.').join('')}`);
+        this.consumptionTotalPowerPeakFile = (`${prefDir}/consumptionTotalPowerPeak_${this.host.split('.').join('')}`);
 
         try {
             const files = [
@@ -251,17 +249,13 @@ class EnvoyDevice extends EventEmitter {
                 this.consumptionTotalPowerPeakFile,
             ];
 
-            if (!fs.existsSync(this.prefDir)) {
-                fs.mkdirSync(this.prefDir);
-            }
-
             files.forEach((file) => {
                 if (!fs.existsSync(file)) {
                     fs.writeFileSync(file, '0');
                 }
             });
         } catch (error) {
-            this.emit('error', `prepare directory and files error: ${error}`);
+            this.emit('error', `prepare files error: ${error}`);
         }
 
         //RESTFul server
