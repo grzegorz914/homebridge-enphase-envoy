@@ -1,24 +1,23 @@
 'use strict';
 const EnvoyDevice = require('./src/envoydevice');
 const CONSTANS = require('./src/constans.json');
-let Characteristic, Service;
 
 class EnvoyPlatform {
   constructor(log, config, api) {
     // only load if configured
     if (!config || !Array.isArray(config.devices)) {
-      log(`No configuration found for ${CONSTANS.PluginName}`);
+      log.warn(`No configuration found for ${CONSTANS.PluginName}`);
       return;
     }
     this.accessories = [];
 
     api.on('didFinishLaunching', () => {
-      log.debug('didFinishLaunching');
       for (const device of config.devices) {
         if (!device.name || (device.envoyFirmware7xx && !device.envoyFirmware7xxToken)) {
-            log.warn('Device name or token missing!');
+          log.warn('Device name or token missing!');
           return;
         }
+        const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, did finish launching.`) : false;
 
         //denon device
         const envoyDevice = new EnvoyDevice(api, device);
@@ -48,8 +47,8 @@ class EnvoyPlatform {
 }
 
 module.exports = (api) => {
-  Characteristic = api.hap.Characteristic;
-  Service = api.hap.Service;
+  const Characteristic = api.hap.Characteristic;
+  const Service = api.hap.Service;
 
   //Envoy
   class enphaseEnvoyAlerts extends Characteristic {
