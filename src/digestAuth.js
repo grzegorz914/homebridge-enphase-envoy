@@ -20,6 +20,7 @@ class DigestAuth {
             } catch (error) {
                 if (error.response === undefined || error.response.status !== 401 || !((resHeaders = error.response.headers["www-authenticate"]) === null || resHeaders === void 0 ? void 0 : resHeaders.includes('nonce'))) {
                     reject(error);
+                    return;
                 };
 
                 const authDetails = error.response.headers['www-authenticate'].split(', ').map((v) => v.split('='));
