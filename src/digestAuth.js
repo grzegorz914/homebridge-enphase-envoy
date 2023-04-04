@@ -16,28 +16,30 @@ class DigestAuth {
                 const data = await axios.request(options);
                 resolve(data);
             } catch (error) {
-                const resHeaders = error.response.headers["www-authenticate"];
-                const resMethod = options.method;
-
-                if (error.response === undefined || error.response.status !== 401 || !(resHeaders === null || resHeaders === void 0 ? void 0 : resHeaders.includes('nonce'))) {
+                const resError = error.response;
+                const resHeaders = resError.headers["www-authenticate"];
+                if (resError === undefined || resError.status !== 401 || !(resHeaders === null || resHeaders === void 0 ? void 0 : resHeaders.includes('nonce'))) {
                     reject(`Digest authentication response error: ${error}`);
                     return;
                 };
 
                 try {
                     const authDetails = resHeaders.split(', ').map((v) => v.split('='));
-                    const nonceCount = (`00000000${count++}`).slice(-8);
-                    const cnonce = crypto.randomBytes(24).toString('hex')
-                    const realm = authDetails.find((el) => el[0].toLowerCase().indexOf("realm") > -1)[1].replace(/"/g, '');
-                    const nonce = authDetails.find((el) => el[0].toLowerCase().indexOf("nonce") > -1)[1].replace(/"/g, '');
+                    const realm = authDetails.find((el) => el[0].toLowerCase().includes("realm"))[1].replace(/"/g, '');
+                    const nonce = authDetails.find((el) => el[0].toLowerCase().includes("nonce"))[1].replace(/"/g, '');
 
+                    const method = options.method;
+                    const url = options.url;
+                    const nonceCount = (`00000000${count++}`).slice(-8);
+                    const cnonce = crypto.randomBytes(24).toString('hex');
                     const md5 = str => crypto.createHash('md5').update(str).digest('hex');
                     const HA1 = md5(`${this.user}:${realm}:${this.passwd}`);
-                    const HA2 = md5(`${resMethod !== null && resMethod !== void 0 ? resMethod : 'GET'}:${options.url}`)
+                    const HA2 = md5(`${method !== null && method !== void 0 ? method : 'GET'}:${url}`);
                     const response = md5(`${HA1}:${nonce}:${nonceCount}:${cnonce}:auth:${HA2}`);
-                    const authorization = `Digest username=${this.user},realm=${realm},nonce=${nonce},uri=${options.url},qop=auth,algorithm=MD5,response=${response},nc=${nonceCount},cnonce=${cnonce}`;
+                    const authorization = `Digest username=${this.user},realm=${realm},nonce=${nonce},uri=${url},qop=auth,algorithm=MD5,response=${response},nc=${nonceCount},cnonce=${cnonce}`;
 
-                    if (options.headers) {
+                    const headers = options.headers;
+                    if (headers) {
                         options.headers["authorization"] = authorization;
                     } else {
                         options.headers = {
