@@ -70,8 +70,7 @@ class PasswdCalc {
 
                 resolve(password);
             } catch (error) {
-                this.emit('error', `Generate password error: ${error}`);
-                reject(error);
+                reject(`Generate password error: ${error}`);
             };
         });
     };

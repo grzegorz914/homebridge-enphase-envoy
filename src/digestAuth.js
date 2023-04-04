@@ -19,7 +19,7 @@ class DigestAuth {
                 resolve(data);
             } catch (error) {
                 if (error.response === undefined || error.response.status !== 401 || !((resHeaders = error.response.headers["www-authenticate"]) === null || resHeaders === void 0 ? void 0 : resHeaders.includes('nonce'))) {
-                    reject(error);
+                    reject(`Digest authentication error: ${error}`);
                     return;
                 };
 
