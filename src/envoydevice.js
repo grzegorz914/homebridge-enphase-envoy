@@ -3,7 +3,7 @@ const fs = require('fs');
 const fsPromises = fs.promises;
 const https = require('https');
 const axios = require('axios');
-const parseString = require('xml2js').parseStringPromise;
+const { XMLParser, XMLBuilder, XMLValidator } = require('fast-xml-parser');
 const EventEmitter = require('events');
 const RestFul = require('./restful.js');
 const Mqtt = require('./mqtt.js');
@@ -534,40 +534,47 @@ class EnvoyDevice extends EventEmitter {
                     return;
                 }
 
-                const parseInfoData = await parseString(infoData.data);
+                const options = {
+                    ignoreAttributes: false,
+                    ignorePiTags: true,
+                    attributeNamePrtefix: 'a',
+                    allowBooleanAttributes: true
+                };
+                const parseString = new XMLParser(options);
+                const parseInfoData = parseString.parse(infoData.data);
                 const debug1 = this.enableDebugMode ? this.emit('debug', `Parse info: ${JSON.stringify(parseInfoData, null, 2)}`) : false;
 
                 //envoy info
                 const envoyInfo = parseInfoData.envoy_info;
-                const time = new Date(envoyInfo.time[0] * 1000).toLocaleString();
+                const time = new Date(envoyInfo.time * 1000).toLocaleString();
                 const envoyKeys = Object.keys(envoyInfo);
 
                 //device
-                const device = envoyInfo.device[0];
-                const deviceSn = device.sn[0];
-                const devicePn = CONSTANS.PartNumbers[device.pn[0]] || 'Envoy'
-                const deviceSoftware = device.software[0];
-                const deviceEuaid = device.euaid[0];
-                const deviceSeqNum = device.seqnum[0];
-                const deviceApiVer = device.apiver[0];
-                const deviceImeter = device.imeter[0] === 'true';
+                const device = envoyInfo.device;
+                const deviceSn = device.sn.toString();
+                const devicePn = CONSTANS.PartNumbers[device.pn] || 'Envoy'
+                const deviceSoftware = device.software;
+                const deviceEuaid = device.euaid;
+                const deviceSeqNum = device.seqnum;
+                const deviceApiVer = device.apiver;
+                const deviceImeter = device.imeter;
 
                 //web tokens
                 const webTokens = envoyKeys.includes('web-tokens') ? (envoyInfo['web-tokens'][0] === 'true') : false;
 
                 //packages
                 const packages = envoyInfo.package;
-                packages.forEach(devicePackage => {
-                    const packageName = devicePackage.$.name;
-                    const packagePn = devicePackage.pn[0];
-                    const packageVersion = devicePackage.version[0];
-                    const packageBuild = devicePackage.build[0];
-                });
+                for (const devicePackage of packages) {
+                    const packagePn = devicePackage.pn;
+                    const packageVersion = devicePackage.version;
+                    const packageBuild = devicePackage.build;
+                    const packageName = devicePackage.name;
+                };
 
                 //build info
-                const build = envoyInfo.build_info[0];
-                const buildId = build.build_id[0];
-                const buildTimeQmt = new Date(build.build_time_gmt[0] * 1000).toLocaleString()
+                const build = envoyInfo.build_info;
+                const buildId = build.build_id;
+                const buildTimeQmt = new Date(build.build_time_gmt * 1000).toLocaleString()
 
                 if (!this.envoyFirmware7xx) {
                     //envoy password
