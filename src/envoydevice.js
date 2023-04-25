@@ -537,7 +537,6 @@ class EnvoyDevice extends EventEmitter {
                 const options = {
                     ignoreAttributes: false,
                     ignorePiTags: true,
-                    attributeNamePrtefix: 'a',
                     allowBooleanAttributes: true
                 };
                 const parseString = new XMLParser(options);
