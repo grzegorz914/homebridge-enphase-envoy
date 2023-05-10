@@ -37,6 +37,7 @@
         "InverterProductionSumm": "/api/v1/production",
         "InverterPutDelete": "/prov",
         "LiveData": "/ivp/livedata/status",
+        "LiveDataStream": "/ivp/livedata/stream",
         "MetersInfo": "/ivp/meters",
         "MetersReadings": "/ivp/meters/readings",
         "MetersReportsProduction": "/ivp/meters/reports/production",
