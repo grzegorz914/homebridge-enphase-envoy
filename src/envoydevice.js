@@ -10,6 +10,7 @@ const Mqtt = require('./mqtt.js');
 const DigestAuth = require('./digestauth.js');
 const PasswdCalc = require('./passwdcalc.js');
 const CONSTANS = require('./constans.json');
+const { Stream } = require('stream');
 let Accessory, Characteristic, Service, Categories, UUID;
 
 class EnvoyDevice extends EventEmitter {
@@ -457,6 +458,20 @@ class EnvoyDevice extends EventEmitter {
                 const cookie = jwtTokenData.headers['set-cookie'];
                 this.axiosInstanceCookie = axios.create({
                     method: 'GET',
+                    baseURL: url,
+                    headers: {
+                        Accept: 'application/json',
+                        Cookie: cookie
+                    },
+                    withCredentials: true,
+                    httpsAgent: new https.Agent({
+                        keepAlive: true,
+                        rejectUnauthorized: false
+                    })
+                })
+
+                this.axiosInstanceCookiePost = axios.create({
+                    method: 'POST',
                     baseURL: url,
                     headers: {
                         Accept: 'application/json',
@@ -1969,7 +1984,7 @@ class EnvoyDevice extends EventEmitter {
                 const connectionMqttState = connection.mqtt_state;
                 const connectionProvState = connection.prov_state;
                 const connectionAuthState = connection.auth_state;
-                const connectionScStream = connection.sc_stream;
+                const connectionScStream = connection.sc_stream === 'enabled';
                 const connectionScDebug = connection.sc_debug;
 
                 //meters
@@ -2072,6 +2087,12 @@ class EnvoyDevice extends EventEmitter {
                 const dryContactId = supportDryContacts ? dryContacts.dry_contact_id : '';
                 const dryContactLoadName = supportDryContacts ? dryContacts.dry_contact_load_name : '';
                 const dryContactStatus = supportDryContacts ? dryContacts.dry_contact_status : 0;
+
+                //check live data stream enabled
+                if (!connectionScStream) {
+                    const data = { 'enable': 1 };
+                    const liveData = await this.axiosInstanceCookiePost(CONSTANS.ApiUrls.LiveDataStream, data);
+                };
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('liveData', liveData.data) : false;
