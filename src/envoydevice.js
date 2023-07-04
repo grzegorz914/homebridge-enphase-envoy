@@ -470,13 +470,14 @@ class EnvoyDevice extends EventEmitter {
                     })
                 })
 
-                this.axiosInstanceCookiePost = axios.create({
+                this.axiosInstanceCookieLiveDataStream = axios.create({
                     method: 'POST',
                     baseURL: url,
                     headers: {
                         Accept: 'application/json',
                         Cookie: cookie
                     },
+                    data: { 'enable': 1 },
                     withCredentials: true,
                     httpsAgent: new https.Agent({
                         keepAlive: true,
@@ -1985,7 +1986,7 @@ class EnvoyDevice extends EventEmitter {
                 const connectionProvState = connection.prov_state;
                 const connectionAuthState = connection.auth_state;
                 const connectionScStream = connection.sc_stream === 'enabled';
-                const connectionScDebug = connection.sc_debug;
+                const connectionScDebug = connection.sc_debug === 'enabled';
 
                 //meters
                 const meters = liveData.data.meters;
@@ -2088,20 +2089,32 @@ class EnvoyDevice extends EventEmitter {
                 const dryContactLoadName = supportDryContacts ? dryContacts.dry_contact_load_name : '';
                 const dryContactStatus = supportDryContacts ? dryContacts.dry_contact_status : 0;
 
-                //check live data stream enabled
-                if (!connectionScStream) {
-                    const data = { 'enable': 1 };
-                    const liveData = await this.axiosInstanceCookiePost(CONSTANS.ApiUrls.LiveDataStream, data);
-                };
-
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('liveData', liveData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Live Data', JSON.stringify(liveData.data, null, 2)) : false;
+
+                //enable live data stream if not enabled
+                const enableLiveStreamData = !connectionScStream ? await this.updateLiveDataStream() : false;
+
                 resolve();
             } catch (error) {
                 reject(`Update live data error: ${error}.`);
+            };
+        });
+    };
+
+    updateLiveDataStream() {
+        return new Promise(async (resolve, reject) => {
+            const debug = !this.enableDebugMode ? false : this.emit('debug', `Requesting live data stream.`);
+
+            try {
+                const liveDataStream = await this.axiosInstanceCookieLiveDataStream(CONSTANS.ApiUrls.LiveDataStream);
+                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream: ${JSON.stringify(liveDataStream.data, null, 2)}`) : false;
+                resolve();
+            } catch (error) {
+                reject(`Enable live data stream error: ${error}.`);
             };
         });
     };
@@ -2721,7 +2734,7 @@ class EnvoyDevice extends EventEmitter {
                 const serialNumber = this.envoySerialNumber;
                 const accessoryName = this.name;
                 const accessoryUUID = UUID.generate(serialNumber);
-                const accessoryCategory = Categories.OTHER;
+                const accessoryCategory = Categories.BRIDGE;
                 const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
 
                 //information service
@@ -2755,45 +2768,48 @@ class EnvoyDevice extends EventEmitter {
                 const wirelessConnectionKitConnectionsCount = this.wirelessConnectionKitConnectionsCount;
 
                 //instalacja pv
-                const debug2 = !this.enableDebugMode ? false : this.emit('debug', `Prepare system service`);
-                this.systemsPvService = [];
-                const systemPvService = new Service.Switch(accessoryName, `systemPvService`);
-                systemPvService.getCharacteristic(Characteristic.On)
-                    .onGet(async () => {
-                        const state = this.productionPowerMode;
-                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power mode state: ${state ? 'Enabled' : 'Disabled'}`);
-                        return state;
-                    })
-                    .onSet(async (state) => {
-                        try {
-                            const powerModeUrl = CONSTANS.ApiUrls.PowerForcedModePutGet.replace("EID", this.envoyDevId);
-                            const data = JSON.stringify({
-                                length: 1,
-                                arr: [state ? 0 : 1]
-                            });
+                if (this.supportProductionPowerMode) {
+                    const debug2 = !this.enableDebugMode ? false : this.emit('debug', `Prepare system service`);
+                    this.systemsPvService = [];
+                    const systemPvService = new Service.Switch(accessoryName, `systemPvService`);
+                    systemPvService.getCharacteristic(Characteristic.On)
+                        .onGet(async () => {
+                            const state = this.productionPowerMode;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power mode state: ${state ? 'Enabled' : 'Disabled'}`);
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            try {
+                                const powerModeUrl = CONSTANS.ApiUrls.PowerForcedModePutGet.replace("EID", this.envoyDevId);
+                                const data = JSON.stringify({
+                                    length: 1,
+                                    arr: [state ? 0 : 1]
+                                });
 
-                            const options = {
-                                method: 'PUT',
-                                url: this.url + powerModeUrl,
-                                data: data,
-                                headers: {
-                                    Accept: 'application/json'
+                                const options = {
+                                    method: 'PUT',
+                                    url: this.url + powerModeUrl,
+                                    data: data,
+                                    headers: {
+                                        Accept: 'application/json'
+                                    }
                                 }
-                            }
 
-                            //const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(options);
-                            //const debug = this.enableDebugMode ? this.emit('debug', `Set powerModeData: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
-                        } catch (error) {
-                            this.emit('error', `envoy: ${serialNumber}, set powerModeData error: ${error}`);
-                        };
-                    })
-                this.systemsPvService.push(systemPvService);
-                accessory.addService(this.systemsPvService[0]);
+                                //const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(options);
+                                //const debug = this.enableDebugMode ? this.emit('debug', `Set powerModeData: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
+                            } catch (error) {
+                                this.emit('error', `envoy: ${serialNumber}, set powerModeData error: ${error}`);
+                            };
+                        })
+                    this.systemsPvService.push(systemPvService);
+                    accessory.addService(this.systemsPvService[0]);
+                };
 
                 //envoy
                 const debug3 = !this.enableDebugMode ? false : this.emit('debug', `Prepare envoy service`);
                 this.envoysService = [];
                 const enphaseEnvoyService = new Service.enphaseEnvoyService(`Envoy ${serialNumber}`, 'enphaseEnvoyService');
+                enphaseEnvoyService.getCharacteristic(Characteristic.ConfiguredName, `Envoy ${serialNumber}`);
                 enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyAlerts)
                     .onGet(async () => {
                         const value = this.envoyAlerts;
@@ -2964,6 +2980,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < qRelaysCount; i++) {
                         const qRelaySerialNumber = this.qRelaysSerialNumber[i];
                         const enphaseQrelayService = new Service.enphaseQrelayService(`Q-Relay ${qRelaySerialNumber}`, `enphaseQrelayService${i}`);
+                        enphaseQrelayService.getCharacteristic(Characteristic.ConfiguredName, `Q-Relay ${qRelaySerialNumber}`);
                         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayState)
                             .onGet(async () => {
                                 const value = this.qRelaysRelay[i];
@@ -3061,6 +3078,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < metersCount; i++) {
                         const meterMeasurementType = this.metersMeasurementType[i];
                         const enphaseMeterService = new Service.enphaseMeterService(`Meter ${meterMeasurementType}`, `enphaseMeterService${i}`);
+                        enphaseMeterService.getCharacteristic(Characteristic.ConfiguredName, `Meter ${meterMeasurementType}`);
                         enphaseMeterService.getCharacteristic(Characteristic.enphaseMeterState)
                             .onGet(async () => {
                                 const value = this.metersState[i];
@@ -3147,6 +3165,7 @@ class EnvoyDevice extends EventEmitter {
                 //power and energy production
                 this.productionsService = [];
                 const enphaseProductionService = new Service.enphasePowerAndEnergyService(`Power And Energy ${this.productionMeasurmentType}`, 'enphaseProductionService');
+                enphaseProductionService.getCharacteristic(Characteristic.ConfiguredName, `Power And Energy ${this.productionMeasurmentType}`);
                 enphaseProductionService.getCharacteristic(Characteristic.enphasePower)
                     .onGet(async () => {
                         const value = this.productionPower;
@@ -3243,6 +3262,7 @@ class EnvoyDevice extends EventEmitter {
                 if (this.powerProductionMax) {
                     const debug = !this.enableDebugMode ? false : this.emit('debug', `Prepare production power peak service`)
                     this.productionPowerPeakService = new Service.ContactSensor(`${accessoryName} Power Peak Production`, `Power Peak Production`);
+                    this.productionPowerPeakService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Power Peak Production`);
                     this.productionPowerPeakService.getCharacteristic(Characteristic.ContactSensorState)
                         .onGet(async () => {
                             const state = this.productionPowerPeakDetected;
@@ -3257,6 +3277,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < metersConsumptionCount; i++) {
                         const consumptionMeasurmentType = this.consumptionsMeasurmentType[i];
                         const enphaseConsumptionService = new Service.enphasePowerAndEnergyService(`Power And Energy ${consumptionMeasurmentType}`, `enphaseConsumptionService${i}`);
+                        enphaseConsumptionService.getCharacteristic(Characteristic.ConfiguredName, `Power And Energy ${consumptionMeasurmentType}`);
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePower)
                             .onGet(async () => {
                                 const value = this.consumptionsPower[i] || 0;
@@ -3352,6 +3373,7 @@ class EnvoyDevice extends EventEmitter {
                         if (this.powerConsumptionTotalMax && i === 0) {
                             const debug = !this.enableDebugMode ? false : this.emit('debug', `Prepare consumption total power peak service`)
                             this.consumptionTotalPowerPeakService = new Service.ContactSensor(`${accessoryName} Power Peak Total`, `Power Peak Total`);
+                            this.consumptionTotalPowerPeakService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Power Peak Total`);
                             this.consumptionTotalPowerPeakService.getCharacteristic(Characteristic.ContactSensorState)
                                 .onGet(async () => {
                                     const state = this.consumptionTotalPowerPeakDetected || false;
@@ -3364,6 +3386,7 @@ class EnvoyDevice extends EventEmitter {
                         if (this.powerConsumptionNetMax && i === 1) {
                             const debug = !this.enableDebugMode ? false : this.emit('debug', `Prepare consumption net power peak service`)
                             this.consumptionNetPowerPeakService = new Service.ContactSensor(`${accessoryName} Power Peak Net`, `Power Peak Net`);
+                            this.consumptionNetPowerPeakService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Power Peak Net`);
                             this.consumptionNetPowerPeakService.getCharacteristic(Characteristic.ContactSensorState)
                                 .onGet(async () => {
                                     const state = this.consumptionNetPowerPeakDetected || false;
@@ -3378,6 +3401,7 @@ class EnvoyDevice extends EventEmitter {
                 if (acBatteriesInstalled) {
                     this.acBatteriesSummaryService = [];
                     const enphaseAcBatterieSummaryService = new Service.enphaseAcBatterieSummaryService('AC Batteries Summary', 'enphaseAcBatterieSummaryService');
+                    enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.ConfiguredName, `AC Batteries Summary`);
                     enphaseAcBatterieSummaryService.getCharacteristic(Characteristic.enphaseAcBatterieSummaryPower)
                         .onGet(async () => {
                             const value = this.acBatteriesSummaryPower;
@@ -3422,6 +3446,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < acBatteriesCount; i++) {
                         const acBatterieSerialNumber = this.acBatteriesSerialNumber[i];
                         const enphaseAcBatterieService = new Service.enphaseAcBatterieService(`AC Batterie ${acBatterieSerialNumber}`, `enphaseAcBatterieService${i}`);
+                        enphaseAcBatterieService.getCharacteristic(Characteristic.ConfiguredName, `AC Batterie ${acBatterieSerialNumber}`);
                         enphaseAcBatterieService.getCharacteristic(Characteristic.enphaseAcBatterieChargeStatus)
                             .onGet(async () => {
                                 const value = this.acBatteriesChargeStatus[i];
@@ -3519,6 +3544,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < microinvertersCount; i++) {
                         const microinverterSerialNumber = this.microinvertersSerialNumber[i];
                         const enphaseMicroinverterService = new Service.enphaseMicroinverterService(`Microinverter ${microinverterSerialNumber}`, `enphaseMicroinverterService${i}`);
+                        enphaseMicroinverterService.getCharacteristic(Characteristic.ConfiguredName, `Microinverter ${microinverterSerialNumber}`);
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPower)
                             .onGet(async () => {
                                 let value = this.microinvertersLastPower[i] || 0;
@@ -3594,6 +3620,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < esubsCount; i++) {
                         const esubSerialNumber = this.esubsSerialNumber[i];
                         const enphaseEsubService = new Service.enphaseEsubService(`Ensemble ${esubSerialNumber}`, `enphaseEsubService${i}`);
+                        enphaseEsubService.getCharacteristic(Characteristic.ConfiguredName, `Ensemble ${esubSerialNumber}`);
                         enphaseEsubService.getCharacteristic(Characteristic.enphaseEsubProducing)
                             .onGet(async () => {
                                 const value = this.esubsProducing[i];
@@ -3642,6 +3669,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < enchargesCount; i++) {
                         const enchargeSerialNumber = this.enchargesSerialNumber[i];
                         const enphaseEnchargeService = new Service.enphaseEnchargeService(`Encharge ${enchargeSerialNumber}`, `enphaseEnchargeService${i}`);
+                        enphaseEnchargeService.getCharacteristic(Characteristic.ConfiguredName, `Encharge ${enchargeSerialNumber}`);
                         enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeAdminStateStr)
                             .onGet(async () => {
                                 const value = this.enchargesAdminStateStr[i];
@@ -3758,6 +3786,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < enpowersCount; i++) {
                         const enpowerSerialNumber = this.enpowersSerialNumber[i];
                         const enphaseEnpowerService = new Service.enphaseEnpowerService(`Enpower: ${enpowerSerialNumber}`, `enphaseEnpowerService${i}`);
+                        enphaseEnpowerService.getCharacteristic(Characteristic.ConfiguredName, `Enpower: ${enpowerSerialNumber}`);
                         enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerAdminStateStr)
                             .onGet(async () => {
                                 const value = this.enpowersAdminStateStr[i];
@@ -3845,6 +3874,7 @@ class EnvoyDevice extends EventEmitter {
                 if (ensembleStatusInstalled) {
                     this.ensembleStatusService = [];
                     const enphaseEnsembleStatusService = new Service.enphaseEnsembleStatusService(`Ensemble summary`, 'enphaseEnsembleStatusService');
+                    enphaseEnsembleStatusService.getCharacteristic(Characteristic.ConfiguredName, `Ensemble summary`);
                     enphaseEnsembleStatusService.getCharacteristic(Characteristic.enphaseEnsembleStatusRestPower)
                         .onGet(async () => {
                             const value = this.ensembleRestPower;
@@ -3981,6 +4011,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
                         const wirelessConnectionType = this.wirelessConnectionsType[i];
                         const enphaseWirelessConnectionKitService = new Service.enphaseWirelessConnectionKitService(`Wireless connection ${wirelessConnectionType}`, `enphaseWirelessConnectionKitService${i}`);
+                        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.ConfiguredName, `Wireless connection ${wirelessConnectionType}`);
                         enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitType)
                             .onGet(async () => {
                                 const value = wirelessConnectionType;

@@ -307,6 +307,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnvoyAlerts);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten);
@@ -498,6 +499,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseQrelayState);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayLinesCount);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine1Connected);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine2Connected);
@@ -718,6 +720,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseMeterState);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseMode);
       this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseCount);
       this.addOptionalCharacteristic(Characteristic.enphaseMeterMeasurementType);
@@ -939,6 +942,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphasePower);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphasePowerMax);
       this.addOptionalCharacteristic(Characteristic.enphasePowerMaxDetected);
       this.addOptionalCharacteristic(Characteristic.enphaseEnergyToday);
@@ -1051,6 +1055,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseAcBatterieSummaryPower);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount);
@@ -1256,6 +1261,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseAcBatterieChargeStatus);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProducing);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieCommunicating);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProvisioned);
@@ -1413,6 +1419,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseMicroinverterPower);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterPowerMax);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterProducing);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterCommunicating);
@@ -1686,6 +1693,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnchargeAdminStateStr);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeOperating);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommunicating);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevelSubGhz);
@@ -1883,6 +1891,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnpowerAdminStateStr);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerOperating);
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommunicating);
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommLevelSubGhz);
@@ -2243,6 +2252,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnsembleStatusRestPower);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHz);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasV);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8);
@@ -2435,6 +2445,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEsubProducing);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubCommunicating);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubOperating);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubCommLevel);
