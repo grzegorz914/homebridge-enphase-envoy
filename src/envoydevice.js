@@ -7,10 +7,10 @@ const { XMLParser, XMLBuilder, XMLValidator } = require('fast-xml-parser');
 const EventEmitter = require('events');
 const RestFul = require('./restful.js');
 const Mqtt = require('./mqtt.js');
+const EnvoyToken = require('./envoytoken.js')
 const DigestAuth = require('./digestauth.js');
 const PasswdCalc = require('./passwdcalc.js');
 const CONSTANS = require('./constans.json');
-const { Stream } = require('stream');
 let Accessory, Characteristic, Service, Categories, UUID;
 
 class EnvoyDevice extends EventEmitter {
@@ -28,7 +28,9 @@ class EnvoyDevice extends EventEmitter {
         this.host = config.host || 'envoy.local';
         this.envoyPasswd = config.envoyPasswd;
         this.envoyFirmware7xx = config.envoyFirmware7xx || false;
-        this.envoyFirmware7xxToken = config.envoyFirmware7xxToken;
+        this.envoySerialNumber = config.envoySerialNumber || '';
+        this.enlightenUser = config.enlightenUser;
+        this.enlightenPassword = config.enlightenPasswd;
         this.powerProductionMax = config.powerProductionMax || false;
         this.powerProductionMaxAutoReset = config.powerProductionMaxAutoReset || 0;
         this.powerProductionMaxDetected = config.powerProductionMaxDetected || 0;
@@ -74,7 +76,6 @@ class EnvoyDevice extends EventEmitter {
 
         //envoy
         this.envoyDevId = '';
-        this.envoySerialNumber = '';
         this.envoyFirmware = '';
         this.envoySoftwareBuildEpoch = 0;
         this.envoyIsEnvoy = false;
@@ -237,6 +238,7 @@ class EnvoyDevice extends EventEmitter {
 
         //check files exists, if not then create it
         this.envoyIdFile = (`${prefDir}/envoyId_${this.host.split('.').join('')}`);
+        this.envoyTokenFile = (`${prefDir}/envoyToken_${this.host.split('.').join('')}`);
         this.productionPowerPeakFile = (`${prefDir}/productionPowerPeak_${this.host.split('.').join('')}`);
         this.consumptionNetPowerPeakFile = (`${prefDir}/consumptionNetPowerPeak_${this.host.split('.').join('')}`);
         this.consumptionTotalPowerPeakFile = (`${prefDir}/consumptionTotalPowerPeak_${this.host.split('.').join('')}`);
@@ -244,6 +246,7 @@ class EnvoyDevice extends EventEmitter {
         try {
             const files = [
                 this.envoyIdFile,
+                this.envoyTokenFile,
                 this.productionPowerPeakFile,
                 this.consumptionNetPowerPeakFile,
                 this.consumptionTotalPowerPeakFile,
@@ -300,6 +303,24 @@ class EnvoyDevice extends EventEmitter {
                 });
         }
 
+        //JWT Token
+        if (this.envoyFirmware7xx) {
+            this.envoyToken = new EnvoyToken({
+                user: this.enlightenUser,
+                password: this.enlightenPassword,
+                serialNumber: this.envoySerialNumber,
+                tokenFile: this.envoyTokenFile,
+                debug: this.enableDebugMode
+            });
+
+            this.envoyToken.on('error', (error) => {
+                this.emit('error', error);
+            })
+                .on('debug', (debug) => {
+                    this.emit('debug', debug);
+                });
+        }
+
         //create axios instance
         if (!this.envoyFirmware7xx) {
             this.url = `http://${this.host}`;
@@ -319,21 +340,22 @@ class EnvoyDevice extends EventEmitter {
         const debug = !this.enableDebugMode ? false : this.emit('debug', `Start.`);
 
         try {
-            const checkJwt = this.envoyFirmware7xx ? await this.checkJwtToken() : false;
+            const getJwtToken = this.envoyFirmware7xx ? await this.getJwtToken() : false;
+            const checkJwt = getJwtToken ? await this.checkJwtToken() : false;
             const getEnvoyBackboneAppData = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
             await this.updateInfoData();
             await this.updateHomeData();
             await this.updateInventoryData();
             const updateMetersData = this.metersSupported ? await this.updateMetersData() : false;
             const updateMetersReadingData = this.metersInstalled ? await this.updateMetersReadingData() : false;
-            const updateEnsembleInventoryData = this.envoyFirmware7xx ? await this.updateEnsembleInventoryData() : false;
+            const updateEnsembleInventoryData = checkJwt ? await this.updateEnsembleInventoryData() : false;
             const updateEnsembleStatusData = this.supportEnsembleStatus && updateEnsembleInventoryData ? await this.updateEnsembleStatusData() : false;
             const updateLiveData = this.supportLiveData && updateEnsembleInventoryData ? await this.updateLiveData() : false;
             const updateProductionData = await this.updateProductionData();
             const updateProductionCtData = await this.updateProductionCtData();
-            const updateMicroinvertersData = this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd) ? await this.updateMicroinvertersData() : false;
-            const updateProductionPowerModeData = getEnvoyBackboneAppData && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
-            const updatePlcLevelData = this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
+            const updateMicroinvertersData = checkJwt || (!checkJwt && this.envoyPasswd) ? await this.updateMicroinvertersData() : false;
+            const updateProductionPowerModeData = getEnvoyBackboneAppData && (checkJwt || (!checkJwt && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
+            const updatePlcLevelData = this.supportPlcLevel && (checkJwt || (!checkJwt && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
             const getDeviceInfo = await this.getDeviceInfo();
 
             //prepare accessory
@@ -344,10 +366,10 @@ class EnvoyDevice extends EventEmitter {
             //start update data
             this.updateHome();
             const startMeterReading = this.metersSupported ? this.updateMeters() : false;
-            const startEnsembleInventory = this.envoyFirmware7xx && updateEnsembleInventoryData ? this.updateEnsembleInventory() : false;
+            const startEnsembleInventory = checkJwt && updateEnsembleInventoryData ? this.updateEnsembleInventory() : false;
             const startLive = this.supportLiveData && updateEnsembleInventoryData ? this.updateLive() : false;
             this.updateProduction();
-            const startMicroinverters = this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.envoyPasswd) ? this.updateMicroinverters() : false;
+            const startMicroinverters = checkJwt || (!checkJwt && this.envoyPasswd) ? this.updateMicroinverters() : false;
         } catch (error) {
             this.emit('error', `${error} Reconnect in 15s.`);
             await new Promise(resolve => setTimeout(resolve, 15000));
@@ -425,6 +447,19 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
+    getJwtToken() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const token = this.envoyToken.getToken();
+                this.jwtToken = token;
+
+                resolve(true);
+            } catch (error) {
+                reject(error)
+            };
+        });
+    };
+
     checkJwtToken() {
         return new Promise(async (resolve, reject) => {
             const debug = !this.enableDebugMode ? false : this.emit('debug', `Validate JWT token.`);
@@ -436,7 +471,7 @@ class EnvoyDevice extends EventEmitter {
                     baseURL: url,
                     headers: {
                         Accept: 'application/json',
-                        Authorization: `Bearer ${this.envoyFirmware7xxToken}`
+                        Authorization: `Bearer ${this.jwtToken}`
                     },
                     withCredentials: true,
                     httpsAgent: new https.Agent({
@@ -485,7 +520,7 @@ class EnvoyDevice extends EventEmitter {
                     })
                 })
 
-                resolve();
+                resolve(true);
             } catch (error) {
                 reject(`validate JWT token error: ${error}`);
             };
@@ -616,7 +651,7 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 this.envoyTime = time;
-                this.envoySerialNumber = deviceSn;
+                this.envoySerialNumber = this.envoySerialNumber ? this.envoySerialNumber : deviceSn;
                 this.envoyModelName = devicePn;
                 this.envoyFirmware = deviceSoftware;
                 this.metersSupported = deviceImeter;

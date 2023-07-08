@@ -34,12 +34,29 @@
               "required": true,
               "description": "This enable support for Envoy with firmware 7.x.x"
             },
-            "envoyFirmware7xxToken": {
-              "title": "Envoy Token",
+            "enlightenUser": {
+              "title": "Enlighten User",
               "type": "string",
-              "placeholder": "xdDe32Dsgf6hgEz68JHdsseg)",
+              "description": "Here set enlighten user.",
               "required": false,
-              "description": "Here paste your envoy token generated here: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNumber",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
+            "enlightenPasswd": {
+              "title": "Enlighten Password",
+              "type": "string",
+              "description": "Here set enlighten password.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
+            "envoySerialNumber": {
+              "title": "Envoy Serial Number",
+              "type": "string",
+              "description": "Here set envoy serial number.",
+              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
@@ -504,7 +521,9 @@
           "expanded": false,
           "items": [
             "devices[].envoyFirmware7xx",
-            "devices[].envoyFirmware7xxToken",
+            "devices[].envoySerialNumber",
+            "devices[].enlightenUser",
+            "devices[].enlightenPasswd",
             "devices[].envoyPasswd"
           ]
         },

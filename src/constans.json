@@ -7,10 +7,14 @@
         "Realm": "enphaseenergy.com"
     },
     "EnphaseUrls": {
-        "EntrezLogin": "https://entrez.enphaseenergy.com/login",
-        "EntrezToken": "https://entrez.enphaseenergy.com/entrez_tokens",
-        "EnphaseLogin": "https://enlighten.enphaseenergy.com/login",
-        "EnphaseToken": "https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNum"
+        "BaseUrl": "https://enlighten.enphaseenergy.com",
+        "Login": "/login/login.json",
+        "EntrezAuthToken": "/entrez-auth-token"
+    },
+    "EntrezUrls": {
+        "BaseUrl": "https://entrez.enphaseenergy.com",
+        "Login": "/login",
+        "Tokens": "/tokens"
     },
     "ApiUrls": {
         "AcbSleepModeSetGetCancel": "/admin/lib/acb_config.json",
