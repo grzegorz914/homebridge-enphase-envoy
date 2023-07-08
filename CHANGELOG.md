@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changes
 - added support to get JWT Token automatically from enlighten server using user credentials data
 - config schema updated
+### Removed properties
+- `envoyFirmware7xxToken`
+### Added properties
+- `enlightenUser`
+- `enlightenPasswd`
+- `envoySerialNumber`
+
 
 ## [6.7.0] - (27.02.2023)
 ## Changes
