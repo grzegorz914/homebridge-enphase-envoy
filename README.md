@@ -53,14 +53,14 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | Key | Description | 
 | --- | --- |
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
-| `host` | Here set the envoy `IP Address` or `Hostname` or leave empy (will be used default path `envoy.local`) |
+| `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
 | `envoyFirmware7xx` | This enable support for Envoy with firmware 7.x.x. If for some reason in log You get `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
-| `enlightenUser` | Here set the enlihten user name |
-| `enlightenPasswd` | Here set the enlihten password |
-| `envoySerialNumber` | Here set the envoy serial number |
+| `enlightenUser` | Here set the enlihten user name. |
+| `enlightenPasswd` | Here set the enlihten password. |
+| `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionMax` | This enable `Power Peak` monitoring for production and create contact sensor in HomeKit which can be used for notification and automations. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
