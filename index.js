@@ -21,8 +21,8 @@ class EnvoyPlatform {
 
     api.on('didFinishLaunching', () => {
       for (const device of config.devices) {
-        if (!device.name || (device.envoyFirmware7xx && !device.envoyFirmware7xxToken)) {
-          log.warn('Device name or token missing!');
+        if (!device.name) {
+          log.warn('Device name missing!');
           return;
         }
         const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, did finish launching.`) : false;
