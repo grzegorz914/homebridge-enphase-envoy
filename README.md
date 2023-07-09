@@ -104,6 +104,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
                     "envoyFirmware7xx": false,
                     "enlightenUser": "",
                     "enlightenPasswd": "",
+                    "envoySerialNumber": "",
                     "envoyPasswd": "",
                     "powerProductionMax": false,
                     "powerProductionMaxAutoReset": 0,
