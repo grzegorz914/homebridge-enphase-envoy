@@ -16,6 +16,7 @@ class EnvoyToken {
             fs.writeFileSync(this.tokenFile, object);
         };
 
+        //create axios instance
         this.axiosInstanceLogin = axios.create({
             method: 'POST',
             baseURL: CONSTANS.EnphaseUrls.BaseUrl
@@ -34,12 +35,12 @@ class EnvoyToken {
                         switch (tokenExpired) {
                             case true:
                                 try {
-                                    //login to enlighten
+                                    //login to enlighten server
                                     const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.password}`;
                                     const loginData = await this.axiosInstanceLogin(loginUrl);
                                     const cookie = loginData.headers['set-cookie'];
 
-                                    //create axios instance token
+                                    //create axios instance with cookie
                                     const axiosInstanceToken = axios.create({
                                         method: 'GET',
                                         baseURL: CONSTANS.EnphaseUrls.BaseUrl,
@@ -49,11 +50,11 @@ class EnvoyToken {
                                         }
                                     });
 
-                                    //get entrez token
+                                    //get jwt token
                                     const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
                                     const tokenData = await axiosInstanceToken(tokenUrl);
 
-                                    //save token to the file
+                                    //save iwt token to the file
                                     const token = tokenData.data;
                                     await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
 
@@ -63,18 +64,18 @@ class EnvoyToken {
                                 }
                                 break;
                             case false:
-                                resolve(token)
+                                resolve(token);
                                 break;
                         }
                         break;
                     case false:
                         try {
-                            //login to enlighten
+                            //login to enlighten server
                             const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.password}`;
                             const loginData = await this.axiosInstanceLogin(loginUrl);
                             const cookie = loginData.headers['set-cookie'];
 
-                            //create axios instance token
+                            //create axios instance with cookie
                             const axiosInstanceToken = axios.create({
                                 method: 'GET',
                                 baseURL: CONSTANS.EnphaseUrls.BaseUrl,
@@ -84,11 +85,11 @@ class EnvoyToken {
                                 }
                             });
 
-                            //get entrez token
+                            //get jwt token
                             const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
                             const tokenData = await axiosInstanceToken(tokenUrl);
 
-                            //save token to the file
+                            //save jwt token to the file
                             const token = tokenData.data;
                             await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
 
