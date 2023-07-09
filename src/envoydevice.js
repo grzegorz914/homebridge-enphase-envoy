@@ -75,6 +75,7 @@ class EnvoyDevice extends EventEmitter {
         this.productionPowerMode = false;
 
         //envoy
+        this.jwtToken = '';
         this.envoyDevId = '';
         this.envoyFirmware = '';
         this.envoySoftwareBuildEpoch = 0;
@@ -454,6 +455,12 @@ class EnvoyDevice extends EventEmitter {
                 const tokenData = await envoyToken.getToken();
                 const debug = this.enableDebugMode ? this.emit('debug', `JWT token: ${JSON.stringify(tokenData, null, 2)}`) : false;
                 this.jwtToken = tokenData.token;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('token', tokenData) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.send('Token', JSON.stringify(tokenData, null, 2)) : false;
 
                 resolve(true);
             } catch (error) {

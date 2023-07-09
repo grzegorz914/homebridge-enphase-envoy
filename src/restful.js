@@ -8,6 +8,7 @@ class RestFul extends EventEmitter {
         this.restFulPort = config.port;
 
         this.restFulData = {
+            token: 'This data is not available in your system.',
             info: 'This data is not available in your system.',
             home: 'This data is not available in your system.',
             inventory: 'This data is not available in your system.',
@@ -30,6 +31,7 @@ class RestFul extends EventEmitter {
     connect() {
         try {
             const restFul = express();
+            restFul.get('/token', (req, res) => { res.json(this.restFulData.token) });
             restFul.get('/info', (req, res) => { res.json(this.restFulData.info) });
             restFul.get('/home', (req, res) => { res.json(this.restFulData.home) });
             restFul.get('/inventory', (req, res) => { res.json(this.restFulData.inventory) });
