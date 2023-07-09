@@ -18,14 +18,16 @@
               "title": "Name",
               "type": "string",
               "placeholder": "Envoy-S",
+              "description": "Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`.",
               "required": true
             },
             "host": {
               "title": "IP/Hostname",
               "type": "string",
               "placeholder": "192.168.1.35",
-              "required": false,
-              "format": "hostname"
+              "format": "hostname",
+              "description": "Here set the envoy `IP Address`/`Hostname` or leave empty (will be used default path `envoy.local`.",
+              "required": false
             },
             "envoyFirmware7xx": {
               "title": "Firmware 7.x.x",
@@ -37,7 +39,7 @@
             "enlightenUser": {
               "title": "Enlighten User",
               "type": "string",
-              "description": "Here set enlighten user.",
+              "description": "Here set the enlighten user name.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
@@ -46,7 +48,7 @@
             "enlightenPasswd": {
               "title": "Enlighten Password",
               "type": "string",
-              "description": "Here set enlighten password.",
+              "description": "Here set the enlighten password.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
@@ -55,7 +57,7 @@
             "envoySerialNumber": {
               "title": "Envoy Serial Number",
               "type": "string",
-              "description": "Here set envoy serial number.",
+              "description": "Here set the envoy serial number.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
@@ -64,7 +66,7 @@
             "envoyPasswd": {
               "title": "Envoy Password",
               "type": "string",
-              "description": "Here set envoy password (only if U already changed default password).",
+              "description": "Here set the envoy password (only if U already changed default password).",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
