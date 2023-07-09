@@ -58,6 +58,9 @@ class RestFul extends EventEmitter {
 
     update(path, data) {
         switch (path) {
+            case 'token':
+                this.restFulData.token = data;
+                break;
             case 'info':
                 this.restFulData.info = data;
                 break;
