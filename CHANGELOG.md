@@ -15,15 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## After Update to this version need to make corespondent changes in plugin config!!!
 ## Changes
 - added support to get JWT Token automatically from enlighten server using user credentials data
-- added support to check expired IWT Token and get new if expired
+- added support to check expired JWT Token and get new if expired
+- added `token` to the RESTFul server request
+- added `Token` to the MQTT
 - config schema updated
+- cleanup
 ### Removed properties
 - `envoyFirmware7xxToken`
 ### Added properties
 - `enlightenUser`
 - `enlightenPasswd`
 - `envoySerialNumber`
-
 
 ## [6.7.0] - (27.02.2023)
 ## Changes
