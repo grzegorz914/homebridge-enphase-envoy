@@ -33,8 +33,7 @@ class EnvoyToken {
             switch (tokenFileExist) {
                 case true:
                     const token = JSON.parse(fs.readFileSync(this.tokenFile));
-                    const tokenExpiresAt = token.expires_at;
-                    const tokenExpired = Math.floor(new Date().getTime() / 1000) > tokenExpiresAt;
+                    const tokenExpired = Math.floor(new Date().getTime() / 1000) > token.expires_at;
 
                     switch (tokenExpired) {
                         case true:
