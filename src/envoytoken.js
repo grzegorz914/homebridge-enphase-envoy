@@ -11,15 +11,10 @@ class EnvoyToken {
         this.serialNumber = config.serialNumber;
         this.tokenFile = config.tokenFile;
 
-        this.token = {
-            generation_time: {},
-            token: {},
-            expires_at: {}
-        }
-
         if (!fs.existsSync(this.tokenFile)) {
-            fs.writeFileSync(this.tokenFile, this.token);
-        }
+            const object = {};
+            fs.writeFileSync(this.tokenFile, object);
+        };
 
         this.axiosInstanceLogin = axios.create({
             method: 'POST',
@@ -30,6 +25,7 @@ class EnvoyToken {
     getToken() {
         return new Promise(async (resolve, reject) => {
             const tokenFileExist = fs.readFileSync(this.tokenFile).length > 30;
+
             switch (tokenFileExist) {
                 case true:
                     const token = JSON.parse(fs.readFileSync(this.tokenFile));
@@ -60,7 +56,6 @@ class EnvoyToken {
                                 //save token to the file
                                 const token = tokenData.data;
                                 await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
-                                this.token = token;
 
                                 resolve(token);
                             } catch (error) {
@@ -96,7 +91,6 @@ class EnvoyToken {
                         //save token to the file
                         const token = tokenData.data;
                         await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
-                        this.token = token;
 
                         resolve(token);
                     } catch (error) {
