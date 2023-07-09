@@ -25,6 +25,10 @@ class EnvoyPlatform {
           log.warn('Device name missing!');
           return;
         }
+        if (device.envoyFirmware7xx && (!device.enlightenUser || !device.enlightenPasswd || !device.envoySerialNumber)) {
+          log.warn('Envoy firmware v7.xx enabled but enlighten user/password or envoy serial number in config missing!');
+          return;
+        }
         const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, did finish launching.`) : false;
 
         //denon device
