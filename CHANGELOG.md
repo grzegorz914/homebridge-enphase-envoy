@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added support to get JWT Token automatically from enlighten server using user credentials data
 - added support to check expired JWT Token and get new if expired
 - added `token` to the RESTFul server request
-- added `Token` to the MQTT
+- added `Token` to the MQTT publisher
 - config schema updated
 - cleanup
 ### Removed properties
