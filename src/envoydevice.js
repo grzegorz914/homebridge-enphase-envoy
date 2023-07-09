@@ -1477,7 +1477,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('metersReading', metersReadingData.data) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('metersreading', metersReadingData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
@@ -1698,7 +1698,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('ensembleInventory', ensembleInventoryData.data) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('ensembleinventory', ensembleInventoryData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2)) : false;
@@ -1972,7 +1972,7 @@ class EnvoyDevice extends EventEmitter {
                 this.ensembleStatusInstalled = true;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('ensembleStatus', ensembleStatusData.data) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('ensemblestatus', ensembleStatusData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Ensemble Status', JSON.stringify(ensembleStatusData.data, null, 2)) : false;
@@ -1998,7 +1998,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('gridProfile', profileData.data) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profileData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Grid Profile', JSON.stringify(profileData.data, null, 2)) : false;
@@ -2136,7 +2136,7 @@ class EnvoyDevice extends EventEmitter {
                 const dryContactStatus = supportDryContacts ? dryContacts.dry_contact_status : 0;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('liveData', liveData.data) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('livedata', liveData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Live Data', JSON.stringify(liveData.data, null, 2)) : false;
@@ -2475,7 +2475,7 @@ class EnvoyDevice extends EventEmitter {
                 this.currentDayOfMonth = currentDayOfMonth;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('productionCt', productionCtData.data) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('productionct', productionCtData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
@@ -2596,7 +2596,7 @@ class EnvoyDevice extends EventEmitter {
                 this.productionPowerMode = productionPowerMode;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('powerMode', powerModeData.data) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('powermode', powerModeData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Power Mode', JSON.stringify(powerModeData.data, null, 2)) : false;
@@ -2696,7 +2696,7 @@ class EnvoyDevice extends EventEmitter {
                 this.checkCommLevel = false;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('plcLevel', plcLevelData.data) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('plclevel', plcLevelData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('PLC Level', JSON.stringify(plcLevelData.data, null, 2)) : false;
