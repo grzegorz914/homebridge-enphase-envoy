@@ -25,13 +25,13 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ### About The Plugin
+* Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 * Envoy `device ID` is detected automatically, is required to control Production Power Mode.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use `Controller App` or `EVE app`, iOS Home app display it as unsupported.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
-* Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
 * Support `Ensemble Status` and ` Production Power Mode` may not working in all envoy firmwares, if you get error, please disable it in plugin settings `Advanced Section`.
 * RESTful:
   * Request: `http//homebridge_ip_address:port/path`, where path are: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
