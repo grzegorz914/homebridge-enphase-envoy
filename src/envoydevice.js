@@ -449,7 +449,7 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const envoyToken = new EnvoyToken({
                     user: this.enlightenUser,
-                    password: this.enlightenPassword,
+                    passwd: this.enlightenPassword,
                     serialNumber: this.envoySerialNumber,
                     tokenFile: this.envoyTokenFile
                 });

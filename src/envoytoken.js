@@ -7,7 +7,7 @@ const CONSTANS = require('./constans.json');
 class EnvoyToken {
     constructor(config) {
         this.user = config.user;
-        this.password = config.password;
+        this.passwd = config.passwd;
         this.serialNumber = config.serialNumber;
         this.tokenFile = config.tokenFile;
 
@@ -35,7 +35,7 @@ class EnvoyToken {
                             case true:
                                 try {
                                     //login to enlighten server
-                                    const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.password}`;
+                                    const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.passwd}`;
                                     const loginData = await this.axiosInstanceLogin(loginUrl);
                                     const cookie = loginData.headers['set-cookie'];
 
@@ -70,7 +70,7 @@ class EnvoyToken {
                     case false:
                         try {
                             //login to enlighten server
-                            const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.password}`;
+                            const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.passwd}`;
                             const loginData = await this.axiosInstanceLogin(loginUrl);
                             const cookie = loginData.headers['set-cookie'];
 
