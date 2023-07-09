@@ -25,7 +25,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ### About The Plugin
-* Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
+* Firmware 7.x.x. and Token authorization is supported from plugin v6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 * Envoy `device ID` is detected automatically, is required to control Production Power Mode.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
