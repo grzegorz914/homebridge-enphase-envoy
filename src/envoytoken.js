@@ -12,7 +12,7 @@ class EnvoyToken {
         this.tokenFile = config.tokenFile;
 
         if (!fs.existsSync(this.tokenFile)) {
-            const object = {};
+            const object = JSON.stringify({});
             fs.writeFileSync(this.tokenFile, object);
         };
 
