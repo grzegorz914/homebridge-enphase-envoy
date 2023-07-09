@@ -345,6 +345,7 @@ class EnvoyDevice extends EventEmitter {
             this.startPrepareAccessory = false;
 
             //start update data
+            const updateJwtToken = getJwtToken ? this.updateJwtToken() : false;
             this.updateHome();
             const startMeterReading = this.metersSupported ? this.updateMeters() : false;
             const startEnsembleInventory = checkJwtToken && updateEnsembleInventoryData ? this.updateEnsembleInventory() : false;
@@ -355,6 +356,16 @@ class EnvoyDevice extends EventEmitter {
             this.emit('error', `${error} Reconnect in 15s.`);
             await new Promise(resolve => setTimeout(resolve, 15000));
             this.start();
+        };
+    };
+
+    async updateJwtToken() {
+        try {
+            await new Promise(resolve => setTimeout(resolve, 43200000));
+            await this.getJwtToken();
+        } catch (error) {
+            this.emit('error', `${error} Trying again in: 12 hours.`);
+            this.updateJwtToken();
         };
     };
 
@@ -430,6 +441,8 @@ class EnvoyDevice extends EventEmitter {
 
     getJwtToken() {
         return new Promise(async (resolve, reject) => {
+            const debug = !this.enableDebugMode ? false : this.emit('debug', `Requesting JWT token.`);
+
             try {
                 const envoyToken = new EnvoyToken({
                     user: this.enlightenUser,
@@ -470,7 +483,7 @@ class EnvoyDevice extends EventEmitter {
                 });
 
                 const jwtTokenData = await axiosInstanceToken(CONSTANS.ApiUrls.CheckJwt);
-                const debug = this.enableDebugMode ? this.emit('debug', `JWT token: ${jwtTokenData.data}, headers: ${jwtTokenData.headers}`) : false;
+                const debug = this.enableDebugMode ? this.emit('debug', `Validated JWT token: ${jwtTokenData.data}, headers: ${jwtTokenData.headers}`) : false;
 
                 //jwt token
                 if (jwtTokenData.status !== 200) {
