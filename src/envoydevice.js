@@ -55,6 +55,7 @@ class EnvoyDevice extends EventEmitter {
         this.disableLogDeviceInfo = config.disableLogDeviceInfo || false;
         this.restFulEnabled = config.enableRestFul || false;
         this.restFulPort = config.restFulPort || 3000;
+        this.restFulDebug = config.restFulDebug || false;
         this.mqttEnabled = config.enableMqtt || false;
         this.mqttHost = config.mqttHost;
         this.mqttPort = config.mqttPort || 1883;
@@ -264,7 +265,8 @@ class EnvoyDevice extends EventEmitter {
         //RESTFul server
         if (this.restFulEnabled) {
             this.restFul = new RestFul({
-                port: this.restFulPort
+                port: this.restFulPort,
+                debug: this.restFulDebug
             });
 
             this.restFul.on('connected', (message) => {

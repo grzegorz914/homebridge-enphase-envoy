@@ -82,6 +82,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
 | `enableRestFul` | If enabled, RESTful server will start automatically and respond to any path request. |
 | `restFulPort` | Here set the listening `Port` for RESTful server. |
+| `restFulDebug` | If enabled, deep log will be present in homebridge console for RESTFul server. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
 | `mqttHost` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
 | `mqttPort` | Here set the `Port` for MQTT Broker, default 1883. |

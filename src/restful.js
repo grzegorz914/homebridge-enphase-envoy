@@ -6,6 +6,7 @@ class RestFul extends EventEmitter {
     constructor(config) {
         super();
         this.restFulPort = config.port;
+        this.restFulDebug = config.debug;
 
         this.restFulData = {
             token: 'This data is not available in your system.',
@@ -106,6 +107,7 @@ class RestFul extends EventEmitter {
             default:
                 break;
         };
+        const emitDebug = this.restFulDebug ? this.emit('debug', `RESTFul update path: ${path}, data: ${data}`) : false;
     };
 };
 module.exports = RestFul;

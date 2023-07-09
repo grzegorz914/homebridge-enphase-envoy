@@ -26,12 +26,11 @@ class EnvoyToken {
     getToken() {
         return new Promise(async (resolve, reject) => {
             try {
-                const tokenFileExist = await fsPromises.readFile(this.tokenFile).length > 30;
-                switch (tokenFileExist) {
+                const tokenExist = await fsPromises.readFile(this.tokenFile).length > 30;
+                switch (tokenExist) {
                     case true:
                         const token = JSON.parse(fs.readFileSync(this.tokenFile));
                         const tokenExpired = Math.floor(new Date().getTime() / 1000) > token.expires_at;
-
                         switch (tokenExpired) {
                             case true:
                                 try {
@@ -54,7 +53,7 @@ class EnvoyToken {
                                     const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
                                     const tokenData = await axiosInstanceToken(tokenUrl);
 
-                                    //save iwt token to the file
+                                    //save jwt token to the file
                                     const token = tokenData.data;
                                     await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
 
