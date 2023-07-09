@@ -341,7 +341,7 @@ class EnvoyDevice extends EventEmitter {
 
             //prepare accessory
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
-            this.emit('publishAccessory', accessory)
+            this.emit('publishAccessory', accessory);
             this.startPrepareAccessory = false;
 
             //start update data
