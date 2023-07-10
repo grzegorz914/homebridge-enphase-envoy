@@ -58,7 +58,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
-| `envoyFirmware7xx` | This enable support for Envoy with firmware 7.x.x. If for some reason in log You get `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
+| `envoyFirmware7xx` | This enable support for Envoy with firmware v7.x.x. If for some reason in the log You get `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
 | `enlightenUser` | Here set the enlihten user name. |
 | `enlightenPasswd` | Here set the enlihten password. |
 | `envoySerialNumber` | Here set the envoy serial number. |
