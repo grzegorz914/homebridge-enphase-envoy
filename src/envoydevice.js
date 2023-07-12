@@ -498,12 +498,6 @@ class EnvoyDevice extends EventEmitter {
                 const jwtTokenData = await axiosInstanceToken(CONSTANS.ApiUrls.CheckJwt);
                 const debug = this.enableDebugMode ? this.emit('debug', `Validated JWT token: ${jwtTokenData.data}, headers: ${jwtTokenData.headers}`) : false;
 
-                //jwt token
-                if (jwtTokenData.status !== 200) {
-                    reject(`Validate JWT token status: ${jwtTokenData.status}`);
-                    return;
-                }
-
                 //create axios instance with cookie
                 const cookie = jwtTokenData.headers['set-cookie'];
                 this.axiosInstanceCookie = axios.create({
@@ -595,11 +589,6 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Info: ${JSON.stringify(infoData.data, null, 2)}`) : false;
 
                 //info
-                if (infoData.status !== 200) {
-                    reject(`Update info data status: ${infoData.status}`);
-                    return;
-                }
-
                 const options = {
                     ignoreAttributes: false,
                     ignorePiTags: true,
@@ -697,11 +686,6 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Home: ${JSON.stringify(homeData.data, null, 2)}`) : false;
 
                 //home
-                if (homeData.status !== 200) {
-                    reject(`Update home data status: ${homeData.status}`);
-                    return;
-                }
-
                 const envoy = homeData.data;
                 const envoyKeys = Object.keys(envoy);
                 const wirelessConnectionKitSupported = envoyKeys.includes('wireless_connection');
@@ -940,12 +924,6 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const inventoryData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.Inventory) : await this.axiosInstance(CONSTANS.ApiUrls.Inventory);
                 const debug = this.enableDebugMode ? this.emit('debug', `Inventory: ${JSON.stringify(inventoryData.data, null, 2)}`) : false;
-
-                //inventory
-                if (inventoryData.status !== 200) {
-                    reject(`Update inventory data status: ${inventoryData.status}`);
-                    return;
-                }
 
                 //microinverters inventory
                 const microinverters = inventoryData.data[0];
@@ -1275,11 +1253,6 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Meters: ${JSON.stringify(metersData.data, null, 2)}`) : false;
 
                 //meters
-                if (metersData.status !== 200) {
-                    reject(`Update meters data status: ${metersData.status}`);
-                    return;
-                }
-
                 const metersCount = metersData.data.length;
                 const metersInstalled = (metersCount > 0);
 
@@ -1351,11 +1324,6 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Meters reading: ${JSON.stringify(metersReadingData.data, null, 2)}`) : false;
 
                 //meters reading
-                if (metersReadingData.status !== 200) {
-                    reject(`Update meters reading data status: ${metersReadingData.status}`);
-                    return;
-                }
-
                 const metersReadingCount = metersReadingData.data.length;
                 const metersReadingInstalled = (metersReadingCount > 0);
 
@@ -1504,12 +1472,6 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const ensembleInventoryData = await this.axiosInstanceCookie(CONSTANS.ApiUrls.EnsembleInventory);
                 const debug = this.enableDebugMode ? this.emit('debug', `Ensemble inventory: ${JSON.stringify(ensembleInventoryData.data, null, 2)}`) : false;
-
-                //ensemble inventory
-                if (ensembleInventoryData.status !== 200) {
-                    reject(`Update ensemble inventory data status: ${ensembleInventoryData.status}`);
-                    return;
-                }
 
                 //devices count
                 const ensembleDevicesCount = ensembleInventoryData.data.length;
@@ -1727,11 +1689,6 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Ensemble status: ${JSON.stringify(ensembleStatusData.data, null, 2)}`) : false;
 
                 //ensemble status
-                if (ensembleStatusData.status !== 200) {
-                    reject(`Update ensemble status data status: ${ensembleStatusData.status}`);
-                    return;
-                }
-
                 const enchargesCapacitySummary = [];
                 const enchargesRatedPowerSummary = [];
                 const ensembleStatus = ensembleStatusData.data;
@@ -2001,17 +1958,14 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Grid profile: ${JSON.stringify(profileData.data, null, 2)}`) : false;
 
                 //profile
-                if (profileData.status !== 200) {
-                    reject(`Update profile data status: ${profileData.status}`);
-                    return;
-                }
+                const profile = profileData.data;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profileData.data) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Grid Profile', JSON.stringify(profileData.data, null, 2)) : false;
-                resolve(profileData.data);
+                resolve(profile);
             } catch (error) {
                 reject(`Update meters data error: ${error}.`);
             };
@@ -2025,12 +1979,6 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const liveData = await this.axiosInstanceCookie(CONSTANS.ApiUrls.LiveData);
                 const debug = this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(liveData.data, null, 2)}`) : false;
-
-                //live data 
-                if (liveData.status !== 200) {
-                    reject(`Update live data status: ${liveData.status}`);
-                    return;
-                }
 
                 //live data keys
                 const liveDadaKeys = Object.keys(liveData.data)
@@ -2183,11 +2131,6 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Production: ${JSON.stringify(productionData.data, null, 2)}`) : false;
 
                 //microinverters summary 
-                if (productionData.status !== 200) {
-                    reject(`Update production data status: ${productionData.status}`);
-                    return;
-                }
-
                 const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
                 const productionMicroSummarywhToday = parseFloat(productionData.data.wattHoursToday) / 1000;
                 const productionMicroSummarywhLastSevenDays = parseFloat(productionData.data.wattHoursSevenDays) / 1000;
@@ -2218,12 +2161,6 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const productionCtData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.SystemReadingStats) : await this.axiosInstance(CONSTANS.ApiUrls.SystemReadingStats);
                 const debug = this.enableDebugMode ? this.emit('debug', `Production ct: ${JSON.stringify(productionCtData.data, null, 2)}`) : false;
-
-                //production CT
-                if (productionCtData.status !== 200) {
-                    reject(`Update production ct data status: ${productionCtData.status}`);
-                    return;
-                }
 
                 //auto reset peak power
                 const date = new Date();
@@ -2512,11 +2449,6 @@ class EnvoyDevice extends EventEmitter {
                 const microinverters = microinvertersData.data;
                 const debug = this.enableDebugMode ? this.emit('debug', `Microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
-                if (microinvertersData.status !== 200) {
-                    reject(`Update microinverters data status: ${microinvertersData.status}`);
-                    return;
-                }
-
                 this.allMicroinvertersSerialNumber = [];
                 for (const microinverter of microinverters) {
                     const serialNumber = microinverter.serialNumber;
@@ -2580,11 +2512,6 @@ class EnvoyDevice extends EventEmitter {
                 const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
 
-                if (powerModeData.status !== 200) {
-                    reject(`Update production power mode data status: ${powerModeData.status}`);
-                    return;
-                }
-
                 const productionPowerMode = powerModeData.data.powerForcedOff === false;
                 if (this.systemsPvService) {
                     this.systemsPvService[0]
@@ -2625,11 +2552,6 @@ class EnvoyDevice extends EventEmitter {
 
                 const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevelData.data, null, 2)}`) : false;
-
-                if (plcLevelData.status !== 200) {
-                    reject(`Update plc levele data status: ${plcLevelData.status}`);
-                    return;
-                }
 
                 // get comm level data
                 const commLevel = plcLevelData.data;
