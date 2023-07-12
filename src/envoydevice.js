@@ -325,21 +325,21 @@ class EnvoyDevice extends EventEmitter {
 
         try {
             const getJwtToken = this.envoyFirmware7xx ? await this.getJwtToken() : false;
-            const checkJwtToken = getJwtToken ? await this.checkJwtToken() : false;
+            const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
             const getEnvoyBackboneAppData = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
             await this.updateInfoData();
             await this.updateHomeData();
             await this.updateInventoryData();
             const updateMetersData = this.metersSupported ? await this.updateMetersData() : false;
             const updateMetersReadingData = this.metersInstalled ? await this.updateMetersReadingData() : false;
-            const updateEnsembleInventoryData = checkJwtToken ? await this.updateEnsembleInventoryData() : false;
+            const updateEnsembleInventoryData = validJwtToken ? await this.updateEnsembleInventoryData() : false;
             const updateEnsembleStatusData = this.supportEnsembleStatus && updateEnsembleInventoryData ? await this.updateEnsembleStatusData() : false;
             const updateLiveData = this.supportLiveData && updateEnsembleInventoryData ? await this.updateLiveData() : false;
             const updateProductionData = await this.updateProductionData();
             const updateProductionCtData = await this.updateProductionCtData();
-            const updateMicroinvertersData = checkJwtToken || (!checkJwtToken && this.envoyPasswd) ? await this.updateMicroinvertersData() : false;
-            const updateProductionPowerModeData = getEnvoyBackboneAppData && (checkJwtToken || (!checkJwtToken && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
-            const updatePlcLevelData = this.supportPlcLevel && (checkJwtToken || (!checkJwtToken && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
+            const updateMicroinvertersData = validJwtToken || (!validJwtToken && this.envoyPasswd) ? await this.updateMicroinvertersData() : false;
+            const updateProductionPowerModeData = getEnvoyBackboneAppData && (validJwtToken || (!validJwtToken && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
+            const updatePlcLevelData = this.supportPlcLevel && (validJwtToken || (!validJwtToken && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
             const getDeviceInfo = await this.getDeviceInfo();
 
             //prepare accessory
@@ -351,10 +351,10 @@ class EnvoyDevice extends EventEmitter {
             const updateJwtToken = getJwtToken ? this.updateJwtToken() : false;
             this.updateHome();
             const startMeterReading = this.metersSupported ? this.updateMeters() : false;
-            const startEnsembleInventory = checkJwtToken && updateEnsembleInventoryData ? this.updateEnsembleInventory() : false;
+            const startEnsembleInventory = validJwtToken && updateEnsembleInventoryData ? this.updateEnsembleInventory() : false;
             const startLive = this.supportLiveData && updateEnsembleInventoryData ? this.updateLive() : false;
             this.updateProduction();
-            const startMicroinverters = checkJwtToken || (!checkJwtToken && this.envoyPasswd) ? this.updateMicroinverters() : false;
+            const startMicroinverters = validJwtToken || (!validJwtToken && this.envoyPasswd) ? this.updateMicroinverters() : false;
         } catch (error) {
             this.emit('error', `${error} Reconnect in 15s.`);
             await new Promise(resolve => setTimeout(resolve, 15000));
@@ -445,6 +445,7 @@ class EnvoyDevice extends EventEmitter {
     getJwtToken() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting JWT token.`) : false;
+            const dateNow = Math.floor(new Date().getTime() / 1000);
 
             try {
                 const envoyToken = new EnvoyToken({
@@ -464,6 +465,9 @@ class EnvoyDevice extends EventEmitter {
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Token', JSON.stringify(tokenData, null, 2)) : false;
 
+                //validate new token if created
+                const newTokenCreated = dateNow < tokenData.token.genration_time ? this.validateJwtToken() : false;
+
                 resolve(true);
             } catch (error) {
                 reject(error)
@@ -471,7 +475,7 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    checkJwtToken() {
+    validateJwtToken() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Validate JWT token.`) : false;
 
@@ -643,8 +647,13 @@ class EnvoyDevice extends EventEmitter {
                     const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: ${envoyPasswd}`) : false;
                     this.envoyPasswd = envoyPasswd;
 
-                    //installer password
-                    //password calc
+                    //digest authorization envoy
+                    this.digestAuthEnvoy = new DigestAuth({
+                        user: CONSTANS.Authorization.EnvoyUser,
+                        passwd: envoyPasswd
+                    });
+
+                    //installer password calc
                     const passwdCalc = new PasswdCalc({
                         user: CONSTANS.Authorization.InstallerUser,
                         realm: CONSTANS.Authorization.Realm
@@ -2491,13 +2500,6 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting microinverters`) : false;
 
             try {
-                //digest auth envoy
-                const passwd = this.envoyPasswd;
-                const digestAuthEnvoy = new DigestAuth({
-                    user: CONSTANS.Authorization.EnvoyUser,
-                    passwd: passwd
-                });
-
                 const options = {
                     method: 'GET',
                     url: this.url + CONSTANS.ApiUrls.InverterProduction,
@@ -2506,7 +2508,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProduction) : await digestAuthEnvoy.request(options);
+                const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(options);
                 const microinverters = microinvertersData.data;
                 const debug = this.enableDebugMode ? this.emit('debug', `Microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
