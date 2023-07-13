@@ -367,6 +367,7 @@ class EnvoyDevice extends EventEmitter {
         try {
             await new Promise(resolve => setTimeout(resolve, 43200000));
             await this.getJwtToken();
+            this.updateJwtToken();
         } catch (error) {
             this.emit('error', `${error} Trying again in: 12 hours.`);
             this.updateJwtToken();
