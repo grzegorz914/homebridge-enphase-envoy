@@ -311,6 +311,7 @@ class EnvoyDevice extends EventEmitter {
             this.axiosInstance = axios.create({
                 method: 'GET',
                 baseURL: this.url,
+                withCredentials: true,
                 headers: {
                     Accept: 'application/json'
                 }
@@ -556,14 +557,10 @@ class EnvoyDevice extends EventEmitter {
                     const envoyBackboneAppData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.BackboneApplication) : await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
                     const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app: ${envoyBackboneAppData.data}`) : false;
 
-                    //backbone request status
-                    if (envoyBackboneAppData.status !== 200) {
-                        reject(`Get backbone app data status: ${envoyBackboneAppData.status}`);
-                        return;
-                    }
-
+                    //backbone data
                     const backbone = envoyBackboneAppData.data;
                     const envoyDevId = backbone.substr(data.indexOf('envoyDevId:') + 11, 9);
+
                     try {
                         await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
                         this.envoyDevId = envoyDevId;
@@ -588,7 +585,7 @@ class EnvoyDevice extends EventEmitter {
                 const infoData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.Info) : await this.axiosInstance(CONSTANS.ApiUrls.Info);
                 const debug = this.enableDebugMode ? this.emit('debug', `Info: ${JSON.stringify(infoData.data, null, 2)}`) : false;
 
-                //info
+                //parse info
                 const options = {
                     ignoreAttributes: false,
                     ignorePiTags: true,
