@@ -18,14 +18,16 @@
               "title": "Name",
               "type": "string",
               "placeholder": "Envoy-S",
+              "description": "Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`.",
               "required": true
             },
             "host": {
               "title": "IP/Hostname",
               "type": "string",
               "placeholder": "192.168.1.35",
-              "required": false,
-              "format": "hostname"
+              "format": "hostname",
+              "description": "Here set the envoy `IP Address`/`Hostname` or leave empty (will be used default path `envoy.local`.",
+              "required": false
             },
             "envoyFirmware7xx": {
               "title": "Firmware 7.x.x",
@@ -34,12 +36,29 @@
               "required": true,
               "description": "This enable support for Envoy with firmware 7.x.x"
             },
-            "envoyFirmware7xxToken": {
-              "title": "Envoy Token",
+            "enlightenUser": {
+              "title": "Enlighten User",
               "type": "string",
-              "placeholder": "xdDe32Dsgf6hgEz68JHdsseg)",
+              "description": "Here set the enlighten user name.",
               "required": false,
-              "description": "Here paste your envoy token generated here: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNumber",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
+            "enlightenPasswd": {
+              "title": "Enlighten Password",
+              "type": "string",
+              "description": "Here set the enlighten password.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
+            "envoySerialNumber": {
+              "title": "Envoy Serial Number",
+              "type": "string",
+              "description": "Here set the envoy serial number.",
+              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
@@ -47,7 +66,7 @@
             "envoyPasswd": {
               "title": "Envoy Password",
               "type": "string",
-              "description": "Here set envoy password (only if U already changed default password).",
+              "description": "Here set the envoy password (only if U already changed default password).",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
@@ -337,6 +356,16 @@
               "required": false,
               "description": "This enable RESTful server."
             },
+            "restFulDebug": {
+              "title": "Debug",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable debug mode for RESTFul.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].enableRestFul === true;"
+              }
+            },
             "restFulPort": {
               "title": "Port",
               "type": "integer",
@@ -504,7 +533,9 @@
           "expanded": false,
           "items": [
             "devices[].envoyFirmware7xx",
-            "devices[].envoyFirmware7xxToken",
+            "devices[].envoySerialNumber",
+            "devices[].enlightenUser",
+            "devices[].enlightenPasswd",
             "devices[].envoyPasswd"
           ]
         },
@@ -535,6 +566,7 @@
           "expanded": false,
           "items": [
             "devices[].enableRestFul",
+            "devices[].restFulDebug",
             "devices[].restFulPort"
           ]
         },

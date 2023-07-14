@@ -6,8 +6,10 @@ class RestFul extends EventEmitter {
     constructor(config) {
         super();
         this.restFulPort = config.port;
+        this.restFulDebug = config.debug;
 
         this.restFulData = {
+            token: 'This data is not available in your system.',
             info: 'This data is not available in your system.',
             home: 'This data is not available in your system.',
             inventory: 'This data is not available in your system.',
@@ -30,6 +32,7 @@ class RestFul extends EventEmitter {
     connect() {
         try {
             const restFul = express();
+            restFul.get('/token', (req, res) => { res.json(this.restFulData.token) });
             restFul.get('/info', (req, res) => { res.json(this.restFulData.info) });
             restFul.get('/home', (req, res) => { res.json(this.restFulData.home) });
             restFul.get('/inventory', (req, res) => { res.json(this.restFulData.inventory) });
@@ -56,6 +59,9 @@ class RestFul extends EventEmitter {
 
     update(path, data) {
         switch (path) {
+            case 'token':
+                this.restFulData.token = data;
+                break;
             case 'info':
                 this.restFulData.info = data;
                 break;
@@ -68,39 +74,40 @@ class RestFul extends EventEmitter {
             case 'meters':
                 this.restFulData.meters = data;
                 break;
-            case 'metersReading':
+            case 'metersreading':
                 this.restFulData.metersReading = data;
                 break;
-            case 'ensembleInventory':
+            case 'ensembleinventory':
                 this.restFulData.ensembleInventory = data;
                 break;
-            case 'ensembleStatus':
+            case 'ensemblestatus':
                 this.restFulData.ensembleStatus = data;
                 break;
-            case 'gridProfile':
+            case 'gridprofile':
                 this.restFulData.gridProfile = data;
                 break;
-            case 'liveData':
+            case 'livedata':
                 this.restFulData.liveData = data;
                 break;
             case 'production':
                 this.restFulData.production = data;
                 break;
-            case 'productionCt':
+            case 'productionct':
                 this.restFulData.productionCt = data;
                 break;
             case 'microinverters':
                 this.restFulData.microinverters = data;
                 break;
-            case 'powerMode':
+            case 'powermode':
                 this.restFulData.powerMode = data;
                 break;
-            case 'plcLevel':
+            case 'plclevel':
                 this.restFulData.plcLevel = data;
                 break;
             default:
                 break;
         };
+        const emitDebug = this.restFulDebug ? this.emit('debug', `RESTFul update path: ${path}, data: ${JSON.stringify(data, null, 2)}`) : false;
     };
 };
 module.exports = RestFul;

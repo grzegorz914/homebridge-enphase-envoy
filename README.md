@@ -25,25 +25,26 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ### About The Plugin
+* Firmware 7.x.x. and Token authorization is supported from plugin v6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 * Envoy `device ID` is detected automatically, is required to control Production Power Mode.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * For best experiences please use `Controller App` or `EVE app`, iOS Home app display it as unsupported.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
-* Envoy Firmware 7.x.x. and Token Authorization is supported from plugin v6.0.0.
 * Support `Ensemble Status` and ` Production Power Mode` may not working in all envoy firmwares, if you get error, please disable it in plugin settings `Advanced Section`.
 * RESTful:
-  * Request `http//homebridge_ip_address:port/path`, where path are: `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
+  * Request: `http//homebridge_ip_address:port/path`.
+  * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
   * Respone as JSON data.
 * MQTT:
-  * Publish topics `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level` as payload JSON data.
+  * Topic: `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`.
+  * Publish as JSON data.
 
 ### Configuration
 * Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
 * Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) to configure this plugin (Highly Recommended). 
-* The sample configuration can be edited and used manually as an alternative. 
-* See the `sample-config.json` file example or copy the example below into your config.json file, making the apporpriate changes before saving it. 
+* The `sample-config.json` can be edited and used manually as an alternative. 
 * Be sure to always make a backup copy of your config.json file before making any changes to it.
 
 <p align="left">
@@ -53,12 +54,14 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | Key | Description | 
 | --- | --- |
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
-| `host` | Here set the envoy `IP Address` or `Hostname` or leave empy (will be used default path `envoy.local`) |
+| `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
-| `envoyFirmware7xx` | This enable support for Envoy with firmware 7.x.x |
-| `envoyFirmware7xxToken` | Here paste generated token: https://enlighten.enphaseenergy.com/entrez-auth-token?serial_num=envoySerialNumber, If for some reason after use this token in log You get `validate JWT token error`, login with this token to Envoy from web browser first. |
+| `envoyFirmware7xx` | This enable support for Envoy with firmware v7.x.x. If for some reason in the log You get `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
+| `enlightenUser` | Here set the enlihten user name. |
+| `enlightenPasswd` | Here set the enlihten password. |
+| `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionMax` | This enable `Power Peak` monitoring for production and create contact sensor in HomeKit which can be used for notification and automations. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
@@ -81,6 +84,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
 | `enableRestFul` | If enabled, RESTful server will start automatically and respond to any path request. |
 | `restFulPort` | Here set the listening `Port` for RESTful server. |
+| `restFulDebug` | If enabled, deep log will be present in homebridge console for RESTFul server. |
 | `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
 | `mqttHost` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
 | `mqttPort` | Here set the `Port` for MQTT Broker, default 1883. |
@@ -89,51 +93,3 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `mqttUser` | Here set the MQTT Broker user. |
 | `mqttPasswd` | Here set the MQTT Broker password. |
 | `mqttDebug` | If enabled, deep log will be present in homebridge console for MQTT. |
-
-```json
-        {
-            "platform": "enphaseEnvoy",
-            "devices": [
-                {
-                    "name": "Envoy",
-                    "host": "192.168.1.35",
-                    "enableDebugMode": false,
-                    "disableLogInfo": false,
-                    "disableLogDeviceInfo": false,
-                    "envoyFirmware7xx": false,
-                    "envoyFirmware7xxToken": "",
-                    "envoyPasswd": "",
-                    "powerProductionMax": false,
-                    "powerProductionMaxAutoReset": 0,
-                    "powerProductionMaxDetected": 5400,
-                    "energyProductionLifetimeOffset": 0,
-                    "powerConsumptionTotalMax": false,
-                    "powerConsumptionTotalMaxAutoReset": 0,
-                    "powerConsumptionTotalMaxDetected": 10000,
-                    "energyConsumptionTotalLifetimeOffset": 0,
-                    "powerConsumptionNetMax": false,
-                    "powerConsumptionNetMaxAutoReset": 0,
-                    "powerConsumptionNetMaxDetected": 10000,
-                    "energyConsumptionNetLifetimeOffset": 0,
-                    "supportEnsembleStatus": false,
-                    "supportLiveData": false,
-                    "liveDataRefreshTime": 1000,
-                    "metersDataRefreshTime": 3000,
-                    "productionDataRefreshTime": 5000,
-                    "supportProductionPowerMode": false,
-                    "supportPlcLevel": false,
-                    "enableRestFul": false,
-                    "restFulPort": 3000,
-                    "enableMqtt": false,
-                    "mqttHost": "192.168.1.33",
-                    "mqttPort": 1883,
-                    "mqttPrefix": "home/envoy",
-                    "mqttAuth": false,
-                    "mqttUser": "user",
-                    "mqttPass": "password",
-                    "mqttDebug": false
-                }
-            ]
-        }
-```
-

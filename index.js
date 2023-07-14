@@ -21,8 +21,12 @@ class EnvoyPlatform {
 
     api.on('didFinishLaunching', () => {
       for (const device of config.devices) {
-        if (!device.name || (device.envoyFirmware7xx && !device.envoyFirmware7xxToken)) {
-          log.warn('Device name or token missing!');
+        if (!device.name) {
+          log.warn('Device name missing!');
+          return;
+        }
+        if (device.envoyFirmware7xx && (!device.enlightenUser || !device.enlightenPasswd || !device.envoySerialNumber)) {
+          log.warn(`Envoy firmware v7.xx enabled but enlighten user: ${device.enlightenUser ? 'OK' : device.enlightenUser}, password: ${device.enlightenPasswd ? 'OK' : device.enlightenPasswd}, envoy serial number: ${device.envoySerialNumber ? 'OK' : device.envoySerialNumber}`);
           return;
         }
         const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, did finish launching.`) : false;
