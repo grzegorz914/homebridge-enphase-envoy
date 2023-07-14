@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
-## [7.0.0] - (10.07.2023)
+## [7.0.0] - (14.07.2023)
 ## After Update to this version need to make corespondent changes in plugin config!!!
 ## Changes
 - added support to get JWT Token automatically from enlighten server using user credentials data
