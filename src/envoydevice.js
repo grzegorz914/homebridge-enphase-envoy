@@ -232,6 +232,7 @@ class EnvoyDevice extends EventEmitter {
         this.ensembleGridProfileVersion = 'Unknown';
         this.ensembleItemCount = 0;
         this.ensembleFakeInventoryMode = false;
+        this.url = this.envoyFirmware7xx ? `https://${this.host}` : `http://${this.host}`;
 
         //current day of week/month
         const date = new Date();
@@ -248,6 +249,7 @@ class EnvoyDevice extends EventEmitter {
         try {
             const files = [
                 this.envoyIdFile,
+                this.envoyTokenFile,
                 this.productionPowerPeakFile,
                 this.consumptionNetPowerPeakFile,
                 this.consumptionTotalPowerPeakFile,
@@ -307,7 +309,6 @@ class EnvoyDevice extends EventEmitter {
 
         //create axios instance
         if (!this.envoyFirmware7xx) {
-            this.url = `http://${this.host}`;
             this.axiosInstance = axios.create({
                 method: 'GET',
                 baseURL: this.url,
@@ -325,8 +326,11 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Start.`) : false;
 
         try {
+            //get and validate jwt token
             const getJwtToken = this.envoyFirmware7xx ? await this.getJwtToken() : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
+
+            //get first envoy data
             const getEnvoyBackboneAppData = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
             await this.updateInfoData();
             await this.updateHomeData();
@@ -459,16 +463,19 @@ class EnvoyDevice extends EventEmitter {
 
                 const tokenData = await envoyToken.getToken();
                 const debug = this.enableDebugMode ? this.emit('debug', `JWT token: ${JSON.stringify(tokenData, null, 2)}`) : false;
-                this.jwtToken = tokenData.token;
+                const tokenGenerationTime = tokenData.genration_time;
+                const token = tokenData.token;
+                const tokenExpiresAt = tokenData.expires_at;
+                this.jwtToken = token;
+
+                //validate new token if created
+                const newTokenCreated = dateNow < tokenGenerationTime ? this.validateJwtToken() : false;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('token', tokenData) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.send('Token', JSON.stringify(tokenData, null, 2)) : false;
-
-                //validate new token if created
-                const newTokenCreated = dateNow < tokenData.token.genration_time ? this.validateJwtToken() : false;
 
                 resolve(true);
             } catch (error) {
@@ -482,10 +489,9 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Validate JWT token.`) : false;
 
             try {
-                const url = `https://${this.host}`;
                 const axiosInstanceToken = axios.create({
                     method: 'GET',
-                    baseURL: url,
+                    baseURL: this.url,
                     headers: {
                         Accept: 'application/json',
                         Authorization: `Bearer ${this.jwtToken}`
@@ -500,11 +506,11 @@ class EnvoyDevice extends EventEmitter {
                 const jwtTokenData = await axiosInstanceToken(CONSTANS.ApiUrls.CheckJwt);
                 const debug = this.enableDebugMode ? this.emit('debug', `Validated JWT token: ${jwtTokenData.data}, headers: ${jwtTokenData.headers}`) : false;
 
-                //create axios instance with cookie
+                //create axios instance get with cookie
                 const cookie = jwtTokenData.headers['set-cookie'];
                 this.axiosInstanceCookie = axios.create({
                     method: 'GET',
-                    baseURL: url,
+                    baseURL: this.url,
                     headers: {
                         Accept: 'application/json',
                         Cookie: cookie
@@ -516,9 +522,10 @@ class EnvoyDevice extends EventEmitter {
                     })
                 })
 
+                //create axios instance post with cookie and data
                 this.axiosInstanceCookieLiveDataStream = axios.create({
                     method: 'POST',
-                    baseURL: url,
+                    baseURL: this.url,
                     headers: {
                         Accept: 'application/json',
                         Cookie: cookie
@@ -643,10 +650,11 @@ class EnvoyDevice extends EventEmitter {
                     //installer password calc
                     const passwdCalc = new PasswdCalc({
                         user: CONSTANS.Authorization.InstallerUser,
-                        realm: CONSTANS.Authorization.Realm
+                        realm: CONSTANS.Authorization.Realm,
+                        serialNumber: deviceSn
                     });
 
-                    const installerPasswd = await passwdCalc.generatePasswd(deviceSn);
+                    const installerPasswd = await passwdCalc.getPasswd();
                     const debug3 = this.enableDebugMode ? this.emit('debug', `Installer password: ${installerPasswd}`) : false;
                     this.installerPasswd = installerPasswd;
 
@@ -2437,13 +2445,13 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const options = {
                     method: 'GET',
-                    url: this.url + CONSTANS.ApiUrls.InverterProduction,
+                    baseURL: this.url,
                     headers: {
                         Accept: 'application/json'
                     }
                 }
 
-                const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(options);
+                const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(CONSTANS.ApiUrls.InverterProduction, options);
                 const microinverters = microinvertersData.data;
                 const debug = this.enableDebugMode ? this.emit('debug', `Microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
@@ -2501,13 +2509,13 @@ class EnvoyDevice extends EventEmitter {
                 const powerModeUrl = CONSTANS.ApiUrls.PowerForcedModePutGet.replace("EID", this.envoyDevId);
                 const options = {
                     method: 'GET',
-                    url: this.url + powerModeUrl,
+                    baseURL: this.url,
                     headers: {
                         Accept: 'application/json'
                     }
                 }
 
-                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(options);
+                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
 
                 const productionPowerMode = powerModeData.data.powerForcedOff === false;
@@ -2542,13 +2550,13 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const options = {
                     method: 'GET',
-                    url: this.url + CONSTANS.ApiUrls.InverterComm,
+                    baseURL: this.url,
                     headers: {
                         Accept: 'application/json'
                     }
                 }
 
-                const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(options);
+                const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANS.ApiUrls.InverterComm, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevelData.data, null, 2)}`) : false;
 
                 // get comm level data
@@ -2756,14 +2764,14 @@ class EnvoyDevice extends EventEmitter {
 
                                 const options = {
                                     method: 'PUT',
-                                    url: this.url + powerModeUrl,
+                                    baseURL: this.url,
                                     data: data,
                                     headers: {
                                         Accept: 'application/json'
                                     }
                                 }
 
-                                //const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(options);
+                                //const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
                                 //const debug = this.enableDebugMode ? this.emit('debug', `Set powerModeData: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
                             } catch (error) {
                                 this.emit('error', `envoy: ${serialNumber}, set powerModeData error: ${error}`);
@@ -2925,14 +2933,14 @@ class EnvoyDevice extends EventEmitter {
 
                                 const options = {
                                     method: 'PUT',
-                                    url: this.url + powerModeUrl,
+                                    baseURL: this.url,
                                     data: data,
                                     headers: {
                                         Accept: 'application/json'
                                     }
                                 }
 
-                                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(options);
+                                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
                                 const debug = this.enableDebugMode ? this.emit('debug', ` debug set powerModeData: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
                             } catch (error) {
                                 this.emit('error', `envoy: ${serialNumber}, set powerModeData error: ${error}`);

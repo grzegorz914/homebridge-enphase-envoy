@@ -11,11 +11,6 @@ class EnvoyToken {
         this.serialNumber = config.serialNumber;
         this.tokenFile = config.tokenFile;
 
-        if (!fs.existsSync(this.tokenFile)) {
-            const object = JSON.stringify({});
-            fs.writeFileSync(this.tokenFile, object);
-        };
-
         //create axios instance
         this.axiosInstanceLogin = axios.create({
             method: 'POST',
@@ -26,11 +21,15 @@ class EnvoyToken {
     getToken() {
         return new Promise(async (resolve, reject) => {
             try {
-                const tokenExist = await fsPromises.readFile(this.tokenFile).length > 30;
+                //check jwt token exist in file
+                const tokenExist = await this.exisToken();
                 switch (tokenExist) {
                     case true:
-                        const token = JSON.parse(fs.readFileSync(this.tokenFile));
+                        //read jwt token from file
+                        const token = await this.readToken();
                         const tokenExpired = Math.floor(new Date().getTime() / 1000) > token.expires_at;
+
+                        //check jwt token expired
                         switch (tokenExpired) {
                             case true:
                                 try {
@@ -52,10 +51,10 @@ class EnvoyToken {
                                     //get jwt token
                                     const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
                                     const tokenData = await axiosInstanceToken(tokenUrl);
-
-                                    //save jwt token to the file
                                     const token = tokenData.data;
-                                    await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
+
+                                    //save jwt token
+                                    await this.saveToken(token);
 
                                     resolve(token);
                                 } catch (error) {
@@ -87,10 +86,10 @@ class EnvoyToken {
                             //get jwt token
                             const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
                             const tokenData = await axiosInstanceToken(tokenUrl);
+                            const token = tokenData.data;
 
                             //save jwt token to the file
-                            const token = tokenData.data;
-                            await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
+                            await this.saveToken(token);
 
                             resolve(token);
                         } catch (error) {
@@ -98,6 +97,40 @@ class EnvoyToken {
                         }
                         break;
                 }
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    exisToken() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tokenExist = await fsPromises.readFile(this.tokenFile).length > 30;
+                resolve(tokenExist);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    readToken() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tokenData = await fsPromises.readFile(this.tokenFile)
+                const token = JSON.parse(tokenData);
+                resolve(token);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    saveToken(token) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
+                resolve();
             } catch (error) {
                 reject(error);
             }

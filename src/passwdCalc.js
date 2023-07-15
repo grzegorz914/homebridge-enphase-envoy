@@ -5,29 +5,29 @@ class PasswdCalc {
     constructor(config) {
         this.user = config.user;
         this.realm = config.realm;
+        this.serialNumber = config.serialNumber;
     };
 
-    generatePasswd(serialNumber) {
+    getPasswd() {
         return new Promise((resolve, reject) => {
             try {
-                const hashstring = `[e]${this.user}@${this.realm}#${serialNumber} EnPhAsE eNeRgY `;
+                const hashstring = `[e]${this.user}@${this.realm}#${this.serialNumber} EnPhAsE eNeRgY `;
                 const inputString = crypto.createHash('md5').update(hashstring).digest("hex");
                 const digestIterator = this.digestSnippet(inputString);
 
                 const counters = inputString
                     .split("")
-                    .reduce((accumulator, currentValue, currentIndex, array) => {
+                    .reduce((previousValue, currentValue, currentIndex, array) => {
                         switch (currentValue) {
                             case "0":
-                                accumulator[0] += 1;
+                                previousValue[0] += 1;
                                 break;
                             case "1":
-                                accumulator[1] += 1;
+                                previousValue[1] += 1;
                                 break;
                         };
-                        return accumulator;
-                    },
-                        [0, 0]);
+                        return previousValue;
+                    }, [0, 0]);
 
                 let countZero = counters[0];
                 let countOne = counters[1];
