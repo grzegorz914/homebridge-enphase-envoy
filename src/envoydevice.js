@@ -569,7 +569,7 @@ class EnvoyDevice extends EventEmitter {
 
                     //backbone data
                     const backbone = envoyBackboneAppData.data;
-                    const envoyDevId = backbone.substr(data.indexOf('envoyDevId:') + 11, 9);
+                    const envoyDevId = backbone.substr(backbone.indexOf('envoyDevId:') + 11, 9);
 
                     try {
                         await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
