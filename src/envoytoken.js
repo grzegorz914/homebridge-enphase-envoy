@@ -21,8 +21,12 @@ class EnvoyToken {
     getToken() {
         return new Promise(async (resolve, reject) => {
             try {
+                //prepare urls
+                const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.passwd}`;
+                const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
+
                 //check jwt token exist in file
-                const tokenExist = await this.exisToken();
+                const tokenExist = await this.existToken();
                 switch (tokenExist) {
                     case true:
                         //read jwt token from file
@@ -34,7 +38,6 @@ class EnvoyToken {
                             case true:
                                 try {
                                     //login to enlighten server
-                                    const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.passwd}`;
                                     const loginData = await this.axiosInstanceLogin(loginUrl);
                                     const cookie = loginData.headers['set-cookie'];
 
@@ -49,7 +52,6 @@ class EnvoyToken {
                                     });
 
                                     //get jwt token
-                                    const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
                                     const tokenData = await axiosInstanceToken(tokenUrl);
                                     const token = tokenData.data;
 
@@ -69,7 +71,6 @@ class EnvoyToken {
                     case false:
                         try {
                             //login to enlighten server
-                            const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.passwd}`;
                             const loginData = await this.axiosInstanceLogin(loginUrl);
                             const cookie = loginData.headers['set-cookie'];
 
@@ -84,7 +85,6 @@ class EnvoyToken {
                             });
 
                             //get jwt token
-                            const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
                             const tokenData = await axiosInstanceToken(tokenUrl);
                             const token = tokenData.data;
 
@@ -103,7 +103,7 @@ class EnvoyToken {
         });
     }
 
-    exisToken() {
+    existToken() {
         return new Promise(async (resolve, reject) => {
             try {
                 const tokenExist = await fsPromises.readFile(this.tokenFile).length > 30;

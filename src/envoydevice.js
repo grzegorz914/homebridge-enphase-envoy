@@ -345,11 +345,13 @@ class EnvoyDevice extends EventEmitter {
             const updateMicroinvertersData = validJwtToken || (!validJwtToken && this.envoyPasswd) ? await this.updateMicroinvertersData() : false;
             const updateProductionPowerModeData = getEnvoyBackboneAppData && (validJwtToken || (!validJwtToken && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
             const updatePlcLevelData = this.supportPlcLevel && (validJwtToken || (!validJwtToken && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
-            const getDeviceInfo = await this.getDeviceInfo();
+
+            //get device info
+            this.getDeviceInfo();
 
             //prepare accessory
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
-            this.emit('publishAccessory', accessory);
+            const publishAccessory = this.startPrepareAccessory ? this.emit('publishAccessory', accessory) : false;
             this.startPrepareAccessory = false;
 
             //start update data
@@ -475,7 +477,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('token', tokenData) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Token', JSON.stringify(tokenData, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Token', tokenData) : false;
 
                 resolve(true);
             } catch (error) {
@@ -610,7 +612,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //device
                 const device = envoyInfo.device;
-                const deviceSn = device.sn.toString();
+                const deviceSn = this.envoySerialNumber ? this.envoySerialNumber : device.sn.toString();
                 const devicePn = CONSTANS.PartNumbers[device.pn] || 'Envoy'
                 const deviceSoftware = device.software;
                 const deviceEuaid = device.euaid;
@@ -666,16 +668,22 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 this.envoyTime = time;
-                this.envoySerialNumber = this.envoySerialNumber ? this.envoySerialNumber : deviceSn;
+                this.envoySerialNumber = deviceSn;
                 this.envoyModelName = devicePn;
                 this.envoyFirmware = deviceSoftware;
                 this.metersSupported = deviceImeter;
+
+                //check serial number
+                if (!this.envoySerialNumber) {
+                    reject(`Envoy serial number missing: ${this.envoySerialNumber}.`);
+                    return;
+                };
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('info', parseInfoData) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Info', JSON.stringify(parseInfoData, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Info', parseInfoData) : false;
                 resolve();
             } catch (error) {
                 reject(`Update info data error: ${error}.`);
@@ -914,7 +922,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('home', homeData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Home', JSON.stringify(homeData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Home', homeData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update home data error: ${error}.`);
@@ -1242,7 +1250,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('inventory', inventoryData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Inventory', JSON.stringify(inventoryData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Inventory', inventoryData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update inventory data error: ${error}.`);
@@ -1313,7 +1321,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('meters', metersData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Meters', JSON.stringify(metersData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Meters', metersData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update meters data error: ${error}.`);
@@ -1463,7 +1471,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('metersreading', metersReadingData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Meters Reading', JSON.stringify(metersReadingData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Meters Reading', metersReadingData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update meters reading data error: ${error}.`);
@@ -1678,7 +1686,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('ensembleinventory', ensembleInventoryData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Ensemble Inventory', JSON.stringify(ensembleInventoryData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Ensemble Inventory', ensembleInventoryData.data) : false;
                 resolve(true);
             } catch (error) {
                 reject(`Update ensemble inventory data error: ${error}.`);
@@ -1947,7 +1955,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('ensemblestatus', ensembleStatusData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Ensemble Status', JSON.stringify(ensembleStatusData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Ensemble Status', ensembleStatusData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update ensemble status data error: ${error}.`);
@@ -1970,7 +1978,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profileData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Grid Profile', JSON.stringify(profileData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Grid Profile', profileData.data) : false;
                 resolve(profile);
             } catch (error) {
                 reject(`Update meters data error: ${error}.`);
@@ -2102,7 +2110,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('livedata', liveData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Live Data', JSON.stringify(liveData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Live Data', liveData.data) : false;
 
                 //enable live data stream if not enabled
                 const enableLiveStreamData = !connectionScStream ? await this.updateLiveDataStream() : false;
@@ -2152,7 +2160,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('production', productionData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Production', JSON.stringify(productionData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Production', productionData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update production data error: ${error}.`);
@@ -2430,7 +2438,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('productionct', productionCtData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Production CT', JSON.stringify(productionCtData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Production CT', productionCtData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update production ct data error: ${error}.`);
@@ -2493,7 +2501,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('microinverters', microinvertersData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Microinverters', JSON.stringify(microinvertersData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Microinverters', microinvertersData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update microinverters data error: ${error}.`);
@@ -2534,7 +2542,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('powermode', powerModeData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('Power Mode', JSON.stringify(powerModeData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Power Mode', powerModeData.data) : false;
                 resolve();
             } catch (error) {
                 reject(`Update power mode error: ${error}.`);
@@ -2629,7 +2637,7 @@ class EnvoyDevice extends EventEmitter {
                 const restFul = this.restFulConnected ? this.restFul.update('plclevel', plcLevelData.data) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.send('PLC Level', JSON.stringify(plcLevelData.data, null, 2)) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('PLC Level', plcLevelData.data) : false;
                 resolve();
             } catch (error) {
                 this.checkCommLevel = false;
@@ -2639,66 +2647,57 @@ class EnvoyDevice extends EventEmitter {
     };
 
     getDeviceInfo() {
-        return new Promise((resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info.`) : false;
 
-            //envoy
-            const time = this.envoyTime;
-            const deviceSn = this.envoySerialNumber;
-            const devicePn = this.envoyModelName;
-            const deviceSoftware = this.envoyFirmware;
+        //envoy
+        const time = this.envoyTime;
+        const deviceSn = this.envoySerialNumber;
+        const devicePn = this.envoyModelName;
+        const deviceSoftware = this.envoyFirmware;
 
-            //inventory
-            const metersInstalled = this.metersInstalled;
-            const metersProductionEnabled = this.metersProductionEnabled;
-            const metersConsumptionEnabled = this.metersConsumptionEnabled;
+        //inventory
+        const metersInstalled = this.metersInstalled;
+        const metersProductionEnabled = this.metersProductionEnabled;
+        const metersConsumptionEnabled = this.metersConsumptionEnabled;
 
-            const microinvertersCount = this.microinvertersCount;
-            const acBatteriesCount = this.acBatteriesCount;
-            const qRelaysCount = this.qRelaysCount;
+        const microinvertersCount = this.microinvertersCount;
+        const acBatteriesCount = this.acBatteriesCount;
+        const qRelaysCount = this.qRelaysCount;
 
-            const esubsInstalled = this.esubsInstalled;
-            const enpowersInstalled = this.enpowersInstalled;
-            const enpowersCount = this.enpowersCount;
-            const enchargesInstalled = this.enchargesInstalled;
-            const enchargesCount = this.enchargesCount;
-            const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
-            const wirelessConnectionKitConnectionsCount = this.wirelessConnectionKitConnectionsCount;
+        const esubsInstalled = this.esubsInstalled;
+        const enpowersInstalled = this.enpowersInstalled;
+        const enpowersCount = this.enpowersCount;
+        const enchargesInstalled = this.enchargesInstalled;
+        const enchargesCount = this.enchargesCount;
+        const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
+        const wirelessConnectionKitConnectionsCount = this.wirelessConnectionKitConnectionsCount;
 
-            if (!this.disableLogDeviceInfo) {
-                this.emit('devInfo', `-------- ${this.name} --------`);
-                this.emit('devInfo', `Manufacturer: Enphase`);
-                this.emit('devInfo', `Model: ${devicePn}`);
-                this.emit('devInfo', `Firmware: ${deviceSoftware}`);
-                this.emit('devInfo', `SerialNr: ${deviceSn}`);
-                this.emit('devInfo', `Time: ${time}`);
-                this.emit('devInfo', `------------------------------`);
-                this.emit('devInfo', `Q-Relays: ${qRelaysCount}`);
-                this.emit('devInfo', `Inverters: ${microinvertersCount}`);
-                this.emit('devInfo', `Batteries: ${acBatteriesCount}`);
+        if (!this.disableLogDeviceInfo) {
+            this.emit('devInfo', `-------- ${this.name} --------`);
+            this.emit('devInfo', `Manufacturer: Enphase`);
+            this.emit('devInfo', `Model: ${devicePn}`);
+            this.emit('devInfo', `Firmware: ${deviceSoftware}`);
+            this.emit('devInfo', `SerialNr: ${deviceSn}`);
+            this.emit('devInfo', `Time: ${time}`);
+            this.emit('devInfo', `------------------------------`);
+            this.emit('devInfo', `Q-Relays: ${qRelaysCount}`);
+            this.emit('devInfo', `Inverters: ${microinvertersCount}`);
+            this.emit('devInfo', `Batteries: ${acBatteriesCount}`);
+            this.emit('devInfo', `--------------------------------`);
+            if (metersInstalled) {
+                this.emit('devInfo', `Meters: ${metersInstalled ? `Yes` : `No`}`);
+                this.emit('devInfo', `Production: ${metersProductionEnabled ? `Enabled` : `Disabled`}`);
+                this.emit('devInfo', `Consumption: ${metersConsumptionEnabled ? `Enabled` : `Disabled`}`);
                 this.emit('devInfo', `--------------------------------`);
-                if (metersInstalled) {
-                    this.emit('devInfo', `Meters: ${metersInstalled ? `Yes` : `No`}`);
-                    this.emit('devInfo', `Production: ${metersProductionEnabled ? `Enabled` : `Disabled`}`);
-                    this.emit('devInfo', `Consumption: ${metersConsumptionEnabled ? `Enabled` : `Disabled`}`);
-                    this.emit('devInfo', `--------------------------------`);
-                }
-                if (this.envoyFirmware7xx) {
-                    const displayLog = esubsInstalled ? this.emit('devInfo', `Ensemble: Yes`) : false;
-                    const displayLog1 = enpowersInstalled ? this.emit('devInfo', `Enpowers: Yes ${enpowersCount}`) : false;
-                    const displayLog2 = enchargesInstalled ? this.emit('devInfo', `Encharges: Yes ${enchargesCount}`) : false;
-                    const displayLog3 = wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: Yes ${wirelessConnectionKitConnectionsCount}`) : false;
-                    this.emit('devInfo', `--------------------------------`);
-                }
-            };
-
-            if (!deviceSn) {
-                reject(`Envoy serial number: ${deviceSn}.`);
-                return;
-            };
-
-            resolve();
-        });
+            }
+            if (this.envoyFirmware7xx) {
+                const displayLog = esubsInstalled ? this.emit('devInfo', `Ensemble: Yes`) : false;
+                const displayLog1 = enpowersInstalled ? this.emit('devInfo', `Enpowers: Yes ${enpowersCount}`) : false;
+                const displayLog2 = enchargesInstalled ? this.emit('devInfo', `Encharges: Yes ${enchargesCount}`) : false;
+                const displayLog3 = wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: Yes ${wirelessConnectionKitConnectionsCount}`) : false;
+                this.emit('devInfo', `--------------------------------`);
+            }
+        };
     };
 
     //Prepare accessory
