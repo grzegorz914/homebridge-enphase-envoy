@@ -171,6 +171,7 @@ class EnvoyDevice extends EventEmitter {
         this.metersReadingPhaseCount = 0;
 
         //production
+        this.productionPowerActive = false;
         this.productionMicroSummarywhToday = 0;
         this.productionMicroSummarywhLastSevenDays = 0;
         this.productionMicroSummarywhLifeTime = 0;
@@ -559,6 +560,8 @@ class EnvoyDevice extends EventEmitter {
                 // Check if the envoy ID is correct length
                 if (envoyId.length === 9) {
                     this.envoyDevId = envoyId;
+                    const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${envoyId}`) : false
+
                     resolve(true);
                     return;
                 }
@@ -570,6 +573,7 @@ class EnvoyDevice extends EventEmitter {
                     //backbone data
                     const backbone = envoyBackboneAppData.data;
                     const envoyDevId = backbone.substr(backbone.indexOf('envoyDevId:') + 11, 9);
+                    const debug1 = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from device: ${envoyDevId}`) : false
 
                     try {
                         await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
@@ -2244,6 +2248,11 @@ class EnvoyDevice extends EventEmitter {
                 const productionPwrFactor = metersProductionEnabled ? parseFloat(production.pwrFactor) : 0;
 
                 const productionEnergyLifeTimeFix = productionEnergyLifeTime < 0 ? 0 : productionEnergyLifeTime;
+                const productionPowerActive = productionPower > 0;
+                if (this.systemsPvService) {
+                    this.systemsPvService[0]
+                        .updateCharacteristic(Characteristic.On, productionPowerActive)
+                }
 
                 if (this.productionsService) {
                     this.productionsService[0]
@@ -2270,6 +2279,7 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.ContactSensorState, productionPowerPeakDetected)
                 }
 
+                this.productionPowerActive = productionPowerActive;
                 this.productionActiveCount = productionActiveCount;
                 this.productionType = productionType;
                 this.productionMeasurmentType = productionMeasurmentType;
@@ -2527,11 +2537,6 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
 
                 const productionPowerMode = powerModeData.data.powerForcedOff === false;
-                if (this.systemsPvService) {
-                    this.systemsPvService[0]
-                        .updateCharacteristic(Characteristic.On, productionPowerMode)
-                }
-
                 if (this.envoysService) {
                     this.envoysService[0]
                         .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, productionPowerMode)
@@ -2743,42 +2748,24 @@ class EnvoyDevice extends EventEmitter {
                 const wirelessConnectionKitConnectionsCount = this.wirelessConnectionKitConnectionsCount;
 
                 //instalacja pv
-                if (this.supportProductionPowerMode) {
-                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare system service`) : false;
-                    this.systemsPvService = [];
-                    const systemPvService = new Service.Switch(accessoryName, `systemPvService`);
-                    systemPvService.getCharacteristic(Characteristic.On)
-                        .onGet(async () => {
-                            const state = this.productionPowerMode;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power mode state: ${state ? 'Enabled' : 'Disabled'}`);
-                            return state;
-                        })
-                        .onSet(async (state) => {
-                            try {
-                                const powerModeUrl = CONSTANS.ApiUrls.PowerForcedModePutGet.replace("EID", this.envoyDevId);
-                                const data = JSON.stringify({
-                                    length: 1,
-                                    arr: [state ? 0 : 1]
-                                });
-
-                                const options = {
-                                    method: 'PUT',
-                                    baseURL: this.url,
-                                    data: data,
-                                    headers: {
-                                        Accept: 'application/json'
-                                    }
-                                }
-
-                                //const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
-                                //const debug = this.enableDebugMode ? this.emit('debug', `Set powerModeData: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
-                            } catch (error) {
-                                this.emit('error', `envoy: ${serialNumber}, set powerModeData error: ${error}`);
-                            };
-                        })
-                    this.systemsPvService.push(systemPvService);
-                    accessory.addService(this.systemsPvService[0]);
-                };
+                const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare system service`) : false;
+                this.systemsPvService = [];
+                const systemPvService = new Service.Switch(accessoryName, `systemPvService`);
+                systemPvService.getCharacteristic(Characteristic.On)
+                    .onGet(async () => {
+                        const state = this.productionPowerActive;
+                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power: ${state ? 'Avtive' : 'Not active'}`);
+                        return state;
+                    })
+                    .onSet(async (state) => {
+                        try {
+                            this.systemsPvService[0].updateCharacteristic(Characteristic.On, this.productionPowerActive);
+                        } catch (error) {
+                            this.emit('error', `envoy: ${serialNumber}, set production power error: ${error}`);
+                        };
+                    })
+                this.systemsPvService.push(systemPvService);
+                accessory.addService(this.systemsPvService[0]);
 
                 //envoy
                 const debug3 = this.enableDebugMode ? this.emit('debug', `Prepare envoy service`) : false;

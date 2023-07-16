@@ -30,10 +30,10 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy `device ID` is detected automatically, is required to control Production Power Mode.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
-* For best experiences and display all data please use `Controller App` or `EVE app`.
-* Home app display only accessory with state of `Power Production` and `Power Peak Sensors` if enabled in plugin config.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
 * Support `Ensemble Status` and ` Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
+* For best experiences and display all data please use `Controller App` or `EVE app`.
+* Home app display switch accessory `Power Production State` and `Power Peak Sensors` only if enabled in config.
 * RESTful:
   * Request: `http//homebridge_ip_address:port/path`.
   * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
@@ -76,7 +76,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerConsumptionNetMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `powerConsumptionNetMaxDetected` | Here set the consumption (Net) `Power Peak`, if the Power >= `powerConsumptionNetMaxDetected` the contact sensor fired. |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
-| `supportProductionPowerMode` | If enabled, check/control production `Production Power Mode` will be possible, more info in `About The Plugin` section. |
+| `supportProductionPowerMode` | If enabled, check/control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app). |
 | `supportPlcLevel` | If enabled, check `PLC Level` will be possible. |
 | `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only fw. 7.x.x), more info in `About The Plugin` section. |
 | `supportLiveData` | If enabled, check `Live Data` will be possible (only fw. 7.x.x). |
