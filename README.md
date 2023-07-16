@@ -30,7 +30,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy `device ID` is detected automatically, is required to control Production Power Mode.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
-* For best experiences please use `Controller App` or `EVE app`, iOS Home app display it as unsupported.
+* For best experiences please use `Controller App` or `EVE app`
+* Home app display only accessory with state of `Power Production` and `Power Sensors` if enabled in plugin config.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
 * Support `Ensemble Status` and ` Production Power Mode` may not working in all envoy firmwares, if you get error, please disable it in plugin settings `Advanced Section`.
 * RESTful:
