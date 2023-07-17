@@ -29,6 +29,7 @@
                     "enlightenPasswd": "",
                     "envoySerialNumber": "",
                     "envoyPasswd": "",
+                    "powerProductionSummary": 7200,
                     "powerProductionMax": false,
                     "powerProductionMaxAutoReset": 0,
                     "powerProductionMaxDetected": 5400,

@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [7.2.0] - (17.07.2023)
+## Changes
+- added power production level (0-100%) displayed as brightness level in Home app based on all microinvertzers power configured in plugin config
+- config schema updated
+
 ## [7.1.0] - (16.07.2023)
 ## Changes
 - added accessory switch to display in Home app curren state of power production, if Production Power > 0 then switch is ON

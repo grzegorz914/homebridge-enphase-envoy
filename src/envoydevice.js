@@ -31,6 +31,7 @@ class EnvoyDevice extends EventEmitter {
         this.envoySerialNumber = config.envoySerialNumber || '';
         this.enlightenUser = config.enlightenUser;
         this.enlightenPassword = config.enlightenPasswd;
+        this.powerProductionSummary = config.powerProductionSummary || 0;
         this.powerProductionMax = config.powerProductionMax || false;
         this.powerProductionMaxAutoReset = config.powerProductionMaxAutoReset || 0;
         this.powerProductionMaxDetected = config.powerProductionMaxDetected || 0;
@@ -172,6 +173,7 @@ class EnvoyDevice extends EventEmitter {
 
         //production
         this.productionPowerActive = false;
+        this.productionPowerLevel = 0;
         this.productionMicroSummarywhToday = 0;
         this.productionMicroSummarywhLastSevenDays = 0;
         this.productionMicroSummarywhLifeTime = 0;
@@ -2247,11 +2249,20 @@ class EnvoyDevice extends EventEmitter {
                 const productionApparentPower = metersProductionEnabled ? parseFloat(production.apprntPwr) / 1000 : 0;
                 const productionPwrFactor = metersProductionEnabled ? parseFloat(production.pwrFactor) : 0;
 
-                const productionEnergyLifeTimeFix = productionEnergyLifeTime < 0 ? 0 : productionEnergyLifeTime;
-                const productionPowerActive = productionPower > 0;
+                //production power activ and level
+                const productionPowerActive = productionPower > 0; // true if power > 0
+                const powerProductionSummary = this.powerProductionSummary / 1000; //kW
+                const powerLevel = (100 / powerProductionSummary) * productionPower; //0-100%
+                const productionPowerLevel = (Math.min(Math.max(powerLevel, 0), 100)).toFixed(1); // set min max value
+                const debug3 = this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
+
+                //energy lifetime fix
+                const productionEnergyLifeTimeFix = Math.min(productionEnergyLifeTime, 0);
+
                 if (this.systemsPvService) {
                     this.systemsPvService[0]
                         .updateCharacteristic(Characteristic.On, productionPowerActive)
+                        .updateCharacteristic(Characteristic.Brightness, productionPowerLevel)
                 }
 
                 if (this.productionsService) {
@@ -2280,6 +2291,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 this.productionPowerActive = productionPowerActive;
+                this.productionPowerLevel = productionPowerLevel;
                 this.productionActiveCount = productionActiveCount;
                 this.productionType = productionType;
                 this.productionMeasurmentType = productionMeasurmentType;
@@ -2750,18 +2762,31 @@ class EnvoyDevice extends EventEmitter {
                 //instalacja pv
                 const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare system service`) : false;
                 this.systemsPvService = [];
-                const systemPvService = new Service.Switch(accessoryName, `systemPvService`);
+                const systemPvService = new Service.Lightbulb(accessoryName, `systemPvService`);
                 systemPvService.getCharacteristic(Characteristic.On)
                     .onGet(async () => {
                         const state = this.productionPowerActive;
-                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power: ${state ? 'Avtive' : 'Not active'}`);
+                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power state: ${state ? 'Avtive' : 'Not active'}`);
                         return state;
                     })
                     .onSet(async (state) => {
                         try {
                             this.systemsPvService[0].updateCharacteristic(Characteristic.On, this.productionPowerActive);
                         } catch (error) {
-                            this.emit('error', `envoy: ${serialNumber}, set production power error: ${error}`);
+                            this.emit('error', `envoy: ${serialNumber}, set production power state error: ${error}`);
+                        };
+                    })
+                systemPvService.getCharacteristic(Characteristic.Brightness)
+                    .onGet(async () => {
+                        const state = this.productionPowerLevel;
+                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power level: ${this.productionPowerLevel} %`);
+                        return state;
+                    })
+                    .onSet(async (state) => {
+                        try {
+                            this.systemsPvService[0].updateCharacteristic(Characteristic.Brightness, this.productionPowerLevel);
+                        } catch (error) {
+                            this.emit('error', `envoy: ${serialNumber}, set production power level error: ${error}`);
                         };
                     })
                 this.systemsPvService.push(systemPvService);

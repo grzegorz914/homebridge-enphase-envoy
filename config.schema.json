@@ -93,6 +93,13 @@
               "description": "This enable debug mode.",
               "required": false
             },
+            "powerProductionSummary": {
+              "title": "Power Production Summary",
+              "type": "integer",
+              "default": 0,
+              "description": "Here set the max power summary in (W) of all microinverters, based on this value will be calculate in % production level displayed in HomeKit.",
+              "required": false
+            },
             "powerProductionMax": {
               "title": "Power Peak",
               "type": "boolean",
@@ -484,6 +491,7 @@
           "expandable": true,
           "expanded": false,
           "items": [
+            "devices[].powerProductionSummary",
             "devices[].powerProductionMax",
             "devices[].powerProductionMaxAutoReset",
             "devices[].powerProductionMaxDetected",
