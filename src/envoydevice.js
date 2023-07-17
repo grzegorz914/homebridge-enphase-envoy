@@ -2253,7 +2253,7 @@ class EnvoyDevice extends EventEmitter {
                 const productionPowerActive = productionPower > 0; // true if power > 0
                 const powerProductionSummary = this.powerProductionSummary / 1000; //kW
                 const powerLevel = (100 / powerProductionSummary) * productionPower; //0-100%
-                const productionPowerLevel = (Math.min(Math.max(powerLevel, 0), 100)).toFixed(1); // set min max value
+                const productionPowerLevel = (Math.min(Math.max(powerLevel, 100), 0)).toFixed(1); // set min max value
                 const debug3 = this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
 
                 //energy lifetime fix
@@ -2931,7 +2931,7 @@ class EnvoyDevice extends EventEmitter {
                     enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode)
                         .onGet(async () => {
                             const state = this.productionPowerMode;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power mode state: ${state ? 'Enabled' : 'Disabled'}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power mode: ${state ? 'Enabled' : 'Disabled'}`);
                             return state;
                         })
                         .onSet(async (state) => {
@@ -2952,9 +2952,9 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
-                                const debug = this.enableDebugMode ? this.emit('debug', ` debug set powerModeData: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', ` debug set production power mode: ${state ? 'Enabled' : 'Disabled'}`) : false;
                             } catch (error) {
-                                this.emit('error', `envoy: ${serialNumber}, set powerModeData error: ${error}`);
+                                this.emit('error', `envoy: ${serialNumber}, set production power mode error: ${error}`);
                             };
                         });
                 }
