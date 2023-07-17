@@ -27,20 +27,20 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 ### About The Plugin
 * Firmware 7.x.x. and Token authorization is supported from plugin v6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
-* Envoy `device ID` is detected automatically, is required to control Production Power Mode.
+* Envoy `device ID` is detected automatically, is required to control `Production Power Mode`.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
 * Support `Ensemble Status` and ` Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
 * For best experiences and display all data please use `Controller App` or `EVE app`.
-* Home app only display accessory:
-  * `Lightbulb` with `Power Production State` and `Power Production Level`.
-  * `Power Peak Sensors` only if enabled in plugin config.
-* RESTful:
+* In Home app exposed accessory:
+  * `Lightbulb` display `Power Production State` and `Power Production Level`.
+  * `Contact Sensors` detect `Power Peak`, only if enabled and configured in plugin config.
+* RESTful server:
   * Request: `http//homebridge_ip_address:port/path`.
   * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
   * Respone as JSON data.
-* MQTT:
+* MQTT client:
   * Topic: `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`.
   * Publish as JSON data.
 
