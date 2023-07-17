@@ -2252,9 +2252,9 @@ class EnvoyDevice extends EventEmitter {
                 //production power activ and level
                 const productionPowerActive = productionPower > 0; // true if power > 0
                 const powerProductionSummary = this.powerProductionSummary / 1000; //kW
-                const powerLevel = (100 / powerProductionSummary) * productionPower; //0-100%
-                const productionPowerLevel = (Math.min(Math.max(powerLevel, 100), 0)).toFixed(1); // set min max value
-                const debug3 = this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
+                const powerLevel = (Math.min(Math.max((100 / powerProductionSummary) * productionPower, 100), 0)).toFixed(1); //0-100%
+                const productionPowerLevel = productionPower > 0 && productionPower <= (powerProductionSummary / 100) ? 1 : powerLevel;
+                const debug4 = !this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
 
                 //energy lifetime fix
                 const productionEnergyLifeTimeFix = Math.min(productionEnergyLifeTime, 0);
