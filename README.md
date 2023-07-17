@@ -33,7 +33,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
 * Support `Ensemble Status` and ` Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
 * For best experiences and display all data please use `Controller App` or `EVE app`.
-* Home app display switch accessory `Power Production State` and `Power Peak Sensors` only if enabled in config.
+* Home app only display accessory:
+  * `Lightbulb` with `Power Production State` and `Power Production Level`.
+  * `Power Peak Sensors` only if enabled in plugin config.
 * RESTful:
   * Request: `http//homebridge_ip_address:port/path`.
   * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
