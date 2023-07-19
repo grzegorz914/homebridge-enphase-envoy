@@ -267,6 +267,16 @@ class EnvoyDevice extends EventEmitter {
             this.emit('error', `prepare files error: ${error}`);
         }
 
+        //create axios instance
+        this.axiosInstance = axios.create({
+            method: 'GET',
+            baseURL: this.url,
+            withCredentials: true,
+            headers: {
+                Accept: 'application/json'
+            }
+        });
+
         //RESTFul server
         if (this.restFulEnabled) {
             this.restFul = new RestFul({
@@ -309,18 +319,6 @@ class EnvoyDevice extends EventEmitter {
                     this.emit('debug', debug);
                 });
         }
-
-        //create axios instance
-        if (!this.envoyFirmware7xx) {
-            this.axiosInstance = axios.create({
-                method: 'GET',
-                baseURL: this.url,
-                withCredentials: true,
-                headers: {
-                    Accept: 'application/json'
-                }
-            });
-        };
 
         this.start();
     }
@@ -513,7 +511,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //create axios instance get with cookie
                 const cookie = jwtTokenData.headers['set-cookie'];
-                this.axiosInstanceCookie = axios.create({
+                this.axiosInstance = axios.create({
                     method: 'GET',
                     baseURL: this.url,
                     headers: {
@@ -528,14 +526,15 @@ class EnvoyDevice extends EventEmitter {
                 })
 
                 //create axios instance post with cookie and data
-                this.axiosInstanceCookieLiveDataStream = axios.create({
+                const data = JSON.stringify({ enable: 1 });
+                this.axiosInstanceLiveDataStreamEnable = axios.create({
                     method: 'POST',
                     baseURL: this.url,
                     headers: {
                         Accept: 'application/json',
                         Cookie: cookie
                     },
-                    data: { 'enable': 1 },
+                    data: data,
                     withCredentials: true,
                     httpsAgent: new https.Agent({
                         keepAlive: true,
@@ -569,7 +568,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 try {
-                    const envoyBackboneAppData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.BackboneApplication) : await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
+                    const envoyBackboneAppData = await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
                     const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app: ${envoyBackboneAppData.data}`) : false;
 
                     //backbone data
@@ -598,7 +597,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting info.`) : false;
 
             try {
-                const infoData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.Info) : await this.axiosInstance(CONSTANS.ApiUrls.Info);
+                const infoData = await this.axiosInstance(CONSTANS.ApiUrls.Info);
                 const debug = this.enableDebugMode ? this.emit('debug', `Info: ${JSON.stringify(infoData.data, null, 2)}`) : false;
 
                 //parse info
@@ -702,7 +701,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting home.`) : false;
 
             try {
-                const homeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.Home) : await this.axiosInstance(CONSTANS.ApiUrls.Home);
+                const homeData = await this.axiosInstance(CONSTANS.ApiUrls.Home);
                 const debug = this.enableDebugMode ? this.emit('debug', `Home: ${JSON.stringify(homeData.data, null, 2)}`) : false;
 
                 //home
@@ -942,7 +941,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting inventory.`) : false;
 
             try {
-                const inventoryData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.Inventory) : await this.axiosInstance(CONSTANS.ApiUrls.Inventory);
+                const inventoryData = await this.axiosInstance(CONSTANS.ApiUrls.Inventory);
                 const debug = this.enableDebugMode ? this.emit('debug', `Inventory: ${JSON.stringify(inventoryData.data, null, 2)}`) : false;
 
                 //microinverters inventory
@@ -1269,7 +1268,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters info.`) : false;
 
             try {
-                const metersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.MetersInfo) : await this.axiosInstance(CONSTANS.ApiUrls.MetersInfo);
+                const metersData = await this.axiosInstance(CONSTANS.ApiUrls.MetersInfo);
                 const debug = this.enableDebugMode ? this.emit('debug', `Meters: ${JSON.stringify(metersData.data, null, 2)}`) : false;
 
                 //meters
@@ -1340,7 +1339,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters reading.`) : false;
 
             try {
-                const metersReadingData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.MetersReadings) : await this.axiosInstance(CONSTANS.ApiUrls.MetersReadings);
+                const metersReadingData = await this.axiosInstance(CONSTANS.ApiUrls.MetersReadings);
                 const debug = this.enableDebugMode ? this.emit('debug', `Meters reading: ${JSON.stringify(metersReadingData.data, null, 2)}`) : false;
 
                 //meters reading
@@ -1490,7 +1489,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble inventory.`) : false;
 
             try {
-                const ensembleInventoryData = await this.axiosInstanceCookie(CONSTANS.ApiUrls.EnsembleInventory);
+                const ensembleInventoryData = await this.axiosInstance(CONSTANS.ApiUrls.EnsembleInventory);
                 const debug = this.enableDebugMode ? this.emit('debug', `Ensemble inventory: ${JSON.stringify(ensembleInventoryData.data, null, 2)}`) : false;
 
                 //devices count
@@ -1705,7 +1704,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble status.`) : false;
 
             try {
-                const ensembleStatusData = await this.axiosInstanceCookie(CONSTANS.ApiUrls.EnsembleStatus);
+                const ensembleStatusData = await this.axiosInstance(CONSTANS.ApiUrls.EnsembleStatus);
                 const debug = this.enableDebugMode ? this.emit('debug', `Ensemble status: ${JSON.stringify(ensembleStatusData.data, null, 2)}`) : false;
 
                 //ensemble status
@@ -1974,7 +1973,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile.`) : false;
 
             try {
-                const profileData = await this.axiosInstanceCookie(CONSTANS.ApiUrls.Profile);
+                const profileData = await this.axiosInstance(CONSTANS.ApiUrls.Profile);
                 const debug = this.enableDebugMode ? this.emit('debug', `Grid profile: ${JSON.stringify(profileData.data, null, 2)}`) : false;
 
                 //profile
@@ -1997,7 +1996,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data.`) : false;
 
             try {
-                const liveData = await this.axiosInstanceCookie(CONSTANS.ApiUrls.LiveData);
+                const liveData = await this.axiosInstance(CONSTANS.ApiUrls.LiveData);
                 const debug = this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(liveData.data, null, 2)}`) : false;
 
                 //live data keys
@@ -2119,7 +2118,7 @@ class EnvoyDevice extends EventEmitter {
                 const mqtt = this.mqttConnected ? this.mqtt.send('Live Data', liveData.data) : false;
 
                 //enable live data stream if not enabled
-                const enableLiveStreamData = !connectionScStream ? await this.updateLiveDataStream() : false;
+                const enableLiveDataStream = !connectionScStream ? await this.enableLiveDataStream() : false;
 
                 resolve();
             } catch (error) {
@@ -2128,13 +2127,13 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    updateLiveDataStream() {
+    enableLiveDataStream() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream.`) : false;
 
             try {
-                const liveDataStream = await this.axiosInstanceCookieLiveDataStream(CONSTANS.ApiUrls.LiveDataStream);
-                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream: ${JSON.stringify(liveDataStream.data, null, 2)}`) : false;
+                const enableLiveDataStream = await this.axiosInstanceLiveDataStreamEnable(CONSTANS.ApiUrls.LiveDataStream);
+                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
                 resolve();
             } catch (error) {
                 reject(`Enable live data stream error: ${error}.`);
@@ -2147,7 +2146,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting production.`) : false;
 
             try {
-                const productionData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProductionSumm) : await this.axiosInstance(CONSTANS.ApiUrls.InverterProductionSumm);
+                const productionData = await this.axiosInstance(CONSTANS.ApiUrls.InverterProductionSumm);
                 const debug = this.enableDebugMode ? this.emit('debug', `Production: ${JSON.stringify(productionData.data, null, 2)}`) : false;
 
                 //microinverters summary 
@@ -2179,7 +2178,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting production ct.`) : false;
 
             try {
-                const productionCtData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.SystemReadingStats) : await this.axiosInstance(CONSTANS.ApiUrls.SystemReadingStats);
+                const productionCtData = await this.axiosInstance(CONSTANS.ApiUrls.SystemReadingStats);
                 const debug = this.enableDebugMode ? this.emit('debug', `Production ct: ${JSON.stringify(productionCtData.data, null, 2)}`) : false;
 
                 //auto reset peak power
@@ -2481,7 +2480,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(CONSTANS.ApiUrls.InverterProduction, options);
+                const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(CONSTANS.ApiUrls.InverterProduction, options);
                 const microinverters = microinvertersData.data;
                 const debug = this.enableDebugMode ? this.emit('debug', `Microinverters: ${JSON.stringify(microinvertersData.data, null, 2)}`) : false;
 
@@ -2545,7 +2544,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
+                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
 
                 const productionPowerMode = powerModeData.data.powerForcedOff === false;
@@ -2581,7 +2580,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANS.ApiUrls.InverterComm, options);
+                const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANS.ApiUrls.InverterComm, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevelData.data, null, 2)}`) : false;
 
                 // get comm level data
@@ -2951,7 +2950,7 @@ class EnvoyDevice extends EventEmitter {
                                     }
                                 }
 
-                                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstanceCookie(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
+                                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
                                 const debug = this.enableDebugMode ? this.emit('debug', ` debug set production power mode: ${state ? 'Enabled' : 'Disabled'}`) : false;
                             } catch (error) {
                                 this.emit('error', `envoy: ${serialNumber}, set production power mode error: ${error}`);

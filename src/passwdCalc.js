@@ -84,5 +84,4 @@ class PasswdCalc {
         return iterationCount;
     };
 };
-
 module.exports = PasswdCalc;

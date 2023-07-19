@@ -47,5 +47,4 @@ class DigestAuth {
         });
     };
 };
-
 module.exports = DigestAuth;
