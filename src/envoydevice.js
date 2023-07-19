@@ -243,11 +243,12 @@ class EnvoyDevice extends EventEmitter {
         this.currentDayOfMonth = date.getDate();
 
         //check files exists, if not then create it
-        this.envoyIdFile = (`${prefDir}/envoyId_${this.host.split('.').join('')}`);
-        this.envoyTokenFile = (`${prefDir}/envoyToken_${this.host.split('.').join('')}`);
-        this.productionPowerPeakFile = (`${prefDir}/productionPowerPeak_${this.host.split('.').join('')}`);
-        this.consumptionNetPowerPeakFile = (`${prefDir}/consumptionNetPowerPeak_${this.host.split('.').join('')}`);
-        this.consumptionTotalPowerPeakFile = (`${prefDir}/consumptionTotalPowerPeak_${this.host.split('.').join('')}`);
+        const postFix = this.host.split('.').join('');
+        this.envoyIdFile = (`${prefDir}/envoyId_${postFix}`);
+        this.envoyTokenFile = (`${prefDir}/envoyToken_${postFix}`);
+        this.productionPowerPeakFile = (`${prefDir}/productionPowerPeak_${postFix}`);
+        this.consumptionNetPowerPeakFile = (`${prefDir}/consumptionNetPowerPeak_${postFix}`);
+        this.consumptionTotalPowerPeakFile = (`${prefDir}/consumptionTotalPowerPeak_${postFix}`);
 
         try {
             const files = [
