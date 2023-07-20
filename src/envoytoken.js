@@ -22,8 +22,8 @@ class EnvoyToken {
         return new Promise(async (resolve, reject) => {
             try {
                 //prepare urls
-                const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${this.user}&user[password]=${this.passwd}`;
-                const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${this.serialNumber}`;
+                const loginUrl = `${CONSTANS.EnphaseUrls.Login}?user[email]=${encodeURIComponent(this.user)}&user[password]=${encodeURIComponent(this.passwd)}`;
+                const tokenUrl = `${CONSTANS.EnphaseUrls.EntrezAuthToken}?serial_num=${encodeURIComponent(this.serialNumber)}`;
 
                 //check jwt token exist in file
                 const tokenExist = await this.existToken();
