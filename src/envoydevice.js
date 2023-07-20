@@ -2799,8 +2799,8 @@ class EnvoyDevice extends EventEmitter {
                 //prepare production on/off sensor service
                 if (this.powerProductionOnOff) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare production On/Off service`) : false;
-                    this.productionOnOffService = new Service.ContactSensor(`${accessoryName} Production On/Off`, `Production On/Off`);
-                    this.productionOnOffService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production On/Off`);
+                    this.productionOnOffService = new Service.ContactSensor(`${accessoryName} Production State`, `Production State`);
+                    this.productionOnOffService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production State`);
                     this.productionOnOffService.getCharacteristic(Characteristic.ContactSensorState)
                         .onGet(async () => {
                             const state = this.productionPowerActive;
