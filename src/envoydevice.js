@@ -483,7 +483,7 @@ class EnvoyDevice extends EventEmitter {
 
                 resolve(true);
             } catch (error) {
-                reject(error)
+                reject(error);
             };
         });
     };
@@ -562,7 +562,7 @@ class EnvoyDevice extends EventEmitter {
                 // Check if the envoy ID is correct length
                 if (envoyId.length === 9) {
                     this.envoyDevId = envoyId;
-                    const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${envoyId}`) : false
+                    const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${envoyId}`) : false;
 
                     resolve(true);
                     return;
@@ -575,7 +575,7 @@ class EnvoyDevice extends EventEmitter {
                     //backbone data
                     const backbone = envoyBackboneAppData.data;
                     const envoyDevId = backbone.substr(backbone.indexOf('envoyDevId:') + 11, 9);
-                    const debug1 = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from device: ${envoyDevId}`) : false
+                    const debug1 = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from device: ${envoyDevId}`) : false;
 
                     try {
                         await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
@@ -643,35 +643,33 @@ class EnvoyDevice extends EventEmitter {
                 const buildId = build.build_id;
                 const buildTimeQmt = new Date(build.build_time_gmt * 1000).toLocaleString()
 
-                if (!this.envoyFirmware7xx) {
-                    //envoy password
-                    const envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
-                    const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: ${envoyPasswd}`) : false;
-                    this.envoyPasswd = envoyPasswd;
+                //envoy password
+                const envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
+                const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: ${envoyPasswd}`) : false;
+                this.envoyPasswd = envoyPasswd;
 
-                    //digest authorization envoy
-                    this.digestAuthEnvoy = new DigestAuth({
-                        user: CONSTANS.Authorization.EnvoyUser,
-                        passwd: envoyPasswd
-                    });
+                //digest authorization envoy
+                this.digestAuthEnvoy = new DigestAuth({
+                    user: CONSTANS.Authorization.EnvoyUser,
+                    passwd: envoyPasswd
+                });
 
-                    //installer password calc
-                    const passwdCalc = new PasswdCalc({
-                        user: CONSTANS.Authorization.InstallerUser,
-                        realm: CONSTANS.Authorization.Realm,
-                        serialNumber: deviceSn
-                    });
+                //installer password calc
+                const passwdCalc = new PasswdCalc({
+                    user: CONSTANS.Authorization.InstallerUser,
+                    realm: CONSTANS.Authorization.Realm,
+                    serialNumber: deviceSn
+                });
 
-                    const installerPasswd = await passwdCalc.getPasswd();
-                    const debug3 = this.enableDebugMode ? this.emit('debug', `Installer password: ${installerPasswd}`) : false;
-                    this.installerPasswd = installerPasswd;
+                const installerPasswd = await passwdCalc.getPasswd();
+                const debug3 = this.enableDebugMode ? this.emit('debug', `Installer password: ${installerPasswd}`) : false;
+                this.installerPasswd = installerPasswd;
 
-                    //digest authorization installer
-                    this.digestAuthInstaller = new DigestAuth({
-                        user: CONSTANS.Authorization.InstallerUser,
-                        passwd: installerPasswd
-                    });
-                };
+                //digest authorization installer
+                this.digestAuthInstaller = new DigestAuth({
+                    user: CONSTANS.Authorization.InstallerUser,
+                    passwd: installerPasswd
+                });
 
                 this.envoyTime = time;
                 this.envoySerialNumber = deviceSn;
@@ -2545,7 +2543,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
+                const powerModeData = await this.digestAuthInstaller.request(powerModeUrl, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(powerModeData.data, null, 2)}`) : false;
 
                 const productionPowerMode = powerModeData.data.powerForcedOff === false;
@@ -2951,7 +2949,7 @@ class EnvoyDevice extends EventEmitter {
                                     }
                                 }
 
-                                const powerModeData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
+                                const powerModeData = await this.digestAuthInstaller.request(powerModeUrl, options);
                                 const debug = this.enableDebugMode ? this.emit('debug', ` debug set production power mode: ${state ? 'Enabled' : 'Disabled'}`) : false;
                             } catch (error) {
                                 this.emit('error', `envoy: ${serialNumber}, set production power mode error: ${error}`);
