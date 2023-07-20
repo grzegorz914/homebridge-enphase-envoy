@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## [7.3.0] - (20.07.2023)
+## Changes
+- added *Power Production On/Off* contact sensors for production monitoring, which can be used for notification and automations in HomeKit.
+- Use encodeURIComponent in EnvoyToken URLs - thanks @chrisjshull 
+- config schema updated
+- cleanup
+
 ## [7.2.0] - (17.07.2023)
 ## Changes
 - added power production level (0-100%) displayed as brightness level in Home app based on all microinvertzers power configured in plugin config

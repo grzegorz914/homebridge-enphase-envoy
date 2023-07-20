@@ -30,7 +30,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy `device ID` is detected automatically, is required to control `Production Power Mode`.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
-* Home automations and shortcuts can be used with `PLC Level`, `Production Power Mode` and `Power Peak`.
+* Home automations and shortcuts can be used with `PLC Level`, `Production Power` and `Power Peak`.
 * Support `Ensemble Status` and ` Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
 * For best experiences and display all data please use `Controller App` or `EVE app`.
 * In Home app exposed accessory:
@@ -67,6 +67,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionSummary` | Here set the max power summary in `W` of all microinverters, based on this value will be calculate in `%` production level displayed in HomeKit. |
+| `powerProductionOnOff` | This enable `Power Production On/Off` and create contact sensor in HomeKit which can be used for notification and automations. |
 | `powerProductionMax` | This enable `Power Peak` monitoring for production and create contact sensor in HomeKit which can be used for notification and automations. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `powerProductionMaxDetected` | Here set the production `Power Peak`, if the Power >= `powerProductionMaxDetected` the contact sensor fired. |

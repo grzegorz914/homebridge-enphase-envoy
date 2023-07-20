@@ -30,6 +30,7 @@
                     "envoySerialNumber": "",
                     "envoyPasswd": "",
                     "powerProductionSummary": 7200,
+                    "powerProductionOnOff": false,
                     "powerProductionMax": false,
                     "powerProductionMaxAutoReset": 0,
                     "powerProductionMaxDetected": 5400,

@@ -100,6 +100,13 @@
               "description": "Here set the max power summary in (W) of all microinverters, based on this value will be calculate in % production level displayed in HomeKit.",
               "required": false
             },
+            "powerProductionOnOff": {
+              "title": "Power Production",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Power Production On/Off* monitoring and create contact sensor in HomeKit.",
+              "required": false
+            },
             "powerProductionMax": {
               "title": "Power Peak",
               "type": "boolean",
@@ -492,6 +499,7 @@
           "expanded": false,
           "items": [
             "devices[].powerProductionSummary",
+            "devices[].powerProductionOnOff",
             "devices[].powerProductionMax",
             "devices[].powerProductionMaxAutoReset",
             "devices[].powerProductionMaxDetected",

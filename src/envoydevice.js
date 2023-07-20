@@ -32,6 +32,7 @@ class EnvoyDevice extends EventEmitter {
         this.enlightenUser = config.enlightenUser;
         this.enlightenPassword = config.enlightenPasswd;
         this.powerProductionSummary = config.powerProductionSummary || 0;
+        this.powerProductionOnOff = config.powerProductionOnOff || false;
         this.powerProductionMax = config.powerProductionMax || false;
         this.powerProductionMaxAutoReset = config.powerProductionMaxAutoReset || 0;
         this.powerProductionMaxDetected = config.powerProductionMaxDetected || 0;
@@ -2263,6 +2264,11 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.Brightness, productionPowerLevel)
                 }
 
+                if (this.productionOnOffService) {
+                    this.productionOnOffService
+                        .updateCharacteristic(Characteristic.ContactSensorState, productionPowerActive)
+                }
+
                 if (this.productionsService) {
                     this.productionsService[0]
                         .updateCharacteristic(Characteristic.enphaseReadingTime, productionReadingTime)
@@ -2789,6 +2795,19 @@ class EnvoyDevice extends EventEmitter {
                     })
                 this.systemsPvService.push(systemPvService);
                 accessory.addService(this.systemsPvService[0]);
+
+                //prepare production on/off sensor service
+                if (this.powerProductionOnOff) {
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production On/Off service`) : false;
+                    this.productionOnOffService = new Service.ContactSensor(`${accessoryName} Production On/Off`, `Production On/Off`);
+                    this.productionOnOffService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production On/Off`);
+                    this.productionOnOffService.getCharacteristic(Characteristic.ContactSensorState)
+                        .onGet(async () => {
+                            const state = this.productionPowerActive;
+                            return state;
+                        });
+                    accessory.addService(this.productionOnOffService);
+                };
 
                 //envoy
                 const debug3 = this.enableDebugMode ? this.emit('debug', `Prepare envoy service`) : false;
