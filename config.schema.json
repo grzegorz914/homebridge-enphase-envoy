@@ -97,14 +97,14 @@
               "title": "Power Production Summary",
               "type": "integer",
               "default": 0,
-              "description": "Here set the max power summary in (W) of all microinverters, based on this value will be calculate in % production level displayed in HomeKit.",
+              "description": "Here set the power summary in (W) of all microinverters, based on this value will be calculate in % production level displayed in HomeKit.",
               "required": false
             },
             "powerProductionOnOff": {
-              "title": "Power Production",
+              "title": "Power Production State",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Production On/Off* monitoring and create contact sensor in HomeKit.",
+              "description": "This enable *Power Production State* monitoring and create contact sensor in HomeKit.",
               "required": false
             },
             "powerProductionMax": {
