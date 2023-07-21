@@ -474,7 +474,7 @@ class EnvoyDevice extends EventEmitter {
                 this.jwtToken = token;
 
                 //validate new token if created
-                const newTokenCreated = dateNow < tokenGenerationTime ? this.validateJwtToken() : false;
+                const newTokenCreated = dateNow < tokenGenerationTime ? await this.validateJwtToken() : false;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('token', tokenData) : false;
@@ -484,7 +484,7 @@ class EnvoyDevice extends EventEmitter {
 
                 resolve(true);
             } catch (error) {
-                reject(error);
+                reject(`Get JWT token error: ${error}`);
             };
         });
     };
@@ -546,7 +546,7 @@ class EnvoyDevice extends EventEmitter {
 
                 resolve(true);
             } catch (error) {
-                reject(`validate JWT token error: ${error}`);
+                reject(`Validate JWT token error: ${error}`);
             };
         });
     };
