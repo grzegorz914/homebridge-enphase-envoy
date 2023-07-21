@@ -104,14 +104,14 @@
               "title": "Power Production State",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Production State* monitoring and create contact sensor in HomeKit.",
+              "description": "This enable *Power Production State* monitoring and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerProductionMax": {
               "title": "Power Peak",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Peak* monitoring for production and create contact sensor in HomeKit.",
+              "description": "This enable *Power Peak* monitoring for production and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerProductionMaxAutoReset": {
@@ -175,7 +175,7 @@
               "title": "Power Peak",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Peak* monitoring for consumption (Total) and create contact sensor in HomeKit.",
+              "description": "This enable *Power Peak* monitoring for consumption (Total) and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerConsumptionTotalMaxAutoReset": {
@@ -239,7 +239,7 @@
               "title": "Power Peak",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Peak* monitoring for consumption (Net) and create contact sensor in HomeKit.",
+              "description": "This enable *Power Peak* monitoring for consumption (Net) and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerConsumptionNetMaxAutoReset": {
