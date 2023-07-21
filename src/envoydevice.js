@@ -173,7 +173,7 @@ class EnvoyDevice extends EventEmitter {
         this.metersReadingPhaseCount = 0;
 
         //production
-        this.productionPowerActive = false;
+        this.productionPowerState = false;
         this.productionPowerLevel = 0;
         this.productionMicroSummarywhToday = 0;
         this.productionMicroSummarywhLastSevenDays = 0;
@@ -2248,25 +2248,25 @@ class EnvoyDevice extends EventEmitter {
                 const productionApparentPower = metersProductionEnabled ? parseFloat(production.apprntPwr) / 1000 : 0;
                 const productionPwrFactor = metersProductionEnabled ? parseFloat(production.pwrFactor) : 0;
 
-                //production power activ and level
-                const productionPowerActive = productionPower > 0; // true if power > 0
+                //production power state and level
+                const productionPowerState = productionPower > 0; // true if power > 0
                 const powerProductionSummary = this.powerProductionSummary / 1000; //kW
                 const powerLevel = (Math.min(Math.max((100 / powerProductionSummary) * productionPower, 0), 100)).toFixed(1); //0-100%
                 const productionPowerLevel = productionPower > 0 && productionPower <= (powerProductionSummary / 100) ? 1 : powerLevel;
                 const debug4 = this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
 
-                //energy lifetime fix
+                //energy lifetime fix for negative value
                 const productionEnergyLifeTimeFix = Math.min(productionEnergyLifeTime, 0);
 
                 if (this.systemsPvService) {
                     this.systemsPvService[0]
-                        .updateCharacteristic(Characteristic.On, productionPowerActive)
+                        .updateCharacteristic(Characteristic.On, productionPowerState)
                         .updateCharacteristic(Characteristic.Brightness, productionPowerLevel)
                 }
 
                 if (this.productionStateSensorService) {
                     this.productionStateSensorService
-                        .updateCharacteristic(Characteristic.ContactSensorState, productionPowerActive)
+                        .updateCharacteristic(Characteristic.ContactSensorState, productionPowerState)
                 }
 
                 if (this.productionsService) {
@@ -2294,7 +2294,7 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.ContactSensorState, productionPowerPeakDetected)
                 }
 
-                this.productionPowerActive = productionPowerActive;
+                this.productionPowerState = productionPowerState;
                 this.productionPowerLevel = productionPowerLevel;
                 this.productionActiveCount = productionActiveCount;
                 this.productionType = productionType;
@@ -2769,13 +2769,13 @@ class EnvoyDevice extends EventEmitter {
                 const systemPvService = new Service.Lightbulb(accessoryName, `systemPvService`);
                 systemPvService.getCharacteristic(Characteristic.On)
                     .onGet(async () => {
-                        const state = this.productionPowerActive;
+                        const state = this.productionPowerState;
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power state: ${state ? 'Avtive' : 'Not active'}`);
                         return state;
                     })
                     .onSet(async (state) => {
                         try {
-                            this.systemsPvService[0].updateCharacteristic(Characteristic.On, this.productionPowerActive);
+                            this.systemsPvService[0].updateCharacteristic(Characteristic.On, this.productionPowerState);
                         } catch (error) {
                             this.emit('error', `envoy: ${serialNumber}, set production power state error: ${error}`);
                         };
@@ -2796,14 +2796,14 @@ class EnvoyDevice extends EventEmitter {
                 this.systemsPvService.push(systemPvService);
                 accessory.addService(this.systemsPvService[0]);
 
-                //prepare production on/off sensor service
+                //prepare production state sensor service
                 if (this.powerProductionStateSensor) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare production state sensor service`) : false;
                     this.productionStateSensorService = new Service.ContactSensor(`${accessoryName} Production State`, `Production State`);
                     this.productionStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production State`);
                     this.productionStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
                         .onGet(async () => {
-                            const state = this.productionPowerActive;
+                            const state = this.productionPowerState;
                             return state;
                         });
                     accessory.addService(this.productionStateSensorService);
