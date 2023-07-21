@@ -564,7 +564,6 @@ class EnvoyDevice extends EventEmitter {
                 if (envoyId.length === 9) {
                     this.envoyDevId = envoyId;
                     const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${envoyId}`) : false;
-
                     resolve(true);
                     return;
                 }
@@ -787,13 +786,13 @@ class EnvoyDevice extends EventEmitter {
                 //comm
                 const comm = envoy.comm;
                 const commNum = comm.num;
-                const commLevel = (comm.level * 20);
+                const commLevel = comm.level * 20;
                 const commPcuNum = comm.pcu.num;
-                const commPcuLevel = (comm.pcu.level * 20);
+                const commPcuLevel = comm.pcu.level * 20;
                 const commAcbNum = comm.acb.num;
-                const commAcbLevel = (comm.acb.level * 20);
+                const commAcbLevel = comm.acb.level * 20;
                 const commNsrbNum = comm.nsrb.num;
-                const commNsrbLevel = (comm.nsrb.level * 20);
+                const commNsrbLevel = comm.nsrb.level * 20;
 
                 //comm esub
                 const commEsub = esubsSupported ? comm.esub : {};
@@ -849,7 +848,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //enpower
                 const enpower = enpowersSupported ? envoy.enpower : {};
-                const enpowerConnected = enpowersSupported ? (enpower.connected === true) : false;
+                const enpowerConnected = enpowersSupported ? enpower.connected === true : false;
                 const enpowerGridStatus = enpowersSupported ? CONSTANS.ApiCodes[enpower.grid_status] || 'undefined' : '';
 
                 //convert status
@@ -947,7 +946,7 @@ class EnvoyDevice extends EventEmitter {
                 //microinverters inventory
                 const microinverters = inventoryData.data[0];
                 const microinvertersCount = microinverters.devices.length;
-                const microinvertersInstalled = (microinvertersCount > 0);
+                const microinvertersInstalled = microinvertersCount > 0;
 
                 if (microinvertersInstalled) {
                     this.microinvertersSerialNumber = [];
@@ -975,10 +974,10 @@ class EnvoyDevice extends EventEmitter {
                         const ptpn = microinverter.ptpn;
                         const chaneId = microinverter.chaneid;
                         const deviceControl = microinverter.device_control;
-                        const producing = (microinverter.producing === true);
-                        const communicating = (microinverter.communicating === true);
-                        const provisioned = (microinverter.provisioned === true);
-                        const operating = (microinverter.operating === true);
+                        const producing = microinverter.producing === true;
+                        const communicating = microinverter.communicating === true;
+                        const provisioned = microinverter.provisioned === true;
+                        const operating = microinverter.operating === true;
 
                         //convert status
                         const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
@@ -1011,7 +1010,7 @@ class EnvoyDevice extends EventEmitter {
                 //ac btteries inventoty
                 const acBatteries = inventoryData.data[1];
                 const acBatteriesCount = acBatteries.devices.length;
-                const acBatteriesInstalled = (acBatteriesCount > 0);
+                const acBatteriesInstalled = acBatteriesCount > 0;
 
                 if (acBatteriesInstalled) {
                     this.acBatteriesSerialNumber = [];
@@ -1045,10 +1044,10 @@ class EnvoyDevice extends EventEmitter {
                         const ptpn = acBaterie.ptpn;
                         const chaneId = acBaterie.chaneid;
                         const deviceControl = acBaterie.device_control;
-                        const producing = (acBaterie.producing === true);
-                        const communicating = (acBaterie.communicating === true);
-                        const provisioned = (acBaterie.provisioned === true);
-                        const operating = (acBaterie.operating === true);
+                        const producing = acBaterie.producing === true;
+                        const communicating = acBaterie.communicating === true;
+                        const provisioned = acBaterie.provisioned === true;
+                        const operating = acBaterie.operating === true;
                         const sleepEnabled = acBaterie.sleep_enabled;
                         const percentFull = acBaterie.percentFull;
                         const maxCellTemp = acBaterie.maxCellTemp;
@@ -1099,7 +1098,7 @@ class EnvoyDevice extends EventEmitter {
                 //qrelays inventory
                 const qRelays = inventoryData.data[2];
                 const qRelaysCount = qRelays.devices.length;
-                const qRelaysInstalled = (qRelaysCount > 0);
+                const qRelaysInstalled = qRelaysCount > 0;
 
                 if (qRelaysInstalled) {
                     this.qRelaysSerialNumber = [];
@@ -1132,17 +1131,17 @@ class EnvoyDevice extends EventEmitter {
                         const ptpn = qRelay.ptpn;
                         const chaneId = qRelay.chaneid;
                         const deviceControl = qRelay.device_control;
-                        const producing = (qRelay.producing === true);
-                        const communicating = (qRelay.communicating === true);
-                        const provisioned = (qRelay.provisioned === true);
-                        const operating = (qRelay.operating === true);
+                        const producing = qRelay.producing === true;
+                        const communicating = qRelay.communicating === true;
+                        const provisioned = qRelay.provisioned === true;
+                        const operating = qRelay.operating === true;
                         const relay = CONSTANS.ApiCodes[qRelay.relay] || 'undefined';
                         const reasonCode = qRelay.reason_code;
                         const reason = qRelay.reason;
                         const linesCount = qRelay['line-count'];
-                        const line1Connected = linesCount >= 1 ? (qRelay['line1-connected'] === true) : false;
-                        const line2Connected = linesCount >= 2 ? (qRelay['line2-connected'] === true) : false;
-                        const line3Connected = linesCount >= 3 ? (qRelay['line3-connected'] === true) : false;
+                        const line1Connected = linesCount >= 1 ? qRelay['line1-connected'] === true : false;
+                        const line2Connected = linesCount >= 2 ? qRelay['line2-connected'] === true : false;
+                        const line3Connected = linesCount >= 3 ? qRelay['line3-connected'] === true : false;
 
                         //convert status
                         const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
@@ -1194,7 +1193,7 @@ class EnvoyDevice extends EventEmitter {
                 //esubs
                 const esubs = this.esubsSupported ? inventoryData.data[3] : {};
                 const esubsCount = this.esubsSupported ? esubs.devices.length : 0;
-                const esubsInstalled = (esubsCount > 0);
+                const esubsInstalled = esubsCount > 0;
 
                 if (esubsInstalled) {
                     this.esubsSerialNumber = [];
@@ -1221,9 +1220,9 @@ class EnvoyDevice extends EventEmitter {
                         const ptpn = esub.ptpn;
                         const chaneId = esubs.chaneid;
                         const deviceControl = esub.device_control;
-                        const producing = (esub.producing === true);
-                        const communicating = (esub.communicating === true);
-                        const operating = (esub.operating === true);
+                        const producing = esub.producing === true;
+                        const communicating = esub.communicating === true;
+                        const operating = esub.operating === true;
 
                         //convert status
                         const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
@@ -1273,7 +1272,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //meters
                 const metersCount = metersData.data.length;
-                const metersInstalled = (metersCount > 0);
+                const metersInstalled = metersCount > 0;
 
                 if (metersInstalled) {
                     this.metersEid = [];
@@ -1287,7 +1286,7 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < metersCount; i++) {
                         const meter = metersData.data[i];
                         const eid = meter.eid;
-                        const state = (meter.state === 'enabled') || false;
+                        const state = meter.state === 'enabled' || false;
                         const measurementType = CONSTANS.ApiCodes[meter.measurementType] || 'undefined';
                         const phaseMode = CONSTANS.ApiCodes[meter.phaseMode] || 'undefined';
                         const phaseCount = meter.phaseCount;
@@ -1317,9 +1316,9 @@ class EnvoyDevice extends EventEmitter {
                     this.metersCount = metersCount;
                     this.metersInstalled = metersInstalled;
                     this.metersProductionEnabled = this.metersState[0];
-                    this.metersProductionVoltageDivide = (this.metersPhaseMode[0] === 'Split') ? 1 : this.metersPhaseCount[0];
+                    this.metersProductionVoltageDivide = this.metersPhaseMode[0] === 'Split' ? 1 : this.metersPhaseCount[0];
                     this.metersConsumptionEnabled = this.metersState[1];
-                    this.metersConsumpionVoltageDivide = (this.metersPhaseMode[1] === 'Split') ? 1 : this.metersPhaseCount[1];
+                    this.metersConsumpionVoltageDivide = this.metersPhaseMode[1] === 'Split' ? 1 : this.metersPhaseCount[1];
                 }
 
                 //restFul
@@ -1344,7 +1343,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //meters reading
                 const metersReadingCount = metersReadingData.data.length;
-                const metersReadingInstalled = (metersReadingCount > 0);
+                const metersReadingInstalled = metersReadingCount > 0;
 
                 //meters
                 if (metersReadingInstalled) {
@@ -1504,7 +1503,7 @@ class EnvoyDevice extends EventEmitter {
                 //encharges
                 const encharges = ensembleInventoryData.data[0];
                 const enchargesCount = encharges.devices.length;
-                const enchargesInstalled = (enchargesCount > 0);
+                const enchargesInstalled = enchargesCount > 0;
 
                 if (enchargesInstalled) {
                     this.enchargesSerialNumber = [];
@@ -1601,7 +1600,7 @@ class EnvoyDevice extends EventEmitter {
                 //enpowers
                 const enpowers = ensembleDevicesCount === 2 ? ensembleInventoryData.data[1] : {};
                 const enpowersCount = ensembleDevicesCount === 2 ? enpowers.devices.length : 0;
-                const enpowersInstalled = (enpowersCount > 0);
+                const enpowersInstalled = enpowersCount > 0;
 
                 if (enpowersInstalled) {
                     this.enpowersSerialNumber = [];
@@ -2185,9 +2184,9 @@ class EnvoyDevice extends EventEmitter {
                 const date = new Date();
                 const currentDayOfWeek = date.getDay();
                 const currentDayOfMonth = date.getDate();
-                const resetProductionPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, (currentDayOfWeek === 6) ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerProductionPowerPeakAutoReset];
-                const resetConsumptionTotalPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, (currentDayOfWeek === 6) ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionTotalPowerPeakAutoReset];
-                const resetConsumptionNetPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, (currentDayOfWeek === 6) ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionNetPowerPeakAutoReset];
+                const resetProductionPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerProductionPowerPeakAutoReset];
+                const resetConsumptionTotalPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionTotalPowerPeakAutoReset];
+                const resetConsumptionNetPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionNetPowerPeakAutoReset];
 
                 //get enabled devices
                 const metersProductionEnabled = this.metersProductionEnabled;
