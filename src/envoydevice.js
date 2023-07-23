@@ -509,10 +509,10 @@ class EnvoyDevice extends EventEmitter {
                 });
 
                 const jwtTokenData = await axiosInstanceToken(CONSTANS.ApiUrls.CheckJwt);
-                const debug = this.enableDebugMode ? this.emit('debug', `Validated JWT token: ${jwtTokenData.data}, headers: ${jwtTokenData.headers}`) : false;
+                const debug = this.enableDebugMode ? this.emit('debug', `Validate JWT token: ${jwtTokenData.data}, Headers: ${jwtTokenData.headers}`) : false;
+                const cookie = jwtTokenData.headers['set-cookie'];
 
                 //create axios instance get with cookie
-                const cookie = jwtTokenData.headers['set-cookie'];
                 this.axiosInstance = axios.create({
                     method: 'GET',
                     baseURL: this.url,
@@ -1794,7 +1794,7 @@ class EnvoyDevice extends EventEmitter {
                 const restRelayGet = counter.rest_RelayGet;
                 const restRelayPost = counter.rest_RelayPost;
                 const restCommCheckGet = counter.rest_CommCheckGet;
-                const restPower = parseFloat(counter.rest_Power) / 1000;  //in kW
+                const restPower = counter.rest_Power ? parseFloat(counter.rest_Power) / 1000 : 0;  //in kW
                 const extZbRemove = counter.ext_zb_remove;
                 const extZbRemoveErr = counter.ext_zb_remove_err;
                 const extZbSendMsg = counter.ext_zb_send_msg;
