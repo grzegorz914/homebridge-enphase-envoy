@@ -79,6 +79,7 @@ class EnvoyDevice extends EventEmitter {
 
         //envoy
         this.jwtToken = '';
+        this.tokenExpiresAt = 0;
         this.envoyDevId = '';
         this.envoyFirmware = '';
         this.envoySoftwareBuildEpoch = 0;
@@ -358,7 +359,6 @@ class EnvoyDevice extends EventEmitter {
             this.startPrepareAccessory = false;
 
             //start update data
-            const updateJwtToken = getJwtToken ? this.updateJwtToken() : false;
             this.updateHome();
             const startMeterReading = this.metersSupported ? this.updateMeters() : false;
             const startEnsembleInventory = validJwtToken && updateEnsembleInventoryData ? this.updateEnsembleInventory() : false;
@@ -372,20 +372,15 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
-    async updateJwtToken() {
-        try {
-            await new Promise(resolve => setTimeout(resolve, 43200000));
-            await this.getJwtToken();
-            this.updateJwtToken();
-        } catch (error) {
-            this.emit('error', `${error} Trying again in: 12 hours.`);
-            this.updateJwtToken();
-        };
-    };
-
     async updateHome() {
         try {
             await new Promise(resolve => setTimeout(resolve, 60000));
+
+            //check token expired
+            const tokenExpired = this.envoyFirmware7xx && Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt ? true : false;
+            const updateJwtToken = tokenExpired ? await this.getJwtToken() : false;
+
+            //update home data
             await this.updateHomeData();
             await this.updateInventoryData();
             this.updateHome();
@@ -466,11 +461,12 @@ class EnvoyDevice extends EventEmitter {
                     tokenFile: this.envoyTokenFile
                 });
 
-                const tokenData = await envoyToken.getToken();
+                const tokenData = await envoyToken.checkToken();
                 const debug = this.enableDebugMode ? this.emit('debug', `JWT token: ${JSON.stringify(tokenData, null, 2)}`) : false;
                 const tokenGenerationTime = tokenData.genration_time;
                 const token = tokenData.token;
                 const tokenExpiresAt = tokenData.expires_at;
+                this.tokenExpiresAt = tokenExpiresAt;
                 this.jwtToken = token;
 
                 //validate new token if created
@@ -2217,9 +2213,19 @@ class EnvoyDevice extends EventEmitter {
                 const productionReadingTime = metersProductionEnabled ? new Date(production.readingTime * 1000).toLocaleString() : productionMicroReadingTime;
                 const productionPower = metersProductionEnabled ? parseFloat(production.wNow) / 1000 : productionMicroSummaryWattsNow;
 
+                //production power state
+                const productionPowerState = productionPower > 0; // true if power > 0
+                const debug1 = this.enableDebugMode ? this.emit('debug', `Production power state: ${productionPowerState} %`) : false;
+
+                //production power level
+                const powerProductionSummary = this.powerProductionSummary / 1000; //kW
+                const powerLevel = (Math.min(Math.max((100 / powerProductionSummary) * productionPower, 0), 100)).toFixed(1); //0-100%
+                const productionPowerLevel = productionPower > 0 && productionPower <= (powerProductionSummary / 100) ? 1 : powerLevel;
+                const debug2 = this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
+
                 //read power peak
                 const savedProductionPowerPeak = await fsPromises.readFile(this.productionPowerPeakFile);
-                const debug1 = this.enableDebugMode ? this.emit('debug', `Read production power peak: ${savedProductionPowerPeak} kW`) : false;
+                const debug3 = this.enableDebugMode ? this.emit('debug', `Read production power peak: ${savedProductionPowerPeak} kW`) : false;
                 const productionPowerPeak = parseFloat(savedProductionPowerPeak);
 
                 //save power peak
@@ -2240,22 +2246,15 @@ class EnvoyDevice extends EventEmitter {
                 const productionEnergyVarhLeadToday = metersProductionEnabled ? parseFloat(production.varhLeadToday) / 1000 : 0;
                 const productionEnergyVarhLagToday = metersProductionEnabled ? parseFloat(production.varhLagToday) / 1000 : 0;
 
+                //energy lifetime fix for negative value
+                const productionEnergyLifeTimeFix = Math.min(productionEnergyLifeTime, 0);
+
                 //param
                 const productionRmsCurrent = metersProductionEnabled ? parseFloat(production.rmsCurrent) : 0;
                 const productionRmsVoltage = metersProductionEnabled ? parseFloat(production.rmsVoltage / metersProductionVoltageDivide) : 0;
                 const productionReactivePower = metersProductionEnabled ? parseFloat(production.reactPwr) / 1000 : 0;
                 const productionApparentPower = metersProductionEnabled ? parseFloat(production.apprntPwr) / 1000 : 0;
                 const productionPwrFactor = metersProductionEnabled ? parseFloat(production.pwrFactor) : 0;
-
-                //production power state and level
-                const productionPowerState = productionPower > 0; // true if power > 0
-                const powerProductionSummary = this.powerProductionSummary / 1000; //kW
-                const powerLevel = (Math.min(Math.max((100 / powerProductionSummary) * productionPower, 0), 100)).toFixed(1); //0-100%
-                const productionPowerLevel = productionPower > 0 && productionPower <= (powerProductionSummary / 100) ? 1 : powerLevel;
-                const debug4 = this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
-
-                //energy lifetime fix for negative value
-                const productionEnergyLifeTimeFix = Math.min(productionEnergyLifeTime, 0);
 
                 if (this.systemsPvService) {
                     this.systemsPvService[0]

@@ -166,6 +166,7 @@
         "time_to_use": "Time to use",
         "time_of_use": "Time of use",
         "tiered": "Tiered",
+        "grid-tied": "Grid Tied",
         "not_set": "Not set",
         "flat": "Flat",
         "none": "None",
