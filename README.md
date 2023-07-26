@@ -66,16 +66,16 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
-| `powerProductionOnOff` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit which can be used for notification and automations. |
-| `powerProductionMax` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit which can be used for notification and automations. |
+| `powerProductionOnOff` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app.. |
+| `powerProductionMax` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app.. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `powerProductionMaxDetected` | Here set the production `Power Peak`, if the Power >= `powerProductionMaxDetected` the contact sensor fired. |
 | `energyProductionLifetimeOffset` | Here set the `Offset` of lifetime energy production if nedded in (Wh),(+/-) |
-| `powerConsumptionTotalMax` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit which can be used for notification and automations. |
+| `powerConsumptionTotalMax` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `powerConsumptionTotalMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `powerConsumptionTotalMaxDetected` | Here set the consumption (Total) `Power Peak`, if the Power >= `powerConsumptionTotalMaxDetected` the contact sensor fired.|
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
-| `powerConsumptionNetMax` | This enable `Power Peak` monitoring for consumption (Net) and expose contact sensor in HomeKit which can be used for notification and automations. |
+| `powerConsumptionNetMax` | This enable `Power Peak` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
 | `powerConsumptionNetMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `powerConsumptionNetMaxDetected` | Here set the consumption (Net) `Power Peak`, if the Power >= `powerConsumptionNetMaxDetected` the contact sensor fired. |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
