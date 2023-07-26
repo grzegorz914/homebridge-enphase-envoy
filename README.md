@@ -32,7 +32,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Support `Ensemble Status` and ` Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
 * For best experiences and display all data please use `Controller App` or `EVE app`.
-* In Home app exposed accessory:
+* Exposed accessory in the Home app:
   * `Lightbulb` display `Power Production State` and `Power Production Level`.
   * `Contact Sensors` detect `Power Peak`, only if enabled and configured in plugin config.
 * RESTful server:
@@ -65,8 +65,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `enlightenPasswd` | Here set the enlihten password. |
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
-| `powerProductionSummary` | Here set the max power summary in `W` of all microinverters, based on this value will be calculate in `%` production level displayed in HomeKit. |
-| `powerProductionOnOff` | This enable `Power Production State` monitoring and expose contact sensor in HomeKit which can be used for notification and automations. |
+| `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
+| `powerProductionOnOff` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit which can be used for notification and automations. |
 | `powerProductionMax` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit which can be used for notification and automations. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `powerProductionMaxDetected` | Here set the production `Power Peak`, if the Power >= `powerProductionMaxDetected` the contact sensor fired. |
