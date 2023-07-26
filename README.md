@@ -25,14 +25,14 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ### About The Plugin
-* Firmware 7.x.x. and Token authorization is supported from plugin v6.0.0.
+* Firmware v7.x.x. and Token authorization is supported from plugin v6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 * Envoy `device ID` is detected automatically, is required to control `Production Power Mode`.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Support `Ensemble Status` and ` Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
 * For best experiences and display all data please use `Controller App` or `EVE app`.
-* Exposed accessory in the Home app:
+* Exposed accessory in the native Home app:
   * `Lightbulb` display `Power Production State` and `Power Production Level`.
   * `Contact Sensors` detect `Power Peak`, only if enabled and configured in plugin config.
 * RESTful server:
@@ -60,14 +60,14 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
 | `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
-| `envoyFirmware7xx` | This enable support for Envoy with firmware v7.x.x. If for some reason in the log You get `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
+| `envoyFirmware7xx` | This enable support for Envoy firmware v7.x.x. If for some reason in the log You get `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
 | `enlightenUser` | Here set the enlihten user name. |
 | `enlightenPasswd` | Here set the enlihten password. |
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
 | `powerProductionOnOff` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app.. |
-| `powerProductionMax` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app.. |
+| `powerProductionMax` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `powerProductionMaxDetected` | Here set the production `Power Peak`, if the Power >= `powerProductionMaxDetected` the contact sensor fired. |
 | `energyProductionLifetimeOffset` | Here set the `Offset` of lifetime energy production if nedded in (Wh),(+/-) |
