@@ -94,14 +94,14 @@
               "required": false
             },
             "powerProductionSummary": {
-              "title": "Power Production Summary",
+              "title": "Power Summary",
               "type": "integer",
               "default": 0,
               "description": "Here set the power summary in (W) of all microinverters, based on this value will be calculate in % production level displayed in HomeKit.",
               "required": false
             },
             "powerProductionOnOff": {
-              "title": "Power Production State",
+              "title": "Power State",
               "type": "boolean",
               "default": false,
               "description": "This enable *Power Production State* monitoring and expose contact sensor in HomeKit.",
@@ -501,8 +501,8 @@
             "devices[].powerProductionSummary",
             "devices[].powerProductionOnOff",
             "devices[].powerProductionMax",
-            "devices[].powerProductionMaxAutoReset",
             "devices[].powerProductionMaxDetected",
+            "devices[].powerProductionMaxAutoReset",
             "devices[].energyProductionLifetimeOffset"
           ]
         },
@@ -515,28 +515,29 @@
           "items": [
             {
               "key": "devices[]",
-              "type": "section",
-              "title": "Total",
-              "expandable": true,
-              "expanded": false,
+              "type": "tabarray",
+              "title": "{{ value.title }}",
               "items": [
-                "devices[].powerConsumptionTotalMax",
-                "devices[].powerConsumptionTotalMaxAutoReset",
-                "devices[].powerConsumptionTotalMaxDetected",
-                "devices[].energyConsumptionTotalLifetimeOffset"
-              ]
-            },
-            {
-              "key": "devices[]",
-              "type": "section",
-              "title": "Net",
-              "expandable": true,
-              "expanded": false,
-              "items": [
-                "devices[].powerConsumptionNetMax",
-                "devices[].powerConsumptionNetMaxAutoReset",
-                "devices[].powerConsumptionNetMaxDetected",
-                "devices[].energyConsumptionNetLifetimeOffset"
+                {
+                  "key": "devices[]",
+                  "title": "Total",
+                  "items": [
+                    "devices[].powerConsumptionTotalMax",
+                    "devices[].powerConsumptionTotalMaxDetected",
+                    "devices[].powerConsumptionTotalMaxAutoReset",
+                    "devices[].energyConsumptionTotalLifetimeOffset"
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "title": "Net",
+                  "items": [
+                    "devices[].powerConsumptionNetMax",
+                    "devices[].powerConsumptionNetMaxDetected",
+                    "devices[].powerConsumptionNetMaxAutoReset",
+                    "devices[].energyConsumptionNetLifetimeOffset"
+                  ]
+                }
               ]
             }
           ]
