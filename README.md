@@ -31,7 +31,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Support `Ensemble Status` and ` Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
-* For best experiences and display all data please use `Controller App` or `EVE app`.
+* For best experiences and display all data please use `Controller App` or `EVE app`.e
 * Exposed accessory in the native Home app:
   * `Lightbulb` display `Power Production State` and `Power Production Level`.
   * `Contact Sensors` detect `Power Peak`, only if enabled and configured in plugin config.
