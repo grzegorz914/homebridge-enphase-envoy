@@ -32,6 +32,7 @@ class RestFul extends EventEmitter {
     connect() {
         try {
             const restFul = express();
+            restFul.set('json spaces', 2);
             restFul.get('/token', (req, res) => { res.json(this.restFulData.token) });
             restFul.get('/info', (req, res) => { res.json(this.restFulData.info) });
             restFul.get('/home', (req, res) => { res.json(this.restFulData.home) });

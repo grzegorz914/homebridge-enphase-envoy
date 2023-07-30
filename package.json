@@ -2,7 +2,7 @@
     "private": false,
     "displayName": "Enphase Envoy",
     "name": "homebridge-enphase-envoy",
-    "version": "7.3.4",
+    "version": "7.3.5",
     "description": "Homebridge plugin (https://github.com/homebridge/homebridge) to read data from Enphase Envoy.",
     "license": "MIT",
     "author": "grzegorz914",
@@ -31,8 +31,8 @@
     "dependencies": {
         "async-mqtt": "^2.6.3",
         "axios": "^1.4.0",
-        "fast-xml-parser": "^4.2.6",
-        "express": "^4.18.2"
+        "express": "^4.18.2",
+        "fast-xml-parser": "^4.2.6"
     },
     "keywords": [
         "homebridge",
@@ -46,9 +46,9 @@
         "solar"
     ],
     "funding": {
-        "type" : "github",
-        "url" : "https://github.com/sponsors/grzegorz914"
-      },
+        "type": "github",
+        "url": "https://github.com/sponsors/grzegorz914"
+    },
     "contributors": [],
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
