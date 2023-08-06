@@ -2219,8 +2219,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //production power level
                 const powerProductionSummary = this.powerProductionSummary / 1000; //kW
-                const powerLevel = (Math.min(Math.max((100 / powerProductionSummary) * productionPower, 0), 100)).toFixed(1); //0-100%
-                const productionPowerLevel = productionPower > 0 && productionPower <= (powerProductionSummary / 100) ? 1 : powerLevel;
+                const productionPowerLevel = productionPowerState ? (Math.min(Math.max((100 / powerProductionSummary) * productionPower, 1), 100)).toFixed(1) : 0; //0-100%
                 const debug2 = this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
 
                 //read power peak
