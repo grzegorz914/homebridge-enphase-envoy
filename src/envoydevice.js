@@ -521,15 +521,15 @@ class EnvoyDevice extends EventEmitter {
                         keepAlive: true,
                         rejectUnauthorized: false
                     })
-                })
+                });
 
-                //create axios instance post with cookie and data
+                //create axios instance post with token and data
                 const data = JSON.stringify({ enable: 1 });
-                this.axiosInstanceLiveDataStreamEnable = axios.create({
+                this.axiosInstance1 = axios.create({
                     method: 'POST',
                     baseURL: this.url,
                     headers: {
-                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
                         Cookie: cookie
                     },
                     data: data,
@@ -538,7 +538,7 @@ class EnvoyDevice extends EventEmitter {
                         keepAlive: true,
                         rejectUnauthorized: false
                     })
-                })
+                });
 
                 resolve(true);
             } catch (error) {
@@ -1992,10 +1992,10 @@ class EnvoyDevice extends EventEmitter {
 
             try {
                 const liveData = await this.axiosInstance(CONSTANS.ApiUrls.LiveData);
-                const debug = this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(liveData.data, null, 2)}`) : false;
+                const debug = !this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(liveData.data, null, 2)}`) : false;
 
                 //live data keys
-                const liveDadaKeys = Object.keys(liveData.data)
+                const liveDadaKeys = Object.keys(liveData.data);
 
                 //connection
                 const connection = liveData.data.connection;
@@ -2127,8 +2127,8 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream.`) : false;
 
             try {
-                const enableLiveDataStream = await this.axiosInstanceLiveDataStreamEnable(CONSTANS.ApiUrls.LiveDataStream);
-                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
+                const enableLiveDataStream = await this.axiosInstance1(CONSTANS.ApiUrls.LiveDataStream);
+                const debug = !this.enableDebugMode ? this.emit('debug', `Live data stream: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
                 resolve();
             } catch (error) {
                 reject(`Enable live data stream error: ${error}.`);
@@ -2192,11 +2192,6 @@ class EnvoyDevice extends EventEmitter {
                 const acBatteriesInstalled = this.acBatteriesInstalled;
                 const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
 
-                const productionMicroSummarywhToday = this.productionMicroSummarywhToday;
-                const productionMicroSummarywhLastSevenDays = this.productionMicroSummarywhLastSevenDays;
-                const productionMicroSummarywhLifeTime = this.productionMicroSummarywhLifeTime;
-                const productionMicroSummaryWattsNow = this.productionMicroSummaryWattsNow;
-
                 //microinverters data
                 const productionMicro = productionCtData.data.production[0];
                 const productionMicroType = CONSTANS.ApiCodes[productionMicro.type];
@@ -2211,7 +2206,7 @@ class EnvoyDevice extends EventEmitter {
                 const productionActiveCount = metersProductionEnabled ? production.activeCount : productionMicroActiveCount;
                 const productionMeasurmentType = metersProductionEnabled ? CONSTANS.ApiCodes[production.measurementType] : productionMicroType;
                 const productionReadingTime = metersProductionEnabled ? new Date(production.readingTime * 1000).toLocaleString() : productionMicroReadingTime;
-                const productionPower = metersProductionEnabled ? parseFloat(production.wNow) / 1000 : productionMicroSummaryWattsNow;
+                const productionPower = metersProductionEnabled ? parseFloat(production.wNow) / 1000 : this.productionMicroSummaryWattsNow;
 
                 //production power state
                 const productionPowerState = productionPower > 0; // true if power > 0
@@ -2236,11 +2231,11 @@ class EnvoyDevice extends EventEmitter {
                 const productionPowerPeakDetected = productionPower >= (this.powerProductionPowerPeakDetected / 1000);
 
                 //energy
-                const productionEnergyLifeTime = metersProductionEnabled ? parseFloat((production.whLifetime + productionEnergyLifetimeOffset) / 1000) : productionMicroSummarywhLifeTime;
+                const productionEnergyLifeTime = metersProductionEnabled ? parseFloat((production.whLifetime + productionEnergyLifetimeOffset) / 1000) : this.productionMicroSummarywhLifeTime;
                 const productionEnergyVarhLeadLifetime = metersProductionEnabled ? parseFloat(production.varhLeadLifetime) / 1000 : 0;
                 const productionEnergyVarhLagLifetime = metersProductionEnabled ? parseFloat(production.varhLagLifetime) / 1000 : 0;
-                const productionEnergyLastSevenDays = metersProductionEnabled ? parseFloat(production.whLastSevenDays) / 1000 : productionMicroSummarywhLastSevenDays;
-                const productionEnergyToday = metersProductionEnabled ? parseFloat(production.whToday) / 1000 : productionMicroSummarywhToday;
+                const productionEnergyLastSevenDays = metersProductionEnabled ? parseFloat(production.whLastSevenDays) / 1000 : this.productionMicroSummarywhLastSevenDays;
+                const productionEnergyToday = metersProductionEnabled ? parseFloat(production.whToday) / 1000 : this.productionMicroSummarywhToday;
                 const productionEnergyVahToday = metersProductionEnabled ? parseFloat(production.vahToday) / 1000 : 0;
                 const productionEnergyVarhLeadToday = metersProductionEnabled ? parseFloat(production.varhLeadToday) / 1000 : 0;
                 const productionEnergyVarhLagToday = metersProductionEnabled ? parseFloat(production.varhLagToday) / 1000 : 0;
