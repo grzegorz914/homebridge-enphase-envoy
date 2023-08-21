@@ -2139,13 +2139,13 @@ class EnvoyDevice extends EventEmitter {
     updateProductionData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting production.`) : false;
+            const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
 
             try {
                 const productionData = await this.axiosInstance(CONSTANS.ApiUrls.InverterProductionSumm);
                 const debug = this.enableDebugMode ? this.emit('debug', `Production: ${JSON.stringify(productionData.data, null, 2)}`) : false;
 
                 //microinverters summary 
-                const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
                 const productionMicroSummarywhToday = parseFloat(productionData.data.wattHoursToday) / 1000;
                 const productionMicroSummarywhLastSevenDays = parseFloat(productionData.data.wattHoursSevenDays) / 1000;
                 const productionMicroSummarywhLifeTime = parseFloat(productionData.data.wattHoursLifetime + productionEnergyLifetimeOffset) / 1000;
@@ -2172,25 +2172,25 @@ class EnvoyDevice extends EventEmitter {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting production ct.`) : false;
 
+            //auto reset peak power
+            const date = new Date();
+            const currentDayOfWeek = date.getDay();
+            const currentDayOfMonth = date.getDate();
+            const resetProductionPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerProductionPowerPeakAutoReset];
+            const resetConsumptionTotalPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionTotalPowerPeakAutoReset];
+            const resetConsumptionNetPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionNetPowerPeakAutoReset];
+
+            //get enabled devices
+            const metersProductionEnabled = this.metersProductionEnabled;
+            const metersProductionVoltageDivide = this.metersProductionVoltageDivide;
+            const metersConsumptionEnabled = this.metersConsumptionEnabled;
+            const metersConsumpionVoltageDivide = this.metersConsumpionVoltageDivide;
+            const acBatteriesInstalled = this.acBatteriesInstalled;
+            const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
+
             try {
                 const productionCtData = await this.axiosInstance(CONSTANS.ApiUrls.SystemReadingStats);
                 const debug = this.enableDebugMode ? this.emit('debug', `Production ct: ${JSON.stringify(productionCtData.data, null, 2)}`) : false;
-
-                //auto reset peak power
-                const date = new Date();
-                const currentDayOfWeek = date.getDay();
-                const currentDayOfMonth = date.getDate();
-                const resetProductionPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerProductionPowerPeakAutoReset];
-                const resetConsumptionTotalPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionTotalPowerPeakAutoReset];
-                const resetConsumptionNetPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionNetPowerPeakAutoReset];
-
-                //get enabled devices
-                const metersProductionEnabled = this.metersProductionEnabled;
-                const metersProductionVoltageDivide = this.metersProductionVoltageDivide;
-                const metersConsumptionEnabled = this.metersConsumptionEnabled;
-                const metersConsumpionVoltageDivide = this.metersConsumpionVoltageDivide;
-                const acBatteriesInstalled = this.acBatteriesInstalled;
-                const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
 
                 //microinverters data
                 const productionMicro = productionCtData.data.production[0];
@@ -2566,6 +2566,12 @@ class EnvoyDevice extends EventEmitter {
     updatePlcLevelData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level.`) : false;
+
+            // get devices count
+            const microinvertersCount = this.microinvertersCount
+            const acBatteriesCount = this.acBatteriesCount;
+            const qRelaysCount = this.qRelaysCount;
+            const enchargesCount = this.enchargesCount;
             this.checkCommLevel = true;
 
             try {
@@ -2580,20 +2586,14 @@ class EnvoyDevice extends EventEmitter {
                 const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANS.ApiUrls.InverterComm, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevelData.data, null, 2)}`) : false;
 
-                // get comm level data
-                const commLevel = plcLevelData.data;
-
                 //create arrays
                 this.microinvertersCommLevel = [];
                 this.acBatteriesCommLevel = [];
                 this.qRelaysCommLevel = [];
                 this.enchargesCommLevel = [];
 
-                // get devices count
-                const microinvertersCount = this.microinvertersCount
-                const acBatteriesCount = this.acBatteriesCount;
-                const qRelaysCount = this.qRelaysCount;
-                const enchargesCount = this.enchargesCount;
+                // get comm level data
+                const commLevel = plcLevelData.data;
 
                 for (let i = 0; i < microinvertersCount; i++) {
                     const key = `${this.microinvertersSerialNumber[i]}`;
