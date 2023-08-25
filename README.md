@@ -37,7 +37,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * For best experiences and display all data please use `Controller App` or `EVE app`.e
 * Exposed accessory in the native Home app:
   * `Lightbulb` display `Power Production State` and `Power Production Level`.
-  * `Contact Sensors` detect `Power Peak`, only if enabled and configured in plugin config.
+  * `Contact Sensors` production: `Power State`, `Power Peak`, `Energy State`, `Energy Level`, only if enabled and configured in plugin config.
+  * `Contact Sensors` consumptions: `Power State`, `Power Peak`, only if enabled and configured in plugin config.
 * RESTful server:
   * Request: `http//homebridge_ip_address:port/path`.
   * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
