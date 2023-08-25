@@ -98,7 +98,7 @@
               "type": "integer",
               "default": 0,
               "description": "Here set the power summary in (W) of all microinverters, based on this value will be calculate in % production level displayed in HomeKit.",
-              "required": false
+              "required": true
             },
             "powerProductionOnOff": {
               "title": "Power State",
@@ -156,18 +156,40 @@
               "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
-              "maximum": 65535,
-              "description": "Here set *Power Peak* in (W) at which the contact sensor fired.",
+              "description": "Here set *Power Peak Level* in (W) at which the contact sensor fired.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerProductionMax === true;"
+              }
+            },
+            "energyProductionStateSensor": {
+              "title": "Energy State",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Energy State* monitoring for production and expose contact sensor in HomeKit.",
+              "required": false
+            },
+            "energyProductionLevelSensor": {
+              "title": "Energy Level",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Energy Level* monitoring for production and expose contact sensor in HomeKit.",
+              "required": false
+            },
+            "energyProductionLevelDetected": {
+              "title": "Energy Level Detected",
+              "type": "integer",
+              "default": 0,
+              "description": "Here set *Energy Level* in (Wh)for production at which the contact sensor fired.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].energyProductionLevelSensor === true;"
               }
             },
             "energyProductionLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "maximum": 100000,
               "description": "Here set *Offset* in (Wh) for energy production, if nedded.",
               "required": false
             },
@@ -220,8 +242,7 @@
               "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
-              "maximum": 65535,
-              "description": "Here set *Power Peak* in (W) at which the contact sensor fired.",
+              "description": "Here set *Power Peak Level* in (W) at which the contact sensor fired.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalMax === true;"
@@ -231,7 +252,6 @@
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "maximum": 65535,
               "description": "Here set *Offset* in (Wh) for energy consumption (Total), if nedded.",
               "required": false
             },
@@ -284,8 +304,7 @@
               "title": "Power Peak Detected",
               "type": "integer",
               "default": 0,
-              "maximum": 65535,
-              "description": "Here set *Power Peak* in (W) at which the contact sensor fired.",
+              "description": "Here set *Power Peak Level* in (W) at which the contact sensor fired.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionNetMax === true;"
@@ -295,7 +314,6 @@
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "maximum": 65535,
               "description": "Here set *Offset* in (Wh) for energy consumption (Net), if nedded.",
               "required": false
             },
@@ -505,20 +523,23 @@
               "items": [
                 {
                   "key": "devices[]",
-                  "title": "Power/Energy",
+                  "title": "Power",
                   "items": [
                     "devices[].powerProductionSummary",
-                    "devices[].energyProductionLifetimeOffset"
-                  ]
-                },
-                {
-                  "key": "devices[]",
-                  "title": "Sensors",
-                  "items": [
                     "devices[].powerProductionOnOff",
                     "devices[].powerProductionMax",
                     "devices[].powerProductionMaxDetected",
                     "devices[].powerProductionMaxAutoReset"
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "title": "Energy",
+                  "items": [
+                    "devices[].energyProductionStateSensor",
+                    "devices[].energyProductionLevelSensor",
+                    "devices[].energyProductionLevelDetected",
+                    "devices[].energyProductionLifetimeOffset"
                   ]
                 }
               ]
@@ -548,18 +569,18 @@
                       "items": [
                         {
                           "key": "devices[]",
-                          "title": "Power/Energy",
-                          "items": [
-                            "devices[].energyConsumptionTotalLifetimeOffset"
-                          ]
-                        },
-                        {
-                          "key": "devices[]",
-                          "title": "Sensors",
+                          "title": "Power",
                           "items": [
                             "devices[].powerConsumptionTotalMax",
                             "devices[].powerConsumptionTotalMaxDetected",
                             "devices[].powerConsumptionTotalMaxAutoReset"
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "title": "Energy",
+                          "items": [
+                            "devices[].energyConsumptionTotalLifetimeOffset"
                           ]
                         }
                       ]
@@ -577,18 +598,18 @@
                       "items": [
                         {
                           "key": "devices[]",
-                          "title": "Power/Energy",
-                          "items": [
-                            "devices[].energyConsumptionNetLifetimeOffset"
-                          ]
-                        },
-                        {
-                          "key": "devices[]",
-                          "title": "Sensors",
+                          "title": "Power",
                           "items": [
                             "devices[].powerConsumptionNetMax",
                             "devices[].powerConsumptionNetMaxDetected",
                             "devices[].powerConsumptionNetMaxAutoReset"
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "title": "Energy",
+                          "items": [
+                            "devices[].energyConsumptionNetLifetimeOffset"
                           ]
                         }
                       ]

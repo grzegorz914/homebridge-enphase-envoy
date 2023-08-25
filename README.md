@@ -5,19 +5,21 @@
 <span align="center">
 
 # Homebridge Enphase Envoy
+
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
-[![npm](https://badgen.net/npm/dt/homebridge-enphase-envoy?color=purple)](https://www.npmjs.com/package/homebridge-enphase-envoy) 
+[![npm](https://badgen.net/npm/dt/homebridge-enphase-envoy?color=purple)](https://www.npmjs.com/package/homebridge-enphase-envoy)
 [![npm](https://badgen.net/npm/v/homebridge-enphase-envoy?color=purple)](https://www.npmjs.com/package/homebridge-enphase-envoy)
 [![npm](https://img.shields.io/npm/v/homebridge-enphase-envoy/beta.svg?style=flat-square)](https://www.npmjs.com/package/homebridge-enphase-envoy)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/grzegorz914/homebridge-enphase-envoy.svg)](https://github.com/grzegorz914/homebridge-enphase-envoy/pulls)
 [![GitHub issues](https://img.shields.io/github/issues/grzegorz914/homebridge-enphase-envoy.svg)](https://github.com/grzegorz914/homebridge-enphase-envoy/issues)
 
-Homebridge plugin for Photovoltaic Energy System manufactured by Enphase.                                           
+Homebridge plugin for Photovoltaic Energy System manufactured by Enphase.
 Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 </span>
 
 ## Package Requirements
+
 | Package | Installation | Role | Required |
 | --- | --- | --- | --- |
 | [Homebridge](https://github.com/homebridge/homebridge) | [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) | HomeKit Bridge | Required |
@@ -25,12 +27,13 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ### About The Plugin
+
 * Firmware v7.x.x. and Token authorization is supported from plugin v6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit).
 * Envoy `device ID` is detected automatically, is required to control `Production Power Mode`.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
-* Support `Ensemble Status` and ` Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
+* Support `Ensemble Status` and `Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
 * For best experiences and display all data please use `Controller App` or `EVE app`.e
 * Exposed accessory in the native Home app:
   * `Lightbulb` display `Power Production State` and `Power Production Level`.
@@ -44,16 +47,17 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
   * Publish as JSON data.
 
 ### Configuration
+
 * Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
-* Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) to configure this plugin (Highly Recommended). 
-* The `sample-config.json` can be edited and used manually as an alternative. 
+* Install and use [Homebridge Config UI X](https://github.com/oznu/homebridge-config-ui-x/wiki) to configure this plugin (Highly Recommended).
+* The `sample-config.json` can be edited and used manually as an alternative.
 * Be sure to always make a backup copy of your config.json file before making any changes to it.
 
 <p align="left">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/ustawienia.png" width="840"></a>
 </p>
 
-| Key | Description | 
+| Key | Description |
 | --- | --- |
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
 | `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
@@ -66,10 +70,13 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
-| `powerProductionOnOff` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app.. |
+| `powerProductionOnOff` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app. |
 | `powerProductionMax` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app. |
 | `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
-| `powerProductionMaxDetected` | Here set the production `Power Peak`, if the Power >= `powerProductionMaxDetected` the contact sensor fired. |
+| `powerProductionMaxDetected` | Here set the production `Power Peak` in (W), if the `Power Production` >= `powerProductionMaxDetected` the contact sensor fired. |
+| `energyProductionStateSensor` | This enable `Energy State` monitoring for production and expose contact sensor in HomeKit app.. |
+| `energyProductionLevelSensor` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
+| `energyProductionLevelDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyProductionLevelDetected` the contact sensor fired. |
 | `energyProductionLifetimeOffset` | Here set the `Offset` of lifetime energy production if nedded in (Wh),(+/-) |
 | `powerConsumptionTotalMax` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `powerConsumptionTotalMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |

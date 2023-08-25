@@ -33,13 +33,16 @@ class EnvoyDevice extends EventEmitter {
         this.enlightenPassword = config.enlightenPasswd;
         this.powerProductionSummary = config.powerProductionSummary || 0;
         this.powerProductionStateSensor = config.powerProductionOnOff || false;
-        this.powerProductionPowerPeakSensor = config.powerProductionMax || false;
-        this.powerProductionPowerPeakAutoReset = config.powerProductionMaxAutoReset || 0;
-        this.powerProductionPowerPeakDetected = config.powerProductionMaxDetected || 0;
-        this.energyProductionLifetimeOffset = config.energyProductionLifetimeOffset || 0;
+        this.powerProductionPeakSensor = config.powerProductionMax || false;
+        this.powerProductionPeakAutoReset = config.powerProductionMaxAutoReset || 0;
+        this.powerProductionPeakDetectedValue = config.powerProductionMaxDetected || 0;
         this.powerConsumptionTotalPowerPeakSensor = config.powerConsumptionTotalMax || false;
         this.powerConsumptionTotalPowerPeakAutoReset = config.powerConsumptionTotalMaxAutoReset || 0;
         this.powerConsumptionTotalPowerPeakDetected = config.powerConsumptionTotalMaxDetected || 0;
+        this.energyProductionStateSensor = config.energyProductionStateSensor || false;
+        this.energyProductionLevelSensor = config.energyProductionLevelSensor || false;
+        this.energyProductionLevelDetectedValue = config.energyProductionLevelDetected || 0;
+        this.energyProductionLifetimeOffset = config.energyProductionLifetimeOffset || 0;
         this.energyConsumptionTotalLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
         this.powerConsumptionNetPowerPeakAutoReset = config.powerConsumptionNetMaxAutoReset || 0;
         this.powerConsumptionNetPowerPeakSensor = config.powerConsumptionNetMax || false;
@@ -190,6 +193,8 @@ class EnvoyDevice extends EventEmitter {
         this.productionEnergyToday = 0;
         this.productionEnergyLastSevenDays = 0;
         this.productionEnergyLifeTime = 0;
+        this.productionEnergyState = false;
+        this.productionEnergyLevelDetected = false;
         this.productionRmsCurrent = 0;
         this.productionRmsVoltage = 0;
         this.productionReactivePower = 0;
@@ -2210,7 +2215,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //production power state
                 const productionPowerState = productionPower > 0; // true if power > 0
-                const debug1 = this.enableDebugMode ? this.emit('debug', `Production power state: ${productionPowerState} %`) : false;
+                const debug1 = this.enableDebugMode ? this.emit('debug', `Production power state: ${productionPowerState}`) : false;
 
                 //production power level
                 const powerProductionSummary = this.powerProductionSummary / 1000; //kW
@@ -2228,7 +2233,8 @@ class EnvoyDevice extends EventEmitter {
                 const showLog = write && this.enableDebugMode ? this.emit('debug', `Saved production power peak: ${powerProductionToWrite} kW`) : false;
 
                 //power peak state detected
-                const productionPowerPeakDetected = productionPower >= (this.powerProductionPowerPeakDetected / 1000);
+                const productionPowerPeakDetected = productionPower >= (this.powerProductionPeakDetectedValue / 1000);
+                const debug4 = this.enableDebugMode ? this.emit('debug', `Production power peak detected: ${productionPowerPeakDetected}`) : false;
 
                 //energy
                 const productionEnergyLifeTime = metersProductionEnabled ? parseFloat((production.whLifetime + productionEnergyLifetimeOffset) / 1000) : this.productionMicroSummarywhLifeTime;
@@ -2243,6 +2249,14 @@ class EnvoyDevice extends EventEmitter {
                 //energy lifetime fix for negative value
                 const productionEnergyLifeTimeFix = Math.min(productionEnergyLifeTime, 0);
 
+                //production energy state
+                const productionEnergyState = productionEnergyToday > 0; // true if energy > 0
+                const debug5 = this.enableDebugMode ? this.emit('debug', `Production energy level state: ${productionEnergyState}`) : false;
+
+                //production energy level detected
+                const productionEnergyLevelDetected = productionEnergyToday >= (this.energyProductionLevelDetectedValue / 1000);
+                const debug6 = this.enableDebugMode ? this.emit('debug', `Production energy level detected: ${productionEnergyLevelDetected}`) : false;
+
                 //param
                 const productionRmsCurrent = metersProductionEnabled ? parseFloat(production.rmsCurrent) : 0;
                 const productionRmsVoltage = metersProductionEnabled ? parseFloat(production.rmsVoltage / metersProductionVoltageDivide) : 0;
@@ -2254,11 +2268,6 @@ class EnvoyDevice extends EventEmitter {
                     this.systemsPvService[0]
                         .updateCharacteristic(Characteristic.On, productionPowerState)
                         .updateCharacteristic(Characteristic.Brightness, productionPowerLevel)
-                }
-
-                if (this.productionStateSensorService) {
-                    this.productionStateSensorService
-                        .updateCharacteristic(Characteristic.ContactSensorState, productionPowerState)
                 }
 
                 if (this.productionsService) {
@@ -2281,9 +2290,26 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
+                //sensors power
+                if (this.productionPowerStateSensorService) {
+                    this.productionPowerStateSensorService
+                        .updateCharacteristic(Characteristic.ContactSensorState, productionPowerState)
+                }
+
                 if (this.productionPowerPeakSensorService) {
                     this.productionPowerPeakSensorService
                         .updateCharacteristic(Characteristic.ContactSensorState, productionPowerPeakDetected)
+                }
+
+                //sensors energy
+                if (this.productionEnergyStateSensorService) {
+                    this.productionEnergyStateSensorService
+                        .updateCharacteristic(Characteristic.ContactSensorState, productionEnergyState)
+                }
+
+                if (this.productionEnergyLevelSensorService) {
+                    this.productionEnergyLevelSensorService
+                        .updateCharacteristic(Characteristic.ContactSensorState, productionEnergyLevelDetected)
                 }
 
                 this.productionPowerState = productionPowerState;
@@ -2298,6 +2324,8 @@ class EnvoyDevice extends EventEmitter {
                 this.productionEnergyToday = productionEnergyToday;
                 this.productionEnergyLastSevenDays = productionEnergyLastSevenDays;
                 this.productionEnergyLifeTime = productionEnergyLifeTimeFix;
+                this.productionEnergyState = productionEnergyState;
+                this.productionEnergyLevelDetected = productionEnergyLevelDetected;
 
                 this.productionRmsCurrent = productionRmsCurrent;
                 this.productionRmsVoltage = productionRmsVoltage;
@@ -2790,15 +2818,54 @@ class EnvoyDevice extends EventEmitter {
 
                 //prepare production state sensor service
                 if (this.powerProductionStateSensor) {
-                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production state sensor service`) : false;
-                    this.productionStateSensorService = new Service.ContactSensor(`${accessoryName} Production State`, `Production State`);
-                    this.productionStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production State`);
-                    this.productionStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power state sensor service`) : false;
+                    this.productionPowerStateSensorService = new Service.ContactSensor(`${accessoryName} Production Power State`, `Production Power State`);
+                    this.productionPowerStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Power State`);
+                    this.productionPowerStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
                         .onGet(async () => {
                             const state = this.productionPowerState;
                             return state;
                         });
-                    accessory.addService(this.productionStateSensorService);
+                    accessory.addService(this.productionPowerStateSensorService);
+                };
+
+                //prepare production power peak sensor service
+                if (this.powerProductionPeakSensor) {
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power peak sensor service`) : false;
+                    this.productionPowerPeakSensorService = new Service.ContactSensor(`${accessoryName} Production Power Peak`, `Production Power Peak`);
+                    this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Power Peak`);
+                    this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                        .onGet(async () => {
+                            const state = this.productionPowerPeakDetected;
+                            return state;
+                        });
+                    accessory.addService(this.productionPowerPeakSensorService);
+                };
+
+                //prepare production energy state sensor service
+                if (this.energyProductionStateSensor) {
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production energy state sensor service`) : false;
+                    this.productionEnergyStateSensorService = new Service.ContactSensor(`${accessoryName} Production Energy State`, `Production Energy State`);
+                    this.productionEnergyStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Energy State`);
+                    this.productionEnergyStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                        .onGet(async () => {
+                            const state = this.productionEnergyState;
+                            return state;
+                        });
+                    accessory.addService(this.productionEnergyStateSensorService);
+                };
+
+                //prepare production energy level sensor service
+                if (this.energyProductionLevelSensor) {
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production energy level sensor service`) : false;
+                    this.productionEnergyLevelSensorService = new Service.ContactSensor(`${accessoryName} Production Energy Level`, `Production Energy Level`);
+                    this.productionEnergyLevelSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Energy Level`);
+                    this.productionEnergyLevelSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                        .onGet(async () => {
+                            const state = this.productionEnergyLevelDetected;
+                            return state;
+                        });
+                    accessory.addService(this.productionEnergyLevelSensorService);
                 };
 
                 //envoy
@@ -3253,19 +3320,6 @@ class EnvoyDevice extends EventEmitter {
                     });
                 this.productionsService.push(enphaseProductionService);
                 accessory.addService(this.productionsService[0]);
-
-                //prepare production power peak sensor service
-                if (this.powerProductionPowerPeakSensor) {
-                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power peak sensor service`) : false;
-                    this.productionPowerPeakSensorService = new Service.ContactSensor(`${accessoryName} Power Peak Production`, `Power Peak Production`);
-                    this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Power Peak Production`);
-                    this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                        .onGet(async () => {
-                            const state = this.productionPowerPeakDetected;
-                            return state;
-                        });
-                    accessory.addService(this.productionPowerPeakSensorService);
-                };
 
                 //power and energy consumption
                 if (metersInstalled && metersConsumptionEnabled) {
