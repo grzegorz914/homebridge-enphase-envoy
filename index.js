@@ -29,25 +29,27 @@ class EnvoyPlatform {
           log.warn(`Envoy firmware v7.xx enabled but enlighten user: ${device.enlightenUser ? 'OK' : device.enlightenUser}, password: ${device.enlightenPasswd ? 'OK' : device.enlightenPasswd}, envoy serial number: ${device.envoySerialNumber ? 'OK' : device.envoySerialNumber}`);
           return;
         }
-        const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, did finish launching.`) : false;
+
+        const host = device.host || 'envoy.local';
+        const debug = device.enableDebugMode ? log(`Device: ${host} ${device.name}, did finish launching.`) : false;
 
         //denon device
         const envoyDevice = new EnvoyDevice(api, prefDir, device);
         envoyDevice.on('publishAccessory', (accessory) => {
           api.publishExternalAccessories(CONSTANS.PluginName, [accessory]);
-          const debug = device.enableDebugMode ? log(`Device: ${device.host} ${device.name}, published as external accessory.`) : false;
+          const debug = device.enableDebugMode ? log(`Device: ${host} ${device.name}, published as external accessory.`) : false;
         })
           .on('devInfo', (devInfo) => {
             log(devInfo);
           })
           .on('message', (message) => {
-            log(`Device: ${device.host} ${device.name}, ${message}`);
+            log(`Device: ${host} ${device.name}, ${message}`);
           })
           .on('debug', (debug) => {
-            log(`Device: ${device.host} ${device.name}, debug: ${debug}`);
+            log(`Device: ${host} ${device.name}, debug: ${debug}`);
           })
           .on('error', (error) => {
-            log.error(`Device: ${device.host} ${device.name}, ${error}`);
+            log.error(`Device: ${host} ${device.name}, ${error}`);
           });
       }
     });
