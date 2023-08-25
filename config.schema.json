@@ -104,7 +104,7 @@
               "title": "Power State",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Production State* monitoring and expose contact sensor in HomeKit.",
+              "description": "This enable *Power State* monitoring for production and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerProductionMax": {
@@ -498,12 +498,31 @@
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].powerProductionSummary",
-            "devices[].powerProductionOnOff",
-            "devices[].powerProductionMax",
-            "devices[].powerProductionMaxDetected",
-            "devices[].powerProductionMaxAutoReset",
-            "devices[].energyProductionLifetimeOffset"
+            {
+              "key": "devices[]",
+              "type": "tabarray",
+              "title": "{{ value.title }}",
+              "items": [
+                {
+                  "key": "devices[]",
+                  "title": "Power/Energy",
+                  "items": [
+                    "devices[].powerProductionSummary",
+                    "devices[].energyProductionLifetimeOffset"
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "title": "Sensors",
+                  "items": [
+                    "devices[].powerProductionOnOff",
+                    "devices[].powerProductionMax",
+                    "devices[].powerProductionMaxDetected",
+                    "devices[].powerProductionMaxAutoReset"
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
@@ -522,20 +541,58 @@
                   "key": "devices[]",
                   "title": "Total",
                   "items": [
-                    "devices[].powerConsumptionTotalMax",
-                    "devices[].powerConsumptionTotalMaxDetected",
-                    "devices[].powerConsumptionTotalMaxAutoReset",
-                    "devices[].energyConsumptionTotalLifetimeOffset"
+                    {
+                      "key": "devices[]",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
+                      "items": [
+                        {
+                          "key": "devices[]",
+                          "title": "Power/Energy",
+                          "items": [
+                            "devices[].energyConsumptionTotalLifetimeOffset"
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "title": "Sensors",
+                          "items": [
+                            "devices[].powerConsumptionTotalMax",
+                            "devices[].powerConsumptionTotalMaxDetected",
+                            "devices[].powerConsumptionTotalMaxAutoReset"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
                   "key": "devices[]",
                   "title": "Net",
                   "items": [
-                    "devices[].powerConsumptionNetMax",
-                    "devices[].powerConsumptionNetMaxDetected",
-                    "devices[].powerConsumptionNetMaxAutoReset",
-                    "devices[].energyConsumptionNetLifetimeOffset"
+                    {
+                      "key": "devices[]",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
+                      "items": [
+                        {
+                          "key": "devices[]",
+                          "title": "Power/Energy",
+                          "items": [
+                            "devices[].energyConsumptionNetLifetimeOffset"
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "title": "Sensors",
+                          "items": [
+                            "devices[].powerConsumptionNetMax",
+                            "devices[].powerConsumptionNetMaxDetected",
+                            "devices[].powerConsumptionNetMaxAutoReset"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -545,64 +602,84 @@
         {
           "key": "devices[]",
           "type": "section",
-          "title": "Authorization",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            "devices[].envoyFirmware7xx",
-            "devices[].envoySerialNumber",
-            "devices[].enlightenUser",
-            "devices[].enlightenPasswd",
-            "devices[].envoyPasswd"
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
           "title": "Advanced Settings",
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].enableDebugMode",
-            "devices[].disableLogInfo",
-            "devices[].disableLogDeviceInfo",
-            "devices[].supportProductionPowerMode",
-            "devices[].supportPlcLevel",
-            "devices[].supportEnsembleStatus",
-            "devices[].supportLiveData",
-            "devices[].liveDataRefreshTime",
-            "devices[].metersDataRefreshTime",
-            "devices[].productionDataRefreshTime"
+            {
+              "key": "devices[]",
+              "type": "tabarray",
+              "title": "{{ value.title }}",
+              "items": [
+                {
+                  "key": "devices[]",
+                  "title": "Authorization",
+                  "items": [
+                    "devices[].envoyFirmware7xx",
+                    "devices[].envoySerialNumber",
+                    "devices[].enlightenUser",
+                    "devices[].enlightenPasswd",
+                    "devices[].envoyPasswd"
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "title": "System",
+                  "items": [
+                    "devices[].enableDebugMode",
+                    "devices[].disableLogInfo",
+                    "devices[].disableLogDeviceInfo",
+                    "devices[].supportProductionPowerMode",
+                    "devices[].supportPlcLevel",
+                    "devices[].supportEnsembleStatus",
+                    "devices[].supportLiveData",
+                    "devices[].liveDataRefreshTime",
+                    "devices[].metersDataRefreshTime",
+                    "devices[].productionDataRefreshTime"
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
           "key": "devices[]",
           "type": "section",
-          "title": "RESTful",
+          "title": "External Integrations",
           "expandable": true,
           "expanded": false,
           "items": [
-            "devices[].enableRestFul",
-            "devices[].restFulDebug",
-            "devices[].restFulPort"
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
-          "title": "MQTT",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            "devices[].enableMqtt",
-            "devices[].mqttDebug",
-            "devices[].mqttHost",
-            "devices[].mqttPort",
-            "devices[].mqttClientId",
-            "devices[].mqttPrefix",
-            "devices[].mqttAuth",
-            "devices[].mqttUser",
-            "devices[].mqttPasswd"
+            {
+              "key": "devices[]",
+              "type": "tabarray",
+              "title": "{{ value.title }}",
+              "items": [
+                {
+                  "key": "devices[]",
+                  "title": "RESTFul",
+                  "items": [
+                    "devices[].enableRestFul",
+                    "devices[].restFulDebug",
+                    "devices[].restFulPort"
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "title": "MQTT",
+                  "items": [
+                    "devices[].enableMqtt",
+                    "devices[].mqttDebug",
+                    "devices[].mqttHost",
+                    "devices[].mqttPort",
+                    "devices[].mqttClientId",
+                    "devices[].mqttPrefix",
+                    "devices[].mqttAuth",
+                    "devices[].mqttUser",
+                    "devices[].mqttPasswd"
+                  ]
+                }
+              ]
+            }
           ]
         }
       ]
