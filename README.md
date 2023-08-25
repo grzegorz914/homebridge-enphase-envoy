@@ -38,8 +38,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Exposed accessory in the native Home app:
   * Lightbulb `Power Production State` and `Power Production Level`.
   * Contact Sensors:
-    * Production: `Power State`, `Power Peak`, `Energy State`, `Energy Level`, only if enabled and configured in plugin config.
-    * Consumptions: `Power State`, `Power Peak`, only if enabled and configured in plugin config.
+    * Production `Power State`, `Power Peak`, `Energy State`, `Energy Level`, only if enabled and configured in plugin config.
+    * Consumptions `Power State`, `Power Peak`, only if enabled and configured in plugin config.
 * RESTful server:
   * Request: `http//homebridge_ip_address:port/path`.
   * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
