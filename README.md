@@ -39,7 +39,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
   * Lightbulb `Power Production State` and `Power Production Level`.
   * Contact Sensors:
     * Production `Power State`, `Power Peak`, `Energy State`, `Energy Level`.
-    * Consumptions `Power State`, `Power Peak`.
+    * Consumption `Power State`, `Power Peak`.
 * RESTful server:
   * Request: `http//homebridge_ip_address:port/path`.
   * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
