@@ -1997,7 +1997,7 @@ class EnvoyDevice extends EventEmitter {
 
             try {
                 const liveData = await this.axiosInstance(CONSTANS.ApiUrls.LiveData);
-                const debug = !this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(liveData.data, null, 2)}`) : false;
+                const debug = this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(liveData.data, null, 2)}`) : false;
 
                 //live data keys
                 const liveDadaKeys = Object.keys(liveData.data);
@@ -2816,58 +2816,6 @@ class EnvoyDevice extends EventEmitter {
                 this.systemsPvService.push(systemPvService);
                 accessory.addService(this.systemsPvService[0]);
 
-                //prepare production state sensor service
-                if (this.powerProductionStateSensor) {
-                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power state sensor service`) : false;
-                    this.productionPowerStateSensorService = new Service.ContactSensor(`${accessoryName} Production Power State`, `Production Power State`);
-                    this.productionPowerStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Power State`);
-                    this.productionPowerStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                        .onGet(async () => {
-                            const state = this.productionPowerState;
-                            return state;
-                        });
-                    accessory.addService(this.productionPowerStateSensorService);
-                };
-
-                //prepare production power peak sensor service
-                if (this.powerProductionPeakSensor) {
-                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power peak sensor service`) : false;
-                    this.productionPowerPeakSensorService = new Service.ContactSensor(`${accessoryName} Production Power Peak`, `Production Power Peak`);
-                    this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Power Peak`);
-                    this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                        .onGet(async () => {
-                            const state = this.productionPowerPeakDetected;
-                            return state;
-                        });
-                    accessory.addService(this.productionPowerPeakSensorService);
-                };
-
-                //prepare production energy state sensor service
-                if (this.energyProductionStateSensor) {
-                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production energy state sensor service`) : false;
-                    this.productionEnergyStateSensorService = new Service.ContactSensor(`${accessoryName} Production Energy State`, `Production Energy State`);
-                    this.productionEnergyStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Energy State`);
-                    this.productionEnergyStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                        .onGet(async () => {
-                            const state = this.productionEnergyState;
-                            return state;
-                        });
-                    accessory.addService(this.productionEnergyStateSensorService);
-                };
-
-                //prepare production energy level sensor service
-                if (this.energyProductionLevelSensor) {
-                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production energy level sensor service`) : false;
-                    this.productionEnergyLevelSensorService = new Service.ContactSensor(`${accessoryName} Production Energy Level`, `Production Energy Level`);
-                    this.productionEnergyLevelSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Energy Level`);
-                    this.productionEnergyLevelSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                        .onGet(async () => {
-                            const state = this.productionEnergyLevelDetected;
-                            return state;
-                        });
-                    accessory.addService(this.productionEnergyLevelSensorService);
-                };
-
                 //envoy
                 const debug3 = this.enableDebugMode ? this.emit('debug', `Prepare envoy service`) : false;
                 this.envoysService = [];
@@ -2933,7 +2881,7 @@ class EnvoyDevice extends EventEmitter {
                 }
                 enphaseEnvoyService.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
                     .onGet(async () => {
-                        const value = (`${this.envoyDbSize} / ${this.envoyDbPercentFull}`);
+                        const value = `${this.envoyDbSize} / ${this.envoyDbPercentFull}`;
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data base size: ${value} %`);
                         return value;
                     });
@@ -3321,6 +3269,62 @@ class EnvoyDevice extends EventEmitter {
                 this.productionsService.push(enphaseProductionService);
                 accessory.addService(this.productionsService[0]);
 
+                //prepare production state sensor service
+                if (this.powerProductionStateSensor) {
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power state sensor service`) : false;
+                    this.productionPowerStateSensorService = new Service.ContactSensor(`${accessoryName} Production Power State`, `Production Power State`);
+                    this.productionPowerStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Power State`);
+                    this.productionPowerStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                        .onGet(async () => {
+                            const state = this.productionPowerState;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Production power state sensor: ${state ? 'Avtive' : 'Not active'}`);
+                            return state;
+                        });
+                    accessory.addService(this.productionPowerStateSensorService);
+                };
+
+                //prepare production power peak sensor service
+                if (this.powerProductionPeakSensor) {
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power peak sensor service`) : false;
+                    this.productionPowerPeakSensorService = new Service.ContactSensor(`${accessoryName} Production Power Peak`, `Production Power Peak`);
+                    this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Power Peak`);
+                    this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                        .onGet(async () => {
+                            const state = this.productionPowerPeakDetected;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Production power peak sensor: ${state ? 'Avtive' : 'Not active'}`);
+                            return state;
+                        });
+                    accessory.addService(this.productionPowerPeakSensorService);
+                };
+
+                //prepare production energy state sensor service
+                if (this.energyProductionStateSensor) {
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production energy state sensor service`) : false;
+                    this.productionEnergyStateSensorService = new Service.ContactSensor(`${accessoryName} Production Energy State`, `Production Energy State`);
+                    this.productionEnergyStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Energy State`);
+                    this.productionEnergyStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                        .onGet(async () => {
+                            const state = this.productionEnergyState;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Production energy state sensor: ${state ? 'Avtive' : 'Not active'}`);
+                            return state;
+                        });
+                    accessory.addService(this.productionEnergyStateSensorService);
+                };
+
+                //prepare production energy level sensor service
+                if (this.energyProductionLevelSensor) {
+                    const debug = this.enableDebugMode ? this.emit('debug', `Prepare production energy level sensor service`) : false;
+                    this.productionEnergyLevelSensorService = new Service.ContactSensor(`${accessoryName} Production Energy Level`, `Production Energy Level`);
+                    this.productionEnergyLevelSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Production Energy Level`);
+                    this.productionEnergyLevelSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                        .onGet(async () => {
+                            const state = this.productionEnergyLevelDetected;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Production energy level sensor: ${state ? 'Active' : 'Not active'}`);
+                            return state;
+                        });
+                    accessory.addService(this.productionEnergyLevelSensorService);
+                };
+
                 //power and energy consumption
                 if (metersInstalled && metersConsumptionEnabled) {
                     this.consumptionsService = [];
@@ -3427,6 +3431,7 @@ class EnvoyDevice extends EventEmitter {
                             this.consumptionTotalPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
                                 .onGet(async () => {
                                     const state = this.consumptionTotalPowerPeakDetected || false;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType}, power peak sensor: ${state ? 'Avtive' : 'Not active'}`);
                                     return state;
                                 });
                             accessory.addService(this.consumptionTotalPowerPeakSensorService)
@@ -3440,6 +3445,7 @@ class EnvoyDevice extends EventEmitter {
                             this.consumptionNetPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
                                 .onGet(async () => {
                                     const state = this.consumptionNetPowerPeakDetected || false;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType}, power peak sensor: ${state ? 'Avtive' : 'Not active'}`);
                                     return state;
                                 });
                             accessory.addService(this.consumptionNetPowerPeakSensorService)
@@ -3723,7 +3729,7 @@ class EnvoyDevice extends EventEmitter {
                         enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeAdminStateStr)
                             .onGet(async () => {
                                 const value = this.enchargesAdminStateStr[i];
-                                const info = this.disableLogInfo ? false : this.emit('message', `Encharge: ${enchargeSerialNumber}, state ${value}`);
+                                const info = this.disableLogInfo ? false : this.emit('message', `Encharge: ${enchargeSerialNumber}, state: ${value}`);
                                 return value;
                             });
                         enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeOperating)
