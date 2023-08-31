@@ -512,117 +512,6 @@
         {
           "key": "devices[]",
           "type": "section",
-          "title": "Production",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            {
-              "key": "devices[]",
-              "type": "tabarray",
-              "title": "{{ value.title }}",
-              "items": [
-                {
-                  "key": "devices[]",
-                  "title": "Power",
-                  "items": [
-                    "devices[].powerProductionSummary",
-                    "devices[].powerProductionOnOff",
-                    "devices[].powerProductionMax",
-                    "devices[].powerProductionMaxDetected",
-                    "devices[].powerProductionMaxAutoReset"
-                  ]
-                },
-                {
-                  "key": "devices[]",
-                  "title": "Energy",
-                  "items": [
-                    "devices[].energyProductionStateSensor",
-                    "devices[].energyProductionLevelSensor",
-                    "devices[].energyProductionLevelDetected",
-                    "devices[].energyProductionLifetimeOffset"
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
-          "title": "Consumption",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            {
-              "key": "devices[]",
-              "type": "tabarray",
-              "title": "{{ value.title }}",
-              "items": [
-                {
-                  "key": "devices[]",
-                  "title": "Total",
-                  "items": [
-                    {
-                      "key": "devices[]",
-                      "type": "tabarray",
-                      "title": "{{ value.title }}",
-                      "items": [
-                        {
-                          "key": "devices[]",
-                          "title": "Power",
-                          "items": [
-                            "devices[].powerConsumptionTotalMax",
-                            "devices[].powerConsumptionTotalMaxDetected",
-                            "devices[].powerConsumptionTotalMaxAutoReset"
-                          ]
-                        },
-                        {
-                          "key": "devices[]",
-                          "title": "Energy",
-                          "items": [
-                            "devices[].energyConsumptionTotalLifetimeOffset"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "key": "devices[]",
-                  "title": "Net",
-                  "items": [
-                    {
-                      "key": "devices[]",
-                      "type": "tabarray",
-                      "title": "{{ value.title }}",
-                      "items": [
-                        {
-                          "key": "devices[]",
-                          "title": "Power",
-                          "items": [
-                            "devices[].powerConsumptionNetMax",
-                            "devices[].powerConsumptionNetMaxDetected",
-                            "devices[].powerConsumptionNetMaxAutoReset"
-                          ]
-                        },
-                        {
-                          "key": "devices[]",
-                          "title": "Energy",
-                          "items": [
-                            "devices[].energyConsumptionNetLifetimeOffset"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "key": "devices[]",
-          "type": "section",
           "title": "Advanced Settings",
           "expandable": true,
           "expanded": false,
@@ -632,6 +521,111 @@
               "type": "tabarray",
               "title": "{{ value.title }}",
               "items": [
+                {
+                  "key": "devices[]",
+                  "title": "Production",
+                  "items": [
+                    {
+                      "key": "devices[]",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
+                      "items": [
+                        {
+                          "key": "devices[]",
+                          "title": "Power",
+                          "items": [
+                            "devices[].powerProductionSummary",
+                            "devices[].powerProductionOnOff",
+                            "devices[].powerProductionMax",
+                            "devices[].powerProductionMaxDetected",
+                            "devices[].powerProductionMaxAutoReset"
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "title": "Energy",
+                          "items": [
+                            "devices[].energyProductionStateSensor",
+                            "devices[].energyProductionLevelSensor",
+                            "devices[].energyProductionLevelDetected",
+                            "devices[].energyProductionLifetimeOffset"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "title": "Consumption",
+                  "items": [
+                    {
+                      "key": "devices[]",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
+                      "items": [
+                        {
+                          "key": "devices[]",
+                          "title": "Total",
+                          "items": [
+                            {
+                              "key": "devices[]",
+                              "type": "tabarray",
+                              "title": "{{ value.title }}",
+                              "items": [
+                                {
+                                  "key": "devices[]",
+                                  "title": "Power",
+                                  "items": [
+                                    "devices[].powerConsumptionTotalMax",
+                                    "devices[].powerConsumptionTotalMaxDetected",
+                                    "devices[].powerConsumptionTotalMaxAutoReset"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "title": "Energy",
+                                  "items": [
+                                    "devices[].energyConsumptionTotalLifetimeOffset"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "title": "Net",
+                          "items": [
+                            {
+                              "key": "devices[]",
+                              "type": "tabarray",
+                              "title": "{{ value.title }}",
+                              "items": [
+                                {
+                                  "key": "devices[]",
+                                  "title": "Power",
+                                  "items": [
+                                    "devices[].powerConsumptionNetMax",
+                                    "devices[].powerConsumptionNetMaxDetected",
+                                    "devices[].powerConsumptionNetMaxAutoReset"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "title": "Energy",
+                                  "items": [
+                                    "devices[].energyConsumptionNetLifetimeOffset"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
                 {
                   "key": "devices[]",
                   "title": "Authorization",
