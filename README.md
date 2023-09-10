@@ -55,7 +55,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * The `sample-config.json` can be edited and used manually as an alternative.
 * Be sure to always make a backup copy of your config.json file before making any changes to it.
 
-<p align="left">
+<p align="center">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/ustawienia.png" width="840"></a>
 </p>
 
