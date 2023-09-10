@@ -2790,7 +2790,7 @@ class EnvoyDevice extends EventEmitter {
                 systemPvService.getCharacteristic(Characteristic.On)
                     .onGet(async () => {
                         const state = this.productionPowerState;
-                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power state: ${state ? 'Avtive' : 'Not active'}`);
+                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power state: ${state ? 'Active' : 'Not active'}`);
                         return state;
                     })
                     .onSet(async (state) => {
@@ -3277,7 +3277,7 @@ class EnvoyDevice extends EventEmitter {
                     this.productionPowerStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
                         .onGet(async () => {
                             const state = this.productionPowerState;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Production power state sensor: ${state ? 'Avtive' : 'Not active'}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `Production power state sensor: ${state ? 'Active' : 'Not active'}`);
                             return state;
                         });
                     accessory.addService(this.productionPowerStateSensorService);
@@ -3291,7 +3291,7 @@ class EnvoyDevice extends EventEmitter {
                     this.productionPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
                         .onGet(async () => {
                             const state = this.productionPowerPeakDetected;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Production power peak sensor: ${state ? 'Avtive' : 'Not active'}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `Production power peak sensor: ${state ? 'Active' : 'Not active'}`);
                             return state;
                         });
                     accessory.addService(this.productionPowerPeakSensorService);
@@ -3305,7 +3305,7 @@ class EnvoyDevice extends EventEmitter {
                     this.productionEnergyStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
                         .onGet(async () => {
                             const state = this.productionEnergyState;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Production energy state sensor: ${state ? 'Avtive' : 'Not active'}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `Production energy state sensor: ${state ? 'Active' : 'Not active'}`);
                             return state;
                         });
                     accessory.addService(this.productionEnergyStateSensorService);
@@ -3431,7 +3431,7 @@ class EnvoyDevice extends EventEmitter {
                             this.consumptionTotalPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
                                 .onGet(async () => {
                                     const state = this.consumptionTotalPowerPeakDetected || false;
-                                    const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType}, power peak sensor: ${state ? 'Avtive' : 'Not active'}`);
+                                    const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType}, power peak sensor: ${state ? 'Active' : 'Not active'}`);
                                     return state;
                                 });
                             accessory.addService(this.consumptionTotalPowerPeakSensorService)
@@ -3445,7 +3445,7 @@ class EnvoyDevice extends EventEmitter {
                             this.consumptionNetPowerPeakSensorService.getCharacteristic(Characteristic.ContactSensorState)
                                 .onGet(async () => {
                                     const state = this.consumptionNetPowerPeakDetected || false;
-                                    const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType}, power peak sensor: ${state ? 'Avtive' : 'Not active'}`);
+                                    const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType}, power peak sensor: ${state ? 'Active' : 'Not active'}`);
                                     return state;
                                 });
                             accessory.addService(this.consumptionNetPowerPeakSensorService)
