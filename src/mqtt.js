@@ -7,10 +7,10 @@ class Mqtt extends EventEmitter {
         super();
         this.mqttHost = config.host;
         this.mqttPort = config.port;
-        this.mqttPrefix = config.prefix;
-        this.mqttAuth = config.auth;
+        this.mqttClientId = config.clientId;
         this.mqttUser = config.user;
         this.mqttPasswd = config.passwd;
+        this.mqttPrefix = config.prefix;
         this.mqttDebug = config.debug;
         this.isConnected = false;
 
@@ -20,6 +20,7 @@ class Mqtt extends EventEmitter {
     async connect() {
         try {
             const options = {
+                clientId: this.mqttClientId,
                 username: this.mqttUser,
                 password: this.mqttPasswd
             }
@@ -27,6 +28,9 @@ class Mqtt extends EventEmitter {
             this.mqttClient = await mqtt.connectAsync(url, options);
             this.isConnected = true;
             this.emit('connected', 'MQTT Connected.');
+
+            //subscribe
+            await this.subscribe();
         } catch (error) {
             this.isConnected = false;
             this.emit('error', `MQTT Connect error: ${error}`);
@@ -44,6 +48,7 @@ class Mqtt extends EventEmitter {
             const publishMessage = JSON.stringify(message, null, 2);
             await this.mqttClient.publish(fullTopic, publishMessage);
             const emitDebug = this.mqttDebug ? this.emit('debug', `MQTT publish: ${fullTopic}: ${publishMessage}`) : false;
+            await this.mqttClient.end();
         } catch (error) {
             this.emit('error', `MQTT Publish error: ${error}`);
         };

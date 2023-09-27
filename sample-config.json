@@ -59,6 +59,7 @@
                     "enableMqtt": false,
                     "mqttHost": "192.168.1.33",
                     "mqttPort": 1883,
+                    "mqttClientId": "",
                     "mqttPrefix": "home/envoy",
                     "mqttAuth": false,
                     "mqttUser": "user",

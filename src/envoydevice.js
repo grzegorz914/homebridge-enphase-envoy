@@ -64,7 +64,7 @@ class EnvoyDevice extends EventEmitter {
         this.mqttEnabled = config.enableMqtt || false;
         this.mqttHost = config.mqttHost;
         this.mqttPort = config.mqttPort || 1883;
-        this.mqttClientId = config.mqttClientId || '';
+        this.mqttClientId = config.mqttClientId || `mqtt_${Math.random().toString(16).slice(3)}`;
         this.mqttPrefix = config.mqttPrefix;
         this.mqttAuth = config.mqttAuth || false;
         this.mqttUser = config.mqttUser;
@@ -309,10 +309,10 @@ class EnvoyDevice extends EventEmitter {
             this.mqtt = new Mqtt({
                 host: this.mqttHost,
                 port: this.mqttPort,
-                prefix: `${this.mqttPrefix}/${this.name}`,
-                auth: this.mqttAuth,
+                clientId: this.mqttClientId,
                 user: this.mqttUser,
                 passwd: this.mqttPasswd,
+                prefix: `${this.mqttPrefix}/${this.name}`,
                 debug: this.mqttDebug
             });
 
@@ -528,23 +528,7 @@ class EnvoyDevice extends EventEmitter {
                     })
                 });
 
-                //create axios instance post with token and data
-                const data = JSON.stringify({ enable: 1 });
-                this.axiosInstance1 = axios.create({
-                    method: 'POST',
-                    baseURL: this.url,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Cookie: cookie
-                    },
-                    data: data,
-                    withCredentials: true,
-                    httpsAgent: new https.Agent({
-                        keepAlive: true,
-                        rejectUnauthorized: false
-                    })
-                });
-
+                this.cookie = cookie;
                 resolve(true);
             } catch (error) {
                 reject(`Validate JWT token error: ${error}`);
@@ -2132,8 +2116,21 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream.`) : false;
 
             try {
-                const enableLiveDataStream = await this.axiosInstance1(CONSTANS.ApiUrls.LiveDataStream);
-                const debug = !this.enableDebugMode ? this.emit('debug', `Live data stream: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
+                //create axios instance post with token and data
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Cookie: this.cookie
+                    },
+                    withCredentials: true,
+                    httpsAgent: new https.Agent({
+                        keepAlive: true,
+                        rejectUnauthorized: false
+                    })
+                }
+                const url = this.url + CONSTANS.ApiUrls.LiveDataStream;
+                const enableLiveDataStream = await axios.post(url, { 'enable': 1 }, options);
+                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
                 resolve();
             } catch (error) {
                 reject(`Enable live data stream error: ${error}.`);
