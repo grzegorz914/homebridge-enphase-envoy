@@ -28,9 +28,6 @@ class Mqtt extends EventEmitter {
             this.mqttClient = await mqtt.connectAsync(url, options);
             this.isConnected = true;
             this.emit('connected', 'MQTT Connected.');
-
-            //subscribe
-            await this.subscribe();
         } catch (error) {
             this.isConnected = false;
             this.emit('error', `MQTT Connect error: ${error}`);
@@ -48,7 +45,6 @@ class Mqtt extends EventEmitter {
             const publishMessage = JSON.stringify(message, null, 2);
             await this.mqttClient.publish(fullTopic, publishMessage);
             const emitDebug = this.mqttDebug ? this.emit('debug', `MQTT publish: ${fullTopic}: ${publishMessage}`) : false;
-            await this.mqttClient.end();
         } catch (error) {
             this.emit('error', `MQTT Publish error: ${error}`);
         };
