@@ -66,8 +66,8 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
 | `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
 | `envoyFirmware7xx` | This enable support for Envoy firmware v7.x.x. If for some reason if You get in log `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
-| `enlightenUser` | Here set the enlihten user name. |
-| `enlightenPasswd` | Here set the enlihten password. |
+| `enlightenUser` | Here set the enlighten user name. |
+| `enlightenPasswd` | Here set the enlighten password. |
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
