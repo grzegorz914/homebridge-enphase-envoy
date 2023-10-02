@@ -135,7 +135,7 @@
                   ]
                 }
               ],
-              "description": "Here select at which period of time the *Power Peak* will reset.",
+              "description": "Here select at which period of time the *Power Peak* stored in file will reset.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerProductionPeakSensor === true;"
@@ -228,7 +228,7 @@
                   ]
                 }
               ],
-              "description": "Here select at which period of time the *Power Peak* will reset.",
+              "description": "Here select at which period of time the *Power Peak* stored in file will reset.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalPeakSensor === true;"
@@ -321,7 +321,7 @@
                   ]
                 }
               ],
-              "description": "Here select at which period of time the *Power Peak* will reset.",
+              "description": "Here select at which period of time the *Power Peak* stored in file will reset.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionNetPeakSensor === true;"
