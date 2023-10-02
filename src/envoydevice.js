@@ -2279,7 +2279,7 @@ class EnvoyDevice extends EventEmitter {
                 const write = (productionPower > productionPowerPeak) || resetProductionPowerPeak ? await fsPromises.writeFile(this.productionPowerPeakFile, powerProductionToWrite) : false;
                 const showLog = write && this.enableDebugMode ? this.emit('debug', `Saved production power peak: ${powerProductionToWrite} kW`) : false;
 
-                //power peak state detected
+                //power peak state
                 const productionPowerPeakDetected = productionPower >= (this.powerProductionPeakSensorDetected / 1000);
                 const debug4 = this.enableDebugMode ? this.emit('debug', `Production power peak detected: ${productionPowerPeakDetected}`) : false;
 
@@ -2300,7 +2300,7 @@ class EnvoyDevice extends EventEmitter {
                 const productionEnergyState = productionEnergyToday > 0; // true if energy > 0
                 const debug5 = this.enableDebugMode ? this.emit('debug', `Production energy level state: ${productionEnergyState}`) : false;
 
-                //energy level detected
+                //energy level
                 const productionEnergyLevelDetected = productionEnergyToday >= (this.energyProductionLevelSensorDetected / 1000);
                 const debug6 = this.enableDebugMode ? this.emit('debug', `Production energy level detected: ${productionEnergyLevelDetected}`) : false;
 
@@ -2425,7 +2425,7 @@ class EnvoyDevice extends EventEmitter {
                         const write = (consumptionPower > consumptionPowerPeak) || autoReset ? await fsPromises.writeFile(consumptionsFile, consumptionPowerToWrite) : false;
                         const showLog = write && this.enableDebugMode ? this.emit('debug', `Saved ${consumptionsName} power peak: ${consumptionPowerToWrite} kW`) : false;
 
-                        //power peak state detected
+                        //power peak state
                         const consumptionsPowerPeakDetected = [this.powerConsumptionTotalPeakSensorDetected / 1000, this.powerConsumptionNetPeakSensorDetected / 1000][i];
                         const consumptionPowerPeakDetected = consumptionPower >= consumptionsPowerPeakDetected || false;
 
@@ -2444,7 +2444,7 @@ class EnvoyDevice extends EventEmitter {
                         const consumptionEnergyState = consumptionEnergyToday > 0; // true if energy > 0
                         const debug5 = this.enableDebugMode ? this.emit('debug', `Consumption ${['Total', 'Net'][i]} energy level state: ${consumptionEnergyState}`) : false;
 
-                        //energy level detected
+                        //energy level 
                         const consumptionsEnergyLevelDetected = [this.energyConsumptionTotalLevelSensorDetected / 1000, this.energyConsumptionNetLevelSensorDetected / 1000][i];
                         const consumptionEnergyLevelDetected = consumptionEnergyToday >= consumptionsEnergyLevelDetected || false;
                         const debug6 = this.enableDebugMode ? this.emit('debug', `Consumption ${['Total', 'Net'][i]} energy level detected: ${consumptionEnergyLevelDetected}`) : false;
