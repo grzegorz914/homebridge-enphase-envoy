@@ -74,7 +74,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerProductionStateSensor` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app. |
 | `powerProductionPeakSensor` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app. |
 | `powerProductionPeakSensorDetected` | Here set `Power Peak` in (W), if the `Power Production` >= `powerProductionPeakSensorDetected` the contact fired. |
-| `powerProductionPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
+| `powerProductionPeakAutoReset` | Here select at which period of time the `Power Peak` stored in file will reset. |
 | `energyProductionStateSensor` | This enable `Energy State` monitoring for production and expose contact sensor in HomeKit app. |
 | `energyProductionLevelSensor` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
 | `energyProductionLevelSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyProductionLevelSensorDetected` the contact fired. |
@@ -82,7 +82,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerConsumptionTotalStateSensor` | This enable `Power State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `powerConsumptionTotalPeakSensor` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `powerConsumptionTotalPeakSensorDetected` | Here set the consumption (Total) `Power Peak`, if the Power >= `powerConsumptionTotalPeakSensorDetected` the contact fired.|
-| `powerConsumptionTotalPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
+| `powerConsumptionTotalPeakAutoReset` | Here select at which period of time the `Power Peak` stored in file will reset. |
 | `energyConsumptionTotalStateSensor` | This enable `Energy State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `energyConsumptionTotalLevelSensor` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `energyConsumptionTotalSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyConsumptionTotalSensorDetected` the contact fired. |
@@ -90,7 +90,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerConsumptionNetStateSensor` | This enable `Power State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
 | `powerConsumptionNetPeakSensor` | This enable `Power Peak` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
 | `powerConsumptionNetPeakSensorDetected` | Here set the consumption (Net) `Power Peak`, if the Power >= `powerConsumptionNetPeakSensorDetected` the contact fired. |
-| `powerConsumptionNetPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
+| `powerConsumptionNetPeakAutoReset` | Here select at which period of time the `Power Peak` stored in file will reset. |
 | `energyConsumptionNetStateSensor` | This enable `Energy State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
 | `energyConsumptionNetLevelSensor` | This enable `Energy Level` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
 | `energyConsumptionNetSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyConsumptionNetSensorDetected` the contact fired. |
