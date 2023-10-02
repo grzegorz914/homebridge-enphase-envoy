@@ -276,7 +276,7 @@
               "title": "Power Peak Sensor",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Peak* monitoring for consumption *(Net* and expose contact sensor in HomeKit.",
+              "description": "This enable *Power Peak* monitoring for consumption *Net* and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerConsumptionNetPeakSensorDetected": {
