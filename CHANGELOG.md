@@ -20,8 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added *Encharge Grid State* contact sensor for monitoring, which can be used for notification and automations in HomeKit.
 - added *Solar Grid State* contact sensor for monitoring, which can be used for notification and automations in HomeKit.
 - added *Power State* contact sensor for consumption (Total) monitoring, which can be used for notification and automations in HomeKit.
+- added *Energy State* contact sensor for consumption (Total) monitoring, which can be used for notification and automations in HomeKit.
 - added *Energy Level* contact sensor for consumption (Total) monitoring, which can be used for notification and automations in HomeKit.
 - added *Power State* contact sensor for consumption (Net) monitoring, which can be used for notification and automations in HomeKit.
+- added *Energy State* contact sensor for consumption (Net) monitoring, which can be used for notification and automations in HomeKit.
 - added *Energy Level* contact sensor for consumption (Net) monitoring, which can be used for notification and automations in HomeKit.
 - config schema updated
 - cleanup

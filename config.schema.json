@@ -234,6 +234,13 @@
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalPeakSensor === true;"
               }
             },
+            "energyoCnsumptionTotalStateSensor": {
+              "title": "Energy State Sensor",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Energy State* monitoring for consumption *Total* and expose contact sensor in HomeKit.",
+              "required": false
+            },
             "energyConsumptionTotalLevelSensor": {
               "title": "Energy Level Sensor",
               "type": "boolean",
@@ -319,6 +326,13 @@
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionNetPeakSensor === true;"
               }
+            },
+            "energyoCnsumptionNetStateSensor": {
+              "title": "Energy State Sensor",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Energy State* monitoring for consumption *Net* and expose contact sensor in HomeKit.",
+              "required": false
             },
             "energyConsumptionNetLevelSensor": {
               "title": "Energy Level Sensor",
@@ -695,6 +709,7 @@
                                   "key": "devices[]",
                                   "title": "Energy",
                                   "items": [
+                                    "devices[].energyConsumptionTotalStateSensor",
                                     "devices[].energyConsumptionTotalLevelSensor",
                                     "devices[].energyConsumptionTotalLevelSensorDetected",
                                     "devices[].energyConsumptionTotalLifetimeOffset"
@@ -727,6 +742,7 @@
                                   "key": "devices[]",
                                   "title": "Energy",
                                   "items": [
+                                    "devices[].energyConsumptionNetStateSensor",
                                     "devices[].energyConsumptionNetLevelSensor",
                                     "devices[].energyConsumptionNetLevelSensorDetected",
                                     "devices[].energyConsumptionNetLifetimeOffset"
