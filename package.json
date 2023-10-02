@@ -2,7 +2,7 @@
     "private": false,
     "displayName": "Enphase Envoy",
     "name": "homebridge-enphase-envoy",
-    "version": "7.5.0-beta.14",
+    "version": "7.5.0-beta.15",
     "description": "Homebridge plugin (https://github.com/homebridge/homebridge) for Enphase (Envoy) Photovoltaic.",
     "license": "MIT",
     "author": "grzegorz914",
