@@ -135,7 +135,7 @@
                   ]
                 }
               ],
-              "description": "Here select at which period of time the *Power Peak* stored in file will reset.",
+              "description": "Here select at which period of time the *Power Peak* stored in the file will reset.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerProductionPeakSensor === true;"
@@ -159,7 +159,7 @@
               "title": "Energy Level Detected",
               "type": "integer",
               "default": 0,
-              "description": "Here set *Energy Level* in (Wh)f or production at which the *Energy Level Sensor* fired.",
+              "description": "Here set *Energy Level* in (Wh) for production at which the *Energy Level Sensor* fired.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].energyProductionLevelSensor === true;"
@@ -228,7 +228,7 @@
                   ]
                 }
               ],
-              "description": "Here select at which period of time the *Power Peak* stored in file will reset.",
+              "description": "Here select at which period of time the *Power Peak* stored in the file will reset.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalPeakSensor === true;"
@@ -321,7 +321,7 @@
                   ]
                 }
               ],
-              "description": "Here select at which period of time the *Power Peak* stored in file will reset.",
+              "description": "Here select at which period of time the *Power Peak* stored in the file will reset.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionNetPeakSensor === true;"
