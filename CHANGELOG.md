@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Note!!!
 # After update to v7.5.0 and above from plevious version the sensors in plugin config need to be configured again!!!
 
-## [7.5.0] - (02.10.2023)
+## [7.5.0] - (xx.10.2023)
 ## Changes
 - added *Enpower Grid State* contact sensor for monitoring, which can be used for notification and automations in HomeKit.
 - added *Encharge Grid State* contact sensor for monitoring, which can be used for notification and automations in HomeKit.
