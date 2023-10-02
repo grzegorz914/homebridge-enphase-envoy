@@ -3580,7 +3580,7 @@ class EnvoyDevice extends EventEmitter {
                             };
 
                             //consumption total energy level sensor service
-                            if (this.energyConsumptionTotalevelSensor) {
+                            if (this.energyConsumptionTotaLevelSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption total energy level sensor service`) : false;
                                 this.consumptionTotalEnergyLevelSensorService = new Service.ContactSensor(`${accessoryName} Consumption Total Energy Level`, `Consumption Total Energy Level`);
                                 this.consumptionTotalEnergyLevelSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Consumption Total Energy Level`);
