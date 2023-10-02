@@ -3381,7 +3381,7 @@ class EnvoyDevice extends EventEmitter {
                 this.productionsService.push(enphaseProductionService);
                 accessory.addService(this.productionsService[0]);
 
-                //prepare production state sensor service
+                //production state sensor service
                 if (this.powerProductionStateSensor) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power state sensor service`) : false;
                     this.productionPowerStateSensorService = new Service.ContactSensor(`${accessoryName} Production Power State`, `Production Power State`);
@@ -3395,7 +3395,7 @@ class EnvoyDevice extends EventEmitter {
                     accessory.addService(this.productionPowerStateSensorService);
                 };
 
-                //prepare production power peak sensor service
+                //production power peak sensor service
                 if (this.powerProductionPeakSensor) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare production power peak sensor service`) : false;
                     this.productionPowerPeakSensorService = new Service.ContactSensor(`${accessoryName} Production Power Peak`, `Production Power Peak`);
@@ -3409,7 +3409,7 @@ class EnvoyDevice extends EventEmitter {
                     accessory.addService(this.productionPowerPeakSensorService);
                 };
 
-                //prepare production energy state sensor service
+                //production energy state sensor service
                 if (this.energyProductionStateSensor) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare production energy state sensor service`) : false;
                     this.productionEnergyStateSensorService = new Service.ContactSensor(`${accessoryName} Production Energy State`, `Production Energy State`);
@@ -3423,7 +3423,7 @@ class EnvoyDevice extends EventEmitter {
                     accessory.addService(this.productionEnergyStateSensorService);
                 };
 
-                //prepare production energy level sensor service
+                //production energy level sensor service
                 if (this.energyProductionLevelSensor) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare production energy level sensor service`) : false;
                     this.productionEnergyLevelSensorService = new Service.ContactSensor(`${accessoryName} Production Energy Level`, `Production Energy Level`);
@@ -3537,7 +3537,7 @@ class EnvoyDevice extends EventEmitter {
 
                         //total
                         if (i === 0) {
-                            //prepare consumption total state sensor service
+                            //consumption total state sensor service
                             if (this.powerConsumptionTotalStateSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption total power state sensor service`) : false;
                                 this.consumptionTotalPowerStateSensorService = new Service.ContactSensor(`${accessoryName} Consumption Total Power State`, `Consumption Total Power State`);
@@ -3551,7 +3551,7 @@ class EnvoyDevice extends EventEmitter {
                                 accessory.addService(this.consumptionTotalPowerStateSensorService);
                             };
 
-                            //prepare consumption total power peak sensor service
+                            //consumption total power peak sensor service
                             if (this.powerConsumptionTotalPeakSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption total power peak service`) : false;
                                 this.consumptionTotalPowerPeakSensorService = new Service.ContactSensor(`${accessoryName} Power Peak Total`, `Power Peak Total`);
@@ -3565,7 +3565,7 @@ class EnvoyDevice extends EventEmitter {
                                 accessory.addService(this.consumptionTotalPowerPeakSensorService)
                             };
 
-                            //prepare consumption total energy state sensor service
+                            //consumption total energy state sensor service
                             if (this.energyConsumptionTotalStateSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption total energy state sensor service`) : false;
                                 this.consumptionTotalEnergyStateSensorService = new Service.ContactSensor(`${accessoryName} Consumption Total Energy State`, `Consumption Total Energy State`);
@@ -3579,7 +3579,7 @@ class EnvoyDevice extends EventEmitter {
                                 accessory.addService(this.consumptionTotalEnergyStateSensorService);
                             };
 
-                            //prepare consumption total energy level sensor service
+                            //consumption total energy level sensor service
                             if (this.energyConsumptionTotalevelSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption total energy level sensor service`) : false;
                                 this.consumptionTotalEnergyLevelSensorService = new Service.ContactSensor(`${accessoryName} Consumption Total Energy Level`, `Consumption Total Energy Level`);
@@ -3596,7 +3596,7 @@ class EnvoyDevice extends EventEmitter {
 
                         //net
                         if (i === 1) {
-                            //prepare consumption total state sensor service
+                            //consumption total state sensor service
                             if (this.powerConsumptionNetStateSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption net power state sensor service`) : false;
                                 this.consumptionNetPowerStateSensorService = new Service.ContactSensor(`${accessoryName} Consumption Net Power State`, `Consumption Net Power State`);
@@ -3610,7 +3610,7 @@ class EnvoyDevice extends EventEmitter {
                                 accessory.addService(this.consumptionNetPowerStateSensorService);
                             };
 
-                            //prepare consumption net power peak sensor service
+                            //consumption net power peak sensor service
                             if (this.powerConsumptionNetPeakSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption net power peak sensor service`) : false;
                                 this.consumptionNetPowerPeakSensorService = new Service.ContactSensor(`${accessoryName} Power Peak Net`, `Power Peak Net`);
@@ -3624,7 +3624,7 @@ class EnvoyDevice extends EventEmitter {
                                 accessory.addService(this.consumptionNetPowerPeakSensorService)
                             };
 
-                            //prepare consumption net energy state sensor service
+                            //consumption net energy state sensor service
                             if (this.energyConsumptionNetStateSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption net energy state sensor service`) : false;
                                 this.consumptionNetEnergyStateSensorService = new Service.ContactSensor(`${accessoryName} Consumption Net Energy State`, `Consumption Net Energy State`);
@@ -3638,7 +3638,7 @@ class EnvoyDevice extends EventEmitter {
                                 accessory.addService(this.consumptionNetEnergyStateSensorService);
                             };
 
-                            //prepare consumption net energy level sensor service
+                            //consumption net energy level sensor service
                             if (this.energyConsumptionNetLevelSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption net energy level sensor service`) : false;
                                 this.consumptionNetEnergyLevelSensorService = new Service.ContactSensor(`${accessoryName} Consumption Net Energy Level`, `Consumption Net Energy Level`);
@@ -4263,7 +4263,7 @@ class EnvoyDevice extends EventEmitter {
                     accessory.addService(this.ensembleStatusService[0]);
                 }
 
-                //gencharge rid state sensor service
+                //encharge grid state sensor service
                 if (this.enchargeGridStateSensor) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare encharge grid state sensor service`) : false;
                     this.enchargeGridStateSensorService = new Service.ContactSensor(`${accessoryName} Encharge Grid State`, `Encharge Grid State`);
@@ -4277,7 +4277,7 @@ class EnvoyDevice extends EventEmitter {
                     accessory.addService(this.enchargeGridStateSensorService);
                 };
 
-                //solar rid state sensor service
+                //solar grid state sensor service
                 if (this.solarGridStateSensor) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare solar grid state sensor service`) : false;
                     this.solarGridStateSensorService = new Service.ContactSensor(`${accessoryName} Solar Grid State`, `Solar Grid State`);
