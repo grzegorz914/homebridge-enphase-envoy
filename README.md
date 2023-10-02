@@ -77,19 +77,19 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerProductionPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `energyProductionStateSensor` | This enable `Energy State` monitoring for production and expose contact sensor in HomeKit app. |
 | `energyProductionLevelSensor` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
-| `energyProductionLevelSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyProductionLevelSensorDetected` the `energyProductionLevelSensor` fired. |
+| `energyProductionLevelSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyProductionLevelSensorDetected` the contact fired. |
 | `energyProductionLifetimeOffset` | Here set the `Offset` of lifetime energy production if nedded in (Wh), (+/-) |
 | `powerConsumptionTotalPeakSensor` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
-| `powerConsumptionTotalPeakSensorDetected` | Here set the consumption (Total) `Power Peak`, if the Power >= `powerConsumptionTotalPeakSensorDetected` `powerConsumptionTotalPeakSensor` fired.|
+| `powerConsumptionTotalPeakSensorDetected` | Here set the consumption (Total) `Power Peak`, if the Power >= `powerConsumptionTotalPeakSensorDetected` the contact fired.|
 | `powerConsumptionTotalPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `energyConsumptionTotalLevelSensor` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
-| `energyConsumptionTotalSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyConsumptionTotalSensorDetected` the `energyConsumptionTotalLevelSensor` fired. |
+| `energyConsumptionTotalSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyConsumptionTotalSensorDetected` the contact fired. |
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset for energy consumption (Total) if nedded in (Wh), (+/-) |
 | `powerConsumptionNetPeakSensor` | This enable `Power Peak` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
-| `powerConsumptionNetPeakSensorDetected` | Here set the consumption (Net) `Power Peak`, if the Power >= `powerConsumptionNetPeakSensorDetected` `powerConsumptionNetPeakSensor` fired. |
+| `powerConsumptionNetPeakSensorDetected` | Here set the consumption (Net) `Power Peak`, if the Power >= `powerConsumptionNetPeakSensorDetected` the contact fired. |
 | `powerConsumptionNetPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `energyConsumptionNetLevelSensor` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
-| `energyConsumptionNetSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyConsumptionNetSensorDetected` the `energyConsumptionNetLevelSensor` fired. |
+| `energyConsumptionNetSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyConsumptionNetSensorDetected` the contact fired. |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset for energy consumption (Net) if nedded in (Wh), (+/-) |
 | `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. |
 | `enchargeGridStateSensor` | This enable `Encharge Grid State` monitoring and expose contact sensor in HomeKit app. |
