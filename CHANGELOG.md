@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added *Encharge Grid State* contact sensor for automations and notifications in HomeKit.
 - added *Solar Grid State* contact sensor for automations and notifications in HomeKit.
 - config schema updated
+- redme update
 - cleanup
 
 ## [7.4.0] - (25.07.2023)
