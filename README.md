@@ -91,9 +91,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `energyConsumptionNetLevelSensor` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `energyConsumptionNetSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyConsumptionNetSensorDetected` the contact fired. |
 | `energyConsumptionNetLifetimeOffset` | Here set the offset for energy consumption (Net) if nedded in (Wh), (+/-) |
-| `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. |
-| `enchargeGridStateSensor` | This enable `Encharge Grid State` monitoring and expose contact sensor in HomeKit app. |
-| `solarGridStateSensor` | This enable `Solar Grid State` monitoring and expose contact sensor in HomeKit app. |
+| `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. If `Enpower Grid State OFF` the contact fired. |
+| `enchargeGridStateSensor` | This enable `Encharge Grid State` monitoring and expose contact sensor in HomeKit app. If `Encharge Grid State OFF` the contact fired. |
+| `solarGridStateSensor` | This enable `Solar Grid State` monitoring and expose contact sensor in HomeKit app. If `Solar Grid State OFF` the contact fired. |
 | `supportProductionPowerMode` | If enabled, check/control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app). |
 | `supportPlcLevel` | If enabled, check `PLC Level` will be possible. |
 | `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only fw. 7.x.x), more info in `About The Plugin` section. |
