@@ -234,7 +234,7 @@
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalPeakSensor === true;"
               }
             },
-            "energyoCnsumptionTotalStateSensor": {
+            "energyCnsumptionTotalStateSensor": {
               "title": "Energy State Sensor",
               "type": "boolean",
               "default": false,
@@ -327,7 +327,7 @@
                 "functionBody": "return model.devices[arrayIndices].powerConsumptionNetPeakSensor === true;"
               }
             },
-            "energyoCnsumptionNetStateSensor": {
+            "energyCnsumptionNetStateSensor": {
               "title": "Energy State Sensor",
               "type": "boolean",
               "default": false,
