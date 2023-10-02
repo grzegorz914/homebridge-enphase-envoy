@@ -73,7 +73,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
 | `powerProductionStateSensor` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app. |
 | `powerProductionPeakSensor` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app. |
-| `powerProductionPeakSensorDetected` | Here set the production `Power Peak` in (W), if the `Power Production` >= `powerProductionPeakDetected` the `powerProductionPeakSensor` fired. |
+| `powerProductionPeakSensorDetected` | Here set the production `Power Peak` in (W), if the `Power Production` >= `powerProductionPeakDetected` the contact fired. |
 | `powerProductionPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `energyProductionStateSensor` | This enable `Energy State` monitoring for production and expose contact sensor in HomeKit app. |
 | `energyProductionLevelSensor` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
