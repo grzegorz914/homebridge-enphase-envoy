@@ -647,7 +647,7 @@
                       ]
                     }
                   ],
-                  "description": "Here You can configure power end energy roduction."
+                  "description": "Here You can configure power end energy production."
                 },
                 {
                   "key": "devices[]",
