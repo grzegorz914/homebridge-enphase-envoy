@@ -2228,7 +2228,7 @@ class EnvoyDevice extends EventEmitter {
             const date = new Date();
             const currentDayOfWeek = date.getDay();
             const currentDayOfMonth = date.getDate();
-            const resetProductionPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerProductionPowerPeakAutoReset];
+            const resetProductionPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerProductionPeakAutoReset];
             const resetConsumptionTotalPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionTotalPeakAutoReset];
             const resetConsumptionNetPowerPeak = [false, currentDayOfWeek !== this.currentDayOfWeek, currentDayOfWeek === 6 ? currentDayOfWeek < this.currentDayOfWeek : false, currentDayOfMonth < this.currentDayOfMonth][this.powerConsumptionNetPeakAutoReset];
 
@@ -2260,11 +2260,11 @@ class EnvoyDevice extends EventEmitter {
                 const productionReadingTime = metersProductionEnabled ? new Date(production.readingTime * 1000).toLocaleString() : productionMicroReadingTime;
                 const productionPower = metersProductionEnabled ? parseFloat(production.wNow) / 1000 : this.productionMicroSummaryWattsNow;
 
-                //production power state
+                //power state
                 const productionPowerState = productionPower > 0; // true if power > 0
                 const debug1 = this.enableDebugMode ? this.emit('debug', `Production power state: ${productionPowerState}`) : false;
 
-                //production power level
+                //power level
                 const powerProductionSummary = this.powerProductionSummary / 1000; //kW
                 const productionPowerLevel = productionPowerState ? (Math.min(Math.max((100 / powerProductionSummary) * productionPower, 1), 100)).toFixed(1) : 0; //0-100%
                 const debug2 = this.enableDebugMode ? this.emit('debug', `Production power level: ${productionPowerLevel} %`) : false;
