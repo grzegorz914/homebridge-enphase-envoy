@@ -172,11 +172,18 @@
               "description": "Here set *Offset* in (Wh) for energy production, if nedded.",
               "required": false
             },
+            "powerConsumptionTotalStateSensor": {
+              "title": "Power State Sensor",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Power State* monitoring for consumption *Total* and expose contact sensor in HomeKit.",
+              "required": false
+            },
             "powerConsumptionTotalPeakSensor": {
               "title": "Power Peak Sensor",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Peak* monitoring for consumption (Total) and expose contact sensor in HomeKit.",
+              "description": "This enable *Power Peak* monitoring for consumption *Total* and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerConsumptionTotalPeakSensorDetected": {
@@ -248,14 +255,21 @@
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "description": "Here set *Offset* in (Wh) for energy consumption (Total), if nedded.",
+              "description": "Here set *Offset* in (Wh) for energy consumption *Total*, if nedded.",
+              "required": false
+            },
+            "powerConsumptionNetStateSensor": {
+              "title": "Power State Sensor",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable *Power State* monitoring for consumption *Net* and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerConsumptionNetPeakSensor": {
               "title": "Power Peak Sensor",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Power Peak* monitoring for consumption (Net) and expose contact sensor in HomeKit.",
+              "description": "This enable *Power Peak* monitoring for consumption *(Net* and expose contact sensor in HomeKit.",
               "required": false
             },
             "powerConsumptionNetPeakSensorDetected": {
@@ -327,7 +341,7 @@
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "description": "Here set *Offset* in (Wh) for energy consumption (Net), if nedded.",
+              "description": "Here set *Offset* in (Wh) for energy consumption *Net*, if nedded.",
               "required": false
             },
             "supportProductionPowerMode": {
@@ -671,6 +685,7 @@
                                   "key": "devices[]",
                                   "title": "Power",
                                   "items": [
+                                    "devices[].powerConsumptionTotalStateSensor",
                                     "devices[].powerConsumptionTotalPeakSensor",
                                     "devices[].powerConsumptionTotalPeakSensorDetected",
                                     "devices[].powerConsumptionTotalPeakAutoReset"
@@ -702,6 +717,7 @@
                                   "key": "devices[]",
                                   "title": "Power",
                                   "items": [
+                                    "devices[].powerConsumptionNetStateSensor",
                                     "devices[].powerConsumptionNetPeakSensor",
                                     "devices[].powerConsumptionNetPeakSensorDetected",
                                     "devices[].powerConsumptionNetPeakAutoReset"

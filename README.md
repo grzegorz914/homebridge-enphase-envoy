@@ -79,12 +79,14 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `energyProductionLevelSensor` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
 | `energyProductionLevelSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyProductionLevelSensorDetected` the contact fired. |
 | `energyProductionLifetimeOffset` | Here set the `Offset` of lifetime energy production if nedded in (Wh), (+/-) |
+| `powerConsumptionTotalStateSensor` | This enable `Power State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `powerConsumptionTotalPeakSensor` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `powerConsumptionTotalPeakSensorDetected` | Here set the consumption (Total) `Power Peak`, if the Power >= `powerConsumptionTotalPeakSensorDetected` the contact fired.|
 | `powerConsumptionTotalPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
 | `energyConsumptionTotalLevelSensor` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `energyConsumptionTotalSensorDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyConsumptionTotalSensorDetected` the contact fired. |
 | `energyConsumptionTotalLifetimeOffset` | Here set the offset for energy consumption (Total) if nedded in (Wh), (+/-) |
+| `powerConsumptionNetStateSensor` | This enable `Power State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
 | `powerConsumptionNetPeakSensor` | This enable `Power Peak` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
 | `powerConsumptionNetPeakSensorDetected` | Here set the consumption (Net) `Power Peak`, if the Power >= `powerConsumptionNetPeakSensorDetected` the contact fired. |
 | `powerConsumptionNetPeakAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |

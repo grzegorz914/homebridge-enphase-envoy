@@ -42,6 +42,7 @@ class EnvoyDevice extends EventEmitter {
         this.energyProductionLevelSensorDetected = config.energyProductionLevelSensorDetected || 0;
         this.energyProductionLifetimeOffset = config.energyProductionLifetimeOffset || 0;
 
+        this.powerConsumptionTotalStateSensor = config.powerConsumptionTotalStateSensor || false;
         this.powerConsumptionTotalPeakSensor = config.powerConsumptionTotalPeakSensor || false;
         this.powerConsumptionTotalPeakSensorDetected = config.powerConsumptionTotalPeakSensorDetected || 0;
         this.powerConsumptionTotalPeakAutoReset = config.powerConsumptionTotalPeakAutoReset || 0;
@@ -49,6 +50,7 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionTotaLevelSensorDetected = config.energyConsumptionTotaLevelSensorDetected || 0;
         this.energyConsumptionTotalLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
 
+        this.powerConsumptionNetStateSensor = config.powerConsumptionNetStateSensor || false;
         this.powerConsumptionNetPeakSensor = config.powerConsumptionNetPeakSensor || false;
         this.powerConsumptionNetPeakSensorDetected = config.powerConsumptionNetPeakSensorDetected || 0;
         this.powerConsumptionNetPeakAutoReset = config.powerConsumptionNetPeakAutoReset || 0;
@@ -215,8 +217,10 @@ class EnvoyDevice extends EventEmitter {
         this.productionReadingTime = '';
 
         //consumption CT
+        this.consumptionTotalPowerState = false;
         this.consumptionTotalPowerPeakDetected = false;
         this.consumptionTotalEnergyLevelDetected = false;
+        this.consumptionNetPowerState = false;
         this.consumptionNetPowerPeakDetected = false;
         this.consumptionNetEnergyLevelDetected = false;
 
@@ -2400,6 +2404,10 @@ class EnvoyDevice extends EventEmitter {
                         const consumptionReadingTime = new Date(consumption.readingTime * 1000).toLocaleString();
                         const consumptionPower = parseFloat(consumption.wNow) / 1000;
 
+                        //power state
+                        const consumptionPowerState = consumptionPower > 0; // true if power > 0
+                        const debug1 = this.enableDebugMode ? this.emit('debug', `Consumption ${['Total', 'Net'][i]} power state: ${consumptionPowerState}`) : false;
+
                         //read saved power peak
                         const consumptionsName = ['consumption total', 'consumption net'][i];
                         const consumptionsFile = [this.consumptionTotalPowerPeakFile, this.consumptionNetPowerPeakFile][i];
@@ -2475,6 +2483,11 @@ class EnvoyDevice extends EventEmitter {
                         this.consumptionsPwrFactor.push(consumptionPwrFactor);
 
                         if (i === 0) {
+                            if (this.consumptionTotalPowerStateSensorService) {
+                                this.consumptionTotalPowerStateSensorService
+                                    .updateCharacteristic(Characteristic.ContactSensorState, consumptionPowerState)
+                            }
+
                             if (this.consumptionTotalPowerPeakSensorService) {
                                 this.consumptionTotalPowerPeakSensorService
                                     .updateCharacteristic(Characteristic.ContactSensorState, consumptionPowerPeakDetected)
@@ -2484,11 +2497,17 @@ class EnvoyDevice extends EventEmitter {
                                 this.consumptionTotalEnergyLevelSensorService
                                     .updateCharacteristic(Characteristic.ContactSensorState, consumptionEnergyLevelDetected)
                             }
+                            this.consumptionTotalPowerState = consumptionPowerState;
                             this.consumptionTotalPowerPeakDetected = consumptionPowerPeakDetected;
                             this.consumptionTotalEnergyLevelDetected = consumptionEnergyLevelDetected;
                         }
 
                         if (i === 1) {
+                            if (this.consumptionNetPowerStateSensorService) {
+                                this.consumptionNetPowerStateSensorService
+                                    .updateCharacteristic(Characteristic.ContactSensorState, consumptionPowerState)
+                            }
+
                             if (this.consumptionNetPowerPeakSensorService) {
                                 this.consumptionNetPowerPeakSensorService
                                     .updateCharacteristic(Characteristic.ContactSensorState, consumptionPowerPeakDetected)
@@ -2498,6 +2517,7 @@ class EnvoyDevice extends EventEmitter {
                                 this.consumptionNetEnergyLevelSensorService
                                     .updateCharacteristic(Characteristic.ContactSensorState, consumptionEnergyLevelDetected)
                             }
+                            this.consumptionNetPowerState = consumptionPowerState;
                             this.consumptionNetPowerPeakDetected = consumptionPowerPeakDetected;
                             this.consumptionNetEnergyLevelDetected = consumptionEnergyLevelDetected;
                         }
@@ -3497,6 +3517,20 @@ class EnvoyDevice extends EventEmitter {
 
                         //total
                         if (i === 0) {
+                            //prepare consumption total state sensor service
+                            if (this.powerConsumptionTotalStateSensor) {
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption total power state sensor service`) : false;
+                                this.consumptionTotalPowerStateSensorService = new Service.ContactSensor(`${accessoryName} Consumption Total Power State`, `Consumption Total Power State`);
+                                this.consumptionTotalPowerStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Consumption Total Power State`);
+                                this.consumptionTotalPowerStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                                    .onGet(async () => {
+                                        const state = this.consumptionTotalPowerState;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Consumption Total power state sensor: ${state ? 'Active' : 'Not active'}`);
+                                        return state;
+                                    });
+                                accessory.addService(this.consumptionTotalPowerStateSensorService);
+                            };
+
                             //prepare consumption total power peak sensor service
                             if (this.powerConsumptionTotalPeakSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption total power peak service`) : false;
@@ -3528,6 +3562,20 @@ class EnvoyDevice extends EventEmitter {
 
                         //net
                         if (i === 1) {
+                            //prepare consumption total state sensor service
+                            if (this.powerConsumptionNetStateSensor) {
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption net power state sensor service`) : false;
+                                this.consumptionNetPowerStateSensorService = new Service.ContactSensor(`${accessoryName} Consumption Net Power State`, `Consumption Net Power State`);
+                                this.consumptionNetPowerStateSensorService.getCharacteristic(Characteristic.ConfiguredName, `${accessoryName} Consumption Net Power State`);
+                                this.consumptionNetPowerStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
+                                    .onGet(async () => {
+                                        const state = this.consumptionNetPowerState;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Consumption Net power state sensor: ${state ? 'Active' : 'Not active'}`);
+                                        return state;
+                                    });
+                                accessory.addService(this.consumptionNetPowerStateSensorService);
+                            };
+
                             //prepare consumption net power peak sensor service
                             if (this.powerConsumptionNetPeakSensor) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare consumption net power peak sensor service`) : false;
