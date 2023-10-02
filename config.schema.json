@@ -358,7 +358,7 @@
               "title": "Enepower Grid Sensor",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Enpower Grid State* monitoring and expose contact sensor in HomeKit.",
+              "description": "This enable *Enpower Grid* monitoring and expose contact sensor in HomeKit. If *Grid State OFF* the contact fired.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
@@ -368,7 +368,7 @@
               "title": "Encharge Grid Sensor",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Encharge Grid State* monitoring and expose contact sensor in HomeKit.",
+              "description": "This enable *Encharge Grid* monitoring and expose contact sensor in HomeKit. If *Grid State OFF* the contact fired.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
@@ -378,7 +378,7 @@
               "title": "Solar Grid Sensor",
               "type": "boolean",
               "default": false,
-              "description": "This enable *Solar Grid State* monitoring and expose contact sensor in HomeKit.",
+              "description": "This enable *Solar Grid* monitoring and expose contact sensor in HomeKit. If *Grid State OFF* the contact fired.",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
