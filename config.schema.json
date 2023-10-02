@@ -36,6 +36,24 @@
               "required": true,
               "description": "This enable support for Envoy with firmware 7.x.x"
             },
+            "envoyPasswd": {
+              "title": "Envoy Password",
+              "type": "string",
+              "description": "Here set the envoy password (only if U already changed default password).",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
+              }
+            },
+            "envoySerialNumber": {
+              "title": "Envoy Serial Number",
+              "type": "string",
+              "description": "Here set the envoy serial number.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
             "enlightenUser": {
               "title": "Enlighten User",
               "type": "string",
@@ -52,24 +70,6 @@
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-              }
-            },
-            "envoySerialNumber": {
-              "title": "Envoy Serial Number",
-              "type": "string",
-              "description": "Here set the envoy serial number.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-              }
-            },
-            "envoyPasswd": {
-              "title": "Envoy Password",
-              "type": "string",
-              "description": "Here set the envoy password (only if U already changed default password).",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
               }
             },
             "powerProductionSummary": {
@@ -590,10 +590,10 @@
                   "title": "Envoy",
                   "items": [
                     "devices[].envoyFirmware7xx",
+                    "devices[].envoyPasswd",
                     "devices[].envoySerialNumber",
                     "devices[].enlightenUser",
                     "devices[].enlightenPasswd",
-                    "devices[].envoyPasswd",
                     "devices[].supportProductionPowerMode",
                     "devices[].supportPlcLevel",
                     "devices[].metersDataRefreshTime",
