@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
+## Note!!!
+# After update to v7.5.0 and above from plevious version the sensors in plugin config need to be configured again!!!
+
+## [7.5.0] - (02.10.2023)
+## Changes
+- added *Enpower Grid State* contact sensor for monitoring, which can be used for notification and automations in HomeKit.
+- added *Encharge Grid State* contact sensor for monitoring, which can be used for notification and automations in HomeKit.
+- added *Solar Grid State* contact sensor for monitoring, which can be used for notification and automations in HomeKit.
+- added *Energy Level* contact sensor for consumption (Total) monitoring, which can be used for notification and automations in HomeKit.
+- added *Energy Level* contact sensor for consumption (Net) monitoring, which can be used for notification and automations in HomeKit.
+- config schema updated
+- cleanup
+
 ## [7.4.0] - (25.07.2023)
 ## Changes
 - added *Energy State* contact sensor for production monitoring, which can be used for notification and automations in HomeKit.
