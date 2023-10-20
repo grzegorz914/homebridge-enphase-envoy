@@ -14,17 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Note!!!
 # After update to v7.5.0 and above from plevious version the sensors in plugin config need to be configured again!!!
 
-## [7.5.0] - (xx.10.2023)
+## [7.5.0] - (20.10.2023)
 ## Changes
-- added *Power State* contact sensor (Consumption Total) for automations and notifications in HomeKit.
-- added *Energy State* contact sensor (Consumption Total) for automations and notifications in HomeKit.
-- added *Energy Level* contact sensor (Consumption Total) for automations and notifications in HomeKit.
-- added *Power State* contact sensor (Consumption Net) for automations and notifications in HomeKit.
-- added *Energy State* contact sensor (Consumption Net) for automations and notifications in HomeKit.
-- added *Energy Level* contact sensor (Consumption Net) for automations and notifications in HomeKit.
-- added *Enpower Grid State* contact sensor for automations and notifications in HomeKit.
-- added *Encharge Grid State* contact sensor for automations and notifications in HomeKit.
-- added *Solar Grid State* contact sensor for automations and notifications in HomeKit.
+- added *Power State* contact sensor (Consumption Total) for automations and notifications in HomeKit
+- added *Energy State* contact sensor (Consumption Total) for automations and notifications in HomeKit
+- added *Energy Level* contact sensor (Consumption Total) for automations and notifications in HomeKit
+- added *Power State* contact sensor (Consumption Net) for automations and notifications in HomeKit
+- added *Energy State* contact sensor (Consumption Net) for automations and notifications in HomeKit
+- added *Energy Level* contact sensor (Consumption Net) for automations and notifications in HomeKit
+- added *Enpower Grid State* contact sensor for automations and notifications in HomeKit
+- added *Encharge Grid State* contact sensor for automations and notifications in HomeKit
+- added *Solar Grid State* contact sensor for automations and notifications in HomeKit
+- bump node to min 18.x.x and homebridge to 1.6
 - config schema updated
 - redme update
 - cleanup
