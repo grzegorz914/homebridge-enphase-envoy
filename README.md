@@ -33,20 +33,22 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy `device ID` is detected automatically, is required to control `Production Power Mode`.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
-* Support `Ensemble Status` and `Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin settings `Advanced Section`.
-* For best experiences and display all data please use `Controller App` or `EVE app`.e
+* Support `Ensemble Status` and `Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin `Advanced Settings` section.
+* For best experiences and display all data please use `Controller App` or `EVE app`.
 * Exposed accessory in the native Home app:
   * Lightbulb `Power Production State` and `Power Production Level`.
   * Contact Sensors:
     * Production `Power State`, `Power Peak`, `Energy State`, `Energy Level`.
-    * Consumption `Power State`, `Power Peak`.
-* RESTful server:
-  * Request: `http//homebridge_ip_address:port/path`.
-  * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
-  * Respone as JSON data.
-* MQTT client:
-  * Topic: `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`.
-  * Publish as JSON data.
+    * Consumption `Power State`, `Power Peak`, `Energy State`, `Energy Level`.
+    * Grid State `Enpower`, `Encharge`, `Solar`.
+* External integrations:
+  * RESTful server:
+    * Request: `http//homebridge_ip_address:port/path`.
+    * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
+    * Respone as JSON data.
+  * MQTT client:
+    * Topic: `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`.
+    * Publish as JSON data.
 
 ### Configuration
 
@@ -63,31 +65,39 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | --- | --- |
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
 | `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
-| `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
-| `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
-| `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
-| `envoyFirmware7xx` | This enable support for Envoy firmware v7.x.x. If for some reason in the log You get `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
-| `enlightenUser` | Here set the enlihten user name. |
-| `enlightenPasswd` | Here set the enlihten password. |
+| `envoyFirmware7xx` | This enable support for Envoy firmware v7.x.x. If for some reason if You get in log `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
+| `enlightenUser` | Here set the enlighten user name. |
+| `enlightenPasswd` | Here set the enlighten password. |
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
-| `powerProductionOnOff` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app. |
-| `powerProductionMax` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app. |
-| `powerProductionMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
-| `powerProductionMaxDetected` | Here set the production `Power Peak` in (W), if the `Power Production` >= `powerProductionMaxDetected` the contact sensor fired. |
-| `energyProductionStateSensor` | This enable `Energy State` monitoring for production and expose contact sensor in HomeKit app.. |
+| `powerProductionStateSensor` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app. |
+| `powerProductionPeakSensor` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app. |
+| `powerProductionPeakSensorDetected` | Here set `Power Peak Level` in `W` at which the contact sensor fired. |
+| `powerProductionPeakAutoReset` | Here select at which period of time the `Power Peak` stored in the file will reset. |
+| `energyProductionStateSensor` | This enable `Energy State` monitoring for production and expose contact sensor in HomeKit app. |
 | `energyProductionLevelSensor` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
-| `energyProductionLevelDetected` | Here set `Energy Level` in (Wh), if the `Energ Level Today` >= `energyProductionLevelDetected` the contact sensor fired. |
-| `energyProductionLifetimeOffset` | Here set the `Offset` of lifetime energy production if nedded in (Wh),(+/-) |
-| `powerConsumptionTotalMax` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
-| `powerConsumptionTotalMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
-| `powerConsumptionTotalMaxDetected` | Here set the consumption (Total) `Power Peak`, if the Power >= `powerConsumptionTotalMaxDetected` the contact sensor fired.|
-| `energyConsumptionTotalLifetimeOffset` | Here set the offset of lifetime total energy consumption if nedded in (Wh),(+/-) |
-| `powerConsumptionNetMax` | This enable `Power Peak` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
-| `powerConsumptionNetMaxAutoReset` | Here select at which period of time the `Power Peak` will auto reset. |
-| `powerConsumptionNetMaxDetected` | Here set the consumption (Net) `Power Peak`, if the Power >= `powerConsumptionNetMaxDetected` the contact sensor fired. |
-| `energyConsumptionNetLifetimeOffset` | Here set the offset of lifetime net energy consumption if nedded in (Wh),(+/-) |
+| `energyProductionLevelSensorDetected` | Here set `Energy Level` in `Wh` at which the contact sensor fired. |
+| `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded (+/-). |
+| `powerConsumptionTotalStateSensor` | This enable `Power State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `powerConsumptionTotalPeakSensor` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `powerConsumptionTotalPeakSensorDetected` | Here set `Power Peak Level` in `W` for consumption (Total) at which the contact sensor fired. |
+| `powerConsumptionTotalPeakAutoReset` | Here select at which period of time the `Power Peak` stored in the file will reset. |
+| `energyConsumptionTotalStateSensor` | This enable `Energy State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `energyConsumptionTotalLevelSensor` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `energyConsumptionTotalSensorDetected` | Here set `Energy Level` in `Wh` for consumption (Total) at which the contact sensor fired. |
+| `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Total) if nedded (+/-). |
+| `powerConsumptionNetStateSensor` | This enable `Power State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `powerConsumptionNetPeakSensor` | This enable `Power Peak` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `powerConsumptionNetPeakSensorDetected` | Here set `Power Peak Level` in `W` for consumption (Net) at which the contact sensor fired. |
+| `powerConsumptionNetPeakAutoReset` | Here select at which period of time the `Power Peak` stored in the file will reset. |
+| `energyConsumptionNetStateSensor` | This enable `Energy State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `energyConsumptionNetLevelSensor` | This enable `Energy Level` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `energyConsumptionNetSensorDetected` | Here set `Energy Level` in `Wh` for consumption (Net) at which the contact sensor fired. |
+| `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Net) if nedded (+/-). |
+| `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. If `Enpower Grid State OFF` the contact fired. |
+| `enchargeGridStateSensor` | This enable `Encharge Grid State` monitoring and expose contact sensor in HomeKit app. If `Encharge Grid State OFF` the contact fired. |
+| `solarGridStateSensor` | This enable `Solar Grid State` monitoring and expose contact sensor in HomeKit app. If `Solar Grid State OFF` the contact fired. |
 | `supportProductionPowerMode` | If enabled, check/control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app). |
 | `supportPlcLevel` | If enabled, check `PLC Level` will be possible. |
 | `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only fw. 7.x.x), more info in `About The Plugin` section. |
@@ -95,6 +105,9 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (ms). |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (ms). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
+| `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
+| `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
+| `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
 | `enableRestFul` | If enabled, RESTful server will start automatically and respond to any path request. |
 | `restFulPort` | Here set the listening `Port` for RESTful server. |
 | `restFulDebug` | If enabled, deep log will be present in homebridge console for RESTFul server. |
