@@ -2912,7 +2912,7 @@ class EnvoyDevice extends EventEmitter {
                         };
                     })
                 this.systemsPvService.push(systemPvService);
-                accessory.addService(this.systemsPvService[0]);
+                accessory.addService(systemPvService);
 
                 //envoy
                 const debug3 = this.enableDebugMode ? this.emit('debug', `Prepare envoy service`) : false;
@@ -3081,7 +3081,7 @@ class EnvoyDevice extends EventEmitter {
                         });
                 }
                 this.envoysService.push(enphaseEnvoyService);
-                accessory.addService(this.envoysService[0]);
+                accessory.addService(enphaseEnvoyService);
 
                 //grid state sensor service
                 if (this.enpowerGridStateSensor) {
@@ -3191,7 +3191,7 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                         this.qRelaysService.push(enphaseQrelayService);
-                        accessory.addService(this.qRelaysService[i]);
+                        accessory.addService(enphaseQrelayService);
                     }
                 }
 
@@ -3281,7 +3281,7 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                         this.metersService.push(enphaseMeterService);
-                        accessory.addService(this.metersService[i]);
+                        accessory.addService(enphaseMeterService);
                     }
                 }
 
@@ -3379,7 +3379,7 @@ class EnvoyDevice extends EventEmitter {
                         };
                     });
                 this.productionsService.push(enphaseProductionService);
-                accessory.addService(this.productionsService[0]);
+                accessory.addService(enphaseProductionService);
 
                 //production state sensor service
                 if (this.powerProductionStateSensor) {
@@ -3533,7 +3533,7 @@ class EnvoyDevice extends EventEmitter {
                                 };
                             });
                         this.consumptionsService.push(enphaseConsumptionService);
-                        accessory.addService(this.consumptionsService[i]);
+                        accessory.addService(enphaseConsumptionService);
 
                         //total
                         if (i === 0) {
@@ -3697,7 +3697,7 @@ class EnvoyDevice extends EventEmitter {
                             return value;
                         });
                     this.acBatteriesSummaryService.push(enphaseAcBatterieSummaryService);
-                    accessory.addService(this.acBatteriesSummaryService[0]);
+                    accessory.addService(enphaseAcBatterieSummaryService);
 
                     //ac batteries state
                     this.acBatteriesService = [];
@@ -3792,7 +3792,7 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                         this.acBatteriesService.push(enphaseAcBatterieService);
-                        accessory.addService(this.acBatteriesService[i]);
+                        accessory.addService(enphaseAcBatterieService);
                     }
                 }
 
@@ -3868,7 +3868,7 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                         this.microinvertersService.push(enphaseMicroinverterService);
-                        accessory.addService(this.microinvertersService[i]);
+                        accessory.addService(enphaseMicroinverterService);
                     }
                 }
 
@@ -3917,7 +3917,7 @@ class EnvoyDevice extends EventEmitter {
                             });
 
                         this.esubsService.push(enphaseEsubService);
-                        accessory.addService(this.esubsService[i]);
+                        accessory.addService(enphaseEsubService);
                     }
                 }
 
@@ -4033,7 +4033,7 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                         this.enchargesService.push(enphaseEnchargeService);
-                        accessory.addService(this.enchargesService[i]);
+                        accessory.addService(enphaseEnchargeService);
                     }
                 }
 
@@ -4124,7 +4124,7 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                         this.enpowersService.push(enphaseEnpowerService);
-                        accessory.addService(this.enpowersService[i]);
+                        accessory.addService(enphaseEnpowerService);
                     };
                 }
 
@@ -4260,7 +4260,7 @@ class EnvoyDevice extends EventEmitter {
                             return value;
                         });
                     this.ensembleStatusService.push(enphaseEnsembleStatusService);
-                    accessory.addService(this.ensembleStatusService[0]);
+                    accessory.addService(enphaseEnsembleStatusService);
                 }
 
                 //encharge grid state sensor service
@@ -4323,7 +4323,7 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                         this.wirelessConnektionsKitService.push(enphaseWirelessConnectionKitService);
-                        accessory.addService(this.wirelessConnektionsKitService[i]);
+                        accessory.addService(enphaseWirelessConnectionKitService);
                     }
                 }
 
