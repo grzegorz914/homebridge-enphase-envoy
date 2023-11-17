@@ -630,8 +630,10 @@
                     "devices[].enlightenPasswd",
                     "devices[].supportProductionPowerMode",
                     "devices[].supportPlcLevel",
+                    "devices[].supportLiveData",
                     "devices[].metersDataRefreshTime",
-                    "devices[].productionDataRefreshTime"
+                    "devices[].productionDataRefreshTime",
+                    "devices[].liveDataRefreshTime"
                   ],
                   "description": "Here You can configure envoy gateway."
                 },
@@ -642,9 +644,7 @@
                     "devices[].supportEnsembleStatus",
                     "devices[].enpowerGridStateSensor",
                     "devices[].enchargeGridStateSensor",
-                    "devices[].solarGridStateSensor",
-                    "devices[].supportLiveData",
-                    "devices[].liveDataRefreshTime"
+                    "devices[].solarGridStateSensor"
                   ],
                   "description": "Here You can configure ensemble, only if envoy firmware 7.x.x is enabled."
                 },
