@@ -17,14 +17,19 @@ class DigestAuth {
                 resolve(data);
             } catch (error) {
                 const resError = error.response;
-                const resHeaders = resError.headers["www-authenticate"];
-                if (resError === undefined || resError.status !== 401 || !(resHeaders === null || resHeaders === void 0 ? void 0 : resHeaders.includes('nonce'))) {
+                if (resError === undefined || resError.status !== 401) {
                     reject(`Digest authentication response error: ${error}`);
+                    return;
+                };
+
+                if (!(resError.resHeaders === null || resError.resHeaders === void 0 ? void 0 : resError.resHeaders.includes('nonce'))) {
+                    reject(`Digest authentication headers error: ${resError.resHeaders}`);
                     return;
                 };
 
                 try {
                     let count = 0;
+                    const resHeaders = resError.headers["www-authenticate"];
                     const authDetails = resHeaders.split(', ').map((v) => v.split('='));
                     const realm = authDetails.find((el) => el[0].toLowerCase().includes("realm"))[1].replace(/"/g, '');
                     const nonce = authDetails.find((el) => el[0].toLowerCase().includes("nonce"))[1].replace(/"/g, '');
