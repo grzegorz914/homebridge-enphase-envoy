@@ -375,7 +375,7 @@ class EnvoyDevice extends EventEmitter {
             const updateMetersReadingData = this.metersInstalled ? await this.updateMetersReadingData() : false;
             const updateEnsembleInventoryData = validJwtToken ? await this.updateEnsembleInventoryData() : false;
             const updateEnsembleStatusData = this.supportEnsembleStatus && updateEnsembleInventoryData ? await this.updateEnsembleStatusData() : false;
-            const updateLiveData = this.supportLiveData && updateEnsembleInventoryData ? await this.updateLiveData() : false;
+            const updateLiveData = this.supportLiveData ? await this.updateLiveData() : false;
             const updateProductionData = await this.updateProductionData();
             const updateProductionCtData = await this.updateProductionCtData();
             const updateMicroinvertersData = validJwtToken || (!validJwtToken && this.envoyPasswd) ? await this.updateMicroinvertersData() : false;
@@ -394,7 +394,7 @@ class EnvoyDevice extends EventEmitter {
             this.updateHome();
             const startMeterReading = this.metersSupported ? this.updateMeters() : false;
             const startEnsembleInventory = validJwtToken && updateEnsembleInventoryData ? this.updateEnsembleInventory() : false;
-            const startLive = this.supportLiveData && updateEnsembleInventoryData ? this.updateLive() : false;
+            const startLive = this.supportLiveData ? this.updateLive() : false;
             this.updateProduction();
             const startMicroinverters = validJwtToken || (!validJwtToken && this.envoyPasswd) ? this.updateMicroinverters() : false;
         } catch (error) {
@@ -743,9 +743,9 @@ class EnvoyDevice extends EventEmitter {
 
                 //envoy
                 const softwareBuildEpoch = new Date(envoy.software_build_epoch * 1000).toLocaleString();
-                const isEnvoy = (envoy.is_nonvoy === false);
-                const dbSize = envoy.db_size;
-                const dbPercentFull = envoy.db_percent_full;
+                const isEnvoy = envoy.is_nonvoy === false;
+                const dbSize = envoy.db_size || 0;
+                const dbPercentFull = envoy.db_percent_full || 0;
                 const timeZone = envoy.timezone;
                 const currentDate = new Date(envoy.current_date).toLocaleString().slice(0, 11);
                 const currentTime = envoy.current_time;
@@ -832,7 +832,7 @@ class EnvoyDevice extends EventEmitter {
                 const commEnchagLevelSubg = enchargesSupported ? commEncharge.level_subg * 20 : 0;
 
                 const alerts = envoy.alerts;
-                const updateStatus = CONSTANS.ApiCodes[envoy.update_status] || 'undefined';
+                const updateStatus = CONSTANS.ApiCodes[envoy.update_status] || 'unknown';
 
                 //wireless connection kit
                 if (wirelessConnectionKitSupported) {
