@@ -603,7 +603,7 @@
     {
       "key": "devices",
       "type": "tabarray",
-      "title": "{{ value.name || 'new device' }}",
+      "title": "{{ value.name || 'new system' }}",
       "items": [
         "devices[].name",
         "devices[].host",
@@ -636,17 +636,6 @@
                     "devices[].liveDataRefreshTime"
                   ],
                   "description": "Here You can configure envoy gateway."
-                },
-                {
-                  "key": "devices[]",
-                  "title": "Ensemble",
-                  "items": [
-                    "devices[].supportEnsembleStatus",
-                    "devices[].enpowerGridStateSensor",
-                    "devices[].enchargeGridStateSensor",
-                    "devices[].solarGridStateSensor"
-                  ],
-                  "description": "Here You can configure ensemble, only if envoy firmware 7.x.x is enabled."
                 },
                 {
                   "key": "devices[]",
@@ -762,6 +751,17 @@
                     }
                   ],
                   "description": "Here You can configure power and energy consumption."
+                },
+                {
+                  "key": "devices[]",
+                  "title": "Ensemble",
+                  "items": [
+                    "devices[].supportEnsembleStatus",
+                    "devices[].enpowerGridStateSensor",
+                    "devices[].enchargeGridStateSensor",
+                    "devices[].solarGridStateSensor"
+                  ],
+                  "description": "Here You can configure ensemble, only if envoy firmware 7.x.x is enabled."
                 },
                 {
                   "key": "devices[]",
