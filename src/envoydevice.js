@@ -61,15 +61,17 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionNetLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
 
         this.supportEnsembleStatus = this.envoyFirmware7xx ? config.supportEnsembleStatus : false;
+        this.supportLiveData = this.envoyFirmware7xx ? config.supportLiveData : false;
+        this.liveDataRefreshTime = config.liveDataRefreshTime || 1000;
+        this.supportProductionPowerMode = this.envoyFirmware7xx ? false : config.supportProductionPowerMode || false;
+        this.supportPlcLevel = this.envoyFirmware7xx ? false : config.supportPlcLevel || false;
+        this.metersDataRefreshTime = config.metersDataRefreshTime || 2500;
+        this.productionDataRefreshTime = config.productionDataRefreshTime || 5000;
+
         this.enpowerGridStateSensor = this.supportEnsembleStatus ? config.enpowerGridStateSensor : false;
         this.enchargeGridStateSensor = this.supportEnsembleStatus ? config.enchargeGridStateSensor : false;
         this.solarGridStateSensor = this.supportEnsembleStatus ? config.solarGridStateSensor : false;
-        this.supportLiveData = this.envoyFirmware7xx ? config.supportLiveData : false;
-        this.liveDataRefreshTime = config.liveDataRefreshTime || 1000;
-        this.metersDataRefreshTime = config.metersDataRefreshTime || 2500;
-        this.productionDataRefreshTime = config.productionDataRefreshTime || 5000;
-        this.supportProductionPowerMode = this.envoyFirmware7xx ? false : config.supportProductionPowerMode || false;
-        this.supportPlcLevel = this.envoyFirmware7xx ? false : config.supportPlcLevel || false;
+
         this.enableDebugMode = config.enableDebugMode || false;
         this.disableLogInfo = config.disableLogInfo || false;
         this.disableLogDeviceInfo = config.disableLogDeviceInfo || false;
@@ -367,7 +369,7 @@ class EnvoyDevice extends EventEmitter {
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
 
             //get first envoy data
-            const getEnvoyBackboneAppData = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
+            await this.getEnvoyBackboneAppData();
             await this.updateInfoData();
             await this.updateHomeData();
             await this.updateInventoryData();
@@ -378,9 +380,11 @@ class EnvoyDevice extends EventEmitter {
             const updateLiveData = this.supportLiveData ? await this.updateLiveData() : false;
             const updateProductionData = await this.updateProductionData();
             const updateProductionCtData = await this.updateProductionCtData();
-            const updateMicroinvertersData = validJwtToken || (!validJwtToken && this.envoyPasswd) ? await this.updateMicroinvertersData() : false;
-            const updateProductionPowerModeData = getEnvoyBackboneAppData && (validJwtToken || (!validJwtToken && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
-            const updatePlcLevelData = this.supportPlcLevel && (validJwtToken || (!validJwtToken && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
+            const updateMicroinvertersData = validJwtToken || (!this.envoyFirmware7xx && this.installerPasswd) ? this.updateMicroinvertersData() : false;
+
+            //check only on start
+            const updateProductionPowerModeData = this.supportProductionPowerMode && (validJwtToken || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updateProductionPowerModeData() : false;
+            const updatePlcLevelData = this.supportPlcLevel && (validJwtToken || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
 
             //get device info
             this.getDeviceInfo();
@@ -396,7 +400,7 @@ class EnvoyDevice extends EventEmitter {
             const startEnsembleInventory = validJwtToken && updateEnsembleInventoryData ? this.updateEnsembleInventory() : false;
             const startLive = this.supportLiveData ? this.updateLive() : false;
             this.updateProduction();
-            const startMicroinverters = validJwtToken || (!validJwtToken && this.envoyPasswd) ? this.updateMicroinverters() : false;
+            const startMicroinverters = validJwtToken || (!this.envoyFirmware7xx && this.installerPasswd) ? this.updateMicroinverters() : false;
         } catch (error) {
             this.emit('error', `${error} Reconnect in 15s.`);
             await new Promise(resolve => setTimeout(resolve, 15000));
