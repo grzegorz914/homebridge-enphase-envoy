@@ -635,7 +635,7 @@ class EnvoyDevice extends EventEmitter {
                 //device
                 const device = envoyInfo.device;
                 const deviceSn = this.envoySerialNumber ? this.envoySerialNumber : device.sn.toString();
-                const devicePn = CONSTANS.PartNumbers[device.pn] || 'Envoy'
+                const devicePn = CONSTANS.PartNumbers[device.pn] || 'Envoy';
                 const deviceSoftware = device.software;
                 const deviceEuaid = device.euaid;
                 const deviceSeqNum = device.seqnum;
@@ -643,7 +643,7 @@ class EnvoyDevice extends EventEmitter {
                 const deviceImeter = device.imeter;
 
                 //web tokens
-                const webTokens = envoyKeys.includes('web-tokens') ? (envoyInfo['web-tokens'][0] === 'true') : false;
+                const webTokens = envoyKeys.includes('web-tokens') ? envoyInfo['web-tokens'] === true : false;
 
                 //packages
                 const packages = envoyInfo.package;
@@ -657,12 +657,13 @@ class EnvoyDevice extends EventEmitter {
                 //build info
                 const build = envoyInfo.build_info;
                 const buildId = build.build_id;
-                const buildTimeQmt = new Date(build.build_time_gmt * 1000).toLocaleString()
+                const buildTimeQmt = new Date(build.build_time_gmt * 1000).toLocaleString();
+                const releaseVer = build.release_ver || 'unknown';
+                const releaseStage = build.release_stage || 'unknown';
 
                 //envoy password
                 const envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
                 const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: ${envoyPasswd}`) : false;
-                this.envoyPasswd = envoyPasswd;
 
                 //digest authorization envoy
                 this.digestAuthEnvoy = new DigestAuth({
@@ -747,7 +748,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //envoy
                 const softwareBuildEpoch = new Date(envoy.software_build_epoch * 1000).toLocaleString();
-                const isEnvoy = envoy.is_nonvoy === false;
+                const isEnvoy = envoy.is_nonvoy === false || true;
                 const dbSize = envoy.db_size || 0;
                 const dbPercentFull = envoy.db_percent_full || 0;
                 const timeZone = envoy.timezone;
@@ -835,7 +836,7 @@ class EnvoyDevice extends EventEmitter {
                 const commEnchgLevel24g = enchargesSupported ? commEncharge.level_24g * 20 : 0;
                 const commEnchagLevelSubg = enchargesSupported ? commEncharge.level_subg * 20 : 0;
 
-                const alerts = envoy.alerts;
+                const alerts = envoy.alerts || 'unknown';
                 const updateStatus = CONSTANS.ApiCodes[envoy.update_status] || 'unknown';
 
                 //wireless connection kit
@@ -2611,7 +2612,7 @@ class EnvoyDevice extends EventEmitter {
 
     updateMicroinvertersData() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting microinverters`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting microinverters.`) : false;
 
             try {
                 const options = {
