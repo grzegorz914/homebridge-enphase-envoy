@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added *Live Data Grid* cheracteristics to the HomeKit
 - added *Live Data Load* cheracteristics to the HomeKit
 - added *Live Data Generator* cheracteristics to the HomeKit
+- fix [#85](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/85)
 - config schema updated
 - cleanup
 
