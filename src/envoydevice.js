@@ -181,6 +181,10 @@ class EnvoyDevice extends EventEmitter {
         this.enpowersType = '';
         this.enchargesGridState = false;
 
+        //generator
+        this.generatorSupported = false;
+        this.generatorInstalled = false;
+
         //ct meters
         this.metersSupported = false;
         this.metersInstalled = false;
@@ -4466,224 +4470,232 @@ class EnvoyDevice extends EventEmitter {
                     accessory.addService(enphaseLiveDataPvService);
 
                     //live date storage
-                    this.liveDataStorageService = [];
-                    const enphaseLiveDataStorageService = new Service.enphaseLiveDataStorageService(`Live Data Storage`, `enphaseLiveDataStorageService`);
-                    enphaseLiveDataStorageService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Storage`);
-                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePower)
-                        .onGet(async () => {
-                            const value = this.liveDataStorageActivePower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL1)
-                        .onGet(async () => {
-                            const value = this.liveDataStorageActivePowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L1, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL2)
-                        .onGet(async () => {
-                            const value = this.liveDataStorageActivePowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L2, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL3)
-                        .onGet(async () => {
-                            const value = this.liveDataStorageActivePowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L3, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPower)
-                        .onGet(async () => {
-                            const value = this.liveDataStorageApparentPower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL1)
-                        .onGet(async () => {
-                            const value = this.liveDataStorageApparentPowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L1, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL2)
-                        .onGet(async () => {
-                            const value = this.liveDataStorageApparentPowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L2, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL3)
-                        .onGet(async () => {
-                            const value = this.liveDataStorageApparentPowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L3, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    this.liveDataStorageService.push(enphaseLiveDataStorageService);
-                    accessory.addService(enphaseLiveDataStorageService);
+                    if (acBatteriesInstalled || enchargesInstalled) {
+                        this.liveDataStorageService = [];
+                        const enphaseLiveDataStorageService = new Service.enphaseLiveDataStorageService(`Live Data Storage`, `enphaseLiveDataStorageService`);
+                        enphaseLiveDataStorageService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Storage`);
+                        enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePower)
+                            .onGet(async () => {
+                                const value = this.liveDataStorageActivePower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL1)
+                            .onGet(async () => {
+                                const value = this.liveDataStorageActivePowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L1, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL2)
+                            .onGet(async () => {
+                                const value = this.liveDataStorageActivePowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L2, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL3)
+                            .onGet(async () => {
+                                const value = this.liveDataStorageActivePowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L3, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPower)
+                            .onGet(async () => {
+                                const value = this.liveDataStorageApparentPower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL1)
+                            .onGet(async () => {
+                                const value = this.liveDataStorageApparentPowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L1, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL2)
+                            .onGet(async () => {
+                                const value = this.liveDataStorageApparentPowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L2, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL3)
+                            .onGet(async () => {
+                                const value = this.liveDataStorageApparentPowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L3, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        this.liveDataStorageService.push(enphaseLiveDataStorageService);
+                        accessory.addService(enphaseLiveDataStorageService);
+                    }
 
                     //live date grig
-                    this.liveDataGridService = [];
-                    const enphaseLiveDataGridService = new Service.enphaseLiveDataGridService(`Live Data Grid`, `enphaseLiveDataGridService`);
-                    enphaseLiveDataGridService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Grid`);
-                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePower)
-                        .onGet(async () => {
-                            const value = this.liveDataGridActivePower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL1)
-                        .onGet(async () => {
-                            const value = this.liveDataGridActivePowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L1, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL2)
-                        .onGet(async () => {
-                            const value = this.liveDataGridActivePowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L2, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL3)
-                        .onGet(async () => {
-                            const value = this.liveDataGridActivePowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L3, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPower)
-                        .onGet(async () => {
-                            const value = this.liveDataGridApparentPower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL1)
-                        .onGet(async () => {
-                            const value = this.liveDataGridApparentPowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L1, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL2)
-                        .onGet(async () => {
-                            const value = this.liveDataGridApparentPowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L2, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL3)
-                        .onGet(async () => {
-                            const value = this.liveDataGridApparentPowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L3, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    this.liveDataGridService.push(enphaseLiveDataGridService);
-                    accessory.addService(enphaseLiveDataGridService);
+                    if (metersInstalled && metersConsumptionEnabled) {
+                        this.liveDataGridService = [];
+                        const enphaseLiveDataGridService = new Service.enphaseLiveDataGridService(`Live Data Grid`, `enphaseLiveDataGridService`);
+                        enphaseLiveDataGridService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Grid`);
+                        enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePower)
+                            .onGet(async () => {
+                                const value = this.liveDataGridActivePower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL1)
+                            .onGet(async () => {
+                                const value = this.liveDataGridActivePowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L1, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL2)
+                            .onGet(async () => {
+                                const value = this.liveDataGridActivePowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L2, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL3)
+                            .onGet(async () => {
+                                const value = this.liveDataGridActivePowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L3, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPower)
+                            .onGet(async () => {
+                                const value = this.liveDataGridApparentPower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL1)
+                            .onGet(async () => {
+                                const value = this.liveDataGridApparentPowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L1, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL2)
+                            .onGet(async () => {
+                                const value = this.liveDataGridApparentPowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L2, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL3)
+                            .onGet(async () => {
+                                const value = this.liveDataGridApparentPowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L3, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        this.liveDataGridService.push(enphaseLiveDataGridService);
+                        accessory.addService(enphaseLiveDataGridService);
+                    }
 
                     //live date load
-                    this.liveDataLoadService = [];
-                    const enphaseLiveDataLoadService = new Service.enphaseLiveDataLoadService(`Live Data Load`, `enphaseLiveDataLoadService`);
-                    enphaseLiveDataLoadService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Load`);
-                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePower)
-                        .onGet(async () => {
-                            const value = this.liveDataLoadActivePower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL1)
-                        .onGet(async () => {
-                            const value = this.liveDataLoadActivePowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L1, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL2)
-                        .onGet(async () => {
-                            const value = this.liveDataLoadActivePowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L2, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL3)
-                        .onGet(async () => {
-                            const value = this.liveDataLoadActivePowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L3, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPower)
-                        .onGet(async () => {
-                            const value = this.liveDataLoadApparentPower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL1)
-                        .onGet(async () => {
-                            const value = this.liveDataLoadApparentPowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L1, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL2)
-                        .onGet(async () => {
-                            const value = this.liveDataLoadApparentPowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L2, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL3)
-                        .onGet(async () => {
-                            const value = this.liveDataLoadApparentPowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L3, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    this.liveDataLoadService.push(enphaseLiveDataLoadService);
-                    accessory.addService(enphaseLiveDataLoadService);
+                    if (metersInstalled && metersConsumptionEnabled) {
+                        this.liveDataLoadService = [];
+                        const enphaseLiveDataLoadService = new Service.enphaseLiveDataLoadService(`Live Data Load`, `enphaseLiveDataLoadService`);
+                        enphaseLiveDataLoadService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Load`);
+                        enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePower)
+                            .onGet(async () => {
+                                const value = this.liveDataLoadActivePower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL1)
+                            .onGet(async () => {
+                                const value = this.liveDataLoadActivePowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L1, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL2)
+                            .onGet(async () => {
+                                const value = this.liveDataLoadActivePowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L2, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL3)
+                            .onGet(async () => {
+                                const value = this.liveDataLoadActivePowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L3, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPower)
+                            .onGet(async () => {
+                                const value = this.liveDataLoadApparentPower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL1)
+                            .onGet(async () => {
+                                const value = this.liveDataLoadApparentPowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L1, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL2)
+                            .onGet(async () => {
+                                const value = this.liveDataLoadApparentPowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L2, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL3)
+                            .onGet(async () => {
+                                const value = this.liveDataLoadApparentPowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L3, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        this.liveDataLoadService.push(enphaseLiveDataLoadService);
+                        accessory.addService(enphaseLiveDataLoadService);
+                    }
 
                     //live date generator
-                    this.liveDataGeneratorService = [];
-                    const enphaseLiveDataGeneratorService = new Service.enphaseLiveDataGeneratorService(`Live Data Generator`, `enphaseLiveDataGeneratorService`);
-                    enphaseLiveDataGeneratorService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Generator`);
-                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePower)
-                        .onGet(async () => {
-                            const value = this.liveDataGeneratorActivePower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL1)
-                        .onGet(async () => {
-                            const value = this.liveDataGeneratorActivePowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L1, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL2)
-                        .onGet(async () => {
-                            const value = this.liveDataGeneratorActivePowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L2, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL3)
-                        .onGet(async () => {
-                            const value = this.liveDataGeneratorActivePowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L3, active power: ${value} kW`);
-                            return value;
-                        });
-                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPower)
-                        .onGet(async () => {
-                            const value = this.liveDataGeneratorApparentPower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL1)
-                        .onGet(async () => {
-                            const value = this.liveDataGeneratorApparentPowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L1, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL2)
-                        .onGet(async () => {
-                            const value = this.liveDataGeneratorApparentPowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L2, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL3)
-                        .onGet(async () => {
-                            const value = this.liveDataGeneratorApparentPowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L3, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    this.liveDataGeneratorService.push(enphaseLiveDataGeneratorService);
-                    accessory.addService(enphaseLiveDataGeneratorService);
+                    if (this.generatorInstalled) {
+                        this.liveDataGeneratorService = [];
+                        const enphaseLiveDataGeneratorService = new Service.enphaseLiveDataGeneratorService(`Live Data Generator`, `enphaseLiveDataGeneratorService`);
+                        enphaseLiveDataGeneratorService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Generator`);
+                        enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePower)
+                            .onGet(async () => {
+                                const value = this.liveDataGeneratorActivePower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL1)
+                            .onGet(async () => {
+                                const value = this.liveDataGeneratorActivePowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L1, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL2)
+                            .onGet(async () => {
+                                const value = this.liveDataGeneratorActivePowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L2, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL3)
+                            .onGet(async () => {
+                                const value = this.liveDataGeneratorActivePowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L3, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPower)
+                            .onGet(async () => {
+                                const value = this.liveDataGeneratorApparentPower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL1)
+                            .onGet(async () => {
+                                const value = this.liveDataGeneratorApparentPowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L1, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL2)
+                            .onGet(async () => {
+                                const value = this.liveDataGeneratorApparentPowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L2, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL3)
+                            .onGet(async () => {
+                                const value = this.liveDataGeneratorApparentPowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L3, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        this.liveDataGeneratorService.push(enphaseLiveDataGeneratorService);
+                        accessory.addService(enphaseLiveDataGeneratorService);
+                    }
                 }
 
                 resolve(accessory);

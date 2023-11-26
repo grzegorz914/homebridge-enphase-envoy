@@ -313,7 +313,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnvoyAlerts);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten);
@@ -333,6 +332,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseEnvoyService = enphaseEnvoyService;
@@ -505,7 +505,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseQrelayState);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayLinesCount);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine1Connected);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayLine2Connected);
@@ -518,6 +517,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayFirmware);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayLastReportDate);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseQrelayService = enphaseQrelayService;
@@ -726,7 +726,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseMeterState);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseMode);
       this.addOptionalCharacteristic(Characteristic.enphaseMeterPhaseCount);
       this.addOptionalCharacteristic(Characteristic.enphaseMeterMeasurementType);
@@ -740,6 +739,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseMeterCurrent);
       this.addOptionalCharacteristic(Characteristic.enphaseMeterFreq);
       this.addOptionalCharacteristic(Characteristic.enphaseMeterReadingTime);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseMeterService = enphaseMeterService;
@@ -948,7 +948,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphasePower);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphasePowerMax);
       this.addOptionalCharacteristic(Characteristic.enphasePowerMaxDetected);
       this.addOptionalCharacteristic(Characteristic.enphaseEnergyToday);
@@ -961,6 +960,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphasePwrFactor);
       this.addOptionalCharacteristic(Characteristic.enphaseReadingTime);
       this.addOptionalCharacteristic(Characteristic.enphasePowerMaxReset);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphasePowerAndEnergyService = enphasePowerAndEnergyService;
@@ -1061,12 +1061,12 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseAcBatterieSummaryPower);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryEnergy);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryState);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseAcBatterieSummaryService = enphaseAcBatterieSummaryService;
@@ -1267,7 +1267,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseAcBatterieChargeStatus);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProducing);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieCommunicating);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieProvisioned);
@@ -1281,6 +1280,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieFirmware);
       this.addOptionalCharacteristic(Characteristic.enphaseAcBatterieLastReportDate);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseAcBatterieService = enphaseAcBatterieService;
@@ -1425,7 +1425,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseMicroinverterPower);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterPowerMax);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterProducing);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterCommunicating);
@@ -1435,6 +1434,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterFirmware);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterLastReportDate);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseMicroinverterService = enphaseMicroinverterService;
@@ -1699,7 +1699,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnchargeAdminStateStr);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeOperating);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommunicating);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevelSubGhz);
@@ -1717,6 +1716,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLastReportDate);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevel);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseEnchargeService = enphaseEnchargeService;
@@ -1897,7 +1897,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnpowerAdminStateStr);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerOperating);
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommunicating);
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerCommLevelSubGhz);
@@ -1910,6 +1909,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerGridProfile);
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseEnpowerLastReportDate);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseEnpowerService = enphaseEnpowerService;
@@ -2258,7 +2258,6 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnsembleStatusRestPower);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHz);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasV);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8);
@@ -2279,6 +2278,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggBackupEnergy);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggAvailEnergy);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseEnsembleStatusService = enphaseEnsembleStatusService;
@@ -2451,13 +2451,13 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEsubProducing);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubCommunicating);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubOperating);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubCommLevel);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubFirmware);
       this.addOptionalCharacteristic(Characteristic.enphaseEsubLastReportDate);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseEsubService = enphaseEsubService;
