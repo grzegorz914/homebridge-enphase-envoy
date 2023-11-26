@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Note!!!
 # After update to v7.5.0 and above from plevious version the sensors in plugin config need to be configured again!!!
 
+## [7.7.0] - (26.11.2023)
+## Changes
+- added *Live Data PV* cheracteristics to the HomeKit
+- added *Live Data Storage* cheracteristics to the HomeKit
+- added *Live Data Grid* cheracteristics to the HomeKit
+- added *Live Data Load* cheracteristics to the HomeKit
+- added *Live Data Generator* cheracteristics to the HomeKit
+- config schema updated
+- cleanup
+
 ## [7.5.0] - (20.10.2023)
 ## Changes
 - added *Power State* contact sensor (Consumption Total) for automations and notifications in HomeKit

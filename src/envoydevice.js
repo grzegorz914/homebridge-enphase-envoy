@@ -2065,74 +2065,134 @@ class EnvoyDevice extends EventEmitter {
                 const connectionScDebug = connection.sc_debug === 'enabled';
 
                 //meters
-                const meters = liveData.data.meters;
-                const metersLastUpdate = meters.last_update;
-                const metersSoc = meters.soc;
-                const metersMainRelayState = meters.main_relay_state;
-                const metersGenRelayState = meters.gen_relay_state;
-                const metersBackupBatMode = meters.backup_bat_mode;
-                const metersBackupSoc = meters.backup_soc;
-                const metersIsSplitPhase = meters.is_split_phase;
-                const metersPhaseCount = meters.phase_count;
-                const metersEncAggSoc = meters.enc_agg_soc;
-                const metersEncAggEnergy = meters.enc_agg_energy;
-                const metersAcbAggSoc = meters.acb_agg_soc;
-                const metersAcbAggEnergy = meters.acb_agg_energy;
+                const liveDataMeters = liveData.data.meters;
+                const metersLastUpdate = liveDataMeters.last_update;
+                const metersSoc = liveDataMeters.soc;
+                const metersMainRelayState = liveDataMeters.main_relay_state;
+                const metersGenRelayState = liveDataMeters.gen_relay_state;
+                const metersBackupBatMode = liveDataMeters.backup_bat_mode;
+                const metersBackupSoc = liveDataMeters.backup_soc;
+                const metersIsSplitPhase = liveDataMeters.is_split_phase;
+                const metersPhaseCount = liveDataMeters.phase_count;
+                const metersEncAggSoc = liveDataMeters.enc_agg_soc;
+                const metersEncAggEnergy = liveDataMeters.enc_agg_energy;
+                const metersAcbAggSoc = liveDataMeters.acb_agg_soc;
+                const metersAcbAggEnergy = liveDataMeters.acb_agg_energy;
 
                 //meters pv
-                const metersPv = meters.pv;
-                const metersPvAggPMw = metersPv.agg_p_mw;
-                const metersPvAggSMva = metersPv.agg_s_mva;
-                const metersPvAggPPhAMw = metersPv.agg_p_ph_a_mw;
-                const metersPvAggPPhBMw = metersPv.agg_p_ph_b_mw;
-                const metersPvAggPPhCMw = metersPv.agg_p_ph_c_mw;
-                const metersPvAggSPhAMva = metersPv.agg_s_ph_a_mva;
-                const metersPvAggSPhBMva = metersPv.agg_s_ph_b_mva;
-                const metersPvAggSPhCMva = metersPv.agg_s_ph_c_mva;
+                const liveDataMetersPv = liveDataMeters.pv;
+                this.liveDataPvActivePower = liveDataMetersPv.agg_p_mw / 1000000 || 0;
+                this.liveDataPvApparentPower = liveDataMetersPv.agg_s_mva / 1000000 || 0;
+                this.liveDataPvActivePowerL1 = liveDataMetersPv.agg_p_ph_a_mw / 1000000 || 0;
+                this.liveDataPvActivePowerL2 = liveDataMetersPv.agg_p_ph_b_mw / 1000000 || 0;
+                this.liveDataPvActivePowerL3 = liveDataMetersPv.agg_p_ph_c_mw / 1000000 || 0;
+                this.liveDataPvApparentPowerL1 = liveDataMetersPv.agg_s_ph_a_mva / 1000000 || 0;
+                this.liveDataPvApparentPowerL2 = liveDataMetersPv.agg_s_ph_b_mva / 1000000 || 0;
+                this.liveDataPvApparentPowerL3 = liveDataMetersPv.agg_s_ph_c_mva / 1000000 || 0;
+
+                if (this.liveDataPvService) {
+                    this.liveDataPvService[0]
+                        .updateCharacteristic(Characteristic.enphaseLiveDataPvActivePower, this.liveDataPvActivePower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL1, this.liveDataPvActivePowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL2, this.liveDataPvActivePowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL3, this.liveDataPvActivePowerL3)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataPvApparentPower, this.liveDataPvApparentPower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL1, this.liveDataPvApparentPowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL2, this.liveDataPvApparentPowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL3, this.liveDataPvApparentPowerL3)
+                }
 
                 //meters storage
-                const metersStorage = meters.storage;
-                const metersStorageAggPMw = metersStorage.agg_p_mw;
-                const metersStorageAggSMva = metersStorage.agg_s_mva;
-                const metersStorageAggPPhAMw = metersStorage.agg_p_ph_a_mw;
-                const metersStorageAggPPhBMw = metersStorage.agg_p_ph_b_mw;
-                const metersStorageAggPPhCMw = metersStorage.agg_p_ph_c_mw;
-                const metersStorageAggSPhAMva = metersStorage.agg_s_ph_a_mva;
-                const metersStorageAggSPhBMva = metersStorage.agg_s_ph_b_mva;
-                const metersStorageAggSPhCMva = metersStorage.agg_s_ph_c_mva;
+                const liveDataMetersStorage = liveDataMeters.storage;
+                this.liveDataStorageActivePower = liveDataMetersStorage.agg_p_mw / 1000000 || 0;
+                this.liveDataStorageApparentPower = liveDataMetersStorage.agg_s_mva / 1000000 || 0;
+                this.liveDataStorageActivePowerL1 = liveDataMetersStorage.agg_p_ph_a_mw / 1000000 || 0;
+                this.liveDataStorageActivePowerL2 = liveDataMetersStorage.agg_p_ph_b_mw / 1000000 || 0;
+                this.liveDataStorageActivePowerL3 = liveDataMetersStorage.agg_p_ph_c_mw / 1000000 || 0;
+                this.liveDataStorageApparentPowerL1 = liveDataMetersStorage.agg_s_ph_a_mva / 1000000 || 0;
+                this.liveDataStorageApparentPowerL2 = liveDataMetersStorage.agg_s_ph_b_mva / 1000000 || 0;
+                this.liveDataStorageApparentPowerL3 = liveDataMetersStorage.agg_s_ph_c_mva / 1000000 || 0;
+
+                if (this.liveDataStorageService) {
+                    this.liveDataStorageService[0]
+                        .updateCharacteristic(Characteristic.enphaseLiveDataStorageActivePower, this.liveDataStorageActivePower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL1, this.liveDataStorageActivePowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL2, this.liveDataStorageActivePowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL3, this.liveDataStorageActivePowerL3)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataStorageApparentPower, this.liveDataStorageApparentPower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL1, this.liveDataStorageApparentPowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL2, this.liveDataStorageApparentPowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL3, this.liveDataStorageApparentPowerL3)
+                }
 
                 //meters grid
-                const metersGrid = meters.grid;
-                const metersGridAggPMw = metersGrid.agg_p_mw;
-                const metersGridAggSMva = metersGrid.agg_s_mva;
-                const metersGridAggPPhAMw = metersGrid.agg_p_ph_a_mw;
-                const metersGridAggPPhBMw = metersGrid.agg_p_ph_b_mw;
-                const metersGridAggPPhCMw = metersGrid.agg_p_ph_c_mw;
-                const metersGridAggSPhAMva = metersGrid.agg_s_ph_a_mva;
-                const metersGridAggSPhBMva = metersGrid.agg_s_ph_b_mva;
-                const metersGridAggSPhCMva = metersGrid.agg_s_ph_c_mva;
+                const liveDataMetersGrid = liveDataMeters.grid;
+                this.liveDataGridActivePower = liveDataMetersGrid.agg_p_mw / 1000000 || 0;
+                this.liveDataGridApparentPower = liveDataMetersGrid.agg_s_mva / 1000000 || 0;
+                this.liveDataGridActivePowerL1 = liveDataMetersGrid.agg_p_ph_a_mw / 1000000 || 0;
+                this.liveDataGridActivePowerL2 = liveDataMetersGrid.agg_p_ph_b_mw / 1000000 || 0;
+                this.liveDataGridActivePowerL3 = liveDataMetersGrid.agg_p_ph_c_mw / 1000000 || 0;
+                this.liveDataGridApparentPowerL1 = liveDataMetersGrid.agg_s_ph_a_mva / 1000000 || 0;
+                this.liveDataGridApparentPowerL2 = liveDataMetersGrid.agg_s_ph_b_mva / 1000000 || 0;
+                this.liveDataGridApparentPowerL3 = liveDataMetersGrid.agg_s_ph_c_mva / 1000000 || 0;
+
+                if (this.liveDataGridService) {
+                    this.liveDataGridService[0]
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGridActivePower, this.liveDataGridActivePower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL1, this.liveDataGridActivePowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL2, this.liveDataGridActivePowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL3, this.liveDataGridActivePowerL3)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGridApparentPower, this.liveDataGridApparentPower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL1, this.liveDataGridApparentPowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL2, this.liveDataGridApparentPowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL3, this.liveDataGridApparentPowerL3)
+                }
 
                 //meters load
-                const metersLoad = meters.load;
-                const metersLoadAggPMw = metersLoad.agg_p_mw;
-                const metersLoadAggSMva = metersLoad.agg_s_mva;
-                const metersLoadAggPPhAMw = metersLoad.agg_p_ph_a_mw;
-                const metersLoadAggPPhBMw = metersLoad.agg_p_ph_b_mw;
-                const metersLoadAggPPhCMw = metersLoad.agg_p_ph_c_mw;
-                const metersLoadAggSPhAMva = metersLoad.agg_s_ph_a_mva;
-                const metersLoadAggSPhBMva = metersLoad.agg_s_ph_b_mva;
-                const metersLoadAggSPhCMva = metersLoad.agg_s_ph_c_mva;
+                const liveDataMetersLoad = liveDataMeters.load;
+                this.liveDataLoadActivePower = liveDataMetersLoad.agg_p_mw / 1000000 || 0;
+                this.liveDataLoadApparentPower = liveDataMetersLoad.agg_s_mva / 1000000 || 0;
+                this.liveDataLoadActivePowerL1 = liveDataMetersLoad.agg_p_ph_a_mw / 1000000 || 0;
+                this.liveDataLoadActivePowerL2 = liveDataMetersLoad.agg_p_ph_b_mw / 1000000 || 0;
+                this.liveDataLoadActivePowerL3 = liveDataMetersLoad.agg_p_ph_c_mw / 1000000 || 0;
+                this.liveDataLoadApparentPowerL1 = liveDataMetersLoad.agg_s_ph_a_mva / 1000000 || 0;
+                this.liveDataLoadApparentPowerL2 = liveDataMetersLoad.agg_s_ph_b_mva / 1000000 || 0;
+                this.liveDataLoadApparentPowerL3 = liveDataMetersLoad.agg_s_ph_c_mva / 1000000 || 0;
+
+                if (this.liveDataLoadService) {
+                    this.liveDataLoadService[0]
+                        .updateCharacteristic(Characteristic.enphaseLiveDataLoadActivePower, this.liveDataLoadActivePower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL1, this.liveDataLoadActivePowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL2, this.liveDataLoadActivePowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL3, this.liveDataLoadActivePowerL3)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataLoadApparentPower, this.liveDataLoadApparentPower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL1, this.liveDataLoadApparentPowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL2, this.liveDataLoadApparentPowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL3, this.liveDataLoadApparentPowerL3)
+                }
 
                 //meters generator
-                const metersGenerator = meters.generator;
-                const metersGeneratorAggPMw = metersGenerator.agg_p_mw;
-                const metersGeneratorAggSMva = metersGenerator.agg_s_mva;
-                const metersGeneratorAggPPhAMw = metersGenerator.agg_p_ph_a_mw;
-                const metersGeneratorAggPPhBMw = metersGenerator.agg_p_ph_b_mw;
-                const metersGeneratorAggPPhCMw = metersGenerator.agg_p_ph_c_mw;
-                const metersGeneratorAggSPhAMva = metersGenerator.agg_s_ph_a_mva;
-                const metersGeneratorAggSPhBMva = metersGenerator.agg_s_ph_b_mva;
-                const metersGeneratorAggSPhCMva = metersGenerator.agg_s_ph_c_mva;
+                const liveDataMetersGenerator = liveDataMeters.generator;
+                this.liveDataGeneratorActivePower = liveDataMetersGenerator.agg_p_mw / 1000000 || 0;
+                this.liveDataGeneratorApparentPower = liveDataMetersGenerator.agg_s_mva / 1000000 || 0;
+                this.liveDataGeneratorActivePowerL1 = liveDataMetersGenerator.agg_p_ph_a_mw / 1000000 || 0;
+                this.liveDataGeneratorActivePowerL2 = liveDataMetersGenerator.agg_p_ph_b_mw / 1000000 || 0;
+                this.liveDataGeneratorActivePowerL3 = liveDataMetersGenerator.agg_p_ph_c_mw / 1000000 || 0;
+                this.liveDataGeneratorApparentPowerL1 = liveDataMetersGenerator.agg_s_ph_a_mva / 1000000 || 0;
+                this.liveDataGeneratorApparentPowerL2 = liveDataMetersGenerator.agg_s_ph_b_mva / 1000000 || 0;
+                this.liveDataGeneratorApparentPowerL3 = liveDataMetersGenerator.agg_s_ph_c_mva / 1000000 || 0;
+
+                if (this.liveDataGeneratorService) {
+                    this.liveDataGeneratorService[0]
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePower, this.liveDataGeneratorActivePower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL1, this.liveDataGeneratorActivePowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL2, this.liveDataGeneratorActivePowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL3, this.liveDataGeneratorActivePowerL3)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPower, this.liveDataGeneratorApparentPower)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL1, this.liveDataGeneratorApparentPowerL1)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL2, this.liveDataGeneratorApparentPowerL2)
+                        .updateCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL3, this.liveDataGeneratorApparentPowerL3)
+                }
 
                 //tasks
                 const tasks = liveData.data.tasks;
@@ -4345,6 +4405,285 @@ class EnvoyDevice extends EventEmitter {
                         this.wirelessConnektionsKitService.push(enphaseWirelessConnectionKitService);
                         accessory.addService(enphaseWirelessConnectionKitService);
                     }
+                }
+
+                //live date
+                if (this.supportLiveData) {
+
+                    //live date pv
+                    this.liveDataPvService = [];
+                    const enphaseLiveDataPvService = new Service.enphaseLiveDataPvService(`Live Data PV`, `enphaseLiveDataPvService`);
+                    enphaseLiveDataPvService.setCharacteristic(Characteristic.ConfiguredName, `Live Data PV`);
+                    enphaseLiveDataPvService.getCharacteristic(Characteristic.enphaseLiveDataPvActivePower)
+                        .onGet(async () => {
+                            const value = this.liveDataPvActivePower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data PV, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataPvService.getCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataPvActivePowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data PV L1, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataPvService.getCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataPvActivePowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data PV L2, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataPvService.getCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataPvActivePowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data PV L3, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataPvService.getCharacteristic(Characteristic.enphaseLiveDataPvApparentPower)
+                        .onGet(async () => {
+                            const value = this.liveDataPvApparentPower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data PV, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataPvService.getCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataPvApparentPowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data PV L1, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataPvService.getCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataPvApparentPowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data PV L2, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataPvService.getCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataPvApparentPowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data PV L3, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    this.liveDataPvService.push(enphaseLiveDataPvService);
+                    accessory.addService(enphaseLiveDataPvService);
+
+                    //live date storage
+                    this.liveDataStorageService = [];
+                    const enphaseLiveDataStorageService = new Service.enphaseLiveDataStorageService(`Live Data Storage`, `enphaseLiveDataStorageService`);
+                    enphaseLiveDataStorageService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Storage`);
+                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePower)
+                        .onGet(async () => {
+                            const value = this.liveDataStorageActivePower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataStorageActivePowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L1, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataStorageActivePowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L2, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataStorageActivePowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L3, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPower)
+                        .onGet(async () => {
+                            const value = this.liveDataStorageApparentPower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataStorageApparentPowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L1, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataStorageApparentPowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L2, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataStorageService.getCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataStorageApparentPowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Storage L3, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    this.liveDataStorageService.push(enphaseLiveDataStorageService);
+                    accessory.addService(enphaseLiveDataStorageService);
+
+                    //live date grig
+                    this.liveDataGridService = [];
+                    const enphaseLiveDataGridService = new Service.enphaseLiveDataGridService(`Live Data Grid`, `enphaseLiveDataGridService`);
+                    enphaseLiveDataGridService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Grid`);
+                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePower)
+                        .onGet(async () => {
+                            const value = this.liveDataGridActivePower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataGridActivePowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L1, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataGridActivePowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L2, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataGridActivePowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L3, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPower)
+                        .onGet(async () => {
+                            const value = this.liveDataGridApparentPower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataGridApparentPowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L1, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataGridApparentPowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L2, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataGridService.getCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataGridApparentPowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Grid L3, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    this.liveDataGridService.push(enphaseLiveDataGridService);
+                    accessory.addService(enphaseLiveDataGridService);
+
+                    //live date load
+                    this.liveDataLoadService = [];
+                    const enphaseLiveDataLoadService = new Service.enphaseLiveDataLoadService(`Live Data Load`, `enphaseLiveDataLoadService`);
+                    enphaseLiveDataLoadService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Load`);
+                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePower)
+                        .onGet(async () => {
+                            const value = this.liveDataLoadActivePower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataLoadActivePowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L1, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataLoadActivePowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L2, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataLoadActivePowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L3, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPower)
+                        .onGet(async () => {
+                            const value = this.liveDataLoadApparentPower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataLoadApparentPowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L1, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataLoadApparentPowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L2, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataLoadService.getCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataLoadApparentPowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Load L3, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    this.liveDataLoadService.push(enphaseLiveDataLoadService);
+                    accessory.addService(enphaseLiveDataLoadService);
+
+                    //live date generator
+                    this.liveDataGeneratorService = [];
+                    const enphaseLiveDataGeneratorService = new Service.enphaseLiveDataGeneratorService(`Live Data Generator`, `enphaseLiveDataGeneratorService`);
+                    enphaseLiveDataGeneratorService.setCharacteristic(Characteristic.ConfiguredName, `Live Data Generator`);
+                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePower)
+                        .onGet(async () => {
+                            const value = this.liveDataGeneratorActivePower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataGeneratorActivePowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L1, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataGeneratorActivePowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L2, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataGeneratorActivePowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L3, active power: ${value} kW`);
+                            return value;
+                        });
+                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPower)
+                        .onGet(async () => {
+                            const value = this.liveDataGeneratorApparentPower;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL1)
+                        .onGet(async () => {
+                            const value = this.liveDataGeneratorApparentPowerL1;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L1, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL2)
+                        .onGet(async () => {
+                            const value = this.liveDataGeneratorApparentPowerL2;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L2, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    enphaseLiveDataGeneratorService.getCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL3)
+                        .onGet(async () => {
+                            const value = this.liveDataGeneratorApparentPowerL3;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data Generator L3, apparent power: ${value} kVA`);
+                            return value;
+                        });
+                    this.liveDataGeneratorService.push(enphaseLiveDataGeneratorService);
+                    accessory.addService(enphaseLiveDataGeneratorService);
                 }
 
                 resolve(accessory);

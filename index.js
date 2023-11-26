@@ -2462,5 +2462,760 @@ module.exports = (api) => {
   }
   Service.enphaseEsubService = enphaseEsubService;
 
+  //enphase live data pv
+  class enphaseLiveDataPvActivePower extends Characteristic {
+    constructor() {
+      super('Active power', '00000240-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataPvActivePower = enphaseLiveDataPvActivePower;
+
+  class enphaseLiveDataPvActivePowerL1 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000241-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataPvActivePowerL1 = enphaseLiveDataPvActivePowerL1;
+
+
+  class enphaseLiveDataPvActivePowerL2 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000242-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataPvActivePowerL2 = enphaseLiveDataPvActivePowerL2;
+
+
+  class enphaseLiveDataPvActivePowerL3 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000243-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataPvActivePowerL3 = enphaseLiveDataPvActivePowerL3;
+
+
+  class enphaseLiveDataPvApparentPower extends Characteristic {
+    constructor() {
+      super('Apparent power', '00000244-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataPvApparentPower = enphaseLiveDataPvApparentPower;
+
+  class enphaseLiveDataPvApparentPowerL1 extends Characteristic {
+    constructor() {
+      super('Apparent power L1', '00000245-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataPvApparentPowerL1 = enphaseLiveDataPvApparentPowerL1;
+
+  class enphaseLiveDataPvApparentPowerL2 extends Characteristic {
+    constructor() {
+      super('Apparent power L2', '00000246-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataPvApparentPowerL2 = enphaseLiveDataPvApparentPowerL2;
+
+  class enphaseLiveDataPvApparentPowerL3 extends Characteristic {
+    constructor() {
+      super('Apparent power L3', '00000247-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataPvApparentPowerL3 = enphaseLiveDataPvApparentPowerL3;
+
+  //live data pv service
+  class enphaseLiveDataPvService extends Service {
+    constructor(displayName, subtype) {
+      super(displayName, '00000012-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseLiveDataPvActivePower);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataPvActivePowerL3);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataPvApparentPower);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataPvApparentPowerL3);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+    }
+  }
+  Service.enphaseLiveDataPvService = enphaseLiveDataPvService;
+
+  //enphase live data storage
+  class enphaseLiveDataStorageActivePower extends Characteristic {
+    constructor() {
+      super('Active power', '00000250-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataStorageActivePower = enphaseLiveDataStorageActivePower;
+
+  class enphaseLiveDataStorageActivePowerL1 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000251-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataStorageActivePowerL1 = enphaseLiveDataStorageActivePowerL1;
+
+
+  class enphaseLiveDataStorageActivePowerL2 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000252-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataStorageActivePowerL2 = enphaseLiveDataStorageActivePowerL2;
+
+
+  class enphaseLiveDataStorageActivePowerL3 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000253-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataStorageActivePowerL3 = enphaseLiveDataStorageActivePowerL3;
+
+
+  class enphaseLiveDataStorageApparentPower extends Characteristic {
+    constructor() {
+      super('Apparent power', '00000254-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataStorageApparentPower = enphaseLiveDataStorageApparentPower;
+
+  class enphaseLiveDataStorageApparentPowerL1 extends Characteristic {
+    constructor() {
+      super('Apparent power L1', '00000255-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataStorageApparentPowerL1 = enphaseLiveDataStorageApparentPowerL1;
+
+  class enphaseLiveDataStorageApparentPowerL2 extends Characteristic {
+    constructor() {
+      super('Apparent power L2', '00000256-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataStorageApparentPowerL2 = enphaseLiveDataStorageApparentPowerL2;
+
+  class enphaseLiveDataStorageApparentPowerL3 extends Characteristic {
+    constructor() {
+      super('Apparent power L3', '00000257-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataStorageApparentPowerL3 = enphaseLiveDataStorageApparentPowerL3;
+
+  //live data storage service
+  class enphaseLiveDataStorageService extends Service {
+    constructor(displayName, subtype) {
+      super(displayName, '00000013-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseLiveDataStorageActivePower);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataStorageActivePowerL3);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataStorageApparentPower);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataStorageApparentPowerL3);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+    }
+  }
+  Service.enphaseLiveDataStorageService = enphaseLiveDataStorageService;
+
+  //enphase live data grid
+  class enphaseLiveDataGridActivePower extends Characteristic {
+    constructor() {
+      super('Active power', '00000260-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGridActivePower = enphaseLiveDataGridActivePower;
+
+  class enphaseLiveDataGridActivePowerL1 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000261-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGridActivePowerL1 = enphaseLiveDataGridActivePowerL1;
+
+
+  class enphaseLiveDataGridActivePowerL2 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000262-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGridActivePowerL2 = enphaseLiveDataGridActivePowerL2;
+
+
+  class enphaseLiveDataGridActivePowerL3 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000263-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGridActivePowerL3 = enphaseLiveDataGridActivePowerL3;
+
+
+  class enphaseLiveDataGridApparentPower extends Characteristic {
+    constructor() {
+      super('Apparent power', '00000264-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGridApparentPower = enphaseLiveDataGridApparentPower;
+
+  class enphaseLiveDataGridApparentPowerL1 extends Characteristic {
+    constructor() {
+      super('Apparent power L1', '00000265-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGridApparentPowerL1 = enphaseLiveDataGridApparentPowerL1;
+
+  class enphaseLiveDataGridApparentPowerL2 extends Characteristic {
+    constructor() {
+      super('Apparent power L2', '00000266-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGridApparentPowerL2 = enphaseLiveDataGridApparentPowerL2;
+
+  class enphaseLiveDataGridApparentPowerL3 extends Characteristic {
+    constructor() {
+      super('Apparent power L3', '00000267-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGridApparentPowerL3 = enphaseLiveDataGridApparentPowerL3;
+
+  //live data grid service
+  class enphaseLiveDataGridService extends Service {
+    constructor(displayName, subtype) {
+      super(displayName, '00000014-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseLiveDataGridActivePower);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGridActivePowerL3);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGridApparentPower);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGridApparentPowerL3);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+    }
+  }
+  Service.enphaseLiveDataGridService = enphaseLiveDataGridService;
+
+  //enphase live data load
+  class enphaseLiveDataLoadActivePower extends Characteristic {
+    constructor() {
+      super('Active power', '00000270-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataLoadActivePower = enphaseLiveDataLoadActivePower;
+
+  class enphaseLiveDataLoadActivePowerL1 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000271-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataLoadActivePowerL1 = enphaseLiveDataLoadActivePowerL1;
+
+
+  class enphaseLiveDataLoadActivePowerL2 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000272-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataLoadActivePowerL2 = enphaseLiveDataLoadActivePowerL2;
+
+
+  class enphaseLiveDataLoadActivePowerL3 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000273-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataLoadActivePowerL3 = enphaseLiveDataLoadActivePowerL3;
+
+
+  class enphaseLiveDataLoadApparentPower extends Characteristic {
+    constructor() {
+      super('Apparent power', '00000274-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataLoadApparentPower = enphaseLiveDataLoadApparentPower;
+
+  class enphaseLiveDataLoadApparentPowerL1 extends Characteristic {
+    constructor() {
+      super('Apparent power L1', '00000275-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataLoadApparentPowerL1 = enphaseLiveDataLoadApparentPowerL1;
+
+  class enphaseLiveDataLoadApparentPowerL2 extends Characteristic {
+    constructor() {
+      super('Apparent power L2', '00000276-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataLoadApparentPowerL2 = enphaseLiveDataLoadApparentPowerL2;
+
+  class enphaseLiveDataLoadApparentPowerL3 extends Characteristic {
+    constructor() {
+      super('Apparent power L3', '00000277-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataLoadApparentPowerL3 = enphaseLiveDataLoadApparentPowerL3;
+
+  //live data load service
+  class enphaseLiveDataLoadService extends Service {
+    constructor(displayName, subtype) {
+      super(displayName, '00000015-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseLiveDataLoadActivePower);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataLoadActivePowerL3);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataLoadApparentPower);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataLoadApparentPowerL3);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+    }
+  }
+  Service.enphaseLiveDataLoadService = enphaseLiveDataLoadService;
+
+  //enphase live data generator
+  class enphaseLiveDataGeneratorActivePower extends Characteristic {
+    constructor() {
+      super('Active power', '00000280-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGeneratorActivePower = enphaseLiveDataGeneratorActivePower;
+
+  class enphaseLiveDataGeneratorActivePowerL1 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000281-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGeneratorActivePowerL1 = enphaseLiveDataGeneratorActivePowerL1;
+
+
+  class enphaseLiveDataGeneratorActivePowerL2 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000282-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGeneratorActivePowerL2 = enphaseLiveDataGeneratorActivePowerL2;
+
+
+  class enphaseLiveDataGeneratorActivePowerL3 extends Characteristic {
+    constructor() {
+      super('Active power L1', '00000283-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kW',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGeneratorActivePowerL3 = enphaseLiveDataGeneratorActivePowerL3;
+
+
+  class enphaseLiveDataGeneratorApparentPower extends Characteristic {
+    constructor() {
+      super('Apparent power', '00000284-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGeneratorApparentPower = enphaseLiveDataGeneratorApparentPower;
+
+  class enphaseLiveDataGeneratorApparentPowerL1 extends Characteristic {
+    constructor() {
+      super('Apparent power L1', '00000285-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGeneratorApparentPowerL1 = enphaseLiveDataGeneratorApparentPowerL1;
+
+  class enphaseLiveDataGeneratorApparentPowerL2 extends Characteristic {
+    constructor() {
+      super('Apparent power L2', '00000286-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGeneratorApparentPowerL2 = enphaseLiveDataGeneratorApparentPowerL2;
+
+  class enphaseLiveDataGeneratorApparentPowerL3 extends Characteristic {
+    constructor() {
+      super('Apparent power L3', '00000287-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: 'kVA',
+        maxValue: 1000,
+        minValue: -1000,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseLiveDataGeneratorApparentPowerL3 = enphaseLiveDataGeneratorApparentPowerL3;
+
+  //live data generator service
+  class enphaseLiveDataGeneratorService extends Service {
+    constructor(displayName, subtype) {
+      super(displayName, '00000016-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePower);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGeneratorActivePowerL3);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPower);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL1);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL2);
+      this.addOptionalCharacteristic(Characteristic.enphaseLiveDataGeneratorApparentPowerL3);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+    }
+  }
+  Service.enphaseLiveDataGeneratorService = enphaseLiveDataGeneratorService;
+
   api.registerPlatform(CONSTANS.PluginName, CONSTANS.PlatformName, EnvoyPlatform, true);
 }
