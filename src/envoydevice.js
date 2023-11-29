@@ -425,8 +425,8 @@ class EnvoyDevice extends EventEmitter {
             await this.updateInventoryData();
             this.updateHome();
         } catch (error) {
-            this.emit('error', `${error} Trying again in: 60 sec.`);
-            this.updateHome();
+            this.emit('error', `${error} Trying again.`);
+            this.start();
         };
     };
 
@@ -437,8 +437,8 @@ class EnvoyDevice extends EventEmitter {
             const updateMetersReadingData = this.metersInstalled ? await this.updateMetersReadingData() : false;
             this.updateMeters();
         } catch (error) {
-            this.emit('error', `${error} Trying again in: ${this.metersDataRefreshTime / 1000} sec.`);
-            this.updateMeters();
+            this.emit('error', `${error} Trying again.`);
+            this.start();
         };
     };
 
@@ -449,8 +449,8 @@ class EnvoyDevice extends EventEmitter {
             const updateEnsembleStatusData = this.supportEnsembleStatus && updateEnsembleInventoryData ? await this.updateEnsembleStatusData() : false;
             this.updateEnsembleInventory();
         } catch (error) {
-            this.emit('error', `${error} Trying again in: 65 sec.`);
-            this.updateEnsembleInventory();
+            this.emit('error', `${error} Trying again.`);
+            this.start();
         };
     };
 
@@ -460,8 +460,8 @@ class EnvoyDevice extends EventEmitter {
             await this.updateLiveData();
             this.updateLive();
         } catch (error) {
-            this.emit('error', `${error} Trying again in: ${this.liveDataRefreshTime / 1000} sec.`);
-            this.updateLive();
+            this.emit('error', `${error} Trying again.`);
+            this.start();
         };
     };
 
@@ -472,8 +472,8 @@ class EnvoyDevice extends EventEmitter {
             await this.updateProductionCtData();
             this.updateProduction();
         } catch (error) {
-            this.emit('error', `${error} Trying again in: in: ${this.productionDataRefreshTime / 1000} sec.`);
-            this.updateProduction();
+            this.emit('error', `${error} Trying again.`);
+            this.start();
         };
     };
 
@@ -483,8 +483,8 @@ class EnvoyDevice extends EventEmitter {
             await this.updateMicroinvertersData();
             this.updateMicroinverters();
         } catch (error) {
-            this.emit('error', `${error} Trying again in: 70 sec.`);
-            this.updateMicroinverters();
+            this.emit('error', `${error} Trying again.`);
+            this.start();
         };
     };
 

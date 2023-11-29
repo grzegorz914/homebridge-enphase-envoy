@@ -113,8 +113,8 @@
     "ApiCodes": {
         "eim": "Current meter",
         "production": "Production",
-        "net-consumption": "Consumption (Net)",
-        "total-consumption": "Consumption (Total)",
+        "net-consumption": "Consumption Grid",
+        "total-consumption": "Consumption Total",
         "inverters": "Microinverters",
         "acb": "AC Batterie",
         "encharge": "Encharge",
