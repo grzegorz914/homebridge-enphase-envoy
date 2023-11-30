@@ -414,19 +414,19 @@ class EnvoyDevice extends EventEmitter {
 
     async updateHome() {
         try {
-            await new Promise(resolve => setTimeout(resolve, 60000));
-
-            //check token expired
+            //check token expired and refresh
             const tokenExpired = this.envoyFirmware7xx && Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt ? true : false;
-            const updateJwtToken = tokenExpired ? await this.getJwtToken() : false;
+            const updateJwtToken = tokenExpired ? this.refreshToken() : false;
 
             //update home data
+            await new Promise(resolve => setTimeout(resolve, 60000));
             await this.updateHomeData();
             await this.updateInventoryData();
             this.updateHome();
         } catch (error) {
             this.emit('error', `${error} Trying again.`);
-            this.start();
+            this.refreshToken();
+            this.updateHome();
         };
     };
 
@@ -438,7 +438,8 @@ class EnvoyDevice extends EventEmitter {
             this.updateMeters();
         } catch (error) {
             this.emit('error', `${error} Trying again.`);
-            this.start();
+            this.refreshToken();
+            this.updateMeters();
         };
     };
 
@@ -450,7 +451,8 @@ class EnvoyDevice extends EventEmitter {
             this.updateEnsembleInventory();
         } catch (error) {
             this.emit('error', `${error} Trying again.`);
-            this.start();
+            this.refreshToken();
+            this.updateEnsembleInventory();
         };
     };
 
@@ -461,7 +463,8 @@ class EnvoyDevice extends EventEmitter {
             this.updateLive();
         } catch (error) {
             this.emit('error', `${error} Trying again.`);
-            this.start();
+            this.refreshToken();
+            this.updateLive();
         };
     };
 
@@ -473,7 +476,8 @@ class EnvoyDevice extends EventEmitter {
             this.updateProduction();
         } catch (error) {
             this.emit('error', `${error} Trying again.`);
-            this.start();
+            this.refreshToken();
+            this.updateProduction();
         };
     };
 
@@ -484,7 +488,20 @@ class EnvoyDevice extends EventEmitter {
             this.updateMicroinverters();
         } catch (error) {
             this.emit('error', `${error} Trying again.`);
-            this.start();
+            this.refreshToken();
+            this.updateMicroinverters();
+        };
+    };
+
+    async refreshToken() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Rewalidate JWT token.`) : false;
+
+        try {
+            //get and validate jwt token
+            const getJwtToken = this.envoyFirmware7xx ? await this.getJwtToken() : false;
+            const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
+        } catch (error) {
+            this.emit('error', `Refresh JWT token error: ${error}`);
         };
     };
 
