@@ -99,10 +99,10 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. If `Enpower Grid State OFF` the contact fired. |
 | `enchargeGridStateSensor` | This enable `Encharge Grid State` monitoring and expose contact sensor in HomeKit app. If `Encharge Grid State OFF` the contact fired. |
 | `solarGridStateSensor` | This enable `Solar Grid State` monitoring and expose contact sensor in HomeKit app. If `Solar Grid State OFF` the contact fired. |
-| `supportProductionPowerMode` | If enabled, check/control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app). |
-| `supportPlcLevel` | If enabled, check `PLC Level` will be possible. |
-| `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only fw. 7.x.x), more info in `About The Plugin` section. |
-| `supportLiveData` | If enabled, check `Live Data` will be possible (only fw. 7.x.x). |
+| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app) (only fw. 6.x.x and older). |
+| `supportPlcLevel` | If enabled, check `PLC Level` will be possible (only fw. 6.x.x and older). |
+| `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only fw. 7.x.x and newer), more info in `About The Plugin` section. |
+| `supportLiveData` | If enabled, check `Live Data` will be possible (only fw. 7.x.x and newer). |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (ms). |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (ms). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
