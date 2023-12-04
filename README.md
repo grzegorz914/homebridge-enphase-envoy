@@ -30,10 +30,11 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 
 * Firmware v7.x.x. and Token authorization is supported from plugin v6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit, Generator).
-* Envoy `device ID` is detected automatically, is required to control `Production Power Mode`.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
-* Support `Ensemble Status` and `Production Power Mode` may not working with all envoy firmware 7.x.x, if you get error, please disable it in plugin `Advanced Settings` section.
+* Envoy `device ID` is detected automatically.
+* Support `Ensemble Status` working only with Envoy Fw. v7.x.x and newer.
+* Support `Production Power Mode` and `PLC Level` working only with Envoy Fw. v6.x.x and older.
 * For best experiences and display all data please use `Controller App` or `EVE app`.
 * Exposed accessory in the native Home app:
   * Lightbulb `Power Production State` and `Power Production Level`.
