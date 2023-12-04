@@ -66,7 +66,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 | --- | --- |
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
 | `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
-| `envoyFirmware7xx` | This enable support for Envoy firmware v7.x.x. If for some reason if You get in log `validate JWT token error`, login with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
+| `envoyFirmware7xx` | This enable support for Envoy firmware v7.x.x. If for some reason in the log You get `validate JWT token error`, log-in with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |
 | `envoySerialNumber` | Here set the envoy serial number. |
