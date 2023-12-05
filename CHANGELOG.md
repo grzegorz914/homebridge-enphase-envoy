@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Envoy Firmware 7.x.x supported ab pplugin version 6.0.0 and above!!! 
+## Envoy Firmware 7.x.x supported ab plugin v6.0.0 and above!!! 
 
 ## Power Production Enable/Disable v5.2.0 and above!!!
 - You can set task for the Envoy to Enable/Disable power production on the microinverters. 
@@ -13,6 +13,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Note!!!
 # After update to v7.5.0 and above from plevious version the sensors in plugin config need to be configured again!!!
+
+## [7.7.5] - (05.12.2023)
+## Changes
+- fix missing aasync/wait for microinverters data update
+- refactor code in section data update
+- fix characteristic warning [#115](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/115)
+- better handle to fix [#112](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/112)
+- config.schema updated
+- cleanup
+
+## [7.7.4] - (02.12.2023)
+## Changes
+- fix [#112](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/112)
+- cleanup
+
+## [7.7.3] - (29.11.2023)
+## Changes
+- fix [#112](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/112)
+- cleanup
 
 ## [7.7.2] - (26.11.2023)
 ## Changes
