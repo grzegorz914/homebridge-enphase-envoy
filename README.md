@@ -63,7 +63,7 @@
 | --- | --- |
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
 | `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
-| `envoyFirmware7xx` | This enable support for Envoy firmware v7.x.x. If for some reason in the log You get `validate JWT token error`, log-in with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
+| `envoyFirmware7xx` | This enable support for Envoy Fw. v7.x.x and newer. If for some reason in the log You get `validate JWT token error`, log-in with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |
 | `envoySerialNumber` | Here set the envoy serial number. |
@@ -96,10 +96,10 @@
 | `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. If `Enpower Grid State OFF` the contact fired. |
 | `enchargeGridStateSensor` | This enable `Encharge Grid State` monitoring and expose contact sensor in HomeKit app. If `Encharge Grid State OFF` the contact fired. |
 | `solarGridStateSensor` | This enable `Solar Grid State` monitoring and expose contact sensor in HomeKit app. If `Solar Grid State OFF` the contact fired. |
-| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app) (only fw. 6.x.x and older). |
-| `supportPlcLevel` | If enabled, check `PLC Level` will be possible (only fw. 6.x.x and older). |
-| `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only fw. 7.x.x and newer), more info in `About The Plugin` section. |
-| `supportLiveData` | If enabled, check `Live Data` will be possible (only fw. 7.x.x and newer). |
+| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app) (only Fw. v6.x.x and older). |
+| `supportPlcLevel` | If enabled, check `PLC Level` will be possible (only Fw. v6.x.x and older). |
+| `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only Fw. v7.x.x and newer), more info in `About The Plugin` section. |
+| `supportLiveData` | If enabled, check `Live Data` will be possible (only Fw. v7.x.x and newer). |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (ms). |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (ms). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
