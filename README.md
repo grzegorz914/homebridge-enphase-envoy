@@ -13,9 +13,6 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/grzegorz914/homebridge-enphase-envoy.svg)](https://github.com/grzegorz914/homebridge-enphase-envoy/pulls)
 [![GitHub issues](https://img.shields.io/github/issues/grzegorz914/homebridge-enphase-envoy.svg)](https://github.com/grzegorz914/homebridge-enphase-envoy/issues)
 
-Homebridge plugin for Photovoltaic Energy System manufactured by Enphase.
-Supported *Envoy-IQ, Envoy-S* and all peripheral devices.
-
 </span>
 
 ## Package Requirements
