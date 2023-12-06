@@ -2498,7 +2498,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataPvActivePowerL2 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000242-000B-1000-8000-0026BB765291');
+      super('Active power L2', '00000242-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -2515,7 +2515,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataPvActivePowerL3 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000243-000B-1000-8000-0026BB765291');
+      super('Active power L3', '00000243-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -2649,7 +2649,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataStorageActivePowerL2 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000252-000B-1000-8000-0026BB765291');
+      super('Active power L2', '00000252-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -2666,7 +2666,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataStorageActivePowerL3 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000253-000B-1000-8000-0026BB765291');
+      super('Active power L3', '00000253-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -2800,7 +2800,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataGridActivePowerL2 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000262-000B-1000-8000-0026BB765291');
+      super('Active power L2', '00000262-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -2817,7 +2817,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataGridActivePowerL3 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000263-000B-1000-8000-0026BB765291');
+      super('Active power L3', '00000263-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -2951,7 +2951,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataLoadActivePowerL2 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000272-000B-1000-8000-0026BB765291');
+      super('Active power L2', '00000272-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -2968,7 +2968,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataLoadActivePowerL3 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000273-000B-1000-8000-0026BB765291');
+      super('Active power L3', '00000273-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -3102,7 +3102,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataGeneratorActivePowerL2 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000282-000B-1000-8000-0026BB765291');
+      super('Active power L2', '00000282-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
@@ -3119,7 +3119,7 @@ module.exports = (api) => {
 
   class enphaseLiveDataGeneratorActivePowerL3 extends Characteristic {
     constructor() {
-      super('Active power L1', '00000283-000B-1000-8000-0026BB765291');
+      super('Active power L3', '00000283-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Characteristic.Formats.FLOAT,
         unit: 'kW',
