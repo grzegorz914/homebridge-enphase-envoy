@@ -35,7 +35,7 @@ Supported *Envoy-IQ, Envoy-S Metered/Standard* and all peripheral devices.
 * Envoy `device ID` is detected automatically.
 * Support `Ensemble Status` working only with Envoy Fw. v7.x.x and newer.
 * Support `Production Power Mode` and `PLC Level` working only with Envoy Fw. v6.x.x and older.
-* For best experiences and display all data please use `Controller App` or `EVE app`.
+* For best experiences and display all data please use `Controller` or `EVE` app.
 * Exposed accessory in the native Home app:
   * Lightbulb `Power Production State` and `Power Production Level`.
   * Contact Sensors:
