@@ -25,7 +25,7 @@
 
 ### About The Plugin
 
-* Firmware v7.x.x. and Token authorization is supported from plugin v6.0.0.
+* Firmware v7.x.x. and newer with Token authorization is supported from plugin v6.0.0.
 * All devices are detected automatically (Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit, Generator).
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
