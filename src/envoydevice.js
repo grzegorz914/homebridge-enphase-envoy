@@ -418,6 +418,7 @@ class EnvoyDevice extends EventEmitter {
                 const startLive = updateLiveData ? this.updateLive() : false;
                 const starProduction = updateProductionData ? this.updateProduction() : false;
                 const startMicroinverters = updateMicroinvertersData ? this.updateMicroinverters() : false;
+                const checkJwtToken = validJwtToken ? this.checkJwtToken() : false;
             } catch (error) {
                 this.emit('error', `Start update data error: ${error}`);
             };
@@ -430,17 +431,12 @@ class EnvoyDevice extends EventEmitter {
 
     async updateHome() {
         try {
-            //check token expired and refresh
-            const tokenExpired = this.envoyFirmware7xx && Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt ? true : false;
-            const updateJwtToken = tokenExpired ? this.refreshToken() : false;
-
-            //update home data
             await this.updateHomeData();
             await this.updateInventoryData();
         } catch (error) {
             const match = error.match(STATUSCODEREGEX);
-            const refreshToken = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && refreshToken ? this.refreshToken() : this.emit('error', `${error} Trying again.`);
+            const tokenNotValid = match && match[1] === '401';
+            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, 60000));
@@ -453,8 +449,8 @@ class EnvoyDevice extends EventEmitter {
             const updateMetersReadingData = metersEnabled ? await this.updateMetersReadingData() : false;
         } catch (error) {
             const match = error.match(STATUSCODEREGEX);
-            const refreshToken = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && refreshToken ? this.refreshToken() : this.emit('error', `${error} Trying again.`);
+            const tokenNotValid = match && match[1] === '401';
+            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.metersDataRefreshTime));
@@ -467,8 +463,8 @@ class EnvoyDevice extends EventEmitter {
             const updateEnsembleStatusData = this.supportEnsembleStatus ? await this.updateEnsembleStatusData() : false;
         } catch (error) {
             const match = error.match(STATUSCODEREGEX);
-            const refreshToken = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && refreshToken ? this.refreshToken() : this.emit('error', `${error} Trying again.`);
+            const tokenNotValid = match && match[1] === '401';
+            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, 70000));
@@ -480,8 +476,8 @@ class EnvoyDevice extends EventEmitter {
             await this.updateLiveData();
         } catch (error) {
             const match = error.match(STATUSCODEREGEX);
-            const refreshToken = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && refreshToken ? this.refreshToken() : this.emit('error', `${error} Trying again.`);
+            const tokenNotValid = match && match[1] === '401';
+            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.liveDataRefreshTime));
@@ -494,8 +490,8 @@ class EnvoyDevice extends EventEmitter {
             await this.updateProductionCtData();
         } catch (error) {
             const match = error.match(STATUSCODEREGEX);
-            const refreshToken = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && refreshToken ? this.refreshToken() : this.emit('error', `${error} Trying again.`);
+            const tokenNotValid = match && match[1] === '401';
+            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.productionDataRefreshTime));
@@ -507,24 +503,32 @@ class EnvoyDevice extends EventEmitter {
             await this.updateMicroinvertersData();
         } catch (error) {
             const match = error.match(STATUSCODEREGEX);
-            const refreshToken = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && refreshToken ? this.refreshToken() : this.emit('error', `${error} Trying again.`);
+            const tokenNotValid = match && match[1] === '401';
+            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, 80000));
         this.updateMicroinverters();
     };
 
-    async refreshToken() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting refresh JWT token.`) : false;
+    async checkJwtToken(tokenNotValid = false) {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token.`) : false;
 
         try {
+            //check token expired and refresh
+            const tokenExpired = this.envoyFirmware7xx && Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt ? true : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `JWT token expired: ${tokenExpired ? 'Yes' : 'No'}.`) : false;
+            const debug1 = this.enableDebugMode ? this.emit('debug', `JWT token valid: ${tokenNotValid ? 'No' : 'Yes'}.`) : false;
+
             //get and validate jwt token
-            const getJwtToken = await this.getJwtToken();
+            const getJwtToken = tokenNotValid || tokenExpired ? await this.getJwtToken() : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
         } catch (error) {
-            this.emit('error', `Refresh JWT token error: ${error} Trying again.`);
+            this.emit('error', `Requesting check JWT token error: ${error} Trying again.`);
         };
+
+        await new Promise(resolve => setTimeout(resolve, 90000));
+        this.checkJwtToken(tokenNotValid);
     };
 
     getJwtToken() {
