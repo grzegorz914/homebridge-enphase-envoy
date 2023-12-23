@@ -81,7 +81,7 @@
 | `energyProductionStateSensor.mode` | Here activate the sensor. |
 | `energyProductionLevelSensors` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
 | `energyProductionLevelSensors.name` | Here set Your own sensor name. |
-| `energyProductionLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `energyProductionLevelSensors.energyLevel` | Here set energy level in (Wh) at which the sensor fired. |
 | `energyProductionLevelSensors.mode` | Here activate the sensor. |
 | `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded (+/-). |
 | `powerConsumptionTotalStateSensor` | This enable `Power State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
@@ -96,7 +96,7 @@
 | `energyConsumptionTotalStateSensor.mode` | Here activate the sensor. |
 | `energyConsumptionTotalLevelSensors` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
 | `energyConsumptionTotalLevelSensors.name` | Here set Your own sensor name. |
-| `energyConsumptionTotalLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `energyConsumptionTotalLevelSensors.energyLevel` | Here set energy level in (Wh) at which the sensor fired. |
 | `energyConsumptionTotalLevelSensors.mode` | Here activate the sensor. |
 | `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Total) if nedded (+/-). |
 | `powerConsumptionNetStateSensor` | This enable `Power State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
@@ -111,7 +111,7 @@
 | `energyConsumptionNetStateSensor.mode` | Here activate the sensor. |
 | `energyConsumptionNetLevelSensors` | This enable `Energy Level` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
 | `energyConsumptionNetLevelSensors.name` | Here set Your own sensor name. |
-| `energyConsumptionNetLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `energyConsumptionNetLevelSensors.energyLevel` | Here set energy level in (Wh) at which the sensor fired. |
 | `energyConsumptionNetLevelSensors.mode` | Here activate the sensor. |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Net) if nedded (+/-). |
 | `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. If `Enpower Grid State OFF` the contact fired. |
