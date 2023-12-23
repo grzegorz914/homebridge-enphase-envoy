@@ -30,33 +30,92 @@
                     "envoySerialNumber": "",
                     "envoyPasswd": "",
                     "powerProductionSummary": 7200,
-                    "powerProductionStateSensor": false,
-                    "powerProductionPeakSensor": false,
-                    "powerProductionPeakSensorDetected": 5400,
-                    "powerProductionPeakAutoReset": 0,
-                    "energyProductionStateSensor": false,
-                    "energyProductionLevelSensor": false,
-                    "energyProductionLevelSensorDetected": 10000,
+                    "powerProductionStateSensor": {
+                        "name": "Production power state",
+                        "mode": true
+                    },
+                    "powerProductionLevelSensors": [
+                        {
+                            "name": "Production >= 7500W",
+                            "powerLevel": 7500,
+                            "mode": true
+                        }
+                    ],
+                    "energyProductionStateSensor": {
+                        "name": "Production energy state",
+                        "mode": false
+                    },
+                    "energyProductionLevelSensors": [
+                        {
+                            "name": "Production energy level >= 5000Wh",
+                            "energyLevel": 5000,
+                            "mode": false
+                        }
+                    ],
                     "energyProductionLifetimeOffset": 0,
-                    "powerConsumptionTotalStateSensor": false,
-                    "powerConsumptionTotalPeakSensor": false,
-                    "powerConsumptionTotalPeakSensorDetected": 10000,
-                    "powerConsumptionTotalPeakAutoReset": 0,
-                    "energyConsumptionTotalStateSensor": false,
-                    "energyConsumptionTotalLevelSensor": false,
-                    "energyConsumptionTotalLevelSensorDetected": 10000,
+                    "powerConsumptionTotalStateSensor": {
+                        "name": "Consumption Total power state",
+                        "mode": true
+                    },
+                    "powerConsumptionTotalLevelSensors": [
+                        {
+                            "name": "Consumption Total >= 5500W",
+                            "powerLevel": 5500,
+                            "mode": true
+                        }
+                    ],
+                    "energyConsumptionTotalStateSensor": {
+                        "name": "Consumption Total energy state",
+                        "mode": false
+                    },
+                    "energyConsumptionTotalLevelSensors": [
+                        {
+                            "name": "Consumption Total energy level > 5000Wh",
+                            "energyLevel": 5000,
+                            "mode": false
+                        }
+                    ],
                     "energyConsumptionTotalLifetimeOffset": 0,
-                    "powerConsumptionNetStateSensor": false,
-                    "powerConsumptionNetPeakSensor": false,
-                    "powerConsumptionNetPeakSensorDetected": 10000,
-                    "powerConsumptionNetPeakAutoReset": 0,
-                    "energyConsumptionNetStateSensor": false,
-                    "energyConsumptionNetlLevelSensor": false,
-                    "energyConsumptionNetLevelSensorDetected": 10000,
+                    "powerConsumptionNetStateSensor": {
+                        "name": "Consumption Net power state",
+                        "mode": true
+                    },
+                    "powerConsumptionNetLevelSensors": [
+                        {
+                            "name": "Import Net >= 5500W",
+                            "powerLevel": 5500,
+                            "mode": true
+                        },
+                        {
+                            "name": "Export Net >= 5500W",
+                            "powerLevel": -5500,
+                            "mode": true
+                        }
+                    ],
+                    "energyConsumptionNetStateSensor": {
+                        "name": "Consumption Net energy state",
+                        "mode": false
+                    },
+                    "energyConsumptionNetLevelSensors": [
+                        {
+                            "name": "Consumption Net energy level >= 5000Wh",
+                            "energyLevel": 5000,
+                            "mode": false
+                        }
+                    ],
                     "energyConsumptionNetLifetimeOffset": 0,
-                    "enpowerGridStateSensor": false,
-                    "enchargeGridStateSensor": false,
-                    "solarGridStateSensor": false,
+                    "enpowerGridStateSensor": {
+                        "name": "Enpower grid state",
+                        "mode": false
+                    },
+                    "enchargeGridStateSensor": {
+                        "name": "Encharge grid state",
+                        "mode": false
+                    },
+                    "solarGridStateSensor": {
+                        "name": "Solar grid state",
+                        "mode": false
+                    },
                     "supportEnsembleStatus": false,
                     "supportLiveData": false,
                     "liveDataRefreshTime": 1000,

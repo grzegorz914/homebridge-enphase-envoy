@@ -17,16 +17,16 @@
             "name": {
               "title": "Name",
               "type": "string",
-              "placeholder": "Envoy-S",
-              "description": "Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`.",
+              "placeholder": "Accessory name",
+              "description": "Here set the accessory name to be displayed in HomeKit.",
               "required": true
             },
             "host": {
               "title": "IP/Hostname",
               "type": "string",
-              "placeholder": "192.168.1.35",
+              "placeholder": "IP Address or Hostname",
               "format": "hostname",
-              "description": "Here set the envoy `IP Address`/`Hostname` or leave empty (will be used default path `envoy.local`.",
+              "description": "Here set the envoy ip address/hostname or leave empty (will be used default path envoy.local).",
               "required": false
             },
             "envoyFirmware7xx": {
@@ -39,7 +39,8 @@
             "envoyPasswd": {
               "title": "Envoy Password",
               "type": "string",
-              "description": "Here set the envoy password (only if U already changed default password).",
+              "placeholder": "Envoy password",
+              "description": "Here set the envoy password (only if You already changed default password).",
               "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
@@ -48,6 +49,7 @@
             "envoySerialNumber": {
               "title": "Envoy Serial Number",
               "type": "string",
+              "placeholder": "Serial number",
               "description": "Here set the envoy serial number.",
               "required": false,
               "condition": {
@@ -57,6 +59,7 @@
             "enlightenUser": {
               "title": "Enlighten User",
               "type": "string",
+              "placeholder": "user@enlighten.com",
               "description": "Here set the enlighten user name.",
               "required": false,
               "condition": {
@@ -66,6 +69,7 @@
             "enlightenPasswd": {
               "title": "Enlighten Password",
               "type": "string",
+              "placeholder": "Enlighten password",
               "description": "Here set the enlighten password.",
               "required": false,
               "condition": {
@@ -76,187 +80,180 @@
               "title": "Power Summary",
               "type": "integer",
               "default": 0,
-              "description": "Here set the power summary in (W) of all microinverters, based on this value will be calculate in % production level displayed in HomeKit.",
+              "description": "Here set the power summary in (W) of all microinverters, based on this value will be calculated power production level in (%) displayed in HomeKit.",
               "required": true
             },
             "powerProductionStateSensor": {
               "title": "Power State Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Power State* monitoring for production and expose contact sensor in HomeKit.",
-              "required": false
-            },
-            "powerProductionPeakSensor": {
-              "title": "Power Peak Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Power Peak* monitoring for production and expose contact sensor in HomeKit.",
-              "required": false
-            },
-            "powerProductionPeakSensorDetected": {
-              "title": "Power Peak Level",
-              "type": "integer",
-              "default": 0,
-              "description": "Here set *Power Peak Level* in (W) at which the *Power Peak Sensor* fired.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerProductionPeakSensor === true;"
-              }
-            },
-            "powerProductionPeakAutoReset": {
-              "title": "Power Peak Reset",
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 3,
-              "default": 0,
-              "oneOf": [
-                {
-                  "title": "None",
-                  "enum": [
-                    0
-                  ]
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
                 },
-                {
-                  "title": "Every Day",
-                  "enum": [
-                    1
-                  ]
-                },
-                {
-                  "title": "Every Week",
-                  "enum": [
-                    2
-                  ]
-                },
-                {
-                  "title": "Every Month",
-                  "enum": [
-                    3
-                  ]
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
                 }
-              ],
-              "description": "Here select at which period of time the *Power Peak* stored in the file will reset.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerProductionPeakSensor === true;"
-              }
+              },
+              "description": "This enable production power state monitoring and expose contact sensor in HomeKit.",
+              "required": false
+            },
+            "powerProductionLevelSensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "powerLevel": {
+                    "title": "Power Level",
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Here set power level in (W) at which the sensor fired.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
+                }
+              },
+              "description": "This enable production power level monitoring and expose contact sensor in HomeKit",
+              "required": false
             },
             "energyProductionStateSensor": {
               "title": "Energy State Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Energy State* monitoring for production and expose contact sensor in HomeKit.",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
+                }
+              },
+              "description": "This enable production energy state monitoring and expose contact sensor in HomeKit.",
               "required": false
             },
-            "energyProductionLevelSensor": {
-              "title": "Energy Level Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Energy Level* monitoring for production and expose contact sensor in HomeKit.",
+            "energyProductionLevelSensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "energyLevel": {
+                    "title": "Enargy Level",
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Here set enargy level in (Wh) at which the sensor fired.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
+                }
+              },
+              "description": "This enable production energy level monitoring and expose contact sensor in HomeKit.",
               "required": false
-            },
-            "energyProductionLevelSensorDetected": {
-              "title": "Energy Level Detected",
-              "type": "integer",
-              "default": 0,
-              "description": "Here set *Energy Level* in (Wh) for production at which the *Energy Level Sensor* fired.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].energyProductionLevelSensor === true;"
-              }
             },
             "energyProductionLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "description": "Here set *Offset* in (Wh) for energy production, if nedded.",
+              "description": "Here set offset in (Wh) for energy production, if nedded.",
               "required": false
             },
             "powerConsumptionTotalStateSensor": {
               "title": "Power State Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Power State* monitoring for consumption *Total* and expose contact sensor in HomeKit.",
-              "required": false
-            },
-            "powerConsumptionTotalPeakSensor": {
-              "title": "Power Peak Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Power Peak* monitoring for consumption *Total* and expose contact sensor in HomeKit.",
-              "required": false
-            },
-            "powerConsumptionTotalPeakSensorDetected": {
-              "title": "Power Peak Detected",
-              "type": "integer",
-              "default": 0,
-              "description": "Here set *Power Peak Level* in (W) at which the *Power Peak Sensor* fired.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalPeakSensor === true;"
-              }
-            },
-            "powerConsumptionTotalPeakAutoReset": {
-              "title": "Power Peak Reset",
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 3,
-              "default": 0,
-              "oneOf": [
-                {
-                  "title": "None",
-                  "enum": [
-                    0
-                  ]
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
                 },
-                {
-                  "title": "Every Day",
-                  "enum": [
-                    1
-                  ]
-                },
-                {
-                  "title": "Every Week",
-                  "enum": [
-                    2
-                  ]
-                },
-                {
-                  "title": "Every Month",
-                  "enum": [
-                    3
-                  ]
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
                 }
-              ],
-              "description": "Here select at which period of time the *Power Peak* stored in the file will reset.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalPeakSensor === true;"
-              }
-            },
-            "energyConsumptionTotalStateSensor": {
-              "title": "Energy State Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Energy State* monitoring for consumption *Total* and expose contact sensor in HomeKit.",
+              },
+              "description": "This enable consumptiom total power state monitoring and expose contact sensor in HomeKit.",
               "required": false
             },
-            "energyConsumptionTotalLevelSensor": {
-              "title": "Energy Level Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Energy Level* monitoring for consumption *Total* and expose contact sensor in HomeKit.",
+            "powerConsumptionTotalLevelSensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "powerLevel": {
+                    "title": "Power Level",
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Here set power level in (W) at which the sensor fired.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
+                }
+              },
+              "description": "This enable consumptiom total power level monitoring and expose contact sensor in HomeKit.",
               "required": false
-            },
-            "energyConsumptionTotalLevelSensorDetected": {
-              "title": "Energy Level Detected",
-              "type": "integer",
-              "default": 0,
-              "description": "Here set *Energy Level* in (Wh) for consumption *Total* at which the *Energy Level Sensor* fired.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].energyConsumptionTotalLevelSensor === true;"
-              }
             },
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Energy Lifetime Offset",
@@ -265,91 +262,114 @@
               "description": "Here set *Offset* in (Wh) for energy consumption *Total*, if nedded.",
               "required": false
             },
+            "energyConsumptionTotalStateSensor": {
+              "title": "Energy State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
+                }
+              },
+              "description": "This enable consumptiom total energy state monitoring and expose contact sensor in HomeKit.",
+              "required": false
+            },
+            "energyConsumptionTotalLevelSensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "energyLevel": {
+                    "title": "Enargy Level",
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Here set enargy level in (Wh) at which the sensor fired.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
+                }
+              },
+              "description": "This enable consumptiom total energy level monitoring and expose contact sensor in HomeKit.",
+              "required": false
+            },
             "powerConsumptionNetStateSensor": {
               "title": "Power State Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Power State* monitoring for consumption *Net* and expose contact sensor in HomeKit.",
-              "required": false
-            },
-            "powerConsumptionNetPeakSensor": {
-              "title": "Power Peak Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Power Peak* monitoring for consumption *Net* and expose contact sensor in HomeKit.",
-              "required": false
-            },
-            "powerConsumptionNetPeakSensorDetected": {
-              "title": "Power Peak Detected",
-              "type": "integer",
-              "default": 0,
-              "description": "Here set *Power Peak Level* in (W) at which the *Power Peak Sensor* fired.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionNetPeakSensor === true;"
-              }
-            },
-            "powerConsumptionNetPeakAutoReset": {
-              "title": "Power Peak Reset",
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 3,
-              "default": 0,
-              "oneOf": [
-                {
-                  "title": "None",
-                  "enum": [
-                    0
-                  ]
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
                 },
-                {
-                  "title": "Every Day",
-                  "enum": [
-                    1
-                  ]
-                },
-                {
-                  "title": "Every Week",
-                  "enum": [
-                    2
-                  ]
-                },
-                {
-                  "title": "Every Month",
-                  "enum": [
-                    3
-                  ]
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
                 }
-              ],
-              "description": "Here select at which period of time the *Power Peak* stored in the file will reset.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].powerConsumptionNetPeakSensor === true;"
-              }
-            },
-            "energyConsumptionNetStateSensor": {
-              "title": "Energy State Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Energy State* monitoring for consumption *Net* and expose contact sensor in HomeKit.",
+              },
+              "description": "This enable consumptiom net power state monitoring and expose contact sensor in HomeKit.",
               "required": false
             },
-            "energyConsumptionNetLevelSensor": {
-              "title": "Energy Level Sensor",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable *Energy Level* monitoring for consumption *Net* and expose contact sensor in HomeKit.",
+            "powerConsumptionNetLevelSensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "powerLevel": {
+                    "title": "Power Level",
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Here set power level in (W) at which the sensor fired, (-) negative value mean exporting energy to the grid.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
+                }
+              },
+              "description": "This enable consumptiom net power level monitoring and expose contact sensor in HomeKit.",
               "required": false
-            },
-            "energyConsumptionNetLevelSensorDetected": {
-              "title": "Energy Level Detected",
-              "type": "integer",
-              "default": 0,
-              "description": "Here set *Energy Level* in (Wh) for consumption *Net* at which the *Energy Level Sensor* fired.",
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].energyConsumptionNetLevelSensor === true;"
-              }
             },
             "energyConsumptionNetLifetimeOffset": {
               "title": "Energy Lifetime Offset",
@@ -358,12 +378,67 @@
               "description": "Here set *Offset* in (Wh) for energy consumption *Net*, if nedded.",
               "required": false
             },
+            "energyConsumptionNetStateSensor": {
+              "title": "Energy State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
+                }
+              },
+              "description": "This enable consumptiom net energy state monitoring and expose contact sensor in HomeKit..",
+              "required": false
+            },
+            "energyConsumptionNetLevelSensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "energyLevel": {
+                    "title": "Enargy Level",
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Here set enargy level in (Wh) at which the sensor fired.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
+                }
+              },
+              "description": "This enable consumptiom net energy level monitoring and expose contact sensor in HomeKit.",
+              "required": false
+            },
             "supportProductionPowerMode": {
               "title": "Power Mode",
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check/control production *Power Mode*, may not work with all envoy 7.x.x firmwares, if error occur, please disable it.",
+              "description": "This enable support to check/control production power mode, may not work with all envoy 7.x.x firmwares, if error occur, please disable it.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
               }
@@ -373,7 +448,7 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check/control *PLC Level*.",
+              "description": "This enable support to check/control communication plc level.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
               }
@@ -383,37 +458,82 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check *Ensemble Status*, may not working with all envoy firmwares, if error occur, please disable it.",
+              "description": "This enable support to check ensemble status, may not working with all envoy firmwares, if error occur please disable it.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
             },
             "enpowerGridStateSensor": {
               "title": "Enepower Grid Sensor",
-              "type": "boolean",
-              "default": false,
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
+                }
+              },
+              "description": "This enable enpower grid monitoring and expose contact sensor in HomeKit. If enpower grid state off, the contact fired.",
               "required": false,
-              "description": "This enable *Enpower Grid* monitoring and expose contact sensor in HomeKit. If *Grid State OFF* the contact fired.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
               }
             },
             "enchargeGridStateSensor": {
               "title": "Encharge Grid Sensor",
-              "type": "boolean",
-              "default": false,
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
+                }
+              },
+              "description": "This enable encharge grid monitoring and expose contact sensor in HomeKit. If encharge grid state off, the contact fired.",
               "required": false,
-              "description": "This enable *Encharge Grid* monitoring and expose contact sensor in HomeKit. If *Grid State OFF* the contact fired.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
               }
             },
             "solarGridStateSensor": {
               "title": "Solar Grid Sensor",
-              "type": "boolean",
-              "default": false,
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "mode": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Here activate the sensor.",
+                  "required": false
+                }
+              },
+              "description": "This enable solar grid monitoring and expose contact sensor in HomeKit. If solar grid state off, the contact fired.",
               "required": false,
-              "description": "This enable *Solar Grid* monitoring and expose contact sensor in HomeKit. If *Grid State OFF* the contact fired.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
               }
@@ -423,7 +543,7 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check *Live Data*.",
+              "description": "This enable support to check live data.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
@@ -435,7 +555,7 @@
               "minimum": 500,
               "maximum": 30000,
               "required": false,
-              "description": "Here set *Live Data* refresh time in (ms).",
+              "description": "Here set live data refresh time in (ms).",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportLiveData === true;"
               }
@@ -447,7 +567,7 @@
               "minimum": 500,
               "maximum": 30000,
               "required": false,
-              "description": "Here set *Meters Data* refresh time in (ms)."
+              "description": "Here set meters data refresh time in (ms)."
             },
             "productionDataRefreshTime": {
               "title": "Production Sampling",
@@ -456,7 +576,7 @@
               "minimum": 500,
               "maximum": 30000,
               "required": false,
-              "description": "Here set *Production Data* rfresh time in (ms)."
+              "description": "Here set production data rfresh time in (ms)."
             },
             "enableDebugMode": {
               "title": "Debug",
@@ -651,26 +771,56 @@
                           "title": "Power",
                           "items": [
                             "devices[].powerProductionSummary",
-                            "devices[].powerProductionStateSensor",
-                            "devices[].powerProductionPeakSensor",
-                            "devices[].powerProductionPeakSensorDetected",
-                            "devices[].powerProductionPeakAutoReset"
+                            {
+                              "key": "devices[].powerProductionStateSensor",
+                              "type": "object",
+                              "title": "Power State Sensor",
+                              "items": [
+                                "devices[].powerProductionStateSensor.name",
+                                "devices[].powerProductionStateSensor.mode"
+                              ]
+                            },
+                            {
+                              "key": "devices[].powerProductionLevelSensors",
+                              "type": "tabarray",
+                              "title": "{{ value.name || 'sensor' }}",
+                              "items": [
+                                "devices[].powerProductionLevelSensors[].name",
+                                "devices[].powerProductionLevelSensors[].powerLevel",
+                                "devices[].powerProductionLevelSensors[].mode"
+                              ]
+                            }
                           ]
                         },
                         {
                           "key": "devices[]",
                           "title": "Energy",
                           "items": [
-                            "devices[].energyProductionStateSensor",
-                            "devices[].energyProductionLevelSensor",
-                            "devices[].energyProductionLevelSensorDetected",
-                            "devices[].energyProductionLifetimeOffset"
+                            "devices[].energyProductionLifetimeOffset",
+                            {
+                              "key": "devices[].energyProductionStateSensor",
+                              "type": "object",
+                              "title": "Energy State Sensor",
+                              "items": [
+                                "devices[].energyProductionStateSensor.name",
+                                "devices[].energyProductionStateSensor.mode"
+                              ]
+                            },
+                            {
+                              "key": "devices[].energyProductionLevelSensors",
+                              "type": "tabarray",
+                              "title": "{{ value.name || 'sensor' }}",
+                              "items": [
+                                "devices[].energyProductionLevelSensors[].name",
+                                "devices[].energyProductionLevelSensors[].energyLevel",
+                                "devices[].energyProductionLevelSensors[].mode"
+                              ]
+                            }
                           ]
                         }
                       ]
                     }
-                  ],
-                  "description": "Here You can configure power end energy production."
+                  ]
                 },
                 {
                   "key": "devices[]",
@@ -694,20 +844,51 @@
                                   "key": "devices[]",
                                   "title": "Power",
                                   "items": [
-                                    "devices[].powerConsumptionTotalStateSensor",
-                                    "devices[].powerConsumptionTotalPeakSensor",
-                                    "devices[].powerConsumptionTotalPeakSensorDetected",
-                                    "devices[].powerConsumptionTotalPeakAutoReset"
+                                    {
+                                      "key": "devices[].powerConsumptionTotalStateSensor",
+                                      "type": "object",
+                                      "title": "Power State Sensor",
+                                      "items": [
+                                        "devices[].powerConsumptionTotalStateSensor.name",
+                                        "devices[].powerConsumptionTotalStateSensor.mode"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[].powerConsumptionTotalLevelSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].powerConsumptionTotalLevelSensors[].name",
+                                        "devices[].powerConsumptionTotalLevelSensors[].powerLevel",
+                                        "devices[].powerConsumptionTotalLevelSensors[].mode"
+                                      ]
+                                    }
                                   ]
                                 },
                                 {
                                   "key": "devices[]",
                                   "title": "Energy",
                                   "items": [
-                                    "devices[].energyConsumptionTotalStateSensor",
-                                    "devices[].energyConsumptionTotalLevelSensor",
-                                    "devices[].energyConsumptionTotalLevelSensorDetected",
-                                    "devices[].energyConsumptionTotalLifetimeOffset"
+                                    "devices[].energyConsumptionTotalLifetimeOffset",
+                                    {
+                                      "key": "devices[].energyConsumptionTotalStateSensor",
+                                      "type": "object",
+                                      "title": "Energy State Sensor",
+                                      "items": [
+                                        "devices[].energyConsumptionTotalStateSensor.name",
+                                        "devices[].energyConsumptionTotalStateSensor.mode"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[].energyConsumptionTotalLevelSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].energyConsumptionTotalLevelSensors[].name",
+                                        "devices[].energyConsumptionTotalLevelSensors[].energyLevel",
+                                        "devices[].energyConsumptionTotalLevelSensors[].mode"
+                                      ]
+                                    }
                                   ]
                                 }
                               ]
@@ -727,20 +908,51 @@
                                   "key": "devices[]",
                                   "title": "Power",
                                   "items": [
-                                    "devices[].powerConsumptionNetStateSensor",
-                                    "devices[].powerConsumptionNetPeakSensor",
-                                    "devices[].powerConsumptionNetPeakSensorDetected",
-                                    "devices[].powerConsumptionNetPeakAutoReset"
+                                    {
+                                      "key": "devices[].powerConsumptionNetStateSensor",
+                                      "type": "object",
+                                      "title": "Power State Sensor",
+                                      "items": [
+                                        "devices[].powerConsumptionNetStateSensor.name",
+                                        "devices[].powerConsumptionNetStateSensor.mode"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[].powerConsumptionNetLevelSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].powerConsumptionNetLevelSensors[].name",
+                                        "devices[].powerConsumptionNetLevelSensors[].powerLevel",
+                                        "devices[].powerConsumptionNetLevelSensors[].mode"
+                                      ]
+                                    }
                                   ]
                                 },
                                 {
                                   "key": "devices[]",
                                   "title": "Energy",
                                   "items": [
-                                    "devices[].energyConsumptionNetStateSensor",
-                                    "devices[].energyConsumptionNetLevelSensor",
-                                    "devices[].energyConsumptionNetLevelSensorDetected",
-                                    "devices[].energyConsumptionNetLifetimeOffset"
+                                    "devices[].energyConsumptionNetLifetimeOffset",
+                                    {
+                                      "key": "devices[].energyConsumptionNetStateSensor",
+                                      "type": "object",
+                                      "title": "Energy State Sensor",
+                                      "items": [
+                                        "devices[].energyConsumptionNetStateSensor.name",
+                                        "devices[].energyConsumptionNetStateSensor.mode"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[].energyConsumptionNetLevelSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].energyConsumptionNetLevelSensors[].name",
+                                        "devices[].energyConsumptionNetLevelSensors[].energyLevel",
+                                        "devices[].energyConsumptionNetLevelSensors[].mode"
+                                      ]
+                                    }
                                   ]
                                 }
                               ]
@@ -749,29 +961,51 @@
                         }
                       ]
                     }
-                  ],
-                  "description": "Here You can configure power and energy consumption."
+                  ]
                 },
                 {
                   "key": "devices[]",
                   "title": "Ensemble",
                   "items": [
                     "devices[].supportEnsembleStatus",
-                    "devices[].enpowerGridStateSensor",
-                    "devices[].enchargeGridStateSensor",
-                    "devices[].solarGridStateSensor"
-                  ],
-                  "description": "Here You can configure ensemble, only if envoy firmware 7.x.x is enabled."
+                    {
+                      "key": "devices[].enpowerGridStateSensor",
+                      "type": "object",
+                      "title": "Enpower Grid State Sensor",
+                      "items": [
+                        "devices[].enpowerGridStateSensor.name",
+                        "devices[].enpowerGridStateSensor.mode"
+                      ]
+                    },
+                    {
+                      "key": "devices[].enchargeGridStateSensor",
+                      "type": "object",
+                      "title": "Encharge Grid State Sensor",
+                      "items": [
+                        "devices[].enchargeGridStateSensor.name",
+                        "devices[].energyConsumptionToenchargeGridStateSensortalStateSensor.mode"
+                      ]
+                    },
+                    {
+                      "key": "devices[].solarGridStateSensor",
+                      "type": "object",
+                      "title": "Solar Grid State Sensor",
+                      "items": [
+                        "devices[].solarGridStateSensor.name",
+                        "devices[].solarGridStateSensor.mode"
+                      ]
+                    }
+                  ]
                 },
                 {
                   "key": "devices[]",
                   "title": "System",
+                  "description": "Here You can configure system settings.",
                   "items": [
                     "devices[].enableDebugMode",
                     "devices[].disableLogInfo",
                     "devices[].disableLogDeviceInfo"
-                  ],
-                  "description": "Here You can configure system settings."
+                  ]
                 },
                 {
                   "key": "devices[]",
@@ -808,8 +1042,7 @@
                         }
                       ]
                     }
-                  ],
-                  "description": "Here You can configure external integrations."
+                  ]
                 }
               ]
             }

@@ -36,8 +36,8 @@
 * Exposed accessory in the native Home app:
   * Lightbulb `Power Production State` and `Power Production Level`.
   * Contact Sensors:
-    * Production `Power State`, `Power Peak`, `Energy State`, `Energy Level`.
-    * Consumption `Power State`, `Power Peak`, `Energy State`, `Energy Level`.
+    * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
+    * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Grid State `Enpower`, `Encharge`, `Solar`.
 * External integrations:
   * RESTful server:
@@ -70,32 +70,59 @@
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
 | `powerProductionStateSensor` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app. |
-| `powerProductionPeakSensor` | This enable `Power Peak` monitoring for production and expose contact sensor in HomeKit app. |
-| `powerProductionPeakSensorDetected` | Here set `Power Peak Level` in `W` at which the contact sensor fired. |
-| `powerProductionPeakAutoReset` | Here select at which period of time the `Power Peak` stored in the file will reset. |
+| `powerProductionStateSensor.name` | Here set Your own sensor name. |
+| `powerProductionStateSensor.mode` | Here activate the sensor. |
+| `powerProductionLevelSensors` | This enable `Power Level` monitoring for production and expose contact sensor in HomeKit app. |
+| `powerProductionLevelSensors.name` | Here set Your own sensor name. |
+| `powerProductionLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `powerProductionLevelSensors.mode` | Here activate the sensor. |
 | `energyProductionStateSensor` | This enable `Energy State` monitoring for production and expose contact sensor in HomeKit app. |
-| `energyProductionLevelSensor` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
-| `energyProductionLevelSensorDetected` | Here set `Energy Level` in `Wh` at which the contact sensor fired. |
+| `energyProductionStateSensor.name` | Here set Your own sensor name. |
+| `energyProductionStateSensor.mode` | Here activate the sensor. |
+| `energyProductionLevelSensors` | This enable `Energy Level` monitoring for production and expose contact sensor in HomeKit app. |
+| `energyProductionLevelSensors.name` | Here set Your own sensor name. |
+| `energyProductionLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `energyProductionLevelSensors.mode` | Here activate the sensor. |
 | `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded (+/-). |
 | `powerConsumptionTotalStateSensor` | This enable `Power State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
-| `powerConsumptionTotalPeakSensor` | This enable `Power Peak` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
-| `powerConsumptionTotalPeakSensorDetected` | Here set `Power Peak Level` in `W` for consumption (Total) at which the contact sensor fired. |
-| `powerConsumptionTotalPeakAutoReset` | Here select at which period of time the `Power Peak` stored in the file will reset. |
+| `powerConsumptionTotalStateSensor.name` | Here set Your own sensor name. |
+| `powerConsumptionTotalStateSensor.mode` | Here activate the sensor. |
+| `powerConsumptionTotalLevelSensors` | This enable `Power Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `powerConsumptionTotalLevelSensors.name` | Here set Your own sensor name. |
+| `powerConsumptionTotalLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `powerConsumptionTotalLevelSensors.mode` | Here activate the sensor. |
 | `energyConsumptionTotalStateSensor` | This enable `Energy State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
-| `energyConsumptionTotalLevelSensor` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
-| `energyConsumptionTotalSensorDetected` | Here set `Energy Level` in `Wh` for consumption (Total) at which the contact sensor fired. |
+| `energyConsumptionTotalStateSensor.name` | Here set Your own sensor name. |
+| `energyConsumptionTotalStateSensor.mode` | Here activate the sensor. |
+| `energyConsumptionTotalLevelSensors` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `energyConsumptionTotalLevelSensors.name` | Here set Your own sensor name. |
+| `energyConsumptionTotalLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `energyConsumptionTotalLevelSensors.mode` | Here activate the sensor. |
 | `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Total) if nedded (+/-). |
 | `powerConsumptionNetStateSensor` | This enable `Power State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
-| `powerConsumptionNetPeakSensor` | This enable `Power Peak` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
-| `powerConsumptionNetPeakSensorDetected` | Here set `Power Peak Level` in `W` for consumption (Net) at which the contact sensor fired. |
-| `powerConsumptionNetPeakAutoReset` | Here select at which period of time the `Power Peak` stored in the file will reset. |
+| `powerConsumptionNetStateSensor.name` | Here set Your own sensor name. |
+| `powerConsumptionNetStateSensor.mode` | Here activate the sensor. |
+| `powerConsumptionNetLevelSensors` | This enable `Power Level` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `powerConsumptionNetLevelSensors.name` | Here set Your own sensor name. |
+| `powerConsumptionNetLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `powerConsumptionNetLevelSensors.mode` | Here activate the sensor. |
 | `energyConsumptionNetStateSensor` | This enable `Energy State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
-| `energyConsumptionNetLevelSensor` | This enable `Energy Level` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
-| `energyConsumptionNetSensorDetected` | Here set `Energy Level` in `Wh` for consumption (Net) at which the contact sensor fired. |
+| `energyConsumptionNetStateSensor.name` | Here set Your own sensor name. |
+| `energyConsumptionNetStateSensor.mode` | Here activate the sensor. |
+| `energyConsumptionNetLevelSensors` | This enable `Energy Level` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `energyConsumptionNetLevelSensors.name` | Here set Your own sensor name. |
+| `energyConsumptionNetLevelSensors.powerLevel` | Here set power level in (W) at which the sensor fired. |
+| `energyConsumptionNetLevelSensors.mode` | Here activate the sensor. |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Net) if nedded (+/-). |
 | `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. If `Enpower Grid State OFF` the contact fired. |
+| `enepowerGridStateSensor.name` | Here set Your own sensor name. |
+| `enepowerGridStateSensor.mode` | Here activate the sensor. |
 | `enchargeGridStateSensor` | This enable `Encharge Grid State` monitoring and expose contact sensor in HomeKit app. If `Encharge Grid State OFF` the contact fired. |
+| `enchargeGridStateSensor.name` | Here set Your own sensor name. |
+| `enchargeGridStateSensor.mode` | Here activate the sensor. |
 | `solarGridStateSensor` | This enable `Solar Grid State` monitoring and expose contact sensor in HomeKit app. If `Solar Grid State OFF` the contact fired. |
+| `solarGridStateSensor.name` | Here set Your own sensor name. |
+| `solarGridStateSensor.mode` | Here activate the sensor. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app) (only Fw. v6.x.x and older). |
 | `supportPlcLevel` | If enabled, check `PLC Level` will be possible (only Fw. v6.x.x and older). |
 | `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only Fw. v7.x.x and newer). |
