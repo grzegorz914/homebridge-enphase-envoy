@@ -983,7 +983,7 @@
                       "title": "Encharge Grid State Sensor",
                       "items": [
                         "devices[].enchargeGridStateSensor.name",
-                        "devices[].energyConsumptionToenchargeGridStateSensortalStateSensor.mode"
+                        "devices[].enchargeGridStateSensor.mode"
                       ]
                     },
                     {
