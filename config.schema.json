@@ -773,7 +773,7 @@
                             "devices[].powerProductionSummary",
                             {
                               "key": "devices[].powerProductionStateSensor",
-                              "type": "object",
+                              "type": "section",
                               "title": "Power State Sensor",
                               "items": [
                                 "devices[].powerProductionStateSensor.name",
@@ -781,13 +781,22 @@
                               ]
                             },
                             {
-                              "key": "devices[].powerProductionLevelSensors",
-                              "type": "tabarray",
-                              "title": "{{ value.name || 'sensor' }}",
+                              "key": "devices[]",
+                              "type": "section",
+                              "title": "Power Level Sensors",
+                              "expandable": true,
+                              "expanded": false,
                               "items": [
-                                "devices[].powerProductionLevelSensors[].name",
-                                "devices[].powerProductionLevelSensors[].powerLevel",
-                                "devices[].powerProductionLevelSensors[].mode"
+                                {
+                                  "key": "devices[].powerProductionLevelSensors",
+                                  "type": "tabarray",
+                                  "title": "{{ value.name || 'sensor' }}",
+                                  "items": [
+                                    "devices[].powerProductionLevelSensors[].name",
+                                    "devices[].powerProductionLevelSensors[].powerLevel",
+                                    "devices[].powerProductionLevelSensors[].mode"
+                                  ]
+                                }
                               ]
                             }
                           ]
@@ -799,7 +808,7 @@
                             "devices[].energyProductionLifetimeOffset",
                             {
                               "key": "devices[].energyProductionStateSensor",
-                              "type": "object",
+                              "type": "section",
                               "title": "Energy State Sensor",
                               "items": [
                                 "devices[].energyProductionStateSensor.name",
@@ -807,13 +816,22 @@
                               ]
                             },
                             {
-                              "key": "devices[].energyProductionLevelSensors",
-                              "type": "tabarray",
-                              "title": "{{ value.name || 'sensor' }}",
+                              "key": "devices[]",
+                              "type": "section",
+                              "title": "Energy Level Sensors",
+                              "expandable": true,
+                              "expanded": false,
                               "items": [
-                                "devices[].energyProductionLevelSensors[].name",
-                                "devices[].energyProductionLevelSensors[].energyLevel",
-                                "devices[].energyProductionLevelSensors[].mode"
+                                {
+                                  "key": "devices[].energyProductionLevelSensors",
+                                  "type": "tabarray",
+                                  "title": "{{ value.name || 'sensor' }}",
+                                  "items": [
+                                    "devices[].energyProductionLevelSensors[].name",
+                                    "devices[].energyProductionLevelSensors[].energyLevel",
+                                    "devices[].energyProductionLevelSensors[].mode"
+                                  ]
+                                }
                               ]
                             }
                           ]
@@ -846,7 +864,7 @@
                                   "items": [
                                     {
                                       "key": "devices[].powerConsumptionTotalStateSensor",
-                                      "type": "object",
+                                      "type": "section",
                                       "title": "Power State Sensor",
                                       "items": [
                                         "devices[].powerConsumptionTotalStateSensor.name",
@@ -854,13 +872,22 @@
                                       ]
                                     },
                                     {
-                                      "key": "devices[].powerConsumptionTotalLevelSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Power Level Sensors",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].powerConsumptionTotalLevelSensors[].name",
-                                        "devices[].powerConsumptionTotalLevelSensors[].powerLevel",
-                                        "devices[].powerConsumptionTotalLevelSensors[].mode"
+                                        {
+                                          "key": "devices[].powerConsumptionTotalLevelSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].powerConsumptionTotalLevelSensors[].name",
+                                            "devices[].powerConsumptionTotalLevelSensors[].powerLevel",
+                                            "devices[].powerConsumptionTotalLevelSensors[].mode"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -872,7 +899,7 @@
                                     "devices[].energyConsumptionTotalLifetimeOffset",
                                     {
                                       "key": "devices[].energyConsumptionTotalStateSensor",
-                                      "type": "object",
+                                      "type": "section",
                                       "title": "Energy State Sensor",
                                       "items": [
                                         "devices[].energyConsumptionTotalStateSensor.name",
@@ -880,13 +907,22 @@
                                       ]
                                     },
                                     {
-                                      "key": "devices[].energyConsumptionTotalLevelSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Energy Level Sensors",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].energyConsumptionTotalLevelSensors[].name",
-                                        "devices[].energyConsumptionTotalLevelSensors[].energyLevel",
-                                        "devices[].energyConsumptionTotalLevelSensors[].mode"
+                                        {
+                                          "key": "devices[].energyConsumptionTotalLevelSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].energyConsumptionTotalLevelSensors[].name",
+                                            "devices[].energyConsumptionTotalLevelSensors[].energyLevel",
+                                            "devices[].energyConsumptionTotalLevelSensors[].mode"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -910,7 +946,7 @@
                                   "items": [
                                     {
                                       "key": "devices[].powerConsumptionNetStateSensor",
-                                      "type": "object",
+                                      "type": "section",
                                       "title": "Power State Sensor",
                                       "items": [
                                         "devices[].powerConsumptionNetStateSensor.name",
@@ -918,13 +954,22 @@
                                       ]
                                     },
                                     {
-                                      "key": "devices[].powerConsumptionNetLevelSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Power Level Sensors",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].powerConsumptionNetLevelSensors[].name",
-                                        "devices[].powerConsumptionNetLevelSensors[].powerLevel",
-                                        "devices[].powerConsumptionNetLevelSensors[].mode"
+                                        {
+                                          "key": "devices[].powerConsumptionNetLevelSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].powerConsumptionNetLevelSensors[].name",
+                                            "devices[].powerConsumptionNetLevelSensors[].powerLevel",
+                                            "devices[].powerConsumptionNetLevelSensors[].mode"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -936,7 +981,7 @@
                                     "devices[].energyConsumptionNetLifetimeOffset",
                                     {
                                       "key": "devices[].energyConsumptionNetStateSensor",
-                                      "type": "object",
+                                      "type": "section",
                                       "title": "Energy State Sensor",
                                       "items": [
                                         "devices[].energyConsumptionNetStateSensor.name",
@@ -944,13 +989,22 @@
                                       ]
                                     },
                                     {
-                                      "key": "devices[].energyConsumptionNetLevelSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Energy Level Sensors",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].energyConsumptionNetLevelSensors[].name",
-                                        "devices[].energyConsumptionNetLevelSensors[].energyLevel",
-                                        "devices[].energyConsumptionNetLevelSensors[].mode"
+                                        {
+                                          "key": "devices[].energyConsumptionNetLevelSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].energyConsumptionNetLevelSensors[].name",
+                                            "devices[].energyConsumptionNetLevelSensors[].energyLevel",
+                                            "devices[].energyConsumptionNetLevelSensors[].mode"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -970,7 +1024,7 @@
                     "devices[].supportEnsembleStatus",
                     {
                       "key": "devices[].enpowerGridStateSensor",
-                      "type": "object",
+                      "type": "section",
                       "title": "Enpower Grid State Sensor",
                       "items": [
                         "devices[].enpowerGridStateSensor.name",
@@ -979,7 +1033,7 @@
                     },
                     {
                       "key": "devices[].enchargeGridStateSensor",
-                      "type": "object",
+                      "type": "section",
                       "title": "Encharge Grid State Sensor",
                       "items": [
                         "devices[].enchargeGridStateSensor.name",
@@ -988,7 +1042,7 @@
                     },
                     {
                       "key": "devices[].solarGridStateSensor",
-                      "type": "object",
+                      "type": "section",
                       "title": "Solar Grid State Sensor",
                       "items": [
                         "devices[].solarGridStateSensor.name",
