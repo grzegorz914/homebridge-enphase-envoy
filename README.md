@@ -34,7 +34,10 @@
 * Support `Production Power Mode` and `PLC Level` working only with Envoy Fw. v6.x.x and older.
 * For best experiences and display all data please use `Controller` or `EVE` app.
 * Exposed accessory in the native Home app:
-  * Lightbulb `Power Production State` and `Power Production Level`.
+  * Lightbulb:
+    * Production `Power State`, `Power Level`.
+    * AC Batteries `Energy State`, `Energy Level`.
+    * Encharges `Energy State`, `Energy Level`.
   * Contact Sensors:
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.

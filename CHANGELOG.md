@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # After update to v7.8.0 and above from plevious version the sensors in plugin config need to be configured again!!!
 # After update to v7.5.0 and above from plevious version the sensors in plugin config need to be configured again!!!
 
+## [7.9.0] - (01.01.2024)
+## Changes
+- added [#118](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/118)
+- added state and level lightbulb for ac bateries and encharges
+- config.schema updated
+- cleanup
+
 ## [7.8.0] - (23.12.2023)
 ## Changes
 - added [#117](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/117)

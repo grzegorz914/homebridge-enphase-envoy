@@ -200,6 +200,7 @@ class EnvoyDevice extends EventEmitter {
         this.acBatteriesSummaryEnergy = 0;
         this.acBatteriesSummaryState = 'Unknown';
         this.acBatteriesSummaryPercentFull = 0;
+        this.acBatteriesSummaryEnergyState = false;
 
         //ensembles
         this.ensemblesSupported = false;
@@ -240,6 +241,8 @@ class EnvoyDevice extends EventEmitter {
         this.enchargesType = 'Unknown';
         this.enchargesRatedPowerSum = 0;
         this.enchargesGridState = false;
+        this.enchargesSummaryPercentFull = 0;
+        this.enchargesSummaryEnergyState = false;
 
         //enpowers
         this.enpowersSupported = false;
@@ -1638,9 +1641,27 @@ class EnvoyDevice extends EventEmitter {
                         this.enchargesRev.push(enchargeRev);
                         this.enchargesCapacity.push(enchargeCapacity);
                     }
+
                     this.enchargesType = type;
                     this.enchargesCount = enchargesCount;
                     this.enchargesInstalled = true;
+
+                    //encharges summary
+                    let enchargesPercentFull = 0;
+                    for (let enchargePercentFull of this.enchargesPercentFull) {
+                        enchargesPercentFull += enchargePercentFull;
+                    }
+
+                    const enchargesSummaryPercentFull = enchargesPercentFull / enchargesCount;
+                    const enchargesSummaryEnergyState = enchargesSummaryPercentFull > 0;
+
+                    if (this.enphaseEnchargesSummaryLevelAndStateService) {
+                        this.enphaseEnchargesSummaryLevelAndStateService
+                            .updateCharacteristic(Characteristic.On, enchargesSummaryEnergyState)
+                            .updateCharacteristic(Characteristic.Brightness, enchargesSummaryPercentFull)
+                    }
+                    this.enchargesSummaryEnergyState = enchargesSummaryEnergyState;
+                    this.enchargesSummaryPercentFull = enchargesSummaryPercentFull;
                 }
 
                 //enpowers
@@ -2624,6 +2645,7 @@ class EnvoyDevice extends EventEmitter {
                     const whNow = parseFloat(acBaterie.whNow + this.acBatteriesStorageOffset) / 1000;
                     const chargeStatus = CONSTANS.ApiCodes[acBaterie.state] || 'Undefined';
                     const percentFull = acBaterie.percentFull;
+                    const energyState = percentFull > 0;
 
                     if (this.acBatteriesSummaryService) {
                         this.acBatteriesSummaryService[0]
@@ -2635,6 +2657,12 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryState, chargeStatus);
                     }
 
+                    if (this.enphaseAcBatterieSummaryLevelAndStateService) {
+                        this.enphaseAcBatterieSummaryLevelAndStateService
+                            .updateCharacteristic(Characteristic.On, energyState)
+                            .updateCharacteristic(Characteristic.Brightness, percentFull)
+                    }
+
                     this.acBatteriesSummaryType = type;
                     this.acBatteriesSummaryActiveCount = activeCount;
                     this.acBatteriesSummaryReadingTime = readingTime;
@@ -2642,6 +2670,7 @@ class EnvoyDevice extends EventEmitter {
                     this.acBatteriesSummaryEnergy = whNow;
                     this.acBatteriesSummaryState = chargeStatus;
                     this.acBatteriesSummaryPercentFull = percentFull;
+                    this.acBatteriesSummaryEnergyState = energyState;
                 }
 
                 //restFul
@@ -2998,7 +3027,7 @@ class EnvoyDevice extends EventEmitter {
                     })
                     .onSet(async (value) => {
                         try {
-                            this.this.systemPvService.updateCharacteristic(Characteristic.Brightness, this.productionPowerLevel);
+                            this.systemPvService.updateCharacteristic(Characteristic.Brightness, this.productionPowerLevel);
                         } catch (error) {
                             this.emit('error', `envoy: ${serialNumber}, set production power level error: ${error}`);
                         };
@@ -3777,6 +3806,38 @@ class EnvoyDevice extends EventEmitter {
 
                 //ac batteries summary
                 if (acBatteriesInstalled) {
+                    //ac batteries summary level and state
+                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare AC Batteries Summary service`) : false;
+                    this.enphaseAcBatterieSummaryLevelAndStateService = new Service.Lightbulb(`AC Batteries`, `enphaseAcBatterieSummaryLevelAndStateService`);
+                    this.enphaseAcBatterieSummaryLevelAndStateService.getCharacteristic(Characteristic.On)
+                        .onGet(async () => {
+                            const state = this.acBatteriesSummaryEnergyState;
+                            const info = this.disableLogInfo ? false : this.emit('message', `AC Batteries energy state: ${state ? 'Charged' : 'Discharged'}`);
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            try {
+                                this.enphaseAcBatterieSummaryLevelAndStateService.updateCharacteristic(Characteristic.On, this.acBatteriesSummaryEnergyState);
+                            } catch (error) {
+                                this.emit('error', `envoy: ${serialNumber}, set AC Batteries energy  state error: ${error}`);
+                            };
+                        })
+                    this.enphaseAcBatterieSummaryLevelAndStateService.getCharacteristic(Characteristic.Brightness)
+                        .onGet(async () => {
+                            const state = this.acBatteriesSummaryPercentFull;
+                            const info = this.disableLogInfo ? false : this.emit('message', `AC Batteries energy level: ${this.acBatteriesSummaryPercentFull} %`);
+                            return state;
+                        })
+                        .onSet(async (value) => {
+                            try {
+                                this.enphaseAcBatterieSummaryLevelAndStateService.updateCharacteristic(Characteristic.Brightness, this.acBatteriesSummaryPercentFull);
+                            } catch (error) {
+                                this.emit('error', `envoy: ${serialNumber}, set AC Batteries energy level error: ${error}`);
+                            };
+                        })
+                    accessory.addService(this.enphaseAcBatterieSummaryLevelAndStateService);
+
+                    //ac batteries summary service
                     this.acBatteriesSummaryService = [];
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare AC Batteries Summary service`) : false;
                     const enphaseAcBatterieSummaryService = new Service.enphaseAcBatterieSummaryService('AC Batteries Summary', 'enphaseAcBatterieSummaryService');
@@ -4231,6 +4292,38 @@ class EnvoyDevice extends EventEmitter {
 
                 //encharges
                 if (enchargesInstalled) {
+                    //encharges summary level and state
+                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare Encharges Summary service`) : false;
+                    this.enphaseEnchargesSummaryLevelAndStateService = new Service.Lightbulb(`Encharges`, `enphaseEnchargesSummaryLevelAndStateService`);
+                    this.enphaseEnchargesSummaryLevelAndStateService.getCharacteristic(Characteristic.On)
+                        .onGet(async () => {
+                            const state = this.enchargesSummaryEnergyState;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Encharges energy state: ${state ? 'Charged' : 'Discharged'}`);
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            try {
+                                this.enphaseEnchargesSummaryLevelAndStateService.updateCharacteristic(Characteristic.On, this.enchargesSummaryEnergyState);
+                            } catch (error) {
+                                this.emit('error', `envoy: ${serialNumber}, set Encharges energy state error: ${error}`);
+                            };
+                        })
+                    this.enphaseEnchargesSummaryLevelAndStateService.getCharacteristic(Characteristic.Brightness)
+                        .onGet(async () => {
+                            const state = this.enchargesSummaryPercentFull;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Encharges energy level: ${this.enchargesSummaryPercentFull} %`);
+                            return state;
+                        })
+                        .onSet(async (value) => {
+                            try {
+                                this.enphaseEnchargesSummaryLevelAndStateService.updateCharacteristic(Characteristic.Brightness, this.enchargesSummaryPercentFull);
+                            } catch (error) {
+                                this.emit('error', `envoy: ${serialNumber}, set Encharges energy level error: ${error}`);
+                            };
+                        })
+                    accessory.addService(this.enphaseEnchargesSummaryLevelAndStateService);
+
+                    //encharges services
                     this.enchargesService = [];
                     for (let i = 0; i < enchargesCount; i++) {
                         const enchargeSerialNumber = this.enchargesSerialNumber[i];
