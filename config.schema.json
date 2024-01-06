@@ -709,7 +709,7 @@
     {
       "key": "devices",
       "type": "tabarray",
-      "title": "{{ value.name || 'new system' }}",
+      "title": "{{ value.name || 'system' }}",
       "items": [
         "devices[].name",
         "devices[].host",
