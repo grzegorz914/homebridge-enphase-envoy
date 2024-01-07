@@ -29,14 +29,13 @@ class EnvoyPlatform {
           log.warn(`Envoy firmware v7.xx enabled but enlighten user: ${device.enlightenUser ? 'OK' : device.enlightenUser}, password: ${device.enlightenPasswd ? 'OK' : device.enlightenPasswd}, envoy serial number: ${device.envoySerialNumber ? 'OK' : device.envoySerialNumber}`);
           return;
         }
-
         const host = device.host || 'envoy.local';
 
         //debug config
         const debug = device.enableDebugMode ? log(`Device: ${host} ${device.name}, did finish launching.`) : false;
         const debug1 = device.enableDebugMode ? log(`Device: ${host} ${device.name}, Config: ${JSON.stringify(device, null, 2)}`) : false;
 
-        //denon device
+        //envoy device
         const envoyDevice = new EnvoyDevice(api, prefDir, device);
         envoyDevice.on('publishAccessory', (accessory) => {
           api.publishExternalAccessories(CONSTANS.PluginName, [accessory]);
