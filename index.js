@@ -31,7 +31,10 @@ class EnvoyPlatform {
         }
 
         const host = device.host || 'envoy.local';
+
+        //debug config
         const debug = device.enableDebugMode ? log(`Device: ${host} ${device.name}, did finish launching.`) : false;
+        const debug1 = device.enableDebugMode ? log(`Device: ${host} ${device.name}, Config: ${JSON.stringify(device, null, 2)}`) : false;
 
         //denon device
         const envoyDevice = new EnvoyDevice(api, prefDir, device);
