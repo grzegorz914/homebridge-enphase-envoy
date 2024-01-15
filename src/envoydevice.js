@@ -994,8 +994,8 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Inventory: ${JSON.stringify(inventoryData.data, null, 2)}`) : false;
 
                 //microinverters inventory
-                const microinverters = inventoryData.data[0];
-                const microinvertersCount = microinverters.devices.length;
+                const microinverters = inventoryData.data[0].devices;
+                const microinvertersCount = microinverters.length;
                 const microinvertersInstalled = microinvertersCount > 0;
 
                 if (microinvertersInstalled) {
@@ -1008,9 +1008,9 @@ class EnvoyDevice extends EventEmitter {
                     this.microinvertersProvisioned = [];
                     this.microinvertersOperating = [];
 
-                    const type = CONSTANS.ApiCodes[microinverters.type] || 'Undefined';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[0].type] || 'Undefined';
                     for (let i = 0; i < microinvertersCount; i++) {
-                        const microinverter = microinverters.devices[i];
+                        const microinverter = microinverters[i];
                         const partNum = CONSTANS.PartNumbers[microinverter.part_num] || 'Microinverter';
                         const installed = new Date(microinverter.installed * 1000).toLocaleString();
                         const serialNumber = microinverter.serial_num;
@@ -1058,8 +1058,8 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //ac btteries inventoty
-                const acBatteries = inventoryData.data[1];
-                const acBatteriesCount = acBatteries.devices.length;
+                const acBatteries = inventoryData.data[1].devices;
+                const acBatteriesCount = acBatteries.length;
                 const acBatteriesInstalled = acBatteriesCount > 0;
 
                 if (acBatteriesInstalled) {
@@ -1078,9 +1078,9 @@ class EnvoyDevice extends EventEmitter {
                     this.acBatteriesSleepMaxSoc = [];
                     this.acBatteriesChargeStatus = [];
 
-                    const type = CONSTANS.ApiCodes[acBatteries.type] || 'Undefined';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[1].type] || 'Undefined';
                     for (let i = 0; i < acBatteriesCount; i++) {
-                        const acBaterie = acBatteries.devices[i];
+                        const acBaterie = acBatteries[i];
                         const partNum = CONSTANS.PartNumbers[acBaterie.part_num] || 'AC Batterie'
                         const installed = new Date(acBaterie.installed * 1000).toLocaleString();
                         const serialNumber = acBaterie.serial_num;
@@ -1110,19 +1110,19 @@ class EnvoyDevice extends EventEmitter {
 
                         if (this.acBatteriesService) {
                             this.acBatteriesService[i]
-                                .updateCharacteristic(Characteristic.enphasAcBatterieStatus, status)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieLastReportDate, lastReportDate)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieFirmware, firmware)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieProducing, producing)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieCommunicating, communicating)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieProvisioned, provisioned)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieOperating, operating)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieSleepEnabled, sleepEnabled)
-                                .updateCharacteristic(Characteristic.enphasAcBatteriePercentFull, percentFull)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieMaxCellTemp, maxCellTemp)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieSleepMinSoc, sleepMinSoc)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieSleepMaxSoc, sleepMaxSoc)
-                                .updateCharacteristic(Characteristic.enphasAcBatterieChargeStatus, chargeStatus);
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieStatus, status)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieLastReportDate, lastReportDate)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieFirmware, firmware)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieProducing, producing)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieCommunicating, communicating)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieProvisioned, provisioned)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieOperating, operating)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieSleepEnabled, sleepEnabled)
+                                .updateCharacteristic(Characteristic.enphaseAcBatteriePercentFull, percentFull)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieMaxCellTemp, maxCellTemp)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieSleepMinSoc, sleepMinSoc)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieSleepMaxSoc, sleepMaxSoc)
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieChargeStatus, chargeStatus);
                         }
 
                         this.acBatteriesSerialNumber.push(serialNumber);
@@ -1144,10 +1144,10 @@ class EnvoyDevice extends EventEmitter {
                     this.acBatteriesCount = acBatteriesCount;
                     this.acBatteriesInstalled = true;
                 }
-
+                
                 //qrelays inventory
-                const qRelays = inventoryData.data[2];
-                const qRelaysCount = qRelays.devices.length;
+                const qRelays = inventoryData.data[2].devices;
+                const qRelaysCount = qRelays.length;
                 const qRelaysInstalled = qRelaysCount > 0;
 
                 if (qRelaysInstalled) {
@@ -1165,9 +1165,9 @@ class EnvoyDevice extends EventEmitter {
                     this.qRelaysLine2Connected = [];
                     this.qRelaysLine3Connected = [];
 
-                    const type = CONSTANS.ApiCodes[qRelays.type] || 'Undefined';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[2].type] || 'Undefined';
                     for (let i = 0; i < qRelaysCount; i++) {
-                        const qRelay = qRelays.devices[i];
+                        const qRelay = qRelays[i];
                         const partNum = CONSTANS.PartNumbers[qRelay.part_num] || 'Q-Relay'
                         const installed = new Date(qRelay.installed * 1000).toLocaleString();
                         const serialNumber = qRelay.serial_num;
@@ -1241,8 +1241,8 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //ensembles
-                const ensembles = this.ensemblesSupported ? inventoryData.data[3] : {};
-                const ensemblesCount = this.ensemblesSupported ? ensembles.devices.length : 0;
+                const ensembles = this.ensemblesSupported ? inventoryData.data[3].devices : [];
+                const ensemblesCount = ensembles.length;
                 const ensemblesInstalled = ensemblesCount > 0;
 
                 if (ensemblesInstalled) {
@@ -1254,9 +1254,9 @@ class EnvoyDevice extends EventEmitter {
                     this.ensemblesCommunicating = [];
                     this.ensemblesOperating = [];
 
-                    const type = CONSTANS.ApiCodes[ensembles.type] || 'Undefined';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[3].type] || 'Undefined';
                     for (let i = 0; i < ensemblesCount; i++) {
-                        const ensemble = ensembles.devices[i];
+                        const ensemble = ensembles[i];
                         const partNum = CONSTANS.PartNumbers[ensemble.part_num] || 'Q-Relay'
                         const installed = new Date(ensemble.installed * 1000).toLocaleString();
                         const serialNumber = ensemble.serial_num;
@@ -1550,8 +1550,8 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //encharges
-                const encharges = ensembleInventoryData.data[0];
-                const enchargesCount = encharges.devices.length;
+                const encharges = ensembleInventoryData.data[0].devices;
+                const enchargesCount = encharges.length;
                 const enchargesInstalled = enchargesCount > 0;
 
                 if (enchargesInstalled) {
@@ -1573,9 +1573,9 @@ class EnvoyDevice extends EventEmitter {
                     this.enchargesRev = [];
                     this.enchargesCapacity = [];
 
-                    const type = CONSTANS.ApiCodes[encharges.type] || 'Encharge';
+                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[0].type] || 'Encharge';
                     for (let i = 0; i < enchargesCount; i++) {
-                        const encharge = encharges.devices[i];
+                        const encharge = encharges[i];
                         const partNum = CONSTANS.PartNumbers[encharge.part_num] || 'Undefined'
                         const installed = new Date(encharge.installed * 1000).toLocaleString();
                         const serialNumber = encharge.serial_num;
@@ -1665,8 +1665,8 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //enpowers
-                const enpowers = ensembleDevicesCount === 2 ? ensembleInventoryData.data[1] : {};
-                const enpowersCount = ensembleDevicesCount === 2 ? enpowers.devices.length : 0;
+                const enpowers = ensembleDevicesCount === 2 ? ensembleInventoryData.data[1].devices : [];
+                const enpowersCount = ensembleDevicesCount === 2 ? enpowers.length : 0;
                 const enpowersInstalled = enpowersCount > 0;
 
                 if (enpowersInstalled) {
@@ -1686,9 +1686,9 @@ class EnvoyDevice extends EventEmitter {
                     this.enpowersRelayStateBm = [];
                     this.enpowersCurrStateId = [];
 
-                    const type = CONSTANS.ApiCodes[enpowers.type] || 'Enpower';
+                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[1].type] || 'Enpower';
                     for (let i = 0; i < enpowersCount; i++) {
-                        const enpower = enpowers.devices[i];
+                        const enpower = enpowers[i];
                         const partNum = CONSTANS.PartNumbers[enpower.part_num] || 'Undefined'
                         const installed = new Date(enpower.installed * 1000).toLocaleString();
                         const serialNumber = enpower.serial_num;
@@ -1754,12 +1754,12 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //generators
-                const generators = ensembleDevicesCount === 3 ? ensembleInventoryData.data[2] : {};
-                const generatorsCount = ensembleDevicesCount === 3 ? generators.devices.length : 0;
+                const generators = ensembleDevicesCount === 3 ? ensembleInventoryData.data[2].devices : [];
+                const generatorsCount = ensembleDevicesCount === 3 ? generators.length : 0;
                 const generatorsInstalled = generatorsCount > 0;
 
                 if (generatorsInstalled) {
-                    const type = CONSTANS.ApiCodes[generators.type] || 'Generator';
+                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[2].type] || 'Generator';
 
                     this.generatorsType = type;
                     this.generatorsCount = generatorsCount;
