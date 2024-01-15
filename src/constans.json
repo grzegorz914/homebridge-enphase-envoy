@@ -268,7 +268,8 @@
         "envoy.cond_flags.pcu_ctrl.unexpectedreset": "Unexpected Reset",
         "envoy.cond_flags.pcu_ctrl.watchdogreset": "Watchdog Reset",
         "envoy.cond_flags.rgm_chan.check_meter": "Meter Error",
-        "envoy.cond_flags.rgm_chan.power_quality": "Poor Power Quality"
+        "envoy.cond_flags.rgm_chan.power_quality": "Poor Power Quality",
+        "lwui.home.warnings.cross_domain_traffic": "Cross Domain Traffic"
     },
     "LedStatus": {
         "0": "0",

@@ -855,7 +855,7 @@ class EnvoyDevice extends EventEmitter {
                 const commEnchargeLevel24g = enchargesSupported ? commEncharge.level_24g * 20 : 0;
                 const commEnchagLevelSubg = enchargesSupported ? commEncharge.level_subg * 20 : 0;
 
-                const alerts = envoy.alerts || 'Unknown';
+                const alerts = envoy.alerts;
                 const updateStatus = CONSTANS.ApiCodes[envoy.update_status] || 'Unknown';
 
                 //wireless connection kit
@@ -901,7 +901,7 @@ class EnvoyDevice extends EventEmitter {
                 const enpowerGridStatus = enpowersSupported ? CONSTANS.ApiCodes[enpower.grid_status] || 'Enpower state no grid' : 'Enpower state no grid';
 
                 //convert status
-                const status = (Array.isArray(alerts) && alerts.length > 0) ? (alerts.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No alerts';
+                const status = (Array.isArray(alerts) && alerts.length > 0) ? (alerts.map(a => CONSTANS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
 
                 if (this.envoyService) {
                     this.envoyService
@@ -1008,7 +1008,7 @@ class EnvoyDevice extends EventEmitter {
                     this.microinvertersProvisioned = [];
                     this.microinvertersOperating = [];
 
-                    const type = CONSTANS.ApiCodes[inventoryData.data[0].type] || 'Undefined';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[0].type] || 'Unknown';
                     for (let i = 0; i < microinvertersCount; i++) {
                         const microinverter = microinverters[i];
                         const partNum = CONSTANS.PartNumbers[microinverter.part_num] || 'Microinverter';
@@ -1028,6 +1028,7 @@ class EnvoyDevice extends EventEmitter {
                         const communicating = microinverter.communicating === true;
                         const provisioned = microinverter.provisioned === true;
                         const operating = microinverter.operating === true;
+                        const phase = microinverter.phase || 'Unknown';
 
                         //convert status
                         const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
@@ -1078,7 +1079,7 @@ class EnvoyDevice extends EventEmitter {
                     this.acBatteriesSleepMaxSoc = [];
                     this.acBatteriesChargeStatus = [];
 
-                    const type = CONSTANS.ApiCodes[inventoryData.data[1].type] || 'Undefined';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[1].type] || 'Unknown';
                     for (let i = 0; i < acBatteriesCount; i++) {
                         const acBaterie = acBatteries[i];
                         const partNum = CONSTANS.PartNumbers[acBaterie.part_num] || 'AC Batterie'
@@ -1144,7 +1145,7 @@ class EnvoyDevice extends EventEmitter {
                     this.acBatteriesCount = acBatteriesCount;
                     this.acBatteriesInstalled = true;
                 }
-                
+
                 //qrelays inventory
                 const qRelays = inventoryData.data[2].devices;
                 const qRelaysCount = qRelays.length;
@@ -1165,7 +1166,7 @@ class EnvoyDevice extends EventEmitter {
                     this.qRelaysLine2Connected = [];
                     this.qRelaysLine3Connected = [];
 
-                    const type = CONSTANS.ApiCodes[inventoryData.data[2].type] || 'Undefined';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[2].type] || 'Unknown';
                     for (let i = 0; i < qRelaysCount; i++) {
                         const qRelay = qRelays[i];
                         const partNum = CONSTANS.PartNumbers[qRelay.part_num] || 'Q-Relay'
@@ -1254,7 +1255,7 @@ class EnvoyDevice extends EventEmitter {
                     this.ensemblesCommunicating = [];
                     this.ensemblesOperating = [];
 
-                    const type = CONSTANS.ApiCodes[inventoryData.data[3].type] || 'Undefined';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[3].type] || 'Unknown';
                     for (let i = 0; i < ensemblesCount; i++) {
                         const ensemble = ensembles[i];
                         const partNum = CONSTANS.PartNumbers[ensemble.part_num] || 'Q-Relay'
