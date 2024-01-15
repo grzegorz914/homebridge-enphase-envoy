@@ -1279,12 +1279,12 @@ class EnvoyDevice extends EventEmitter {
 
                         if (this.ensemblesService) {
                             this.ensemblesService[i]
-                                .updateCharacteristic(Characteristic.enphaseEsubStatus, status)
-                                .updateCharacteristic(Characteristic.enphaseEsubLastReportDate, lastReportDate)
-                                .updateCharacteristic(Characteristic.enphaseEsubFirmware, firmware)
-                                .updateCharacteristic(Characteristic.enphaseEsubProducing, producing)
-                                .updateCharacteristic(Characteristic.enphaseEsubCommunicating, communicating)
-                                .updateCharacteristic(Characteristic.enphaseEsubOperating, operating)
+                                .updateCharacteristic(Characteristic.enphaseEnsembleStatus, status)
+                                .updateCharacteristic(Characteristic.enphaseEnsembleLastReportDate, lastReportDate)
+                                .updateCharacteristic(Characteristic.enphaseEnsembleFirmware, firmware)
+                                .updateCharacteristic(Characteristic.enphaseEnsembleProducing, producing)
+                                .updateCharacteristic(Characteristic.enphaseEnsembleCommunicating, communicating)
+                                .updateCharacteristic(Characteristic.enphaseEnsembleOperating, operating)
                         }
 
                         this.ensemblesSerialNumber.push(serialNumber);
@@ -4064,37 +4064,37 @@ class EnvoyDevice extends EventEmitter {
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Ensemble ${ensembleSerialNumber} service`) : false;
                         const enphaseEnsembleService = new Service.enphaseEnsembleService(`Ensemble ${ensembleSerialNumber}`, `enphaseEnsembleService${i}`);
                         enphaseEnsembleService.setCharacteristic(Characteristic.ConfiguredName, `Ensemble ${ensembleSerialNumber}`);
-                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEsubProducing)
+                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEnsembleProducing)
                             .onGet(async () => {
                                 const value = this.ensemblesProducing[i];
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble: ${ensembleSerialNumber}, producing: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             });
-                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEsubCommunicating)
+                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEnsembleCommunicating)
                             .onGet(async () => {
                                 const value = this.ensemblesCommunicating[i];
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble: ${ensembleSerialNumber}, communicating: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             });
-                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEsubOperating)
+                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEnsembleOperating)
                             .onGet(async () => {
                                 const value = this.ensemblesOperating[i];
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble: ${ensembleSerialNumber}, operating: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             })
-                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEsubStatus)
+                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEnsembleStatus)
                             .onGet(async () => {
                                 const value = this.ensemblesStatus[i];
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble: ${ensembleSerialNumber}, status: ${value}`);
                                 return value;
                             });
-                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEsubFirmware)
+                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEnsembleFirmware)
                             .onGet(async () => {
                                 const value = this.ensemblesFirmware[i];
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble: ${ensembleSerialNumber}, firmware: ${value}`);
                                 return value;
                             });
-                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEsubLastReportDate)
+                        enphaseEnsembleService.getCharacteristic(Characteristic.enphaseEnsembleLastReportDate)
                             .onGet(async () => {
                                 const value = this.ensemblesLastReportDate[i] || '';
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble: ${ensembleSerialNumber}, last report: ${value}`);
