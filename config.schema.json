@@ -404,11 +404,11 @@
                     "required": false
                   },
                   "energyLevel": {
-                    "title": "Enargy Level",
+                    "title": "Energy Level",
                     "type": "integer",
                     "minimum": 0,
                     "default": 0,
-                    "description": "Here set enargy level in (Wh) at which the sensor fired.",
+                    "description": "Here set energy level in (Wh) at which the sensor fired.",
                     "required": false
                   },
                   "mode": {
