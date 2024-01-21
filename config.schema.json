@@ -540,6 +540,7 @@
               "default": 1000,
               "minimum": 500,
               "maximum": 30000,
+              "multipleOf" : 100,
               "required": false,
               "description": "Here set live data refresh time in (ms).",
               "condition": {
@@ -552,6 +553,7 @@
               "default": 2500,
               "minimum": 500,
               "maximum": 30000,
+              "multipleOf" : 100,
               "required": false,
               "description": "Here set meters data refresh time in (ms)."
             },
@@ -561,6 +563,7 @@
               "default": 5000,
               "minimum": 500,
               "maximum": 30000,
+              "multipleOf" : 100,
               "required": false,
               "description": "Here set production data rfresh time in (ms)."
             },
