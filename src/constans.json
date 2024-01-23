@@ -30,6 +30,7 @@
         "DiagnosticNetworkCheck": "/admin/lib/network_display.json",
         "EnsembleInventory": "/ivp/ensemble/inventory",
         "EnsembleStatus": "/ivp/ensemble/status",
+        "EnsembleGenerator": "/ivp/ensemble/grnrrator",
         "EthernetConfigPutGet": "/admin/lib/network_display.json",
         "Events": "/datatab/event_dt.rb",
         "Home": "/home.json",
