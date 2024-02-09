@@ -262,6 +262,8 @@ class EnvoyDevice extends EventEmitter {
         this.metersConsumptionEnabled = false;
         this.metersConsumpionVoltageDivide = 1;
         this.metersConsumptionCount = 0;
+        this.metersStorageEnabled = false;
+        this.metersStorageVoltageDivide = 1;
         this.metersReadingInstalled = false;
         this.metersReadingCount = 0;
         this.metersReadingPhaseCount = 0;
@@ -595,7 +597,7 @@ class EnvoyDevice extends EventEmitter {
                     },
                     withCredentials: true,
                     httpsAgent: new https.Agent({
-                        keepAlive: true,
+                        keepAlive: false,
                         rejectUnauthorized: false
                     })
                 });
@@ -614,7 +616,7 @@ class EnvoyDevice extends EventEmitter {
                     },
                     withCredentials: true,
                     httpsAgent: new https.Agent({
-                        keepAlive: true,
+                        keepAlive: false,
                         rejectUnauthorized: false
                     })
                 });
@@ -653,12 +655,12 @@ class EnvoyDevice extends EventEmitter {
                 //device
                 const device = envoyInfo.device;
                 const deviceSn = this.envoySerialNumber ? this.envoySerialNumber : device.sn.toString();
-                const devicePn = CONSTANS.PartNumbers[device.pn] || 'Envoy';
+                const devicePn = CONSTANS.PartNumbers[device.pn] ?? 'Envoy';
                 const deviceSoftware = device.software;
                 const deviceEuaid = device.euaid;
                 const deviceSeqNum = device.seqnum;
                 const deviceApiVer = device.apiver;
-                const deviceImeter = device.imeter || false;
+                const deviceImeter = device.imeter ?? false;
 
                 //web tokens
                 const webTokens = envoyKeys.includes('web-tokens') ? envoyInfo['web-tokens'] === true : false;
@@ -676,11 +678,11 @@ class EnvoyDevice extends EventEmitter {
                 const build = envoyInfo.build_info;
                 const buildId = build.build_id;
                 const buildTimeQmt = new Date(build.build_time_gmt * 1000).toLocaleString();
-                const releaseVer = build.release_ver || 'Unknown';
-                const releaseStage = build.release_stage || 'Unknown';
+                const releaseVer = build.release_ver ?? 'Unknown';
+                const releaseStage = build.release_stage ?? 'Unknown';
 
                 //envoy password
-                const envoyPasswd = this.envoyPasswd || deviceSn.substring(6);
+                const envoyPasswd = this.envoyPasswd ?? deviceSn.substring(6);
                 const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: ${envoyPasswd}`) : false;
 
                 //digest authorization envoy
@@ -767,9 +769,9 @@ class EnvoyDevice extends EventEmitter {
 
                 //envoy
                 const softwareBuildEpoch = new Date(envoy.software_build_epoch * 1000).toLocaleString();
-                const isEnvoy = envoy.is_nonvoy === false || true;
-                const dbSize = envoy.db_size || 0;
-                const dbPercentFull = envoy.db_percent_full || 0;
+                const isEnvoy = envoy.is_nonvoy === false ?? true;
+                const dbSize = envoy.db_size ?? 0;
+                const dbPercentFull = envoy.db_percent_full ?? 0;
                 const timeZone = envoy.timezone;
                 const currentDate = new Date(envoy.current_date).toLocaleString().slice(0, 11);
                 const currentTime = envoy.current_time;
@@ -779,7 +781,7 @@ class EnvoyDevice extends EventEmitter {
                 const webComm = envoyNework.web_comm === true;
                 const everReportedToEnlighten = envoyNework.ever_reported_to_enlighten === true;
                 const lastEnlightenReporDate = new Date(envoyNework.last_enlighten_report_time * 1000).toLocaleString();
-                const primaryInterface = CONSTANS.ApiCodes[envoyNework.primary_interface] || 'Undefined';
+                const primaryInterface = CONSTANS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown';
                 const envoyNetworkInterfaces = envoyNework.interfaces;
                 const envoyNetworkInterfacesCount = envoyNetworkInterfaces.length;
                 if (envoyNetworkInterfacesCount > 0) {
@@ -794,7 +796,7 @@ class EnvoyDevice extends EventEmitter {
                             const envoyInterfaceSignalStrength = envoyNetworkInterfaces[0].signal_strength * 20;
                             const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[0].signal_strength_max * 20;
                             const envoyInterfaceNetwork = envoyNetworkInterfaces[0].network;
-                            const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[0].type] || 'Undefined';
+                            const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[0].type] ?? 'Unknown';
                             const envoyInterfaceInterface = envoyNetworkInterfaces[0].interface;
                             const envoyInterfaceDhcp = envoyNetworkInterfaces[0].dhcp;
                             const envoyInterfaceIp = envoyNetworkInterfaces[0].ip;
@@ -802,7 +804,7 @@ class EnvoyDevice extends EventEmitter {
                             this.envoyInterfaceCellular = true;
                         }
                         if (envoyInterfaceLan) {
-                            const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex].type] || 'Undefined';
+                            const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex].type] ?? 'Unknown';
                             const envoyInterfaceInterface = envoyNetworkInterfaces[envoyInterfaceStartIndex].interface;
                             const envoyInterfaceMac = envoyNetworkInterfaces[envoyInterfaceStartIndex].mac;
                             const envoyInterfaceDhcp = envoyNetworkInterfaces[envoyInterfaceStartIndex].dhcp;
@@ -815,7 +817,7 @@ class EnvoyDevice extends EventEmitter {
                         if (envoyInterfaceWlan) {
                             const envoyInterfaceSignalStrenth = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength * 20;
                             const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength_max * 20;
-                            const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].type] || 'Undefined';
+                            const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].type] ?? 'Unknown';
                             const envoyInterfaceInterface = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].interface;
                             const envoyInterfaceMac = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].mac;
                             const envoyInterfaceDhcp = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].dhcp;
@@ -824,13 +826,13 @@ class EnvoyDevice extends EventEmitter {
                             const envoyInterfaceSupported = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].supported;
                             const envoyInterfacePresent = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].present;
                             const envoyInterfaceConfigured = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].configured;
-                            const envoyInterfaceStatus = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].status] || 'Undefined';
+                            const envoyInterfaceStatus = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].status] ?? 'Unknown';
                             this.envoyInterfaceWlan = true;
                         }
                     }
                     this.envoyNetworkInterfacesCount = envoyNetworkInterfacesCount;
                 }
-                const tariff = CONSTANS.ApiCodes[envoy.tariff] || 'Undefined';
+                const tariff = CONSTANS.ApiCodes[envoy.tariff] ?? 'Unknown';
 
                 //comm
                 const comm = envoy.comm;
@@ -856,7 +858,7 @@ class EnvoyDevice extends EventEmitter {
                 const commEnchagLevelSubg = enchargesSupported ? commEncharge.level_subg * 20 : 0;
 
                 const alerts = envoy.alerts;
-                const updateStatus = CONSTANS.ApiCodes[envoy.update_status] || 'Unknown';
+                const updateStatus = CONSTANS.ApiCodes[envoy.update_status] ?? 'Unknown';
 
                 //wireless connection kit
                 if (wirelessConnectionKitSupported) {
@@ -873,7 +875,7 @@ class EnvoyDevice extends EventEmitter {
                             const wirelessConnection = wirelessConnections[i];
                             const wirelessConnectionSignalStrength = wirelessConnection.signal_strength * 20;
                             const wirelessConnectionSignalStrengthMax = wirelessConnection.signal_strength_max * 20;
-                            const wirelessConnectionType = CONSTANS.ApiCodes[wirelessConnection.type] || 'Undefined';
+                            const wirelessConnectionType = CONSTANS.ApiCodes[wirelessConnection.type] ?? 'Unknown';
                             const wirelessConnectionConnected = wirelessConnection.connected === true;
 
                             if (this.wirelessConnektionsKitService) {
@@ -898,7 +900,7 @@ class EnvoyDevice extends EventEmitter {
                 //enpower
                 const enpower = enpowersSupported ? envoy.enpower : {};
                 const enpowerConnected = enpowersSupported ? enpower.connected === true : false;
-                const enpowerGridStatus = enpowersSupported ? CONSTANS.ApiCodes[enpower.grid_status] || 'Enpower state no grid' : 'Enpower state no grid';
+                const enpowerGridStatus = enpowersSupported ? CONSTANS.ApiCodes[enpower.grid_status] ?? 'Enpower state no grid' : 'Enpower state no grid';
 
                 //convert status
                 const status = (Array.isArray(alerts) && alerts.length > 0) ? (alerts.map(a => CONSTANS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
@@ -1008,10 +1010,10 @@ class EnvoyDevice extends EventEmitter {
                     this.microinvertersProvisioned = [];
                     this.microinvertersOperating = [];
 
-                    const type = CONSTANS.ApiCodes[inventoryData.data[0].type] || 'Unknown';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[0].type] ?? 'Unknown';
                     for (let i = 0; i < microinvertersCount; i++) {
                         const microinverter = microinverters[i];
-                        const partNum = CONSTANS.PartNumbers[microinverter.part_num] || 'Microinverter';
+                        const partNum = CONSTANS.PartNumbers[microinverter.part_num] ?? 'Microinverter';
                         const installed = new Date(microinverter.installed * 1000).toLocaleString();
                         const serialNumber = microinverter.serial_num;
                         const deviceStatus = microinverter.device_status;
@@ -1028,7 +1030,7 @@ class EnvoyDevice extends EventEmitter {
                         const communicating = microinverter.communicating === true;
                         const provisioned = microinverter.provisioned === true;
                         const operating = microinverter.operating === true;
-                        const phase = microinverter.phase || 'Unknown';
+                        const phase = microinverter.phase ?? 'Unknown';
 
                         //convert status
                         const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
@@ -1079,10 +1081,10 @@ class EnvoyDevice extends EventEmitter {
                     this.acBatteriesSleepMaxSoc = [];
                     this.acBatteriesChargeStatus = [];
 
-                    const type = CONSTANS.ApiCodes[inventoryData.data[1].type] || 'Unknown';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[1].type] ?? 'Unknown';
                     for (let i = 0; i < acBatteriesCount; i++) {
                         const acBaterie = acBatteries[i];
-                        const partNum = CONSTANS.PartNumbers[acBaterie.part_num] || 'AC Batterie'
+                        const partNum = CONSTANS.PartNumbers[acBaterie.part_num] ?? 'AC Batterie'
                         const installed = new Date(acBaterie.installed * 1000).toLocaleString();
                         const serialNumber = acBaterie.serial_num;
                         const deviceStatus = acBaterie.device_status;
@@ -1104,7 +1106,7 @@ class EnvoyDevice extends EventEmitter {
                         const maxCellTemp = acBaterie.maxCellTemp;
                         const sleepMinSoc = acBaterie.sleep_min_soc;
                         const sleepMaxSoc = acBaterie.sleep_max_soc;
-                        const chargeStatus = CONSTANS.ApiCodes[acBaterie.charge_status] || 'Undefined';
+                        const chargeStatus = CONSTANS.ApiCodes[acBaterie.charge_status] ?? 'Unknown';
 
                         //convert status
                         const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
@@ -1166,10 +1168,10 @@ class EnvoyDevice extends EventEmitter {
                     this.qRelaysLine2Connected = [];
                     this.qRelaysLine3Connected = [];
 
-                    const type = CONSTANS.ApiCodes[inventoryData.data[2].type] || 'Unknown';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[2].type] ?? 'Unknown';
                     for (let i = 0; i < qRelaysCount; i++) {
                         const qRelay = qRelays[i];
-                        const partNum = CONSTANS.PartNumbers[qRelay.part_num] || 'Q-Relay'
+                        const partNum = CONSTANS.PartNumbers[qRelay.part_num] ?? 'Q-Relay'
                         const installed = new Date(qRelay.installed * 1000).toLocaleString();
                         const serialNumber = qRelay.serial_num;
                         const deviceStatus = qRelay.device_status;
@@ -1186,7 +1188,7 @@ class EnvoyDevice extends EventEmitter {
                         const communicating = qRelay.communicating === true;
                         const provisioned = qRelay.provisioned === true;
                         const operating = qRelay.operating === true;
-                        const relay = CONSTANS.ApiCodes[qRelay.relay] || 'Undefined';
+                        const relay = CONSTANS.ApiCodes[qRelay.relay] ?? 'Unknown';
                         const reasonCode = qRelay.reason_code;
                         const reason = qRelay.reason;
                         const linesCount = qRelay['line-count'];
@@ -1255,10 +1257,10 @@ class EnvoyDevice extends EventEmitter {
                     this.ensemblesCommunicating = [];
                     this.ensemblesOperating = [];
 
-                    const type = CONSTANS.ApiCodes[inventoryData.data[3].type] || 'Unknown';
+                    const type = CONSTANS.ApiCodes[inventoryData.data[3].type] ?? 'Unknown';
                     for (let i = 0; i < ensemblesCount; i++) {
                         const ensemble = ensembles[i];
-                        const partNum = CONSTANS.PartNumbers[ensemble.part_num] || 'Q-Relay'
+                        const partNum = CONSTANS.PartNumbers[ensemble.part_num] ?? 'Q-Relay'
                         const installed = new Date(ensemble.installed * 1000).toLocaleString();
                         const serialNumber = ensemble.serial_num;
                         const deviceStatus = ensemble.device_status;
@@ -1330,15 +1332,15 @@ class EnvoyDevice extends EventEmitter {
                 this.metersMeteringStatus = [];
                 this.metersStatusFlags = [];
 
-                const metersCount = metersData.data.length || 0;
+                const metersCount = metersData.data.length ?? 0;
                 for (let i = 0; i < metersCount; i++) {
                     const meter = metersData.data[i];
                     const eid = meter.eid;
-                    const state = meter.state === 'enabled' || false;
-                    const measurementType = CONSTANS.ApiCodes[meter.measurementType] || 'Undefined';
-                    const phaseMode = CONSTANS.ApiCodes[meter.phaseMode] || 'Undefined';
-                    const phaseCount = meter.phaseCount || 0;
-                    const meteringStatus = CONSTANS.ApiCodes[meter.meteringStatus] || 'Undefined';
+                    const state = meter.state === 'enabled' ?? false;
+                    const measurementType = CONSTANS.ApiCodes[meter.measurementType] ?? 'Unknown';
+                    const phaseMode = CONSTANS.ApiCodes[meter.phaseMode] ?? 'Unknown';
+                    const phaseCount = meter.phaseCount ?? 0;
+                    const meteringStatus = CONSTANS.ApiCodes[meter.meteringStatus] ?? 'Unknown';
                     const statusFlags = meter.statusFlags;
 
                     // convert status
@@ -1362,10 +1364,12 @@ class EnvoyDevice extends EventEmitter {
                     this.metersStatusFlags.push(status);
                 }
 
-                this.metersProductionEnabled = this.metersState[0] || false;
+                this.metersProductionEnabled = this.metersState[0] ?? false;
                 this.metersProductionVoltageDivide = this.metersPhaseMode[0] === 'Split' ? 1 : this.metersPhaseCount[0];
-                this.metersConsumptionEnabled = this.metersState[1] || false;
+                this.metersConsumptionEnabled = this.metersState[1] ?? false;
                 this.metersConsumpionVoltageDivide = this.metersPhaseMode[1] === 'Split' ? 1 : this.metersPhaseCount[1];
+                this.metersStorageEnabled = this.metersState[2] ?? false;
+                this.metersStorageVoltageDivide = this.metersPhaseMode[2] === 'Split' ? 1 : this.metersPhaseCount[2];
 
                 this.metersCount = metersCount;
                 const metersEnabled = this.metersState.includes(true);
@@ -1574,33 +1578,36 @@ class EnvoyDevice extends EventEmitter {
                     this.enchargesRev = [];
                     this.enchargesCapacity = [];
 
-                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[0].type] || 'Encharge';
+                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[0].type] ?? 'Encharge';
                     for (let i = 0; i < enchargesCount; i++) {
                         const encharge = encharges[i];
-                        const partNum = CONSTANS.PartNumbers[encharge.part_num] || 'Undefined'
-                        const installed = new Date(encharge.installed * 1000).toLocaleString();
+                        const partNum = CONSTANS.PartNumbers[encharge.part_num] ?? 'Unknown';
                         const serialNumber = encharge.serial_num;
+                        const installed = new Date(encharge.installed * 1000).toLocaleString();
                         const deviceStatus = encharge.device_status;
                         const lastReportDate = new Date(encharge.last_rpt_date * 1000).toLocaleString();
                         const adminState = encharge.admin_state;
-                        const adminStateStr = CONSTANS.ApiCodes[encharge.admin_state_str] || 'Undefined';
+                        const adminStateStr = CONSTANS.ApiCodes[encharge.admin_state_str] ?? 'Unknown';
                         const createdDate = new Date(encharge.created_date * 1000).toLocaleString();
                         const imgLoadDate = new Date(encharge.img_load_date * 1000).toLocaleString();
                         const imgPnumRunning = encharge.img_pnum_running;
-                        const zigbeeDongleFwVersion = encharge.zigbee_dongle_fw_version;
+                        const zigbeeDongleFwVersion = encharge.zigbee_dongle_fw_version ?? 'Unknown'
                         const bmuFwVersion = encharge.bmu_fw_version;
-                        const operating = encharge.operating === true;
+                        const operating = encharge.operating === true ?? false;
                         const communicating = encharge.communicating === true;
                         const sleepEnabled = encharge.sleep_enabled;
                         const percentFull = encharge.percentFull;
                         const temperature = encharge.temperature;
                         const maxCellTemp = encharge.maxCellTemp;
+                        const reportedEncGridState = encharge.reported_enc_grid_state ?? 'Unknown';
                         const commLevelSubGhz = encharge.comm_level_sub_ghz * 20;
                         const commLevel24Ghz = encharge.comm_level_2_4_ghz * 20;
-                        const ledStatus = CONSTANS.LedStatus[encharge.led_status] || 'Undefined';
+                        const ledStatus = CONSTANS.LedStatus[encharge.led_status] ?? 'Unknown';
                         const dcSwitchOff = encharge.dc_switch_off;
                         const enchargeRev = encharge.encharge_rev;
                         const enchargeCapacity = parseFloat(encharge.encharge_capacity) / 1000; //in kWh
+                        const phase = encharge.phase ?? 'Unknown';
+                        const derIndex = encharge.der_index ?? 0;
 
                         //convert status
                         const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
@@ -1687,29 +1694,29 @@ class EnvoyDevice extends EventEmitter {
                     this.enpowersRelayStateBm = [];
                     this.enpowersCurrStateId = [];
 
-                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[1].type] || 'Enpower';
+                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[1].type] ?? 'Enpower';
                     for (let i = 0; i < enpowersCount; i++) {
                         const enpower = enpowers[i];
-                        const partNum = CONSTANS.PartNumbers[enpower.part_num] || 'Undefined'
-                        const installed = new Date(enpower.installed * 1000).toLocaleString();
+                        const partNum = CONSTANS.PartNumbers[enpower.part_num] ?? 'Unknown'
                         const serialNumber = enpower.serial_num;
+                        const installed = new Date(enpower.installed * 1000).toLocaleString();
                         const deviceStatus = enpower.device_status;
                         const lastReportDate = new Date(enpower.last_rpt_date * 1000).toLocaleString();
                         const adminState = enpower.admin_state;
-                        const adminStateStr = CONSTANS.ApiCodes[enpower.admin_state_str] || 'Undefined';
+                        const adminStateStr = CONSTANS.ApiCodes[enpower.admin_state_str] ?? 'Unknown';
                         const createdDate = new Date(enpower.created_date * 1000).toLocaleString();
                         const imgLoadDate = new Date(enpower.img_load_date * 1000).toLocaleString();
                         const imgPnumRunning = enpower.img_pnum_running;
-                        const zigbeeDongleFwVersion = enpower.zigbee_dongle_fw_version;
-                        const operating = enpower.operating === true;
+                        const zigbeeDongleFwVersion = enpower.zigbee_dongle_fw_version ?? 'Unknown';
+                        const operating = enpower.operating === true ?? false;
                         const communicating = enpower.communicating === true;
                         const temperature = enpower.temperature;
                         const commLevelSubGhz = enpower.comm_level_sub_ghz * 20;
                         const commLevel24Ghz = enpower.comm_level_2_4_ghz * 20;
-                        const mainsAdminState = CONSTANS.ApiCodes[enpower.mains_admin_state] || 'Undefined';
-                        const mainsOperState = CONSTANS.ApiCodes[enpower.mains_oper_state] || 'Undefined';
-                        const enpwrGridMode = CONSTANS.ApiCodes[enpower.Enpwr_grid_mode] || 'Undefined';
-                        const enchgGridMode = CONSTANS.ApiCodes[enpower.Enchg_grid_mode] || 'Undefined';
+                        const mainsAdminState = CONSTANS.ApiCodes[enpower.mains_admin_state] ?? 'Unknown';
+                        const mainsOperState = CONSTANS.ApiCodes[enpower.mains_oper_state] ?? 'Unknown';
+                        const enpwrGridMode = CONSTANS.ApiCodes[enpower.Enpwr_grid_mode] ?? 'Unknown';
+                        const enchgGridMode = CONSTANS.ApiCodes[enpower.Enchg_grid_mode] ?? 'Unknown';
                         const enpwrRelayStateBm = enpower.Enpwr_relay_state_bm;
                         const enpwrCurrStateId = enpower.Enpwr_curr_state_id;
 
@@ -1760,7 +1767,7 @@ class EnvoyDevice extends EventEmitter {
                 const generatorsInstalled = generatorsCount > 0;
 
                 if (generatorsInstalled) {
-                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[2].type] || 'Generator';
+                    const type = CONSTANS.ApiCodes[ensembleInventoryData.data[2].type] ?? 'Generator';
 
                     this.generatorsType = type;
                     this.generatorsCount = generatorsCount;
@@ -1787,6 +1794,7 @@ class EnvoyDevice extends EventEmitter {
                 const ensembleStatusData = await this.axiosInstance(CONSTANS.ApiUrls.EnsembleStatus);
                 const debug = this.enableDebugMode ? this.emit('debug', `Ensemble status: ${JSON.stringify(ensembleStatusData.data, null, 2)}`) : false;
                 const ensembleStatus = ensembleStatusData.data;
+                const ensembleStatusObjects = Object.keys(ensembleStatus);
 
                 //encharges
                 const enchargesRatedPowerSummary = [];
@@ -1798,19 +1806,23 @@ class EnvoyDevice extends EventEmitter {
                     const enchargeKey = enchargesSerialNumbersKeys[i];
                     const encharge = ensembleStatus.inventory.serial_nums[enchargeKey];
                     const deviceType = encharge.device_type;
+                    const comInterfacStr = encharge.com_interface_str ?? 'Unknown';
+                    const deviceId = encharge.device_id ?? 'Unknown';
                     const adminState = encharge.admin_state;
-                    const adminStateStr = CONSTANS.ApiCodes[encharge.admin_state_str] || 'Undefined';
-                    const reportedGridMode = CONSTANS.ApiCodes[encharge.reported_grid_mode] || 'Undefined';
-                    const phase = encharge.phase;
-                    const revision = encharge.encharge_revision;
-                    const capacity = encharge.encharge_capacity;
-                    const ratedPower = encharge.encharge_rated_power;
-                    const msgRetryCoun1 = encharge.msg_retry_count;
+                    const adminStateStr = CONSTANS.ApiCodes[encharge.admin_state_str] ?? 'Unknown';
+                    const reportedGridMode = CONSTANS.ApiCodes[encharge.reported_grid_mode] ?? 'Unknown';
+                    const phase = encharge.phase ?? 'Unknown';
+                    const derIndex = encharge.der_index ?? 0;
+                    const revision = encharge.encharge_revision ?? 0;
+                    const capacity = encharge.encharge_capacity ?? 0;
+                    const ratedPower = encharge.encharge_rated_power ?? 0;
+                    const reportedGridState = CONSTANS.ApiCodes[encharge.reported_grid_state] ?? 'Unknown';
+                    const msgRetryCount = encharge.msg_retry_count ?? 0;
                     const partNumber = encharge.part_number;
                     const assemblyNumber = encharge.assembly_number;
                     const appFwVersion = encharge.app_fw_version;
-                    const zbFwVersion = encharge.zb_fw_version;
-                    const zbBootloaderVers = encharge.zb_bootloader_vers;
+                    const zbFwVersion = encharge.zb_fw_version ?? 'Unknown';
+                    const zbBootloaderVers = encharge.zb_bootloader_vers ?? 'Unknown';
                     const iblFwVersion = encharge.ibl_fw_version;
                     const swiftAsicFwVersion = encharge.swift_asic_fw_version;
                     const bmuFwVersion = encharge.bmu_fw_version;
@@ -1829,8 +1841,12 @@ class EnvoyDevice extends EventEmitter {
                         const adminState = submodule.admin_state;
                         const partNumber = submodule.part_number;
                         const assemblyNumber = submodule.assembly_number;
+
+                        //dmir
                         const dmirPartNumber = submodule.dmir.part_number;
                         const dmirAssemblyNumber = submodule.dmir.assembly_number;
+
+                        //procload
                         const procloadPartNumber = submodule.procload.part_number;
                         const procloadAssemblyNumber = submodule.procload.assembly_number;
                     }
@@ -1841,97 +1857,99 @@ class EnvoyDevice extends EventEmitter {
                 this.enchargesRatedPowerSum = enchargesRatedPowerSum;
 
                 //counters
-                const counter = ensembleStatus.counters;
-                const apiEcagtInit = counter.api_ecagtInit;
-                const apiEcagtTick = counter.api_ecagtTick;
-                const apiEcagtDeviceInsert = counter.api_ecagtDeviceInsert;
-                const apiEcagtDeviceNetworkStatus = counter.api_ecagtDeviceNetworkStatus;
-                const apiEcagtDeviceCommissionStatus = counter.api_ecagtDeviceCommissionStatus;
-                const apiEcagtDeviceRemoved = counter.api_ecagtDeviceRemoved;
-                const apiEcagtGetDeviceCount = counter.api_ecagtGetDeviceCount;
-                const apiEcagtGetDeviceInfo = counter.api_ecagtGetDeviceInfo;
-                const apiEcagtGetOneDeviceInfo = counter.api_ecagtGetOneDeviceInfo;
-                const apiEcagtDevIdToSerial = counter.api_ecagtDevIdToSerial;
-                const apiEcagtHandleMsg = counter.api_ecagtHandleMsg;
-                const apiEcagtGetSubmoduleInv = counter.api_ecagtGetSubmoduleInv;
-                const apiEcagtGetDataModelRaw = counter.api_ecagtGetDataModelRaw;
-                const apiEcagtSetSecCtrlBias = counter.api_ecagtSetSecCtrlBias;
-                const apiEcagtGetSecCtrlBias = counter.api_ecagtGetSecCtrlBias;
-                const apiEcagtGetSecCtrlBiasQ = counter.api_ecagtGetSecCtrlBiasQ;
-                const apiEcagtSetRelayAdmin = counter.api_ecagtSetRelayAdmin;
-                const apiEcagtGetRelayState = counter.api_ecagtGetRelayState;
-                const apiEcagtSetDataModelCache = counter.api_ecagtSetDataModelCache;
-                const apiAggNameplate = counter.api_AggNameplate;
-                const apiChgEstimated = counter.api_ChgEstimated;
-                const apiEcagtGetGridFreq = counter.api_ecagtGetGridFreq;
-                const apiEcagtGetGridVolt = counter.api_ecagtGetGridVolt;
-                const apiEcagtGetGridFreqErrNotfound = counter.api_ecagtGetGridFreq_err_notfound;
-                const apiEcagtGetGridFreqErrOor = counter.api_ecagtGetGridFreq_err_oor;
-                const restStatusGet = counter.rest_StatusGet;
-                const restInventoryGet = counter.rest_InventoryGet;
-                const restSubmodGet = counter.rest_SubmodGet;
-                const restSecCtrlGet = counter.rest_SecCtrlGet;
-                const restRelayGet = counter.rest_RelayGet;
-                const restRelayPost = counter.rest_RelayPost;
-                const restCommCheckGet = counter.rest_CommCheckGet;
-                const restPower = counter.rest_Power ? parseFloat(counter.rest_Power) / 1000 : 0;  //in kW
-                const extZbRemove = counter.ext_zb_remove;
-                const extZbRemoveErr = counter.ext_zb_remove_err;
-                const extZbSendMsg = counter.ext_zb_send_msg;
-                const extCfgSaveDevice = counter.ext_cfg_save_device;
-                const extCfgSaveDeviceErr = counter.ext_cfg_save_device_err;
-                const extSendPerfData = counter.ext_send_perf_data;
-                const extEventSetStateful = counter.ext_event_set_stateful;
-                const extEventSetModgone = counter.ext_event_set_modgone;
-                const rxmsgObjMdlMetaRsp = counter.rxmsg_OBJ_MDL_META_RSP;
-                const rxmsgObjMdlInvUpdRsp = counter.rxmsg_OBJ_MDL_INV_UPD_RSP;
-                const rxmsgObjMdlPollRsp = counter.rxmsg_OBJ_MDL_POLL_RSP;
-                const rxmsgObjMdlRelayCtrlRsp = counter.rxmsg_OBJ_MDL_RELAY_CTRL_RSP;
-                const rxmsgObjMdlRelayStatusReq = counter.rxmsg_OBJ_MDL_RELAY_STATUS_REQ;
-                const rxmsgObjMdlGridStatusRsp = counter.rxmsg_OBJ_MDL_GRID_STATUS_RSP;
-                const rxmsgObjMdlEventMsg = counter.rxmsg_OBJ_MDL_EVENT_MSG;
-                const rxmsgObjMdlSosConfigRsp = counter.rxmsg_OBJ_MDL_SOC_CONFIG_RSP;
-                const txmsgObjMdlMetaReq = counter.txmsg_OBJ_MDL_META_REQ;
-                const txmsgObjMdlEncRtPollReq = counter.txmsg_OBJ_MDL_ENC_RT_POLL_REQ;
-                const txmsgObjMdlEnpRtPollReq = counter.txmsg_OBJ_MDL_ENP_RT_POLL_REQ;
-                const txmsgObjMdlBmuPollReq = counter.txmsg_OBJ_MDL_BMU_POLL_REQ;
-                const txmsgObjMdlPcuPollReq = counter.txmsg_OBJ_MDL_PCU_POLL_REQ;
-                const txmsgObjMdlSecondaryCtrlReq = counter.txmsg_OBJ_MDL_SECONDARY_CTRL_REQ;
-                const txmsgObjMdlRelayCtrlReq = counter.txmsg_OBJ_MDL_RELAY_CTRL_REQ;
-                const txmsgObjMdlGridStatusReq = counter.txmsg_OBJ_MDL_GRID_STATUS_REQ;
-                const txmsgObjMdlEventsAck = counter.txmsg_OBJ_MDL_EVENTS_ACK;
-                const txmsgObjMdlRelayStatusRsp = counter.txmsg_OBJ_MDL_RELAY_STATUS_RSP;
-                const txmsgObjMdlcosConfigReq = counter.txmsg_OBJ_MDL_SOC_CONFIG_REQ;
-                const txmsgObjMdlTnsStart = counter.txmsg_OBJ_MDL_TNS_START;
-                const rxmsgObjMdlTnsStartRsp = counter.rxmsg_OBJ_MDL_TNS_START_RSP;
-                const txmsgObjMdlSetUdmir = counter.txmsg_OBJ_MDL_SET_UDMIR;
-                const rxmsgObjMdlSetUdmirRsp = counter.rxmsg_OBJ_MDL_SET_UDMIR_RSP;
-                const txmsgObjMdlTnsEdn = counter.txmsg_OBJ_MDL_TNS_END;
-                const rxmsgObjMdlTnsEndRsp = counter.rxmsg_OBJ_MDL_TNS_END_RSP;
-                const txmsgLvsPoll = counter.txmsg_lvs_poll;
-                const zmqEcaHello = counter.zmq_ecaHello;
-                const zmqEcaDevInfo = counter.zmq_ecaDevInfo;
-                const zmqEcaNetworkStatus = counter.zmq_ecaNetworkStatus;
-                const zmqEcaAppMsg = counter.zmq_ecaAppMsg;
-                const zmqStreamdata = counter.zmq_streamdata;
-                const zmqLiveDebug = counter.zmq_live_debug;
-                const zmqEcaLiveDebugReq = counter.zmq_eca_live_debug_req;
-                const zmqNameplate = counter.zmq_nameplate;
-                const zmqEcaSecCtrlMsg = counter.zmq_ecaSecCtrlMsg;
-                const zmqMeterlogOk = counter.zmq_meterlog_ok;
-                const dmdlFilesIndexed = counter.dmdl_FILES_INDEXED;
-                const pfStart = counter.pf_start;
-                const pfActivate = counter.pf_activate;
-                const devPollMissing = counter.devPollMissing;
-                const devMsgRspMissing = counter.devMsgRspMissing;
-                const gridProfileTransaction = counter.gridProfileTransaction;
-                const secctrlNotReady = counter.secctrlNotReady;
-                const fsmRetryTimeout = counter.fsm_retry_timeout;
-                const profileTxnAck = counter.profile_txn_ack;
-                const backupSocLimitSet = counter.backupSocLimitSet;
-                const backupSocLimitChanged = counter.backupSocLimitChanged;
-                const backupSocLimitAbove100 = counter.backupSocLimitAbove100;
-                const apiEcagtGetGenRelayState = counter.api_ecagtGetGenRelayState;
+                const countersSupported = ensembleStatusObjects.includes('counters');
+                const counter = !countersSupported ? {} : ensembleStatus.counters;
+                const apiEcagtInit = counter.api_ecagtInit ?? 0;
+                const apiEcagtTick = counter.api_ecagtTick ?? 0;
+                const apiEcagtDeviceInsert = counter.api_ecagtDeviceInsert ?? 0;
+                const apiEcagtDeviceNetworkStatus = counter.api_ecagtDeviceNetworkStatus ?? 0;
+                const apiEcagtDeviceCommissionStatus = counter.api_ecagtDeviceCommissionStatus ?? 0;
+                const apiEcagtDeviceRemoved = counter.api_ecagtDeviceRemoved ?? 0;
+                const apiEcagtGetDeviceCount = counter.api_ecagtGetDeviceCount ?? 0;
+                const apiEcagtGetDeviceInfo = counter.api_ecagtGetDeviceInfo ?? 0;
+                const apiEcagtGetOneDeviceInfo = counter.api_ecagtGetOneDeviceInfo ?? 0;
+                const apiEcagtDevIdToSerial = counter.api_ecagtDevIdToSerial ?? 0;
+                const apiEcagtHandleMsg = counter.api_ecagtHandleMsg ?? 0;
+                const apiEcagtGetSubmoduleInv = counter.api_ecagtGetSubmoduleInv ?? 0;
+                const apiEcagtGetDataModelRaw = counter.api_ecagtGetDataModelRaw ?? 0;
+                const apiEcagtSetSecCtrlBias = counter.api_ecagtSetSecCtrlBias ?? 0;
+                const apiEcagtGetSecCtrlBias = counter.api_ecagtGetSecCtrlBias ?? 0;
+                const apiEcagtGetSecCtrlBiasQ = counter.api_ecagtGetSecCtrlBiasQ ?? 0;
+                const apiEcagtSetRelayAdmin = counter.api_ecagtSetRelayAdmin ?? 0;
+                const apiEcagtGetRelayState = counter.api_ecagtGetRelayState ?? 0;
+                const apiEcagtSetDataModelCache = counter.api_ecagtSetDataModelCache ?? 0;
+                const apiAggNameplate = counter.api_AggNameplate ?? 0;
+                const apiChgEstimated = counter.api_ChgEstimated ?? 0;
+                const apiEcagtGetGridFreq = counter.api_ecagtGetGridFreq ?? 0;
+                const apiEcagtGetGridVolt = counter.api_ecagtGetGridVolt ?? 0;
+                const apiEcagtGetGridFreqErrNotfound = counter.api_ecagtGetGridFreq_err_notfound ?? 0;
+                const apiEcagtGetGridFreqErrOor = counter.api_ecagtGetGridFreq_err_oor ?? 0;
+                const restStatusGet = counter.rest_StatusGet ?? 0;
+                const restInventoryGet = counter.rest_InventoryGet ?? 0;
+                const restSubmodGet = counter.rest_SubmodGet ?? 0;
+                const restSecCtrlGet = counter.rest_SecCtrlGet ?? 0;
+                const restRelayGet = counter.rest_RelayGet ?? 0;
+                const restRelayPost = counter.rest_RelayPost ?? 0;
+                const restCommCheckGet = counter.rest_CommCheckGet ?? 0;
+                const restPow = counter.rest_Power ?? 0;
+                const restPower = parseFloat(restPow) / 1000 ?? 0; //in kW
+                const extZbRemove = counter.ext_zb_remove ?? 0;
+                const extZbRemoveErr = counter.ext_zb_remove_err ?? 0;
+                const extZbSendMsg = counter.ext_zb_send_msg ?? 0;
+                const extCfgSaveDevice = counter.ext_cfg_save_device ?? 0;
+                const extCfgSaveDeviceErr = counter.ext_cfg_save_device_err ?? 0;
+                const extSendPerfData = counter.ext_send_perf_data ?? 0;
+                const extEventSetStateful = counter.ext_event_set_stateful ?? 0;
+                const extEventSetModgone = counter.ext_event_set_modgone ?? 0;
+                const rxmsgObjMdlMetaRsp = counter.rxmsg_OBJ_MDL_META_RSP ?? 0;
+                const rxmsgObjMdlInvUpdRsp = counter.rxmsg_OBJ_MDL_INV_UPD_RSP ?? 0;
+                const rxmsgObjMdlPollRsp = counter.rxmsg_OBJ_MDL_POLL_RSP ?? 0;
+                const rxmsgObjMdlRelayCtrlRsp = counter.rxmsg_OBJ_MDL_RELAY_CTRL_RSP ?? 0;
+                const rxmsgObjMdlRelayStatusReq = counter.rxmsg_OBJ_MDL_RELAY_STATUS_REQ ?? 0;
+                const rxmsgObjMdlGridStatusRsp = counter.rxmsg_OBJ_MDL_GRID_STATUS_RSP ?? 0;
+                const rxmsgObjMdlEventMsg = counter.rxmsg_OBJ_MDL_EVENT_MSG ?? 0;
+                const rxmsgObjMdlSosConfigRsp = counter.rxmsg_OBJ_MDL_SOC_CONFIG_RSP ?? 0;
+                const txmsgObjMdlMetaReq = counter.txmsg_OBJ_MDL_META_REQ ?? 0;
+                const txmsgObjMdlEncRtPollReq = counter.txmsg_OBJ_MDL_ENC_RT_POLL_REQ ?? 0;
+                const txmsgObjMdlEnpRtPollReq = counter.txmsg_OBJ_MDL_ENP_RT_POLL_REQ ?? 0;
+                const txmsgObjMdlBmuPollReq = counter.txmsg_OBJ_MDL_BMU_POLL_REQ ?? 0;
+                const txmsgObjMdlPcuPollReq = counter.txmsg_OBJ_MDL_PCU_POLL_REQ ?? 0;
+                const txmsgObjMdlSecondaryCtrlReq = counter.txmsg_OBJ_MDL_SECONDARY_CTRL_REQ ?? 0;
+                const txmsgObjMdlRelayCtrlReq = counter.txmsg_OBJ_MDL_RELAY_CTRL_REQ ?? 0;
+                const txmsgObjMdlGridStatusReq = counter.txmsg_OBJ_MDL_GRID_STATUS_REQ ?? 0;
+                const txmsgObjMdlEventsAck = counter.txmsg_OBJ_MDL_EVENTS_ACK ?? 0;
+                const txmsgObjMdlRelayStatusRsp = counter.txmsg_OBJ_MDL_RELAY_STATUS_RSP ?? 0;
+                const txmsgObjMdlcosConfigReq = counter.txmsg_OBJ_MDL_SOC_CONFIG_REQ ?? 0;
+                const txmsgObjMdlTnsStart = counter.txmsg_OBJ_MDL_TNS_START ?? 0;
+                const rxmsgObjMdlTnsStartRsp = counter.rxmsg_OBJ_MDL_TNS_START_RSP ?? 0;
+                const txmsgObjMdlSetUdmir = counter.txmsg_OBJ_MDL_SET_UDMIR ?? 0;
+                const rxmsgObjMdlSetUdmirRsp = counter.rxmsg_OBJ_MDL_SET_UDMIR_RSP ?? 0;
+                const txmsgObjMdlTnsEdn = counter.txmsg_OBJ_MDL_TNS_END ?? 0;
+                const rxmsgObjMdlTnsEndRsp = counter.rxmsg_OBJ_MDL_TNS_END_RSP ?? 0;
+                const txmsgLvsPoll = counter.txmsg_lvs_poll ?? 0;
+                const zmqEcaHello = counter.zmq_ecaHello ?? 0;
+                const zmqEcaDevInfo = counter.zmq_ecaDevInfo ?? 0;
+                const zmqEcaNetworkStatus = counter.zmq_ecaNetworkStatus ?? 0;
+                const zmqEcaAppMsg = counter.zmq_ecaAppMsg ?? 0;
+                const zmqStreamdata = counter.zmq_streamdata ?? 0;
+                const zmqLiveDebug = counter.zmq_live_debug ?? 0;
+                const zmqEcaLiveDebugReq = counter.zmq_eca_live_debug_req ?? 0;
+                const zmqNameplate = counter.zmq_nameplate ?? 0;
+                const zmqEcaSecCtrlMsg = counter.zmq_ecaSecCtrlMsg ?? 0;
+                const zmqMeterlogOk = counter.zmq_meterlog_ok ?? 0;
+                const dmdlFilesIndexed = counter.dmdl_FILES_INDEXED ?? 0;
+                const pfStart = counter.pf_start ?? 0;
+                const pfActivate = counter.pf_activate ?? 0;
+                const devPollMissing = counter.devPollMissing ?? 0;
+                const devMsgRspMissing = counter.devMsgRspMissing ?? 0;
+                const gridProfileTransaction = counter.gridProfileTransaction ?? 0;
+                const secctrlNotReady = counter.secctrlNotReady ?? 0;
+                const fsmRetryTimeout = counter.fsm_retry_timeout ?? 0;
+                const profileTxnAck = counter.profile_txn_ack ?? 0;
+                const backupSocLimitSet = counter.backupSocLimitSet ?? 0;
+                const backupSocLimitChanged = counter.backupSocLimitChanged ?? 0;
+                const backupSocLimitAbove100 = counter.backupSocLimitAbove100 ?? 0;
+                const apiEcagtGetGenRelayState = counter.api_ecagtGetGenRelayState ?? 0;
 
                 //secctrl
                 const secctrl = ensembleStatus.secctrl;
@@ -1960,6 +1978,12 @@ class EnvoyDevice extends EventEmitter {
                 const encMaxAvailableCapacity = parseFloat(secctrl.Enc_max_available_capacity) / 1000; //in kWh
                 const acbAggSoc = secctrl.ACB_agg_soc; //in %
                 const acbAggEnergy = parseFloat(secctrl.ACB_agg_energy) / 1000; //in kWh
+                const vlsLimit = secctrl.VLS_Limit ?? 0;
+                const socRecEnabled = secctrl.soc_rec_enabled ?? false;
+                const socRecoveryEntry = secctrl.soc_recovery_entry ?? 0;
+                const socRecoveryExit = secctrl.soc_recovery_exit ?? 0;
+                const commisionInProgress = secctrl.Commision_in_progress ?? false;
+                const essInProgress = secctrl.ESS_in_progress ?? false;
 
                 if (this.ensemblesStatusService) {
                     this.ensemblesStatusService[0]
@@ -2009,12 +2033,13 @@ class EnvoyDevice extends EventEmitter {
 
                 //relay
                 const relay = ensembleStatus.relay;
-                const mainsAdminState = CONSTANS.ApiCodes[relay.mains_admin_state] || 'Unknown';
-                const mainsOperState = CONSTANS.ApiCodes[relay.mains_oper_sate] || 'Unknown';
-                const der1State = relay.der1_state;
-                const der2State = relay.der2_state;
-                const enchGridMode = CONSTANS.ApiCodes[relay.Enchg_grid_mode] || 'Enpower state no grid';
-                const solarGridMode = CONSTANS.ApiCodes[relay.Solar_grid_mode] || 'Enpower state no grid';
+                const mainsAdminState = CONSTANS.ApiCodes[relay.mains_admin_state] ?? 'Unknown';
+                const mainsOperState = CONSTANS.ApiCodes[relay.mains_oper_sate] ?? 'Unknown';
+                const der1State = relay.der1_state ?? 0;
+                const der2State = relay.der2_state ?? 0;
+                const der3State = relay.der3_state ?? 0;
+                const enchGridMode = CONSTANS.ApiCodes[relay.Enchg_grid_mode] ?? 'Enpower state no grid';
+                const solarGridMode = CONSTANS.ApiCodes[relay.Solar_grid_mode] ?? 'Enpower state no grid';
 
                 //sensor state
                 const enpowerGridState = this.envoyEnpowerGridStatus !== 'Enpower state no grid';
@@ -2044,16 +2069,18 @@ class EnvoyDevice extends EventEmitter {
                 this.solarGridState = solarGridState;
 
                 //profile
-                const profile = ensembleStatus.profile;
-                const message = profile.message === 'Obsolete API, please use ivp/arf/profile';
+                const profileSupported = ensembleStatusObjects.includes('profile');
+                const profile = !profileSupported ? {} : ensembleStatus.profile;
+                const message = profile.message === 'Obsolete API, please use ivp/arf/profile' ?? false;
                 const profileData = message ? await this.updateProfileData() : profile;
-                const name = profileData.name;
-                const id = profileData.id;
-                const version = profileData.version;
-                const itemCount = profileData.item_count;
+                const name = profileData.name ?? 'Unknown';
+                const id = profileData.id ?? 0;
+                const version = profileData.version ?? '';
+                const itemCount = profileData.item_count ?? 0;
 
                 //fakeit
-                const fakeInventoryMode = ensembleStatus.fakeit.fake_inventory_mode === true;
+                const fakeInventoryModeSupported = ensembleStatusObjects.includes('fakeit');
+                const fakeInventoryMode = !fakeInventoryModeSupported ? false : ensembleStatus.fakeit.fake_inventory_mode === true;
 
                 this.ensembleGridProfileName = name;
                 this.ensembleId = id;
@@ -2639,12 +2666,12 @@ class EnvoyDevice extends EventEmitter {
                 //ac btteries summary 3
                 if (acBatteriesInstalled) {
                     const acBaterie = productionCtData.data.storage[0];
-                    const type = CONSTANS.ApiCodes[acBaterie.type] || 'AC Batterie';
+                    const type = CONSTANS.ApiCodes[acBaterie.type] ?? 'AC Batterie';
                     const activeCount = acBaterie.activeCount;
                     const readingTime = new Date(acBaterie.readingTime * 1000).toLocaleString();
                     const wNow = parseFloat(acBaterie.wNow) / 1000;
                     const whNow = parseFloat(acBaterie.whNow + this.acBatteriesStorageOffset) / 1000;
-                    const chargeStatus = CONSTANS.ApiCodes[acBaterie.state] || 'Undefined';
+                    const chargeStatus = CONSTANS.ApiCodes[acBaterie.state] ?? 'Unknown';
                     const percentFull = acBaterie.percentFull;
                     const energyState = percentFull > 0;
 
@@ -2946,6 +2973,7 @@ class EnvoyDevice extends EventEmitter {
             this.emit('devInfo', `Meters: ${this.metersSupported ? `Yes` : `No`}`);
             this.emit('devInfo', `Production: ${this.metersProductionEnabled ? `Enabled` : `Disabled`}`);
             this.emit('devInfo', `Consumption: ${this.metersConsumptionEnabled ? `Enabled` : `Disabled`}`);
+            const emit = this.ensemblesInstalled ? this.emit('devInfo', `Storage: ${this.metersStorageEnabled ? `Enabled` : `Disabled`}`) : false;
             this.emit('devInfo', `--------------------------------`);
         }
         if (this.envoyFirmware7xx) {

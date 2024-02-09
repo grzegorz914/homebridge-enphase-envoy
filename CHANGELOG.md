@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # After update to v7.8.0 and above from plevious version the sensors in plugin config need to be configured again!!!
 # After update to v7.5.0 and above from plevious version the sensors in plugin config need to be configured again!!!
 
+## [7.10.0] - (10.02.2024)
+## Changes
+- added support for Envoy Firmware 8.x.x
+- added support for storage CT meters
+- fixed [#114](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/114)
+- config.schema updated
+- cleanup
+
 ## [7.9.0] - (01.01.2024)
 ## Changes
 - added [#118](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/118)
