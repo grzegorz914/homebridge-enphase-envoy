@@ -3093,26 +3093,26 @@ class EnvoyDevice extends EventEmitter {
                     });
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel)
                     .onGet(async () => {
-                        const value = (`${this.envoyCommNum} / ${this.envoyCommLevel} %`);
+                        const value = (`${this.envoyCommNum} / ${this.envoyCommLevel}`);
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication devices and level: ${value} %`);
                         return value;
                     });
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel)
                     .onGet(async () => {
-                        const value = (`${this.envoyCommNsrbNum} / ${this.envoyCommNsrbLevel} %`);
+                        const value = (`${this.envoyCommNsrbNum} / ${this.envoyCommNsrbLevel}`);
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication qRelays and level: ${value} %`);
                         return value;
                     });
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel)
                     .onGet(async () => {
-                        const value = (`${this.envoyCommPcuNum} / ${this.envoyCommPcuLevel} %`);
+                        const value = (`${this.envoyCommPcuNum} / ${this.envoyCommPcuLevel}`);
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication Microinverters and level: ${value} %`);
                         return value;
                     });
                 if (acBatteriesInstalled) {
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel)
                         .onGet(async () => {
-                            const value = (`${this.envoyCommAcbNum} / ${this.envoyCommAcbLevel} %`);
+                            const value = (`${this.envoyCommAcbNum} / ${this.envoyCommAcbLevel}`);
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication AC Batteries and level ${value} %`);
                             return value;
                         });
@@ -3120,15 +3120,15 @@ class EnvoyDevice extends EventEmitter {
                 if (enchargesInstalled) {
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel)
                         .onGet(async () => {
-                            const value = (`${this.envoyCommEnchgNum} / ${this.envoyCommEnchgLevel} %`);
+                            const value = (`${this.envoyCommEnchgNum} / ${this.envoyCommEnchgLevel}`);
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication Encharges and level ${value} %`);
                             return value;
                         });
                 }
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
                     .onGet(async () => {
-                        const value = `${this.envoyDbSize} MB / ${this.envoyDbPercentFull} %`;
-                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data base size: ${value}`);
+                        const value = `${this.envoyDbSize} MB / ${this.envoyDbPercentFull}`;
+                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data base size: ${value} %`);
                         return value;
                     });
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyTariff)
