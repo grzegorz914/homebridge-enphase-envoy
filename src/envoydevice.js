@@ -2083,10 +2083,10 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //encharge grid state sensors
-                if (this.enchargerGridModeActiveSensorsCount > 0) {
+                if (this.enchargeGridModeActiveSensorsCount > 0) {
                     this.enchargeGridModeActiveSensorsState = [];
 
-                    for (let l = 0; l < this.enchargeActiveSensorsCount; l++) {
+                    for (let l = 0; l < this.enchargeGridModeActiveSensorsCount; l++) {
                         const gridMode = this.enchargeGridModeActiveSensors[l].gridMode;
                         const state = gridMode === enchGridMode;
                         if (this.enchargeGridModeSensorsServices) {
