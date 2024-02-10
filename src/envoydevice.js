@@ -1013,7 +1013,7 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const inventoryData = await this.axiosInstance(CONSTANS.ApiUrls.Inventory);
                 const inventory = inventoryData.data ?? [];
-                const debug = this.enableDebugMode ? this.emit('debug', `Inventory: ${JSON.stringify(inventoryData, null, 2)}`) : false;
+                const debug = this.enableDebugMode ? this.emit('debug', `Inventory: ${JSON.stringify(inventory, null, 2)}`) : false;
 
                 //microinverters inventory
                 const microinverters = inventory[0].devices ?? [];
