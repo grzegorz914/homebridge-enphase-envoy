@@ -27,7 +27,7 @@
 
 * Support Envoy Firmware v5.x.x, 6.x.x, v7.x.x, and v8.x.x.
 * Support Token authorization from plugin v6.0.0.
-* Support Devices Envoy, Q-Relays, AC Batteries, Meters, Microinverters, Ensemble, Encharges, Enpower, WirelessKit, Generator.
+* Support `Envoy`, `Q-Relays`, `AC Batteries`, `Meters`, `Microinverters`, `Ensemble`, `Encharges`, `Enpower`, `WirelessKit`, `Generator`.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Envoy `device ID` is detected automatically.
