@@ -25,15 +25,24 @@
 
 ### About The Plugin
 
-* Support Envoy Firmware v5.x.x, 6.x.x, v7.x.x, and v8.x.x.
 * Support Token authorization from plugin v6.0.0.
-* Support `Envoy`, `Q-Relays`, `AC Batteries`, `Meters`, `Microinverters`, `Ensemble`, `Encharges`, `Enpower`, `WirelessKit`, `Generator`.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Envoy `device ID` is detected automatically.
 * Support `Ensemble Status` working only with Envoy Fw. v7.x.x and newer.
 * Support `Production Power Mode` and `PLC Level` working only with Envoy Fw. v6.x.x and older.
 * For best experiences and display all data please use `Controller` or `EVE` app.
+* Supported devices:
+  * Firmware `v5.x.x`, `6.x.x`, `v7.x.x`, `v8.x.x`.
+  * Envoy `Envoy S`, `IQ Envoy`, `IQ Load Controller`, `IQ Combiner`.
+  * Q-Relays `Q-RELAY-1P` `Q-RELAY-3P`.
+  * AC Batteries `AC Battery Storage`.
+  * Meters `Production`, `Consumption`, `Storage`.
+  * Microinverters `M215`, `M250`, `IQ6`, `IQ7`, `IQ8`.
+  * Encharges `IQ Battery 3`, `IQ Battery 10`, `IQ Battery 5P`, `IQ Battery 3T`, `IQ Battery 10T`,
+  * Ensemble/Enpower `IQ System Controller`, `IQ System Controller 2`.
+  * WirelessKit `Communications Kit`.
+  * Generator
 * Exposed accessory in the native Home app:
   * Lightbulb:
     * Production `Power State`, `Power Level`.
