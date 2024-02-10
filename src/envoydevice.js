@@ -1387,19 +1387,19 @@ class EnvoyDevice extends EventEmitter {
 
                 //production
                 this.metersProductionSupported = this.metersMeasurementType.includes('Production');
-                const indexProduction = meters.findIndex(meter => meter.measurementType === 'Production');
+                const indexProduction = this.metersMeasurementType.indexOf('Production');
                 this.metersProductionEnabled = this.metersState[indexProduction] ?? false;
                 this.metersProductionVoltageDivide = this.metersPhaseMode[indexProduction] === 'Split' ? 1 : this.metersPhaseCount[indexProduction];
 
                 //consumption
                 this.metersConsumptionSupported = this.metersMeasurementType.includes('Consumption Net');
-                const indexConsumption = meters.findIndex(meter => meter.measurementType === 'Consumption Net');
+                const indexConsumption = this.metersMeasurementType.indexOf('Consumption Net');
                 this.metersConsumptionEnabled = this.metersState[indexConsumption] ?? false;
                 this.metersConsumpionVoltageDivide = this.metersPhaseMode[indexConsumption] === 'Split' ? 1 : this.metersPhaseCount[indexConsumption];
 
                 //storage
                 this.metersStorageSupported = this.metersMeasurementType.includes('Storage');
-                const indexStorage = meters.findIndex(meter => meter.measurementType === 'Storage');
+                const indexStorage = this.metersMeasurementType.indexOf('Storage');
                 this.metersStorageEnabled = this.metersState[indexStorage] ?? false;
                 this.metersStorageVoltageDivide = this.metersPhaseMode[indexStorage] === 'Split' ? 1 : this.metersPhaseCount[indexStorage];
 
