@@ -104,18 +104,27 @@
                         }
                     ],
                     "energyConsumptionNetLifetimeOffset": 0,
-                    "enpowerGridStateSensor": {
-                        "name": "Enpower grid state",
-                        "mode": false
-                    },
-                    "enchargeGridStateSensor": {
-                        "name": "Encharge grid state",
-                        "mode": false
-                    },
-                    "solarGridStateSensor": {
-                        "name": "Solar grid state",
-                        "mode": false
-                    },
+                    "enpowerGridModeSensors": [
+                        {
+                            "name": "Enpower grid state",
+                            "gridMode": "grid-on",
+                            "mode": false
+                        }
+                    ],
+                    "enchargeGridModeSensors": [
+                        {
+                            "name": "Encharge grid state",
+                            "gridMode": "grid-on",
+                            "mode": false
+                        }
+                    ],
+                    "solarGridModeSensors": [
+                        {
+                            "name": "Solar grid state",
+                            "gridMode": "grid-on",
+                            "mode": false
+                        }
+                    ],
                     "supportEnsembleStatus": false,
                     "supportLiveData": false,
                     "liveDataRefreshTime": 1000,

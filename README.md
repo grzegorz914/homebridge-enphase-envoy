@@ -117,15 +117,18 @@
 | `energyConsumptionNetLevelSensors.energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
 | `energyConsumptionNetLevelSensors.mode` | Here activate the sensor. |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Net) if nedded (+/-). |
-| `enepowerGridStateSensor` | This enable `Enpower Grid State` monitoring and expose contact sensor in HomeKit app. If `Enpower Grid State OFF` the contact fired. |
-| `enepowerGridStateSensor.name` | Here set Your own sensor name. |
-| `enepowerGridStateSensor.mode` | Here activate the sensor. |
-| `enchargeGridStateSensor` | This enable `Encharge Grid State` monitoring and expose contact sensor in HomeKit app. If `Encharge Grid State OFF` the contact fired. |
-| `enchargeGridStateSensor.name` | Here set Your own sensor name. |
-| `enchargeGridStateSensor.mode` | Here activate the sensor. |
-| `solarGridStateSensor` | This enable `Solar Grid State` monitoring and expose contact sensor in HomeKit app. If `Solar Grid State OFF` the contact fired. |
-| `solarGridStateSensor.name` | Here set Your own sensor name. |
-| `solarGridStateSensor.mode` | Here activate the sensor. |
+| `enepowerGridModeSensors` | Sensors`Enpower Grid Mode` monitoring and expose as a contact sensor in HomeKit app. If `Enpower Grid Mode` matches the, the contact fired. |
+| `enepowerGridModeSensors.name` | Here set Your own sensor name. |
+| `enepowerGridModeSensors.gridMode` | Here select the grid mode `Grod On`, `Grod Off` , `Multimode Grod On` , `Multimode Grod Off`  for sensor. |
+| `enepowerGridModeSensors.mode` | Here activate the sensor. |
+| `enchargeGridModeSensors` |Sensors `Encharge Grid Mode` monitoring and expose as a contact sensor in HomeKit app. If `Encharge Grid Mod` matches, the contact fired. |
+| `enchargeGridModeSensors.name` | Here set Your own sensor name. |
+| `enchargeGridModeSensors.gridMode` | Here select the grid mode `Grod On`, `Grod Off` , `Multimode Grod On` , `Multimode Grod Off`  for sensor. |
+| `enchargeGridModeSensors.mode` | Here activate the sensor. |
+| `solarGridModeSensors` | Sensors `Solar Grid Mode` monitoring and expose as a contact sensors in HomeKit app. If `Solar Grid Mode` matches, the contact fired. |
+| `solarGridModeSensors.name` | Here set Your own sensor name. |
+| `solarGridModeSensors.gridMode` | Here select the grid mode `Grod On`, `Grod Off` , `Multimode Grod On` , `Multimode Grod Off`  for sensor. |
+| `solarGridModeSensors.mode` | Here activate the sensor. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app) (only Fw. v6.x.x and older). |
 | `supportPlcLevel` | If enabled, check `PLC Level` will be possible (only Fw. v6.x.x and older). |
 | `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only Fw. v7.x.x and newer). |

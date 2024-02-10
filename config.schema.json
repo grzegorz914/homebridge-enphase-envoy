@@ -452,77 +452,172 @@
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
             },
-            "enpowerGridStateSensor": {
-              "title": "Enepower Grid Sensor",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
-                  "required": false
-                },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Here activate the sensor.",
-                  "required": false
+            "enpowerGridModeSensors": {
+              "title": "Enepower Grid Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "gridMode": {
+                    "title": "Mode",
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "title": "Grid On",
+                        "enum": [
+                          "on-grid"
+                        ]
+                      },
+                      {
+                        "title": "Grid Off",
+                        "enum": [
+                          "off-grid"
+                        ]
+                      },
+                      {
+                        "title": "Multimode Grid On",
+                        "enum": [
+                          "multimode-ongrid"
+                        ]
+                      },
+                      {
+                        "title": "Multimode Grid Off",
+                        "enum": [
+                          "multimode-offgrid"
+                        ]
+                      }
+                    ],
+                    "description": "Here select the grid mode.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
                 }
-              },
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
               }
             },
-            "enchargeGridStateSensor": {
-              "title": "Encharge Grid Sensor",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
-                  "required": false
-                },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Here activate the sensor.",
-                  "required": false
+            "enchargeGridModeSensors": {
+              "title": "Encharge Grid Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "gridMode": {
+                    "title": "Mode",
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "title": "Grid On",
+                        "enum": [
+                          "on-grid"
+                        ]
+                      },
+                      {
+                        "title": "Grid Off",
+                        "enum": [
+                          "off-grid"
+                        ]
+                      },
+                      {
+                        "title": "Multimode Grid On",
+                        "enum": [
+                          "multimode-ongrid"
+                        ]
+                      },
+                      {
+                        "title": "Multimode Grid Off",
+                        "enum": [
+                          "multimode-offgrid"
+                        ]
+                      }
+                    ],
+                    "description": "Here select the grid mode.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
                 }
               },
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
-              }
+              "required": false
             },
-            "solarGridStateSensor": {
-              "title": "Solar Grid Sensor",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
-                  "required": false
-                },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Here activate the sensor.",
-                  "required": false
+            "solarGridModeSensors": {
+              "title": "Solar Grid Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "gridMode": {
+                    "title": "Mode",
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "title": "Grid On",
+                        "enum": [
+                          "on-grid"
+                        ]
+                      },
+                      {
+                        "title": "Grid Off",
+                        "enum": [
+                          "off-grid"
+                        ]
+                      },
+                      {
+                        "title": "Multimode Grid On",
+                        "enum": [
+                          "multimode-ongrid"
+                        ]
+                      },
+                      {
+                        "title": "Multimode Grid Off",
+                        "enum": [
+                          "multimode-offgrid"
+                        ]
+                      }
+                    ],
+                    "description": "Here select the grid mode.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
                 }
               },
-              "required": false,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
-              }
+              "required": false
             },
             "supportLiveData": {
               "title": "Live Data",
@@ -540,7 +635,7 @@
               "default": 1000,
               "minimum": 500,
               "maximum": 30000,
-              "multipleOf" : 100,
+              "multipleOf": 100,
               "required": false,
               "description": "Here set live data refresh time in (ms).",
               "condition": {
@@ -553,7 +648,7 @@
               "default": 2500,
               "minimum": 500,
               "maximum": 30000,
-              "multipleOf" : 100,
+              "multipleOf": 100,
               "required": false,
               "description": "Here set meters data refresh time in (ms)."
             },
@@ -563,7 +658,7 @@
               "default": 5000,
               "minimum": 500,
               "maximum": 30000,
-              "multipleOf" : 100,
+              "multipleOf": 100,
               "required": false,
               "description": "Here set production data rfresh time in (ms)."
             },
@@ -1024,34 +1119,74 @@
                   "items": [
                     "devices[].supportEnsembleStatus",
                     {
-                      "key": "devices[].enpowerGridStateSensor",
+                      "key": "devices[]",
                       "type": "section",
-                      "title": "Enpower Grid State Sensor",
-                      "description": "In this section You can enable sensor for enpower grid state monitoring and expose it in HomeKit. If grid state off, the contact fired.",
+                      "title": "Enpower Grid Mode Sensors",
+                      "description": "In this section You can create sensors for enpower grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                      "expandable": true,
+                      "expanded": false,
                       "items": [
-                        "devices[].enpowerGridStateSensor.name",
-                        "devices[].enpowerGridStateSensor.mode"
-                      ]
+                        {
+                          "key": "devices[].enpowerGridModeSensors",
+                          "type": "tabarray",
+                          "title": "{{ value.name || 'sensor' }}",
+                          "items": [
+                            "devices[].enpowerGridModeSensors[].name",
+                            "devices[].enpowerGridModeSensors[].gridMode",
+                            "devices[].enpowerGridModeSensors[].mode"
+                          ]
+                        }
+                      ],
+                      "required": false,
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+                      }
                     },
                     {
-                      "key": "devices[].enchargeGridStateSensor",
+                      "key": "devices[]",
                       "type": "section",
-                      "title": "Encharge Grid State Sensor",
-                      "description": "In this section You can enable sensor for encharge grid state monitoring and expose it in HomeKit. If grid state off, the contact fired.",
+                      "title": "Encharge Grid Mode Sensors",
+                      "description": "In this section You can enable sensor for encharge grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                      "expandable": true,
+                      "expanded": false,
                       "items": [
-                        "devices[].enchargeGridStateSensor.name",
-                        "devices[].enchargeGridStateSensor.mode"
-                      ]
+                        {
+                          "key": "devices[].enchargeGridModeSensors",
+                          "type": "tabarray",
+                          "title": "{{ value.name || 'sensor' }}",
+                          "items": [
+                            "devices[].enchargeGridModeSensors[].name",
+                            "devices[].enchargeGridModeSensors[].gridMode",
+                            "devices[].enchargeGridModeSensors[].mode"
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+                      }
                     },
                     {
-                      "key": "devices[].solarGridStateSensor",
+                      "key": "devices[]",
                       "type": "section",
-                      "title": "Solar Grid State Sensor",
-                      "description": "In this section You can enable sensor for solar grid state monitoring and expose it in HomeKit. If grid state off, the contact fired.",
+                      "title": "Solar Grid Mode Sensors",
+                      "description": "In this section You can enable sensor for solar grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                      "expandable": true,
+                      "expanded": false,
                       "items": [
-                        "devices[].solarGridStateSensor.name",
-                        "devices[].solarGridStateSensor.mode"
-                      ]
+                        {
+                          "key": "devices[].solarGridModeSensors",
+                          "type": "tabarray",
+                          "title": "{{ value.name || 'sensor' }}",
+                          "items": [
+                            "devices[].solarGridModeSensors[].name",
+                            "devices[].solarGridModeSensors[].gridMode",
+                            "devices[].solarGridModeSensors[].mode"
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+                      }
                     }
                   ]
                 },
