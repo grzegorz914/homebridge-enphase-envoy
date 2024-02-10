@@ -129,8 +129,6 @@ class EnvoyDevice extends EventEmitter {
         }
         this.energyConsumptionNetLevelActiveSensorsCount = this.energyConsumptionNetLevelActiveSensors.length || 0
 
-
-        //grid state
         this.enpowerGridModeActiveSensors = [];
         for (const sensor of this.enpowerGridModeSensors) {
             const mode = sensor.mode ?? false;
@@ -279,11 +277,13 @@ class EnvoyDevice extends EventEmitter {
         //ct meters
         this.metersSupported = false;
         this.metersCount = 0;
+        this.metersProductionSupported = false;
         this.metersProductionEnabled = false;
         this.metersProductionVoltageDivide = 1;
+        this.metersConsumptionSupported = false;
         this.metersConsumptionEnabled = false;
         this.metersConsumpionVoltageDivide = 1;
-        this.metersConsumptionCount = 0;
+        this.metersStorageSupported = false;
         this.metersStorageEnabled = false;
         this.metersStorageVoltageDivide = 1;
         this.metersReadingInstalled = false;
@@ -317,6 +317,7 @@ class EnvoyDevice extends EventEmitter {
 
         //consumption CT
         this.consumptionsPowerPeak = [];
+        this.consumptionsCount = 0;
 
         //liveData
         this.liveDataSupported = false;
@@ -1384,12 +1385,24 @@ class EnvoyDevice extends EventEmitter {
                     this.metersStatusFlags.push(status);
                 }
 
-                this.metersProductionEnabled = this.metersState[0] ?? false;
-                this.metersProductionVoltageDivide = this.metersPhaseMode[0] === 'Split' ? 1 : this.metersPhaseCount[0];
-                this.metersConsumptionEnabled = this.metersState[1] ?? false;
-                this.metersConsumpionVoltageDivide = this.metersPhaseMode[1] === 'Split' ? 1 : this.metersPhaseCount[1];
-                this.metersStorageEnabled = this.metersState[2] ?? false;
-                this.metersStorageVoltageDivide = this.metersPhaseMode[2] === 'Split' ? 1 : this.metersPhaseCount[2];
+                //production
+                this.metersProductionSupported = this.metersMeasurementType.includes('Production');
+                const indexProduction = meters.findIndex(meter => meter.measurementType === 'Production');
+                this.metersProductionEnabled = this.metersState[indexProduction] ?? false;
+                this.metersProductionVoltageDivide = this.metersPhaseMode[indexProduction] === 'Split' ? 1 : this.metersPhaseCount[indexProduction];
+
+                //consumption
+                this.metersConsumptionSupported = this.metersMeasurementType.includes('Consumption Net');
+                const indexConsumption = meters.findIndex(meter => meter.measurementType === 'Consumption Net');
+                this.metersConsumptionEnabled = this.metersState[indexConsumption] ?? false;
+                this.metersConsumpionVoltageDivide = this.metersPhaseMode[indexConsumption] === 'Split' ? 1 : this.metersPhaseCount[indexConsumption];
+
+                //storage
+                this.metersStorageSupported = this.metersMeasurementType.includes('Storage');
+                const indexStorage = meters.findIndex(meter => meter.measurementType === 'Storage');
+                this.metersStorageEnabled = this.metersState[indexStorage] ?? false;
+                this.metersStorageVoltageDivide = this.metersPhaseMode[indexStorage] === 'Split' ? 1 : this.metersPhaseCount[indexStorage];
+
 
                 this.metersCount = metersCount;
                 const metersEnabled = this.metersState.includes(true);
@@ -2545,8 +2558,8 @@ class EnvoyDevice extends EventEmitter {
                     this.consumptionsApparentPower = [];
                     this.consumptionsPwrFactor = [];
 
-                    const metersConsumptionCount = productionCt.consumption.length;
-                    for (let i = 0; i < metersConsumptionCount; i++) {
+                    const consumptionsCount = productionCt.consumption.length; //net nad total
+                    for (let i = 0; i < consumptionsCount; i++) {
                         //power
                         const consumption = productionCt.consumption[i] ?? {};
                         const consumptionType = CONSTANS.ApiCodes[consumption.type];
@@ -2687,6 +2700,7 @@ class EnvoyDevice extends EventEmitter {
                             }
                         }
 
+                        this.consumptionsCount = consumptionsCount;
                         this.consumptionsType.push(consumptionType);
                         this.consumptionsMeasurmentType.push(consumptionMeasurmentType);
                         this.consumptionsActiveCount.push(consumptionActiveCount);
@@ -2704,7 +2718,6 @@ class EnvoyDevice extends EventEmitter {
                         this.consumptionsReactivePower.push(consumptionReactivePower);
                         this.consumptionsApparentPower.push(consumptionApparentPower);
                         this.consumptionsPwrFactor.push(consumptionPwrFactor);
-                        this.metersConsumptionCount = metersConsumptionCount;
                     }
                 }
 
@@ -3008,20 +3021,16 @@ class EnvoyDevice extends EventEmitter {
         this.emit('devInfo', `Inverters: ${this.microinvertersCount}`);
         this.emit('devInfo', `Batteries: ${this.acBatteriesCount}`);
         this.emit('devInfo', `--------------------------------`);
-        if (this.metersSupported) {
-            this.emit('devInfo', `Meters: ${this.metersSupported ? `Yes` : `No`}`);
-            this.emit('devInfo', `Production: ${this.metersProductionEnabled ? `Enabled` : `Disabled`}`);
-            this.emit('devInfo', `Consumption: ${this.metersConsumptionEnabled ? `Enabled` : `Disabled`}`);
-            const emit = this.ensemblesInstalled ? this.emit('devInfo', `Storage: ${this.metersStorageEnabled ? `Enabled` : `Disabled`}`) : false;
-            this.emit('devInfo', `--------------------------------`);
-        }
-        if (this.envoyFirmware7xx) {
-            const displayLog = this.ensemblesInstalled ? this.emit('devInfo', `Ensemble: Yes`) : false;
-            const displayLog1 = this.enpowersInstalled ? this.emit('devInfo', `Enpowers: Yes ${this.enpowersCount}`) : false;
-            const displayLog2 = this.enchargesInstalled ? this.emit('devInfo', `Encharges: Yes ${this.enchargesCount}`) : false;
-            const displayLog3 = this.wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: Yes ${this.wirelessConnectionKitConnectionsCount}`) : false;
-            const displayLog4 = this.ensemblesInstalled || this.enpowersInstalled || this.enchargesInstalled || this.wirelessConnectionKitInstalled ? this.emit('devInfo', `--------------------------------`) : false;
-        }
+        const displayLog = this.metersSupported ? this.emit('devInfo', `Meters: Yes`) : false;
+        const displayLog1 = this.metersSupported && this.metersProductionSupported ? this.emit('devInfo', `Production: ${this.metersProductionEnabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog2 = this.metersSupported && this.metersConsumptionSupported ? this.emit('devInfo', `Consumption: ${this.metersConsumptionEnabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog3 = this.metersSupported && this.metersStorageSupported ? this.emit('devInfo', `Storage: ${this.metersStorageEnabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog4 = this.metersSupported ? this.emit('devInfo', `--------------------------------`) : false;
+        const displayLog5 = this.ensemblesInstalled ? this.emit('devInfo', `Ensemble: Yes`) : false;
+        const displayLog6 = this.enpowersInstalled ? this.emit('devInfo', `Enpowers: ${this.enpowersCount}`) : false;
+        const displayLog7 = this.enchargesInstalled ? this.emit('devInfo', `Encharges: ${this.enchargesCount}`) : false;
+        const displayLog8 = this.wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: ${this.wirelessConnectionKitConnectionsCount}`) : false;
+        const displayLog9 = this.ensemblesInstalled || this.enpowersInstalled || this.enchargesInstalled || this.wirelessConnectionKitInstalled ? this.emit('devInfo', `--------------------------------`) : false;
     };
 
     //Prepare accessory
@@ -3049,7 +3058,7 @@ class EnvoyDevice extends EventEmitter {
                 const metersCount = this.metersCount;
                 const metersProductionEnabled = this.metersProductionEnabled;
                 const metersConsumptionEnabled = this.metersConsumptionEnabled;
-                const metersConsumptionCount = this.metersConsumptionCount;
+                const consumptionsCount = this.consumptionsCount;
                 const microinvertersInstalled = this.microinvertersInstalled;
                 const microinvertersCount = this.microinvertersCount;
                 const microinvertersPowerSupported = this.microinvertersPowerSupported;
@@ -3630,7 +3639,7 @@ class EnvoyDevice extends EventEmitter {
                 //power and energy consumption
                 if (metersSupported && metersConsumptionEnabled) {
                     this.consumptionsService = [];
-                    for (let i = 0; i < metersConsumptionCount; i++) {
+                    for (let i = 0; i < consumptionsCount; i++) {
                         const consumptionMeasurmentType = this.consumptionsMeasurmentType[i];
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Power And Energy Service`) : false;
                         const enphaseConsumptionService = new Service.enphasePowerAndEnergyService(`${consumptionMeasurmentType} Power And Energy`, `enphaseConsumptionService${i}`);
