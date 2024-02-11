@@ -48,6 +48,7 @@
     * Production `Power State`, `Power Level`.
     * AC Batteries `Energy State`, `Energy Level`.
     * Encharges `Energy State`, `Energy Level`.
+    * Encharge Profile `Self Consumption`, `Savings`, `Full Backup`.
   * Contact Sensors:
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
@@ -132,20 +133,21 @@
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Net) if nedded (+/-). |
 | `enepowerGridModeSensors` | Sensors`Enpower Grid Mode` monitoring and expose as a contact sensor in HomeKit app. If `Enpower Grid Mode` matches the, the contact fired. |
 | `enepowerGridModeSensors.name` | Here set Your own sensor name. |
-| `enepowerGridModeSensors.gridMode` | Here select the grid mode `Grod On`, `Grod Off` , `Multimode Grod On` , `Multimode Grod Off`  for sensor. |
+| `enepowerGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off` , `Multimode Grid On` , `Multimode Grid Off`  for sensor. |
 | `enepowerGridModeSensors.mode` | Here activate the sensor. |
 | `enchargeGridModeSensors` |Sensors `Encharge Grid Mode` monitoring and expose as a contact sensor in HomeKit app. If `Encharge Grid Mod` matches, the contact fired. |
 | `enchargeGridModeSensors.name` | Here set Your own sensor name. |
-| `enchargeGridModeSensors.gridMode` | Here select the grid mode `Grod On`, `Grod Off` , `Multimode Grod On` , `Multimode Grod Off`  for sensor. |
+| `enchargeGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off` , `Multimode Grid On` , `Multimode Grid Off`  for sensor. |
 | `enchargeGridModeSensors.mode` | Here activate the sensor. |
 | `solarGridModeSensors` | Sensors `Solar Grid Mode` monitoring and expose as a contact sensors in HomeKit app. If `Solar Grid Mode` matches, the contact fired. |
 | `solarGridModeSensors.name` | Here set Your own sensor name. |
-| `solarGridModeSensors.gridMode` | Here select the grid mode `Grod On`, `Grod Off` , `Multimode Grod On` , `Multimode Grod Off`  for sensor. |
+| `solarGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off` , `Multimode Grid On` , `Multimode Grid Off`  for sensor. |
 | `solarGridModeSensors.mode` | Here activate the sensor. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app) (only Fw. v6.x.x and older). |
 | `supportPlcLevel` | If enabled, check `PLC Level` will be possible (only Fw. v6.x.x and older). |
 | `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only Fw. v7.x.x and newer). |
 | `supportLiveData` | If enabled, check `Live Data` will be possible (only Fw. v7.x.x and newer). |
+| `supportEnchargeProfile` | This enable support to check/control encharge profile. |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (ms). |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (ms). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
