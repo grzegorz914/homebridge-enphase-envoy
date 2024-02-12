@@ -46,9 +46,12 @@
 * Exposed accessory in the native Home app:
   * Lightbulb:
     * Production `Power State`, `Power Level`.
-    * AC Batteries `Energy State`, `Energy Level`.
-    * Encharges `Energy State`, `Energy Level`.
-    * Encharge Profile `Self Consumption`, `Savings`, `Full Backup`.
+    * AC Battery `Energy State`, `Energy Level`.
+    * Encharge `Energy State`, `Energy Level`.
+    * Encharge Profile:
+      * Self Consumption `Activate`, `Set Reserve`.
+      * Savings `Activate`, `Set Reserve`.
+      * Full Backup `Activate`.
   * Contact Sensors:
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
