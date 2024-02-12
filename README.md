@@ -103,48 +103,48 @@
 | `energyProductionLevelSensors.name` | Here set Your own sensor name. |
 | `energyProductionLevelSensors.energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
 | `energyProductionLevelSensors.mode` | Here activate the sensor. |
-| `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded (+/-). |
-| `powerConsumptionTotalStateSensor` | This enable `Power State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded `+/-`. |
+| `powerConsumptionTotalStateSensor` | This enable `Power State` monitoring for consumption `(Total` and expose contact sensor in HomeKit app. |
 | `powerConsumptionTotalStateSensor.name` | Here set Your own sensor name. |
 | `powerConsumptionTotalStateSensor.mode` | Here activate the sensor. |
-| `powerConsumptionTotalLevelSensors` | This enable `Power Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `powerConsumptionTotalLevelSensors` | This enable `Power Level` monitoring for consumption `Total` and expose contact sensor in HomeKit app. |
 | `powerConsumptionTotalLevelSensors.name` | Here set Your own sensor name. |
 | `powerConsumptionTotalLevelSensors.powerLevel` | Here set power level in `W` at which the sensor fired. |
 | `powerConsumptionTotalLevelSensors.mode` | Here activate the sensor. |
-| `energyConsumptionTotalStateSensor` | This enable `Energy State` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `energyConsumptionTotalStateSensor` | This enable `Energy State` monitoring for consumption `Total` and expose contact sensor in HomeKit app. |
 | `energyConsumptionTotalStateSensor.name` | Here set Your own sensor name. |
 | `energyConsumptionTotalStateSensor.mode` | Here activate the sensor. |
-| `energyConsumptionTotalLevelSensors` | This enable `Energy Level` monitoring for consumption (Total) and expose contact sensor in HomeKit app. |
+| `energyConsumptionTotalLevelSensors` | This enable `Energy Level` monitoring for consumption `Total` and expose contact sensor in HomeKit app. |
 | `energyConsumptionTotalLevelSensors.name` | Here set Your own sensor name. |
 | `energyConsumptionTotalLevelSensors.energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
 | `energyConsumptionTotalLevelSensors.mode` | Here activate the sensor. |
-| `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Total) if nedded (+/-). |
-| `powerConsumptionNetStateSensor` | This enable `Power State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Total` if nedded `+/-`. |
+| `powerConsumptionNetStateSensor` | This enable `Power State` monitoring for consumption `Net` and expose contact sensor in HomeKit app. |
 | `powerConsumptionNetStateSensor.name` | Here set Your own sensor name. |
 | `powerConsumptionNetStateSensor.mode` | Here activate the sensor. |
-| `powerConsumptionNetLevelSensors` | This enable `Power Level` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `powerConsumptionNetLevelSensors` | This enable `Power Level` monitoring for consumption `Net` and expose contact sensor in HomeKit app. |
 | `powerConsumptionNetLevelSensors.name` | Here set Your own sensor name. |
 | `powerConsumptionNetLevelSensors.powerLevel` | Here set power level in `W` at which the sensor fired. |
 | `powerConsumptionNetLevelSensors.mode` | Here activate the sensor. |
-| `energyConsumptionNetStateSensor` | This enable `Energy State` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `energyConsumptionNetStateSensor` | This enable `Energy State` monitoring for consumption `Net` and expose contact sensor in HomeKit app. |
 | `energyConsumptionNetStateSensor.name` | Here set Your own sensor name. |
 | `energyConsumptionNetStateSensor.mode` | Here activate the sensor. |
-| `energyConsumptionNetLevelSensors` | This enable `Energy Level` monitoring for consumption (Net) and expose contact sensor in HomeKit app. |
+| `energyConsumptionNetLevelSensors` | This enable `Energy Level` monitoring for consumption `Net` and expose contact sensor in HomeKit app. |
 | `energyConsumptionNetLevelSensors.name` | Here set Your own sensor name. |
 | `energyConsumptionNetLevelSensors.energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
 | `energyConsumptionNetLevelSensors.mode` | Here activate the sensor. |
-| `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption (Net) if nedded (+/-). |
-| `enepowerGridModeSensors` | Sensors`Enpower Grid Mode` monitoring and expose as a contact sensor in HomeKit app. If `Enpower Grid Mode` matches the, the contact fired. |
+| `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Net` if nedded `+/-`. |
+| `enepowerGridModeSensors` | Sensors`Enpower Grid Mode` monitoring and expose as a contact sensor in HomeKit app. If `Enpower Grid Mode` matches, the contact fired. |
 | `enepowerGridModeSensors.name` | Here set Your own sensor name. |
-| `enepowerGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off` , `Multimode Grid On` , `Multimode Grid Off`  for sensor. |
+| `enepowerGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off` for sensor. |
 | `enepowerGridModeSensors.mode` | Here activate the sensor. |
 | `enchargeGridModeSensors` |Sensors `Encharge Grid Mode` monitoring and expose as a contact sensor in HomeKit app. If `Encharge Grid Mod` matches, the contact fired. |
 | `enchargeGridModeSensors.name` | Here set Your own sensor name. |
-| `enchargeGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off` , `Multimode Grid On` , `Multimode Grid Off`  for sensor. |
+| `enchargeGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off` for sensor. |
 | `enchargeGridModeSensors.mode` | Here activate the sensor. |
 | `solarGridModeSensors` | Sensors `Solar Grid Mode` monitoring and expose as a contact sensors in HomeKit app. If `Solar Grid Mode` matches, the contact fired. |
 | `solarGridModeSensors.name` | Here set Your own sensor name. |
-| `solarGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off` , `Multimode Grid On` , `Multimode Grid Off`  for sensor. |
+| `solarGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off` for sensor. |
 | `solarGridModeSensors.mode` | Here activate the sensor. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app) (only Fw. v6.x.x and older). |
 | `supportPlcLevel` | If enabled, check `PLC Level` will be possible (only Fw. v6.x.x and older). |
@@ -155,12 +155,12 @@
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (ms). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
-| `disableLogInfo`| If enabled, then disable log info, all values and state will not be displayed in Homebridge log console |
-| `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
+| `disableLogInfo`| If enabled, info log will be hidden, all values and state will not be displayed in Homebridge log console. |
+| `disableLogDeviceInfo` | If enabled, the info device log will be hidden by every plugin restart. |
 | `enableRestFul` | If enabled, RESTful server will start automatically and respond to any path request. |
 | `restFulPort` | Here set the listening `Port` for RESTful server. |
 | `restFulDebug` | If enabled, deep log will be present in homebridge console for RESTFul server. |
-| `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV installation data. |
+| `enableMqtt` | If enabled, MQTT Broker will start automatically and publish all awailable PV data. |
 | `mqttHost` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
 | `mqttPort` | Here set the `Port` for MQTT Broker, default 1883. |
 | `mqttClientId` | Here optional set the `Client Id` of MQTT Broker. |
