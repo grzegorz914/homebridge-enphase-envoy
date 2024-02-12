@@ -127,6 +127,7 @@
                     ],
                     "supportEnsembleStatus": false,
                     "supportLiveData": false,
+                    "supportEnchargeProfile": false,
                     "liveDataRefreshTime": 1000,
                     "metersDataRefreshTime": 3000,
                     "productionDataRefreshTime": 5000,

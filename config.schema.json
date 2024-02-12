@@ -452,6 +452,13 @@
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
             },
+            "supportEnchargeProfile": {
+              "title": "Profile",
+              "type": "boolean",
+              "default": false,
+              "required": false,
+              "description": "This enable support to check/control encharge profile."
+            },
             "enpowerGridModeSensors": {
               "title": "Enepower Grid Sensors",
               "type": "array",
@@ -561,7 +568,10 @@
                   }
                 }
               },
-              "required": false
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+              }
             },
             "solarGridModeSensors": {
               "title": "Solar Grid Sensors",
@@ -617,7 +627,10 @@
                   }
                 }
               },
-              "required": false
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+              }
             },
             "supportLiveData": {
               "title": "Live Data",
@@ -1120,73 +1133,89 @@
                     "devices[].supportEnsembleStatus",
                     {
                       "key": "devices[]",
-                      "type": "section",
-                      "title": "Enpower Grid Mode Sensors",
-                      "description": "In this section You can create sensors for enpower grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
-                      "expandable": true,
-                      "expanded": false,
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
                       "items": [
                         {
-                          "key": "devices[].enpowerGridModeSensors",
-                          "type": "tabarray",
-                          "title": "{{ value.name || 'sensor' }}",
+                          "key": "devices[]",
+                          "title": "Enpower",
                           "items": [
-                            "devices[].enpowerGridModeSensors[].name",
-                            "devices[].enpowerGridModeSensors[].gridMode",
-                            "devices[].enpowerGridModeSensors[].mode"
+                            {
+                              "key": "devices[]",
+                              "type": "section",
+                              "title": "Grid Mode Sensors",
+                              "description": "In this section You can create sensors for enpower grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                {
+                                  "key": "devices[].enpowerGridModeSensors",
+                                  "type": "tabarray",
+                                  "title": "{{ value.name || 'sensor' }}",
+                                  "items": [
+                                    "devices[].enpowerGridModeSensors[].name",
+                                    "devices[].enpowerGridModeSensors[].gridMode",
+                                    "devices[].enpowerGridModeSensors[].mode"
+                                  ]
+                                }
+                              ]
+                            }
                           ]
-                        }
-                      ],
-                      "required": false,
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
-                      }
-                    },
-                    {
-                      "key": "devices[]",
-                      "type": "section",
-                      "title": "Encharge Grid Mode Sensors",
-                      "description": "In this section You can enable sensor for encharge grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
+                        },
                         {
-                          "key": "devices[].enchargeGridModeSensors",
-                          "type": "tabarray",
-                          "title": "{{ value.name || 'sensor' }}",
+                          "key": "devices[]",
+                          "title": "Encharge",
                           "items": [
-                            "devices[].enchargeGridModeSensors[].name",
-                            "devices[].enchargeGridModeSensors[].gridMode",
-                            "devices[].enchargeGridModeSensors[].mode"
+                            "devices[].supportEnchargeProfile",
+                            {
+                              "key": "devices[]",
+                              "type": "section",
+                              "title": "Grid Mode Sensors",
+                              "description": "In this section You can enable sensor for encharge grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                {
+                                  "key": "devices[].enchargeGridModeSensors",
+                                  "type": "tabarray",
+                                  "title": "{{ value.name || 'sensor' }}",
+                                  "items": [
+                                    "devices[].enchargeGridModeSensors[].name",
+                                    "devices[].enchargeGridModeSensors[].gridMode",
+                                    "devices[].enchargeGridModeSensors[].mode"
+                                  ]
+                                }
+                              ]
+                            }
                           ]
-                        }
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
-                      }
-                    },
-                    {
-                      "key": "devices[]",
-                      "type": "section",
-                      "title": "Solar Grid Mode Sensors",
-                      "description": "In this section You can enable sensor for solar grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
+                        },
                         {
-                          "key": "devices[].solarGridModeSensors",
-                          "type": "tabarray",
-                          "title": "{{ value.name || 'sensor' }}",
+                          "key": "devices[]",
+                          "title": "Solar",
                           "items": [
-                            "devices[].solarGridModeSensors[].name",
-                            "devices[].solarGridModeSensors[].gridMode",
-                            "devices[].solarGridModeSensors[].mode"
+                            {
+                              "key": "devices[]",
+                              "type": "section",
+                              "title": "Grid Mode Sensors",
+                              "description": "In this section You can enable sensor for solar grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                {
+                                  "key": "devices[].solarGridModeSensors",
+                                  "type": "tabarray",
+                                  "title": "{{ value.name || 'sensor' }}",
+                                  "items": [
+                                    "devices[].solarGridModeSensors[].name",
+                                    "devices[].solarGridModeSensors[].gridMode",
+                                    "devices[].solarGridModeSensors[].mode"
+                                  ]
+                                }
+                              ]
+                            }
                           ]
                         }
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
-                      }
+                      ]
                     }
                   ]
                 },

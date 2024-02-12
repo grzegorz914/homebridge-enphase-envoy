@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # After update to v7.8.0 and above from plevious version the sensors need to be configured again!!!
 # After update to v7.5.0 and above from plevious version the sensors need to be configured again!!!
 
+## [7.12.0] - (xx.02.2024)
+## Changes
+- added support to check/control encharge profile
+- config.schema updated
+- cleanup
+
 ## [7.11.0] - (11.02.2024)
 ## Changes
 - added support to create multiple enpower/encharge/solar grid mode sensors and select grid mode to match
