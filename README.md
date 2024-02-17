@@ -154,6 +154,7 @@
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (ms). |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (ms). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (ms). |
+| `ensembleDataRefreshTime` | Here set `Ensemble Data` rfresh time in (ms). |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, info log will be hidden, all values and state will not be displayed in Homebridge log console. |
 | `disableLogDeviceInfo` | If enabled, the info device log will be hidden by every plugin restart. |

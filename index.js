@@ -1,6 +1,8 @@
 'use strict';
 const path = require('path');
 const fs = require('fs');
+const RestFul = require('./src/restful.js');
+const Mqtt = require('./src/mqtt.js');
 const EnvoyDevice = require('./src/envoydevice');
 const CONSTANS = require('./src/constans.json');
 
@@ -21,18 +23,26 @@ class EnvoyPlatform {
 
     api.on('didFinishLaunching', () => {
       for (const device of config.devices) {
-        if (!device.name) {
-          log.warn('Device name missing!');
+        const deviceName = device.name;
+        const envoyFirmware7xx = device.envoyFirmware7xx || false;
+        const enlightenUser = device.enlightenUser;
+        const enlightenPasswd = device.enlightenPasswd;
+        const envoySerialNumber = device.envoySerialNumber;
+
+        //check mandatory properties
+        if (!deviceName || (envoyFirmware7xx && (!enlightenUser || !enlightenPasswd || !envoySerialNumber))) {
+          log.warn(`Name: ${deviceName ? 'OK' : deviceName}, Envoy firmware v7.xx ${!envoyFirmware7xx ? 'Disabled' : `Enabled but enlighten user: ${enlightenUser ? 'OK' : enlightenUser}, password: ${enlightenPasswd ? 'OK' : enlightenPasswd}, envoy serial number: ${envoySerialNumber ? 'OK' : envoySerialNumber}`}`);
           return;
         }
-        if (device.envoyFirmware7xx && (!device.enlightenUser || !device.enlightenPasswd || !device.envoySerialNumber)) {
-          log.warn(`Envoy firmware v7.xx enabled but enlighten user: ${device.enlightenUser ? 'OK' : device.enlightenUser}, password: ${device.enlightenPasswd ? 'OK' : device.enlightenPasswd}, envoy serial number: ${device.envoySerialNumber ? 'OK' : device.envoySerialNumber}`);
-          return;
-        }
+
+        //config
         const host = device.host || 'envoy.local';
+        const enableDebugMode = device.enableDebugMode || false;
+        const restFulEnabled = device.enableRestFul || false;
+        const mqttEnabled = device.enableMqtt || false;
 
         //debug config
-        const debug = device.enableDebugMode ? log(`Device: ${host} ${device.name}, did finish launching.`) : false;
+        const debug = enableDebugMode ? log(`Device: ${host} ${deviceName}, did finish launching.`) : false;
         const config = {
           ...device,
           envoyPasswd: 'removed',
@@ -42,26 +52,84 @@ class EnvoyPlatform {
           mqttUser: 'removed',
           mqttPasswd: 'removed'
         };
-        const debug1 = device.enableDebugMode ? log(`Device: ${host} ${device.name}, Config: ${JSON.stringify(config, null, 2)}`) : false;
+        const debug1 = enableDebugMode ? log(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
+
+        //RESTFul server
+        if (restFulEnabled) {
+          const restFulPort = device.restFulPort || 3000;
+          const restFulDebug = device.restFulDebug || false;
+          this.restFul = new RestFul({
+            port: restFulPort,
+            debug: restFulDebug
+          });
+
+          this.restFul.on('connected', (message) => {
+            log(`Device: ${host} ${deviceName}, ${message}`);
+            this.restFulConnected = true;
+          })
+            .on('error', (error) => {
+              log.error(`Device: ${host} ${deviceName}, ${error}`);
+            })
+            .on('debug', (debug) => {
+              log(`Device: ${host} ${deviceName}, debug: ${debug}`);
+            });
+        }
+
+        //MQTT client
+        if (mqttEnabled) {
+          const mqttHost = config.mqttHost;
+          const mqttPort = config.mqttPort || 1883;
+          const mqttClientId = config.mqttClientId || `envoy_${Math.random().toString(16).slice(3)}`;
+          const mqttPrefix = config.mqttPrefix;
+          const mqttUser = config.mqttUser;
+          const mqttPasswd = config.mqttPasswd;
+          const mqttDebug = config.mqttDebug || false;
+          this.mqtt = new Mqtt({
+            host: mqttHost,
+            port: mqttPort,
+            clientId: mqttClientId,
+            user: mqttUser,
+            passwd: mqttPasswd,
+            prefix: `${mqttPrefix}/${deviceName}`,
+            debug: mqttDebug
+          });
+
+          this.mqtt.on('connected', (message) => {
+            log(`Device: ${host} ${deviceName}, ${message}`);
+            this.mqttConnected = true;
+          })
+            .on('error', (error) => {
+              log.error(`Device: ${host} ${deviceName}, ${error}`);
+            })
+            .on('debug', (debug) => {
+              log(`Device: ${host} ${deviceName}, debug: ${debug}`);
+            });
+        }
 
         //envoy device
         const envoyDevice = new EnvoyDevice(api, prefDir, device);
         envoyDevice.on('publishAccessory', (accessory) => {
           api.publishExternalAccessories(CONSTANS.PluginName, [accessory]);
-          const debug = device.enableDebugMode ? log(`Device: ${host} ${device.name}, published as external accessory.`) : false;
+          const debug = enableDebugMode ? log(`Device: ${host} ${deviceName}, published as external accessory.`) : false;
         })
           .on('devInfo', (devInfo) => {
             log(devInfo);
           })
           .on('message', (message) => {
-            log(`Device: ${host} ${device.name}, ${message}`);
+            log(`Device: ${host} ${deviceName}, ${message}`);
           })
           .on('debug', (debug) => {
-            log(`Device: ${host} ${device.name}, debug: ${debug}`);
+            log(`Device: ${host} ${deviceName}, debug: ${debug}`);
           })
           .on('error', (error) => {
-            log.error(`Device: ${host} ${device.name}, ${error}`);
-          });
+            log.error(`Device: ${host} ${deviceName}, ${error}`);
+          })
+          .on('restFul', (path, data) => {
+            const restFul = this.restFulConnected ? this.restFul.update(path, data) : false;
+          })
+          .on('mqtt', (topic, message) => {
+            const mqtt = this.mqttConnected ? this.mqtt.send(topic, message) : false;
+          });;
       }
     });
   }
@@ -87,6 +155,18 @@ module.exports = (api) => {
     }
   }
   Characteristic.enphaseEnvoyAlerts = enphaseEnvoyAlerts;
+
+  class enphaseEnvoyGridProfile extends Characteristic {
+    constructor() {
+      super('Grid profile', '00000002-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyGridProfile = enphaseEnvoyGridProfile;
 
   class enphaseEnvoyPrimaryInterface extends Characteristic {
     constructor() {
@@ -324,6 +404,7 @@ module.exports = (api) => {
       // Mandatory Characteristics
       this.addCharacteristic(Characteristic.enphaseEnvoyAlerts);
       // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyGridProfile);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten);
@@ -509,6 +590,18 @@ module.exports = (api) => {
   }
   Characteristic.enphaseQrelayLastReportDate = enphaseQrelayLastReportDate;
 
+  class enphaseQrelayGridProfile extends Characteristic {
+    constructor() {
+      super('Grid profile', '00000045-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseQrelayGridProfile = enphaseQrelayGridProfile;
+
   //qrelay service
   class enphaseQrelayService extends Service {
     constructor(displayName, subtype) {
@@ -528,6 +621,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayFirmware);
       this.addOptionalCharacteristic(Characteristic.enphaseQrelayLastReportDate);
+      this.addOptionalCharacteristic(Characteristic.enphaseQrelayGridProfile);
       this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
@@ -1429,6 +1523,18 @@ module.exports = (api) => {
   }
   Characteristic.enphaseMicroinverterLastReportDate = enphaseMicroinverterLastReportDate;
 
+  class enphaseMicroinverterGridProfile extends Characteristic {
+    constructor() {
+      super('Grid profile', '00000142-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseMicroinverterGridProfile = enphaseMicroinverterGridProfile;
+
   //devices service
   class enphaseMicroinverterService extends Service {
     constructor(displayName, subtype) {
@@ -1445,6 +1551,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterFirmware);
       this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterLastReportDate);
+      this.addOptionalCharacteristic(Characteristic.enphaseMicroinverterGridProfile);
       this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }

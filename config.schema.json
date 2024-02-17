@@ -643,7 +643,7 @@
               }
             },
             "liveDataRefreshTime": {
-              "title": "Live Data Sampling",
+              "title": "Refresh Time",
               "type": "integer",
               "default": 1000,
               "minimum": 500,
@@ -656,7 +656,7 @@
               }
             },
             "metersDataRefreshTime": {
-              "title": "Meters Sampling",
+              "title": "Refresh Time",
               "type": "integer",
               "default": 2500,
               "minimum": 500,
@@ -664,6 +664,19 @@
               "multipleOf": 100,
               "required": false,
               "description": "Here set meters data refresh time in (ms)."
+            },
+            "ensembleDataRefreshTime": {
+              "title": "Refresh Time",
+              "type": "integer",
+              "default": 15000,
+              "minimum": 1000,
+              "maximum": 60000,
+              "multipleOf": 100,
+              "required": false,
+              "description": "Here set ensemble data refresh time in (ms).",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+              }
             },
             "productionDataRefreshTime": {
               "title": "Production Sampling",
@@ -1131,6 +1144,7 @@
                   "title": "Ensemble",
                   "items": [
                     "devices[].supportEnsembleStatus",
+                    "devices[].ensembleDataRefreshTime",
                     {
                       "key": "devices[]",
                       "type": "tabarray",

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.12.0] - (xx.02.2024)
 ## Changes
 - added support to check/control encharge profile
+- added support to change ensemble data refresh time
 - config.schema updated
 - cleanup
 

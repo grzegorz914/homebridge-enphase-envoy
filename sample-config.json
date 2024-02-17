@@ -131,6 +131,7 @@
                     "liveDataRefreshTime": 1000,
                     "metersDataRefreshTime": 3000,
                     "productionDataRefreshTime": 5000,
+                    "ensembleDataRefreshTime": 15000,
                     "supportProductionPowerMode": false,
                     "supportPlcLevel": false,
                     "enableRestFul": false,
