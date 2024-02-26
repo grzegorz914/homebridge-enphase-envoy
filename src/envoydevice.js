@@ -13,7 +13,7 @@ const STATUSCODEREGEX = /status code (\d+)/;
 let Accessory, Characteristic, Service, Categories, UUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, prefDir, config) {
+    constructor(api, prefDir, device) {
         super();
 
         Accessory = api.platformAccessory;
@@ -23,53 +23,53 @@ class EnvoyDevice extends EventEmitter {
         UUID = api.hap.uuid;
 
         //device configuration
-        this.name = config.name;
-        this.host = config.host || 'envoy.local';
-        this.envoyPasswd = config.envoyPasswd;
-        this.envoyFirmware7xx = config.envoyFirmware7xx || false;
-        this.envoySerialNumber = config.envoySerialNumber || '';
-        this.enlightenUser = config.enlightenUser;
-        this.enlightenPassword = config.enlightenPasswd;
+        this.name = device.name;
+        this.host = device.host || 'envoy.local';
+        this.envoyPasswd = device.envoyPasswd;
+        this.envoyFirmware7xx = device.envoyFirmware7xx || false;
+        this.envoySerialNumber = device.envoySerialNumber || '';
+        this.enlightenUser = device.enlightenUser;
+        this.enlightenPassword = device.enlightenPasswd;
 
-        this.powerProductionSummary = config.powerProductionSummary || 0;
-        this.powerProductionStateSensor = config.powerProductionStateSensor || {};
-        this.powerProductionLevelSensors = config.powerProductionLevelSensors || [];
-        this.energyProductionStateSensor = config.energyProductionStateSensor || {};
-        this.energyProductionLevelSensors = config.energyProductionLevelSensors || [];
-        this.energyProductionLifetimeOffset = config.energyProductionLifetimeOffset || 0;
+        this.powerProductionSummary = device.powerProductionSummary || 0;
+        this.powerProductionStateSensor = device.powerProductionStateSensor || {};
+        this.powerProductionLevelSensors = device.powerProductionLevelSensors || [];
+        this.energyProductionStateSensor = device.energyProductionStateSensor || {};
+        this.energyProductionLevelSensors = device.energyProductionLevelSensors || [];
+        this.energyProductionLifetimeOffset = device.energyProductionLifetimeOffset || 0;
 
-        this.powerConsumptionTotalStateSensor = config.powerConsumptionTotalStateSensor || {};
-        this.powerConsumptionTotalLevelSensors = config.powerConsumptionTotalLevelSensors || [];
-        this.energyConsumptionTotalStateSensor = config.energyConsumptionTotalStateSensor || {};
-        this.energyConsumptionTotalLevelSensors = config.energyConsumptionTotalLevelSensors || [];
-        this.energyConsumptionTotalLifetimeOffset = config.energyConsumptionTotalLifetimeOffset || 0;
+        this.powerConsumptionTotalStateSensor = device.powerConsumptionTotalStateSensor || {};
+        this.powerConsumptionTotalLevelSensors = device.powerConsumptionTotalLevelSensors || [];
+        this.energyConsumptionTotalStateSensor = device.energyConsumptionTotalStateSensor || {};
+        this.energyConsumptionTotalLevelSensors = device.energyConsumptionTotalLevelSensors || [];
+        this.energyConsumptionTotalLifetimeOffset = device.energyConsumptionTotalLifetimeOffset || 0;
 
-        this.powerConsumptionNetStateSensor = config.powerConsumptionNetStateSensor || {};
-        this.powerConsumptionNetLevelSensors = config.powerConsumptionNetLevelSensors || [];
-        this.energyConsumptionNetStateSensor = config.energyConsumptionNetStateSensor || {};
-        this.energyConsumptionNetLevelSensors = config.energyConsumptionNetLevelSensors || [];
-        this.energyConsumptionNetLifetimeOffset = config.energyConsumptionNetLifetimeOffset || 0;
+        this.powerConsumptionNetStateSensor = device.powerConsumptionNetStateSensor || {};
+        this.powerConsumptionNetLevelSensors = device.powerConsumptionNetLevelSensors || [];
+        this.energyConsumptionNetStateSensor = device.energyConsumptionNetStateSensor || {};
+        this.energyConsumptionNetLevelSensors = device.energyConsumptionNetLevelSensors || [];
+        this.energyConsumptionNetLifetimeOffset = device.energyConsumptionNetLifetimeOffset || 0;
 
-        this.supportEnsembleStatus = this.envoyFirmware7xx ? config.supportEnsembleStatus : false;
-        this.supportLiveData = this.envoyFirmware7xx ? config.supportLiveData : false;
-        this.supportProductionPowerMode = !this.envoyFirmware7xx ? config.supportProductionPowerMode : false;
-        this.supportPlcLevel = !this.envoyFirmware7xx ? config.supportPlcLevel : false;
-        this.supportEnchargeProfile = !this.envoyFirmware7xx ? config.supportEnchargeProfile : false;
-        this.metersDataRefreshTime = config.metersDataRefreshTime || 2500;
-        this.productionDataRefreshTime = config.productionDataRefreshTime || 5000;
-        this.liveDataRefreshTime = config.liveDataRefreshTime || 1000;
-        this.ensembleDataRefreshTime = config.ensembleDataRefreshTime || 15000;
+        this.supportEnsembleStatus = this.envoyFirmware7xx ? device.supportEnsembleStatus : false;
+        this.supportLiveData = this.envoyFirmware7xx ? device.supportLiveData : false;
+        this.supportProductionPowerMode = !this.envoyFirmware7xx ? device.supportProductionPowerMode : false;
+        this.supportPlcLevel = !this.envoyFirmware7xx ? device.supportPlcLevel : false;
+        this.supportEnchargeProfile = !this.envoyFirmware7xx ? device.supportEnchargeProfile : false;
+        this.metersDataRefreshTime = device.metersDataRefreshTime || 2500;
+        this.productionDataRefreshTime = device.productionDataRefreshTime || 5000;
+        this.liveDataRefreshTime = device.liveDataRefreshTime || 1000;
+        this.ensembleDataRefreshTime = device.ensembleDataRefreshTime || 15000;
 
-        this.enpowerGridModeSensors = config.enpowerGridModeSensors || [];
-        this.enchargeGridModeSensors = this.supportEnsembleStatus ? config.enchargeGridModeSensors : [];
-        this.solarGridModeSensors = this.supportEnsembleStatus ? config.solarGridModeSensors : [];
+        this.enpowerGridModeSensors = device.enpowerGridModeSensors || [];
+        this.enchargeGridModeSensors = this.supportEnsembleStatus ? device.enchargeGridModeSensors || [] : [];
+        this.solarGridModeSensors = this.supportEnsembleStatus ? device.solarGridModeSensors || [] : [];
 
-        this.enableDebugMode = config.enableDebugMode || false;
-        this.disableLogInfo = config.disableLogInfo || false;
-        this.disableLogDeviceInfo = config.disableLogDeviceInfo || false;
+        this.enableDebugMode = device.enableDebugMode || false;
+        this.disableLogInfo = device.disableLogInfo || false;
+        this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
 
-        this.restFulEnabled = config.enableRestFul || false;
-        this.mqttEnabled = config.enableMqtt || false;
+        this.restFulEnabled = device.enableRestFul || false;
+        this.mqttEnabled = device.enableMqtt || false;
 
         //setup variables
         this.checkCommLevel = false;
@@ -377,6 +377,7 @@ class EnvoyDevice extends EventEmitter {
             //get and validate jwt token
             const getJwtToken = this.envoyFirmware7xx ? await this.getJwtToken() : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
+            this.validJwtToken = validJwtToken;
 
             //get envoy info and inventory data
             await this.updateInfoData();
@@ -430,7 +431,7 @@ class EnvoyDevice extends EventEmitter {
 
     async updateHome() {
         try {
-            await this.updateGridProfileData();
+            const checkGridProfile = this.validJwtToken ? await this.updateGridProfileData() : false;
             await this.updateHomeData();
             await this.updateInventoryData();
         } catch (error) {

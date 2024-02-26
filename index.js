@@ -38,8 +38,6 @@ class EnvoyPlatform {
         //config
         const host = device.host || 'envoy.local';
         const enableDebugMode = device.enableDebugMode || false;
-        const restFulEnabled = device.enableRestFul || false;
-        const mqttEnabled = device.enableMqtt || false;
 
         //debug config
         const debug = enableDebugMode ? log(`Device: ${host} ${deviceName}, did finish launching.`) : false;
@@ -55,7 +53,9 @@ class EnvoyPlatform {
         const debug1 = enableDebugMode ? log(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
 
         //RESTFul server
+        const restFulEnabled = device.enableRestFul || false;
         if (restFulEnabled) {
+          this.restFulConnected = false;
           const restFulPort = device.restFulPort || 3000;
           const restFulDebug = device.restFulDebug || false;
           this.restFul = new RestFul({
@@ -76,14 +76,16 @@ class EnvoyPlatform {
         }
 
         //MQTT client
+        const mqttEnabled = device.enableMqtt || false;
         if (mqttEnabled) {
-          const mqttHost = config.mqttHost;
-          const mqttPort = config.mqttPort || 1883;
-          const mqttClientId = config.mqttClientId || `envoy_${Math.random().toString(16).slice(3)}`;
-          const mqttPrefix = config.mqttPrefix;
-          const mqttUser = config.mqttUser;
-          const mqttPasswd = config.mqttPasswd;
-          const mqttDebug = config.mqttDebug || false;
+          this.mqttConnected = false;
+          const mqttHost = device.mqttHost;
+          const mqttPort = device.mqttPort || 1883;
+          const mqttClientId = device.mqttClientId || `Envoy_${Math.random().toString(16).slice(3)}`;
+          const mqttPrefix = device.mqttPrefix;
+          const mqttUser = device.mqttUser;
+          const mqttPasswd = device.mqttPasswd;
+          const mqttDebug = device.mqttDebug || false;
           this.mqtt = new Mqtt({
             host: mqttHost,
             port: mqttPort,
