@@ -131,7 +131,7 @@ class EnvoyPlatform {
           })
           .on('mqtt', (topic, message) => {
             const mqtt = this.mqttConnected ? this.mqtt.send(topic, message) : false;
-          });;
+          });
       }
     });
   }
