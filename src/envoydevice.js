@@ -12,7 +12,7 @@ const DigestAuth = require('./digestauth.js');
 const PasswdCalc = require('./passwdcalc.js');
 const CONSTANS = require('./constans.json');
 const STATUSCODEREGEX = /status code (\d+)/;
-let Accessory, Characteristic, Service, Categories, UUID;
+let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
     constructor(api, prefDir, device) {
@@ -22,7 +22,7 @@ class EnvoyDevice extends EventEmitter {
         Characteristic = api.hap.Characteristic;
         Service = api.hap.Service;
         Categories = api.hap.Categories;
-        UUID = api.hap.uuid;
+        AccessoryUUID = api.hap.uuid;
 
         //device configuration
         this.name = device.name;
@@ -3177,7 +3177,7 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare accessory`) : false;
                 const serialNumber = this.envoySerialNumber;
                 const accessoryName = this.name;
-                const accessoryUUID = UUID.generate(serialNumber);
+                const accessoryUUID = AccessoryUUID.generate(serialNumber);
                 const accessoryCategory = Categories.BRIDGE;
                 const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
 
