@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # After update to v7.8.0 and above from plevious version the sensors need to be configured again!!!
 # After update to v7.5.0 and above from plevious version the sensors need to be configured again!!!
 
+## [7.12.0] - (xx.03.2024)
+## Changes
+- added support to check/control encharge profile
+- added support to change ensemble data refresh time
+- config.schema updated
+- cleanup
+
 ## [7.11.14] - (26.02.2024)
 ## Changes
 - fix [#127](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/127)
