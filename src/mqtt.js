@@ -2,7 +2,7 @@
 const mqtt = require("async-mqtt");
 const EventEmitter = require('events');
 
-class Mqtt extends EventEmitter {
+class MQTTCLIENT extends EventEmitter {
     constructor(config) {
         super();
         this.mqttHost = config.host;
