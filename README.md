@@ -32,6 +32,7 @@
 * Support `Ensemble Status` working only with Envoy Fw. v7.x.x and newer.
 * Support `Production Power Mode` and `PLC Level` working only with Envoy Fw. v6.x.x and older.
 * For best experiences and display all data please use `Controller` or `EVE` app.
+* Support external integrations, [RESTFul](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration), [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
 * Supported devices:
   * Firmware `v5.x.x`, `6.x.x`, `v7.x.x`, `v8.x.x`.
   * Envoy `Envoy S`, `IQ Envoy`, `IQ Load Controller`, `IQ Combiner`.
@@ -59,14 +60,6 @@
       * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`.
       * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`.
       * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`.
-* External integrations:
-  * RESTful server:
-    * Request: `http//homebridge_ip_address:port/path`.
-    * Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
-    * Respone as JSON data.
-  * MQTT client:
-    * Topic: `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`.
-    * Publish as JSON data.
 
 ### Configuration
 
@@ -170,3 +163,22 @@
 | `mqttUser` | Here set the MQTT Broker user. |
 | `mqttPasswd` | Here set the MQTT Broker password. |
 | `mqttDebug` | If enabled, deep log will be present in homebridge console for MQTT. |
+
+### RESTFul Integration
+
+* Request: `http//homebridge_ip_address:port/path`.
+* Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
+* Respone as JSON data.
+
+### MQTT Integration
+
+| Direction | Topic | Message | Payload Data |
+| --- | --- | --- | --- |
+|  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level` | `{wattHoursToday: 2353, wattsNoe: 550}` | JSON object. |
+|  Subscribe   | `Set` | `{Power: true}` | JSON object. |
+
+| Subscribe | Key | Value | Type | Description |
+| --- | --- | --- | --- | --- |
+| Envoy |     |     |     |      |
+|     | `Production` | `true`, `false` | boolean | Power production state, not implemented yet. |
+|     | `EnchargeProfile` | `selfconsumption`, `savings`, `fullbackup` | string | Set profile, not implemented yet. |
