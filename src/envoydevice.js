@@ -407,17 +407,47 @@ class EnvoyDevice extends EventEmitter {
                 this.emit('message', message);
                 this.mqttConnected = true;
             })
-                .on('changeState', (data) => {
+                .on('changeState', async (data) => {
                     const key = Object.keys(data)[0];
                     const value = Object.values(data)[0];
-                    switch (key) {
-                        case 'Production':
-                            break;
-                        case 'EnchargeProfile':
-                            break;
-                        default:
-                            this.emit('message', `MQTT Received unknown key: ${key}, value: ${value}`);
-                            break;
+                    try {
+                        switch (key) {
+                            case 'Production':
+                                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModePut.replace("EID", this.envoyDevId);
+                                const data = JSON.stringify({
+                                    length: 1,
+                                    arr: [value ? 0 : 1]
+                                });
+
+                                const options = {
+                                    method: 'PUT',
+                                    baseURL: this.url,
+                                    data: data,
+                                    headers: {
+                                        Accept: 'application/json'
+                                    }
+                                }
+                                await this.digestAuthInstaller.request(powerModeUrl, options);
+                                break;
+                            case 'EnchargeProfile':
+                                switch (value) {
+                                    case 'selfconsumption':
+                                        await this.setEnchargeProfile('self-consumption');
+                                        break;
+                                    case 'savings':
+                                        await this.setEnchargeProfile('savings');
+                                        break;
+                                    case 'fullbackup':
+                                        await this.setEnchargeProfile('fullbackup');
+                                        break;
+                                };
+                                break;
+                            default:
+                                this.emit('message', `MQTT Received unknown key: ${key}, value: ${value}`);
+                                break;
+                        };
+                    } catch (error) {
+                        this.emit('error', `set: ${key}, over MQTT, error: ${error}`);
                     };
                 })
                 .on('debug', (debug) => {
