@@ -2,13 +2,13 @@
 const path = require('path');
 const fs = require('fs');
 const EnvoyDevice = require('./src/envoydevice');
-const CONSTANS = require('./src/constans.json');
+const CONSTANTS = require('./src/constants.json');
 
 class EnvoyPlatform {
   constructor(log, config, api) {
     // only load if configured
     if (!config || !Array.isArray(config.devices)) {
-      log.warn(`No configuration found for ${CONSTANS.PluginName}`);
+      log.warn(`No configuration found for ${CONSTANTS.PluginName}`);
       return;
     }
     this.accessories = [];
@@ -53,7 +53,7 @@ class EnvoyPlatform {
         //envoy device
         const envoyDevice = new EnvoyDevice(api, prefDir, device);
         envoyDevice.on('publishAccessory', (accessory) => {
-          api.publishExternalAccessories(CONSTANS.PluginName, [accessory]);
+          api.publishExternalAccessories(CONSTANTS.PluginName, [accessory]);
           const debug = enableDebugMode ? log(`Device: ${host} ${deviceName}, published as external accessory.`) : false;
         })
           .on('devInfo', (devInfo) => {
@@ -2669,5 +2669,5 @@ module.exports = (api) => {
   }
   Service.enphaseLiveDataService = enphaseLiveDataService;
 
-  api.registerPlatform(CONSTANS.PluginName, CONSTANS.PlatformName, EnvoyPlatform, true);
+  api.registerPlatform(CONSTANTS.PluginName, CONSTANTS.PlatformName, EnvoyPlatform, true);
 }

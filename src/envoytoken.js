@@ -2,7 +2,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const fsPromises = fs.promises;
-const CONSTANS = require('./constans.json');
+const CONSTANTS = require('./constants.json');
 
 class EnvoyToken {
     constructor(config) {
@@ -65,7 +65,7 @@ class EnvoyToken {
                 //create axios instance
                 const axiosInstance = axios.create({
                     method: 'POST',
-                    baseURL: CONSTANS.EnphaseUrls.BaseUrl,
+                    baseURL: CONSTANTS.EnphaseUrls.BaseUrl,
                     params: {
                         'user[email]': this.user,
                         'user[password]': this.passwd
@@ -76,7 +76,7 @@ class EnvoyToken {
                 });
 
                 //login to enlighten server
-                const loginData = await axiosInstance(CONSTANS.EnphaseUrls.Login);
+                const loginData = await axiosInstance(CONSTANTS.EnphaseUrls.Login);
 
                 if (loginData.status !== 200) {
                     reject(`Login to enlighten with status code: ${loginData.status}, headers: ${loginData.headers}`);
@@ -98,7 +98,7 @@ class EnvoyToken {
                 //create axios instance
                 const axiosInstance = axios.create({
                     method: 'GET',
-                    baseURL: CONSTANS.EnphaseUrls.BaseUrl,
+                    baseURL: CONSTANTS.EnphaseUrls.BaseUrl,
                     params: {
                         'serial_num': this.serialNumber
                     },
@@ -109,7 +109,7 @@ class EnvoyToken {
                 });
 
                 //get jwt token
-                const data = await axiosInstance(CONSTANS.EnphaseUrls.EntrezAuthToken);
+                const data = await axiosInstance(CONSTANTS.EnphaseUrls.EntrezAuthToken);
                 const tokenData = data.data;
 
                 if (!tokenData.token) {

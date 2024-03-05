@@ -10,7 +10,7 @@ const Mqtt = require('./mqtt.js');
 const EnvoyToken = require('./envoytoken.js');
 const DigestAuth = require('./digestauth.js');
 const PasswdCalc = require('./passwdcalc.js');
-const CONSTANS = require('./constans.json');
+const CONSTANTS = require('./constants.json');
 const STATUSCODEREGEX = /status code (\d+)/;
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
@@ -617,10 +617,10 @@ class EnvoyDevice extends EventEmitter {
                 this.tokenExpiresAt = tokenData.expires_at;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'token', tokenData) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('token', tokenData) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Token', tokenData) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Token', tokenData) : false;
 
                 resolve(true);
             } catch (error) {
@@ -648,7 +648,7 @@ class EnvoyDevice extends EventEmitter {
                     })
                 });
 
-                const jwtTokenData = await axiosInstanceToken(CONSTANS.ApiUrls.CheckJwt);
+                const jwtTokenData = await axiosInstanceToken(CONSTANTS.ApiUrls.CheckJwt);
                 const debug = this.enableDebugMode ? this.emit('debug', `JWT token: Valid`) : false;
                 const cookie = jwtTokenData.headers['set-cookie'];
 
@@ -680,7 +680,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting info.`) : false;
 
             try {
-                const infoData = await this.axiosInstance(CONSTANS.ApiUrls.GetInfo);
+                const infoData = await this.axiosInstance(CONSTANTS.ApiUrls.GetInfo);
                 const info = infoData.data;
                 const debug = this.enableDebugMode ? this.emit('debug', `Info: ${JSON.stringify(info, null, 2)}`) : false;
 
@@ -702,7 +702,7 @@ class EnvoyDevice extends EventEmitter {
                 //device
                 const device = envoyInfo.device;
                 const deviceSn = this.envoySerialNumber ? this.envoySerialNumber : device.sn.toString();
-                const devicePn = CONSTANS.PartNumbers[device.pn] ?? 'Envoy';
+                const devicePn = CONSTANTS.PartNumbers[device.pn] ?? 'Envoy';
                 const deviceSoftware = device.software;
                 const deviceEuaid = device.euaid;
                 const deviceSeqNum = device.seqnum;
@@ -740,7 +740,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //digest authorization envoy
                 this.digestAuthEnvoy = new DigestAuth({
-                    user: CONSTANS.Authorization.EnvoyUser,
+                    user: CONSTANTS.Authorization.EnvoyUser,
                     passwd: envoyPasswd
                 });
 
@@ -758,8 +758,8 @@ class EnvoyDevice extends EventEmitter {
                     try {
                         //calculate installer password
                         const passwdCalc = new PasswdCalc({
-                            user: CONSTANS.Authorization.InstallerUser,
-                            realm: CONSTANS.Authorization.Realm,
+                            user: CONSTANTS.Authorization.InstallerUser,
+                            realm: CONSTANTS.Authorization.Realm,
                             serialNumber: deviceSn
                         });
                         const installerPasswd = await passwdCalc.getPasswd();
@@ -781,7 +781,7 @@ class EnvoyDevice extends EventEmitter {
                 //digest authorization installer
                 if (this.installerPasswd !== false) {
                     this.digestAuthInstaller = new DigestAuth({
-                        user: CONSTANS.Authorization.InstallerUser,
+                        user: CONSTANTS.Authorization.InstallerUser,
                         passwd: this.installerPasswd
                     });
                 }
@@ -793,10 +793,10 @@ class EnvoyDevice extends EventEmitter {
                 this.metersSupported = deviceImeter;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'info', parseInfoData) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('info', parseInfoData) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Info', parseInfoData) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Info', parseInfoData) : false;
                 resolve();
             } catch (error) {
                 reject(`Requesting info error: ${error}.`);
@@ -809,7 +809,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile.`) : false;
 
             try {
-                const profileData = await this.axiosInstance(CONSTANS.ApiUrls.Profile);
+                const profileData = await this.axiosInstance(CONSTANTS.ApiUrls.Profile);
                 const profile = profileData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Grid profile: ${JSON.stringify(profile, null, 2)}`) : false;
 
@@ -820,10 +820,10 @@ class EnvoyDevice extends EventEmitter {
                 this.arfProfileItemCount = profile.item_count ?? 0;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'gridprofile', profile) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profile) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Grid Profile', profile) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Grid Profile', profile) : false;
                 resolve(profile);
             } catch (error) {
                 reject(`Requesting grid profile error: ${error}.`);
@@ -836,7 +836,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting home.`) : false;
 
             try {
-                const homeData = await this.axiosInstance(CONSTANS.ApiUrls.Home);
+                const homeData = await this.axiosInstance(CONSTANTS.ApiUrls.Home);
                 const envoy = homeData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Home: ${JSON.stringify(envoy, null, 2)}`) : false;
 
@@ -867,7 +867,7 @@ class EnvoyDevice extends EventEmitter {
                 const webComm = envoyNework.web_comm === true;
                 const everReportedToEnlighten = envoyNework.ever_reported_to_enlighten === true;
                 const lastEnlightenReporDate = new Date(envoyNework.last_enlighten_report_time * 1000).toLocaleString();
-                const primaryInterface = CONSTANS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown';
+                const primaryInterface = CONSTANTS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown';
                 const envoyNetworkInterfaces = envoyNework.interfaces ?? [];
                 const envoyNetworkInterfacesCount = envoyNetworkInterfaces.length;
                 for (let i = 0; i < envoyNetworkInterfacesCount; i++) {
@@ -881,7 +881,7 @@ class EnvoyDevice extends EventEmitter {
                         const envoyInterfaceSignalStrength = envoyNetworkInterfaces[0].signal_strength * 20;
                         const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[0].signal_strength_max * 20;
                         const envoyInterfaceNetwork = envoyNetworkInterfaces[0].network;
-                        const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[0].type] ?? 'Unknown';
+                        const envoyInterfaceType = CONSTANTS.ApiCodes[envoyNetworkInterfaces[0].type] ?? 'Unknown';
                         const envoyInterfaceInterface = envoyNetworkInterfaces[0].interface;
                         const envoyInterfaceDhcp = envoyNetworkInterfaces[0].dhcp;
                         const envoyInterfaceIp = envoyNetworkInterfaces[0].ip;
@@ -889,7 +889,7 @@ class EnvoyDevice extends EventEmitter {
                         this.envoyInterfaceCellular = true;
                     }
                     if (envoyInterfaceLan) {
-                        const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex].type] ?? 'Unknown';
+                        const envoyInterfaceType = CONSTANTS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex].type] ?? 'Unknown';
                         const envoyInterfaceInterface = envoyNetworkInterfaces[envoyInterfaceStartIndex].interface;
                         const envoyInterfaceMac = envoyNetworkInterfaces[envoyInterfaceStartIndex].mac;
                         const envoyInterfaceDhcp = envoyNetworkInterfaces[envoyInterfaceStartIndex].dhcp;
@@ -902,7 +902,7 @@ class EnvoyDevice extends EventEmitter {
                     if (envoyInterfaceWlan) {
                         const envoyInterfaceSignalStrenth = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength * 20;
                         const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength_max * 20;
-                        const envoyInterfaceType = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].type] ?? 'Unknown';
+                        const envoyInterfaceType = CONSTANTS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].type] ?? 'Unknown';
                         const envoyInterfaceInterface = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].interface;
                         const envoyInterfaceMac = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].mac;
                         const envoyInterfaceDhcp = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].dhcp;
@@ -911,11 +911,11 @@ class EnvoyDevice extends EventEmitter {
                         const envoyInterfaceSupported = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].supported;
                         const envoyInterfacePresent = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].present;
                         const envoyInterfaceConfigured = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].configured;
-                        const envoyInterfaceStatus = CONSTANS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].status] ?? 'Unknown';
+                        const envoyInterfaceStatus = CONSTANTS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].status] ?? 'Unknown';
                         this.envoyInterfaceWlan = true;
                     }
                 }
-                const tariff = CONSTANS.ApiCodes[envoy.tariff] ?? 'Unknown';
+                const tariff = CONSTANTS.ApiCodes[envoy.tariff] ?? 'Unknown';
 
                 //comm
                 const comm = envoy.comm;
@@ -941,7 +941,7 @@ class EnvoyDevice extends EventEmitter {
                 const commEnchagLevelSubg = commEncharge.level_subg * 20 ?? 0;
 
                 const alerts = envoy.alerts;
-                const updateStatus = CONSTANS.ApiCodes[envoy.update_status] ?? 'Unknown';
+                const updateStatus = CONSTANTS.ApiCodes[envoy.update_status] ?? 'Unknown';
 
                 //wireless connection kit
                 const wirelessConnections = wirelessConnectionKitSupported ? envoy.wireless_connection : [];
@@ -957,7 +957,7 @@ class EnvoyDevice extends EventEmitter {
                         const wirelessConnection = wirelessConnections[i];
                         const wirelessConnectionSignalStrength = wirelessConnection.signal_strength * 20;
                         const wirelessConnectionSignalStrengthMax = wirelessConnection.signal_strength_max * 20;
-                        const wirelessConnectionType = CONSTANS.ApiCodes[wirelessConnection.type] ?? 'Unknown';
+                        const wirelessConnectionType = CONSTANTS.ApiCodes[wirelessConnection.type] ?? 'Unknown';
                         const wirelessConnectionConnected = wirelessConnection.connected === true;
 
                         if (this.wirelessConnektionsKitService) {
@@ -977,7 +977,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //convert status
-                const status = (Array.isArray(alerts) && alerts.length > 0) ? (alerts.map(a => CONSTANS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
+                const status = (Array.isArray(alerts) && alerts.length > 0) ? (alerts.map(a => CONSTANTS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
 
                 if (this.envoyService) {
                     this.envoyService
@@ -1049,10 +1049,10 @@ class EnvoyDevice extends EventEmitter {
                 this.wirelessConnectionKitSupported = wirelessConnectionKitSupported;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'home', envoy) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('home', envoy) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Home', envoy) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Home', envoy) : false;
                 resolve();
             } catch (error) {
                 reject(`Requesting home error: ${error}.`);
@@ -1065,7 +1065,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting inventory.`) : false;
 
             try {
-                const inventoryData = await this.axiosInstance(CONSTANS.ApiUrls.Inventory);
+                const inventoryData = await this.axiosInstance(CONSTANTS.ApiUrls.Inventory);
                 const inventory = inventoryData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Inventory: ${JSON.stringify(inventory, null, 2)}`) : false;
 
@@ -1095,10 +1095,10 @@ class EnvoyDevice extends EventEmitter {
                     this.microinvertersProvisioned = [];
                     this.microinvertersOperating = [];
 
-                    const type = CONSTANS.ApiCodes[inventory[0].type] ?? 'Unknown';
+                    const type = CONSTANTS.ApiCodes[inventory[0].type] ?? 'Unknown';
                     for (let i = 0; i < microinvertersCount; i++) {
                         const microinverter = microinverters[i];
-                        const partNum = CONSTANS.PartNumbers[microinverter.part_num] ?? 'Microinverter';
+                        const partNum = CONSTANTS.PartNumbers[microinverter.part_num] ?? 'Microinverter';
                         const installed = new Date(microinverter.installed * 1000).toLocaleString();
                         const serialNumber = microinverter.serial_num;
                         const deviceStatus = microinverter.device_status;
@@ -1118,7 +1118,7 @@ class EnvoyDevice extends EventEmitter {
                         const phase = microinverter.phase ?? 'Unknown';
 
                         //convert status
-                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
+                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
                         if (this.microinvertersService) {
                             this.microinvertersService[i]
@@ -1168,10 +1168,10 @@ class EnvoyDevice extends EventEmitter {
                     this.acBatteriesSleepMaxSoc = [];
                     this.acBatteriesChargeStatus = [];
 
-                    const type = CONSTANS.ApiCodes[inventory[1].type] ?? 'Unknown';
+                    const type = CONSTANTS.ApiCodes[inventory[1].type] ?? 'Unknown';
                     for (let i = 0; i < acBatteriesCount; i++) {
                         const acBaterie = acBatteries[i];
-                        const partNum = CONSTANS.PartNumbers[acBaterie.part_num] ?? 'AC Batterie'
+                        const partNum = CONSTANTS.PartNumbers[acBaterie.part_num] ?? 'AC Batterie'
                         const installed = new Date(acBaterie.installed * 1000).toLocaleString();
                         const serialNumber = acBaterie.serial_num;
                         const deviceStatus = acBaterie.device_status;
@@ -1193,10 +1193,10 @@ class EnvoyDevice extends EventEmitter {
                         const maxCellTemp = acBaterie.maxCellTemp;
                         const sleepMinSoc = acBaterie.sleep_min_soc;
                         const sleepMaxSoc = acBaterie.sleep_max_soc;
-                        const chargeStatus = CONSTANS.ApiCodes[acBaterie.charge_status] ?? 'Unknown';
+                        const chargeStatus = CONSTANTS.ApiCodes[acBaterie.charge_status] ?? 'Unknown';
 
                         //convert status
-                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
+                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
                         if (this.acBatteriesService) {
                             this.acBatteriesService[i]
@@ -1256,10 +1256,10 @@ class EnvoyDevice extends EventEmitter {
                     this.qRelaysLine2Connected = [];
                     this.qRelaysLine3Connected = [];
 
-                    const type = CONSTANS.ApiCodes[inventory[2].type] ?? 'Unknown';
+                    const type = CONSTANTS.ApiCodes[inventory[2].type] ?? 'Unknown';
                     for (let i = 0; i < qRelaysCount; i++) {
                         const qRelay = qRelays[i];
-                        const partNum = CONSTANS.PartNumbers[qRelay.part_num] ?? 'Q-Relay'
+                        const partNum = CONSTANTS.PartNumbers[qRelay.part_num] ?? 'Q-Relay'
                         const installed = new Date(qRelay.installed * 1000).toLocaleString();
                         const serialNumber = qRelay.serial_num;
                         const deviceStatus = qRelay.device_status;
@@ -1276,7 +1276,7 @@ class EnvoyDevice extends EventEmitter {
                         const communicating = qRelay.communicating === true;
                         const provisioned = qRelay.provisioned === true;
                         const operating = qRelay.operating === true;
-                        const relay = CONSTANS.ApiCodes[qRelay.relay] ?? 'Unknown';
+                        const relay = CONSTANTS.ApiCodes[qRelay.relay] ?? 'Unknown';
                         const reasonCode = qRelay.reason_code;
                         const reason = qRelay.reason;
                         const linesCount = qRelay['line-count'];
@@ -1285,7 +1285,7 @@ class EnvoyDevice extends EventEmitter {
                         const line3Connected = linesCount >= 3 ? qRelay['line3-connected'] === true : false;
 
                         //convert status
-                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
+                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
                         if (this.qRelaysService) {
                             this.qRelaysService[i]
@@ -1347,10 +1347,10 @@ class EnvoyDevice extends EventEmitter {
                     this.ensemblesCommunicating = [];
                     this.ensemblesOperating = [];
 
-                    const type = CONSTANS.ApiCodes[inventory[3].type] ?? 'Unknown';
+                    const type = CONSTANTS.ApiCodes[inventory[3].type] ?? 'Unknown';
                     for (let i = 0; i < ensemblesCount; i++) {
                         const ensemble = ensembles[i];
-                        const partNum = CONSTANS.PartNumbers[ensemble.part_num] ?? 'Q-Relay'
+                        const partNum = CONSTANTS.PartNumbers[ensemble.part_num] ?? 'Q-Relay'
                         const installed = new Date(ensemble.installed * 1000).toLocaleString();
                         const serialNumber = ensemble.serial_num;
                         const deviceStatus = ensemble.device_status;
@@ -1368,7 +1368,7 @@ class EnvoyDevice extends EventEmitter {
                         const operating = ensemble.operating === true;
 
                         //convert status
-                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
+                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
                         if (this.ensemblesService) {
                             this.ensemblesService[i]
@@ -1394,10 +1394,10 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'inventory', inventory) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('inventory', inventory) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Inventory', inventory) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Inventory', inventory) : false;
                 resolve();
             } catch (error) {
                 reject(`Requesting inventory error: ${error}.`);
@@ -1410,7 +1410,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters info.`) : false;
 
             try {
-                const metersData = await this.axiosInstance(CONSTANS.ApiUrls.InternalMeterInfo);
+                const metersData = await this.axiosInstance(CONSTANTS.ApiUrls.InternalMeterInfo);
                 const meters = metersData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Meters: ${JSON.stringify(meters, null, 2)}`) : false;
 
@@ -1434,14 +1434,14 @@ class EnvoyDevice extends EventEmitter {
                     const meter = meters[i];
                     const eid = meter.eid;
                     const state = meter.state === 'enabled' ?? false;
-                    const measurementType = CONSTANS.ApiCodes[meter.measurementType] ?? 'Unknown';
-                    const phaseMode = CONSTANS.ApiCodes[meter.phaseMode] ?? 'Unknown';
+                    const measurementType = CONSTANTS.ApiCodes[meter.measurementType] ?? 'Unknown';
+                    const phaseMode = CONSTANTS.ApiCodes[meter.phaseMode] ?? 'Unknown';
                     const phaseCount = meter.phaseCount ?? 0;
-                    const meteringStatus = CONSTANS.ApiCodes[meter.meteringStatus] ?? 'Unknown';
+                    const meteringStatus = CONSTANTS.ApiCodes[meter.meteringStatus] ?? 'Unknown';
                     const statusFlags = meter.statusFlags;
 
                     // convert status
-                    const status = (Array.isArray(statusFlags) && statusFlags.length > 0) ? (statusFlags.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
+                    const status = (Array.isArray(statusFlags) && statusFlags.length > 0) ? (statusFlags.map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
                     if (this.metersService) {
                         this.metersService[i]
@@ -1484,10 +1484,10 @@ class EnvoyDevice extends EventEmitter {
                 const metersEnabled = this.metersState.includes(true);
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'meters', meters) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('meters', meters) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Meters', meters) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Meters', meters) : false;
                 resolve(metersEnabled);
             } catch (error) {
                 reject(`Requesting meters error: ${error}.`);
@@ -1500,7 +1500,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters reading.`) : false;
 
             try {
-                const metersReadingData = await this.axiosInstance(CONSTANS.ApiUrls.InternalMeterReadings);
+                const metersReadingData = await this.axiosInstance(CONSTANTS.ApiUrls.InternalMeterReadings);
                 const metersReading = metersReadingData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Meters reading: ${JSON.stringify(metersReading, null, 2)}`) : false;
 
@@ -1637,10 +1637,10 @@ class EnvoyDevice extends EventEmitter {
                 this.metersReadingInstalled = metersReadingCount > 0;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'metersreading', metersReading) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('metersreading', metersReading) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Meters Reading', metersReading) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Meters Reading', metersReading) : false;
                 resolve();
             } catch (error) {
                 reject(`Requesting meters reading error: ${error}.`);
@@ -1653,7 +1653,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble inventory.`) : false;
 
             try {
-                const ensembleInventoryData = await this.axiosInstance(CONSTANS.ApiUrls.EnsembleInventory);
+                const ensembleInventoryData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleInventory);
                 const ensembleInventory = ensembleInventoryData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Ensemble inventory: ${JSON.stringify(ensembleInventory, null, 2)}`) : false;
 
@@ -1692,16 +1692,16 @@ class EnvoyDevice extends EventEmitter {
                     this.enchargesRev = [];
                     this.enchargesCapacity = [];
 
-                    const type = CONSTANS.ApiCodes[ensembleInventory[0].type];
+                    const type = CONSTANTS.ApiCodes[ensembleInventory[0].type];
                     for (let i = 0; i < enchargesCount; i++) {
                         const encharge = encharges[i];
-                        const partNum = CONSTANS.PartNumbers[encharge.part_num] ?? 'Unknown';
+                        const partNum = CONSTANTS.PartNumbers[encharge.part_num] ?? 'Unknown';
                         const serialNumber = encharge.serial_num;
                         const installed = new Date(encharge.installed * 1000).toLocaleString();
                         const deviceStatus = encharge.device_status;
                         const lastReportDate = new Date(encharge.last_rpt_date * 1000).toLocaleString();
                         const adminState = encharge.admin_state;
-                        const adminStateStr = CONSTANS.ApiCodes[encharge.admin_state_str] ?? 'Unknown';
+                        const adminStateStr = CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown';
                         const createdDate = new Date(encharge.created_date * 1000).toLocaleString();
                         const imgLoadDate = new Date(encharge.img_load_date * 1000).toLocaleString();
                         const imgPnumRunning = encharge.img_pnum_running;
@@ -1713,10 +1713,10 @@ class EnvoyDevice extends EventEmitter {
                         const percentFull = encharge.percentFull;
                         const temperature = encharge.temperature;
                         const maxCellTemp = encharge.maxCellTemp;
-                        const reportedEncGridState = CONSTANS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown';
+                        const reportedEncGridState = CONSTANTS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown';
                         const commLevelSubGhz = encharge.comm_level_sub_ghz * 20;
                         const commLevel24Ghz = encharge.comm_level_2_4_ghz * 20;
-                        const ledStatus = CONSTANS.LedStatus[encharge.led_status] ?? 'Unknown';
+                        const ledStatus = CONSTANTS.LedStatus[encharge.led_status] ?? 'Unknown';
                         const dcSwitchOff = encharge.dc_switch_off;
                         const enchargeRev = encharge.encharge_rev;
                         const enchargeCapacity = parseFloat(encharge.encharge_capacity) / 1000; //in kWh
@@ -1724,7 +1724,7 @@ class EnvoyDevice extends EventEmitter {
                         const derIndex = encharge.der_index ?? 0;
 
                         //convert status
-                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
+                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
                         if (this.enchargesService) {
                             this.enchargesService[i]
@@ -1811,16 +1811,16 @@ class EnvoyDevice extends EventEmitter {
                     this.enpowersRelayStateBm = [];
                     this.enpowersCurrStateId = [];
 
-                    const type = CONSTANS.ApiCodes[ensembleInventory[1].type];
+                    const type = CONSTANTS.ApiCodes[ensembleInventory[1].type];
                     for (let i = 0; i < enpowersCount; i++) {
                         const enpower = enpowers[i];
-                        const partNum = CONSTANS.PartNumbers[enpower.part_num] ?? 'Unknown'
+                        const partNum = CONSTANTS.PartNumbers[enpower.part_num] ?? 'Unknown'
                         const serialNumber = enpower.serial_num;
                         const installed = new Date(enpower.installed * 1000).toLocaleString();
                         const deviceStatus = enpower.device_status;
                         const lastReportDate = new Date(enpower.last_rpt_date * 1000).toLocaleString();
                         const adminState = enpower.admin_state;
-                        const adminStateStr = CONSTANS.ApiCodes[enpower.admin_state_str] ?? 'Unknown';
+                        const adminStateStr = CONSTANTS.ApiCodes[enpower.admin_state_str] ?? 'Unknown';
                         const createdDate = new Date(enpower.created_date * 1000).toLocaleString();
                         const imgLoadDate = new Date(enpower.img_load_date * 1000).toLocaleString();
                         const imgPnumRunning = enpower.img_pnum_running;
@@ -1830,17 +1830,17 @@ class EnvoyDevice extends EventEmitter {
                         const temperature = enpower.temperature;
                         const commLevelSubGhz = enpower.comm_level_sub_ghz * 20;
                         const commLevel24Ghz = enpower.comm_level_2_4_ghz * 20;
-                        const mainsAdminState = CONSTANS.ApiCodes[enpower.mains_admin_state] ?? 'Unknown';
-                        const mainsOperState = CONSTANS.ApiCodes[enpower.mains_oper_state] ?? 'Unknown';
+                        const mainsAdminState = CONSTANTS.ApiCodes[enpower.mains_admin_state] ?? 'Unknown';
+                        const mainsOperState = CONSTANTS.ApiCodes[enpower.mains_oper_state] ?? 'Unknown';
                         const enpwrGridMode = enpower.Enpwr_grid_mode ?? 'Unknown';
-                        const enpwrGridModeTranslated = CONSTANS.ApiCodes[enpwrGridMode] ?? enpower.Enpwr_grid_mode;
+                        const enpwrGridModeTranslated = CONSTANTS.ApiCodes[enpwrGridMode] ?? enpower.Enpwr_grid_mode;
                         const enchgGridMode = enpower.Enchg_grid_mode ?? 'Unknown';
-                        const enchgGridModeTranslated = CONSTANS.ApiCodes[enchgGridMode] ?? enpower.Enchg_grid_mode;
+                        const enchgGridModeTranslated = CONSTANTS.ApiCodes[enchgGridMode] ?? enpower.Enchg_grid_mode;
                         const enpwrRelayStateBm = enpower.Enpwr_relay_state_bm;
                         const enpwrCurrStateId = enpower.Enpwr_curr_state_id;
 
                         //convert status
-                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
+                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
 
                         if (this.enpowersService) {
                             this.enpowersService[i]
@@ -1909,7 +1909,7 @@ class EnvoyDevice extends EventEmitter {
                 const generatorsInstalled = generatorsCount > 0;
 
                 if (generatorsInstalled) {
-                    const type = CONSTANS.ApiCodes[ensembleInventory[2].type];
+                    const type = CONSTANTS.ApiCodes[ensembleInventory[2].type];
 
                     this.generatorsType = type;
                     this.generatorsCount = generatorsCount;
@@ -1917,10 +1917,10 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'ensembleinventory', ensembleInventory) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('ensembleinventory', ensembleInventory) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Ensemble Inventory', ensembleInventory) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Ensemble Inventory', ensembleInventory) : false;
                 resolve(true);
             } catch (error) {
                 reject(`Requesting ensemble inventory error: ${error}.`);
@@ -1933,7 +1933,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble status.`) : false;
 
             try {
-                const ensembleStatusData = await this.axiosInstance(CONSTANS.ApiUrls.EnsembleStatus);
+                const ensembleStatusData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleStatus);
                 const ensembleStatus = ensembleStatusData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Ensemble status: ${JSON.stringify(ensembleStatus, null, 2)}`) : false;
 
@@ -1956,14 +1956,14 @@ class EnvoyDevice extends EventEmitter {
                     const comInterfacStr = encharge.com_interface_str ?? 'Unknown';
                     const deviceId = encharge.device_id ?? 'Unknown';
                     const adminState = encharge.admin_state;
-                    const adminStateStr = CONSTANS.ApiCodes[encharge.admin_state_str] ?? 'Unknown';
-                    const reportedGridMode = CONSTANS.ApiCodes[encharge.reported_grid_mode] ?? 'Unknown';
+                    const adminStateStr = CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown';
+                    const reportedGridMode = CONSTANTS.ApiCodes[encharge.reported_grid_mode] ?? 'Unknown';
                     const phase = encharge.phase ?? 'Unknown';
                     const derIndex = encharge.der_index ?? 0;
                     const revision = encharge.encharge_revision ?? 0;
                     const capacity = encharge.encharge_capacity ?? 0;
                     const ratedPower = encharge.encharge_rated_power ?? 0;
-                    const reportedGridState = CONSTANS.ApiCodes[encharge.reported_grid_state] ?? 'Unknown';
+                    const reportedGridState = CONSTANTS.ApiCodes[encharge.reported_grid_state] ?? 'Unknown';
                     const msgRetryCount = encharge.msg_retry_count ?? 0;
                     const partNumber = encharge.part_number;
                     const assemblyNumber = encharge.assembly_number;
@@ -2184,15 +2184,15 @@ class EnvoyDevice extends EventEmitter {
                 //relay
                 const relaySupported = ensembleStatusKeys.includes('relay');
                 const relay = relaySupported ? ensembleStatus.relay : {};
-                const mainsAdminState = CONSTANS.ApiCodes[relay.mains_admin_state] ?? 'Unknown';
-                const mainsOperState = CONSTANS.ApiCodes[relay.mains_oper_sate] ?? 'Unknown';
+                const mainsAdminState = CONSTANTS.ApiCodes[relay.mains_admin_state] ?? 'Unknown';
+                const mainsOperState = CONSTANTS.ApiCodes[relay.mains_oper_sate] ?? 'Unknown';
                 const der1State = relay.der1_state ?? 0;
                 const der2State = relay.der2_state ?? 0;
                 const der3State = relay.der3_state ?? 0;
                 const enchGridMode = relay.Enchg_grid_mode ?? 'Unknown';
-                const enchGridModeTranslated = CONSTANS.ApiCodes[enchGridMode] ?? relay.Enchg_grid_mode;
+                const enchGridModeTranslated = CONSTANTS.ApiCodes[enchGridMode] ?? relay.Enchg_grid_mode;
                 const solarGridMode = relay.Solar_grid_mode ?? 'Unknown';
-                const solarGridModeTranslated = CONSTANS.ApiCodes[solarGridMode] ?? relay.Solar_grid_mode;
+                const solarGridModeTranslated = CONSTANTS.ApiCodes[solarGridMode] ?? relay.Solar_grid_mode;
 
                 this.enchargesGridMode = enchGridMode;
                 this.enchargesGridModeTranslated = enchGridModeTranslated;
@@ -2251,10 +2251,10 @@ class EnvoyDevice extends EventEmitter {
                 this.ensembleStatusSupported = true;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'ensemblestatus', ensembleStatus) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('ensemblestatus', ensembleStatus) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Ensemble Status', ensembleStatus) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Ensemble Status', ensembleStatus) : false;
                 resolve();
             } catch (error) {
                 reject(`Requesting ensemble status error: ${error}.`);
@@ -2267,7 +2267,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data.`) : false;
 
             try {
-                const liveData = await this.axiosInstance(CONSTANS.ApiUrls.LiveData);
+                const liveData = await this.axiosInstance(CONSTANTS.ApiUrls.LiveData);
                 const live = liveData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(live, null, 2)}`) : false;
 
@@ -2404,10 +2404,10 @@ class EnvoyDevice extends EventEmitter {
                 this.liveDataSupported = true;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'livedata', live) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('livedata', live) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Live Data', live) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Live Data', live) : false;
                 resolve(true);
             } catch (error) {
                 reject(`Requesting live data error: ${error}.`);
@@ -2432,7 +2432,7 @@ class EnvoyDevice extends EventEmitter {
                         rejectUnauthorized: false
                     })
                 }
-                const url = this.url + CONSTANS.ApiUrls.LiveDataStream;
+                const url = this.url + CONSTANTS.ApiUrls.LiveDataStream;
                 const enableLiveDataStream = await axios.post(url, { 'enable': 1 }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
                 resolve();
@@ -2447,7 +2447,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting production.`) : false;
 
             try {
-                const productionData = await this.axiosInstance(CONSTANS.ApiUrls.InverterProductionSumm);
+                const productionData = await this.axiosInstance(CONSTANTS.ApiUrls.InverterProductionSumm);
                 const production = productionData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Production: ${JSON.stringify(production, null, 2)}`) : false;
 
@@ -2464,10 +2464,10 @@ class EnvoyDevice extends EventEmitter {
                 this.productionMicroSummaryWattsNow = productionMicroSummaryWattsNow;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'production', production) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('production', production) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Production', production) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Production', production) : false;
                 resolve(true);
             } catch (error) {
                 reject(`Requesting production error: ${error}.`);
@@ -2480,7 +2480,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting production ct.`) : false;
 
             try {
-                const productionCtData = await this.axiosInstance(CONSTANS.ApiUrls.SystemReadingStats);
+                const productionCtData = await this.axiosInstance(CONSTANTS.ApiUrls.SystemReadingStats);
                 const productionCt = productionCtData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Production ct: ${JSON.stringify(productionCt, null, 2)}`) : false;
 
@@ -2494,7 +2494,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //microinverters data 0
                 const productionMicro = productionCt.production[0] ?? {};
-                const productionMicroType = CONSTANS.ApiCodes[productionMicro.type];
+                const productionMicroType = CONSTANTS.ApiCodes[productionMicro.type];
                 const productionMicroActiveCount = productionMicro.activeCount;
                 const productionMicroReadingTime = new Date(productionMicro.readingTime * 1000).toLocaleString();
                 const productionMicroPower = parseFloat(productionMicro.wNow) / 1000;
@@ -2502,9 +2502,9 @@ class EnvoyDevice extends EventEmitter {
 
                 //production data 1
                 const production = productionCt.production[1] ?? {};
-                const productionType = metersProductionEnabled ? CONSTANS.ApiCodes[production.type] : productionMicroType;
+                const productionType = metersProductionEnabled ? CONSTANTS.ApiCodes[production.type] : productionMicroType;
                 const productionActiveCount = metersProductionEnabled ? production.activeCount : productionMicroActiveCount;
-                const productionMeasurmentType = metersProductionEnabled ? CONSTANS.ApiCodes[production.measurementType] : productionMicroType;
+                const productionMeasurmentType = metersProductionEnabled ? CONSTANTS.ApiCodes[production.measurementType] : productionMicroType;
                 const productionReadingTime = metersProductionEnabled ? new Date(production.readingTime * 1000).toLocaleString() : productionMicroReadingTime;
                 const productionPower = metersProductionEnabled ? parseFloat(production.wNow) / 1000 : productionMicroPower;
 
@@ -2656,9 +2656,9 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < consumptionsCount; i++) {
                         //power
                         const consumption = productionCt.consumption[i] ?? {};
-                        const consumptionType = CONSTANS.ApiCodes[consumption.type];
+                        const consumptionType = CONSTANTS.ApiCodes[consumption.type];
                         const consumptionActiveCount = consumption.activeCount;
-                        const consumptionMeasurmentType = CONSTANS.ApiCodes[consumption.measurementType];
+                        const consumptionMeasurmentType = CONSTANTS.ApiCodes[consumption.measurementType];
                         const consumptionReadingTime = new Date(consumption.readingTime * 1000).toLocaleString();
                         const consumptionPower = parseFloat(consumption.wNow) / 1000;
 
@@ -2818,12 +2818,12 @@ class EnvoyDevice extends EventEmitter {
                 //ac btteries summary 3
                 if (acBatteriesInstalled) {
                     const acBaterie = productionCt.storage[0] ?? {};
-                    const type = CONSTANS.ApiCodes[acBaterie.type] ?? 'AC Batterie';
+                    const type = CONSTANTS.ApiCodes[acBaterie.type] ?? 'AC Batterie';
                     const activeCount = acBaterie.activeCount;
                     const readingTime = new Date(acBaterie.readingTime * 1000).toLocaleString();
                     const wNow = parseFloat(acBaterie.wNow) / 1000;
                     const whNow = parseFloat(acBaterie.whNow + this.acBatteriesStorageOffset) / 1000;
-                    const chargeStatus = CONSTANS.ApiCodes[acBaterie.state] ?? 'Unknown';
+                    const chargeStatus = CONSTANTS.ApiCodes[acBaterie.state] ?? 'Unknown';
                     const percentFull = acBaterie.percentFull;
                     const energyState = percentFull > 0;
 
@@ -2854,10 +2854,10 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'productionct', productionCt) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('productionct', productionCt) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Production CT', productionCt) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Production CT', productionCt) : false;
                 resolve();
             } catch (error) {
                 reject(`Requesting production ct error: ${error}.`);
@@ -2878,7 +2878,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(CONSTANS.ApiUrls.InverterProduction, options);
+                const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANTS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(CONSTANTS.ApiUrls.InverterProduction, options);
                 const microinverters = microinvertersData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Microinverters: ${JSON.stringify(microinverters, null, 2)}`) : false;
 
@@ -2919,10 +2919,10 @@ class EnvoyDevice extends EventEmitter {
                 this.microinvertersPowerSupported = this.microinvertersLastPower.length > 0;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'microinverters', microinverters) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('microinverters', microinverters) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Microinverters', microinverters) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Microinverters', microinverters) : false;
                 resolve(true);
             } catch (error) {
                 reject(`Requesting microinverters error: ${error}.`);
@@ -2949,7 +2949,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 try {
-                    const envoyBackboneAppData = await this.axiosInstance(CONSTANS.ApiUrls.BackboneApplication);
+                    const envoyBackboneAppData = await this.axiosInstance(CONSTANTS.ApiUrls.BackboneApplication);
                     const envoyBackboneApp = envoyBackboneAppData.data;
                     const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app: ${envoyBackboneApp}`) : false;
 
@@ -2989,7 +2989,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting power mode.`) : false;
 
             try {
-                const powerModeUrl = CONSTANS.ApiUrls.PowerForcedModeGet.replace("EID", this.envoyDevId);
+                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModeGet.replace("EID", this.envoyDevId);
                 const options = {
                     method: 'GET',
                     baseURL: this.url,
@@ -3011,10 +3011,10 @@ class EnvoyDevice extends EventEmitter {
                 this.productionPowerModeSupported = true;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'powermode', productionPowerMode) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('powermode', productionPowerMode) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'Power Mode', productionPowerMode) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('Power Mode', productionPowerMode) : false;
                 resolve();
             } catch (error) {
                 reject(`Requesting power mode error: ${error}.`);
@@ -3036,7 +3036,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANS.ApiUrls.InverterComm, options);
+                const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANTS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANTS.ApiUrls.InverterComm, options);
                 const plcLevel = plcLevelData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevel, null, 2)}`) : false;
 
@@ -3100,10 +3100,10 @@ class EnvoyDevice extends EventEmitter {
                 this.plcLevelSupported = true;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.emit('restFul', 'plclevel', plcLevel) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('plclevel', plcLevel) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.emit('mqtt', 'PLC Level', plcLevel) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.send('PLC Level', plcLevel) : false;
                 resolve();
             } catch (error) {
                 this.checkCommLevel = false;
@@ -3129,7 +3129,7 @@ class EnvoyDevice extends EventEmitter {
                         rejectUnauthorized: false
                     })
                 }
-                const url = this.url + CONSTANS.ApiUrls.EnsembleStatus;
+                const url = this.url + CONSTANTS.ApiUrls.EnsembleStatus;
                 const enchargeProfileSet = await axios.post(url, {
                     battery_mode: profile,
                     configured_backup_soc: reserve,
@@ -3395,7 +3395,7 @@ class EnvoyDevice extends EventEmitter {
                         })
                         .onSet(async (state) => {
                             try {
-                                const powerModeUrl = CONSTANS.ApiUrls.PowerForcedModePut.replace("EID", this.envoyDevId);
+                                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModePut.replace("EID", this.envoyDevId);
                                 const data = JSON.stringify({
                                     length: 1,
                                     arr: [state ? 0 : 1]
