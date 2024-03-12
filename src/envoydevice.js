@@ -3174,7 +3174,7 @@ class EnvoyDevice extends EventEmitter {
     };
 
     getDeviceInfo() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting log device info.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info.`) : false;
 
         this.emit('devInfo', `-------- ${this.name} --------`);
         this.emit('devInfo', `Manufacturer: Enphase`);
