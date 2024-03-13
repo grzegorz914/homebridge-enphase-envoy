@@ -180,5 +180,5 @@
 | Subscribe | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- |
 | Envoy |     |     |     |      |
-|     | `Production` | `true`, `false` | boolean | Power production, not implemented yet. |
-|     | `EnchargeProfile` | `selfconsumption`, `savings`, `fullbackup` | string | Set profile, not implemented yet. |
+|     | `ProductionPowerMode` | `true`, `false` | boolean | Production power mode, not implemented yet. |
+|     | `EnchargeProfile` | `selfconsumption`, `savings`, `fullbackup` | string | Set encharge profile, not implemented yet. |
