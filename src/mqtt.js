@@ -25,9 +25,13 @@ class Mqtt extends EventEmitter {
 
                 //subscribed message
                 this.mqttClient.on('message', (topic, message) => {
-                    const subscribedMessage = JSON.parse(message.toString());
-                    const emitDebug = config.debug ? this.emit('debug', `MQTT Received topic: ${topic}, message: ${JSON.stringify(subscribedMessage, null, 2)}`) : false;
-                    this.emit('subscribedMessage', subscribedMessage);
+                    try {
+                        const subscribedMessage = JSON.parse(message.toString());
+                        const emitDebug = config.debug ? this.emit('debug', `MQTT Received topic: ${topic}, message: ${JSON.stringify(subscribedMessage, null, 2)}`) : false;
+                        this.emit('subscribedMessage', subscribedMessage);
+                    } catch (error) {
+                        this.emit('error', `MQTT Parse message error: ${error}`);
+                    };
                 });
             } catch (error) {
                 this.emit('error', `MQTT Connect error: ${error}`);
