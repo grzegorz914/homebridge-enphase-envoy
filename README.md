@@ -174,8 +174,8 @@
 
 | Direction | Topic | Message | Payload Data |
 | --- | --- | --- | --- |
-|  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level` | `{wattHoursToday: 2353, wattsNoe: 550}` | JSON object. |
-|  Subscribe   | `Set` | `{Power: true}` | JSON object. |
+|  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level` | `{"wattHoursToday": 2353, "wattsNow": 550}` | JSON object. |
+|  Subscribe   | `Set` | `{"Power": true}` | JSON object. |
 
 | Subscribe | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- |
