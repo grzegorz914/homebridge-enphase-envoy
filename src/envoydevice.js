@@ -142,6 +142,14 @@ class EnvoyDevice extends EventEmitter {
         }
         this.solarGridModeActiveSensorsCount = this.solarGridModeActiveSensors.length || 0;
 
+        //arf profile
+        this.arfProfile = {
+            name: 'Unknown',
+            id: 0,
+            version: '',
+            item_count: 0
+        }
+
         //envoy
         this.token = '';
         this.tokenExpiresAt = 0;
@@ -185,12 +193,6 @@ class EnvoyDevice extends EventEmitter {
         this.wirelessConnectionKitConnectionsCount = 0;
         this.envoyCommEnchgLevel24g = 0;
         this.envoyCommEnchagLevelSubg = 0;
-
-        //arf profile
-        this.arfProfileName = 'Unknown';
-        this.arfProfileId = 0;
-        this.arfProfileVersion = '';
-        this.arfProfileItemCount = 0;
 
         //microinverters
         this.microinvertersSupported = false;
@@ -833,19 +835,19 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Grid profile: ${JSON.stringify(profile, null, 2)}`) : false;
 
                 //arf profile
-                this.arfProfileName = profile.name ?? 'Unknown';
-                this.arfProfileId = profile.id ?? 0;
-                this.arfProfileVersion = profile.version ?? '';
-                this.arfProfileItemCount = profile.item_count ?? 0;
+                this.arfProfile.name = profile.name ?? 'Unknown';
+                this.arfProfile.id = profile.id ?? 0;
+                this.arfProfile.version = profile.version ?? '';
+                this.arfProfile.item_count = profile.item_count ?? 0;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profile) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Grid Profile', profile) : false;
-                resolve(profile);
+                resolve(this.arfProfile);
             } catch (error) {
-                reject(`Requesting grid profile error: ${error}.`);
+                resolve(this.arfProfile);
             };
         });
     };
@@ -1000,7 +1002,7 @@ class EnvoyDevice extends EventEmitter {
 
                 if (this.envoyService) {
                     this.envoyService
-                        .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.arfProfileName)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.arfProfile.name)
                         .updateCharacteristic(Characteristic.enphaseEnvoyAlerts, status)
                         .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, `${dbSize} MB / ${dbPercentFull} %`)
                         .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, timeZone)
@@ -1141,7 +1143,7 @@ class EnvoyDevice extends EventEmitter {
 
                         if (this.microinvertersServices) {
                             this.microinvertersServices[i]
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterGridProfile, this.arfProfileName)
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterGridProfile, this.arfProfile.name)
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status)
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware)
@@ -1308,7 +1310,7 @@ class EnvoyDevice extends EventEmitter {
 
                         if (this.qRelaysServices) {
                             this.qRelaysServices[i]
-                                .updateCharacteristic(Characteristic.enphaseQrelayGridProfile, this.arfProfileName)
+                                .updateCharacteristic(Characteristic.enphaseQrelayGridProfile, this.arfProfile.name)
                                 .updateCharacteristic(Characteristic.enphaseQrelayStatus, status)
                                 .updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, lastReportDate)
                                 .updateCharacteristic(Characteristic.enphaseQrelayFirmware, firmware)
@@ -2253,10 +2255,10 @@ class EnvoyDevice extends EventEmitter {
                 //profile
                 const profileSupported = ensembleStatusKeys.includes('profile');
                 const profile = profileSupported ? ensembleStatus.profile : await this.updateGridProfileData();
-                const name = profile.name ?? this.arfProfileName;
-                const id = profile.id ?? this.arfProfileId;
-                const version = profile.version ?? this.arfProfileVersion;
-                const itemCount = profile.item_count ?? this.arfProfileItemCount;
+                const name = profile.name;
+                const id = profile.id;
+                const version = profile.version;
+                const itemCount = profile.item_count;
 
                 //fakeit
                 const fakeInventoryModeSupported = ensembleStatusKeys.includes('fakeit');
@@ -3415,7 +3417,7 @@ class EnvoyDevice extends EventEmitter {
                 }
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyGridProfile)
                     .onGet(async () => {
-                        const value = this.arfProfileName;
+                        const value = this.arfProfile.name;
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, grid profile: ${value}`);
                         return value;
                     });
@@ -3548,7 +3550,7 @@ class EnvoyDevice extends EventEmitter {
                             });
                         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayGridProfile)
                             .onGet(async () => {
-                                const value = this.arfProfileName;
+                                const value = this.arfProfile.name;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${qRelaySerialNumber}, grid profile: ${value}`);
                                 return value;
                             });
@@ -4303,7 +4305,7 @@ class EnvoyDevice extends EventEmitter {
                             });
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterGridProfile)
                             .onGet(async () => {
-                                const value = this.arfProfileName;
+                                const value = this.arfProfile.name;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, grid profile: ${value}`);
                                 return value;
                             });
