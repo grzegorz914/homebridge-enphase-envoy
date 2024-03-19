@@ -845,7 +845,12 @@ class EnvoyDevice extends EventEmitter {
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Grid Profile', profile) : false;
                 resolve(profile);
             } catch (error) {
-                reject(`Requesting grid profile error: ${error}.`);
+                //arf profile
+                this.arfProfileName = profile.name ?? 'Unknown';
+                this.arfProfileId = profile.id ?? 0;
+                this.arfProfileVersion = profile.version ?? '';
+                this.arfProfileItemCount = profile.item_count ?? 0;
+                resolve({});
             };
         });
     };
