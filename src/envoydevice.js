@@ -3048,7 +3048,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set power mode.`) : false;
 
             try {
-                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModePut.replace("EID", this.envoyDevId);
+                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
                 const data = JSON.stringify({
                     length: 1,
                     arr: [state ? 0 : 1]
