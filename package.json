@@ -43,7 +43,9 @@
         "enpower",
         "encharge",
         "photovoltaic",
-        "solar"
+        "solar",
+        "mqtt",
+        "restful"
     ],
     "funding": {
         "type": "github",
