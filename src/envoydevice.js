@@ -15,7 +15,7 @@ const STATUSCODEREGEX = /status code (\d+)/;
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, prefDir, device) {
+    constructor(api, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, envoyProductionPowerPeakFile, envoyConsumptionNetPowerPeakFile, envoyConsumptionTotalPowerPeakFile, device) {
         super();
 
         Accessory = api.platformAccessory;
@@ -75,6 +75,12 @@ class EnvoyDevice extends EventEmitter {
         this.mqttConnected = false;
 
         //setup variables
+        this.envoyIdFile = envoyIdFile;
+        this.envoyTokenFile = envoyTokenFile;
+        this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
+        this.envoyProductionPowerPeakFile = envoyProductionPowerPeakFile;
+        this.envoyConsumptionNetPowerPeakFile = envoyConsumptionNetPowerPeakFile;
+        this.envoyConsumptionTotalPowerPeakFile = envoyConsumptionTotalPowerPeakFile;
         this.checkCommLevel = false;
         this.startPrepareAccessory = true;
 
@@ -339,28 +345,6 @@ class EnvoyDevice extends EventEmitter {
 
         //url
         this.url = this.envoyFirmware7xx ? `https://${this.host}` : `http://${this.host}`;
-
-        //check files exists, if not then create it
-        const postFix = this.host.split('.').join('');
-        this.envoyIdFile = (`${prefDir}/envoyId_${postFix}`);
-        this.envoyTokenFile = (`${prefDir}/envoyToken_${postFix}`);
-        this.envoyInstallerPasswordFile = (`${prefDir}/envoyInstallerPassword_${postFix}`);
-
-        try {
-            const files = [
-                this.envoyIdFile,
-                this.envoyTokenFile,
-                this.envoyInstallerPasswordFile
-            ];
-
-            files.forEach((file) => {
-                if (!fs.existsSync(file)) {
-                    fs.writeFileSync(file, '0');
-                }
-            });
-        } catch (error) {
-            this.emit('error', `prepare files error: ${error}`);
-        }
 
         //create axios instance
         this.axiosInstance = axios.create({
@@ -2544,6 +2528,9 @@ class EnvoyDevice extends EventEmitter {
                 const productionPowerPeakDetected = productionPower > productionPowerPeakStored;
                 const debug4 = this.enableDebugMode ? this.emit('debug', `Production power peak detected: ${productionPowerPeakDetected}`) : false;
 
+                //save power peak to the file
+                const saveToFile = productionPowerPeakDetected ? await this.saveToFile(this.envoyProductionPowerPeakFile, productionPower) : false;
+
                 //energy
                 const productionEnergyLifeTime = metersProductionEnabled ? parseFloat((production.whLifetime + productionEnergyLifetimeOffset) / 1000) : productionMicroEnergyLifeTime;
                 const productionEnergyVarhLeadLifetime = metersProductionEnabled ? parseFloat(production.varhLeadLifetime) / 1000 : 0;
@@ -2691,6 +2678,10 @@ class EnvoyDevice extends EventEmitter {
 
                         //power peak detected
                         const consumptionPowerPeakDetected = consumptionPower > consumptionPowerPeakStored;
+
+                        //save power peak to the file
+                        const consumptionPowerPeakFile = [this.envoyConsumptionNetPowerPeakFile, this.envoyConsumptionTotalPowerPeakFile][i];
+                        const saveToFile = consumptionPowerPeakDetected ? await this.saveToFile(consumptionPowerPeakFile, consumptionPower) : false;
 
                         //energy
                         const consumptionsLifeTimeOffset = [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][i];
@@ -3188,6 +3179,20 @@ class EnvoyDevice extends EventEmitter {
                 resolve();
             } catch (error) {
                 reject(`Set encharge profile error: ${error}.`);
+            };
+        });
+    };
+
+    saveToFile(path, data) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const info = JSON.stringify(data, null, 2);
+                await fsPromises.writeFile(path, info);
+                const debug = this.enableDebugMode ? this.emit('debug', `saved production power peak: ${info} kW`) : false;
+
+                resolve();
+            } catch (error) {
+                reject(error);
             };
         });
     };

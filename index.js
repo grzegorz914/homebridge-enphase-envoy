@@ -50,8 +50,35 @@ class EnvoyPlatform {
         };
         const debug1 = enableDebugMode ? log(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
 
+        //check files exists, if not then create it
+        const postFix = host.split('.').join('');
+        const envoyIdFile = (`${prefDir}/envoyId_${postFix}`);
+        const envoyTokenFile = (`${prefDir}/envoyToken_${postFix}`);
+        const envoyInstallerPasswordFile = (`${prefDir}/envoyInstallerPassword_${postFix}`);
+        const envoyProductionPowerPeakFile = (`${prefDir}/envoyProductionPowerPeakFile_${postFix}`);
+        const envoyConsumptionNetPowerPeakFile = (`${prefDir}/envoyConsumptionNetPowerPeakFile_${postFix}`);
+        const envoyConsumptionTotalPowerPeakFile = (`${prefDir}/envoyConsumptionTotalPowerPeakFile_${postFix}`);
+        
+        try {
+          const files = [
+            envoyIdFile,
+            envoyTokenFile,
+            envoyInstallerPasswordFile,
+            envoyConsumptionNetPowerPeakFile,
+            envoyConsumptionTotalPowerPeakFile
+          ];
+
+          files.forEach((file) => {
+            if (!fs.existsSync(file)) {
+              fs.writeFileSync(file, '0');
+            }
+          });
+        } catch (error) {
+          log.error(`Device: ${host} ${deviceName}, prepare files error: ${error}`);
+        }
+
         //envoy device
-        const envoyDevice = new EnvoyDevice(api, prefDir, device);
+        const envoyDevice = new EnvoyDevice(api, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, envoyProductionPowerPeakFile, envoyConsumptionNetPowerPeakFile, envoyConsumptionTotalPowerPeakFile, device);
         envoyDevice.on('publishAccessory', (accessory) => {
           api.publishExternalAccessories(CONSTANTS.PluginName, [accessory]);
           const debug = enableDebugMode ? log(`Device: ${host} ${deviceName}, published as external accessory.`) : false;
