@@ -2680,7 +2680,7 @@ class EnvoyDevice extends EventEmitter {
                         const consumptionPowerPeakDetected = consumptionPower > consumptionPowerPeakStored;
 
                         //save power peak to the file
-                        const consumptionPowerPeakFile = [this.envoyConsumptionNetPowerPeakFile, this.envoyConsumptionTotalPowerPeakFile][i];
+                        const consumptionPowerPeakFile = [this.envoyConsumptionTotalPowerPeakFile, this.envoyConsumptionNetPowerPeakFile][i];
                         const saveToFile = consumptionPowerPeakDetected ? await this.saveToFile(consumptionPowerPeakFile, consumptionPower) : false;
 
                         //energy
