@@ -57,10 +57,10 @@ class EnvoyDevice extends EventEmitter {
         this.supportProductionPowerMode = !this.envoyFirmware7xx ? device.supportProductionPowerMode : false;
         this.supportPlcLevel = !this.envoyFirmware7xx ? device.supportPlcLevel : false;
         this.supportEnchargeProfile = !this.envoyFirmware7xx ? device.supportEnchargeProfile : false;
-        this.metersDataRefreshTime = device.metersDataRefreshTime || 2500;
-        this.productionDataRefreshTime = device.productionDataRefreshTime || 5000;
-        this.liveDataRefreshTime = device.liveDataRefreshTime || 1000;
-        this.ensembleDataRefreshTime = device.ensembleDataRefreshTime || 15000;
+        this.metersDataRefreshTime = device.metersDataRefreshTime || 2.0;
+        this.productionDataRefreshTime = device.productionDataRefreshTime || 5.0;
+        this.liveDataRefreshTime = device.liveDataRefreshTime || 2.0;
+        this.ensembleDataRefreshTime = device.ensembleDataRefreshTime || 15.0;
 
         this.enpowerGridModeSensors = device.enpowerGridModeSensors || [];
         this.enchargeGridModeSensors = this.supportEnsembleStatus ? device.enchargeGridModeSensors || [] : [];
@@ -518,7 +518,7 @@ class EnvoyDevice extends EventEmitter {
             const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
-        await new Promise(resolve => setTimeout(resolve, this.metersDataRefreshTime));
+        await new Promise(resolve => setTimeout(resolve, this.metersDataRefreshTime * 1000));
         this.updateMeters();
     };
 
@@ -532,7 +532,7 @@ class EnvoyDevice extends EventEmitter {
             const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
-        await new Promise(resolve => setTimeout(resolve, this.ensembleDataRefreshTime));
+        await new Promise(resolve => setTimeout(resolve, this.ensembleDataRefreshTime * 1000));
         this.updateEnsembleInventory();
     };
 
@@ -545,7 +545,7 @@ class EnvoyDevice extends EventEmitter {
             const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
-        await new Promise(resolve => setTimeout(resolve, this.liveDataRefreshTime));
+        await new Promise(resolve => setTimeout(resolve, this.liveDataRefreshTime * 1000));
         this.updateLive();
     };
 
@@ -559,7 +559,7 @@ class EnvoyDevice extends EventEmitter {
             const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
         };
 
-        await new Promise(resolve => setTimeout(resolve, this.productionDataRefreshTime));
+        await new Promise(resolve => setTimeout(resolve, this.productionDataRefreshTime * 1000));
         this.updateProduction();
     };
 

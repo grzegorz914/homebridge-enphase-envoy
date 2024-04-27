@@ -643,50 +643,50 @@
               }
             },
             "liveDataRefreshTime": {
-              "title": "Refresh Time",
-              "type": "integer",
-              "default": 1000,
-              "minimum": 500,
-              "maximum": 30000,
-              "multipleOf": 100,
+              "title": "Live Data Sampling",
+              "type": "number",
+              "default": 2,
+              "minimum": 0.5,
+              "maximum": 60,
+              "multipleOf": 0.5,
               "required": false,
-              "description": "Here set live data refresh time in (ms).",
+              "description": "Here set live data refresh time in (sec).",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportLiveData === true;"
               }
             },
             "metersDataRefreshTime": {
-              "title": "Refresh Time",
-              "type": "integer",
-              "default": 2500,
-              "minimum": 500,
-              "maximum": 30000,
-              "multipleOf": 100,
+              "title": "Meters Sampling",
+              "type": "number",
+              "default": 2,
+              "minimum": 0.5,
+              "maximum": 60,
+              "multipleOf": 0.5,
               "required": false,
-              "description": "Here set meters data refresh time in (ms)."
+              "description": "Here set meters data refresh time in (sec)."
             },
             "ensembleDataRefreshTime": {
-              "title": "Refresh Time",
-              "type": "integer",
-              "default": 15000,
-              "minimum": 1000,
-              "maximum": 60000,
-              "multipleOf": 100,
+              "title": "Ensemble Sampling",
+              "type": "number",
+              "default": 15,
+              "minimum": 0.5,
+              "maximum": 60,
+              "multipleOf": 0.5,
               "required": false,
-              "description": "Here set ensemble data refresh time in (ms).",
+              "description": "Here set ensemble data refresh time in (sec).",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
               }
             },
             "productionDataRefreshTime": {
               "title": "Production Sampling",
-              "type": "integer",
-              "default": 5000,
-              "minimum": 500,
-              "maximum": 30000,
-              "multipleOf": 100,
+              "type": "number",
+              "default": 5,
+              "minimum": 0.5,
+              "maximum": 60,
+              "multipleOf": 0.5,
               "required": false,
-              "description": "Here set production data rfresh time in (ms)."
+              "description": "Here set production data rfresh time in (sec)."
             },
             "enableDebugMode": {
               "title": "Debug",
@@ -861,9 +861,9 @@
                     "devices[].supportProductionPowerMode",
                     "devices[].supportPlcLevel",
                     "devices[].supportLiveData",
+                    "devices[].liveDataRefreshTime",
                     "devices[].metersDataRefreshTime",
-                    "devices[].productionDataRefreshTime",
-                    "devices[].liveDataRefreshTime"
+                    "devices[].productionDataRefreshTime"
                   ],
                   "description": "Here You can configure envoy gateway."
                 },

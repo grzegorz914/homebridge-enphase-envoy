@@ -13,13 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More info about Power Production task here: https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production
 
 ## Note!!!
+# After update to v7.13.0 and above from plevious version the refresh time need to be configured again!!!
 # After update to v7.11.0 and above from plevious version the grid mode sensors need to be configured again!!!
 # After update to v7.8.0 and above from plevious version the sensors need to be configured again!!!
 # After update to v7.5.0 and above from plevious version the sensors need to be configured again!!!
 
-## [7.12.0] - (25.04.2024)
+## [7.13.0] - (27.04.2024)
 ## Changes
-- added support to save power peak to the file
+- changed data refresh time from (ms) go (sec) and precision 0.5
+- prevent to set refresh time to 0, now minimum is 0.5 sec
 - config.schema updated
 - cleanup
 
