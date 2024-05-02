@@ -54,8 +54,8 @@ class EnvoyDevice extends EventEmitter {
 
         this.supportEnsembleStatus = this.envoyFirmware7xx ? device.supportEnsembleStatus : false;
         this.supportLiveData = this.envoyFirmware7xx ? device.supportLiveData : false;
-        this.supportProductionPowerMode = !this.envoyFirmware7xx ? device.supportProductionPowerMode : false;
-        this.supportPlcLevel = !this.envoyFirmware7xx ? device.supportPlcLevel : false;
+        this.supportProductionPowerMode = device.supportProductionPowerMode || false;
+        this.supportPlcLevel = device.supportPlcLevel || false;
         this.supportEnchargeProfile = !this.envoyFirmware7xx ? device.supportEnchargeProfile : false;
         this.metersDataRefreshTime = device.metersDataRefreshTime || 2.0;
         this.productionDataRefreshTime = device.productionDataRefreshTime || 5.0;
@@ -160,6 +160,7 @@ class EnvoyDevice extends EventEmitter {
         this.token = '';
         this.tokenExpiresAt = 0;
         this.envoyDevId = '';
+        this.envoyDevIdExist = false;
         this.envoyFirmware = '';
         this.envoySoftwareBuildEpoch = 0;
         this.envoyIsEnvoy = false;
@@ -400,7 +401,10 @@ class EnvoyDevice extends EventEmitter {
                     try {
                         switch (key) {
                             case 'ProductionPowerMode':
-                                await this.setProductionPowerModeData(value);
+                                const set = this.productionPowerModeSupported ? await this.setProductionPowerModeData(value) : false;
+                                break;
+                            case 'PlcLevel':
+                                const set1 = this.plcLevelSupported ? await this.updatePlcLevelData(value) : false;
                                 break;
                             case 'EnchargeProfile':
                                 switch (value) {
@@ -461,10 +465,11 @@ class EnvoyDevice extends EventEmitter {
             const updateProductionCtData = await this.updateProductionCtData();
             const updateMicroinvertersData = validJwtToken || (!this.envoyFirmware7xx && this.installerPasswd) ? await this.updateMicroinvertersData() : false;
 
-            //check only on start FW <= 6.x.x.
+            //check only on start
             const envoyDevIdExist = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
-            const getProductionPowerModeData = envoyDevIdExist && this.installerPasswd ? await this.getProductionPowerModeData() : false;
-            const updatePlcLevelData = this.supportPlcLevel && this.installerPasswd ? await this.updatePlcLevelData() : false;
+            this.envoyDevIdExist = envoyDevIdExist;
+            const getProductionPowerModeData = envoyDevIdExist && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.getProductionPowerModeData() : false;
+            const updatePlcLevelData = this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
 
             //prepare accessory
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
@@ -2996,7 +3001,7 @@ class EnvoyDevice extends EventEmitter {
 
     getProductionPowerModeData() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting power mode.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting power production mode.`) : false;
 
             try {
                 const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModeGet.replace("EID", this.envoyDevId);
@@ -3027,17 +3032,17 @@ class EnvoyDevice extends EventEmitter {
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Power Mode', productionPowerMode) : false;
                 resolve();
             } catch (error) {
-                reject(`Requesting power mode error: ${error}.`);
+                reject(`Requesting power production mode error: ${error}.`);
             };
         });
     }
 
     setProductionPowerModeData(state) {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Set power mode.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Set power production mode.`) : false;
 
             try {
-                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
+                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModePut.replace("EID", this.envoyDevId);
                 const data = JSON.stringify({
                     length: 1,
                     arr: [state ? 0 : 1]
@@ -3057,7 +3062,7 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Set power mode: ${JSON.stringify(productionPowerMode, null, 2)}`) : false;
                 resolve();
             } catch (error) {
-                reject(`Set power mode error: ${error}.`);
+                reject(`Set power production mode error: ${error}.`);
             };
         });
     }

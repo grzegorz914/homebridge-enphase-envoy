@@ -30,7 +30,7 @@
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Envoy `device ID` is detected automatically.
 * Support `Ensemble Status` working only with Envoy Fw. v7.x.x and newer.
-* Support `Production Power Mode` and `PLC Level` working only with Envoy Fw. v6.x.x and older.
+* Support `Production Power Mode` and `PLC Level`, Fw. 7.x.x and newer required installer credentials data.
 * For best experiences and display all data please use `Controller` or `EVE` app.
 * Support external integrations, [RESTFul](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration), [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
 * Supported devices:
@@ -139,10 +139,10 @@
 | `solarGridModeSensors.name` | Here set Your own sensor name. |
 | `solarGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off` for sensor. |
 | `solarGridModeSensors.mode` | Here activate the sensor. |
-| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app) (only Fw. v6.x.x and older). |
-| `supportPlcLevel` | If enabled, check `PLC Level` will be possible (only Fw. v6.x.x and older). |
-| `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible (only Fw. v7.x.x and newer). |
-| `supportLiveData` | If enabled, check `Live Data` will be possible (only Fw. v7.x.x and newer). |
+| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app), Fw. 7.x.x and newer required installer credentials data. |
+| `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer required installer credentials data. |
+| `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible, only Fw. v7.x.x and newer. |
+| `supportLiveData` | If enabled, check `Live Data` will be possible, only Fw. v7.x.x and newer. |
 | `supportEnchargeProfile` | This enable support to check/control encharge profile. |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
@@ -180,5 +180,6 @@
 | Subscribe | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- |
 | Envoy |     |     |     |      |
-|     | `ProductionPowerMode` | `true`, `false` | boolean | Production power mode, not implemented yet. |
+|     | `ProductionPowerMode` | `true`, `false` | boolean | Production power mode. |
+|     | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
 |     | `EnchargeProfile` | `selfconsumption`, `savings`, `fullbackup` | string | Set encharge profile, not implemented yet. |

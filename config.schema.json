@@ -34,7 +34,7 @@
               "type": "boolean",
               "default": false,
               "required": true,
-              "description": "This enable support for Envoy with firmware 7.x.x and above."
+              "description": "This enable support for Envoy with firmware 7.x.x and newer."
             },
             "envoyPasswd": {
               "title": "Envoy Password",
@@ -387,7 +387,7 @@
                   "required": false
                 }
               },
-              "description": "This enable consumptiom net energy state monitoring and expose contact sensor in HomeKit..",
+              "description": "This enable consumptiom net energy state monitoring and expose contact sensor in HomeKit.",
               "required": false
             },
             "energyConsumptionNetLevelSensors": {
@@ -423,24 +423,18 @@
               "required": false
             },
             "supportProductionPowerMode": {
-              "title": "Power Mode",
+              "title": "Power Production",
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check/control production power mode, may not work with all envoy 7.x.x firmwares, if error occur, please disable it.",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
-              }
+              "description": "This enable support to check/control power production, firmware 7.x.x and newer required installer credentials data."
             },
             "supportPlcLevel": {
               "title": "PLC Level",
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check/control communication plc level.",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
-              }
+              "description": "This enable support to check plc level, firmware 7.x.x and newer required installer credentials data."
             },
             "supportEnsembleStatus": {
               "title": "Ensemble Status",
