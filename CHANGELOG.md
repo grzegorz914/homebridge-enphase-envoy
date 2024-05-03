@@ -5,26 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Envoy Firmware 8.x.x supported ab plugin v7.10.0 and above
-
-## Envoy Firmware 7.x.x supported ab plugin v6.0.0 and above
-
-## Power Production Enable/Disable v5.2.0 and above
-
-- You can set task for the Envoy to Enable/Disable power production on the microinverters.
-- On a typical system during daylight hours, the Envoy will execute the task within 15 minutes.
-- More info about Power Production task here: <https://support.enphase.com/s/article/How-do-I-disable-and-enable-power-production>
-
-## Note
-
-# After update to v7.13.0 and above from plevious version the refresh time need to be configured again
-
-# After update to v7.11.0 and above from plevious version the grid mode sensors need to be configured again
-
-# After update to v7.8.0 and above from plevious version the sensors need to be configured again
-
-# After update to v7.5.0 and above from plevious version the sensors need to be configured again
-
 ## [7.14.0] - (27.04.2024)
 
 ## Changes
@@ -39,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.13.0] - (27.04.2024)
 
 ## Changes
+
+### After update to v7.13.0 and above from plevious version the refresh time need to be configured again
 
 - changed data refresh time from (ms) go (sec) and precision 0.5
 - prevent to set refresh time to 0, now minimum is 0.5 sec
@@ -57,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.11.0] - (11.02.2024)
 
 ## Changes
+
+### After update to v7.11.0 and above from plevious version the grid mode sensors need to be configured again
 
 - added support to create multiple enpower/encharge/solar grid mode sensors and select grid mode to match
 - config.schema updated
@@ -84,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.8.0] - (23.12.2023)
 
 ## Changes
+
+### After update to v7.8.0 and above from plevious version the sensors need to be configured again
 
 - added [#117](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/117)
 - added possibility to set custom name for sensors
@@ -148,6 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.5.0] - (20.10.2023)
 
 ## Changes
+
+### After update to v7.5.0 and above from plevious version the sensors need to be configured again
 
 - added *Power State* contact sensor (Consumption Total) for automations and notifications in HomeKit
 - added *Energy State* contact sensor (Consumption Total) for automations and notifications in HomeKit
