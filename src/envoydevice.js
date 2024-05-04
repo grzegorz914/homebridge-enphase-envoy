@@ -11,7 +11,6 @@ const EnvoyToken = require('./envoytoken.js');
 const DigestAuth = require('./digestauth.js');
 const PasswdCalc = require('./passwdcalc.js');
 const CONSTANTS = require('./constants.json');
-const STATUSCODEREGEX = /status code (\d+)/;
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
@@ -56,7 +55,8 @@ class EnvoyDevice extends EventEmitter {
         this.supportLiveData = this.envoyFirmware7xx ? device.supportLiveData : false;
         this.supportProductionPowerMode = device.supportProductionPowerMode || false;
         this.supportPlcLevel = device.supportPlcLevel || false;
-        this.supportEnchargeProfile = !this.envoyFirmware7xx ? device.supportEnchargeProfile : false;
+        this.supportEnchargeProfile = device.supportEnchargeProfile || false;
+
         this.metersDataRefreshTime = device.metersDataRefreshTime || 2.0;
         this.productionDataRefreshTime = device.productionDataRefreshTime || 5.0;
         this.liveDataRefreshTime = device.liveDataRefreshTime || 2.0;
@@ -158,6 +158,7 @@ class EnvoyDevice extends EventEmitter {
 
         //envoy
         this.token = '';
+        this.tokenGenerationTime = 0;
         this.tokenExpiresAt = 0;
         this.envoyDevId = '';
         this.envoyDevIdExist = false;
@@ -449,6 +450,7 @@ class EnvoyDevice extends EventEmitter {
 
             //get envoy info and inventory data
             await this.updateInfoData();
+            const calculatePasswords = !this.envoyFirmware7xx ? await this.calculatePasswords() : false;
             const updateGridProfileData = validJwtToken ? await this.updateGridProfileData() : false;
             await this.updateHomeData();
             await this.updateInventoryData();
@@ -463,13 +465,13 @@ class EnvoyDevice extends EventEmitter {
             //get production and inverters data
             const updateProductionData = await this.updateProductionData();
             const updateProductionCtData = await this.updateProductionCtData();
-            const updateMicroinvertersData = validJwtToken || (!this.envoyFirmware7xx && this.installerPasswd) ? await this.updateMicroinvertersData() : false;
+            const updateMicroinvertersData = validJwtToken || (!this.envoyFirmware7xx && calculatePasswords) ? await this.updateMicroinvertersData() : false;
 
             //check only on start
             const envoyDevIdExist = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
             this.envoyDevIdExist = envoyDevIdExist;
-            const getProductionPowerModeData = envoyDevIdExist && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.getProductionPowerModeData() : false;
-            const updatePlcLevelData = this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && this.installerPasswd)) ? await this.updatePlcLevelData() : false;
+            const getProductionPowerModeData = envoyDevIdExist && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && calculatePasswords)) ? await this.getProductionPowerModeData() : false;
+            const updatePlcLevelData = this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && calculatePasswords)) ? await this.updatePlcLevelData() : false;
 
             //prepare accessory
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
@@ -504,9 +506,7 @@ class EnvoyDevice extends EventEmitter {
             await this.updateHomeData();
             await this.updateInventoryData();
         } catch (error) {
-            const match = error.match(STATUSCODEREGEX);
-            const tokenNotValid = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, 60000));
@@ -518,9 +518,7 @@ class EnvoyDevice extends EventEmitter {
             const metersEnabled = await this.updateMetersData();
             const updateMetersReadingData = metersEnabled ? await this.updateMetersReadingData() : false;
         } catch (error) {
-            const match = error.match(STATUSCODEREGEX);
-            const tokenNotValid = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.metersDataRefreshTime * 1000));
@@ -532,9 +530,7 @@ class EnvoyDevice extends EventEmitter {
             await this.updateEnsembleInventoryData();
             const updateEnsembleStatusData = this.supportEnsembleStatus ? await this.updateEnsembleStatusData() : false;
         } catch (error) {
-            const match = error.match(STATUSCODEREGEX);
-            const tokenNotValid = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.ensembleDataRefreshTime * 1000));
@@ -545,9 +541,7 @@ class EnvoyDevice extends EventEmitter {
         try {
             await this.updateLiveData();
         } catch (error) {
-            const match = error.match(STATUSCODEREGEX);
-            const tokenNotValid = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.liveDataRefreshTime * 1000));
@@ -559,9 +553,7 @@ class EnvoyDevice extends EventEmitter {
             await this.updateProductionData();
             await this.updateProductionCtData();
         } catch (error) {
-            const match = error.match(STATUSCODEREGEX);
-            const tokenNotValid = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.productionDataRefreshTime * 1000));
@@ -572,39 +564,38 @@ class EnvoyDevice extends EventEmitter {
         try {
             await this.updateMicroinvertersData();
         } catch (error) {
-            const match = error.match(STATUSCODEREGEX);
-            const tokenNotValid = match && match[1] === '401';
-            const refreshJwtToken = this.envoyFirmware7xx && tokenNotValid ? this.checkJwtToken(true) : this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error} Trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, 80000));
         this.updateMicroinverters();
     };
 
-    async checkJwtToken(tokenNotValid = false) {
+    async checkJwtToken() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token.`) : false;
 
         try {
             //check token expired and refresh
-            const tokenExpired = this.envoyFirmware7xx && Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt ? true : false;
-            const debug = this.enableDebugMode ? this.emit('debug', `JWT token expired: ${tokenExpired ? 'Yes' : 'No'}.`) : false;
-            const debug1 = this.enableDebugMode ? this.emit('debug', `JWT token valid: ${tokenNotValid ? 'No' : 'Yes'}.`) : false;
+            const tokenExpired = (this.envoyFirmware7xx && Math.floor(new Date().getTime() / 1000)) >= this.tokenExpiresAt;
+            const debug = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token expired: ${tokenExpired ? 'Yes' : 'No'}.`) : false;
 
-            //get and validate jwt token
-            const getJwtToken = tokenNotValid || tokenExpired ? await this.getJwtToken() : false;
+            //get new jwt token
+            const getJwtToken = tokenExpired ? await this.getJwtToken() : false;
+
+            //validate token
+            const pause = getJwtToken ? await new Promise(resolve => setTimeout(resolve, 2000)) : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
         } catch (error) {
             this.emit('error', `Requesting check JWT token error: ${error} Trying again.`);
         };
 
-        await new Promise(resolve => setTimeout(resolve, 90000));
-        this.checkJwtToken(tokenNotValid);
+        await new Promise(resolve => setTimeout(resolve, 15000));
+        this.checkJwtToken();
     };
 
     getJwtToken() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting JWT token.`) : false;
-            const dateNow = Math.floor(new Date().getTime() / 1000);
 
             try {
                 const envoyToken = new EnvoyToken({
@@ -620,7 +611,7 @@ class EnvoyDevice extends EventEmitter {
                     token: 'removed'
                 };
                 const debug = this.enableDebugMode ? this.emit('debug', `JWT token: ${JSON.stringify(updatedTokenData, null, 2)}`) : false;
-                const tokenGenerationTime = tokenData.genration_time;
+                this.tokenGenerationTime = tokenData.genration_time;
                 this.token = tokenData.token;
                 this.tokenExpiresAt = tokenData.expires_at;
 
@@ -742,58 +733,6 @@ class EnvoyDevice extends EventEmitter {
                     return;
                 };
 
-                //envoy password
-                const envoyPasswd = this.envoyPasswd ?? deviceSn.substring(6);
-                const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: Removed`) : false;
-
-                //digest authorization envoy
-                this.digestAuthEnvoy = new DigestAuth({
-                    user: CONSTANTS.Authorization.EnvoyUser,
-                    passwd: envoyPasswd
-                });
-
-                // Check if the envoy installer password is stored
-                try {
-                    const savedInstallerPasswd = await fsPromises.readFile(this.envoyInstallerPasswordFile);
-                    const debug3 = this.enableDebugMode ? this.emit('debug', `Saved installer password: Removed`) : false;
-                    this.installerPasswd = savedInstallerPasswd.toString();
-                } catch (error) {
-                    this.emit('error', `Read envoy installer password error: ${error}.`);
-                };
-
-                // Check if the envoy installer password is correct
-                if (this.installerPasswd === '0') {
-                    try {
-                        //calculate installer password
-                        const passwdCalc = new PasswdCalc({
-                            user: CONSTANTS.Authorization.InstallerUser,
-                            realm: CONSTANTS.Authorization.Realm,
-                            serialNumber: deviceSn
-                        });
-                        const installerPasswd = await passwdCalc.getPasswd();
-                        const debug3 = this.enableDebugMode ? this.emit('debug', `Calculated installer password: Removed`) : false;
-                        this.installerPasswd = installerPasswd;
-
-                        //save installer password
-                        try {
-                            await fsPromises.writeFile(this.envoyInstallerPasswordFile, installerPasswd);
-                        } catch (error) {
-                            this.emit('error', `Save envoy installer password error: ${error}.`);
-                        };
-                    } catch (error) {
-                        this.installerPasswd = false;
-                        this.emit('error', `Get envoy installer password error: ${error}.`);
-                    };
-                }
-
-                //digest authorization installer
-                if (this.installerPasswd !== false) {
-                    this.digestAuthInstaller = new DigestAuth({
-                        user: CONSTANTS.Authorization.InstallerUser,
-                        passwd: this.installerPasswd
-                    });
-                }
-
                 this.envoyTime = time;
                 this.envoySerialNumber = deviceSn;
                 this.envoyModelName = devicePn;
@@ -810,6 +749,63 @@ class EnvoyDevice extends EventEmitter {
                 reject(`Requesting info error: ${error}.`);
             };
         })
+    };
+
+    calculatePasswords() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting calculate passwords.`) : false;
+
+            //envoy password
+            const deviceSn = this.envoySerialNumber;
+            const envoyPasswd = this.envoyPasswd ?? deviceSn.substring(6);
+            const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: Removed`) : false;
+
+            //digest authorization envoy
+            this.digestAuthEnvoy = new DigestAuth({
+                user: CONSTANTS.Authorization.EnvoyUser,
+                passwd: envoyPasswd
+            });
+
+            // Check if the envoy installer password is stored
+            try {
+                const savedInstallerPasswd = await fsPromises.readFile(this.envoyInstallerPasswordFile);
+                const debug3 = this.enableDebugMode ? this.emit('debug', `Saved installer password: Removed`) : false;
+                let installerPasswd = savedInstallerPasswd.toString();
+
+                // Check if the envoy installer password is correct
+                if (installerPasswd === '0') {
+                    try {
+                        //calculate installer password
+                        const passwdCalc = new PasswdCalc({
+                            user: CONSTANTS.Authorization.InstallerUser,
+                            realm: CONSTANTS.Authorization.Realm,
+                            serialNumber: deviceSn
+                        });
+                        installerPasswd = await passwdCalc.getPasswd();
+                        const debug3 = this.enableDebugMode ? this.emit('debug', `Calculated installer password: Removed`) : false;
+
+                        //save installer password
+                        try {
+                            await fsPromises.writeFile(this.envoyInstallerPasswordFile, installerPasswd);
+                        } catch (error) {
+                            this.emit('error', `Save envoy installer password error: ${error}.`);
+                        };
+                    } catch (error) {
+                        this.emit('error', `Calculate envoy installer password error: ${error}.`);
+                    };
+                }
+
+                //digest authorization installer
+                this.digestAuthInstaller = new DigestAuth({
+                    user: CONSTANTS.Authorization.InstallerUser,
+                    passwd: installerPasswd
+                });
+
+                resolve(true)
+            } catch (error) {
+                reject(`Read envoy installer password error: ${error}.`);
+            };
+        });
     };
 
     updateGridProfileData() {
@@ -3193,7 +3189,7 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const info = JSON.stringify(data, null, 2);
                 await fsPromises.writeFile(path, info);
-                const debug = this.enableDebugMode ? this.emit('debug', `saved production power peak: ${info} kW`) : false;
+                const debug = this.enableDebugMode ? this.emit('debug', `saved to file: ${info}`) : false;
 
                 resolve();
             } catch (error) {
@@ -4555,7 +4551,7 @@ class EnvoyDevice extends EventEmitter {
                                 })
                                 .onSet(async (state) => {
                                     try {
-                                        const setProfile = state ? await this.setEnchargeProfile('self-consumption') : false;
+                                        // const setProfile = state ? await this.setEnchargeProfile('self-consumption') : false;
                                         const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Self Consumption`) : false;
                                     } catch (error) {
                                         this.emit('error', `Encharge set profile self consumption error: ${error}`);
@@ -4573,7 +4569,7 @@ class EnvoyDevice extends EventEmitter {
                                     }
 
                                     try {
-                                        const setProfileReserve = await this.setEnchargeProfile('self-consumption', value);
+                                        //const setProfileReserve = await this.setEnchargeProfile('self-consumption', value);
                                         const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile self consumption reserve: ${value} %`) : false;
                                     } catch (error) {
                                         this.emit('error', `Encharge set profile self consumption reserve error: ${error}`);
@@ -4595,7 +4591,7 @@ class EnvoyDevice extends EventEmitter {
                                 })
                                 .onSet(async (state) => {
                                     try {
-                                        const setProfile = state ? await this.setEnchargeProfile('savings') : false;
+                                        //const setProfile = state ? await this.setEnchargeProfile('savings') : false;
                                         const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Savings`) : false;
                                     } catch (error) {
                                         this.emit('error', `Encharge set profile savings error: ${error}`);
@@ -4613,7 +4609,7 @@ class EnvoyDevice extends EventEmitter {
                                     }
 
                                     try {
-                                        const setProfileReserve = await this.setEnchargeProfile('savings', value);
+                                        //const setProfileReserve = await this.setEnchargeProfile('savings', value);
                                         const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile savings reserve: ${value} %`) : false;
                                     } catch (error) {
                                         this.emit('error', `Encharge set profile savings reserve error: ${error}`);
@@ -4636,7 +4632,7 @@ class EnvoyDevice extends EventEmitter {
                                 .onSet(async (state) => {
                                     try {
 
-                                        const setProfile = state ? await this.setEnchargeProfile('full backup') : false;
+                                        //const setProfile = state ? await this.setEnchargeProfile('full backup') : false;
                                         const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Full Backup`) : false;
                                     } catch (error) {
                                         this.emit('error', `Encharge set profile full backup error: ${error}`);
