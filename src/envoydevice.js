@@ -14,7 +14,7 @@ const CONSTANTS = require('./constants.json');
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, envoyProductionPowerPeakFile, envoyConsumptionNetPowerPeakFile, envoyConsumptionTotalPowerPeakFile, device) {
+    constructor(api, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device) {
         super();
 
         Accessory = api.platformAccessory;
@@ -78,9 +78,6 @@ class EnvoyDevice extends EventEmitter {
         this.envoyIdFile = envoyIdFile;
         this.envoyTokenFile = envoyTokenFile;
         this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
-        this.envoyProductionPowerPeakFile = envoyProductionPowerPeakFile;
-        this.envoyConsumptionNetPowerPeakFile = envoyConsumptionNetPowerPeakFile;
-        this.envoyConsumptionTotalPowerPeakFile = envoyConsumptionTotalPowerPeakFile;
         this.checkCommLevel = false;
         this.startPrepareAccessory = true;
 
@@ -2603,9 +2600,7 @@ class EnvoyDevice extends EventEmitter {
                 //power peak detected
                 const productionPowerPeakDetected = productionPower > productionPowerPeakStored;
                 const debug4 = this.enableDebugMode ? this.emit('debug', `Production power peak detected: ${productionPowerPeakDetected}`) : false;
-
-                //save power peak to the file
-                const saveToFile = productionPowerPeakDetected ? await this.saveToFile(this.envoyProductionPowerPeakFile, productionPower) : false;
+                this.productionPowerPeak = productionPowerPeakDetected ? productionPower : this.productionPowerPeak;
 
                 //energy
                 const productionEnergyLifeTime = metersProductionEnabled ? parseFloat((production.whLifetime + productionEnergyLifetimeOffset) / 1000) : productionMicroEnergyLifeTime;
@@ -2754,10 +2749,7 @@ class EnvoyDevice extends EventEmitter {
 
                         //power peak detected
                         const consumptionPowerPeakDetected = consumptionPower > consumptionPowerPeakStored;
-
-                        //save power peak to the file
-                        const consumptionPowerPeakFile = [this.envoyConsumptionTotalPowerPeakFile, this.envoyConsumptionNetPowerPeakFile][i];
-                        const saveToFile = consumptionPowerPeakDetected ? await this.saveToFile(consumptionPowerPeakFile, consumptionPower) : false;
+                        this.consumptionsPowerPeak[i] = consumptionPowerPeakDetected ? consumptionPower : this.consumptionsPowerPeak[i];
 
                         //energy
                         const consumptionsLifeTimeOffset = [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][i];
@@ -3201,20 +3193,6 @@ class EnvoyDevice extends EventEmitter {
                 resolve();
             } catch (error) {
                 reject(`Set encharge profile error: ${error}.`);
-            };
-        });
-    };
-
-    saveToFile(path, data) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const info = JSON.stringify(data, null, 2);
-                await fsPromises.writeFile(path, info);
-                const debug = this.enableDebugMode ? this.emit('debug', `saved to file: ${info}`) : false;
-
-                resolve();
-            } catch (error) {
-                reject(error);
             };
         });
     };
