@@ -446,12 +446,15 @@ class EnvoyDevice extends EventEmitter {
             //get and validate jwt token
             const getJwtToken = this.envoyFirmware7xx ? await this.getJwtToken() : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
+            const updateGridProfileData = validJwtToken ? await this.updateGridProfileData() : false;
             this.validJwtToken = validJwtToken;
+
+            //get envoy dev id
+            const envoyDevIdExist = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
+            this.envoyDevIdExist = envoyDevIdExist;
 
             //get envoy info and inventory data
             await this.updateInfoData();
-            const calculatePasswords = !this.envoyFirmware7xx ? await this.calculatePasswords() : false;
-            const updateGridProfileData = validJwtToken ? await this.updateGridProfileData() : false;
             await this.updateHomeData();
             await this.updateInventoryData();
             const metersEnabled = this.metersSupported ? await this.updateMetersData() : false;
@@ -465,13 +468,15 @@ class EnvoyDevice extends EventEmitter {
             //get production and inverters data
             const updateProductionData = await this.updateProductionData();
             const updateProductionCtData = await this.updateProductionCtData();
-            const updateMicroinvertersData = validJwtToken || (!this.envoyFirmware7xx && calculatePasswords) ? await this.updateMicroinvertersData() : false;
 
-            //check only on start
-            const envoyDevIdExist = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
-            this.envoyDevIdExist = envoyDevIdExist;
-            const getProductionPowerModeData = envoyDevIdExist && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && calculatePasswords)) ? await this.getProductionPowerModeData() : false;
-            const updatePlcLevelData = this.supportPlcLevel && (this.envoyFirmware7xx || (!this.envoyFirmware7xx && calculatePasswords)) ? await this.updatePlcLevelData() : false;
+            //acces with envoy password
+            const calculateEnvoyPassword = !this.envoyFirmware7xx ? await this.calculateEnvoyPassword() : false;
+            const updateMicroinvertersData = validJwtToken || calculateEnvoyPassword ? await this.updateMicroinvertersData() : false;
+
+            //access with installer password
+            const calculateInstallerPassword = !this.envoyFirmware7xx ? await this.calculateInstallerPassword() : false;
+            const getProductionPowerModeData = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.getProductionPowerModeData() : false;
+            const updatePlcLevelData = this.supportPlcLevel && (validJwtToken || calculateInstallerPassword) ? await this.updatePlcLevelData() : false;
 
             //prepare accessory
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
@@ -580,17 +585,21 @@ class EnvoyDevice extends EventEmitter {
             const debug = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token expired: ${tokenExpired ? 'Yes' : 'No'}.`) : false;
 
             //get new jwt token
+            const debug1 = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token refreshing.`) : false;
             const getJwtToken = tokenExpired ? await this.getJwtToken() : false;
 
             //validate token
-            const pause = getJwtToken ? await new Promise(resolve => setTimeout(resolve, 2000)) : false;
+            const pause = getJwtToken ? await new Promise(resolve => setTimeout(resolve, 500)) : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
+            const debug2 = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token successfully refreshed.`) : false;
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            this.checkJwtToken();
         } catch (error) {
             this.emit('error', `Requesting check JWT token error: ${error} Trying again.`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            this.checkJwtToken();
         };
-
-        await new Promise(resolve => setTimeout(resolve, 15000));
-        this.checkJwtToken();
     };
 
     getJwtToken() {
@@ -674,6 +683,87 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
+    updateGridProfileData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile.`) : false;
+
+            try {
+                const profileData = await this.axiosInstance(CONSTANTS.ApiUrls.Profile);
+                const profile = profileData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Grid profile: ${JSON.stringify(profile, null, 2)}`) : false;
+
+                //arf profile
+                this.arfProfile.name = profile.name ?? 'Unknown';
+                this.arfProfile.id = profile.id ?? 0;
+                this.arfProfile.version = profile.version ?? '';
+                this.arfProfile.item_count = profile.item_count ?? 0;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profile) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Grid Profile', profile) : false;
+                resolve(this.arfProfile);
+            } catch (error) {
+                resolve(this.arfProfile);
+            };
+        });
+    };
+
+    getEnvoyBackboneAppData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting envoy backbone app.`) : false;
+
+            try {
+                // Check if the envoy ID is stored
+                const savedEnvoyId = await fsPromises.readFile(this.envoyIdFile);
+                const debug = this.enableDebugMode ? this.emit('debug', `Read dev Id from file: ${savedEnvoyId}`) : false;
+                const envoyId = savedEnvoyId.toString();
+
+                // Check if the envoy ID is correct length
+                if (envoyId.length === 9) {
+                    this.envoyDevId = envoyId;
+                    const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${envoyId}`) : false;
+                    resolve(true);
+                    return;
+                }
+
+                try {
+                    const envoyBackboneAppData = await this.axiosInstance(CONSTANTS.ApiUrls.BackboneApplication);
+                    const envoyBackboneApp = envoyBackboneAppData.data;
+                    const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app: ${envoyBackboneApp}`) : false;
+
+                    //backbone data
+                    const keyword = 'envoyDevId:';
+                    const startIndex = envoyBackboneApp.indexOf(keyword);
+
+                    //check envoy dev Id exist
+                    if (startIndex === -1) {
+                        const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id not found in backbone app.`) : false;
+                        resolve(false);
+                        return;
+                    }
+
+                    const substringStartIndex = startIndex + keyword.length;
+                    const envoyDevId = envoyBackboneApp.substr(substringStartIndex, 9);
+                    const debug1 = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from device: ${envoyDevId}`) : false;
+
+                    try {
+                        await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
+                        this.envoyDevId = envoyDevId;
+                        resolve(true);
+                    } catch (error) {
+                        reject(`Save envoy dev Id error: ${error}.`);
+                    };
+                } catch (error) {
+                    reject(`Get backbone app error: ${error}.`);
+                };
+            } catch (error) {
+                reject(`Requesting envoy dev Id from file error: ${error}.`);
+            };
+        });
+    };
+
     updateInfoData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting info.`) : false;
@@ -751,20 +841,32 @@ class EnvoyDevice extends EventEmitter {
         })
     };
 
-    calculatePasswords() {
+    calculateEnvoyPassword() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting calculate passwords.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting calculate envoy passwords.`) : false;
 
-            //envoy password
-            const deviceSn = this.envoySerialNumber;
-            const envoyPasswd = this.envoyPasswd ?? deviceSn.substring(6);
-            const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: Removed`) : false;
+            try {
+                //envoy password
+                const deviceSn = this.envoySerialNumber;
+                const envoyPasswd = this.envoyPasswd ?? deviceSn.substring(6);
+                const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: Removed`) : false;
 
-            //digest authorization envoy
-            this.digestAuthEnvoy = new DigestAuth({
-                user: CONSTANTS.Authorization.EnvoyUser,
-                passwd: envoyPasswd
-            });
+                //digest authorization envoy
+                this.digestAuthEnvoy = new DigestAuth({
+                    user: CONSTANTS.Authorization.EnvoyUser,
+                    passwd: envoyPasswd
+                });
+
+                resolve(true)
+            } catch (error) {
+                reject(`Envoy password error: ${error}.`);
+            };
+        });
+    };
+
+    calculateInstallerPassword() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting installer passwords.`) : false;
 
             // Check if the envoy installer password is stored
             try {
@@ -788,10 +890,10 @@ class EnvoyDevice extends EventEmitter {
                         try {
                             await fsPromises.writeFile(this.envoyInstallerPasswordFile, installerPasswd);
                         } catch (error) {
-                            this.emit('error', `Save envoy installer password error: ${error}.`);
+                            this.emit('error', `Save installer password error: ${error}.`);
                         };
                     } catch (error) {
-                        this.emit('error', `Calculate envoy installer password error: ${error}.`);
+                        this.emit('error', `Calculate installer password error: ${error}.`);
                     };
                 }
 
@@ -803,34 +905,7 @@ class EnvoyDevice extends EventEmitter {
 
                 resolve(true)
             } catch (error) {
-                reject(`Read envoy installer password error: ${error}.`);
-            };
-        });
-    };
-
-    updateGridProfileData() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile.`) : false;
-
-            try {
-                const profileData = await this.axiosInstance(CONSTANTS.ApiUrls.Profile);
-                const profile = profileData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Grid profile: ${JSON.stringify(profile, null, 2)}`) : false;
-
-                //arf profile
-                this.arfProfile.name = profile.name ?? 'Unknown';
-                this.arfProfile.id = profile.id ?? 0;
-                this.arfProfile.version = profile.version ?? '';
-                this.arfProfile.item_count = profile.item_count ?? 0;
-
-                //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profile) : false;
-
-                //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Grid Profile', profile) : false;
-                resolve(this.arfProfile);
-            } catch (error) {
-                resolve(this.arfProfile);
+                reject(`Read installer password error: ${error}.`);
             };
         });
     };
@@ -2937,60 +3012,6 @@ class EnvoyDevice extends EventEmitter {
                 resolve(true);
             } catch (error) {
                 reject(`Requesting microinverters error: ${error}.`);
-            };
-        });
-    };
-
-    getEnvoyBackboneAppData() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting envoy backbone app.`) : false;
-
-            try {
-                // Check if the envoy ID is stored
-                const savedEnvoyId = await fsPromises.readFile(this.envoyIdFile);
-                const debug = this.enableDebugMode ? this.emit('debug', `Read dev Id from file: ${savedEnvoyId}`) : false;
-                const envoyId = savedEnvoyId.toString();
-
-                // Check if the envoy ID is correct length
-                if (envoyId.length === 9) {
-                    this.envoyDevId = envoyId;
-                    const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${envoyId}`) : false;
-                    resolve(true);
-                    return;
-                }
-
-                try {
-                    const envoyBackboneAppData = await this.axiosInstance(CONSTANTS.ApiUrls.BackboneApplication);
-                    const envoyBackboneApp = envoyBackboneAppData.data;
-                    const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app: ${envoyBackboneApp}`) : false;
-
-                    //backbone data
-                    const keyword = 'envoyDevId:';
-                    const startIndex = envoyBackboneApp.indexOf(keyword);
-
-                    //check envoy dev Id exist
-                    if (startIndex === -1) {
-                        const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id not found in backbone app.`) : false;
-                        resolve(false);
-                        return;
-                    }
-
-                    const substringStartIndex = startIndex + keyword.length;
-                    const envoyDevId = envoyBackboneApp.substr(substringStartIndex, 9);
-                    const debug1 = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from device: ${envoyDevId}`) : false;
-
-                    try {
-                        await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
-                        this.envoyDevId = envoyDevId;
-                        resolve(true);
-                    } catch (error) {
-                        reject(`Save envoy dev Id error: ${error}.`);
-                    };
-                } catch (error) {
-                    reject(`Get backbone app error: ${error}.`);
-                };
-            } catch (error) {
-                reject(`Requesting envoy dev Id from file error: ${error}.`);
             };
         });
     };
