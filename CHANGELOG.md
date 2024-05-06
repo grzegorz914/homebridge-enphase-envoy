@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changes
 
-- stop data polling if token expired
+- stop data polling if token expired, start after refreshed
 - fixed power peak handle
 - refactor code in passwords calculation and check jwt token
 
