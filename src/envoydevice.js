@@ -157,6 +157,7 @@ class EnvoyDevice extends EventEmitter {
         this.token = '';
         this.tokenGenerationTime = 0;
         this.tokenExpiresAt = 0;
+        this.tokenExpired = false;
         this.envoyDevId = '';
         this.envoyDevIdExist = false;
         this.envoyFirmware = '';
@@ -496,7 +497,7 @@ class EnvoyDevice extends EventEmitter {
                 this.emit('error', `Start update data error: ${error}`);
             };
         } catch (error) {
-            this.emit('error', `${error} Trying again in 15s.`);
+            this.emit('error', `${error}, trying again in 15s.`);
             await new Promise(resolve => setTimeout(resolve, 15000));
             this.start();
         };
@@ -504,11 +505,11 @@ class EnvoyDevice extends EventEmitter {
 
     async updateHome() {
         try {
-            const checkGridProfile = this.validJwtToken ? await this.updateGridProfileData() : false;
-            await this.updateHomeData();
-            await this.updateInventoryData();
+            const checkGridProfile = this.validJwtToken ? this.tokenExpired ? false : await this.updateGridProfileData() : false;
+            const updateHomeData = this.tokenExpired ? false : await this.updateHomeData();
+            const updateInventoryData = this.tokenExpired ? false : await this.updateInventoryData();
         } catch (error) {
-            this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error}, trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, 60000));
@@ -517,10 +518,10 @@ class EnvoyDevice extends EventEmitter {
 
     async updateMeters() {
         try {
-            const metersEnabled = await this.updateMetersData();
+            const metersEnabled = this.tokenExpired ? false : await this.updateMetersData();
             const updateMetersReadingData = metersEnabled ? await this.updateMetersReadingData() : false;
         } catch (error) {
-            this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error}, trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.metersDataRefreshTime * 1000));
@@ -529,10 +530,10 @@ class EnvoyDevice extends EventEmitter {
 
     async updateEnsembleInventory() {
         try {
-            await this.updateEnsembleInventoryData();
-            const updateEnsembleStatusData = this.supportEnsembleStatus ? await this.updateEnsembleStatusData() : false;
+            const updateEnsembleInventory = this.tokenExpired ? false : await this.updateEnsembleInventoryData();
+            const updateEnsembleStatusData = this.supportEnsembleStatus ? this.tokenExpired ? false : await this.updateEnsembleStatusData() : false;
         } catch (error) {
-            this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error}, trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.ensembleDataRefreshTime * 1000));
@@ -541,9 +542,9 @@ class EnvoyDevice extends EventEmitter {
 
     async updateLive() {
         try {
-            await this.updateLiveData();
+            const updateLiveData = this.tokenExpired ? false : await this.updateLiveData();
         } catch (error) {
-            this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error}, trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.liveDataRefreshTime * 1000));
@@ -552,10 +553,10 @@ class EnvoyDevice extends EventEmitter {
 
     async updateProduction() {
         try {
-            await this.updateProductionData();
-            await this.updateProductionCtData();
+            const updateProductionData = this.tokenExpired ? false : await this.updateProductionData();
+            const updateProductionCtData = this.tokenExpired ? false : await this.updateProductionCtData();
         } catch (error) {
-            this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error}, trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, this.productionDataRefreshTime * 1000));
@@ -564,9 +565,9 @@ class EnvoyDevice extends EventEmitter {
 
     async updateMicroinverters() {
         try {
-            await this.updateMicroinvertersData();
+            const updateMicroinvertersData = this.tokenExpired ? false : await this.updateMicroinvertersData();
         } catch (error) {
-            this.emit('error', `${error} Trying again.`);
+            this.emit('error', `${error}, trying again.`);
         };
 
         await new Promise(resolve => setTimeout(resolve, 80000));
@@ -578,22 +579,23 @@ class EnvoyDevice extends EventEmitter {
 
         try {
             //check token expired and refresh
-            const tokenExpired = (this.envoyFirmware7xx && Math.floor(new Date().getTime() / 1000)) >= this.tokenExpiresAt;
-            const debug = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token expired: ${tokenExpired ? 'Yes' : 'No'}.`) : false;
+            const tokenExpired = Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt;
+            const debug = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token expired.`) : false;
+            this.tokenExpired = tokenExpired;
 
             //get new jwt token
             const debug1 = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token refreshing.`) : false;
+            const pause = tokenExpired ? await new Promise(resolve => setTimeout(resolve, 5000)) : false;
             const getJwtToken = tokenExpired ? await this.getJwtToken() : false;
 
-            //validate token
-            const pause = getJwtToken ? await new Promise(resolve => setTimeout(resolve, 500)) : false;
+            //validate new token
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
-            const debug2 = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token successfully refreshed.`) : false;
+            const debug2 = validJwtToken || this.enableDebugMode ? this.emit('debug', `JWT token successfully refreshed.`) : false;
 
             await new Promise(resolve => setTimeout(resolve, 1000));
             this.checkJwtToken();
         } catch (error) {
-            this.emit('error', `Requesting check JWT token error: ${error} Trying again.`);
+            this.emit('error', `Requesting check JWT token error: ${error}, trying again.`);
             await new Promise(resolve => setTimeout(resolve, 1000));
             this.checkJwtToken();
         };

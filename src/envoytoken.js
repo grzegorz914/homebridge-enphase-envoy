@@ -111,7 +111,7 @@ class EnvoyToken {
                 //get jwt token
                 const data = await axiosInstance(CONSTANTS.EnphaseUrls.EntrezAuthToken);
                 const tokenData = data.data;
-
+                
                 if (!tokenData.token) {
                     reject(`Token in response missing, response: ${tokenData}`);
                     return;
