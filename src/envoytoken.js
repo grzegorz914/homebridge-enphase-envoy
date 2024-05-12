@@ -16,12 +16,12 @@ class EnvoyToken {
         return new Promise(async (resolve, reject) => {
             try {
                 //check jwt token exist in file
-                const tokenData = await this.readToken();
-                const tokenExist = tokenData !== false ? true : false;
+                const savedToken = await this.readToken();
+                const tokenExist = savedToken ? true : false;
                 switch (tokenExist) {
                     case true:
                         //check jwt token expired
-                        const tokenExpired = Math.floor(new Date().getTime() / 1000) > tokenData.expires_at;
+                        const tokenExpired = Math.floor(new Date().getTime() / 1000) > savedToken.expires_at;
                         switch (tokenExpired) {
                             case true:
                                 try {
@@ -29,14 +29,14 @@ class EnvoyToken {
                                     const cookie = await this.loginToEnlighten();
 
                                     //get jwt token
-                                    const token = await this.getToken(cookie);
-                                    resolve(token);
+                                    const newToken = await this.getToken(cookie);
+                                    resolve(newToken);
                                 } catch (error) {
                                     reject(error);
                                 }
                                 break;
                             case false:
-                                resolve(tokenData);
+                                resolve(savedToken);
                                 break;
                         }
                         break;
@@ -46,8 +46,8 @@ class EnvoyToken {
                             const cookie = await this.loginToEnlighten();
 
                             //get jwt token
-                            const token = await this.getToken(cookie);
-                            resolve(token);
+                            const newToken = await this.getToken(cookie);
+                            resolve(newToken);
                         } catch (error) {
                             reject(error);
                         }
@@ -111,7 +111,7 @@ class EnvoyToken {
                 //get jwt token
                 const data = await axiosInstance(CONSTANTS.EnphaseUrls.EntrezAuthToken);
                 const tokenData = data.data;
-                
+
                 if (!tokenData.token) {
                     reject(`Token in response missing, response: ${tokenData}`);
                     return;
@@ -142,6 +142,7 @@ class EnvoyToken {
     saveToken(token) {
         return new Promise(async (resolve, reject) => {
             try {
+                token.expires_at = token.expires_at - 5;
                 await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
                 resolve();
             } catch (error) {

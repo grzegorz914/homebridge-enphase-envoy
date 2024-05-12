@@ -1,4 +1,4 @@
-"use strict";;
+"use strict";
 const fs = require('fs');
 const fsPromises = fs.promises;
 const https = require('https');
@@ -87,42 +87,42 @@ class EnvoyDevice extends EventEmitter {
             const mode = sensor.mode ?? false;
             const push = mode ? this.powerProductionLevelActiveSensors.push(sensor) : false;
         }
-        this.powerProductionLevelActiveSensorsCount = this.powerProductionLevelActiveSensors.length || 0
+        this.powerProductionLevelActiveSensorsCount = this.powerProductionLevelActiveSensors.length || 0;
 
         this.energyProductionLevelActiveSensors = [];
         for (const sensor of this.energyProductionLevelSensors) {
             const mode = sensor.mode ?? false;
             const push = mode ? this.energyProductionLevelActiveSensors.push(sensor) : false;
         }
-        this.energyProductionLevelActiveSensorsCount = this.energyProductionLevelActiveSensors.length || 0
+        this.energyProductionLevelActiveSensorsCount = this.energyProductionLevelActiveSensors.length || 0;
 
         this.powerConsumptionTotalLevelActiveSensors = [];
         for (const sensor of this.powerConsumptionTotalLevelSensors) {
             const mode = sensor.mode ?? false;
             const push = mode ? this.powerConsumptionTotalLevelActiveSensors.push(sensor) : false;
         }
-        this.powerConsumptionTotalLevelActiveSensorsCount = this.powerConsumptionTotalLevelActiveSensors.length || 0
+        this.powerConsumptionTotalLevelActiveSensorsCount = this.powerConsumptionTotalLevelActiveSensors.length || 0;
 
         this.energyConsumptionTotalLevelActiveSensors = [];
         for (const sensor of this.energyConsumptionTotalLevelSensors) {
             const mode = sensor.mode ?? false;
             const push = mode ? this.energyConsumptionTotalLevelActiveSensors.push(sensor) : false;
         }
-        this.energyConsumptionTotalLevelActiveSensorsCount = this.energyConsumptionTotalLevelActiveSensors.length || 0
+        this.energyConsumptionTotalLevelActiveSensorsCount = this.energyConsumptionTotalLevelActiveSensors.length || 0;
 
         this.powerConsumptionNetLevelActiveSensors = [];
         for (const sensor of this.powerConsumptionNetLevelSensors) {
             const mode = sensor.mode ?? false;
             const push = mode ? this.powerConsumptionNetLevelActiveSensors.push(sensor) : false;
         }
-        this.powerConsumptionNetLevelActiveSensorsCount = this.powerConsumptionNetLevelActiveSensors.length || 0
+        this.powerConsumptionNetLevelActiveSensorsCount = this.powerConsumptionNetLevelActiveSensors.length || 0;
 
         this.energyConsumptionNetLevelActiveSensors = [];
         for (const sensor of this.energyConsumptionNetLevelSensors) {
             const mode = sensor.mode ?? false;
             const push = mode ? this.energyConsumptionNetLevelActiveSensors.push(sensor) : false;
         }
-        this.energyConsumptionNetLevelActiveSensorsCount = this.energyConsumptionNetLevelActiveSensors.length || 0
+        this.energyConsumptionNetLevelActiveSensorsCount = this.energyConsumptionNetLevelActiveSensors.length || 0;
 
         this.enpowerGridModeActiveSensors = [];
         for (const sensor of this.enpowerGridModeSensors) {
@@ -159,7 +159,6 @@ class EnvoyDevice extends EventEmitter {
         this.tokenExpiresAt = 0;
         this.tokenExpired = false;
         this.envoyDevId = '';
-        this.envoyDevIdExist = false;
         this.envoyFirmware = '';
         this.envoySoftwareBuildEpoch = 0;
         this.envoyIsEnvoy = false;
@@ -439,17 +438,16 @@ class EnvoyDevice extends EventEmitter {
 
     async start() {
         const debug = this.enableDebugMode ? this.emit('debug', `Start.`) : false;
+        this.startRuning = true;
 
         try {
             //get and validate jwt token
             const getJwtToken = this.envoyFirmware7xx ? await this.getJwtToken() : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
             const updateGridProfileData = validJwtToken ? await this.updateGridProfileData() : false;
-            this.validJwtToken = validJwtToken;
 
             //get envoy dev id
             const envoyDevIdExist = this.supportProductionPowerMode ? await this.getEnvoyBackboneAppData() : false;
-            this.envoyDevIdExist = envoyDevIdExist;
 
             //get envoy info and inventory data
             await this.updateInfoData();
@@ -476,14 +474,18 @@ class EnvoyDevice extends EventEmitter {
             const getProductionPowerModeData = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.getProductionPowerModeData() : false;
             const updatePlcLevelData = this.supportPlcLevel && (validJwtToken || calculateInstallerPassword) ? await this.updatePlcLevelData() : false;
 
+            //get device info
+            const logDeviceInfo = !this.disableLogDeviceInfo ? this.getDeviceInfo() : false;
+
             //prepare accessory
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
             const publishAccessory = this.startPrepareAccessory ? this.emit('publishAccessory', accessory) : false;
             this.startPrepareAccessory = false;
 
             try {
-                //get device info
-                const logDeviceInfo = !this.disableLogDeviceInfo ? this.getDeviceInfo() : false;
+                //check jwt token
+                const checkJwtToken = validJwtToken ? this.checkJwtToken() : false;
+                this.startRuning = false;
 
                 //start update data
                 this.updateHome();
@@ -492,7 +494,6 @@ class EnvoyDevice extends EventEmitter {
                 const startLive = updateLiveData ? this.updateLive() : false;
                 const starProduction = updateProductionData ? this.updateProduction() : false;
                 const startMicroinverters = updateMicroinvertersData ? this.updateMicroinverters() : false;
-                const checkJwtToken = validJwtToken ? this.checkJwtToken() : false;
             } catch (error) {
                 this.emit('error', `Start update data error: ${error}`);
             };
@@ -503,9 +504,27 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
+    async checkJwtToken() {
+        try {
+            //check token expired and refresh
+            const tokenExpired = Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt;
+            const debug = tokenExpired && !this.startRuning ? this.emit('message', `JWT token expired.`) : false;
+            this.tokenExpired = tokenExpired;
+
+            //get new jwt token
+            const debug1 = tokenExpired && !this.startRuning ? this.emit('message', `JWT token refreshing.`) : false;
+            const pause = tokenExpired && !this.startRuning ? await new Promise(resolve => setTimeout(resolve, 4000)) : false;
+            const getJwtToken = tokenExpired && !this.startRuning ? this.start() : false;
+        } catch (error) {
+            this.emit('error', `Requesting check JWT token error: ${error}, trying again.`);
+        };
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        this.checkJwtToken();
+    };
+
     async updateHome() {
         try {
-            const checkGridProfile = this.validJwtToken ? this.tokenExpired ? false : await this.updateGridProfileData() : false;
             const updateHomeData = this.tokenExpired ? false : await this.updateHomeData();
             const updateInventoryData = this.tokenExpired ? false : await this.updateInventoryData();
         } catch (error) {
@@ -572,33 +591,6 @@ class EnvoyDevice extends EventEmitter {
 
         await new Promise(resolve => setTimeout(resolve, 80000));
         this.updateMicroinverters();
-    };
-
-    async checkJwtToken() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token.`) : false;
-
-        try {
-            //check token expired and refresh
-            const tokenExpired = Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt;
-            const debug = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token expired.`) : false;
-            this.tokenExpired = tokenExpired;
-
-            //get new jwt token
-            const debug1 = tokenExpired || this.enableDebugMode ? this.emit('debug', `JWT token refreshing.`) : false;
-            const pause = tokenExpired ? await new Promise(resolve => setTimeout(resolve, 5000)) : false;
-            const getJwtToken = tokenExpired ? await this.getJwtToken() : false;
-
-            //validate new token
-            const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
-            const debug2 = validJwtToken || this.enableDebugMode ? this.emit('debug', `JWT token successfully refreshed.`) : false;
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            this.checkJwtToken();
-        } catch (error) {
-            this.emit('error', `Requesting check JWT token error: ${error}, trying again.`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            this.checkJwtToken();
-        };
     };
 
     getJwtToken() {
@@ -675,6 +667,8 @@ class EnvoyDevice extends EventEmitter {
                 });
 
                 this.cookie = cookie;
+                const tokenExpired = Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt;
+                this.tokenExpired = tokenExpired;
                 resolve(true);
             } catch (error) {
                 reject(`Validate JWT token error: ${error}`);
@@ -3208,12 +3202,13 @@ class EnvoyDevice extends EventEmitter {
         this.emit('devInfo', `Firmware: ${this.envoyFirmware}`);
         this.emit('devInfo', `SerialNr: ${this.envoySerialNumber}`);
         this.emit('devInfo', `Time: ${this.envoyTime}`);
+        const displayLog = this.envoyFirmware7xx ? this.emit('devInfo', `Token Valid: ${new Date(this.tokenExpiresAt * 1000).toLocaleString()}`) : false;
         this.emit('devInfo', `------------------------------`);
         this.emit('devInfo', `Q-Relays: ${this.qRelaysCount}`);
         this.emit('devInfo', `Inverters: ${this.microinvertersCount}`);
         this.emit('devInfo', `Batteries: ${this.acBatteriesCount}`);
         this.emit('devInfo', `--------------------------------`);
-        const displayLog = this.metersSupported ? this.emit('devInfo', `Meters: Yes`) : false;
+        const displayLog0 = this.metersSupported ? this.emit('devInfo', `Meters: Yes`) : false;
         const displayLog1 = this.metersSupported && this.metersProductionSupported ? this.emit('devInfo', `Production: ${this.metersProductionEnabled ? `Enabled` : `Disabled`}`) : false;
         const displayLog2 = this.metersSupported && this.metersConsumptionSupported ? this.emit('devInfo', `Consumption: ${this.metersConsumptionEnabled ? `Enabled` : `Disabled`}`) : false;
         const displayLog3 = this.metersSupported && this.metersStorageSupported ? this.emit('devInfo', `Storage: ${this.metersStorageEnabled ? `Enabled` : `Disabled`}`) : false;
