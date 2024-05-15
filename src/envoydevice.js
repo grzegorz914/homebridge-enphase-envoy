@@ -485,7 +485,6 @@ class EnvoyDevice extends EventEmitter {
             try {
                 //check jwt token
                 const checkJwtToken = validJwtToken ? this.checkJwtToken() : false;
-                this.startRuning = false;
 
                 //start update data
                 this.updateHome();
@@ -494,6 +493,7 @@ class EnvoyDevice extends EventEmitter {
                 const startLive = updateLiveData ? this.updateLive() : false;
                 const starProduction = updateProductionData ? this.updateProduction() : false;
                 const startMicroinverters = updateMicroinvertersData ? this.updateMicroinverters() : false;
+                this.startRuning = false;
             } catch (error) {
                 this.emit('error', `Start update data error: ${error}`);
             };
@@ -508,18 +508,14 @@ class EnvoyDevice extends EventEmitter {
         try {
             //check token expired and refresh
             const tokenExpired = Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt;
-            const debug = tokenExpired && !this.startRuning ? this.emit('message', `JWT token expired.`) : false;
             this.tokenExpired = tokenExpired;
-
-            //get new jwt token
-            const debug1 = tokenExpired && !this.startRuning ? this.emit('message', `JWT token refreshing.`) : false;
-            const pause = tokenExpired && !this.startRuning ? await new Promise(resolve => setTimeout(resolve, 4000)) : false;
+            const debug = tokenExpired && !this.startRuning ? this.emit('message', `JWT token expired, refreshing.`) : false;
             const getJwtToken = tokenExpired && !this.startRuning ? this.start() : false;
         } catch (error) {
             this.emit('error', `Requesting check JWT token error: ${error}, trying again.`);
         };
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 2500));
         this.checkJwtToken();
     };
 
