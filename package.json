@@ -2,7 +2,7 @@
     "private": false,
     "displayName": "Enphase Envoy",
     "name": "homebridge-enphase-envoy",
-    "version": "7.14.6",
+    "version": "7.14.7",
     "description": "Homebridge plugin for Photovoltaic Energy System manufactured by Enphase.",
     "license": "MIT",
     "author": "grzegorz914",
@@ -30,9 +30,9 @@
     },
     "dependencies": {
         "async-mqtt": "^2.6.3",
-        "axios": "^1.6.8",
+        "axios": "^1.7.0",
         "express": "^4.19.2",
-        "fast-xml-parser": "^4.3.6"
+        "fast-xml-parser": "^4.4.0"
     },
     "keywords": [
         "homebridge",
