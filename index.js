@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const EnvoyDevice = require('./src/envoydevice');
 const CONSTANTS = require('./src/constants.json');
+const STATUSCODEREGEX = /status code (\d+)/;
 
 class EnvoyPlatform {
   constructor(log, config, api) {
@@ -55,7 +56,7 @@ class EnvoyPlatform {
         const envoyIdFile = (`${prefDir}/envoyId_${postFix}`);
         const envoyTokenFile = (`${prefDir}/envoyToken_${postFix}`);
         const envoyInstallerPasswordFile = (`${prefDir}/envoyInstallerPassword_${postFix}`);
-        
+
         try {
           const files = [
             envoyIdFile,
@@ -88,7 +89,9 @@ class EnvoyPlatform {
             log(`Device: ${host} ${deviceName}, debug: ${debug}`);
           })
           .on('error', (error) => {
-            log.error(`Device: ${host} ${deviceName}, ${error}`);
+            const match = error.match(STATUSCODEREGEX);
+            const tokenNotValid = match && match[1] === '401';
+            const refreshJwtToken = envoyFirmware7xx && tokenNotValid ? envoyDevice.start() : log.error(`Device: ${host} ${deviceName}, ${error}`);
           });
       }
     });

@@ -481,6 +481,7 @@ class EnvoyDevice extends EventEmitter {
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
             const publishAccessory = this.startPrepareAccessory ? this.emit('publishAccessory', accessory) : false;
             this.startPrepareAccessory = false;
+            this.startRuning = false;
 
             try {
                 //check jwt token
@@ -493,7 +494,6 @@ class EnvoyDevice extends EventEmitter {
                 const startLive = updateLiveData ? this.updateLive() : false;
                 const starProduction = updateProductionData ? this.updateProduction() : false;
                 const startMicroinverters = updateMicroinvertersData ? this.updateMicroinverters() : false;
-                this.startRuning = false;
             } catch (error) {
                 this.emit('error', `Start update data error: ${error}`);
             };
@@ -521,8 +521,8 @@ class EnvoyDevice extends EventEmitter {
 
     async updateHome() {
         try {
-            const updateHomeData = this.tokenExpired ? false : await this.updateHomeData();
-            const updateInventoryData = this.tokenExpired ? false : await this.updateInventoryData();
+            const updateHomeData = this.tokenExpired && !this.startRuning ? false : await this.updateHomeData();
+            const updateInventoryData = this.tokenExpired && !this.startRuning ? false : await this.updateInventoryData();
         } catch (error) {
             this.emit('error', `${error}, trying again.`);
         };
@@ -533,7 +533,7 @@ class EnvoyDevice extends EventEmitter {
 
     async updateMeters() {
         try {
-            const metersEnabled = this.tokenExpired ? false : await this.updateMetersData();
+            const metersEnabled = this.tokenExpired && !this.startRuning ? false : await this.updateMetersData();
             const updateMetersReadingData = metersEnabled ? await this.updateMetersReadingData() : false;
         } catch (error) {
             this.emit('error', `${error}, trying again.`);
@@ -545,7 +545,7 @@ class EnvoyDevice extends EventEmitter {
 
     async updateEnsembleInventory() {
         try {
-            const updateEnsembleInventory = this.tokenExpired ? false : await this.updateEnsembleInventoryData();
+            const updateEnsembleInventory = this.tokenExpired && !this.startRuning ? false : await this.updateEnsembleInventoryData();
             const updateEnsembleStatusData = this.supportEnsembleStatus ? this.tokenExpired ? false : await this.updateEnsembleStatusData() : false;
         } catch (error) {
             this.emit('error', `${error}, trying again.`);
@@ -557,7 +557,7 @@ class EnvoyDevice extends EventEmitter {
 
     async updateLive() {
         try {
-            const updateLiveData = this.tokenExpired ? false : await this.updateLiveData();
+            const updateLiveData = this.tokenExpired && !this.startRuning ? false : await this.updateLiveData();
         } catch (error) {
             this.emit('error', `${error}, trying again.`);
         };
@@ -568,8 +568,8 @@ class EnvoyDevice extends EventEmitter {
 
     async updateProduction() {
         try {
-            const updateProductionData = this.tokenExpired ? false : await this.updateProductionData();
-            const updateProductionCtData = this.tokenExpired ? false : await this.updateProductionCtData();
+            const updateProductionData = this.tokenExpired && !this.startRuning ? false : await this.updateProductionData();
+            const updateProductionCtData = this.tokenExpired && !this.startRuning ? false : await this.updateProductionCtData();
         } catch (error) {
             this.emit('error', `${error}, trying again.`);
         };
@@ -580,7 +580,7 @@ class EnvoyDevice extends EventEmitter {
 
     async updateMicroinverters() {
         try {
-            const updateMicroinvertersData = this.tokenExpired ? false : await this.updateMicroinvertersData();
+            const updateMicroinvertersData = this.tokenExpired && !this.startRuning ? false : await this.updateMicroinvertersData();
         } catch (error) {
             this.emit('error', `${error}, trying again.`);
         };
@@ -663,8 +663,6 @@ class EnvoyDevice extends EventEmitter {
                 });
 
                 this.cookie = cookie;
-                const tokenExpired = Math.floor(new Date().getTime() / 1000) > this.tokenExpiresAt;
-                this.tokenExpired = tokenExpired;
                 resolve(true);
             } catch (error) {
                 reject(`Validate JWT token error: ${error}`);
@@ -682,7 +680,7 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Grid profile: ${JSON.stringify(profile, null, 2)}`) : false;
 
                 //arf profile
-                this.arfProfile.name = profile.name ?? 'Unknown';
+                this.arfProfile.name = (profile.name).substring(0, 64) ?? 'Unknown';
                 this.arfProfile.id = profile.id ?? 0;
                 this.arfProfile.version = profile.version ?? '';
                 this.arfProfile.item_count = profile.item_count ?? 0;
@@ -2302,7 +2300,7 @@ class EnvoyDevice extends EventEmitter {
                 //profile
                 const profileSupported = ensembleStatusKeys.includes('profile');
                 const profile = profileSupported ? ensembleStatus.profile : await this.updateGridProfileData();
-                const name = profile.name;
+                const name = (profile.name).substring(0, 64) ?? 'Unknown';
                 const id = profile.id;
                 const version = profile.version;
                 const itemCount = profile.item_count;
