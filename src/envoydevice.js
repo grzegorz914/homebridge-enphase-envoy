@@ -2292,8 +2292,26 @@ class EnvoyDevice extends EventEmitter {
                     this.enchargeBackupLevelActiveSensorsState = [];
 
                     for (let m = 0; m < this.enchargeBackupLevelActiveSensorsCount; m++) {
-                        const backupLevel = this.enchargeBackupLevelActiveSensors[m].backupLevel;
-                        const state = backupLevel === aggSoc;
+                        const backupLevel = this.enchargeBackupLevelActiveSensors[m].backupLevel ?? 0;
+                        const compareMode = this.enchargeBackupLevelActiveSensors[m].compareMode ?? 0;
+                        let state = false;
+                        switch (compareMode) {
+                            case 0:
+                                state = aggSoc > backupLevel;
+                                break;
+                            case 1:
+                                state = aggSoc >= backupLevel;
+                                break;
+                            case 2:
+                                state = aggSoc === backupLevel;
+                                break;
+                            case 3:
+                                state = aggSoc < backupLevel;
+                                break;
+                            case 4:
+                                state = aggSoc <= backupLevel;
+                                break;
+                        }
                         this.enchargeBackupLevelActiveSensorsState.push(state);
 
                         if (this.enchargeBackupLevelSensorsServices) {

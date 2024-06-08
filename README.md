@@ -138,7 +138,8 @@
 | `enchargeGridModeSensors.mode` | Here activate the sensor. |
 | `enchargeBackupLevelSensors` |Sensors `Encharge Backup Level` monitoring and expose as a contact sensor in HomeKit app. If `Encharge Backup Level` matches, the contact fired. |
 | `enchargeBackupLevelSensors.name` | Here set Your own sensor name. |
-| `enchargeBackupLevelSensors.backupLevel` | Here set encharge backup level in `%` at which the sensor fired. |
+| `enchargeBackupLevelSensors.compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
+| `enchargeBackupLevelSensors.backupLevel` | Here set backup level in `%` to compare at which the sensor fired. |
 | `enchargeBackupLevelSensors.mode` | Here activate the sensor. |
 | `solarGridModeSensors` | Sensors `Solar Grid Mode` monitoring and expose as a contact sensors in HomeKit app. If `Solar Grid Mode` matches, the contact fired. |
 | `solarGridModeSensors.name` | Here set Your own sensor name. |

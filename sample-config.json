@@ -121,6 +121,7 @@
                     "enchargeBackupLevelSensors": [
                         {
                             "name": "Encharge backup level",
+                            "compareMode": 0,
                             "backupLevel": 100,
                             "mode": false
                         }

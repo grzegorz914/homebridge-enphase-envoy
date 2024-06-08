@@ -496,7 +496,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": false
+                    "required": true
                   },
                   "mode": {
                     "title": "Enable",
@@ -551,7 +551,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": false
+                    "required": true
                   },
                   "mode": {
                     "title": "Enable",
@@ -580,13 +580,52 @@
                     "description": "Here set Your own sensor name.",
                     "required": false
                   },
+                  "compareMode": {
+                    "title": "Compare Mode",
+                    "type": "integer",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Here select the compare mode.",
+                    "required": true
+                  },
                   "backupLevel": {
                     "title": "Level",
                     "type": "integer",
+                    "default": 0,
                     "minimum": 0,
                     "maximum": 100,
-                    "default": 0,
-                    "description": "Here set backup level in (%) at which the sensor fired.",
+                    "multipleOf": 1,
+                    "description": "Here set backup level in (%) to compare at which the sensor fired.",
                     "required": false
                   },
                   "mode": {
@@ -646,7 +685,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": false
+                    "required": true
                   },
                   "mode": {
                     "title": "Enable",
@@ -1245,6 +1284,7 @@
                                   "title": "{{ value.name || 'sensor' }}",
                                   "items": [
                                     "devices[].enchargeBackupLevelSensors[].name",
+                                    "devices[].enchargeBackupLevelSensors[].compareMode",
                                     "devices[].enchargeBackupLevelSensors[].backupLevel",
                                     "devices[].enchargeBackupLevelSensors[].mode"
                                   ]
