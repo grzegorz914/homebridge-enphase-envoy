@@ -567,6 +567,42 @@
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
               }
             },
+            "enchargeBackupLevelSensors": {
+              "title": "Encharge Backup Level Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "backupLevel": {
+                    "title": "Level",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "default": 0,
+                    "description": "Here set backup level in (%) at which the sensor fired.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Enable",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here activate the sensor.",
+                    "required": false
+                  }
+                }
+              },
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+              }
+            },
             "solarGridModeSensors": {
               "title": "Solar Grid Sensors",
               "type": "array",
@@ -1191,6 +1227,26 @@
                                     "devices[].enchargeGridModeSensors[].name",
                                     "devices[].enchargeGridModeSensors[].gridMode",
                                     "devices[].enchargeGridModeSensors[].mode"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "key": "devices[]",
+                              "type": "section",
+                              "title": "Backup Level Sensors",
+                              "description": "In this section You can enable sensor for encharge backup level and expose it in HomeKit. If backup level matches, the contact fired.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                {
+                                  "key": "devices[].enchargeBackupLevelSensors",
+                                  "type": "tabarray",
+                                  "title": "{{ value.name || 'sensor' }}",
+                                  "items": [
+                                    "devices[].enchargeBackupLevelSensors[].name",
+                                    "devices[].enchargeBackupLevelSensors[].backupLevel",
+                                    "devices[].enchargeBackupLevelSensors[].mode"
                                   ]
                                 }
                               ]

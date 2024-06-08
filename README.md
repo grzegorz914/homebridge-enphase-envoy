@@ -135,6 +135,10 @@
 | `enchargeGridModeSensors.name` | Here set Your own sensor name. |
 | `enchargeGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off` for sensor. |
 | `enchargeGridModeSensors.mode` | Here activate the sensor. |
+| `enchargeBackupLevelSensors` |Sensors `Encharge Backup Level` monitoring and expose as a contact sensor in HomeKit app. If `Encharge Backup Level` matches, the contact fired. |
+| `enchargeBackupLevelSensors.name` | Here set Your own sensor name. |
+| `enchargeBackupLevelSensors.gridMode` | Here set encharge backup level in `%` at which the sensor fired. |
+| `enchargeBackupLevelSensors.mode` | Here activate the sensor. |
 | `solarGridModeSensors` | Sensors `Solar Grid Mode` monitoring and expose as a contact sensors in HomeKit app. If `Solar Grid Mode` matches, the contact fired. |
 | `solarGridModeSensors.name` | Here set Your own sensor name. |
 | `solarGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off` for sensor. |

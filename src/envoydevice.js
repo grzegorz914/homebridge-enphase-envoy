@@ -64,6 +64,7 @@ class EnvoyDevice extends EventEmitter {
 
         this.enpowerGridModeSensors = device.enpowerGridModeSensors || [];
         this.enchargeGridModeSensors = this.supportEnsembleStatus ? device.enchargeGridModeSensors || [] : [];
+        this.enchargeBackupLevelSensors = this.supportEnsembleStatus ? device.enchargeBackupLevelSensors || [] : [];
         this.solarGridModeSensors = this.supportEnsembleStatus ? device.solarGridModeSensors || [] : [];
 
         this.enableDebugMode = device.enableDebugMode || false;
@@ -137,6 +138,13 @@ class EnvoyDevice extends EventEmitter {
             const push = mode ? this.enchargeGridModeActiveSensors.push(sensor) : false;
         }
         this.enchargeGridModeActiveSensorsCount = this.enchargeGridModeActiveSensors.length || 0;
+
+        this.enchargeBackupLevelActiveSensors = [];
+        for (const sensor of this.enchargeBackupLevelSensors) {
+            const mode = sensor.mode ?? false;
+            const push = mode ? this.enchargeBackupLevelActiveSensors.push(sensor) : false;
+        }
+        this.enchargeBackupLevelActiveSensorsCount = this.enchargeBackupLevelActiveSensors.length || 0;
 
         this.solarGridModeActiveSensors = [];
         for (const sensor of this.solarGridModeSensors) {
@@ -2279,17 +2287,33 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
+                //encharge backup level sensors
+                if (this.enchargeBackupLevelActiveSensorsCount > 0) {
+                    this.enchargeBackupLevelActiveSensorsState = [];
+
+                    for (let m = 0; m < this.enchargeBackupLevelActiveSensorsCount; m++) {
+                        const backupLevel = this.enchargeBackupLevelActiveSensors[m].backupLevel;
+                        const state = backupLevel === aggSoc;
+                        this.enchargeBackupLevelActiveSensorsState.push(state);
+
+                        if (this.enchargeBackupLevelSensorsServices) {
+                            this.enchargeBackupLevelSensorsServices[m]
+                                .updateCharacteristic(Characteristic.ContactSensorState, state)
+                        }
+                    }
+                }
+
                 //solar grid state sensors
                 if (this.solarGridModeActiveSensorsCount > 0) {
                     this.solarGridModeActiveSensorsState = [];
 
-                    for (let m = 0; m < this.solarGridModeActiveSensorsCount; m++) {
-                        const gridMode = this.solarGridModeActiveSensors[m].gridMode;
+                    for (let n = 0; n < this.solarGridModeActiveSensorsCount; n++) {
+                        const gridMode = this.solarGridModeActiveSensors[n].gridMode;
                         const state = gridMode === solarGridMode;
                         this.solarGridModeActiveSensorsState.push(state);
 
                         if (this.solarGridModeSensorsServices) {
-                            this.solarGridModeSensorsServices[m]
+                            this.solarGridModeSensorsServices[n]
                                 .updateCharacteristic(Characteristic.ContactSensorState, state)
                         }
                     }
@@ -4494,6 +4518,25 @@ class EnvoyDevice extends EventEmitter {
                                         return state;
                                     });
                                 this.enchargeGridModeSensorsServices.push(enchargeGridModeSensorsService);
+                            };
+                        };
+
+                        //encharge backup level sensor services
+                        if (this.enchargeBackupLevelActiveSensorsCount > 0) {
+                            this.enchargeBackupLevelSensorsServices = [];
+                            for (let i = 0; i < this.enchargeBackupLevelActiveSensorsCount; i++) {
+                                const sensorName = this.enchargeBackupLevelActiveSensors[i].name || `Encharge Backup Level Sensor ${i}`;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Backup Level Sensor ${sensorName} Service`) : false;
+                                const enchargeBackupLevelSensorsService = accessory.addService(Service.ContactSensor, sensorName, `enchargeBackupLevelSensorService${i}`);
+                                enchargeBackupLevelSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                enchargeBackupLevelSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                                enchargeBackupLevelSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                    .onGet(async () => {
+                                        const state = this.enchargeBackupLevelActiveSensorsState[i] ?? false;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Encharge Backup Level sensor: ${sensorName} state: ${state ? 'Active' : 'Not active'}`);
+                                        return state;
+                                    });
+                                this.enchargeBackupLevelSensorsServices.push(enchargeBackupLevelSensorsService);
                             };
                         };
 

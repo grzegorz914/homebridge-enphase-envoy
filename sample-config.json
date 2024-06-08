@@ -118,6 +118,13 @@
                             "mode": false
                         }
                     ],
+                    "enchargeBackupLevelSensors": [
+                        {
+                            "name": "Encharge backup level",
+                            "backupLevel": 100,
+                            "mode": false
+                        }
+                    ],
                     "solarGridModeSensors": [
                         {
                             "name": "Solar grid state",
