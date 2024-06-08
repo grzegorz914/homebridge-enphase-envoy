@@ -56,6 +56,7 @@
   * Contact Sensors:
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
+    * Encharge: `Backup Level`
     * Grid Mode:
       * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`.
       * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`.
