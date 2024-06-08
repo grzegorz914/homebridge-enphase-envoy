@@ -88,10 +88,20 @@ class EnvoyPlatform {
           .on('debug', (debug) => {
             log(`Device: ${host} ${deviceName}, debug: ${debug}`);
           })
-          .on('error', (error) => {
+          .on('error', async (error) => {
             const match = error.match(STATUSCODEREGEX);
             const tokenNotValid = match && match[1] === '401';
-            const refreshJwtToken = envoyFirmware7xx && tokenNotValid ? envoyDevice.start() : log.error(`Device: ${host} ${deviceName}, ${error}`);
+            const displayError = envoyFirmware7xx && tokenNotValid ? false : log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15 sec.`);
+
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            envoyDevice.start();
+          })
+          .on('errorSet', (error) => {
+            log.error(`Device: ${host} ${deviceName}, ${error}`);
+          })
+          .on('tokenExpired', (message) => {
+            log(`Device: ${host} ${deviceName}, ${message}`);
+            envoyDevice.start();
           });
       }
     });
