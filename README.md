@@ -29,7 +29,6 @@
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Envoy `device ID` is detected automatically.
-* Support `Ensemble Status` working only with Envoy Fw. v7.x.x and newer.
 * Support `Production Power Mode` and `PLC Level`, Fw. 7.x.x and newer required installer credentials data.
 * For best experiences and display all data please use `Controller` or `EVE` app.
 * Support external integrations, [RESTFul](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration), [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
