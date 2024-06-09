@@ -133,8 +133,6 @@
                             "mode": false
                         }
                     ],
-                    "supportEnsembleStatus": false,
-                    "supportLiveData": false,
                     "supportEnchargeProfile": false,
                     "liveDataRefreshTime": 1.0,
                     "metersDataRefreshTime": 3.0,

@@ -147,12 +147,10 @@
 | `solarGridModeSensors.mode` | Here activate the sensor. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app), Fw. 7.x.x and newer required installer credentials data. |
 | `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer required installer credentials data. |
-| `supportEnsembleStatus` | If enabled, check `Ensemble Status` will be possible, only Fw. v7.x.x and newer. |
-| `supportLiveData` | If enabled, check `Live Data` will be possible, only Fw. v7.x.x and newer. |
 | `supportEnchargeProfile` | This enable support to check/control encharge profile. |
-| `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (sec). |
+| `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
 | `ensembleDataRefreshTime` | Here set `Ensemble Data` rfresh time in (sec). |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, info log will be hidden, all values and state will not be displayed in Homebridge log console. |

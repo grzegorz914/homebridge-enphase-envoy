@@ -50,9 +50,7 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionNetStateSensor = device.energyConsumptionNetStateSensor || {};
         this.energyConsumptionNetLevelSensors = device.energyConsumptionNetLevelSensors || [];
         this.energyConsumptionNetLifetimeOffset = device.energyConsumptionNetLifetimeOffset || 0;
-
-        this.supportEnsembleStatus = this.envoyFirmware7xx ? device.supportEnsembleStatus : false;
-        this.supportLiveData = this.envoyFirmware7xx ? device.supportLiveData : false;
+        ;
         this.supportProductionPowerMode = device.supportProductionPowerMode || false;
         this.supportPlcLevel = device.supportPlcLevel || false;
         this.supportEnchargeProfile = device.supportEnchargeProfile || false;
@@ -63,9 +61,9 @@ class EnvoyDevice extends EventEmitter {
         this.ensembleDataRefreshTime = device.ensembleDataRefreshTime || 15.0;
 
         this.enpowerGridModeSensors = device.enpowerGridModeSensors || [];
-        this.enchargeGridModeSensors = this.supportEnsembleStatus ? device.enchargeGridModeSensors || [] : [];
-        this.enchargeBackupLevelSensors = this.supportEnsembleStatus ? device.enchargeBackupLevelSensors || [] : [];
-        this.solarGridModeSensors = this.supportEnsembleStatus ? device.solarGridModeSensors || [] : [];
+        this.enchargeGridModeSensors = this.envoyFirmware7xx ? device.enchargeGridModeSensors || [] : [];
+        this.enchargeBackupLevelSensors = this.envoyFirmware7xx ? device.enchargeBackupLevelSensors || [] : [];
+        this.solarGridModeSensors = this.envoyFirmware7xx ? device.solarGridModeSensors || [] : [];
 
         this.enableDebugMode = device.enableDebugMode || false;
         this.disableLogInfo = device.disableLogInfo || false;
@@ -466,8 +464,8 @@ class EnvoyDevice extends EventEmitter {
 
             //get ensemble data only FW. >= 7.x.x.
             const updateEnsembleInventory = validJwtToken ? await this.updateEnsembleInventoryData() : false;
-            const updateEnsembleStatus = this.supportEnsembleStatus && updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
-            const updateLiveData = this.supportLiveData ? await this.updateLiveData() : false;
+            const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
+            const updateLiveData = validJwtToken ? await this.updateLiveData() : false;
 
             //get production and inverters data
             const updateProduction = await this.updateProductionData();
@@ -537,7 +535,7 @@ class EnvoyDevice extends EventEmitter {
         try {
             const tokenExpired = this.envoyFirmware7xx && !this.startRuning ? await this.checkJwtToken() : false;
             const updateEnsembleInventory = tokenExpired || this.startRuning ? false : await this.updateEnsembleInventoryData();
-            const updateEnsembleStatusData = this.supportEnsembleStatus && updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
+            const updateEnsembleStatusData = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
 
             await new Promise(resolve => setTimeout(resolve, this.ensembleDataRefreshTime * 1000));
             this.updateEnsemble();
@@ -2011,6 +2009,13 @@ class EnvoyDevice extends EventEmitter {
 
                 //ensemble status keys
                 const ensembleStatusKeys = Object.keys(ensembleStatus);
+                const ensembleStatusKeysCount = ensembleStatusKeys.length;
+
+                //ensemble status not exist
+                if (ensembleStatusKeysCount === 0) {
+                    resolve(false);
+                    return;
+                }
 
                 //inventoty
                 const inventorySupported = ensembleStatusKeys.includes('inventory');
@@ -2287,40 +2292,6 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                //encharge backup level sensors
-                if (this.enchargeBackupLevelActiveSensorsCount > 0) {
-                    this.enchargeBackupLevelActiveSensorsState = [];
-
-                    for (let m = 0; m < this.enchargeBackupLevelActiveSensorsCount; m++) {
-                        const backupLevel = this.enchargeBackupLevelActiveSensors[m].backupLevel ?? 0;
-                        const compareMode = this.enchargeBackupLevelActiveSensors[m].compareMode ?? 0;
-                        let state = false;
-                        switch (compareMode) {
-                            case 0:
-                                state = aggSoc > backupLevel;
-                                break;
-                            case 1:
-                                state = aggSoc >= backupLevel;
-                                break;
-                            case 2:
-                                state = aggSoc === backupLevel;
-                                break;
-                            case 3:
-                                state = aggSoc < backupLevel;
-                                break;
-                            case 4:
-                                state = aggSoc <= backupLevel;
-                                break;
-                        }
-                        this.enchargeBackupLevelActiveSensorsState.push(state);
-
-                        if (this.enchargeBackupLevelSensorsServices) {
-                            this.enchargeBackupLevelSensorsServices[m]
-                                .updateCharacteristic(Characteristic.ContactSensorState, state)
-                        }
-                    }
-                }
-
                 //solar grid state sensors
                 if (this.solarGridModeActiveSensorsCount > 0) {
                     this.solarGridModeActiveSensorsState = [];
@@ -2345,6 +2316,8 @@ class EnvoyDevice extends EventEmitter {
                 const fakeInventoryModeSupported = ensembleStatusKeys.includes('fakeit');
                 const fakeInventoryMode = fakeInventoryModeSupported ? ensembleStatus.fakeit.fake_inventory_mode === true : false;
                 this.ensembleFakeInventoryMode = fakeInventoryMode;
+
+                //ensemble status supported
                 this.ensembleStatusSupported = true;
 
                 //restFul
@@ -2370,6 +2343,13 @@ class EnvoyDevice extends EventEmitter {
 
                 //live data keys
                 const liveDadaKeys = Object.keys(live);
+                const liveDadaKeysCount = liveDadaKeys.length;
+
+                //live data
+                if (liveDadaKeysCount === 0) {
+                    resolve(false);
+                    return;
+                }
 
                 //connection
                 const lconnectionSupported = liveDadaKeys.includes('connection');
@@ -2461,6 +2441,40 @@ class EnvoyDevice extends EventEmitter {
                     this.liveDataApparentPowerL1.push(liveDataApparentPowerL1);
                     this.liveDataApparentPowerL2.push(liveDataApparentPowerL2);
                     this.liveDataApparentPowerL3.push(liveDataApparentPowerL3);
+                }
+
+                //encharge backup level sensors
+                if (this.enchargeBackupLevelActiveSensorsCount > 0) {
+                    this.enchargeBackupLevelActiveSensorsState = [];
+
+                    for (let m = 0; m < this.enchargeBackupLevelActiveSensorsCount; m++) {
+                        const backupLevel = this.enchargeBackupLevelActiveSensors[m].backupLevel ?? 0;
+                        const compareMode = this.enchargeBackupLevelActiveSensors[m].compareMode ?? 0;
+                        let state = false;
+                        switch (compareMode) {
+                            case 0:
+                                state = metersBackupSoc > backupLevel;
+                                break;
+                            case 1:
+                                state = metersBackupSoc >= backupLevel;
+                                break;
+                            case 2:
+                                state = metersBackupSoc === backupLevel;
+                                break;
+                            case 3:
+                                state = metersBackupSoc < backupLevel;
+                                break;
+                            case 4:
+                                state = metersBackupSoc <= backupLevel;
+                                break;
+                        }
+                        this.enchargeBackupLevelActiveSensorsState.push(state);
+
+                        if (this.enchargeBackupLevelSensorsServices) {
+                            this.enchargeBackupLevelSensorsServices[m]
+                                .updateCharacteristic(Characteristic.ContactSensorState, state)
+                        }
+                    }
                 }
                 this.liveDataMetersCount = liveDataMetersCount;
 

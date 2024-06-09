@@ -436,16 +436,6 @@
               "required": false,
               "description": "This enable support to check plc level, firmware 7.x.x and newer required installer credentials data."
             },
-            "supportEnsembleStatus": {
-              "title": "Ensemble Status",
-              "type": "boolean",
-              "default": false,
-              "required": false,
-              "description": "This enable support to check ensemble status, may not working with all envoy firmwares, if error occur please disable it.",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-              }
-            },
             "supportEnchargeProfile": {
               "title": "Profile",
               "type": "boolean",
@@ -564,7 +554,7 @@
               },
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               }
             },
             "enchargeBackupLevelSensors": {
@@ -639,7 +629,7 @@
               },
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               }
             },
             "solarGridModeSensors": {
@@ -698,17 +688,7 @@
               },
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
-              }
-            },
-            "supportLiveData": {
-              "title": "Live Data",
-              "type": "boolean",
-              "default": false,
-              "required": false,
-              "description": "This enable support to check live data.",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               }
             },
             "liveDataRefreshTime": {
@@ -721,7 +701,7 @@
               "required": false,
               "description": "Here set live data refresh time in (sec).",
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportLiveData === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               }
             },
             "metersDataRefreshTime": {
@@ -744,7 +724,7 @@
               "required": false,
               "description": "Here set ensemble data refresh time in (sec).",
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].supportEnsembleStatus === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               }
             },
             "productionDataRefreshTime": {
@@ -929,10 +909,10 @@
                     "devices[].enlightenPasswd",
                     "devices[].supportProductionPowerMode",
                     "devices[].supportPlcLevel",
-                    "devices[].supportLiveData",
-                    "devices[].liveDataRefreshTime",
                     "devices[].metersDataRefreshTime",
-                    "devices[].productionDataRefreshTime"
+                    "devices[].productionDataRefreshTime",
+                    "devices[].liveDataRefreshTime",
+                    "devices[].ensembleDataRefreshTime"
                   ],
                   "description": "Here You can configure envoy gateway."
                 },
@@ -1212,8 +1192,6 @@
                   "key": "devices[]",
                   "title": "Ensemble",
                   "items": [
-                    "devices[].supportEnsembleStatus",
-                    "devices[].ensembleDataRefreshTime",
                     {
                       "key": "devices[]",
                       "type": "tabarray",
