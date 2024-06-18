@@ -142,7 +142,7 @@ class EnvoyToken {
     saveToken(token) {
         return new Promise(async (resolve, reject) => {
             try {
-                token.expires_at = token.expires_at - 10;
+                token.expires_at = token.expires_at;
                 await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
                 resolve();
             } catch (error) {

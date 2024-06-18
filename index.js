@@ -90,17 +90,22 @@ class EnvoyPlatform {
           })
           .on('error', async (error) => {
             const match = error.match(STATUSCODEREGEX);
-            const tokenNotValid = match && match[1] === '401';
-            const displayError = envoyFirmware7xx && tokenNotValid ? false : log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15 sec.`);
+            const tokenNotValid = envoyFirmware7xx && match && match[1] === '401';
+            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}.`);
 
-            await new Promise(resolve => setTimeout(resolve, 15000));
-            envoyDevice.start();
+            //start read data
+            if (tokenNotValid) {
+              envoyDevice.impulseGenerator.stop();
+              await new Promise(resolve => setTimeout(resolve, 15000));
+              envoyDevice.start();
+            }
           })
-          .on('errorSet', (error) => {
-            log.error(`Device: ${host} ${deviceName}, ${error}`);
-          })
-          .on('tokenExpired', (message) => {
+          .on('tokenExpired', async (message) => {
             log(`Device: ${host} ${deviceName}, ${message}`);
+
+            //start read data
+            envoyDevice.impulseGenerator.stop();
+            await new Promise(resolve => setTimeout(resolve, 15000))
             envoyDevice.start();
           });
       }
