@@ -100,6 +100,11 @@ class EnvoyPlatform {
               envoyDevice.start();
             }
           })
+          .on('errorStart', async (error) => {
+            log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15s.`);
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            envoyDevice.start();
+          })
           .on('tokenExpired', async (message) => {
             log(`Device: ${host} ${deviceName}, ${message}`);
 

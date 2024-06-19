@@ -560,7 +560,7 @@ class EnvoyDevice extends EventEmitter {
             this.updateMicroinverters = updateMicroinverters;
             this.impulseGenerator.start();
         } catch (error) {
-            this.emit('error', `Start error: ${error}`);
+            this.emit('errorStart', `Start error: ${error}`);
         };
     };
 
