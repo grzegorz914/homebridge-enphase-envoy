@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changes
 
-- added possibility to use Ypur own generated Token [#140](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/140)
+- added possibility to use Your own generated Token [#140](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/140)
 - config schema updated
 - redme updated
 - cleanup
