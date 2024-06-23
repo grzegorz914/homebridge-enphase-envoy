@@ -26,10 +26,13 @@
 ### About The Plugin
 
 * Support Token authorization from plugin v6.0.0.
+  * Token can be generated automatically with enlighten user and password or with externall tools.
+    * Token generated with enlighten credentials data will be automatically refreshed if expire.
+    * Token generated with externall tools cannot be refreshed automatically if expire.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, no need generate it manually in external generator anymore.
 * Envoy `device ID` is detected automatically.
-* Support `Production Power Mode` and `PLC Level`, Fw. 7.x.x and newer required installer credentials data.
+* Support `Production Power Mode` and `PLC Level`, Fw. 7.x.x and newer require installer credentials data.
 * For best experiences and display all data please use `Controller` or `EVE` app.
 * Support external integrations, [RESTFul](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration), [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
 * Supported devices:
@@ -77,10 +80,12 @@
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
 | `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
 | `envoyFirmware7xx` | This enable support for Envoy Fw. v7.x.x and newer. If for some reason in the log You get `validate JWT token error`, log-in with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
+| `envoyFirmware7xxTokenGenerationMode` | Here select how You wuld to obtain the token, `0 - Enlighten User And Password`, `1 - Your Own Generated Token`. |
+| `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
+| `envoyToken` | Here paste Your own Token. |
+| `envoySerialNumber` | Here set the envoy serial number. |
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |
-| `envoySerialNumber` | Here set the envoy serial number. |
-| `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
 | `powerProductionStateSensor` | This enable `Power State` monitoring for production and expose contact sensor in HomeKit app. |
 | `powerProductionStateSensor.name` | Here set Your own sensor name. |
@@ -144,8 +149,8 @@
 | `solarGridModeSensors.name` | Here set Your own sensor name. |
 | `solarGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off` for sensor. |
 | `solarGridModeSensors.mode` | Here activate the sensor. |
-| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app), Fw. 7.x.x and newer required installer credentials data. |
-| `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer required installer credentials data. |
+| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app), Fw. 7.x.x and newer require installer credentials data. |
+| `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
 | `supportEnchargeProfile` | This enable support to check/control encharge profile. |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (sec). |

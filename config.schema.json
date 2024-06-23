@@ -36,6 +36,30 @@
               "required": true,
               "description": "This enable support for Envoy with firmware 7.x.x and newer."
             },
+            "envoyFirmware7xxTokenGenerationMode": {
+              "title": "Token Generation Mode",
+              "type": "integer",
+              "default": 0,
+              "oneOf": [
+                {
+                  "title": "Enlighten User And Password",
+                  "enum": [
+                    0
+                  ]
+                },
+                {
+                  "title": "Your Own Generated Token",
+                  "enum": [
+                    1
+                  ]
+                }
+              ],
+              "description": "Here select how You wuld to obtain the Token.",
+              "required": true,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+              }
+            },
             "envoyPasswd": {
               "title": "Envoy Password",
               "type": "string",
@@ -46,6 +70,16 @@
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
               }
             },
+            "envoyToken": {
+              "title": "Envoy Token",
+              "type": "string",
+              "placeholder": "Token",
+              "description": "Here paste Your own Token.",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
+              }
+            },
             "envoySerialNumber": {
               "title": "Envoy Serial Number",
               "type": "string",
@@ -53,7 +87,7 @@
               "description": "Here set the envoy serial number.",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
               }
             },
             "enlightenUser": {
@@ -63,7 +97,7 @@
               "description": "Here set the enlighten user name.",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
               }
             },
             "enlightenPasswd": {
@@ -73,7 +107,7 @@
               "description": "Here set the enlighten password.",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
               }
             },
             "powerProductionSummary": {
@@ -427,14 +461,14 @@
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check/control power production, firmware 7.x.x and newer required installer credentials data."
+              "description": "This enable support to check/control power production, firmware 7.x.x and newer require installer credentials data."
             },
             "supportPlcLevel": {
               "title": "PLC Level",
               "type": "boolean",
               "default": false,
               "required": false,
-              "description": "This enable support to check plc level, firmware 7.x.x and newer required installer credentials data."
+              "description": "This enable support to check plc level, firmware 7.x.x and newer require installer credentials data."
             },
             "supportEnchargeProfile": {
               "title": "Profile",
@@ -903,6 +937,8 @@
                   "title": "Envoy",
                   "items": [
                     "devices[].envoyFirmware7xx",
+                    "devices[].envoyFirmware7xxTokenGenerationMode",
+                    "devices[].envoyToken",
                     "devices[].envoyPasswd",
                     "devices[].envoySerialNumber",
                     "devices[].enlightenUser",

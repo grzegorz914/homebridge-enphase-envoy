@@ -22,15 +22,28 @@ class EnvoyPlatform {
 
     api.on('didFinishLaunching', () => {
       for (const device of config.devices) {
-        const deviceName = device.name;
+        const deviceName = device.name ?? false;
         const envoyFirmware7xx = device.envoyFirmware7xx || false;
-        const enlightenUser = device.enlightenUser;
-        const enlightenPasswd = device.enlightenPasswd;
-        const envoySerialNumber = device.envoySerialNumber;
+        const envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode || 0; //0 - enlighten credentials, 1 - own token
+        const envoyPasswd = device.envoyPasswd ?? false;
+        const envoyToken = device.envoyToken ?? false;
+        const enlightenUser = device.enlightenUser ?? false;
+        const enlightenPasswd = device.enlightenPasswd ?? false;
+        const envoySerialNumber = device.envoySerialNumber ?? false;
 
         //check mandatory properties
-        if (!deviceName || (envoyFirmware7xx && (!enlightenUser || !enlightenPasswd || !envoySerialNumber))) {
-          log.warn(`Name: ${deviceName ? 'OK' : deviceName}, Envoy firmware v7.xx ${!envoyFirmware7xx ? 'Disabled' : `Enabled but enlighten user: ${enlightenUser ? 'OK' : enlightenUser}, password: ${enlightenPasswd ? 'OK' : enlightenPasswd}, envoy serial number: ${envoySerialNumber ? 'OK' : envoySerialNumber}`}`);
+        if (!deviceName) {
+          log.warn(`Name missing: ${deviceName}.`);
+          return;
+        }
+
+        if (envoyFirmware7xx && envoyFirmware7xxTokenGenerationMode === 0 && (!enlightenUser || !enlightenPasswd || !envoySerialNumber)) {
+          log.warn(`Envoy firmware v7.x.x enabled, enlighten user: ${enlightenUser ? 'OK' : enlightenUser}, password: ${enlightenPasswd ? 'OK' : enlightenPasswd}, envoy serial number: ${envoySerialNumber ? 'OK' : envoySerialNumber}.`);
+          return;
+        }
+
+        if (envoyFirmware7xx && envoyFirmware7xxTokenGenerationMode === 1 && !envoyToken) {
+          log.warn(`Envoy firmware v7.x.x enabled but envoy token: ${envoyToken ? 'OK' : envoyToken}.`);
           return;
         }
 
@@ -43,6 +56,7 @@ class EnvoyPlatform {
         const config = {
           ...device,
           envoyPasswd: 'removed',
+          envoyToken: 'removed',
           envoySerialNumber: 'removed',
           enlightenUser: 'removed',
           enlightenPasswd: 'removed',
@@ -74,7 +88,7 @@ class EnvoyPlatform {
         }
 
         //envoy device
-        const envoyDevice = new EnvoyDevice(api, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
+        const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
         envoyDevice.on('publishAccessory', (accessory) => {
           api.publishExternalAccessories(CONSTANTS.PluginName, [accessory]);
           const debug = enableDebugMode ? log(`Device: ${host} ${deviceName}, published as external accessory.`) : false;
