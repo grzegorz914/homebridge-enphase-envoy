@@ -6,6 +6,9 @@
     "description": "Homebridge plugin for Photovoltaic Energy System manufactured by Enphase.",
     "license": "MIT",
     "author": "grzegorz914",
+    "maintainers": [
+        "grzegorz914"
+    ],
     "homepage": "https://github.com/grzegorz914/homebridge-enphase-envoy#readme",
     "repository": {
         "type": "git",
