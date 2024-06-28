@@ -33,8 +33,8 @@
               "title": "Firmware 7.x.x",
               "type": "boolean",
               "default": false,
-              "required": false,
-              "description": "This enable support for Envoy with firmware 7.x.x and newer."
+              "description": "This enable support for Envoy with firmware 7.x.x and newer.",
+              "required": false
             },
             "envoyFirmware7xxTokenGenerationMode": {
               "title": "Token Generation Mode",
@@ -55,60 +55,60 @@
                 }
               ],
               "description": "Here select how You wuld to obtain the Token.",
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-              }
+              },
+              "required": false
             },
             "envoyPasswd": {
               "title": "Envoy Password",
               "type": "string",
               "placeholder": "Envoy password",
               "description": "Here set the envoy password (only if You already changed default password).",
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
-              }
+              },
+              "required": false
             },
             "envoyToken": {
               "title": "Envoy Token",
               "type": "string",
               "placeholder": "Token",
               "description": "Here paste Your own Token.",
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
-              }
+              },
+              "required": false
             },
             "envoySerialNumber": {
               "title": "Envoy Serial Number",
               "type": "string",
               "placeholder": "Serial number",
               "description": "Here set the envoy serial number.",
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
-              }
+              },
+              "required": false
             },
             "enlightenUser": {
               "title": "Enlighten User",
               "type": "string",
               "placeholder": "user@enlighten.com",
               "description": "Here set the enlighten user name.",
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
-              }
+              },
+              "required": false
             },
             "enlightenPasswd": {
               "title": "Enlighten Password",
               "type": "string",
               "placeholder": "Enlighten password",
               "description": "Here set the enlighten password.",
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
-              }
+              },
+              "required": false
             },
             "powerProductionSummary": {
               "title": "Power Summary",
@@ -441,22 +441,22 @@
               "title": "Power Production",
               "type": "boolean",
               "default": false,
-              "required": false,
-              "description": "This enable support to check/control power production, firmware 7.x.x and newer require installer credentials data."
+              "description": "This enable support to check/control power production, firmware 7.x.x and newer require installer credentials data.",
+              "required": false
             },
             "supportPlcLevel": {
               "title": "PLC Level",
               "type": "boolean",
               "default": false,
-              "required": false,
-              "description": "This enable support to check plc level, firmware 7.x.x and newer require installer credentials data."
+              "description": "This enable support to check plc level, firmware 7.x.x and newer require installer credentials data.",
+              "required": false
             },
             "supportEnchargeProfile": {
               "title": "Profile",
               "type": "boolean",
               "default": false,
-              "required": false,
-              "description": "This enable support to check/control encharge profile."
+              "description": "This enable support to check/control encharge profile.",
+              "required": false
             },
             "enpowerGridModeSensors": {
               "title": "Enepower Grid Sensors",
@@ -501,7 +501,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": true
+                    "required": false
                   },
                   "mode": {
                     "title": "Enable",
@@ -556,7 +556,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": true
+                    "required": false
                   },
                   "mode": {
                     "title": "Enable",
@@ -566,10 +566,10 @@
                   }
                 }
               },
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              }
+              },
+              "required": false
             },
             "enchargeBackupLevelSensors": {
               "title": "Encharge Backup Level Sensors",
@@ -639,10 +639,10 @@
                   }
                 }
               },
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              }
+              },
+              "required": false
             },
             "solarGridModeSensors": {
               "title": "Solar Grid Sensors",
@@ -697,10 +697,10 @@
                   }
                 }
               },
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              }
+              },
+              "required": false
             },
             "liveDataRefreshTime": {
               "title": "Live Data Sampling",
@@ -708,11 +708,11 @@
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
-              "required": false,
               "description": "Here set live data refresh time in (sec).",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              }
+              },
+              "required": false
             },
             "metersDataRefreshTime": {
               "title": "Meters Sampling",
@@ -720,8 +720,8 @@
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
-              "required": false,
-              "description": "Here set meters data refresh time in (sec)."
+              "description": "Here set meters data refresh time in (sec).",
+              "required": false
             },
             "ensembleDataRefreshTime": {
               "title": "Ensemble Sampling",
@@ -729,11 +729,11 @@
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
-              "required": false,
               "description": "Here set ensemble data refresh time in (sec).",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              }
+              },
+              "required": false
             },
             "productionDataRefreshTime": {
               "title": "Production Sampling",
@@ -741,8 +741,8 @@
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
-              "required": false,
-              "description": "Here set production data rfresh time in (sec)."
+              "description": "Here set production data rfresh time in (sec).",
+              "required": false
             },
             "enableDebugMode": {
               "title": "Debug",
@@ -755,8 +755,8 @@
               "title": "Disable Log Info",
               "type": "boolean",
               "default": false,
-              "required": false,
-              "description": "This disable log info, all values and state will not be displayed in Homebridge log console."
+              "description": "This disable log info, all values and state will not be displayed in Homebridge log console.",
+              "required": false
             },
             "disableLogDeviceInfo": {
               "title": "Disable Log Device Info",
@@ -769,116 +769,115 @@
               "title": "Enable",
               "type": "boolean",
               "default": false,
-              "required": false,
               "description": "This enable RESTful server."
             },
             "restFulDebug": {
               "title": "Debug",
               "type": "boolean",
               "default": false,
-              "required": false,
               "description": "This enable debug mode for RESTFul.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableRestFul === true;"
-              }
+              },
+              "required": false
             },
             "restFulPort": {
               "title": "Port",
               "type": "integer",
               "placeholder": 3000,
-              "required": true,
               "description": "Here set the listening Port for RESTful server.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableRestFul === true;"
-              }
+              },
+              "required": false
             },
             "enableMqtt": {
               "title": "Enable",
               "type": "boolean",
               "default": false,
-              "required": false,
-              "description": "This enable MQTT client."
+              "description": "This enable MQTT client.",
+              "required": false
             },
             "mqttDebug": {
               "title": "Debug",
               "type": "boolean",
               "default": false,
-              "required": false,
               "description": "This enable debug mode for MQTT.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
-              }
+              },
+              "required": false
             },
             "mqttHost": {
               "title": "IP/Hostname",
               "type": "string",
               "placeholder": "ip or hostname",
-              "required": true,
               "format": "hostname",
               "description": "Here set the IP/Hostname of MQTT Broker.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
-              }
+              },
+              "required": false
             },
             "mqttPort": {
               "title": "Port",
               "type": "integer",
               "placeholder": 1883,
-              "required": true,
               "description": "Here set the port of MQTT Broker.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
-              }
+              },
+              "required": false
             },
             "mqttClientId": {
               "title": "Client ID",
               "type": "string",
               "placeholder": "client id",
-              "required": false,
               "description": "Here optional set the Client ID of MQTT Broker.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true"
-              }
+              },
+              "required": false
             },
             "mqttPrefix": {
               "title": "Prefix",
               "type": "string",
               "placeholder": "home/envoy",
-              "required": false,
               "description": "Here set the prefix.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
-              }
+              },
+              "required": false
             },
             "mqttAuth": {
               "title": "Authorization",
               "type": "boolean",
               "default": false,
-              "required": false,
               "description": "This enable authorization for MQTT Broker.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true;"
-              }
+              },
+              "required": false
             },
             "mqttUser": {
               "title": "User",
               "type": "string",
               "placeholder": "user",
-              "required": false,
               "description": "Here set the user of MQTT Broker.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true && model.devices[arrayIndices].mqttAuth === true;"
-              }
+              },
+              "required": false
             },
             "mqttPasswd": {
               "title": "Password",
               "type": "string",
               "placeholder": "password",
-              "required": false,
               "description": "Here set the password of MQTT Broker.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].enableMqtt === true && model.devices[arrayIndices].mqttAuth === true;"
-              }
+              },
+              "required": false
             }
           }
         }
