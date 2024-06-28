@@ -33,7 +33,7 @@
               "title": "Firmware 7.x.x",
               "type": "boolean",
               "default": false,
-              "required": true,
+              "required": false,
               "description": "This enable support for Envoy with firmware 7.x.x and newer."
             },
             "envoyFirmware7xxTokenGenerationMode": {
@@ -55,7 +55,7 @@
                 }
               ],
               "description": "Here select how You wuld to obtain the Token.",
-              "required": true,
+              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               }
@@ -113,9 +113,8 @@
             "powerProductionSummary": {
               "title": "Power Summary",
               "type": "integer",
-              "default": 0,
               "description": "Here set the power summary in (W) of all microinverters, based on this value the power production level will be calculated and displayed as (%) in HomeKit.",
-              "required": true
+              "required": false
             },
             "powerProductionStateSensor": {
               "title": "Power State Sensor",
@@ -131,7 +130,6 @@
                 "mode": {
                   "title": "Enable",
                   "type": "boolean",
-                  "default": false,
                   "description": "Here activate the sensor.",
                   "required": false
                 }
@@ -155,14 +153,12 @@
                     "title": "Power Level",
                     "type": "integer",
                     "minimum": 0,
-                    "default": 0,
                     "description": "Here set power level in (W) at which the sensor fired.",
                     "required": false
                   },
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -184,7 +180,6 @@
                 "mode": {
                   "title": "Enable",
                   "type": "boolean",
-                  "default": false,
                   "description": "Here activate the sensor.",
                   "required": false
                 }
@@ -208,14 +203,12 @@
                     "title": "Enargy Level",
                     "type": "integer",
                     "minimum": 0,
-                    "default": 0,
                     "description": "Here set enargy level in (Wh) at which the sensor fired.",
                     "required": false
                   },
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -244,7 +237,6 @@
                 "mode": {
                   "title": "Enable",
                   "type": "boolean",
-                  "default": false,
                   "description": "Here activate the sensor.",
                   "required": false
                 }
@@ -268,14 +260,12 @@
                     "title": "Power Level",
                     "type": "integer",
                     "minimum": 0,
-                    "default": 0,
                     "description": "Here set power level in (W) at which the sensor fired.",
                     "required": false
                   },
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -286,7 +276,6 @@
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "default": 0,
               "description": "Here set offset in (Wh) for energy consumption total, if nedded.",
               "required": false
             },
@@ -304,7 +293,6 @@
                 "mode": {
                   "title": "Enable",
                   "type": "boolean",
-                  "default": false,
                   "description": "Here activate the sensor.",
                   "required": false
                 }
@@ -328,14 +316,12 @@
                     "title": "Enargy Level",
                     "type": "integer",
                     "minimum": 0,
-                    "default": 0,
                     "description": "Here set enargy level in (Wh) at which the sensor fired.",
                     "required": false
                   },
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -357,7 +343,6 @@
                 "mode": {
                   "title": "Enable",
                   "type": "boolean",
-                  "default": false,
                   "description": "Here activate the sensor.",
                   "required": false
                 }
@@ -380,14 +365,12 @@
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
-                    "default": 0,
                     "description": "Here set power level in (W) at which the sensor fired, (-) negative value mean exporting energy to the grid.",
                     "required": false
                   },
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -416,7 +399,6 @@
                 "mode": {
                   "title": "Enable",
                   "type": "boolean",
-                  "default": false,
                   "description": "Here activate the sensor.",
                   "required": false
                 }
@@ -441,7 +423,6 @@
                     "title": "Energy Level",
                     "type": "integer",
                     "minimum": 0,
-                    "default": 0,
                     "description": "Here set energy level in (Wh) at which the sensor fired.",
                     "required": false
                   },
@@ -525,12 +506,12 @@
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
                 }
-              }
+              },
+              "required": false
             },
             "enchargeGridModeSensors": {
               "title": "Encharge Grid Sensors",
@@ -580,7 +561,6 @@
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -640,12 +620,11 @@
                       }
                     ],
                     "description": "Here select the compare mode.",
-                    "required": true
+                    "required": false
                   },
                   "backupLevel": {
                     "title": "Level",
                     "type": "integer",
-                    "default": 0,
                     "minimum": 0,
                     "maximum": 100,
                     "multipleOf": 1,
@@ -655,7 +634,6 @@
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -714,7 +692,6 @@
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -728,7 +705,6 @@
             "liveDataRefreshTime": {
               "title": "Live Data Sampling",
               "type": "number",
-              "default": 2,
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
@@ -741,7 +717,6 @@
             "metersDataRefreshTime": {
               "title": "Meters Sampling",
               "type": "number",
-              "default": 2,
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
@@ -751,7 +726,6 @@
             "ensembleDataRefreshTime": {
               "title": "Ensemble Sampling",
               "type": "number",
-              "default": 15,
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
@@ -764,7 +738,6 @@
             "productionDataRefreshTime": {
               "title": "Production Sampling",
               "type": "number",
-              "default": 5,
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
