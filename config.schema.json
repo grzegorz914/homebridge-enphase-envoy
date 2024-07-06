@@ -34,12 +34,11 @@
               "type": "boolean",
               "default": false,
               "description": "This enable support for Envoy with firmware 7.x.x and newer.",
-              "required": false
+              "required": true
             },
             "envoyFirmware7xxTokenGenerationMode": {
               "title": "Token Generation Mode",
               "type": "integer",
-              "default": 0,
               "oneOf": [
                 {
                   "title": "Enlighten User And Password",
@@ -219,7 +218,6 @@
             "energyProductionLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "default": 0,
               "description": "Here set offset in (Wh) for energy production, if nedded.",
               "required": false
             },
@@ -381,7 +379,6 @@
             "energyConsumptionNetLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "default": 0,
               "description": "Here set offset in (Wh) for energy consumption net, if nedded.",
               "required": false
             },
@@ -429,7 +426,6 @@
                   "mode": {
                     "title": "Enable",
                     "type": "boolean",
-                    "default": false,
                     "description": "Here activate the sensor.",
                     "required": false
                   }
@@ -501,7 +497,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": false
+                    "required": true
                   },
                   "mode": {
                     "title": "Enable",
@@ -556,7 +552,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": false
+                    "required": true
                   },
                   "mode": {
                     "title": "Enable",
@@ -620,7 +616,7 @@
                       }
                     ],
                     "description": "Here select the compare mode.",
-                    "required": false
+                    "required": true
                   },
                   "backupLevel": {
                     "title": "Level",

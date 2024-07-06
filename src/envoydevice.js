@@ -3485,8 +3485,8 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < qRelaysCount; i++) {
                         const qRelaySerialNumber = this.qRelaysSerialNumber[i];
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Q-Relay ${qRelaySerialNumber} Service`) : false;
-                        const enphaseQrelayService = accessory.addService(Service.enphaseQrelayService, `Q-Relay ${qRelaySerialNumber}`, `enphaseQrelayService${i}`);
-                        enphaseQrelayService.setCharacteristic(Characteristic.ConfiguredName, `Q-Relay ${qRelaySerialNumber}`);
+                        const enphaseQrelayService = accessory.addService(Service.enphaseQrelayService, `QRelay ${qRelaySerialNumber}`, `enphaseQrelayService${i}`);
+                        enphaseQrelayService.setCharacteristic(Characteristic.ConfiguredName, `QRelay ${qRelaySerialNumber}`);
                         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayState)
                             .onGet(async () => {
                                 const value = this.qRelaysRelay[i];
