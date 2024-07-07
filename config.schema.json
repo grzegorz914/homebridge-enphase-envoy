@@ -126,11 +126,39 @@
                   "description": "Here set Your own sensor name.",
                   "required": false
                 },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "description": "Here activate the sensor.",
-                  "required": false
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the characterristic type to be displayed in HomeKit app.",
+                  "required": true
                 }
               },
               "required": false
@@ -155,11 +183,39 @@
                     "description": "Here set power level in (W) at which the sensor fired.",
                     "required": false
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -176,11 +232,39 @@
                   "description": "Here set Your own sensor name.",
                   "required": false
                 },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "description": "Here activate the sensor.",
-                  "required": false
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the characterristic type to be displayed in HomeKit app.",
+                  "required": true
                 }
               },
               "required": false
@@ -205,11 +289,39 @@
                     "description": "Here set enargy level in (Wh) at which the sensor fired.",
                     "required": false
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -232,11 +344,39 @@
                   "description": "Here set Your own sensor name.",
                   "required": false
                 },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "description": "Here activate the sensor.",
-                  "required": false
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the characterristic type to be displayed in HomeKit app.",
+                  "required": true
                 }
               },
               "required": false
@@ -261,11 +401,39 @@
                     "description": "Here set power level in (W) at which the sensor fired.",
                     "required": false
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -288,11 +456,39 @@
                   "description": "Here set Your own sensor name.",
                   "required": false
                 },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "description": "Here activate the sensor.",
-                  "required": false
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the characterristic type to be displayed in HomeKit app.",
+                  "required": true
                 }
               },
               "required": false
@@ -317,11 +513,39 @@
                     "description": "Here set enargy level in (Wh) at which the sensor fired.",
                     "required": false
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -338,11 +562,39 @@
                   "description": "Here set Your own sensor name.",
                   "required": false
                 },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "description": "Here activate the sensor.",
-                  "required": false
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the characterristic type to be displayed in HomeKit app.",
+                  "required": true
                 }
               },
               "required": false
@@ -366,11 +618,39 @@
                     "description": "Here set power level in (W) at which the sensor fired, (-) negative value mean exporting energy to the grid.",
                     "required": false
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -393,11 +673,39 @@
                   "description": "Here set Your own sensor name.",
                   "required": false
                 },
-                "mode": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "description": "Here activate the sensor.",
-                  "required": false
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the characterristic type to be displayed in HomeKit app.",
+                  "required": true
                 }
               },
               "description": "This enable consumptiom net energy state monitoring and expose contact sensor in HomeKit.",
@@ -423,11 +731,39 @@
                     "description": "Here set energy level in (Wh) at which the sensor fired.",
                     "required": false
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -499,11 +835,39 @@
                     "description": "Here select the grid mode.",
                     "required": true
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -554,11 +918,39 @@
                     "description": "Here select the grid mode.",
                     "required": true
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -627,11 +1019,39 @@
                     "description": "Here set backup level in (%) to compare at which the sensor fired.",
                     "required": false
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -685,11 +1105,39 @@
                     "description": "Here select the grid mode.",
                     "required": true
                   },
-                  "mode": {
-                    "title": "Enable",
-                    "type": "boolean",
-                    "description": "Here activate the sensor.",
-                    "required": false
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the characterristic type to be displayed in HomeKit app.",
+                    "required": true
                   }
                 }
               },
@@ -941,7 +1389,7 @@
                               "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
                               "items": [
                                 "devices[].powerProductionStateSensor.name",
-                                "devices[].powerProductionStateSensor.mode"
+                                "devices[].powerProductionStateSensor.displayType"
                               ]
                             },
                             {
@@ -959,7 +1407,7 @@
                                   "items": [
                                     "devices[].powerProductionLevelSensors[].name",
                                     "devices[].powerProductionLevelSensors[].powerLevel",
-                                    "devices[].powerProductionLevelSensors[].mode"
+                                    "devices[].powerProductionLevelSensors[].displayType"
                                   ]
                                 }
                               ]
@@ -978,7 +1426,7 @@
                               "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
                               "items": [
                                 "devices[].energyProductionStateSensor.name",
-                                "devices[].energyProductionStateSensor.mode"
+                                "devices[].energyProductionStateSensor.displayType"
                               ]
                             },
                             {
@@ -996,7 +1444,7 @@
                                   "items": [
                                     "devices[].energyProductionLevelSensors[].name",
                                     "devices[].energyProductionLevelSensors[].energyLevel",
-                                    "devices[].energyProductionLevelSensors[].mode"
+                                    "devices[].energyProductionLevelSensors[].displayType"
                                   ]
                                 }
                               ]
@@ -1036,7 +1484,7 @@
                                       "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
                                       "items": [
                                         "devices[].powerConsumptionTotalStateSensor.name",
-                                        "devices[].powerConsumptionTotalStateSensor.mode"
+                                        "devices[].powerConsumptionTotalStateSensor.displayType"
                                       ]
                                     },
                                     {
@@ -1054,7 +1502,7 @@
                                           "items": [
                                             "devices[].powerConsumptionTotalLevelSensors[].name",
                                             "devices[].powerConsumptionTotalLevelSensors[].powerLevel",
-                                            "devices[].powerConsumptionTotalLevelSensors[].mode"
+                                            "devices[].powerConsumptionTotalLevelSensors[].displayType"
                                           ]
                                         }
                                       ]
@@ -1073,7 +1521,7 @@
                                       "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
                                       "items": [
                                         "devices[].energyConsumptionTotalStateSensor.name",
-                                        "devices[].energyConsumptionTotalStateSensor.mode"
+                                        "devices[].energyConsumptionTotalStateSensor.displayType"
                                       ]
                                     },
                                     {
@@ -1091,7 +1539,7 @@
                                           "items": [
                                             "devices[].energyConsumptionTotalLevelSensors[].name",
                                             "devices[].energyConsumptionTotalLevelSensors[].energyLevel",
-                                            "devices[].energyConsumptionTotalLevelSensors[].mode"
+                                            "devices[].energyConsumptionTotalLevelSensors[].displayType"
                                           ]
                                         }
                                       ]
@@ -1122,7 +1570,7 @@
                                       "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
                                       "items": [
                                         "devices[].powerConsumptionNetStateSensor.name",
-                                        "devices[].powerConsumptionNetStateSensor.mode"
+                                        "devices[].powerConsumptionNetStateSensor.displayType"
                                       ]
                                     },
                                     {
@@ -1140,7 +1588,7 @@
                                           "items": [
                                             "devices[].powerConsumptionNetLevelSensors[].name",
                                             "devices[].powerConsumptionNetLevelSensors[].powerLevel",
-                                            "devices[].powerConsumptionNetLevelSensors[].mode"
+                                            "devices[].powerConsumptionNetLevelSensors[].displayType"
                                           ]
                                         }
                                       ]
@@ -1159,7 +1607,7 @@
                                       "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
                                       "items": [
                                         "devices[].energyConsumptionNetStateSensor.name",
-                                        "devices[].energyConsumptionNetStateSensor.mode"
+                                        "devices[].energyConsumptionNetStateSensor.displayType"
                                       ]
                                     },
                                     {
@@ -1177,7 +1625,7 @@
                                           "items": [
                                             "devices[].energyConsumptionNetLevelSensors[].name",
                                             "devices[].energyConsumptionNetLevelSensors[].energyLevel",
-                                            "devices[].energyConsumptionNetLevelSensors[].mode"
+                                            "devices[].energyConsumptionNetLevelSensors[].displayType"
                                           ]
                                         }
                                       ]
@@ -1220,7 +1668,7 @@
                                   "items": [
                                     "devices[].enpowerGridModeSensors[].name",
                                     "devices[].enpowerGridModeSensors[].gridMode",
-                                    "devices[].enpowerGridModeSensors[].mode"
+                                    "devices[].enpowerGridModeSensors[].displayType"
                                   ]
                                 }
                               ]
@@ -1247,7 +1695,7 @@
                                   "items": [
                                     "devices[].enchargeGridModeSensors[].name",
                                     "devices[].enchargeGridModeSensors[].gridMode",
-                                    "devices[].enchargeGridModeSensors[].mode"
+                                    "devices[].enchargeGridModeSensors[].displayType"
                                   ]
                                 }
                               ]
@@ -1268,7 +1716,7 @@
                                     "devices[].enchargeBackupLevelSensors[].name",
                                     "devices[].enchargeBackupLevelSensors[].compareMode",
                                     "devices[].enchargeBackupLevelSensors[].backupLevel",
-                                    "devices[].enchargeBackupLevelSensors[].mode"
+                                    "devices[].enchargeBackupLevelSensors[].displayType"
                                   ]
                                 }
                               ]
@@ -1294,7 +1742,7 @@
                                   "items": [
                                     "devices[].solarGridModeSensors[].name",
                                     "devices[].solarGridModeSensors[].gridMode",
-                                    "devices[].solarGridModeSensors[].mode"
+                                    "devices[].solarGridModeSensors[].displayType"
                                   ]
                                 }
                               ]

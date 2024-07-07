@@ -90,73 +90,266 @@ class EnvoyDevice extends EventEmitter {
         this.updateMicroinverters = false;
 
         //active sensors 
+        //power production state sensor
+        const powerProductionStateSensorName = this.powerProductionStateSensor.name || false;
+        const powerProductionStateSensorDisplayType = this.powerProductionStateSensor.displayType ?? 0;
+        this.powerProductionStateActiveSensors = [];
+        if (powerProductionStateSensorName && powerProductionStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = powerProductionStateSensorName;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerProductionStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerProductionStateSensorDisplayType];
+            sensor.state = false;
+            this.powerProductionStateActiveSensors.push(sensor);
+        } else {
+            const log = powerProductionStateSensorDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.powerProductionStateActiveSensorsCount = this.powerProductionStateActiveSensors.length || 0;
+
+        //energy production state sensor
+        this.energyProductionStateActiveSensors = [];
+        const energyProductionStateSensorName = this.energyProductionStateSensor.name || false;
+        const energyProductionStateSensorDisplayType = this.energyProductionStateSensor.displayType ?? 0;
+        if (energyProductionStateSensorName && energyProductionStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = energyProductionStateSensorName;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyProductionStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyProductionStateSensorDisplayType];
+            sensor.state = false;
+            this.energyProductionStateActiveSensors.push(sensor);
+        } else {
+            const log = energyProductionStateSensorDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.energyProductionStateActiveSensorsCount = this.energyProductionStateActiveSensors.length || 0
+
+        //power consumption total state sensor
+        const powerConsumptionTotalStateSensorName = this.powerConsumptionTotalStateSensor.name || false;
+        const powerConsumptionTotalStateSensorDisplayType = this.powerConsumptionTotalStateSensor.displayType ?? 0;
+        this.powerConsumptionTotalStateActiveSensors = [];
+        if (powerConsumptionTotalStateSensorName && powerConsumptionTotalStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = powerConsumptionTotalStateSensorName;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerConsumptionTotalStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerConsumptionTotalStateSensorDisplayType];
+            sensor.state = false;
+            this.powerConsumptionTotalStateActiveSensors.push(sensor);
+        } else {
+            const log = powerConsumptionTotalStateSensorDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.powerConsumptionTotalStateActiveSensorsCount = this.powerConsumptionTotalStateActiveSensors.length || 0;
+
+        //energy consumption total state sensor
+        this.energyConsumptionTotalStateActiveSensors = [];
+        const energyConsumptionTotalStateSensorName = this.energyConsumptionTotalStateSensor.name || false;
+        const energyConsumptionTotalStateSensorDisplayType = this.energyConsumptionTotalStateSensor.displayType ?? 0;
+        if (energyConsumptionTotalStateSensorName && energyConsumptionTotalStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = energyConsumptionTotalStateSensorName;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyConsumptionTotalStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyConsumptionTotalStateSensorDisplayType];
+            sensor.state = false;
+            this.energyConsumptionTotalStateActiveSensors.push(sensor);
+        } else {
+            const log = energyConsumptionTotalStateSensorDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.energyConsumptionTotalStateActiveSensorsCount = this.energyConsumptionTotalStateActiveSensors.length || 0
+
+        //power consumption net state sensor
+        const powerConsumptionNetStateSensorName = this.powerConsumptionNetStateSensor.name || false;
+        const powerConsumptionNetStateSensorDisplayType = this.powerConsumptionNetStateSensor.displayType ?? 0;
+        this.powerConsumptionNetStateActiveSensors = [];
+        if (powerConsumptionNetStateSensorName && powerConsumptionNetStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = powerConsumptionNetStateSensorName;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerConsumptionNetStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerConsumptionNetStateSensorDisplayType];
+            sensor.state = false;
+            this.powerConsumptionNetStateActiveSensors.push(sensor);
+        } else {
+            const log = powerConsumptionNetStateSensorDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.powerConsumptionNetStateActiveSensorsCount = this.powerConsumptionNetStateActiveSensors.length || 0;
+
+        //energy consumption net state sensor
+        this.energyConsumptionNetStateActiveSensors = [];
+        const energyConsumptionNetStateSensorName = this.energyConsumptionNetStateSensor.name || false;
+        const energyConsumptionNetStateSensorDisplayType = this.energyConsumptionNetStateSensor.displayType ?? 0;
+        if (energyConsumptionNetStateSensorName && energyConsumptionNetStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = energyConsumptionNetStateSensorName;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyConsumptionNetStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyConsumptionNetStateSensorDisplayType];
+            sensor.state = false;
+            this.energyConsumptionNetStateActiveSensors.push(sensor);
+        } else {
+            const log = energyConsumptionNetStateSensorDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.energyConsumptionNetStateActiveSensorsCount = this.energyConsumptionNetStateActiveSensors.length || 0
+
+        //
         this.powerProductionLevelActiveSensors = [];
         for (const sensor of this.powerProductionLevelSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.powerProductionLevelActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const powerLevel = sensor.powerLevel / 1000;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.powerLevel = powerLevel;
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.powerProductionLevelActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.powerProductionLevelActiveSensorsCount = this.powerProductionLevelActiveSensors.length || 0;
 
         this.energyProductionLevelActiveSensors = [];
         for (const sensor of this.energyProductionLevelSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.energyProductionLevelActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const energyLevel = sensor.energyLevel / 1000 ?? 0;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.energyLevel = energyLevel;
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.energyProductionLevelActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.energyProductionLevelActiveSensorsCount = this.energyProductionLevelActiveSensors.length || 0;
 
         this.powerConsumptionTotalLevelActiveSensors = [];
         for (const sensor of this.powerConsumptionTotalLevelSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.powerConsumptionTotalLevelActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const powerLevel = sensor.powerLevel / 1000;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.powerLevel = powerLevel;
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.powerConsumptionTotalLevelActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.powerConsumptionTotalLevelActiveSensorsCount = this.powerConsumptionTotalLevelActiveSensors.length || 0;
 
         this.energyConsumptionTotalLevelActiveSensors = [];
         for (const sensor of this.energyConsumptionTotalLevelSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.energyConsumptionTotalLevelActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const energyLevel = sensor.energyLevel / 1000 ?? 0;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.energyLevel = energyLevel;
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.energyConsumptionTotalLevelActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.energyConsumptionTotalLevelActiveSensorsCount = this.energyConsumptionTotalLevelActiveSensors.length || 0;
 
         this.powerConsumptionNetLevelActiveSensors = [];
         for (const sensor of this.powerConsumptionNetLevelSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.powerConsumptionNetLevelActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const powerLevel = sensor.powerLevel / 1000;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.powerLevel = powerLevel;
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.powerConsumptionNetLevelActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.powerConsumptionNetLevelActiveSensorsCount = this.powerConsumptionNetLevelActiveSensors.length || 0;
 
         this.energyConsumptionNetLevelActiveSensors = [];
         for (const sensor of this.energyConsumptionNetLevelSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.energyConsumptionNetLevelActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const energyLevel = sensor.energyLevel / 1000 ?? 0;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.energyLevel = energyLevel;
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.energyConsumptionNetLevelActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.energyConsumptionNetLevelActiveSensorsCount = this.energyConsumptionNetLevelActiveSensors.length || 0;
 
         this.enpowerGridModeActiveSensors = [];
         for (const sensor of this.enpowerGridModeSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.enpowerGridModeActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.enpowerGridModeActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.enpowerGridModeActiveSensorsCount = this.enpowerGridModeActiveSensors.length || 0;
 
         this.enchargeGridModeActiveSensors = [];
         for (const sensor of this.enchargeGridModeSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.enchargeGridModeActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.enchargeGridModeActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.enchargeGridModeActiveSensorsCount = this.enchargeGridModeActiveSensors.length || 0;
 
         this.enchargeBackupLevelActiveSensors = [];
         for (const sensor of this.enchargeBackupLevelSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.enchargeBackupLevelActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const backupLevel = sensor.backupLevel ?? 0;
+            const compareMode = sensor.compareMode ?? 0;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.backupLevel = backupLevel;
+                sensor.compareMode = compareMode;
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.enchargeBackupLevelActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.enchargeBackupLevelActiveSensorsCount = this.enchargeBackupLevelActiveSensors.length || 0;
 
         this.solarGridModeActiveSensors = [];
         for (const sensor of this.solarGridModeSensors) {
-            const mode = sensor.mode ?? false;
-            const push = mode ? this.solarGridModeActiveSensors.push(sensor) : false;
+            const name = sensor.name ?? false;
+            const displayType = sensor.displayType ?? 0;
+            if (name && displayType > 0) {
+                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+                sensor.state = false;
+                this.solarGridModeActiveSensors.push(sensor);
+            } else {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            };
         }
         this.solarGridModeActiveSensorsCount = this.solarGridModeActiveSensors.length || 0;
 
@@ -1941,16 +2134,15 @@ class EnvoyDevice extends EventEmitter {
 
                     //enpower grid state sensors
                     if (this.enpowerGridModeActiveSensorsCount > 0) {
-                        this.enpowerGridModeActiveSensorsState = [];
-
                         for (let i = 0; i < this.enpowerGridModeActiveSensorsCount; i++) {
                             const gridMode = this.enpowerGridModeActiveSensors[i].gridMode;
                             const state = gridMode === this.enpowersGridMode;
-                            this.enpowerGridModeActiveSensorsState.push(state);
+                            this.enpowerGridModeActiveSensors[i].state = state;
 
                             if (this.enpowerGridModeSensorsServices) {
+                                const characteristicType = this.enpowerGridModeActiveSensors[i].characteristicType;
                                 this.enpowerGridModeSensorsServices[i]
-                                    .updateCharacteristic(Characteristic.ContactSensorState, state)
+                                    .updateCharacteristic(characteristicType, state)
                             }
                         }
                     }
@@ -2262,32 +2454,30 @@ class EnvoyDevice extends EventEmitter {
 
                 //encharge grid state sensors
                 if (this.enchargeGridModeActiveSensorsCount > 0) {
-                    this.enchargeGridModeActiveSensorsState = [];
-
-                    for (let l = 0; l < this.enchargeGridModeActiveSensorsCount; l++) {
-                        const gridMode = this.enchargeGridModeActiveSensors[l].gridMode;
+                    for (let i = 0; i < this.enchargeGridModeActiveSensorsCount; i++) {
+                        const gridMode = this.enchargeGridModeActiveSensors[i].gridMode;
                         const state = gridMode === enchGridMode;
-                        this.enchargeGridModeActiveSensorsState.push(state);
+                        this.enchargeGridModeActiveSensors[i].state = state;
 
                         if (this.enchargeGridModeSensorsServices) {
-                            this.enchargeGridModeSensorsServices[l]
-                                .updateCharacteristic(Characteristic.ContactSensorState, state)
+                            const characteristicType = this.enchargeGridModeActiveSensors[i].characteristicType;
+                            this.enchargeGridModeSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
                         }
                     }
                 }
 
                 //solar grid state sensors
                 if (this.solarGridModeActiveSensorsCount > 0) {
-                    this.solarGridModeActiveSensorsState = [];
-
-                    for (let n = 0; n < this.solarGridModeActiveSensorsCount; n++) {
-                        const gridMode = this.solarGridModeActiveSensors[n].gridMode;
+                    for (let i = 0; i < this.solarGridModeActiveSensorsCount; i++) {
+                        const gridMode = this.solarGridModeActiveSensors[i].gridMode;
                         const state = gridMode === solarGridMode;
-                        this.solarGridModeActiveSensorsState.push(state);
+                        this.solarGridModeActiveSensors[i].state = state;
 
                         if (this.solarGridModeSensorsServices) {
-                            this.solarGridModeSensorsServices[n]
-                                .updateCharacteristic(Characteristic.ContactSensorState, state)
+                            const characteristicType = this.solarGridModeActiveSensors[i].characteristicType;
+                            this.solarGridModeSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
                         }
                     }
                 }
@@ -2430,11 +2620,9 @@ class EnvoyDevice extends EventEmitter {
 
                 //encharge backup level sensors
                 if (this.enchargeBackupLevelActiveSensorsCount > 0) {
-                    this.enchargeBackupLevelActiveSensorsState = [];
-
-                    for (let m = 0; m < this.enchargeBackupLevelActiveSensorsCount; m++) {
-                        const backupLevel = this.enchargeBackupLevelActiveSensors[m].backupLevel ?? 0;
-                        const compareMode = this.enchargeBackupLevelActiveSensors[m].compareMode ?? 0;
+                    for (let i = 0; i < this.enchargeBackupLevelActiveSensorsCount; i++) {
+                        const backupLevel = this.enchargeBackupLevelActiveSensors[i].backupLevel;
+                        const compareMode = this.enchargeBackupLevelActiveSensors[i].compareMode;
                         let state = false;
                         switch (compareMode) {
                             case 0:
@@ -2453,11 +2641,12 @@ class EnvoyDevice extends EventEmitter {
                                 state = metersBackupSoc <= backupLevel;
                                 break;
                         }
-                        this.enchargeBackupLevelActiveSensorsState.push(state);
+                        this.enchargeBackupLevelActiveSensors[i].state = state;
 
                         if (this.enchargeBackupLevelSensorsServices) {
-                            this.enchargeBackupLevelSensorsServices[m]
-                                .updateCharacteristic(Characteristic.ContactSensorState, state)
+                            const characteristicType = this.enchargeBackupLevelActiveSensors[i].characteristicType;
+                            this.enchargeBackupLevelSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
                         }
                     }
                 }
@@ -2672,40 +2861,54 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //sensors power
-                if (this.powerProductionStateSensorService) {
-                    this.powerProductionStateSensorService
-                        .updateCharacteristic(Characteristic.ContactSensorState, productionPowerState)
+                if (this.powerProductionStateActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.powerProductionStateActiveSensorsCount; i++) {
+                        this.powerProductionStateActiveSensors[i].state = productionPowerState;
+
+                        if (this.powerProductionStateSensorsService) {
+                            const characteristicType = this.powerProductionStateActiveSensors[i].characteristicType;
+                            this.powerProductionStateSensorsService[i]
+                                .updateCharacteristic(characteristicType, productionPowerState)
+                        }
+                    }
                 }
                 if (this.powerProductionLevelActiveSensorsCount > 0) {
-                    this.powerProductionLevelActiveSensorsState = [];
-
                     for (let i = 0; i < this.powerProductionLevelActiveSensorsCount; i++) {
-                        const powerLevel = this.powerProductionLevelActiveSensors[i].powerLevel / 1000;
+                        const powerLevel = this.powerProductionLevelActiveSensors[i].powerLevel;
                         const state = productionPower >= powerLevel;
+                        this.powerProductionLevelActiveSensors[i].state = state;
+
                         if (this.powerProductionLevelSensorsService) {
+                            const characteristicType = this.powerProductionLevelActiveSensors[i].characteristicType;
                             this.powerProductionLevelSensorsService[i]
-                                .updateCharacteristic(Characteristic.ContactSensorState, state)
+                                .updateCharacteristic(characteristicType, state)
                         }
-                        this.powerProductionLevelActiveSensorsState.push(state);
                     }
                 }
 
                 //sensors energy
-                if (this.energyProductionStateSensorService) {
-                    this.energyProductionStateSensorService
-                        .updateCharacteristic(Characteristic.ContactSensorState, productionEnergyState)
+                if (this.energyProductionStateActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.energyProductionStateActiveSensorsCount; i++) {
+                        this.energyProductionStateActiveSensors[i].state = productionEnergyState;
+
+                        if (this.energyProductionStateSensorsService) {
+                            const characteristicType = this.energyProductionStateActiveSensors[i].characteristicType;
+                            this.energyProductionStateSensorsService[i]
+                                .updateCharacteristic(characteristicType, productionEnergyState)
+                        }
+                    }
                 }
                 if (this.energyProductionLevelActiveSensorsCount > 0) {
-                    this.energyProductionLevelActiveSensorsState = [];
-
                     for (let i = 0; i < this.energyProductionLevelActiveSensorsCount; i++) {
-                        const energyLevel = this.energyProductionLevelActiveSensors[i].energyLevel / 1000;
+                        const energyLevel = this.energyProductionLevelActiveSensors[i].energyLevel;
                         const state = productionEnergyToday >= energyLevel;
+                        this.energyProductionLevelActiveSensors[i].state = state;
+
                         if (this.energyProductionLevelSensorsService) {
+                            const characteristicType = this.energyProductionLevelActiveSensors[i].characteristicType;
                             this.energyProductionLevelSensorsService[i]
-                                .updateCharacteristic(Characteristic.ContactSensorState, state)
+                                .updateCharacteristic(characteristicType, state)
                         }
-                        this.energyProductionLevelActiveSensorsState.push(state);
                     }
                 }
 
@@ -2812,81 +3015,109 @@ class EnvoyDevice extends EventEmitter {
 
                         if (i === 0) {
                             //sensors power total
-                            if (this.powerConsumptionTotalStateSensorService) {
-                                this.powerConsumptionTotalStateSensorService
-                                    .updateCharacteristic(Characteristic.ContactSensorState, consumptionPowerState)
+                            if (this.powerConsumptionTotalStateActiveSensorsCount > 0) {
+                                for (let i = 0; i < this.powerConsumptionTotalStateActiveSensorsCount; i++) {
+                                    this.powerConsumptionTotalStateActiveSensors[i].state = consumptionPowerState;
+
+                                    if (this.powerConsumptionTotalStateSensorsService) {
+                                        const characteristicType = this.powerConsumptionTotalStateActiveSensors[i].characteristicType;
+                                        this.powerConsumptionTotalStateSensorsService[i]
+                                            .updateCharacteristic(characteristicType, consumptionPowerState)
+                                    }
+                                }
                             }
                             if (this.powerConsumptionTotalLevelActiveSensorsCount > 0) {
-                                this.powerConsumptionTotalLevelActiveSensorsState = [];
-
-                                for (let j = 0; j < this.powerConsumptionTotalLevelActiveSensorsCount; j++) {
-                                    const powerLevel = this.powerConsumptionTotalLevelActiveSensors[j].powerLevel / 1000;
+                                for (let i = 0; i < this.powerConsumptionTotalLevelActiveSensorsCount; i++) {
+                                    const powerLevel = this.powerConsumptionTotalLevelActiveSensors[i].powerLevel;
                                     const state = consumptionPower >= powerLevel;
+                                    this.powerConsumptionTotalLevelActiveSensors[i].state = state;
+
                                     if (this.powerConsumptionTotalLevelSensorsService) {
-                                        this.powerConsumptionTotalLevelSensorsService[j]
-                                            .updateCharacteristic(Characteristic.ContactSensorState, state)
+                                        const characteristicType = this.powerConsumptionTotalLevelActiveSensors[i].characteristicType;
+                                        this.powerConsumptionTotalLevelSensorsService[i]
+                                            .updateCharacteristic(characteristicType, state)
                                     }
-                                    this.powerConsumptionTotalLevelActiveSensorsState.push(state);
                                 }
                             }
 
                             //sensors energy total
-                            if (this.energyConsumptionTotalStateSensorService) {
-                                this.energyConsumptionTotalStateSensorService
-                                    .updateCharacteristic(Characteristic.ContactSensorState, consumptionEnergyState)
+                            if (this.energyConsumptionTotalStateActiveSensorsCount > 0) {
+                                for (let i = 0; i < this.energyConsumptionTotalStateActiveSensorsCount; i++) {
+                                    this.energyConsumptionTotalStateActiveSensors[i].state = consumptionEnergyState;
+
+                                    if (this.energyConsumptionTotalStateSensorsService) {
+                                        const characteristicType = this.energyConsumptionTotalStateActiveSensors[i].characteristicType;
+                                        this.energyConsumptionTotalStateSensorsService[i]
+                                            .updateCharacteristic(characteristicType, consumptionEnergyState)
+                                    }
+                                }
                             }
                             if (this.energyConsumptionTotalLevelActiveSensorsCount > 0) {
-                                this.energyConsumptionTotalLevelActiveSensorsState = [];
-
-                                for (let k = 0; k < this.energyConsumptionTotalLevelActiveSensorsCount; k++) {
-                                    const energyLevel = this.energyConsumptionTotalLevelActiveSensors[k].energyLevel / 1000;
+                                for (let i = 0; i < this.energyConsumptionTotalLevelActiveSensorsCount; i++) {
+                                    const energyLevel = this.energyConsumptionTotalLevelActiveSensors[i].energyLevel;
                                     const state = consumptionEnergyToday >= energyLevel;
+                                    this.energyConsumptionTotalLevelActiveSensors[i].state = state;
+
                                     if (this.energyConsumptionTotalLevelSensorsService) {
-                                        this.energyConsumptionTotalLevelSensorsService[k]
-                                            .updateCharacteristic(Characteristic.ContactSensorState, state)
+                                        const characteristicType = this.energyConsumptionTotalLevelActiveSensors[i].characteristicType;
+                                        this.energyConsumptionTotalLevelSensorsService[i]
+                                            .updateCharacteristic(characteristicType, state)
                                     }
-                                    this.energyConsumptionTotalLevelActiveSensorsState.push(state);
                                 }
                             }
                         }
 
                         if (i === 1) {
                             //sensors power net
-                            if (this.powerConsumptionNetStateSensorService) {
-                                this.powerConsumptionNetStateSensorService
-                                    .updateCharacteristic(Characteristic.ContactSensorState, consumptionPowerState)
+                            if (this.powerConsumptionNetStateActiveSensorsCount > 0) {
+                                for (let i = 0; i < this.powerConsumptionNetStateActiveSensorsCount; i++) {
+                                    this.powerConsumptionNetStateActiveSensors[i].state = consumptionPowerState;
+
+                                    if (this.powerConsumptionNetStateSensorsService) {
+                                        const characteristicType = this.powerConsumptionNetStateActiveSensors[i].characteristicType;
+                                        this.powerConsumptionNetStateSensorsService[i]
+                                            .updateCharacteristic(characteristicType, consumptionPowerState)
+                                    }
+                                }
                             }
                             if (this.powerConsumptionNetLevelActiveSensorsCount > 0) {
-                                this.powerConsumptionNetLevelActiveSensorsState = [];
-
-                                for (let l = 0; l < this.powerConsumptionNetLevelActiveSensorsCount; l++) {
-                                    const powerLevel = this.powerConsumptionNetLevelActiveSensors[l].powerLevel / 1000;
+                                for (let i = 0; i < this.powerConsumptionNetLevelActiveSensorsCount; i++) {
+                                    const powerLevel = this.powerConsumptionNetLevelActiveSensors[i].powerLevel;
                                     const importing = powerLevel >= 0;
                                     const state = importing ? consumptionPower >= powerLevel : consumptionPower <= powerLevel;
+                                    this.powerConsumptionNetLevelActiveSensors[i].state = state;
+
                                     if (this.powerConsumptionNetLevelSensorsService) {
-                                        this.powerConsumptionNetLevelSensorsService[l]
-                                            .updateCharacteristic(Characteristic.ContactSensorState, state)
+                                        const characteristicType = this.powerConsumptionNetLevelActiveSensors[i].characteristicType;
+                                        this.powerConsumptionNetLevelSensorsService[i]
+                                            .updateCharacteristic(characteristicType, state)
                                     }
-                                    this.powerConsumptionNetLevelActiveSensorsState.push(state);
                                 }
                             }
 
                             //sensors energy net
-                            if (this.energyConsumptionNetStateSensorService) {
-                                this.energyConsumptionNetStateSensorService
-                                    .updateCharacteristic(Characteristic.ContactSensorState, consumptionEnergyState)
+                            if (this.energyConsumptionNetStateActiveSensorsCount > 0) {
+                                for (let i = 0; i < this.energyConsumptionNetStateActiveSensorsCount; i++) {
+                                    this.energyConsumptionNetStateActiveSensors[i].state = consumptionEnergyState;
+
+                                    if (this.energyConsumptionNetStateSensorsService) {
+                                        const characteristicType = this.energyConsumptionNetStateActiveSensors[i].characteristicType;
+                                        this.energyConsumptionNetStateSensorsService[i]
+                                            .updateCharacteristic(characteristicType, consumptionEnergyState)
+                                    }
+                                }
                             }
                             if (this.energyConsumptionNetLevelActiveSensorsCount > 0) {
-                                this.energyConsumptionNetLevelActiveSensorsState = [];
-
-                                for (let m = 0; m < this.energyConsumptionNetLevelActiveSensorsCount; m++) {
-                                    const energyLevel = this.energyConsumptionNetLevelActiveSensors[m].energyLevel / 1000;
+                                for (let i = 0; i < this.energyConsumptionNetLevelActiveSensorsCount; i++) {
+                                    const energyLevel = this.energyConsumptionNetLevelActiveSensors[i].energyLevel;
                                     const state = consumptionEnergyToday >= energyLevel;
+                                    this.energyConsumptionNetLevelActiveSensors[i].state = state;
+
                                     if (this.energyConsumptionNetLevelSensorsService) {
-                                        this.energyConsumptionNetLevelSensorsService[m]
-                                            .updateCharacteristic(Characteristic.ContactSensorState, state)
+                                        const characteristicType = this.energyConsumptionNetLevelActiveSensors[i].characteristicType;
+                                        this.energyConsumptionNetLevelSensorsService[i]
+                                            .updateCharacteristic(characteristicType, state)
                                     }
-                                    this.energyConsumptionNetLevelActiveSensorsState.push(state);
                                 }
                             }
                         }
@@ -3771,33 +4002,40 @@ class EnvoyDevice extends EventEmitter {
                     });
 
                 //production state sensor service
-                const powerProductionStateSensor = this.powerProductionStateSensor.mode || false;
-                if (powerProductionStateSensor) {
-                    const sensorName = this.powerProductionStateSensor.name || `Production power state`;
+                if (this.powerProductionStateActiveSensorsCount > 0) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Power State Sensor Service`) : false;
-                    this.powerProductionStateSensorService = accessory.addService(Service.ContactSensor, sensorName, `powerProductionStateSensorService`);
-                    this.powerProductionStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                    this.powerProductionStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                    this.powerProductionStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                        .onGet(async () => {
-                            const state = this.productionPowerState;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Production power state sensor: ${state ? 'Active' : 'Not active'}`);
-                            return state;
-                        });
+                    this.powerProductionStateSensorsService = [];
+                    for (let i = 0; i < this.powerProductionStateActiveSensorsCount; i++) {
+                        const sensorName = this.powerProductionStateActiveSensors[i].name;
+                        const serviceType = this.powerProductionStateActiveSensors[i].serviceType;
+                        const characteristicType = this.powerProductionStateActiveSensors[i].characteristicType;
+                        const powerProductionStateSensorService = accessory.addService(serviceType, sensorName, `powerProductionStateSensorService`);
+                        powerProductionStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                        powerProductionStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                        powerProductionStateSensorService.getCharacteristic(characteristicType)
+                            .onGet(async () => {
+                                const state = this.powerProductionStateActiveSensors[i].state;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Production power state sensor: ${state ? 'Active' : 'Not active'}`);
+                                return state;
+                            });
+                        this.powerProductionStateSensorsService.push(powerProductionStateSensorService);
+                    };
                 };
 
                 //production power level sensors service
                 if (this.powerProductionLevelActiveSensorsCount > 0) {
                     this.powerProductionLevelSensorsService = [];
                     for (let i = 0; i < this.powerProductionLevelActiveSensorsCount; i++) {
-                        const sensorName = this.powerProductionLevelActiveSensors[i].name || `Production power level ${i}`;
+                        const sensorName = this.powerProductionLevelActiveSensors[i].name;
+                        const serviceType = this.powerProductionLevelActiveSensors[i].serviceType;
+                        const characteristicType = this.powerProductionLevelActiveSensors[i].characteristicType;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Power Level ${sensorName} Sensor Service`) : false;
-                        const powerProductionLevelSensorsService = accessory.addService(Service.ContactSensor, sensorName, `powerProductionLevelSensorsService${i}`);
+                        const powerProductionLevelSensorsService = accessory.addService(serviceType, sensorName, `powerProductionLevelSensorsService${i}`);
                         powerProductionLevelSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                         powerProductionLevelSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                        powerProductionLevelSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                        powerProductionLevelSensorsService.getCharacteristic(characteristicType)
                             .onGet(async () => {
-                                const state = this.powerProductionLevelActiveSensorsState[i];
+                                const state = this.powerProductionLevelActiveSensors[i].state;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Production power level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                 return state;
                             });
@@ -3806,33 +4044,40 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 //production energy state sensor service
-                const energyProductionStateSensor = this.energyProductionStateSensor.mode || false;
-                if (energyProductionStateSensor) {
-                    const sensorName = this.energyProductionStateSensor.name || `Production energy state`;
+                if (this.energyProductionStateActiveSensorsCount > 0) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Energy State Sensor Service`) : false;
-                    this.energyProductionStateSensorService = accessory.addService(Service.ContactSensor, sensorName, `energyProductionStateSensorService`);
-                    this.energyProductionStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                    this.energyProductionStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                    this.energyProductionStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                        .onGet(async () => {
-                            const state = this.productionEnergyState;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Production energy state sensor: ${state ? 'Active' : 'Not active'}`);
-                            return state;
-                        });
+                    this.energyProductionStateSensorsService = [];
+                    for (let i = 0; i < this.energyProductionStateActiveSensorsCount; i++) {
+                        const sensorName = this.energyProductionStateActiveSensors[i].name;
+                        const serviceType = this.energyProductionStateActiveSensors[i].serviceType;
+                        const characteristicType = this.energyProductionStateActiveSensors[i].characteristicType;
+                        const energyProductionStateSensorService = accessory.addService(serviceType, sensorName, `energyProductionStateSensorService`);
+                        energyProductionStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                        energyProductionStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                        energyProductionStateSensorService.getCharacteristic(characteristicType)
+                            .onGet(async () => {
+                                const state = this.energyProductionStateActiveSensors[i].state;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Production energy state sensor: ${state ? 'Active' : 'Not active'}`);
+                                return state;
+                            });
+                        this.energyProductionStateSensorsService.push(energyProductionStateSensorService);
+                    };
                 };
 
                 //production energy level sensor service
                 if (this.energyProductionLevelActiveSensorsCount > 0) {
                     this.energyProductionLevelSensorsService = [];
                     for (let i = 0; i < this.energyProductionLevelActiveSensorsCount; i++) {
-                        const sensorName = this.energyProductionLevelActiveSensors[i].name || `Production energy level ${i}`;
+                        const sensorName = this.energyProductionLevelActiveSensors[i].name;
+                        const serviceType = this.energyProductionLevelActiveSensors[i].serviceType;
+                        const characteristicType = this.energyProductionLevelActiveSensors[i].characteristicType;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Energy Level ${sensorName} Sensor Service`) : false;
-                        const energyProductionLevelSensorsService = accessory.addService(Service.ContactSensor, sensorName, `energyProductionLevelSensorsService${i}`);
+                        const energyProductionLevelSensorsService = accessory.addService(serviceType, sensorName, `energyProductionLevelSensorsService${i}`);
                         energyProductionLevelSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                         energyProductionLevelSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                        energyProductionLevelSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                        energyProductionLevelSensorsService.getCharacteristic(characteristicType)
                             .onGet(async () => {
-                                const state = this.energyProductionLevelActiveSensorsState[i] || false;
+                                const state = this.energyProductionLevelActiveSensors[i].state;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Production energy level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                 return state;
                             });
@@ -3940,33 +4185,40 @@ class EnvoyDevice extends EventEmitter {
                         //total
                         if (i === 0) {
                             //consumption total state sensor service
-                            const powerConsumptionTotalStateSensor = this.powerConsumptionTotalStateSensor.mode ?? false;
-                            if (powerConsumptionTotalStateSensor) {
-                                const sensorName = this.powerConsumptionTotalStateSensor.name || `Consumption total power state`;
+                            if (this.powerConsumptionTotalStateActiveSensorsCount > 0) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Power State Sensor Service`) : false;
-                                this.powerConsumptionTotalStateSensorService = accessory.addService(Service.ContactSensor, sensorName, `powerConsumptionTotalStateSensorService`);
-                                this.powerConsumptionTotalStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                this.powerConsumptionTotalStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                this.powerConsumptionTotalStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                                    .onGet(async () => {
-                                        const state = this.consumptionsPowerState[i] ?? false;
-                                        const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} power state sensor: ${state ? 'Active' : 'Not active'}`);
-                                        return state;
-                                    });
+                                this.powerConsumptionTotalStateSensorsService = [];
+                                for (let i = 0; i < this.powerConsumptionTotalStateActiveSensorsCount; i++) {
+                                    const sensorName = this.powerConsumptionTotalStateActiveSensors[i].name;
+                                    const serviceType = this.powerConsumptionTotalStateActiveSensors[i].serviceType;
+                                    const characteristicType = this.powerConsumptionTotalStateActiveSensors[i].characteristicType;
+                                    const powerConsumptionTotalStateSensorService = accessory.addService(serviceType, sensorName, `powerConsumptionTotalStateSensorService`);
+                                    powerConsumptionTotalStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    powerConsumptionTotalStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                                    powerConsumptionTotalStateSensorService.getCharacteristic(characteristicType)
+                                        .onGet(async () => {
+                                            const state = this.powerConsumptionTotalStateActiveSensors[i].state;
+                                            const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} power state sensor: ${state ? 'Active' : 'Not active'}`);
+                                            return state;
+                                        });
+                                    this.powerConsumptionTotalStateSensorsService.push(powerConsumptionTotalStateSensorService);
+                                };
                             };
 
                             //consumption total power peak sensors service
                             if (this.powerConsumptionTotalLevelActiveSensorsCount > 0) {
                                 this.powerConsumptionTotalLevelSensorsService = [];
                                 for (let i = 0; i < this.powerConsumptionTotalLevelActiveSensorsCount; i++) {
-                                    const sensorName = this.powerConsumptionTotalLevelActiveSensors[i].name || `Consumption total power level ${i}`;
+                                    const sensorName = this.powerConsumptionTotalLevelActiveSensors[i].name;
+                                    const serviceType = this.powerConsumptionTotalLevelActiveSensors[i].serviceType;
+                                    const characteristicType = this.powerConsumptionTotalLevelActiveSensors[i].characteristicType;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Power Level ${sensorName} Sensor Service`) : false;
-                                    const powerConsumptionTotalLevelSensorsService = accessory.addService(Service.ContactSensor, sensorName, `powerConsumptionTotalLevelSensorsService${i}`);
+                                    const powerConsumptionTotalLevelSensorsService = accessory.addService(serviceType, sensorName, `powerConsumptionTotalLevelSensorsService${i}`);
                                     powerConsumptionTotalLevelSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                     powerConsumptionTotalLevelSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                    powerConsumptionTotalLevelSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                    powerConsumptionTotalLevelSensorsService.getCharacteristic(characteristicType)
                                         .onGet(async () => {
-                                            const state = this.powerConsumptionTotalLevelActiveSensorsState[i] ?? false;
+                                            const state = this.powerConsumptionTotalLevelActiveSensors[i].state;
                                             const info = this.disableLogInfo ? false : this.emit('message', `Consumption total power level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
@@ -3975,33 +4227,40 @@ class EnvoyDevice extends EventEmitter {
                             };
 
                             //consumption total energy state sensor service
-                            const energyConsumptionTotalStateSensor = this.energyConsumptionTotalStateSensor.mode ?? false;
-                            if (energyConsumptionTotalStateSensor) {
-                                const sensorName = this.energyConsumptionTotalStateSensor.name || `Consumption total energy state`;
+                            if (this.energyConsumptionTotalStateActiveSensorsCount > 0) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Energy State Sensor Service`) : false;
-                                this.energyConsumptionTotalStateSensorService = accessory.addService(Service.ContactSensor, sensorName, `energyConsumptionTotalStateSensorService`);
-                                this.energyConsumptionTotalStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                this.energyConsumptionTotalStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                this.energyConsumptionTotalStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                                    .onGet(async () => {
-                                        const state = this.consumptionsEnergyState[i];
-                                        const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
-                                        return state;
-                                    });
+                                this.energyConsumptionTotalStateSensorsService = [];
+                                for (let i = 0; i < this.energyConsumptionTotalStateActiveSensorsCount; i++) {
+                                    const sensorName = this.energyConsumptionTotalStateActiveSensors[i].name;
+                                    const serviceType = this.energyConsumptionTotalStateActiveSensors[i].serviceType;
+                                    const characteristicType = this.energyConsumptionTotalStateActiveSensors[i].characteristicType;
+                                    const energyConsumptionTotalStateSensorService = accessory.addService(serviceType, sensorName, `energyConsumptionTotalStateSensorService`);
+                                    energyConsumptionTotalStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    energyConsumptionTotalStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                                    energyConsumptionTotalStateSensorService.getCharacteristic(characteristicType)
+                                        .onGet(async () => {
+                                            const state = this.energyConsumptionTotalStateActiveSensors[i].state;
+                                            const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
+                                            return state;
+                                        });
+                                    this.energyConsumptionTotalStateSensorsService.push(energyConsumptionTotalStateSensorService);
+                                };
                             };
 
                             //consumption total energy level sensor service
                             if (this.energyConsumptionTotalLevelActiveSensorsCount > 0) {
                                 this.energyConsumptionTotalLevelSensorsService = [];
                                 for (let i = 0; i < this.energyConsumptionTotalLevelActiveSensorsCount; i++) {
-                                    const sensorName = this.energyConsumptionTotalLevelActiveSensors[i].name || `Consumption total energy level ${i}`;
+                                    const sensorName = this.energyConsumptionTotalLevelActiveSensors[i].name;
+                                    const serviceType = this.energyConsumptionTotalLevelActiveSensors[i].serviceType;
+                                    const characteristicType = this.energyConsumptionTotalLevelActiveSensors[i].characteristicType;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Energy Level ${sensorName} Sensor Service`) : false;
-                                    const energyConsumptionTotalLevelSensorsService = accessory.addService(Service.ContactSensor, sensorName, `energyConsumptionTotalLevelSensorsService${i}`);
+                                    const energyConsumptionTotalLevelSensorsService = accessory.addService(serviceType, sensorName, `energyConsumptionTotalLevelSensorsService${i}`);
                                     energyConsumptionTotalLevelSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                     energyConsumptionTotalLevelSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                    energyConsumptionTotalLevelSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                    energyConsumptionTotalLevelSensorsService.getCharacteristic(characteristicType)
                                         .onGet(async () => {
-                                            const state = this.energyConsumptionTotalLevelActiveSensorsState[i] ?? false;
+                                            const state = this.energyConsumptionTotalLevelActiveSensors[i].state;
                                             const info = this.disableLogInfo ? false : this.emit('message', `Consumption total energy level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
@@ -4013,33 +4272,40 @@ class EnvoyDevice extends EventEmitter {
                         //net
                         if (i === 1) {
                             //consumption total state sensor service
-                            const powerConsumptionNetStateSensor = this.powerConsumptionNetStateSensor.mode ?? false;
-                            if (powerConsumptionNetStateSensor) {
-                                const sensorName = this.powerConsumptionNetStateSensor.name || `Consumption net power state`;
+                            if (this.powerConsumptionNetStateActiveSensorsCount > 0) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Power State Sensor Service`) : false;
-                                this.powerConsumptionNetStateSensorService = accessory.addService(Service.ContactSensor, sensorName, `powerConsumptionNetStateSensorService`);
-                                this.powerConsumptionNetStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                this.powerConsumptionNetStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                this.powerConsumptionNetStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                                    .onGet(async () => {
-                                        const state = this.consumptionsPowerState[i] ?? false;
-                                        const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} power state sensor: ${state ? 'Active' : 'Not active'}`);
-                                        return state;
-                                    });
+                                this.powerConsumptionNetStateSensorsService = [];
+                                for (let i = 0; i < this.powerConsumptionNetStateActiveSensorsCount; i++) {
+                                    const sensorName = this.powerConsumptionNetStateActiveSensors[i].name;
+                                    const serviceType = this.powerConsumptionNetStateActiveSensors[i].serviceType;
+                                    const characteristicType = this.powerConsumptionNetStateActiveSensors[i].characteristicType;
+                                    const powerConsumptionNetStateSensorService = accessory.addService(serviceType, sensorName, `powerConsumptionNetStateSensorService`);
+                                    powerConsumptionNetStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    powerConsumptionNetStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                                    powerConsumptionNetStateSensorService.getCharacteristic(characteristicType)
+                                        .onGet(async () => {
+                                            const state = this.powerConsumptionNetStateActiveSensors[i].state;
+                                            const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} power state sensor: ${state ? 'Active' : 'Not active'}`);
+                                            return state;
+                                        });
+                                    this.powerConsumptionNetStateSensorsService.push(powerConsumptionNetStateSensorService);
+                                };
                             };
 
                             //consumption net power peak sensor service
                             if (this.powerConsumptionNetLevelActiveSensorsCount > 0) {
                                 this.powerConsumptionNetLevelSensorsService = [];
                                 for (let i = 0; i < this.powerConsumptionNetLevelActiveSensorsCount; i++) {
-                                    const sensorName = this.powerConsumptionNetLevelActiveSensors[i].name || `Consumption net power level ${i}`;
+                                    const sensorName = this.powerConsumptionNetLevelActiveSensors[i].name;
+                                    const serviceType = this.powerConsumptionNetLevelActiveSensors[i].serviceType;
+                                    const characteristicType = this.powerConsumptionNetLevelActiveSensors[i].characteristicType;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Power Level ${sensorName} Sensor Service`) : false;
-                                    const powerConsumptionNetLevelSensorsService = accessory.addService(Service.ContactSensor, sensorName, `powerConsumptionNetLevelSensorsService${i}`);
+                                    const powerConsumptionNetLevelSensorsService = accessory.addService(serviceType, sensorName, `powerConsumptionNetLevelSensorsService${i}`);
                                     powerConsumptionNetLevelSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                     powerConsumptionNetLevelSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                    powerConsumptionNetLevelSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                    powerConsumptionNetLevelSensorsService.getCharacteristic(characteristicType)
                                         .onGet(async () => {
-                                            const state = this.powerConsumptionNetLevelActiveSensorsState[i] ?? false;
+                                            const state = this.powerConsumptionNetLevelActiveSensors[i].state ?? false;
                                             const info = this.disableLogInfo ? false : this.emit('message', `Consumption net power level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
@@ -4048,32 +4314,39 @@ class EnvoyDevice extends EventEmitter {
                             };
 
                             //consumption net energy state sensor service
-                            const energyConsumptionNetStateSensor = this.energyConsumptionNetStateSensor.mode ?? false;
-                            if (energyConsumptionNetStateSensor) {
-                                const sensorName = this.energyConsumptionNetStateSensor.name || `Consumption net energy state`;
+                            if (this.energyConsumptionNetStateActiveSensorsCount > 0) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Energy State Sensor Service`) : false;
-                                this.energyConsumptionNetStateSensorService = accessory.addService(Service.ContactSensor, sensorName, `energyConsumptionNetStateSensorService`);
-                                this.energyConsumptionNetStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                this.energyConsumptionNetStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                this.energyConsumptionNetStateSensorService.getCharacteristic(Characteristic.ContactSensorState)
-                                    .onGet(async () => {
-                                        const state = this.consumptionsEnergyState[i];
-                                        const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
-                                        return state;
-                                    });
+                                this.energyConsumptionNetStateSensorsService = [];
+                                for (let i = 0; i < this.energyConsumptionNetStateActiveSensorsCount; i++) {
+                                    const sensorName = this.energyConsumptionNetStateActiveSensors[i].name;
+                                    const serviceType = this.energyConsumptionNetStateActiveSensors[i].serviceType;
+                                    const characteristicType = this.energyConsumptionNetStateActiveSensors[i].characteristicType;
+                                    const energyConsumptionNetStateSensorService = accessory.addService(serviceType, sensorName, `energyConsumptionNetStateSensorService`);
+                                    energyConsumptionNetStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    energyConsumptionNetStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                                    energyConsumptionNetStateSensorService.getCharacteristic(characteristicType)
+                                        .onGet(async () => {
+                                            const state = this.energyConsumptionNetStateActiveSensors[i].state;
+                                            const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
+                                            return state;
+                                        });
+                                    this.energyConsumptionNetStateSensorsService.push(energyConsumptionNetStateSensorService);
+                                };
                             };
 
                             if (this.energyConsumptionNetLevelActiveSensorsCount > 0) {
                                 this.energyConsumptionNetLevelSensorsService = [];
                                 for (let i = 0; i < this.energyConsumptionNetLevelActiveSensorsCount; i++) {
-                                    const sensorName = this.energyConsumptionNetLevelActiveSensors[i].name || `Consumption net energy level ${i}`;
+                                    const sensorName = this.energyConsumptionNetLevelActiveSensors[i].name;
+                                    const serviceType = this.energyConsumptionNetLevelActiveSensors[i].serviceType;
+                                    const characteristicType = this.energyConsumptionNetLevelActiveSensors[i].characteristicType;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Energy Level ${sensorName} Sensor Service`) : false;
-                                    const energyConsumptionNetLevelSensorsService = accessory.addService(Service.ContactSensor, sensorName, `energyConsumptionNetLevelSensorsService${i}`);
+                                    const energyConsumptionNetLevelSensorsService = accessory.addService(serviceType, sensorName, `energyConsumptionNetLevelSensorsService${i}`);
                                     energyConsumptionNetLevelSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                     energyConsumptionNetLevelSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                    energyConsumptionNetLevelSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                    energyConsumptionNetLevelSensorsService.getCharacteristic(characteristicType)
                                         .onGet(async () => {
-                                            const state = this.energyConsumptionNetLevelActiveSensorsState[i] ?? false;
+                                            const state = this.energyConsumptionNetLevelActiveSensors[i].state ?? false;
                                             const info = this.disableLogInfo ? false : this.emit('message', `Consumption net energy level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
@@ -4522,14 +4795,16 @@ class EnvoyDevice extends EventEmitter {
                         if (this.enchargeGridModeActiveSensorsCount > 0) {
                             this.enchargeGridModeSensorsServices = [];
                             for (let i = 0; i < this.enchargeGridModeActiveSensorsCount; i++) {
-                                const sensorName = this.enchargeGridModeActiveSensors[i].name || `Encharge Grid Mode Sensor ${i}`;
+                                const sensorName = this.enchargeGridModeActiveSensors[i].name;
+                                const serviceType = this.enchargeGridModeActiveSensors[i].serviceType;
+                                const characteristicType = this.enchargeGridModeActiveSensors[i].characteristicType;
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Grid Mode Sensor ${sensorName} Service`) : false;
-                                const enchargeGridModeSensorsService = accessory.addService(Service.ContactSensor, sensorName, `enchargeGridModeSensorService${i}`);
+                                const enchargeGridModeSensorsService = accessory.addService(serviceType, sensorName, `enchargeGridModeSensorService${i}`);
                                 enchargeGridModeSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                 enchargeGridModeSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                enchargeGridModeSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                enchargeGridModeSensorsService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
-                                        const state = this.enchargeGridModeActiveSensorsState[i] ?? false;
+                                        const state = this.enchargeGridModeActiveSensors[i].state;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Encharge grid mode sensor: ${sensorName} state: ${state ? 'Active' : 'Not active'}`);
                                         return state;
                                     });
@@ -4541,14 +4816,16 @@ class EnvoyDevice extends EventEmitter {
                         if (this.enchargeBackupLevelActiveSensorsCount > 0) {
                             this.enchargeBackupLevelSensorsServices = [];
                             for (let i = 0; i < this.enchargeBackupLevelActiveSensorsCount; i++) {
-                                const sensorName = this.enchargeBackupLevelActiveSensors[i].name || `Encharge Backup Level Sensor ${i}`;
+                                const sensorName = this.enchargeBackupLevelActiveSensors[i].name;
+                                const serviceType = this.enchargeBackupLevelActiveSensors[i].serviceType;
+                                const characteristicType = this.enchargeBackupLevelActiveSensors[i].characteristicType;
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Backup Level Sensor ${sensorName} Service`) : false;
-                                const enchargeBackupLevelSensorsService = accessory.addService(Service.ContactSensor, sensorName, `enchargeBackupLevelSensorService${i}`);
+                                const enchargeBackupLevelSensorsService = accessory.addService(serviceType, sensorName, `enchargeBackupLevelSensorService${i}`);
                                 enchargeBackupLevelSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                 enchargeBackupLevelSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                enchargeBackupLevelSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                enchargeBackupLevelSensorsService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
-                                        const state = this.enchargeBackupLevelActiveSensorsState[i] ?? false;
+                                        const state = this.enchargeBackupLevelActiveSensors[i].state;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Encharge Backup Level sensor: ${sensorName} state: ${state ? 'Active' : 'Not active'}`);
                                         return state;
                                     });
@@ -4560,14 +4837,16 @@ class EnvoyDevice extends EventEmitter {
                         if (this.solarGridModeActiveSensorsCount > 0) {
                             this.solarGridModeSensorsServices = [];
                             for (let i = 0; i < this.solarGridModeActiveSensorsCount; i++) {
-                                const sensorName = this.solarGridModeActiveSensors[i].name || `Solar Grid Mode Sensor ${i}`;
+                                const sensorName = this.solarGridModeActiveSensors[i].name;
+                                const serviceType = this.solarGridModeActiveSensors[i].serviceType;
+                                const characteristicType = this.solarGridModeActiveSensors[i].characteristicType;
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare Solar Grid Mode Sensor ${sensorName} Service`) : false;
-                                const solarGridModeSensorsService = accessory.addService(Service.ContactSensor, sensorName, `solarGridModeSensorService${i}`);
+                                const solarGridModeSensorsService = accessory.addService(serviceType, sensorName, `solarGridModeSensorService${i}`);
                                 solarGridModeSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                 solarGridModeSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                                solarGridModeSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                solarGridModeSensorsService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
-                                        const state = this.solarGridModeActiveSensorsState[i] ?? false;
+                                        const state = this.solarGridModeActiveSensors[i].state;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Solar grid mode sensor: ${sensorName} state: ${state ? 'Active' : 'Not active'}`);
                                         return state;
                                     });
@@ -4926,14 +5205,16 @@ class EnvoyDevice extends EventEmitter {
                     if (this.enpowerGridModeActiveSensorsCount > 0) {
                         this.enpowerGridModeSensorsServices = [];
                         for (let i = 0; i < this.enpowerGridModeActiveSensorsCount; i++) {
-                            const sensorName = this.enpowerGridModeActiveSensors[i].name || `Enpower Grid Mode Sensor ${i}`;
+                            const sensorName = this.enpowerGridModeActiveSensors[i].name;
+                            const serviceType = this.enpowerGridModeActiveSensors[i].serviceType;
+                            const characteristicType = this.enpowerGridModeActiveSensors[i].characteristicType;
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Enpower Grid Mode Sensor ${sensorName} Service`) : false;
-                            const enpowerGridModeSensorsService = accessory.addService(Service.ContactSensor, sensorName, `enpowerGridModeSensorService${i}`);
+                            const enpowerGridModeSensorsService = accessory.addService(serviceType, sensorName, `enpowerGridModeSensorService${i}`);
                             enpowerGridModeSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                             enpowerGridModeSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-                            enpowerGridModeSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                            enpowerGridModeSensorsService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
-                                    const state = this.enpowerGridModeActiveSensorsState[i] ?? false;
+                                    const state = this.enpowerGridModeActiveSensors[i].state;
                                     const info = this.disableLogInfo ? false : this.emit('message', `Enpower grid mode sensor: ${sensorName} state: ${state ? 'Active' : 'Not active'}`);
                                     return state;
                                 });
