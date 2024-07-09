@@ -3492,7 +3492,7 @@ class EnvoyDevice extends EventEmitter {
                     .setCharacteristic(Characteristic.Manufacturer, 'Enphase')
                     .setCharacteristic(Characteristic.Model, this.envoyModelName ?? 'Model Name')
                     .setCharacteristic(Characteristic.SerialNumber, this.envoySerialNumber ?? 'Serial Number')
-                    .setCharacteristic(Characteristic.FirmwareRevision, this.envoyFirmware ?? 'Firmware');
+                    .setCharacteristic(Characteristic.FirmwareRevision, this.envoyFirmware.replace(/[a-zA-Z]/g, '') ?? '0');
 
                 //get enabled devices
                 const metersSupported = this.metersSupported;
