@@ -958,13 +958,13 @@ class EnvoyDevice extends EventEmitter {
 
                 //device
                 const device = envoyInfo.device;
-                const deviceSn = this.envoySerialNumber ? this.envoySerialNumber : device.sn.toString();
-                const devicePn = CONSTANTS.PartNumbers[device.pn] ?? 'Envoy';
-                const deviceSoftware = device.software;
-                const deviceEuaid = device.euaid;
-                const deviceSeqNum = device.seqnum;
-                const deviceApiVer = device.apiver;
-                const deviceImeter = device.imeter ?? false;
+                const serialNumber = this.envoySerialNumber ? this.envoySerialNumber : device.sn.toString();
+                const partNumber = CONSTANTS.PartNumbers[device.pn] ?? device.pn;
+                const software = device.software;
+                const euaid = device.euaid;
+                const seqNum = device.seqnum;
+                const apiVer = device.apiver;
+                const imeter = device.imeter ?? false;
 
                 //web tokens
                 const webTokens = envoyKeys.includes('web-tokens') ? envoyInfo['web-tokens'] === true : false;
@@ -986,16 +986,16 @@ class EnvoyDevice extends EventEmitter {
                 const releaseStage = build.release_stage ?? 'Unknown';
 
                 //check serial number
-                if (!deviceSn) {
-                    reject(`Envoy serial number missing: ${deviceSn}.`);
+                if (!serialNumber) {
+                    reject(`Envoy serial number missing: ${serialNumber}.`);
                     return;
                 };
 
                 this.envoyTime = time;
-                this.envoySerialNumber = deviceSn;
-                this.envoyModelName = devicePn;
-                this.envoyFirmware = deviceSoftware.toString();
-                this.metersSupported = deviceImeter;
+                this.envoySerialNumber = serialNumber;
+                this.envoyModelName = partNumber;
+                this.envoyFirmware = software.toString();
+                this.metersSupported = imeter;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('info', parseInfoData) : false;
@@ -1418,7 +1418,7 @@ class EnvoyDevice extends EventEmitter {
                     const type = CONSTANTS.ApiCodes[inventory[1].type] ?? 'Unknown';
                     for (let i = 0; i < acBatteriesCount; i++) {
                         const acBaterie = acBatteries[i];
-                        const partNum = CONSTANTS.PartNumbers[acBaterie.part_num] ?? 'AC Batterie'
+                        const partNumber = CONSTANTS.PartNumbers[acBaterie.part_num] ?? acBaterie.part_num;
                         const installed = new Date(acBaterie.installed * 1000).toLocaleString();
                         const serialNumber = acBaterie.serial_num;
                         const deviceStatus = acBaterie.device_status;
@@ -1506,7 +1506,7 @@ class EnvoyDevice extends EventEmitter {
                     const type = CONSTANTS.ApiCodes[inventory[2].type] ?? 'Unknown';
                     for (let i = 0; i < qRelaysCount; i++) {
                         const qRelay = qRelays[i];
-                        const partNum = CONSTANTS.PartNumbers[qRelay.part_num] ?? 'Q-Relay'
+                        const partNumber = CONSTANTS.PartNumbers[qRelay.part_num] ?? qRelay.part_num;
                         const installed = new Date(qRelay.installed * 1000).toLocaleString();
                         const serialNumber = qRelay.serial_num;
                         const deviceStatus = qRelay.device_status;
@@ -1597,7 +1597,7 @@ class EnvoyDevice extends EventEmitter {
                     const type = CONSTANTS.ApiCodes[inventory[3].type] ?? 'Unknown';
                     for (let i = 0; i < ensemblesCount; i++) {
                         const ensemble = ensembles[i];
-                        const partNum = CONSTANTS.PartNumbers[ensemble.part_num] ?? 'Q-Relay'
+                        const partNumber = CONSTANTS.PartNumbers[ensemble.part_num] ?? ensemble.part_num;
                         const installed = new Date(ensemble.installed * 1000).toLocaleString();
                         const serialNumber = ensemble.serial_num;
                         const deviceStatus = ensemble.device_status;
@@ -1942,7 +1942,7 @@ class EnvoyDevice extends EventEmitter {
                     const type = CONSTANTS.ApiCodes[ensembleInventory[0].type];
                     for (let i = 0; i < enchargesCount; i++) {
                         const encharge = encharges[i];
-                        const partNum = CONSTANTS.PartNumbers[encharge.part_num] ?? 'Unknown';
+                        const partNumber = CONSTANTS.PartNumbers[encharge.part_num] ?? encharge.part_num;
                         const serialNumber = encharge.serial_num;
                         const installed = new Date(encharge.installed * 1000).toLocaleString();
                         const deviceStatus = encharge.device_status;
@@ -2061,7 +2061,7 @@ class EnvoyDevice extends EventEmitter {
                     const type = CONSTANTS.ApiCodes[ensembleInventory[1].type];
                     for (let i = 0; i < enpowersCount; i++) {
                         const enpower = enpowers[i];
-                        const partNum = CONSTANTS.PartNumbers[enpower.part_num] ?? 'Unknown'
+                        const partNumber = CONSTANTS.PartNumbers[enpower.part_num] ?? enpower.part_num;
                         const serialNumber = enpower.serial_num;
                         const installed = new Date(enpower.installed * 1000).toLocaleString();
                         const deviceStatus = enpower.device_status;

@@ -842,18 +842,6 @@
                         "enum": [
                           "grid-forming"
                         ]
-                      },
-                      {
-                        "title": "Grid Interactive",
-                        "enum": [
-                          "grid-interactive"
-                        ]
-                      },
-                      {
-                        "title": "Utility Interactive",
-                        "enum": [
-                          "utility-interactive"
-                        ]
                       }
                     ],
                     "description": "Here select the grid mode.",
@@ -948,18 +936,6 @@
                         "title": "Grid Forming",
                         "enum": [
                           "grid-forming"
-                        ]
-                      },
-                      {
-                        "title": "Grid Interactive",
-                        "enum": [
-                          "grid-interactive"
-                        ]
-                      },
-                      {
-                        "title": "Utility Interactive",
-                        "enum": [
-                          "utility-interactive"
                         ]
                       }
                     ],
@@ -1159,18 +1135,6 @@
                         "title": "Grid Forming",
                         "enum": [
                           "grid-forming"
-                        ]
-                      },
-                      {
-                        "title": "Grid Interactive",
-                        "enum": [
-                          "grid-interactive"
-                        ]
-                      },
-                      {
-                        "title": "Utility Interactive",
-                        "enum": [
-                          "utility-interactive"
                         ]
                       }
                     ],
