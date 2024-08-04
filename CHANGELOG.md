@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changes
 
-- fix characteristic name
+- added new ensemble/encharge/solar sensor profile, grid-tied and grid-forming
 - config schema updated
 - redme updated
 - cleanup
@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changes
 
 - fix [#142](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/142).
-- fix characteristic name
+- fix characteristic name for encharge profile
+- add missing optional characteristic for enphaseWirelessConnectionKitService
 - redme updated
 - cleanup
 
