@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - dependencies updated
 - cleanup
 
+## [8.1.1] - (04.08.2024)
+
+## Changes
+
+- fix display and publish ensemble status and sensors
+
 ## [8.1.0] - (04.08.2024)
 
 ## Changes
