@@ -210,6 +210,8 @@
         "tiered": "Tiered",
         "grid-tied": "Grid Tied",
         "grid-forming": "Grid Forming",
+        "grid-interactive": "Grid Interactive",
+        "utility-interactive": "Utility Interactive",
         "not_set": "Not set",
         "flat": "Flat",
         "none": "None",
