@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.0.0] - (xx.07.2024)
+
+## Changes
+
+### v9.0.0 require Homebridge v2.0.0
+
+- adapted to use with Homebridge v2.0.0 
+- dependencies updated
+- cleanup
+
 ## [8.0.0] - (07.07.2024)
 
 ## Changes

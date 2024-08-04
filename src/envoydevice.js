@@ -1958,8 +1958,8 @@ class EnvoyDevice extends EventEmitter {
                         const communicating = encharge.communicating === true;
                         const sleepEnabled = encharge.sleep_enabled;
                         const percentFull = encharge.percentFull;
-                        const temperature = encharge.temperature;
-                        const maxCellTemp = encharge.maxCellTemp;
+                        const temperature = encharge.temperature ?? 0;
+                        const maxCellTemp = encharge.maxCellTemp ?? 0;
                         const reportedEncGridState = CONSTANTS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown';
                         const commLevelSubGhz = encharge.comm_level_sub_ghz * 20;
                         const commLevel24Ghz = encharge.comm_level_2_4_ghz * 20;

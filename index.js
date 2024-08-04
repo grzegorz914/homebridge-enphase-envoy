@@ -137,16 +137,19 @@ class EnvoyPlatform {
 }
 
 module.exports = (api) => {
-  const Characteristic = api.hap.Characteristic;
   const Service = api.hap.Service;
+  const Characteristic = api.hap.Characteristic;
+  const Units = api.hap.Units;
+  const Formats = api.hap.Formats;
+  const Perms = api.hap.Perms;
 
   //Envoy
   class enphaseEnvoyAlerts extends Characteristic {
     constructor() {
       super('Alerts', '00000001-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -157,8 +160,8 @@ module.exports = (api) => {
     constructor() {
       super('Grid profile', '00000002-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -169,8 +172,8 @@ module.exports = (api) => {
     constructor() {
       super('Network interface', '00000011-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -181,8 +184,8 @@ module.exports = (api) => {
     constructor() {
       super('Web communication', '00000012-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -194,8 +197,8 @@ module.exports = (api) => {
     constructor() {
       super('Report to Enlighten', '00000013-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -206,8 +209,8 @@ module.exports = (api) => {
     constructor() {
       super('Devices / Level', '00000014-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -218,8 +221,8 @@ module.exports = (api) => {
     constructor() {
       super('Q-Relays / Level', '00000015-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -230,8 +233,8 @@ module.exports = (api) => {
     constructor() {
       super('Microinverters / Level', '00000016-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -242,8 +245,8 @@ module.exports = (api) => {
     constructor() {
       super('AC Batteries / Level', '00000017-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -254,8 +257,8 @@ module.exports = (api) => {
     constructor() {
       super('Encharges / Level', '00000018-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -266,8 +269,8 @@ module.exports = (api) => {
     constructor() {
       super('DB size', '00000019-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -278,8 +281,8 @@ module.exports = (api) => {
     constructor() {
       super('Tariff', '00000021-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -290,8 +293,8 @@ module.exports = (api) => {
     constructor() {
       super('Firmware', '00000022-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -302,8 +305,8 @@ module.exports = (api) => {
     constructor() {
       super('Update status', '00000023-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -314,8 +317,8 @@ module.exports = (api) => {
     constructor() {
       super('Time Zone', '00000024-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -326,8 +329,8 @@ module.exports = (api) => {
     constructor() {
       super('Local time', '00000025-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -338,8 +341,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report to Enlighten', '00000026-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -350,8 +353,8 @@ module.exports = (api) => {
     constructor() {
       super('Enpower connected', '00000027-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -362,8 +365,8 @@ module.exports = (api) => {
     constructor() {
       super('Enpower grid status', '00000028-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -374,8 +377,8 @@ module.exports = (api) => {
     constructor() {
       super('Check plc level', '00000029-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -386,8 +389,8 @@ module.exports = (api) => {
     constructor() {
       super('Power production', '00000030-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -431,8 +434,8 @@ module.exports = (api) => {
     constructor() {
       super('Relay', '00000031-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -443,8 +446,8 @@ module.exports = (api) => {
     constructor() {
       super('Lines', '00000032-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.INT,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.INT,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -455,8 +458,8 @@ module.exports = (api) => {
     constructor() {
       super('Line 1', '00000033-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -467,8 +470,8 @@ module.exports = (api) => {
     constructor() {
       super('Line 2', '00000034-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -479,8 +482,8 @@ module.exports = (api) => {
     constructor() {
       super('Line 3', '00000035-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -491,8 +494,8 @@ module.exports = (api) => {
     constructor() {
       super('Producing', '00000036-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -503,8 +506,8 @@ module.exports = (api) => {
     constructor() {
       super('Communicating', '00000037-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -515,8 +518,8 @@ module.exports = (api) => {
     constructor() {
       super('Provisioned', '00000038-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -527,8 +530,8 @@ module.exports = (api) => {
     constructor() {
       super('Operating', '00000039-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -539,12 +542,12 @@ module.exports = (api) => {
     constructor() {
       super('PLC level', '00000041-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -555,8 +558,8 @@ module.exports = (api) => {
     constructor() {
       super('Status', '00000042-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -567,8 +570,8 @@ module.exports = (api) => {
     constructor() {
       super('Firmware', '00000043-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -579,8 +582,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000044-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -591,8 +594,8 @@ module.exports = (api) => {
     constructor() {
       super('Grid profile', '00000045-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -629,8 +632,8 @@ module.exports = (api) => {
     constructor() {
       super('State', '00000051-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -641,8 +644,8 @@ module.exports = (api) => {
     constructor() {
       super('Meter type', '00000052-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -653,8 +656,8 @@ module.exports = (api) => {
     constructor() {
       super('Phase count', '00000053-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.UINT8,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -665,8 +668,8 @@ module.exports = (api) => {
     constructor() {
       super('Phase mode', '00000054-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -677,8 +680,8 @@ module.exports = (api) => {
     constructor() {
       super('Metering status', '00000055-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -689,8 +692,8 @@ module.exports = (api) => {
     constructor() {
       super('Status flag', '00000056-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -701,12 +704,12 @@ module.exports = (api) => {
     constructor() {
       super('Active power', '00000057-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -717,12 +720,12 @@ module.exports = (api) => {
     constructor() {
       super('Apparent power', '00000058-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kVA',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -733,12 +736,12 @@ module.exports = (api) => {
     constructor() {
       super('Reactive power', '00000059-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kVAr',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -749,12 +752,12 @@ module.exports = (api) => {
     constructor() {
       super('Power factor', '00000061-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'cos φ',
         maxValue: 1,
         minValue: -1,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -765,12 +768,12 @@ module.exports = (api) => {
     constructor() {
       super('Voltage', '00000062-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
         minValue: 0,
         minStep: 0.1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -781,12 +784,12 @@ module.exports = (api) => {
     constructor() {
       super('Current', '00000063-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'A',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -797,12 +800,12 @@ module.exports = (api) => {
     constructor() {
       super('Frequency', '00000064-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'Hz',
         maxValue: 100,
         minValue: 0,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -813,8 +816,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000065-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -851,12 +854,12 @@ module.exports = (api) => {
     constructor() {
       super('Power', '00000071-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -867,12 +870,12 @@ module.exports = (api) => {
     constructor() {
       super('Power peak', '00000072-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -883,8 +886,8 @@ module.exports = (api) => {
     constructor() {
       super('Power peak detected', '00000073-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -895,12 +898,12 @@ module.exports = (api) => {
     constructor() {
       super('Energy today', '00000074-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000000,
         minValue: 0,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -911,12 +914,12 @@ module.exports = (api) => {
     constructor() {
       super('Energy last 7 days', '00000075-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000000,
         minValue: 0,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -927,12 +930,12 @@ module.exports = (api) => {
     constructor() {
       super('Energy lifetime', '00000076-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000000,
         minValue: 0,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -943,12 +946,12 @@ module.exports = (api) => {
     constructor() {
       super('Current', '00000077-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'A',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -959,12 +962,12 @@ module.exports = (api) => {
     constructor() {
       super('Voltage', '00000078-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
         minValue: 0,
         minStep: 0.1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -975,12 +978,12 @@ module.exports = (api) => {
     constructor() {
       super('Reactive power', '00000079-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kVAr',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -991,12 +994,12 @@ module.exports = (api) => {
     constructor() {
       super('Apparent power', '00000081-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kVA',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1007,12 +1010,12 @@ module.exports = (api) => {
     constructor() {
       super('Power factor', '00000082-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'cos φ',
         maxValue: 1,
         minValue: -1,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1023,8 +1026,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000083-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1035,8 +1038,8 @@ module.exports = (api) => {
     constructor() {
       super('Power peak reset', '00000084-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1072,12 +1075,12 @@ module.exports = (api) => {
     constructor() {
       super('Power', '00000091-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1088,12 +1091,12 @@ module.exports = (api) => {
     constructor() {
       super('Energy', '00000092-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000,
         minValue: 0,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1104,12 +1107,12 @@ module.exports = (api) => {
     constructor() {
       super('Percent full', '00000093-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1120,12 +1123,12 @@ module.exports = (api) => {
     constructor() {
       super('Devices count', '00000094-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
+        format: Formats.UINT8,
         unit: '',
         maxValue: 255,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1136,8 +1139,8 @@ module.exports = (api) => {
     constructor() {
       super('State', '00000095-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1148,8 +1151,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000096-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1178,8 +1181,8 @@ module.exports = (api) => {
     constructor() {
       super('Charge status', '00000111-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1190,8 +1193,8 @@ module.exports = (api) => {
     constructor() {
       super('Producing', '00000112-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1202,8 +1205,8 @@ module.exports = (api) => {
     constructor() {
       super('Communicating', '00000113-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1214,8 +1217,8 @@ module.exports = (api) => {
     constructor() {
       super('Provisioned', '00000114-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1226,8 +1229,8 @@ module.exports = (api) => {
     constructor() {
       super('Operating', '00000115-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1238,12 +1241,12 @@ module.exports = (api) => {
     constructor() {
       super('PLC level', '00000116-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1254,8 +1257,8 @@ module.exports = (api) => {
     constructor() {
       super('Sleep enabled', '00000117-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1266,12 +1269,12 @@ module.exports = (api) => {
     constructor() {
       super('Percent full', '00000118-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1282,12 +1285,12 @@ module.exports = (api) => {
     constructor() {
       super('Max cell temp', '00000119-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: '°C',
         maxValue: 200,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1298,12 +1301,12 @@ module.exports = (api) => {
     constructor() {
       super('Sleep min soc', '00000121-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
+        format: Formats.UINT8,
         unit: 'min',
         maxValue: 255,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1314,12 +1317,12 @@ module.exports = (api) => {
     constructor() {
       super('Sleep max soc', '00000122-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
+        format: Formats.UINT8,
         unit: 'min',
         maxValue: 255,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1330,8 +1333,8 @@ module.exports = (api) => {
     constructor() {
       super('Status', '00000123-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1342,8 +1345,8 @@ module.exports = (api) => {
     constructor() {
       super('Firmware', '00000124-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1354,8 +1357,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000125-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1392,12 +1395,12 @@ module.exports = (api) => {
     constructor() {
       super('Power', '00000131-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.INT,
+        format: Formats.INT,
         unit: 'W',
         maxValue: 1000,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1408,12 +1411,12 @@ module.exports = (api) => {
     constructor() {
       super('Power peak', '00000132-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.INT,
+        format: Formats.INT,
         unit: 'W',
         maxValue: 1000,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1424,8 +1427,8 @@ module.exports = (api) => {
     constructor() {
       super('Producing', '00000133-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1436,8 +1439,8 @@ module.exports = (api) => {
     constructor() {
       super('Communicating', '00000134-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1448,8 +1451,8 @@ module.exports = (api) => {
     constructor() {
       super('Provisioned', '00000135-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1460,8 +1463,8 @@ module.exports = (api) => {
     constructor() {
       super('Operating', '00000136-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1472,12 +1475,12 @@ module.exports = (api) => {
     constructor() {
       super('PLC level', '00000137-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1488,8 +1491,8 @@ module.exports = (api) => {
     constructor() {
       super('Status', '00000138-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1500,8 +1503,8 @@ module.exports = (api) => {
     constructor() {
       super('Firmware', '00000139-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1512,8 +1515,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000141-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1524,8 +1527,8 @@ module.exports = (api) => {
     constructor() {
       super('Grid profile', '00000142-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1559,8 +1562,8 @@ module.exports = (api) => {
     constructor() {
       super('Charge status', '00000151-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1571,8 +1574,8 @@ module.exports = (api) => {
     constructor() {
       super('Communicating', '00000152-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1583,8 +1586,8 @@ module.exports = (api) => {
     constructor() {
       super('Operating', '00000153-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1595,12 +1598,12 @@ module.exports = (api) => {
     constructor() {
       super('Sub GHz level', '00000154-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1611,12 +1614,12 @@ module.exports = (api) => {
     constructor() {
       super('2.4GHz level', '00000155-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1627,8 +1630,8 @@ module.exports = (api) => {
     constructor() {
       super('Sleep enabled', '00000156-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1639,12 +1642,12 @@ module.exports = (api) => {
     constructor() {
       super('Percent full', '00000157-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1655,12 +1658,12 @@ module.exports = (api) => {
     constructor() {
       super('Temperature', '00000158-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: '°C',
         maxValue: 200,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1671,12 +1674,12 @@ module.exports = (api) => {
     constructor() {
       super('Max cell temp', '00000159-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: '°C',
         maxValue: 200,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1687,8 +1690,8 @@ module.exports = (api) => {
     constructor() {
       super('LED status', '00000161-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1699,12 +1702,12 @@ module.exports = (api) => {
     constructor() {
       super('Real power', '00000162-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1715,12 +1718,12 @@ module.exports = (api) => {
     constructor() {
       super('Capacity', '00000163-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000,
         minValue: 0,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1731,8 +1734,8 @@ module.exports = (api) => {
     constructor() {
       super('DC switch OFF', '00000164-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1743,12 +1746,12 @@ module.exports = (api) => {
     constructor() {
       super('Revision', '00000165-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
+        format: Formats.UINT8,
         unit: '',
         maxValue: 255,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1759,8 +1762,8 @@ module.exports = (api) => {
     constructor() {
       super('Grid profile', '00000166-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1771,8 +1774,8 @@ module.exports = (api) => {
     constructor() {
       super('Status', '00000167-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1783,8 +1786,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000168-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1795,12 +1798,12 @@ module.exports = (api) => {
     constructor() {
       super('PLC level', '00000169-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1827,7 +1830,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCapacity);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeRev);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerGridProfile);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeGridProfile);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLastReportDate);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevel);
@@ -1841,8 +1844,8 @@ module.exports = (api) => {
     constructor() {
       super('Charge status', '00000171-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1853,8 +1856,8 @@ module.exports = (api) => {
     constructor() {
       super('Communicating', '00000172-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1865,8 +1868,8 @@ module.exports = (api) => {
     constructor() {
       super('Operating', '00000173-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1877,12 +1880,12 @@ module.exports = (api) => {
     constructor() {
       super('Sub GHz level', '00000174-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1893,12 +1896,12 @@ module.exports = (api) => {
     constructor() {
       super('2.4GHz level', '00000175-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1909,12 +1912,12 @@ module.exports = (api) => {
     constructor() {
       super('Temperature', '00000176-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: '°C',
         maxValue: 200,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1925,8 +1928,8 @@ module.exports = (api) => {
     constructor() {
       super('Admin state', '00000177-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1937,8 +1940,8 @@ module.exports = (api) => {
     constructor() {
       super('Operating state', '00000178-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1949,8 +1952,8 @@ module.exports = (api) => {
     constructor() {
       super('Grid mode', '00000179-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1961,8 +1964,8 @@ module.exports = (api) => {
     constructor() {
       super('Encharge grid mode', '00000181-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1973,8 +1976,8 @@ module.exports = (api) => {
     constructor() {
       super('Grid profile', '00000182-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1985,8 +1988,8 @@ module.exports = (api) => {
     constructor() {
       super('Status', '00000183-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -1997,8 +2000,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000184-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2034,12 +2037,12 @@ module.exports = (api) => {
     constructor() {
       super('Rest power', '00000190-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2050,12 +2053,12 @@ module.exports = (api) => {
     constructor() {
       super('Frequency bias L1', '00000191-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'Hz',
         maxValue: 10000,
         minValue: -10000,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2066,12 +2069,12 @@ module.exports = (api) => {
     constructor() {
       super('Voltage bias L1', '00000192-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2082,12 +2085,12 @@ module.exports = (api) => {
     constructor() {
       super('Frequency bias Q8 L1', '00000193-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'Hz',
         maxValue: 10000,
         minValue: -10000,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2098,12 +2101,12 @@ module.exports = (api) => {
     constructor() {
       super('Voltage bias Q5 L1', '00000194-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2114,12 +2117,12 @@ module.exports = (api) => {
     constructor() {
       super('Frequency bias L2', '00000195-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'Hz',
         maxValue: 10000,
         minValue: -10000,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2130,12 +2133,12 @@ module.exports = (api) => {
     constructor() {
       super('Voltage bias L2', '00000196-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2146,12 +2149,12 @@ module.exports = (api) => {
     constructor() {
       super('Frequency bias Q8 L2', '00000197-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'Hz',
         maxValue: 10000,
         minValue: -10000,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2162,12 +2165,12 @@ module.exports = (api) => {
     constructor() {
       super('Voltage bias Q5 L2', '00000198-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2178,12 +2181,12 @@ module.exports = (api) => {
     constructor() {
       super('Frequency bias L3', '00000199-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'Hz',
         maxValue: 10000,
         minValue: -10000,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2194,12 +2197,12 @@ module.exports = (api) => {
     constructor() {
       super('Voltage bias L3', '00000200-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2210,12 +2213,12 @@ module.exports = (api) => {
     constructor() {
       super('Frequency bias Q8 L3', '00000201-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'Hz',
         maxValue: 10000,
         minValue: -10000,
         minStep: 0.01,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2226,12 +2229,12 @@ module.exports = (api) => {
     constructor() {
       super('Voltage bias Q5 L3', '00000202-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'V',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2242,12 +2245,12 @@ module.exports = (api) => {
     constructor() {
       super('Configured backup SoC', '00000203-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2258,12 +2261,12 @@ module.exports = (api) => {
     constructor() {
       super('Adjusted backup SoC', '00000204-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2274,12 +2277,12 @@ module.exports = (api) => {
     constructor() {
       super('AGG SoC', '00000205-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2290,12 +2293,12 @@ module.exports = (api) => {
     constructor() {
       super('AGG max energy', '00000206-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000,
         minValue: 0,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2306,12 +2309,12 @@ module.exports = (api) => {
     constructor() {
       super('ENC SoC', '00000207-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2322,12 +2325,12 @@ module.exports = (api) => {
     constructor() {
       super('ENC rated power', '00000208-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2338,12 +2341,12 @@ module.exports = (api) => {
     constructor() {
       super('ENC backup energy', '00000209-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000,
         minValue: 0,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2354,12 +2357,12 @@ module.exports = (api) => {
     constructor() {
       super('ENC available energy', '00000210-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 1000,
         minValue: 0,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2403,8 +2406,8 @@ module.exports = (api) => {
     constructor() {
       super('Type', '00000220-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2415,8 +2418,8 @@ module.exports = (api) => {
     constructor() {
       super('Connected', '00000221-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2427,12 +2430,12 @@ module.exports = (api) => {
     constructor() {
       super('Signal strength', '00000222-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2443,12 +2446,12 @@ module.exports = (api) => {
     constructor() {
       super('Signal strength max', '00000223-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2465,6 +2468,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected);
       this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength);
       this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseWirelessConnectionKitService = enphaseWirelessConnectionKitService;
@@ -2474,8 +2478,8 @@ module.exports = (api) => {
     constructor() {
       super('Producing', '00000230-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2486,8 +2490,8 @@ module.exports = (api) => {
     constructor() {
       super('Communicating', '00000231-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2499,8 +2503,8 @@ module.exports = (api) => {
     constructor() {
       super('Operating', '00000232-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.BOOL,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2511,12 +2515,12 @@ module.exports = (api) => {
     constructor() {
       super('PLC level', '00000233-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.UINT8,
-        unit: '%',
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
         maxValue: 100,
         minValue: 0,
         minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2527,8 +2531,8 @@ module.exports = (api) => {
     constructor() {
       super('Status', '00000234-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2539,8 +2543,8 @@ module.exports = (api) => {
     constructor() {
       super('Firmware', '00000235-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2551,8 +2555,8 @@ module.exports = (api) => {
     constructor() {
       super('Last report', '00000236-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.STRING,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2582,12 +2586,12 @@ module.exports = (api) => {
     constructor() {
       super('Active power', '00000240-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2598,12 +2602,12 @@ module.exports = (api) => {
     constructor() {
       super('Active power L1', '00000241-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2615,12 +2619,12 @@ module.exports = (api) => {
     constructor() {
       super('Active power L2', '00000242-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2632,12 +2636,12 @@ module.exports = (api) => {
     constructor() {
       super('Active power L3', '00000243-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kW',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2649,12 +2653,12 @@ module.exports = (api) => {
     constructor() {
       super('Apparent power', '00000244-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kVA',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2665,12 +2669,12 @@ module.exports = (api) => {
     constructor() {
       super('Apparent power L1', '00000245-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kVA',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2681,12 +2685,12 @@ module.exports = (api) => {
     constructor() {
       super('Apparent power L2', '00000246-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kVA',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
@@ -2697,12 +2701,12 @@ module.exports = (api) => {
     constructor() {
       super('Apparent power L3', '00000247-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
+        format: Formats.FLOAT,
         unit: 'kVA',
         maxValue: 1000,
         minValue: -1000,
         minStep: 0.001,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
