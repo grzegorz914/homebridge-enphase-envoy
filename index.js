@@ -1827,7 +1827,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCapacity);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeRev);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnpowerGridProfile);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnchargeGridProfile);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeLastReportDate);
       this.addOptionalCharacteristic(Characteristic.enphaseEnchargeCommLevel);
@@ -2465,6 +2465,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected);
       this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength);
       this.addOptionalCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
   Service.enphaseWirelessConnectionKitService = enphaseWirelessConnectionKitService;
