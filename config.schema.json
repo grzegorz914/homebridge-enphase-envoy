@@ -787,7 +787,7 @@
               "title": "Profile",
               "type": "boolean",
               "default": false,
-              "description": "This enable support to check/control encharge profile.",
+              "description": "This enable support to check/control encharge profile, not working yet.",
               "required": false
             },
             "enpowerGridModeSensors": {
