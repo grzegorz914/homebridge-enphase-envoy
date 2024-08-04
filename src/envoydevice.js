@@ -1637,6 +1637,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                     this.ensemblesType = type;
                     this.ensemblesCount = ensemblesCount;
+                    this.ensemblesSupported = ensemblesSupported;
                     this.ensemblesInstalled = ensemblesInstalled;
                 }
 
