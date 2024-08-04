@@ -830,6 +830,18 @@
                         "enum": [
                           "multimode-offgrid"
                         ]
+                      },
+                      {
+                        "title": "Grid Tied",
+                        "enum": [
+                          "grid-tied"
+                        ]
+                      },
+                      {
+                        "title": "Grid Forming",
+                        "enum": [
+                          "grid-forming"
+                        ]
                       }
                     ],
                     "description": "Here select the grid mode.",
@@ -912,6 +924,18 @@
                         "title": "Multimode Grid Off",
                         "enum": [
                           "multimode-offgrid"
+                        ]
+                      },
+                      {
+                        "title": "Grid Tied",
+                        "enum": [
+                          "grid-tied"
+                        ]
+                      },
+                      {
+                        "title": "Grid Forming",
+                        "enum": [
+                          "grid-forming"
                         ]
                       }
                     ],
@@ -1099,6 +1123,18 @@
                         "title": "Multimode Grid Off",
                         "enum": [
                           "multimode-offgrid"
+                        ]
+                      },
+                      {
+                        "title": "Grid Tied",
+                        "enum": [
+                          "grid-tied"
+                        ]
+                      },
+                      {
+                        "title": "Grid Forming",
+                        "enum": [
+                          "grid-forming"
                         ]
                       }
                     ],
