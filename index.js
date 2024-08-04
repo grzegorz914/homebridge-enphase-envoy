@@ -363,7 +363,7 @@ module.exports = (api) => {
 
   class enphaseEnvoyEnpowerGridStatus extends Characteristic {
     constructor() {
-      super('Enpower grid status', '00000028-000B-1000-8000-0026BB765291');
+      super('Enpower grid mode', '00000028-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Formats.STRING,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]

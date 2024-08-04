@@ -442,7 +442,6 @@ class EnvoyDevice extends EventEmitter {
         this.ensemblesInstalled = false;
         this.ensemblesCount = 0;
         this.ensemblesType = 'Unknown';
-        this.ensembleStatusSupported = false;
         this.ensembleRestPower = 0;
         this.ensembleFreqBiasHz = 0;
         this.ensembleVoltageBiasV = 0;
@@ -2130,10 +2129,10 @@ class EnvoyDevice extends EventEmitter {
                     this.enpowersConnected = this.enpowersMainsAdminState.includes('Closed');
                     this.enpowersType = type;
                     this.enpowersCount = enpowersCount;
-                    this.enpowersGridMode = this.enpowersEnpwGridMode[0];
-                    this.enpowersGridModeTranslated = this.enpowersEnpwGridModeTranslated[0];
 
                     //enpower grid state sensors
+                    this.enpowersGridMode = this.enpowersEnpwGridMode[0];
+                    this.enpowersGridModeTranslated = this.enpowersEnpwGridModeTranslated[0];
                     if (this.enpowerGridModeActiveSensorsCount > 0) {
                         for (let i = 0; i < this.enpowerGridModeActiveSensorsCount; i++) {
                             const gridMode = this.enpowerGridModeActiveSensors[i].gridMode;
@@ -2448,12 +2447,9 @@ class EnvoyDevice extends EventEmitter {
                 const solarGridMode = relay.Solar_grid_mode ?? 'Unknown';
                 const solarGridModeTranslated = CONSTANTS.ApiCodes[solarGridMode] ?? relay.Solar_grid_mode;
 
+                //encharge grid state sensors
                 this.enchargesGridMode = enchGridMode;
                 this.enchargesGridModeTranslated = enchGridModeTranslated;
-                this.solarGridMode = solarGridMode;
-                this.solarGridModeTranslated = solarGridModeTranslated;
-
-                //encharge grid state sensors
                 if (this.enchargeGridModeActiveSensorsCount > 0) {
                     for (let i = 0; i < this.enchargeGridModeActiveSensorsCount; i++) {
                         const gridMode = this.enchargeGridModeActiveSensors[i].gridMode;
@@ -2469,6 +2465,8 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //solar grid state sensors
+                this.solarGridMode = solarGridMode;
+                this.solarGridModeTranslated = solarGridModeTranslated;
                 if (this.solarGridModeActiveSensorsCount > 0) {
                     for (let i = 0; i < this.solarGridModeActiveSensorsCount; i++) {
                         const gridMode = this.solarGridModeActiveSensors[i].gridMode;
@@ -3666,7 +3664,7 @@ class EnvoyDevice extends EventEmitter {
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus)
                         .onGet(async () => {
                             const value = this.enpowersGridModeTranslated;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, enpower grid status: ${value}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, enpower grid mode: ${value}`);
                             return value;
                         });
                 }
