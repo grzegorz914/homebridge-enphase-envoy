@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### v9.0.0 require Homebridge v2.0.0
 
-- adapted to use with Homebridge v2.0.0 
+- adapted to use with Homebridge v2.0.0
+- added new ensemble/encharge/solar sensor profile, grid-tied and grid-forming
 - dependencies updated
 - cleanup
 
