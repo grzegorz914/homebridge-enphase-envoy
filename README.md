@@ -60,9 +60,9 @@
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Encharge: `Backup Level`
     * Grid Mode:
-      * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`.
-      * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`.
-      * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`.
+      * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
+      * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
+      * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
 
 ### Configuration
 
