@@ -1847,9 +1847,7 @@ class EnvoyDevice extends EventEmitter {
                             type: type,
                         }
                         this.generators.push(obj);
-
                     });
-                    this.generatorsType = type;
                     this.generatorsCount = generatorsCount;
                     this.generatorsInstalled = true;
                 }
