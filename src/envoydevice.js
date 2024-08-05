@@ -424,8 +424,6 @@ class EnvoyDevice extends EventEmitter {
         this.microinvertersSupported = false;
         this.microinvertersInstalled = false;
         this.microinvertersCount = 0;
-        this.microinvertersType = 'Unknown';
-        this.microinvertersPowerSupported = false;
 
         //qrelays
         this.qRelaysSupported = false;
@@ -1202,34 +1200,28 @@ class EnvoyDevice extends EventEmitter {
                 //wireless connection kit
                 const wirelessConnections = wirelessConnectionKitSupported ? envoy.wireless_connection : [];
                 const wirelessConnectionKitConnectionsCount = wirelessConnections.length;
-                const wirelessConnectionKitInstalled = wirelessConnectionKitConnectionsCount > 0;
-                if (wirelessConnectionKitInstalled) {
-                    this.wirelessConnectionsSignalStrength = [];
-                    this.wirelessConnectionsSignalStrengthMax = [];
-                    this.wirelessConnectionsType = [];
-                    this.wirelessConnectionsConnected = [];
+                if (wirelessConnectionKitSupported) {
+                    this.wirelessConnections = [];
 
-                    for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
-                        const wirelessConnection = wirelessConnections[i];
-                        const wirelessConnectionSignalStrength = wirelessConnection.signal_strength * 20;
-                        const wirelessConnectionSignalStrengthMax = wirelessConnection.signal_strength_max * 20;
-                        const wirelessConnectionType = CONSTANTS.ApiCodes[wirelessConnection.type] ?? 'Unknown';
-                        const wirelessConnectionConnected = wirelessConnection.connected === true;
+                    wirelessConnections.forEach((wirelessConnection, index) => {
+                        const obj = {
+                            signalStrength: wirelessConnection.signal_strength * 20,
+                            signalStrengthMax: wirelessConnection.signal_strength_max * 20,
+                            type: CONSTANTS.ApiCodes[wirelessConnection.type] ?? 'Unknown',
+                            connected: wirelessConnection.connected ?? false,
+                        };
 
-                        if (this.wirelessConnektionsKitServices) {
-                            this.wirelessConnektionsKitServices[i]
-                                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength, wirelessConnectionSignalStrength)
-                                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax, wirelessConnectionSignalStrengthMax)
-                                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitType, wirelessConnectionType)
-                                .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected, wirelessConnectionConnected)
+                        this.wirelessConnections.push(obj);
+
+                        if (this.wirelessConnectionsKitServices) {
+                            this.wirelessConnectionsKitServices[index]
+                                ?.updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength, obj.signalStrength)
+                                ?.updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax, obj.signalStrengthMax)
+                                ?.updateCharacteristic(Characteristic.enphaseWirelessConnectionKitType, obj.type)
+                                ?.updateCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected, obj.connected);
                         }
-
-                        this.wirelessConnectionsSignalStrength.push(wirelessConnectionSignalStrength);
-                        this.wirelessConnectionsSignalStrengthMax.push(wirelessConnectionSignalStrengthMax);
-                        this.wirelessConnectionsType.push(wirelessConnectionType);
-                        this.wirelessConnectionsConnected.push(wirelessConnectionConnected);
-                    }
-                    this.wirelessConnectionKitInstalled = this.wirelessConnectionsConnected.includes(true);
+                    });
+                    this.wirelessConnectionKitInstalled = this.wirelessConnections.some(connection => connection.connected);
                 }
 
                 //convert status
@@ -1342,62 +1334,49 @@ class EnvoyDevice extends EventEmitter {
                 const microinvertersInstalled = microinvertersCount > 0;
 
                 if (microinvertersInstalled) {
-                    this.microinvertersSerialNumber = [];
-                    this.microinvertersStatus = [];
-                    this.microinvertersLastReportDate = [];
-                    this.microinvertersFirmware = [];
-                    this.microinvertersProducing = [];
-                    this.microinvertersCommunicating = [];
-                    this.microinvertersProvisioned = [];
-                    this.microinvertersOperating = [];
+                    this.microinverters = [];
 
                     const type = CONSTANTS.ApiCodes[inventory[0].type] ?? 'Unknown';
-                    for (let i = 0; i < microinvertersCount; i++) {
-                        const microinverter = microinverters[i];
-                        const partNum = CONSTANTS.PartNumbers[microinverter.part_num] ?? 'Microinverter';
-                        const installed = new Date(microinverter.installed * 1000).toLocaleString();
-                        const serialNumber = microinverter.serial_num;
-                        const deviceStatus = microinverter.device_status;
-                        const lastReportDate = new Date(microinverter.last_rpt_date * 1000).toLocaleString();
-                        const adminState = microinverter.admin_state;
-                        const devType = microinverter.dev_type;
-                        const createdDate = new Date(microinverter.created_date * 1000).toLocaleString();
-                        const imageLoadDate = new Date(microinverter.img_load_date * 1000).toLocaleString();
-                        const firmware = microinverter.img_pnum_running;
-                        const ptpn = microinverter.ptpn;
-                        const chaneId = microinverter.chaneid;
-                        const deviceControl = microinverter.device_control;
-                        const producing = microinverter.producing === true;
-                        const communicating = microinverter.communicating === true;
-                        const provisioned = microinverter.provisioned === true;
-                        const operating = microinverter.operating === true;
-                        const phase = microinverter.phase ?? 'Unknown';
+                    microinverters.forEach((microinverter, index) => {
+                        const obj = {
+                            type: type,
+                            partNum: CONSTANTS.PartNumbers[microinverter.part_num] ?? 'Microinverter',
+                            installed: new Date(microinverter.installed * 1000).toLocaleString(),
+                            serialNumber: microinverter.serial_num,
+                            deviceStatus: (Array.isArray(microinverter.device_status) && (microinverter.device_status).length > 0) ? ((microinverter.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                            lastReportDate: new Date(microinverter.last_rpt_date * 1000).toLocaleString(),
+                            adminState: microinverter.admin_state,
+                            devType: microinverter.dev_type,
+                            createdDate: new Date(microinverter.created_date * 1000).toLocaleString(),
+                            imageLoadDate: new Date(microinverter.img_load_date * 1000).toLocaleString(),
+                            firmware: microinverter.img_pnum_running,
+                            ptpn: microinverter.ptpn,
+                            chaneId: microinverter.chaneid,
+                            deviceControl: microinverter.device_control,
+                            producing: microinverter.producing === true,
+                            communicating: microinverter.communicating === true,
+                            provisioned: microinverter.provisioned === true,
+                            operating: microinverter.operating === true,
+                            phase: microinverter.phase ?? 'Unknown',
+                            lastReportWatts: 0,
+                            maxReportWatts: 0,
+                            commLevel: 0,
 
-                        //convert status
-                        const status = (Array.isArray(deviceStatus) && deviceStatus.length > 0) ? (deviceStatus.map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status';
+                        }
+                        this.microinverters.push(obj)
 
                         if (this.microinvertersServices) {
-                            this.microinvertersServices[i]
+                            this.microinvertersServices[index]
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterGridProfile, this.arfProfile.name)
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, status)
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, firmware)
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterProducing, producing)
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, communicating)
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, provisioned)
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, operating);
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, obj.deviceStatus)
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, obj.lastReportDate)
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, obj.firmware)
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterProducing, obj.producing)
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, obj.communicating)
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, obj.provisioned)
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, obj.operating);
                         }
-
-                        this.microinvertersSerialNumber.push(serialNumber);
-                        this.microinvertersStatus.push(status);
-                        this.microinvertersLastReportDate.push(lastReportDate);
-                        this.microinvertersFirmware.push(firmware);
-                        this.microinvertersProducing.push(producing);
-                        this.microinvertersCommunicating.push(communicating);
-                        this.microinvertersProvisioned.push(provisioned);
-                        this.microinvertersOperating.push(operating);
-                    }
-                    this.microinvertersType = type;
+                    });
                     this.microinvertersCount = microinvertersCount;
                     this.microinvertersInstalled = true;
                 }
@@ -3216,44 +3195,32 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 const microinvertersData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANTS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(CONSTANTS.ApiUrls.InverterProduction, options);
-                const microinverters = microinvertersData.data ?? [];
-                const debug = this.enableDebugMode ? this.emit('debug', `Microinverters: ${JSON.stringify(microinverters, null, 2)}`) : false;
+                const microinverters1 = microinvertersData.data ?? [];
+                const debug = this.enableDebugMode ? this.emit('debug', `Microinverters: ${JSON.stringify(microinverters1, null, 2)}`) : false;
 
                 //microinverters devices count
-                const microinvertersCount = microinverters.length;
+                const microinvertersCount = microinverters1.length;
                 if (microinvertersCount === 0) {
                     resolve(false);
                     return;
                 }
 
                 //microinverters power
-                this.microinvertersReadingTime = [];
-                this.microinvertersDevType = [];
-                this.microinvertersLastPower = [];
-                this.microinvertersMaxPower = [];
-
-                for (let i = 0; i < this.microinvertersCount; i++) {
-                    const index = microinverters.findIndex(device => device.serialNumber == this.microinvertersSerialNumber[i]);
-                    const microinverter = microinverters[index];
-                    const lastReportDate = new Date(microinverter.lastReportDate * 1000).toLocaleString();
-                    const devType = microinverter.devType;
-                    const lastReportWatts = parseInt(microinverter.lastReportWatts);
-                    const microinverterPower = lastReportWatts >= 0 ? lastReportWatts : 0;
-                    const maxReportWatts = parseInt(microinverter.maxReportWatts);
+                this.microinverters.forEach((microinverter, index) => {
+                    const index1 = microinverters1.findIndex(device => device.serialNumber == microinverter.serialNumber);
+                    const microinverterProduction = microinverters1[index1];
+                    this.microinverters[index].type = microinverterProduction.devType ?? 'Microinverter';
+                    this.microinverters[index].lastReportDate = new Date(microinverterProduction.lastReportDate * 1000).toLocaleString();
+                    this.microinverters[index].lastReportWatts = parseInt(microinverterProduction.lastReportWatts) ?? 0;
+                    this.microinverters[index].maxReportWatts = parseInt(microinverterProduction.maxReportWatts) ?? 0;
 
                     if (this.microinvertersServices) {
-                        this.microinvertersServices[i]
-                            .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, lastReportDate)
-                            .updateCharacteristic(Characteristic.enphaseMicroinverterPower, microinverterPower)
-                            .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, maxReportWatts)
+                        this.microinvertersServices[index]
+                            .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, this.microinverters[index].lastReportDate)
+                            .updateCharacteristic(Characteristic.enphaseMicroinverterPower, this.microinverters[index].lastReportWatts)
+                            .updateCharacteristic(Characteristic.enphaseMicroinverterPowerMax, this.microinverters[index].maxReportWatts)
                     }
-
-                    this.microinvertersReadingTime.push(lastReportDate);
-                    this.microinvertersDevType.push(devType);
-                    this.microinvertersLastPower.push(microinverterPower);
-                    this.microinvertersMaxPower.push(maxReportWatts);
-                }
-                this.microinvertersPowerSupported = this.microinvertersLastPower.length > 0;
+                });
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('microinverters', microinverters) : false;
@@ -3355,22 +3322,21 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevel, null, 2)}`) : false;
 
                 //create arrays
-                this.microinvertersCommLevel = [];
                 this.acBatteriesCommLevel = [];
                 this.qRelaysCommLevel = [];
                 this.enchargesCommLevel = [];
 
                 // get comm level data
-                for (let i = 0; i < this.microinvertersCount; i++) {
-                    const key = `${this.microinvertersSerialNumber[i]}`;
+                this.microinverters.forEach((microinverter, index) => {
+                    const key = `${microinverter.serialNumber}`;
                     const value = (plcLevel[key] ?? 0) * 20;
+                    this.microinverters[index].commLevel = value;
 
                     if (this.microinvertersServices) {
-                        this.microinvertersServices[i]
+                        this.microinvertersServices[index]
                             .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
                     }
-                    this.microinvertersCommLevel.push(value);
-                }
+                });
 
                 for (let i = 0; i < this.acBatteriesCount; i++) {
                     const key = `${this.acBatteriesSerialNumber[i]}`;
@@ -3510,8 +3476,6 @@ class EnvoyDevice extends EventEmitter {
                 const metersConsumptionEnabled = this.metersConsumptionEnabled;
                 const consumptionsCount = this.consumptionsCount;
                 const microinvertersInstalled = this.microinvertersInstalled;
-                const microinvertersCount = this.microinvertersCount;
-                const microinvertersPowerSupported = this.microinvertersPowerSupported;
                 const acBatteriesInstalled = this.acBatteriesInstalled;
                 const acBatteriesCount = this.acBatteriesCount;
                 const qRelaysInstalled = this.qRelaysInstalled;
@@ -3525,7 +3489,6 @@ class EnvoyDevice extends EventEmitter {
                 const ensembleStatusSupported = this.ensembleStatusSupported;
                 const generatorsInstalled = this.generatorsInstalled;
                 const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
-                const wirelessConnectionKitConnectionsCount = this.wirelessConnectionKitConnectionsCount;
                 const liveDataSupported = this.liveDataSupported;
                 const productionPowerModeSupported = this.productionPowerModeSupported;
                 const plcLevelSupported = this.plcLevelSupported;
@@ -4541,72 +4504,70 @@ class EnvoyDevice extends EventEmitter {
                 //microinverters
                 if (microinvertersInstalled) {
                     this.microinvertersServices = [];
-                    for (let i = 0; i < microinvertersCount; i++) {
-                        const microinverterSerialNumber = this.microinvertersSerialNumber[i];
+                    for (const microinverter of this.microinverters) {
+                        const microinverterSerialNumber = microinverter.serialNumber;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Microinverter ${microinverterSerialNumber} Service`) : false;
-                        const enphaseMicroinverterService = accessory.addService(Service.enphaseMicroinverterService, `Microinverter ${microinverterSerialNumber}`, `enphaseMicroinverterService${i}`);
+                        const enphaseMicroinverterService = accessory.addService(Service.enphaseMicroinverterService, `Microinverter ${microinverterSerialNumber}`, microinverterSerialNumber);
                         enphaseMicroinverterService.setCharacteristic(Characteristic.ConfiguredName, `Microinverter ${microinverterSerialNumber}`);
-                        if (microinvertersPowerSupported) {
-                            enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPower)
-                                .onGet(async () => {
-                                    let value = this.microinvertersLastPower[i] ?? 0;
-                                    const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, last power: ${value} W`);
-                                    return value;
-                                });
-                            enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPowerMax)
-                                .onGet(async () => {
-                                    const value = this.microinvertersMaxPower[i] ?? 0;
-                                    const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, peak power: ${value} W`);
-                                    return value;
-                                });
-                        }
+                        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPower)
+                            .onGet(async () => {
+                                let value = microinverter.lastReportWatts;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, last power: ${value} W`);
+                                return value;
+                            });
+                        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterPowerMax)
+                            .onGet(async () => {
+                                const value = microinverter.maxReportWatts;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, peak power: ${value} W`);
+                                return value;
+                            });
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterProducing)
                             .onGet(async () => {
-                                const value = this.microinvertersProducing[i];
+                                const value = microinverter.producing;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, producing: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             });
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommunicating)
                             .onGet(async () => {
-                                const value = this.microinvertersCommunicating[i];
+                                const value = microinverter.communicating;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, communicating: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             });
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterProvisioned)
                             .onGet(async () => {
-                                const value = this.microinvertersProvisioned[i];
+                                const value = microinverter.provisioned;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, provisioned: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             });
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterOperating)
                             .onGet(async () => {
-                                const value = this.microinvertersOperating[i];
+                                const value = microinverter.operating;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, operating: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             });
                         if (plcLevelSupported) {
                             enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterCommLevel)
                                 .onGet(async () => {
-                                    const value = this.microinvertersCommLevel[i] ?? 0;
+                                    const value = microinverter.commLevel;
                                     const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, plc level: ${value} %`);
                                     return value;
                                 });
                         }
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterStatus)
                             .onGet(async () => {
-                                const value = this.microinvertersStatus[i];
+                                const value = microinverter.deviceStatus;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, status: ${value}`);
                                 return value;
                             });
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterFirmware)
                             .onGet(async () => {
-                                const value = this.microinvertersFirmware[i];
+                                const value = microinverter.firmware;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, firmware: ${value}`);
                                 return value;
                             });
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterLastReportDate)
                             .onGet(async () => {
-                                const value = microinvertersPowerSupported ? this.microinvertersReadingTime[i] : this.microinvertersLastReportDate[i] || '';
+                                const value = microinverter.lastReportDate;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${microinverterSerialNumber}, last report: ${value}`);
                                 return value;
                             });
@@ -5295,10 +5256,10 @@ class EnvoyDevice extends EventEmitter {
                 //wireless connektion kit
                 if (wirelessConnectionKitInstalled) {
                     this.wirelessConnektionsKitServices = [];
-                    for (let i = 0; i < wirelessConnectionKitConnectionsCount; i++) {
-                        const wirelessConnectionType = this.wirelessConnectionsType[i];
+                    for (const wirelessConnection of this.wirelessConnections) {
+                        const wirelessConnectionType = wirelessConnection.type;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Wireless Connection ${wirelessConnectionType} Service`) : false;
-                        const enphaseWirelessConnectionKitService = accessory.addService(Service.enphaseWirelessConnectionKitService, `Wireless connection ${wirelessConnectionType}`, `enphaseWirelessConnectionKitService${i}`);
+                        const enphaseWirelessConnectionKitService = accessory.addService(Service.enphaseWirelessConnectionKitService, `Wireless connection ${wirelessConnectionType}`, wirelessConnectionType);
                         enphaseWirelessConnectionKitService.setCharacteristic(Characteristic.ConfiguredName, `Wireless connection ${wirelessConnectionType}`);
                         enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitType)
                             .onGet(async () => {
@@ -5308,19 +5269,19 @@ class EnvoyDevice extends EventEmitter {
                             });
                         enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected)
                             .onGet(async () => {
-                                const value = this.wirelessConnectionsConnected[i];
+                                const value = wirelessConnection.connected;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${wirelessConnectionType}, state: ${value ? 'Connected' : 'Disconnected'}`);
                                 return value;
                             });
                         enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength)
                             .onGet(async () => {
-                                const value = this.wirelessConnectionsSignalStrength[i];
+                                const value = wirelessConnection.signalStrength;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${wirelessConnectionType}, signal strength: ${value} %`);
                                 return value;
                             });
                         enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax)
                             .onGet(async () => {
-                                const value = this.wirelessConnectionsSignalStrengthMax[i];
+                                const value = wirelessConnection.signalStrengthMax;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${wirelessConnectionType}, signal strength max: ${value} %`);
                                 return value;
                             });
