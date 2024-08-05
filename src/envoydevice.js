@@ -547,7 +547,6 @@ class EnvoyDevice extends EventEmitter {
 
         //liveData
         this.liveDataSupported = false;
-        this.liveDataMetersCount = 0;
 
         //production power mode
         this.productionPowerModeSupported = false;
@@ -2343,6 +2342,9 @@ class EnvoyDevice extends EventEmitter {
 
                 //lived data meteres installed
                 const liveDataTypes = [];
+                this.liveDatas = [];
+
+                //pv
                 liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv });
 
                 //storage
@@ -2356,9 +2358,6 @@ class EnvoyDevice extends EventEmitter {
                 const pushGeneratorTypeToArray = this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
 
                 //read meters data
-                const liveDataMetersCount = liveDataTypes.length;
-                this.liveDatas = [];
-
                 liveDataTypes.forEach((liveDataType, index) => {
                     const obj = {
                         type: liveDataType.type,
@@ -2385,7 +2384,6 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3, obj.apparentPowerL3)
                     }
                 });
-                this.liveDataMetersCount = liveDataMetersCount;
 
                 //encharge backup level sensors
                 if (this.enchargeBackupLevelActiveSensorsCount > 0) {
@@ -2424,7 +2422,7 @@ class EnvoyDevice extends EventEmitter {
                 const tasksSupported = liveDadaKeys.includes('tasks');
                 const tasks = tasksSupported ? live.tasks : {};
                 const tasksId = tasks.task_id;
-                const tasksTimestamp = tasks.timestamp;
+                const tasksTimeStamp = tasks.timestamp;
 
                 //counters
                 const countersSupported = liveDadaKeys.includes('counters');
