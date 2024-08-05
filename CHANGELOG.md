@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - added support for Homebridge v2.0.0
 - dependencies updated
+- config schema updated
 - cleanup
 
 ## [8.1.1] - (04.08.2024)
