@@ -57,7 +57,7 @@
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               },
-              "required": false
+              "required": true
             },
             "envoyPasswd": {
               "title": "Envoy Password",
