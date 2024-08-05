@@ -2342,68 +2342,49 @@ class EnvoyDevice extends EventEmitter {
                 const metersAcbAggEnergy = liveDataMeters.acb_agg_energy;
 
                 //lived data meteres installed
-                this.liveDataTypes = [];
-                this.liveDataTypes.push('PV');
-                this.liveDataMetersType = [];
-                this.liveDataMetersType.push(liveDataMeters.pv);
+                const liveDataTypes = [];
+                liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv });
 
                 //storage
-                const pushStorageTypeToArray = (this.acBatteriesInstalled || this.enchargesInstalled) && this.metersStorageSupported ? this.liveDataTypes.push('Storage') : false;
-                const pushStorageDataToArray = pushStorageTypeToArray ? this.liveDataMetersType.push(liveDataMeters.storage) : false;
+                const pushStorageTypeToArray = (this.acBatteriesInstalled || this.enchargesInstalled) && this.metersStorageSupported ? liveDataTypes.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
 
                 //grid and load
-                const pushGridTypeToArray = this.metersSupported && this.metersConsumptionEnabled ? this.liveDataTypes.push('Grid') : false;
-                const pushGridToArray = pushGridTypeToArray ? this.liveDataMetersType.push(liveDataMeters.grid) : false;
-                const pushLoadTypeToArray = this.metersSupported && this.metersConsumptionEnabled ? this.liveDataTypes.push('Load') : false;
-                const pushLoadeToArray = pushLoadTypeToArray ? this.liveDataMetersType.push(liveDataMeters.load) : false;
+                const pushGridTypeToArray = this.metersSupported && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
+                const pushLoadTypeToArray = this.metersSupported && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Load', meter: liveDataMeters.load }) : false;
 
                 //generator
-                const pushGeneratorTypeToArray = this.generatorsInstalled ? this.liveDataTypes.push('Generator') : false;
-                const pushGenertorToArray = pushGeneratorTypeToArray ? this.liveDataMetersType.push(liveDataMeters.generator) : false;
+                const pushGeneratorTypeToArray = this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
 
                 //read meters data
-                this.liveDataActivePower = [];
-                this.liveDataApparentPower = [];
-                this.liveDataActivePowerL1 = [];
-                this.liveDataActivePowerL2 = [];
-                this.liveDataActivePowerL3 = [];
-                this.liveDataApparentPowerL1 = [];
-                this.liveDataApparentPowerL2 = [];
-                this.liveDataApparentPowerL3 = [];
+                const liveDataMetersCount = liveDataTypes.length;
+                this.liveDatas = [];
 
-                const liveDataMetersCount = this.liveDataMetersType.length;
-                for (let i = 0; i < liveDataMetersCount; i++) {
-                    const liveDataMeterType = this.liveDataMetersType[i];
-                    const liveDataActivePower = liveDataMeterType.agg_p_mw / 1000000 || 0;
-                    const liveDataApparentPower = liveDataMeterType.agg_s_mva / 1000000 || 0;
-                    const liveDataActivePowerL1 = liveDataMeterType.agg_p_ph_a_mw / 1000000 || 0;
-                    const liveDataActivePowerL2 = liveDataMeterType.agg_p_ph_b_mw / 1000000 || 0;
-                    const liveDataActivePowerL3 = liveDataMeterType.agg_p_ph_c_mw / 1000000 || 0;
-                    const liveDataApparentPowerL1 = liveDataMeterType.agg_s_ph_a_mva / 1000000 || 0;
-                    const liveDataApparentPowerL2 = liveDataMeterType.agg_s_ph_b_mva / 1000000 || 0;
-                    const liveDataApparentPowerL3 = liveDataMeterType.agg_s_ph_c_mva / 1000000 || 0;
+                liveDataTypes.forEach((liveDataType, index) => {
+                    const obj = {
+                        type: liveDataType.type,
+                        activePower: liveDataType.meter.agg_p_mw / 1000000 || 0,
+                        apparentPower: liveDataType.meter.agg_s_mva / 1000000 || 0,
+                        activePowerL1: liveDataType.meter.agg_p_ph_a_mw / 1000000 || 0,
+                        activePowerL2: liveDataType.meter.agg_p_ph_b_mw / 1000000 || 0,
+                        activePowerL3: liveDataType.meter.agg_p_ph_c_mw / 1000000 || 0,
+                        apparentPowerL1: liveDataType.meter.agg_s_ph_a_mva / 1000000 || 0,
+                        apparentPowerL2: liveDataType.meter.agg_s_ph_b_mva / 1000000 || 0,
+                        apparentPowerL3: liveDataType.meter.agg_s_ph_c_mva / 1000000 || 0
+                    }
+                    this.liveDatas.push(obj);
 
                     if (this.liveDataMetersServices) {
-                        this.liveDataMetersServices[i]
-                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePower, liveDataActivePower)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL1, liveDataActivePowerL1)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL2, liveDataActivePowerL2)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL3, liveDataActivePowerL3)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPower, liveDataApparentPower)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1, liveDataApparentPowerL1)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2, liveDataApparentPowerL2)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3, liveDataApparentPowerL3)
+                        this.liveDataMetersServices[index]
+                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePower, obj.activePower)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL1, obj.activePowerL1)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL2, obj.activePowerL2)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL3, obj.activePowerL3)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPower, obj.apparentPower)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1, obj.apparentPowerL1)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2, obj.apparentPowerL2)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3, obj.apparentPowerL3)
                     }
-
-                    this.liveDataActivePower.push(liveDataActivePower);
-                    this.liveDataApparentPower.push(liveDataApparentPower);
-                    this.liveDataActivePowerL1.push(liveDataActivePowerL1);
-                    this.liveDataActivePowerL2.push(liveDataActivePowerL2);
-                    this.liveDataActivePowerL3.push(liveDataActivePowerL3);
-                    this.liveDataApparentPowerL1.push(liveDataApparentPowerL1);
-                    this.liveDataApparentPowerL2.push(liveDataApparentPowerL2);
-                    this.liveDataApparentPowerL3.push(liveDataApparentPowerL3);
-                }
+                });
                 this.liveDataMetersCount = liveDataMetersCount;
 
                 //encharge backup level sensors
@@ -4992,56 +4973,56 @@ class EnvoyDevice extends EventEmitter {
                 //live data
                 if (liveDataSupported) {
                     this.liveDataMetersServices = [];
-                    for (let i = 0; i < this.liveDataMetersCount; i++) {
-                        const liveDataType = this.liveDataTypes[i];
+                    for (const liveData of this.liveDatas) {
+                        const liveDataType = liveData.type;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Live Data ${liveDataType} Service`) : false;
-                        const enphaseLiveDataService = accessory.addService(Service.enphaseLiveDataService, `Live Data ${liveDataType}`, `enphaseLiveDataService${i}`);
+                        const enphaseLiveDataService = accessory.addService(Service.enphaseLiveDataService, `Live Data ${liveDataType}`, liveDataType);
                         enphaseLiveDataService.setCharacteristic(Characteristic.ConfiguredName, `Live Data ${liveDataType}`);
                         enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePower)
                             .onGet(async () => {
-                                const value = this.liveDataActivePower[i];
+                                const value = liveData.activePower;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, active power: ${value} kW`);
                                 return value;
                             });
                         enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL1)
                             .onGet(async () => {
-                                const value = this.liveDataActivePowerL1[i];
+                                const value = liveData.activePowerL1;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, active power: ${value} kW`);
                                 return value;
                             });
                         enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL2)
                             .onGet(async () => {
-                                const value = this.liveDataActivePowerL2[i];
+                                const value = liveData.activePowerL2;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, active power: ${value} kW`);
                                 return value;
                             });
                         enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL3)
                             .onGet(async () => {
-                                const value = this.liveDataActivePowerL3[i];
+                                const value = liveData.activePowerL3;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, active power: ${value} kW`);
                                 return value;
                             });
                         enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPower)
                             .onGet(async () => {
-                                const value = this.liveDataApparentPower[i];
+                                const value = liveData.apparentPower;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, apparent power: ${value} kVA`);
                                 return value;
                             });
                         enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1)
                             .onGet(async () => {
-                                const value = this.liveDataApparentPowerL1[i];
+                                const value = liveData.apparentPowerL1;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, apparent power: ${value} kVA`);
                                 return value;
                             });
                         enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2)
                             .onGet(async () => {
-                                const value = this.liveDataApparentPowerL2[i];
+                                const value = liveData.apparentPowerL2;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, apparent power: ${value} kVA`);
                                 return value;
                             });
                         enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3)
                             .onGet(async () => {
-                                const value = this.liveDataApparentPowerL3[i];
+                                const value = liveData.apparentPowerL3;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, apparent power: ${value} kVA`);
                                 return value;
                             });
