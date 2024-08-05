@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### v9.0.0 require Homebridge v2.0.0
 
 - added support for Homebridge v2.0.0
+- code refactor
+- stability and performance improvements
 - dependencies updated
 - config schema updated
 - cleanup
