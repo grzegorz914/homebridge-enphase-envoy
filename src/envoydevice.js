@@ -192,15 +192,16 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const powerLevel = sensor.powerLevel / 1000;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.powerLevel = powerLevel;
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.powerProductionLevelActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.powerLevel = powerLevel;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.powerProductionLevelActiveSensors.push(sensor);
         }
         this.powerProductionLevelActiveSensorsCount = this.powerProductionLevelActiveSensors.length || 0;
 
@@ -209,15 +210,16 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const energyLevel = sensor.energyLevel / 1000 ?? 0;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.energyLevel = energyLevel;
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.energyProductionLevelActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.energyLevel = energyLevel;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.energyProductionLevelActiveSensors.push(sensor);
         }
         this.energyProductionLevelActiveSensorsCount = this.energyProductionLevelActiveSensors.length || 0;
 
@@ -226,15 +228,16 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const powerLevel = sensor.powerLevel / 1000;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.powerLevel = powerLevel;
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.powerConsumptionTotalLevelActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.powerLevel = powerLevel;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.powerConsumptionTotalLevelActiveSensors.push(sensor);
         }
         this.powerConsumptionTotalLevelActiveSensorsCount = this.powerConsumptionTotalLevelActiveSensors.length || 0;
 
@@ -243,15 +246,16 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const energyLevel = sensor.energyLevel / 1000 ?? 0;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.energyLevel = energyLevel;
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.energyConsumptionTotalLevelActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.energyLevel = energyLevel;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.energyConsumptionTotalLevelActiveSensors.push(sensor);
         }
         this.energyConsumptionTotalLevelActiveSensorsCount = this.energyConsumptionTotalLevelActiveSensors.length || 0;
 
@@ -260,15 +264,16 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const powerLevel = sensor.powerLevel / 1000;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.powerLevel = powerLevel;
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.powerConsumptionNetLevelActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.powerLevel = powerLevel;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.powerConsumptionNetLevelActiveSensors.push(sensor);
         }
         this.powerConsumptionNetLevelActiveSensorsCount = this.powerConsumptionNetLevelActiveSensors.length || 0;
 
@@ -277,15 +282,16 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const energyLevel = sensor.energyLevel / 1000 ?? 0;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.energyLevel = energyLevel;
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.energyConsumptionNetLevelActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.energyLevel = energyLevel;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.energyConsumptionNetLevelActiveSensors.push(sensor);
         }
         this.energyConsumptionNetLevelActiveSensorsCount = this.energyConsumptionNetLevelActiveSensors.length || 0;
 
@@ -293,14 +299,15 @@ class EnvoyDevice extends EventEmitter {
         for (const sensor of this.enpowerGridModeSensors) {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.enpowerGridModeActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.enpowerGridModeActiveSensors.push(sensor);
         }
         this.enpowerGridModeActiveSensorsCount = this.enpowerGridModeActiveSensors.length || 0;
 
@@ -308,14 +315,15 @@ class EnvoyDevice extends EventEmitter {
         for (const sensor of this.enchargeGridModeSensors) {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.enchargeGridModeActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.enchargeGridModeActiveSensors.push(sensor);
         }
         this.enchargeGridModeActiveSensorsCount = this.enchargeGridModeActiveSensors.length || 0;
 
@@ -325,16 +333,17 @@ class EnvoyDevice extends EventEmitter {
             const backupLevel = sensor.backupLevel ?? 0;
             const compareMode = sensor.compareMode ?? 0;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.backupLevel = backupLevel;
-                sensor.compareMode = compareMode;
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.enchargeBackupLevelActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.backupLevel = backupLevel;
+            sensor.compareMode = compareMode;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.enchargeBackupLevelActiveSensors.push(sensor);
         }
         this.enchargeBackupLevelActiveSensorsCount = this.enchargeBackupLevelActiveSensors.length || 0;
 
@@ -342,14 +351,15 @@ class EnvoyDevice extends EventEmitter {
         for (const sensor of this.solarGridModeSensors) {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
-            if (name && displayType > 0) {
-                sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-                sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
-                sensor.state = false;
-                this.solarGridModeActiveSensors.push(sensor);
-            } else {
+            if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
-            };
+                continue;
+            }
+
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.solarGridModeActiveSensors.push(sensor);
         }
         this.solarGridModeActiveSensorsCount = this.solarGridModeActiveSensors.length || 0;
 
