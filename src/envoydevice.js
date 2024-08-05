@@ -542,7 +542,7 @@ class EnvoyDevice extends EventEmitter {
         this.productionReadingTime = '';
 
         //consumption CT
-        this.consumptionsPowerPeak = [];
+        this.consumptionsPowerPeak = [0, 0];
         this.consumptionsCount = 0;
 
         //liveData
@@ -2340,9 +2340,8 @@ class EnvoyDevice extends EventEmitter {
                 const metersAcbAggSoc = liveDataMeters.acb_agg_soc;
                 const metersAcbAggEnergy = liveDataMeters.acb_agg_energy;
 
-                //lived data meteres installed
+                //lived data meteres types
                 const liveDataTypes = [];
-                this.liveDatas = [];
 
                 //pv
                 liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv });
@@ -2358,6 +2357,7 @@ class EnvoyDevice extends EventEmitter {
                 const pushGeneratorTypeToArray = this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
 
                 //read meters data
+                this.liveDatas = [];
                 liveDataTypes.forEach((liveDataType, index) => {
                     const obj = {
                         type: liveDataType.type,
@@ -2701,102 +2701,74 @@ class EnvoyDevice extends EventEmitter {
 
                 //consumption data 2
                 if (metersConsumptionEnabled) {
-                    this.consumptionsType = [];
-                    this.consumptionsMeasurmentType = [];
-                    this.consumptionsActiveCount = [];
-                    this.consumptionsReadingTime = [];
-                    this.consumptionsPower = [];
-                    this.consumptionsPowerPeakDetected = [];
-                    this.consumptionsPowerState = [];
-                    this.consumptionsEnergyToday = [];
-                    this.consumptionsEnergyLastSevenDays = [];
-                    this.consumptionsEnergyLifeTime = [];
-                    this.consumptionsEnergyState = [];
-                    this.consumptionsRmsCurrent = [];
-                    this.consumptionsRmsVoltage = [];
-                    this.consumptionsReactivePower = [];
-                    this.consumptionsApparentPower = [];
-                    this.consumptionsPwrFactor = [];
+                    this.consumptions = [];
 
-                    const consumptionsCount = productionCt.consumption.length; //net nad total
-                    for (let i = 0; i < consumptionsCount; i++) {
-                        //power
-                        const consumption = productionCt.consumption[i] ?? {};
-                        const consumptionType = CONSTANTS.ApiCodes[consumption.type];
-                        const consumptionActiveCount = consumption.activeCount;
-                        const consumptionMeasurmentType = CONSTANTS.ApiCodes[consumption.measurementType];
-                        const consumptionReadingTime = new Date(consumption.readingTime * 1000).toLocaleString();
-                        const consumptionPower = parseFloat(consumption.wNow) / 1000;
+                    const consumptions = productionCt.consumption ?? {};
+                    consumptions.forEach((consumption, index) => {
+                        const obj = {
+                            type: CONSTANTS.ApiCodes[consumption.type],
+                            measurmentType: CONSTANTS.ApiCodes[consumption.measurementType],
+                            activeCount: consumption.activeCount,
+                            readingTime: new Date(consumption.readingTime * 1000).toLocaleString(),
+                            power: parseFloat(consumption.wNow) / 1000,
+                            powerPeak: parseFloat(consumption.wNow) / 1000 > this.consumptionsPowerPeak[index] ? parseFloat(consumption.wNow) / 1000 : this.consumptionsPowerPeak[index],
+                            powerPeakDetected: parseFloat(consumption.wNow) / 1000 > this.consumptionsPowerPeak[index],
+                            powerState: parseFloat(consumption.wNow) / 1000 > 0,
+                            energyLifeTime: parseFloat(consumption.whLifetime + [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][index]) / 1000 < 0 ? 0 : parseFloat(consumption.whLifetime + [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][index]) / 1000,
+                            energyVarhLeadLifetime: parseFloat(consumption.varhLeadLifetime) / 1000,
+                            energyVarhLagLifetime: parseFloat(consumption.varhLagLifetime) / 1000,
+                            energyLastSevenDays: parseFloat(consumption.whLastSevenDays) / 1000,
+                            energyToday: parseFloat(consumption.whToday) / 1000,
+                            energyVahToday: parseFloat(consumption.vahToday) / 1000,
+                            energyVarhLeadToday: parseFloat(consumption.varhLeadToday) / 1000,
+                            energyVarhLagToday: parseFloat(consumption.varhLagToday) / 1000,
+                            energyState: parseFloat(consumption.whToday) / 1000 > 0,
+                            rmsCurrent: parseFloat(consumption.rmsCurrent),
+                            rmsVoltage: parseFloat(consumption.rmsVoltage / metersConsumpionVoltageDivide),
+                            reactivePower: parseFloat(consumption.reactPwr) / 1000,
+                            apparentPower: parseFloat(consumption.apprntPwr) / 1000,
+                            pwrFactor: parseFloat(consumption.pwrFactor),
+                        }
+                        this.consumptions.push(obj);
+                        this.consumptionsPowerPeak[index] = obj.powerPeak;
 
-                        //power state
-                        const consumptionPowerState = consumptionPower > 0; // true if power > 0
-                        const debug1 = this.enableDebugMode ? this.emit('debug', `Consumption ${['Total', 'Net'][i]} power state: ${consumptionPowerState}`) : false;
-
-                        //power peak
-                        const consumptionPowerPeakStored = this.consumptionsPowerPeak[i] || 0;
-                        const consumptionPowerPeak = consumptionPower > consumptionPowerPeakStored ? consumptionPower : consumptionPowerPeakStored;
-
-                        //power peak detected
-                        const consumptionPowerPeakDetected = consumptionPower > consumptionPowerPeakStored;
-                        this.consumptionsPowerPeak[i] = consumptionPowerPeakDetected ? consumptionPower : this.consumptionsPowerPeak[i];
-
-                        //energy
-                        const consumptionsLifeTimeOffset = [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][i];
-                        const consumptionEnergyLifeTime = parseFloat(consumption.whLifetime + consumptionsLifeTimeOffset) / 1000;
-                        const consumptionEnergyVarhLeadLifetime = parseFloat(consumption.varhLeadLifetime) / 1000;
-                        const consumptionEnergyVarhLagLifetime = parseFloat(consumption.varhLagLifetime) / 1000;
-                        const consumptionEnergyLastSevenDays = parseFloat(consumption.whLastSevenDays) / 1000;
-                        const consumptionEnergyToday = parseFloat(consumption.whToday) / 1000;
-                        const consumptionEnergyVahToday = parseFloat(consumption.vahToday) / 1000;
-                        const consumptionEnergyVarhLeadToday = parseFloat(consumption.varhLeadToday) / 1000;
-                        const consumptionEnergyVarhLagToday = parseFloat(consumption.varhLagToday) / 1000;
-
-                        //energy state
-                        const consumptionEnergyState = consumptionEnergyToday > 0; // true if energy > 0
-                        const debug5 = this.enableDebugMode ? this.emit('debug', `Consumption ${['Total', 'Net'][i]} energy state: ${consumptionEnergyState}`) : false;
-
-                        //net param
-                        const consumptionRmsCurrent = parseFloat(consumption.rmsCurrent);
-                        const consumptionRmsVoltage = parseFloat(consumption.rmsVoltage / metersConsumpionVoltageDivide);
-                        const consumptionReactivePower = parseFloat(consumption.reactPwr) / 1000;
-                        const consumptionApparentPower = parseFloat(consumption.apprntPwr) / 1000;
-                        const consumptionPwrFactor = parseFloat(consumption.pwrFactor);
-                        const consumptionEnergyLifeTimeFix = consumptionEnergyLifeTime < 0 ? 0 : consumptionEnergyLifeTime;
+                        const debug1 = this.enableDebugMode ? this.emit('debug', `Consumption ${['Total', 'Net'][index]} power state: ${obj.powerState}`) : false;
+                        const debug2 = this.enableDebugMode ? this.emit('debug', `Consumption ${['Total', 'Net'][index]} energy state: ${obj.energyState}`) : false;
 
                         if (this.consumptionsServices) {
-                            this.consumptionsServices[i]
-                                .updateCharacteristic(Characteristic.enphaseReadingTime, consumptionReadingTime)
-                                .updateCharacteristic(Characteristic.enphasePower, consumptionPower)
-                                .updateCharacteristic(Characteristic.enphasePowerMax, consumptionPowerPeak)
-                                .updateCharacteristic(Characteristic.enphasePowerMaxDetected, consumptionPowerPeakDetected)
-                                .updateCharacteristic(Characteristic.enphaseEnergyToday, consumptionEnergyToday)
-                                .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, consumptionEnergyLastSevenDays)
-                                .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, consumptionEnergyLifeTimeFix)
-                                .updateCharacteristic(Characteristic.enphaseRmsCurrent, consumptionRmsCurrent)
-                                .updateCharacteristic(Characteristic.enphaseRmsVoltage, consumptionRmsVoltage)
-                                .updateCharacteristic(Characteristic.enphaseReactivePower, consumptionReactivePower)
-                                .updateCharacteristic(Characteristic.enphaseApparentPower, consumptionApparentPower)
-                                .updateCharacteristic(Characteristic.enphasePwrFactor, consumptionPwrFactor)
+                            this.consumptionsServices[index]
+                                .updateCharacteristic(Characteristic.enphaseReadingTime, obj.readingTime)
+                                .updateCharacteristic(Characteristic.enphasePower, obj.power)
+                                .updateCharacteristic(Characteristic.enphasePowerMax, obj.powerPeak)
+                                .updateCharacteristic(Characteristic.enphasePowerMaxDetected, obj.powerPeakDetected)
+                                .updateCharacteristic(Characteristic.enphaseEnergyToday, obj.energyToday)
+                                .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, obj.energyLastSevenDays)
+                                .updateCharacteristic(Characteristic.enphaseEnergyLifeTime, obj.energyLifeTime)
+                                .updateCharacteristic(Characteristic.enphaseRmsCurrent, obj.rmsCurrent)
+                                .updateCharacteristic(Characteristic.enphaseRmsVoltage, obj.rmsVoltage)
+                                .updateCharacteristic(Characteristic.enphaseReactivePower, obj.reactivePower)
+                                .updateCharacteristic(Characteristic.enphaseApparentPower, obj.apparentPower)
+                                .updateCharacteristic(Characteristic.enphasePwrFactor, obj.pwrFactor)
                                 .updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
                         }
 
-                        if (i === 0) {
+                        if (index === 0) {
                             //sensors power total
                             if (this.powerConsumptionTotalStateActiveSensorsCount > 0) {
                                 for (let i = 0; i < this.powerConsumptionTotalStateActiveSensorsCount; i++) {
-                                    this.powerConsumptionTotalStateActiveSensors[i].state = consumptionPowerState;
+                                    this.powerConsumptionTotalStateActiveSensors[i].state = obj.powerState;
 
                                     if (this.powerConsumptionTotalStateSensorsService) {
                                         const characteristicType = this.powerConsumptionTotalStateActiveSensors[i].characteristicType;
                                         this.powerConsumptionTotalStateSensorsService[i]
-                                            .updateCharacteristic(characteristicType, consumptionPowerState)
+                                            .updateCharacteristic(characteristicType, obj.powerState)
                                     }
                                 }
                             }
                             if (this.powerConsumptionTotalLevelActiveSensorsCount > 0) {
                                 for (let i = 0; i < this.powerConsumptionTotalLevelActiveSensorsCount; i++) {
                                     const powerLevel = this.powerConsumptionTotalLevelActiveSensors[i].powerLevel;
-                                    const state = consumptionPower >= powerLevel;
+                                    const state = obj.power >= powerLevel;
                                     this.powerConsumptionTotalLevelActiveSensors[i].state = state;
 
                                     if (this.powerConsumptionTotalLevelSensorsService) {
@@ -2810,19 +2782,19 @@ class EnvoyDevice extends EventEmitter {
                             //sensors energy total
                             if (this.energyConsumptionTotalStateActiveSensorsCount > 0) {
                                 for (let i = 0; i < this.energyConsumptionTotalStateActiveSensorsCount; i++) {
-                                    this.energyConsumptionTotalStateActiveSensors[i].state = consumptionEnergyState;
+                                    this.energyConsumptionTotalStateActiveSensors[i].state = obj.energyState;
 
                                     if (this.energyConsumptionTotalStateSensorsService) {
                                         const characteristicType = this.energyConsumptionTotalStateActiveSensors[i].characteristicType;
                                         this.energyConsumptionTotalStateSensorsService[i]
-                                            .updateCharacteristic(characteristicType, consumptionEnergyState)
+                                            .updateCharacteristic(characteristicType, obj.energyState)
                                     }
                                 }
                             }
                             if (this.energyConsumptionTotalLevelActiveSensorsCount > 0) {
                                 for (let i = 0; i < this.energyConsumptionTotalLevelActiveSensorsCount; i++) {
                                     const energyLevel = this.energyConsumptionTotalLevelActiveSensors[i].energyLevel;
-                                    const state = consumptionEnergyToday >= energyLevel;
+                                    const state = obj.energyToday >= energyLevel;
                                     this.energyConsumptionTotalLevelActiveSensors[i].state = state;
 
                                     if (this.energyConsumptionTotalLevelSensorsService) {
@@ -2834,16 +2806,16 @@ class EnvoyDevice extends EventEmitter {
                             }
                         }
 
-                        if (i === 1) {
+                        if (index === 1) {
                             //sensors power net
                             if (this.powerConsumptionNetStateActiveSensorsCount > 0) {
                                 for (let i = 0; i < this.powerConsumptionNetStateActiveSensorsCount; i++) {
-                                    this.powerConsumptionNetStateActiveSensors[i].state = consumptionPowerState;
+                                    this.powerConsumptionNetStateActiveSensors[i].state = obj.powerState;
 
                                     if (this.powerConsumptionNetStateSensorsService) {
                                         const characteristicType = this.powerConsumptionNetStateActiveSensors[i].characteristicType;
                                         this.powerConsumptionNetStateSensorsService[i]
-                                            .updateCharacteristic(characteristicType, consumptionPowerState)
+                                            .updateCharacteristic(characteristicType, obj.powerState)
                                     }
                                 }
                             }
@@ -2851,7 +2823,7 @@ class EnvoyDevice extends EventEmitter {
                                 for (let i = 0; i < this.powerConsumptionNetLevelActiveSensorsCount; i++) {
                                     const powerLevel = this.powerConsumptionNetLevelActiveSensors[i].powerLevel;
                                     const importing = powerLevel >= 0;
-                                    const state = importing ? consumptionPower >= powerLevel : consumptionPower <= powerLevel;
+                                    const state = importing ? obj.power >= powerLevel : obj.power <= powerLevel;
                                     this.powerConsumptionNetLevelActiveSensors[i].state = state;
 
                                     if (this.powerConsumptionNetLevelSensorsService) {
@@ -2865,19 +2837,19 @@ class EnvoyDevice extends EventEmitter {
                             //sensors energy net
                             if (this.energyConsumptionNetStateActiveSensorsCount > 0) {
                                 for (let i = 0; i < this.energyConsumptionNetStateActiveSensorsCount; i++) {
-                                    this.energyConsumptionNetStateActiveSensors[i].state = consumptionEnergyState;
+                                    this.energyConsumptionNetStateActiveSensors[i].state = obj.energyState;
 
                                     if (this.energyConsumptionNetStateSensorsService) {
                                         const characteristicType = this.energyConsumptionNetStateActiveSensors[i].characteristicType;
                                         this.energyConsumptionNetStateSensorsService[i]
-                                            .updateCharacteristic(characteristicType, consumptionEnergyState)
+                                            .updateCharacteristic(characteristicType, obj.energyState)
                                     }
                                 }
                             }
                             if (this.energyConsumptionNetLevelActiveSensorsCount > 0) {
                                 for (let i = 0; i < this.energyConsumptionNetLevelActiveSensorsCount; i++) {
                                     const energyLevel = this.energyConsumptionNetLevelActiveSensors[i].energyLevel;
-                                    const state = consumptionEnergyToday >= energyLevel;
+                                    const state = obj.energyToday >= energyLevel;
                                     this.energyConsumptionNetLevelActiveSensors[i].state = state;
 
                                     if (this.energyConsumptionNetLevelSensorsService) {
@@ -2888,27 +2860,8 @@ class EnvoyDevice extends EventEmitter {
                                 }
                             }
                         }
-
-                        this.consumptionsCount = consumptionsCount;
-                        this.consumptionsType.push(consumptionType);
-                        this.consumptionsMeasurmentType.push(consumptionMeasurmentType);
-                        this.consumptionsActiveCount.push(consumptionActiveCount);
-                        this.consumptionsReadingTime.push(consumptionReadingTime);
-                        this.consumptionsPower.push(consumptionPower);
-                        this.consumptionsPowerPeak.push(consumptionPowerPeak);
-                        this.consumptionsPowerPeakDetected.push(consumptionPowerPeakDetected);
-                        this.consumptionsPowerState.push(consumptionPowerState);
-                        this.consumptionsEnergyToday.push(consumptionEnergyToday);
-                        this.consumptionsEnergyLastSevenDays.push(consumptionEnergyLastSevenDays);
-                        this.consumptionsEnergyLifeTime.push(consumptionEnergyLifeTimeFix);
-                        this.consumptionsEnergyState.push(consumptionEnergyState);
-                        this.consumptionsRmsCurrent.push(consumptionRmsCurrent);
-                        this.consumptionsRmsVoltage.push(consumptionRmsVoltage);
-                        this.consumptionsReactivePower.push(consumptionReactivePower);
-                        this.consumptionsApparentPower.push(consumptionApparentPower);
-                        this.consumptionsPwrFactor.push(consumptionPwrFactor);
-                    }
-                }
+                    })
+                };
 
                 //ac btteries summary 3
                 if (acBatteriesInstalled) {
@@ -3835,80 +3788,81 @@ class EnvoyDevice extends EventEmitter {
                 //power and energy consumption
                 if (metersSupported && metersConsumptionEnabled) {
                     this.consumptionsServices = [];
-                    for (let i = 0; i < consumptionsCount; i++) {
-                        const consumptionMeasurmentType = this.consumptionsMeasurmentType[i];
+                    let i = 0;
+                    for (const consumption of this.consumptions) {
+                        const consumptionMeasurmentType = consumption.measurmentType;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${consumptionMeasurmentType} Power And Energy Service`) : false;
-                        const enphaseConsumptionService = accessory.addService(Service.enphasePowerAndEnergyService, `${consumptionMeasurmentType} Power And Energy`, `enphaseConsumptionService${i}`);
+                        const enphaseConsumptionService = accessory.addService(Service.enphasePowerAndEnergyService, `${consumptionMeasurmentType} Power And Energy`, consumptionMeasurmentType);
                         enphaseConsumptionService.setCharacteristic(Characteristic.ConfiguredName, `${consumptionMeasurmentType} Power And Energy`);
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePower)
                             .onGet(async () => {
-                                const value = this.consumptionsPower[i];
+                                const value = consumption.power;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} power: ${value} kW`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMax)
                             .onGet(async () => {
-                                const value = this.consumptionsPowerPeak[i];
+                                const value = consumption.powerPeak;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} power peak: ${value} kW`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMaxDetected)
                             .onGet(async () => {
-                                const value = this.consumptionsPowerPeakDetected[i];
+                                const value = consumption.powerPeakDetected;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} power peak detected: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyToday)
                             .onGet(async () => {
-                                const value = this.consumptionsEnergyToday[i];
+                                const value = consumption.energyToday;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} energy today: ${value} kWh`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyLastSevenDays)
                             .onGet(async () => {
-                                const value = this.consumptionsEnergyLastSevenDays[i];
+                                const value = consumption.energyLastSevenDays;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} energy last seven days: ${value} kWh`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseEnergyLifeTime)
                             .onGet(async () => {
-                                const value = this.consumptionsEnergyLifeTime[i];
+                                const value = consumption.energyLifeTime;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} energy lifetime: ${value} kWh`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseRmsCurrent)
                             .onGet(async () => {
-                                const value = this.consumptionsRmsCurrent[i];
+                                const value = consumption.rmsCurrent;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} current: ${value} A`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseRmsVoltage)
                             .onGet(async () => {
-                                const value = this.consumptionsRmsVoltage[i];
+                                const value = consumption.rmsVoltage;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} voltage: ${value} V`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReactivePower)
                             .onGet(async () => {
-                                const value = this.consumptionsReactivePower[i];
+                                const value = consumption.reactivePower;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} reactive power: ${value} kVAr`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseApparentPower)
                             .onGet(async () => {
-                                const value = this.consumptionsApparentPower[i];
+                                const value = consumption.apparentPower;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} apparent power: ${value} kVA`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphasePwrFactor)
                             .onGet(async () => {
-                                const value = this.consumptionsPwrFactor[i];
+                                const value = consumption.pwrFactor;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} power factor: ${value} cos φ`);
                                 return value;
                             });
                         enphaseConsumptionService.getCharacteristic(Characteristic.enphaseReadingTime)
                             .onGet(async () => {
-                                const value = this.consumptionsReadingTime[i];
+                                const value = consumption.readingTime;
                                 const info = this.disableLogInfo ? false : this.emit('message', `${consumptionMeasurmentType} last report: ${value}`);
                                 return value;
                             });
@@ -4101,6 +4055,7 @@ class EnvoyDevice extends EventEmitter {
                                 };
                             };
                         };
+                        i++;
                     }
                 }
 
