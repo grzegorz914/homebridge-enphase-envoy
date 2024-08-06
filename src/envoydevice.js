@@ -3186,8 +3186,8 @@ class EnvoyDevice extends EventEmitter {
                     }
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
                         .onGet(async () => {
-                            const value = `${this.envoy.home.dbSize} MB / ${this.envoy.home.dbPercentFull}`;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data base size: ${value} %`);
+                            const value = `${this.envoy.home.dbSize} MB / ${this.envoy.home.dbPercentFull} %`;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data base size: ${value}`);
                             return value;
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyTariff)
