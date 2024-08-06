@@ -397,7 +397,7 @@ class EnvoyDevice extends EventEmitter {
         this.qRelaysCount = 0;
 
         //ac batteries
-        this.acBatterieSupported = false;
+        this.acBatteriesSupported = false;
         this.acBatteriesInstalled = false;
         this.acBatteriesCount = 0;
 
@@ -426,6 +426,7 @@ class EnvoyDevice extends EventEmitter {
 
         //ct meters
         this.metersSupported = false;
+        this.metersInstalled = false;
         this.metersCount = 0;
         this.metersProductionSupported = false;
         this.metersProductionEnabled = false;
@@ -438,6 +439,7 @@ class EnvoyDevice extends EventEmitter {
         this.metersStorageVoltageDivide = 1;
         this.metersReadingInstalled = false;
         this.metersReadingCount = 0;
+        this.metersReadingPhaseInstalled = false
         this.metersReadingPhaseCount = 0;
 
         //production
@@ -449,6 +451,7 @@ class EnvoyDevice extends EventEmitter {
 
         //liveData
         this.liveDataSupported = false;
+        this.liveDataInstalled = false;
 
         //production power mode
         this.productionPowerModeSupported = false;
@@ -860,26 +863,26 @@ class EnvoyDevice extends EventEmitter {
                 const debug1 = this.enableDebugMode ? this.emit('debug', `Parsed info: ${JSON.stringify(parseInfoData, null, 2)}`) : false;
 
                 //envoy info
-                const envoy = parseInfoData.envoy_info;
-                const time = new Date(envoy.time * 1000).toLocaleString();
-                const envoyKeys = Object.keys(envoy);
+                const envoyInfo = parseInfoData.envoy_info;
+                const time = new Date(envoyInfo.time * 1000).toLocaleString();
+                const envoyKeys = Object.keys(envoyInfo);
 
                 //device
-                const device = envoy.device;
-                const serialNumber = this.envoySerialNumber ? this.envoySerialNumber : device.sn.toString();
-                const partNumber = CONSTANTS.PartNumbers[device.pn] ?? device.pn;
-                const software = device.software;
-                const euaid = device.euaid;
-                const seqNum = device.seqnum;
-                const apiVer = device.apiver;
-                const imeter = device.imeter ?? false;
+                const envoyInfoDevice = envoyInfo.device;
+                const serialNumber = this.envoySerialNumber ? this.envoySerialNumber : envoyInfoDevice.sn.toString();
+                const partNumber = CONSTANTS.PartNumbers[envoyInfoDevice.pn] ?? envoyInfoDevice.pn;
+                const software = envoyInfoDevice.software;
+                const euaid = envoyInfoDevice.euaid;
+                const seqNum = envoyInfoDevice.seqnum;
+                const apiVer = envoyInfoDevice.apiver;
+                const imeter = envoyInfoDevice.imeter ?? false;
 
                 //web tokens
-                const webTokens = envoyKeys.includes('web-tokens') ? envoy['web-tokens'] === true : false;
+                const webTokens = envoyKeys.includes('web-tokens') ? envoyInfo['web-tokens'] === true : false;
 
                 //packages
-                const packages = envoy.package;
-                for (const devPackage of packages) {
+                const envoyInfoPackages = envoyInfo.package;
+                for (const devPackage of envoyInfoPackages) {
                     const packagePn = devPackage.pn;
                     const packageVersion = devPackage.version;
                     const packageBuild = devPackage.build;
@@ -887,11 +890,11 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 //build info
-                const build = envoy.build_info;
-                const buildId = build.build_id;
-                const buildTimeQmt = new Date(build.build_time_gmt * 1000).toLocaleString();
-                const releaseVer = build.release_ver ?? 'Unknown';
-                const releaseStage = build.release_stage ?? 'Unknown';
+                const envoyInfoBuildInfo = envoyInfo.build_info;
+                const buildId = envoyInfoBuildInfo.build_id;
+                const buildTimeQmt = new Date(envoyInfoBuildInfo.build_time_gmt * 1000).toLocaleString();
+                const releaseVer = envoyInfoBuildInfo.release_ver ?? 'Unknown';
+                const releaseStage = envoyInfoBuildInfo.release_stage ?? 'Unknown';
 
                 //check serial number
                 if (!serialNumber) {
@@ -899,14 +902,14 @@ class EnvoyDevice extends EventEmitter {
                     return;
                 };
 
-                const envoyInfo = {
+                const envoy = {
                     time: time,
                     serialNumber: serialNumber,
                     modelName: partNumber,
                     firmware: software.toString(),
                     metersSupported: imeter
                 };
-                this.envoyInfo = envoyInfo;
+                this.envoy = envoy;
                 this.metersSupported = imeter;
 
                 //restFul
@@ -927,7 +930,7 @@ class EnvoyDevice extends EventEmitter {
 
             try {
                 //envoy password
-                const deviceSn = this.envoyInfo.serialNumber;
+                const deviceSn = this.envoy.serialNumber;
                 const envoyPasswd = this.envoyPasswd ? this.envoyPasswd : deviceSn.substring(6);
                 const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password: Removed`) : false;
 
@@ -1005,7 +1008,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //get supported devices
                 const microinvertersSupported = envoyCommKeys.includes('pcu');
-                const acBatterieSupported = envoyCommKeys.includes('acb');
+                const acBatteriesSupported = envoyCommKeys.includes('acb');
                 const qRelaysSupported = envoyCommKeys.includes('nsrb');
                 const ensemblesSupported = envoyCommKeys.includes('esub');
                 const enchargesSupported = envoyCommKeys.includes('encharge');
@@ -1193,7 +1196,7 @@ class EnvoyDevice extends EventEmitter {
                 this.envoyData = envoyData;
 
                 this.microinvertersSupported = microinvertersSupported;
-                this.acBatterieSupported = acBatterieSupported;
+                this.acBatteriesSupported = acBatteriesSupported;
                 this.qRelaysSupported = qRelaysSupported;
                 this.ensemblesSupported = ensemblesSupported;
                 this.enchargesSupported = enchargesSupported;
@@ -1285,15 +1288,15 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //ac btteries inventoty
-                const acBatterieSupported = inventoryKeys.includes('ACB');
-                const acBatterie = acBatterieSupported ? inventory[1].devices : [];
-                const acBatteriesCount = acBatterie.length;
+                const acBatteriesSupported = inventoryKeys.includes('ACB');
+                const acBatteries = acBatteriesSupported ? inventory[1].devices : [];
+                const acBatteriesCount = acBatteries.length;
                 const acBatteriesInstalled = acBatteriesCount > 0;
                 this.acBatteries = [];
 
                 if (acBatteriesInstalled) {
                     const type = CONSTANTS.ApiCodes[inventory[1].type] ?? 'Unknown';
-                    acBatterie.forEach((acBatterie, index) => {
+                    acBatteries.forEach((acBatterie, index) => {
                         const obj = {
                             type: type,
                             partNumber: CONSTANTS.PartNumbers[acBaterie.part_num] ?? acBatterie.part_num,
@@ -1529,33 +1532,33 @@ class EnvoyDevice extends EventEmitter {
                 });
 
                 //production
-                this.metersProductionSupported = this.meters.some(meter => meter.measurementType === 'Production');
-                const indexProduction = this.meters.findIndex(meter => meter.measurementType === 'Production');
-                this.metersProductionEnabled = indexProduction != -1 ? this.meters[indexProduction].state : false;
-                this.metersProductionVoltageDivide = indexProduction != -1 ? this.meters[indexProduction].phaseMode === 'Split' ? 1 : this.meters[indexProduction].phaseCount : 1;
+                const productionMeter = this.meters.find(meter => meter.measurementType === 'Production');
+                this.metersProductionSupported = Boolean(productionMeter);
+                this.metersProductionEnabled = productionMeter?.state ?? false;
+                this.metersProductionVoltageDivide = productionMeter ? (productionMeter.phaseMode === 'Split' ? 1 : productionMeter.phaseCount) : 1;
 
                 //consumption
-                this.metersConsumptionSupported = this.meters.some(meter => meter.measurementType === 'Consumption Net');
-                const indexConsumption = this.meters.findIndex(meter => meter.measurementType === 'Consumption Net');
-                this.metersConsumptionEnabled = indexConsumption != -1 ? this.meters[indexConsumption].state : false;
-                this.metersConsumpionVoltageDivide = indexConsumption != -1 ? this.meters[indexConsumption].phaseMode === 'Split' ? 1 : this.meters[indexConsumption].phaseCount : 1;
+                const consumptionMeter = this.meters.find(meter => meter.measurementType === 'Consumption Net');
+                this.metersConsumptionSupported = Boolean(productionMeter);
+                this.metersConsumptionEnabled = consumptionMeter?.state ?? false;
+                this.metersConsumpionVoltageDivide = consumptionMeter ? (consumptionMeter.phaseMode === 'Split' ? 1 : consumptionMeter.phaseCount) : 1;
 
                 //storage
-                this.metersStorageSupported = this.meters.some(meter => meter.measurementType === 'Storage');
-                const indexStorage = this.meters.findIndex(meter => meter.measurementType === 'Storage');
-                this.metersStorageEnabled = indexStorage != -1 ? this.meters[indexStorage].state : false;
-                this.metersStorageVoltageDivide = indexStorage != -1 ? this.meters[indexStorage].phaseMode === 'Split' ? 1 : this.meters[indexStorage].phaseCount : 1;
+                const storageMeter = this.meters.find(meter => meter.measurementType === 'Storage');
+                this.metersStorageSupported = Boolean(storageMeter);
+                this.metersStorageEnabled = storageMeter?.state ?? false;
+                this.metersStorageVoltageDivide = storageMeter ? (storageMeter.phaseMode === 'Split' ? 1 : storageMeter.phaseCount) : 1;
 
-
+                //meters enabled and count
+                this.metersInstalled = this.meters.some(meter => meter.state);
                 this.metersCount = metersCount;
-                const metersEnabled = this.meters.some(meter => meter.state);
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('meters', meters) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Meters', meters) : false;
-                resolve(metersEnabled);
+                resolve(this.metersInstalled);
             } catch (error) {
                 reject(`Requesting meters error: ${error}.`);
             };
@@ -1636,10 +1639,11 @@ class EnvoyDevice extends EventEmitter {
                             this.meters[index].channels.push(obj);
                         });
                     }
+                    this.metersReadingPhaseInstalled = meterReadingChannelsCount > 0;
                     this.metersReadingPhaseCount = meterReadingChannelsCount;
                 });
-                this.metersReadingCount = metersReadingCount;
                 this.metersReadingInstalled = metersReadingCount > 0;
+                this.metersReadingCount = metersReadingCount;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('metersreading', metersReading) : false;
@@ -1677,6 +1681,7 @@ class EnvoyDevice extends EventEmitter {
                 const encharges = enchargesSupported ? ensembleInventory[0].devices : [];
                 const enchargesCount = encharges.length;
                 const enchargesInstalled = enchargesCount > 0;
+                const enchargesPercentFullSummary = [];
                 this.encharges = [];
 
                 if (enchargesInstalled) {
@@ -1734,17 +1739,15 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, obj.enchargeCapacity)
                                 .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, this.arfProfile.name)
                         }
+
+                        //encharges percent full summary
+                        enchargesPercentFullSummary.push(obj.percentFull);
                     });
                     this.enchargesCount = enchargesCount;
                     this.enchargesInstalled = enchargesInstalled;
 
-                    //encharges percent full summary
-                    let enchargesPercentFull = 0;
-                    this.encharges.forEach(encharge => {
-                        enchargesPercentFull += encharge.percentFull;
-                    });
-
-                    const enchargesSummaryPercentFull = enchargesPercentFull / enchargesCount;
+                    // Calculate encharges percent full
+                    const enchargesSummaryPercentFull = (enchargesPercentFullSummary.reduce((total, num) => total + num, 0) / enchargesCount) || 0;
                     const enchargesSummaryEnergyState = enchargesSummaryPercentFull > 0;
 
                     if (this.enphaseEnchargesSummaryLevelAndStateService) {
@@ -1848,8 +1851,8 @@ class EnvoyDevice extends EventEmitter {
                         }
                         this.generators.push(obj);
                     });
-                    this.generatorsCount = generatorsCount;
                     this.generatorsInstalled = true;
+                    this.generatorsCount = generatorsCount;
                 }
 
                 //restFul
@@ -1888,65 +1891,49 @@ class EnvoyDevice extends EventEmitter {
                 const inventory = inventorySupported ? ensembleStatus.inventory : {};
 
                 //encharges
+                // Extract serial numbers
                 const enchargesSerialNumbersKeys = Object.keys(inventory.serial_nums);
-                const enchargesSerialNumbersCount = enchargesSerialNumbersKeys.length;
 
+                // Initialize array to hold rated power values
                 const enchargesRatedPowerSummary = [];
-                for (let i = 0; i < enchargesSerialNumbersCount; i++) {
-                    const enchargeKey = enchargesSerialNumbersKeys[i];
+
+                // Iterate over encharges
+                this.enchargesStatus = [];
+                enchargesSerialNumbersKeys.forEach(enchargeKey => {
                     const encharge = inventory.serial_nums[enchargeKey];
-                    const deviceType = encharge.device_type;
-                    const comInterfacStr = encharge.com_interface_str ?? 'Unknown';
-                    const deviceId = encharge.device_id ?? 'Unknown';
-                    const adminState = encharge.admin_state;
-                    const adminStateStr = CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown';
-                    const reportedGridMode = CONSTANTS.ApiCodes[encharge.reported_grid_mode] ?? 'Unknown';
-                    const phase = encharge.phase ?? 'Unknown';
-                    const derIndex = encharge.der_index ?? 0;
-                    const revision = encharge.encharge_revision ?? 0;
-                    const capacity = encharge.encharge_capacity ?? 0;
-                    const ratedPower = encharge.encharge_rated_power ?? 0;
-                    const reportedGridState = CONSTANTS.ApiCodes[encharge.reported_grid_state] ?? 'Unknown';
-                    const msgRetryCount = encharge.msg_retry_count ?? 0;
-                    const partNumber = encharge.part_number;
-                    const assemblyNumber = encharge.assembly_number;
-                    const appFwVersion = encharge.app_fw_version;
-                    const zbFwVersion = encharge.zb_fw_version ?? 'Unknown';
-                    const zbBootloaderVers = encharge.zb_bootloader_vers ?? 'Unknown';
-                    const iblFwVersion = encharge.ibl_fw_version;
-                    const swiftAsicFwVersion = encharge.swift_asic_fw_version;
-                    const bmuFwVersion = encharge.bmu_fw_version;
-                    const submodulesCount = encharge.submodule_count;
+                    const obj = {
+                        deviceType: encharge.device_type,
+                        comInterfacStr: encharge.com_interface_str ?? 'Unknown',
+                        deviceId: encharge.device_id ?? 'Unknown',
+                        adminState: encharge.admin_state,
+                        adminStateStr: CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown',
+                        reportedGridMode: CONSTANTS.ApiCodes[encharge.reported_grid_mode] ?? 'Unknown',
+                        phase: encharge.phase ?? 'Unknown',
+                        derIndex: encharge.der_index ?? 0,
+                        revision: encharge.encharge_revision ?? 0,
+                        capacity: encharge.encharge_capacity ?? 0,
+                        ratedPower: encharge.encharge_rated_power ?? 0,
+                        reportedGridState: CONSTANTS.ApiCodes[encharge.reported_grid_state] ?? 'Unknown',
+                        msgRetryCount: encharge.msg_retry_count ?? 0,
+                        partNumber: encharge.part_number,
+                        assemblyNumber: encharge.assembly_number,
+                        appFwVersion: encharge.app_fw_version,
+                        zbFwVersion: encharge.zb_fw_version ?? 'Unknown',
+                        zbBootloaderVers: encharge.zb_bootloader_vers ?? 'Unknown',
+                        iblFwVersion: encharge.ibl_fw_version,
+                        swiftAsicFwVersion: encharge.swift_asic_fw_version,
+                        bmuFwVersion: encharge.bmu_fw_version,
+                        submodulesCount: encharge.submodule_count,
+                        submodules: encharge.submodules
+                    };
+                    this.enchargesStatus.push(obj);
 
-                    //pusch encharge rated power to array
-                    enchargesRatedPowerSummary.push(ratedPower);
+                    // Push encharge rated power to the array
+                    enchargesRatedPowerSummary.push(obj.ratedPower);
+                });
 
-                    //encharge submodules
-                    if (submodulesCount > 0) {
-                        const enchargesSubmodulesSerialNumbers = encharge.submodules ?? {};
-                        const enchargesSubmodulesSerialNumbersKeys = Object.keys(enchargesSubmodulesSerialNumbers);
-                        for (let j = 0; j < submodulesCount; j++) {
-                            const submoduleKey = enchargesSubmodulesSerialNumbersKeys[j];
-                            const submodule = encharge.submodules[submoduleKey];
-                            const deviceType = submodule.device_type;
-                            const adminState = submodule.admin_state;
-                            const partNumber = submodule.part_number;
-                            const assemblyNumber = submodule.assembly_number;
-
-                            //dmir
-                            const dmirPartNumber = submodule.dmir.part_number;
-                            const dmirAssemblyNumber = submodule.dmir.assembly_number;
-
-                            //procload
-                            const procloadPartNumber = submodule.procload.part_number;
-                            const procloadAssemblyNumber = submodule.procload.assembly_number;
-                        }
-                    }
-                }
-
-                //sum rated power for all encharges
-                const enchargesRatedPowerSum = parseFloat(enchargesRatedPowerSummary.reduce((total, num) => total + num, 0)) / 1000 || 0; //in kW
-                this.enchargesRatedPowerSum = enchargesRatedPowerSum;
+                // Sum rated power for all encharges and convert to kW
+                this.enchargesRatedPowerSum = parseFloat = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000) || 0;
 
                 //counters
                 const countersSupported = ensembleStatusKeys.includes('counters');
@@ -2104,7 +2091,7 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusAggSoc, ensembleSecctrl.aggSoc)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusAggMaxEnergy, ensembleSecctrl.aggMaxEnergy)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggSoc, ensembleSecctrl.encAggSoc)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower, enchargesRatedPowerSum)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower, this.enchargesRatedPowerSum)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggBackupEnergy, ensembleSecctrl.encAggBackupEnergy)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggAvailEnergy, ensembleSecctrl.encAggAvailEnergy)
                 }
@@ -2227,21 +2214,13 @@ class EnvoyDevice extends EventEmitter {
                 const metersAcbAggSoc = liveDataMeters.acb_agg_soc;
                 const metersAcbAggEnergy = liveDataMeters.acb_agg_energy;
 
-                //lived data meteres types
+                //lived data meteres types add to array
                 const liveDataTypes = [];
-
-                //pv
-                liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv });
-
-                //storage
-                const pushStorageTypeToArray = (this.acBatteriesInstalled || this.enchargesInstalled) && this.metersStorageSupported ? liveDataTypes.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
-
-                //grid and load
-                const pushGridTypeToArray = this.metersSupported && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
-                const pushLoadTypeToArray = this.metersSupported && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Load', meter: liveDataMeters.load }) : false;
-
-                //generator
-                const pushGeneratorTypeToArray = this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
+                const pushPvTypeToArray = this.metersInstalled && (this.metersProductionEnabled || this.metersConsumptionEnabled) ? liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
+                const pushStorageTypeToArray = this.metersInstalled && this.metersStorageEnabled ? liveDataTypes.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
+                const pushGridTypeToArray = this.metersInstalled && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
+                const pushLoadTypeToArray = this.metersInstalled && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Load', meter: liveDataMeters.load }) : false;
+                const pushGeneratorTypeToArray = this.metersInstalled && this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
 
                 //read meters data
                 this.liveDatas = [];
@@ -2340,6 +2319,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //live data supported
                 this.liveDataSupported = true;
+                this.liveDataInstalled = this.liveDatas.length > 0;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('livedata', live) : false;
@@ -2753,16 +2733,16 @@ class EnvoyDevice extends EventEmitter {
 
                 //ac btteries summary 3
                 if (acBatteriesInstalled) {
-                    const acBatterie = productionCt.storage[0] ?? {};
+                    const acBatteries = productionCt.storage[0] ?? {};
                     const acBatterieSummary = {
-                        type: CONSTANTS.ApiCodes[acBatterie.type] ?? 'AC Batterie',
-                        activeCount: acBatterie.activeCount,
-                        readingTime: new Date(acBatterie.readingTime * 1000).toLocaleString(),
-                        wNow: parseFloat(acBatterie.wNow) / 1000,
-                        whNow: parseFloat(acBatterie.whNow + this.acBatterieStorageOffset) / 1000,
-                        chargeStatus: CONSTANTS.ApiCodes[acBatterie.state] ?? 'Unknown',
-                        percentFull: acBatterie.percentFull,
-                        energyState: acBatterie.percentFull > 0,
+                        type: CONSTANTS.ApiCodes[acBatteries.type] ?? 'AC Batterie',
+                        activeCount: acBatteries.activeCount,
+                        readingTime: new Date(acBatteries.readingTime * 1000).toLocaleString(),
+                        wNow: parseFloat(acBatteries.wNow) / 1000,
+                        whNow: parseFloat(acBatteries.whNow + this.acBatterieStorageOffset) / 1000,
+                        chargeStatus: CONSTANTS.ApiCodes[acBatteries.state] ?? 'Unknown',
+                        percentFull: acBatteries.percentFull,
+                        energyState: acBatteries.percentFull > 0,
                     }
                     this.acBatterieSummary = acBatterieSummary;
 
@@ -3045,10 +3025,10 @@ class EnvoyDevice extends EventEmitter {
 
         this.emit('devInfo', `-------- ${this.name} --------`);
         this.emit('devInfo', `Manufacturer: Enphase`);
-        this.emit('devInfo', `Model: ${this.envoyInfo.modelName}`);
-        this.emit('devInfo', `Firmware: ${this.envoyInfo.firmware}`);
-        this.emit('devInfo', `SerialNr: ${this.envoyInfo.serialNumber}`);
-        this.emit('devInfo', `Time: ${this.envoyInfo.time}`);
+        this.emit('devInfo', `Model: ${this.envoy.modelName}`);
+        this.emit('devInfo', `Firmware: ${this.envoy.firmware}`);
+        this.emit('devInfo', `SerialNr: ${this.envoy.serialNumber}`);
+        this.emit('devInfo', `Time: ${this.envoy.time}`);
         const displayLog = this.envoyFirmware7xx && this.envoyFirmware7xxTokenGenerationMode === 0 ? this.emit('devInfo', `Token Valid: ${new Date(this.jwtToken.expires_at * 1000).toLocaleString()}`) : false;
         this.emit('devInfo', `------------------------------`);
         this.emit('devInfo', `Q-Relays: ${this.qRelaysCount}`);
@@ -3073,7 +3053,7 @@ class EnvoyDevice extends EventEmitter {
             try {
                 //prepare accessory
                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare accessory`) : false;
-                const serialNumber = this.envoyInfo.serialNumber;
+                const serialNumber = this.envoy.serialNumber;
                 const accessoryName = this.name;
                 const accessoryUUID = AccessoryUUID.generate(serialNumber);
                 const accessoryCategory = Categories.OTHER;
@@ -3083,9 +3063,9 @@ class EnvoyDevice extends EventEmitter {
                 const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Information Service`) : false;
                 accessory.getService(Service.AccessoryInformation)
                     .setCharacteristic(Characteristic.Manufacturer, 'Enphase')
-                    .setCharacteristic(Characteristic.Model, this.envoyInfo.modelName ?? 'Model Name')
-                    .setCharacteristic(Characteristic.SerialNumber, this.envoyInfo.serialNumber ?? 'Serial Number')
-                    .setCharacteristic(Characteristic.FirmwareRevision, this.envoyInfo.firmware.replace(/[a-zA-Z]/g, '') ?? '0');
+                    .setCharacteristic(Characteristic.Model, this.envoy.modelName ?? 'Model Name')
+                    .setCharacteristic(Characteristic.SerialNumber, this.envoy.serialNumber ?? 'Serial Number')
+                    .setCharacteristic(Characteristic.FirmwareRevision, this.envoy.firmware.replace(/[a-zA-Z]/g, '') ?? '0');
 
                 //get enabled devices
                 const metersSupported = this.metersSupported;
@@ -3100,7 +3080,7 @@ class EnvoyDevice extends EventEmitter {
                 const ensembleStatusSupported = this.ensembleStatusSupported;
                 const generatorsInstalled = this.generatorsInstalled;
                 const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
-                const liveDataSupported = this.liveDataSupported;
+                const liveDataInstalled = this.liveDataInstalled;
                 const productionPowerModeSupported = this.productionPowerModeSupported;
                 const plcLevelSupported = this.plcLevelSupported;
 
@@ -3136,7 +3116,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //envoy
                 const debug3 = this.enableDebugMode ? this.emit('debug', `Prepare Envoy Service`) : false;
-                this.envoyService = accessory.addService(Service.enphaseEnvoyService, `Envoy ${serialNumber}`, this.envoyInfo.serialNumber);
+                this.envoyService = accessory.addService(Service.enphaseEnvoyService, `Envoy ${serialNumber}`, this.envoy.serialNumber);
                 this.envoyService.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${serialNumber}`);
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyAlerts)
                     .onGet(async () => {
@@ -3216,7 +3196,7 @@ class EnvoyDevice extends EventEmitter {
                     });
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyFirmware)
                     .onGet(async () => {
-                        const value = this.envoyInfo.firmware;
+                        const value = this.envoy.firmware;
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, firmware: ${value}`);
                         return value;
                     });
@@ -4805,7 +4785,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //live data
-                if (liveDataSupported) {
+                if (liveDataInstalled) {
                     this.liveDataMetersServices = [];
                     for (const liveData of this.liveDatas) {
                         const liveDataType = liveData.type;
