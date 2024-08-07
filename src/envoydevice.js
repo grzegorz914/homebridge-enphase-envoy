@@ -548,7 +548,7 @@ class EnvoyDevice extends EventEmitter {
         this.impulseGenerator = new ImpulseGenerator();
         this.impulseGenerator.on('updateHome', async () => {
             try {
-                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : this.checkJwtToken() : false;
+                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
                 const updateHome = tokenExpired ? false : await this.updateHomeData();
                 const updateInventory = updateHome ? await this.updateInventoryData() : false;
             } catch (error) {
