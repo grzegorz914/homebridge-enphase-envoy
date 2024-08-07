@@ -116,6 +116,8 @@ class EnvoyPlatform {
           })
           .on('errorStart', async (error) => {
             log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15s.`);
+
+            //start read data
             await new Promise(resolve => setTimeout(resolve, 15000));
             envoyDevice.start();
           })
