@@ -3365,7 +3365,7 @@ class EnvoyDevice extends EventEmitter {
                         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayState)
                             .onGet(async () => {
                                 const value = qRelay.relay;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, relay state: ${value ? 'Closed' : 'Open'}`);
+                                const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, relay: ${value ? 'Closed' : 'Open'}`);
                                 return value;
                             });
                         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayLinesCount)
