@@ -74,7 +74,7 @@ class EnvoyDevice extends EventEmitter {
         this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
 
         //active sensors 
-        //system data refresh sensor
+        //data refresh sensor
         const dataRefreshSensorName = this.dataRefreshSensor.name || false;
         const dataRefreshSensorDisplayType = this.dataRefreshSensor.displayType ?? 0;
         this.dataRefreshActiveSensors = [];
@@ -3139,28 +3139,28 @@ class EnvoyDevice extends EventEmitter {
                             };
                         })
 
-                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare System Data Refresh Service`) : false;
+                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare Data Refresh Service`) : false;
                     this.dataRefreshService = accessory.addService(Service.Switch, `${accessoryName} refresh`, `dataRefreshService`);
                     this.dataRefreshService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                     this.dataRefreshService.setCharacteristic(Characteristic.ConfiguredName, `${accessoryName} refresh`);
                     this.dataRefreshService.getCharacteristic(Characteristic.On)
                         .onGet(async () => {
                             const state = this.impulseGenerator.state();
-                            const info = this.disableLogInfo ? false : this.emit('message', `System data refresh: ${state ? 'Enabled' : 'Disabled'}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `Data refresh: ${state ? 'Enabled' : 'Disabled'}`);
                             return state;
                         })
                         .onSet(async (state) => {
                             try {
                                 const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
-                                const info = this.disableLogInfo ? false : this.emit('message', `Set system data refresh to: ${state ? `Enable` : `Disable`}`);
+                                const info = this.disableLogInfo ? false : this.emit('message', `Set data refresh to: ${state ? `Enable` : `Disable`}`);
                             } catch (error) {
-                                this.emit('error', `Set system data refresh error: ${error}`);
+                                this.emit('error', `Set data refresh error: ${error}`);
                             };
                         })
 
-                    //system data refresh sensor service
+                    //data refresh sensor service
                     if (this.dataRefreshActiveSensorsCount > 0) {
-                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare System Data Refresh Sensor Service`) : false;
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Data Refresh Sensor Service`) : false;
                         this.dataRefreshSensorsService = [];
                         for (let i = 0; i < this.dataRefreshActiveSensorsCount; i++) {
                             const sensorName = this.dataRefreshActiveSensors[i].name;
@@ -3172,7 +3172,7 @@ class EnvoyDevice extends EventEmitter {
                             dataRefreshSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.impulseGenerator.state();
-                                    const info = this.disableLogInfo ? false : this.emit('message', `System data refresh sensor: ${state ? 'Active' : 'Not active'}`);
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Data refresh sensor: ${state ? 'Active' : 'Not active'}`);
                                     return state;
                                 });
                             this.dataRefreshSensorsService.push(dataRefreshSensorService);
@@ -3186,15 +3186,15 @@ class EnvoyDevice extends EventEmitter {
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyDataRefresh)
                         .onGet(async () => {
                             const state = this.impulseGenerator.state();
-                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, system data refresh: ${state ? 'Enabled' : 'Disabled'}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data refresh: ${state ? 'Enabled' : 'Disabled'}`);
                             return state;
                         })
                         .onSet(async (state) => {
                             try {
                                 const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
-                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set system data refresh to: ${state ? `Enable` : `Disable`}`);
+                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set data refresh to: ${state ? `Enable` : `Disable`}`);
                             } catch (error) {
-                                this.emit('error', `Envoy: ${serialNumber}, set system data refresh error: ${error}`);
+                                this.emit('error', `Envoy: ${serialNumber}, set data refresh error: ${error}`);
                             };
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyAlerts)
