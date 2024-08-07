@@ -152,12 +152,12 @@
 | `solarGridModeSensors.name` | Here set Your own sensor name. |
 | `solarGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming` for sensor. |
 | `solarGridModeSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app), Fw. 7.x.x and newer require installer credentials data. |
-| `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
-| `supportEnchargeProfile` | This enable support to check/control encharge profile, not working yet. |
 | `dataRefreshSensor` | This enable `Data Refresh` monitoring and expose sensor in HomeKit app. |
 | `dataRefreshSensor.name` | Here set Your own sensor name. |
 | `dataRefreshSensor.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app), Fw. 7.x.x and newer require installer credentials data. |
+| `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
+| `supportEnchargeProfile` | This enable support to check/control encharge profile, not working yet. |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (sec). |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
