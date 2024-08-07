@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added possibility to disable/enable data refresh direct from home app as a extra tile
 - added possibility to disable/enable data refresh from envoy section
 - added system data refresh sensor
-- code refactor
+- full code refactor
 - stability and performance improvements
 - dependencies updated
 - config schema updated
