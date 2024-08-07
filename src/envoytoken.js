@@ -15,38 +15,17 @@ class EnvoyToken {
     checkToken() {
         return new Promise(async (resolve, reject) => {
             try {
-                //check jwt token exist in file
+                //check jwt token exist in file and valid
                 const savedToken = await this.readToken();
-                const tokenExist = savedToken ? true : false;
-                switch (tokenExist) {
+                const tokenExistAndValid = (savedToken && Math.floor(Date.now() / 1000) <= savedToken.expires_at);
+                switch (tokenExistAndValid) {
                     case true:
-                        //check jwt token expired
-                        const tokenExpired = Math.floor(new Date().getTime() / 1000) > savedToken.expires_at;
-                        switch (tokenExpired) {
-                            case true:
-                                try {
-                                    //login to enlighten server
-                                    const cookie = await this.loginToEnlighten();
-
-                                    //get jwt token
-                                    const newToken = await this.getToken(cookie);
-                                    resolve(newToken);
-                                } catch (error) {
-                                    reject(error);
-                                }
-                                break;
-                            case false:
-                                resolve(savedToken);
-                                break;
-                        }
+                        resolve(savedToken);
                         break;
                     case false:
                         try {
-                            //login to enlighten server
-                            const cookie = await this.loginToEnlighten();
-
-                            //get jwt token
-                            const newToken = await this.getToken(cookie);
+                            //refresh token
+                            const newToken = await this.refreshToken();
                             resolve(newToken);
                         } catch (error) {
                             reject(error);
@@ -55,6 +34,18 @@ class EnvoyToken {
                 }
             } catch (error) {
                 reject(`Check token error: ${error}`);
+            }
+        });
+    }
+
+    refreshToken() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const cookie = await this.loginToEnlighten();
+                const newToken = await this.getToken(cookie);
+                resolve(newToken);
+            } catch (error) {
+                reject(`Refresh token error: ${error}`);
             }
         });
     }
