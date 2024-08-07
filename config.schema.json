@@ -1229,6 +1229,24 @@
               },
               "required": false
             },
+            "metersDataRefreshTime": {
+              "title": "Meters Sampling",
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 60,
+              "multipleOf": 0.5,
+              "description": "Here set meters data refresh time in (sec).",
+              "required": false
+            },
+            "productionDataRefreshTime": {
+              "title": "Production Sampling",
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 60,
+              "multipleOf": 0.5,
+              "description": "Here set production data rfresh time in (sec).",
+              "required": false
+            },
             "liveDataRefreshTime": {
               "title": "Live Data Sampling",
               "type": "number",
@@ -1241,15 +1259,6 @@
               },
               "required": false
             },
-            "metersDataRefreshTime": {
-              "title": "Meters Sampling",
-              "type": "number",
-              "minimum": 0.5,
-              "maximum": 60,
-              "multipleOf": 0.5,
-              "description": "Here set meters data refresh time in (sec).",
-              "required": false
-            },
             "ensembleDataRefreshTime": {
               "title": "Ensemble Sampling",
               "type": "number",
@@ -1260,15 +1269,6 @@
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               },
-              "required": false
-            },
-            "productionDataRefreshTime": {
-              "title": "Production Sampling",
-              "type": "number",
-              "minimum": 0.5,
-              "maximum": 60,
-              "multipleOf": 0.5,
-              "description": "Here set production data rfresh time in (sec).",
               "required": false
             },
             "enableDebugMode": {
@@ -1443,21 +1443,7 @@
                     "devices[].enlightenUser",
                     "devices[].enlightenPasswd",
                     "devices[].supportProductionPowerMode",
-                    "devices[].supportPlcLevel",
-                    "devices[].metersDataRefreshTime",
-                    "devices[].productionDataRefreshTime",
-                    "devices[].liveDataRefreshTime",
-                    "devices[].ensembleDataRefreshTime",
-                    {
-                      "key": "devices[].dataRefreshSensor",
-                      "type": "section",
-                      "title": "Data Refresh Sensor",
-                      "description": "In this section You can enable sensor for system data refresh monitoring and expose it in HomeKit.",
-                      "items": [
-                        "devices[].dataRefreshSensor.name",
-                        "devices[].dataRefreshSensor.displayType"
-                      ]
-                    }
+                    "devices[].supportPlcLevel"
                   ],
                   "description": "Here You can configure envoy gateway."
                 },
@@ -1853,7 +1839,21 @@
                   "items": [
                     "devices[].enableDebugMode",
                     "devices[].disableLogInfo",
-                    "devices[].disableLogDeviceInfo"
+                    "devices[].disableLogDeviceInfo",
+                    "devices[].metersDataRefreshTime",
+                    "devices[].productionDataRefreshTime",
+                    "devices[].liveDataRefreshTime",
+                    "devices[].ensembleDataRefreshTime",
+                    {
+                      "key": "devices[].dataRefreshSensor",
+                      "type": "section",
+                      "title": "Data Refresh Sensor",
+                      "description": "In this section You can enable sensor for system data refresh monitoring and expose it in HomeKit.",
+                      "items": [
+                        "devices[].dataRefreshSensor.name",
+                        "devices[].dataRefreshSensor.displayType"
+                      ]
+                    }
                   ]
                 },
                 {

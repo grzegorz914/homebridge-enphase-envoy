@@ -140,9 +140,9 @@
                         "name": "Data refresh",
                         "displayType": 0
                     },
-                    "liveDataRefreshTime": 1.0,
                     "metersDataRefreshTime": 3.0,
                     "productionDataRefreshTime": 5.0,
+                    "liveDataRefreshTime": 3.0,
                     "ensembleDataRefreshTime": 15.0,
                     "supportProductionPowerMode": false,
                     "supportPlcLevel": false,
