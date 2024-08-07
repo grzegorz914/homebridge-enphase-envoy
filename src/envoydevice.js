@@ -3123,7 +3123,7 @@ class EnvoyDevice extends EventEmitter {
                         .onSet(async (state) => {
                             try {
                                 const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
-                                const info = this.disableLogInfo ? false : this.emit('message', `System data sampling: ${state ? `Enable` : `Disable`}`);
+                                const info = this.disableLogInfo ? false : this.emit('message', `Set system data sampling to: ${state ? `Enable` : `Disable`}`);
                             } catch (error) {
                                 this.emit('error', `Set system data sampling error: ${error}`);
                             };
