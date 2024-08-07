@@ -72,17 +72,6 @@ class EnvoyDevice extends EventEmitter {
         this.disableLogInfo = device.disableLogInfo || false;
         this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
 
-        //external integration
-        this.restFulConnected = false;
-        this.mqttConnected = false;
-
-        //setup variables
-        this.envoyIdFile = envoyIdFile;
-        this.envoyTokenFile = envoyTokenFile;
-        this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
-        this.checkCommLevel = false;
-        this.startPrepareAccessory = true;
-
         //active sensors 
         //power production state sensor
         const powerProductionStateSensorName = this.powerProductionStateSensor.name || false;
@@ -357,6 +346,13 @@ class EnvoyDevice extends EventEmitter {
         }
         this.solarGridModeActiveSensorsCount = this.solarGridModeActiveSensors.length || 0;
 
+        //setup variables
+        this.envoyIdFile = envoyIdFile;
+        this.envoyTokenFile = envoyTokenFile;
+        this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
+        this.checkCommLevel = false;
+        this.startPrepareAccessory = true;
+
         //jwt token
         this.jwtToken = {
             generation_time: 0,
@@ -469,6 +465,7 @@ class EnvoyDevice extends EventEmitter {
         });
 
         //RESTFul server
+        this.restFulConnected = false;
         const restFulEnabled = device.enableRestFul || false;
         if (restFulEnabled) {
             this.restFul = new RestFul({
@@ -489,6 +486,7 @@ class EnvoyDevice extends EventEmitter {
         }
 
         //mqtt client
+        this.mqttConnected = false;
         const mqttEnabled = device.enableMqtt || false;
         if (mqttEnabled) {
             this.mqtt = new Mqtt({
