@@ -56,9 +56,9 @@
       * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
       * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
       * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-  * Switch:
+  * Switches:
     * System `Data Refresh`,
-  * Lightbulb:
+  * Lightbulbs:
     * Production `Power State`, `Power Level`.
     * AC Battery `Energy State`, `Energy Level`.
     * Encharge `Energy State`, `Energy Level`.
