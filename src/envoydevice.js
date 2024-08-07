@@ -601,6 +601,8 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Start.`) : false;
 
         try {
+            this.timers = [];
+
             //get and validate jwt token
             const getJwtToken = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? true : await this.getJwtToken() : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
@@ -647,14 +649,13 @@ class EnvoyDevice extends EventEmitter {
             }
 
             //create timers and start impulse generator
-            const timers = [];
-            const pushTimer = updateHome ? timers.push({ timerName: 'updateHome', sampling: 60000 }) : false;
-            const pushTimer1 = updateMeters ? timers.push({ timerName: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
-            const pushTimer2 = updateEnsembleInventory ? timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
-            const pushTimer3 = updateLive ? timers.push({ timerName: 'updateLive', sampling: this.liveDataRefreshTime }) : false;
-            const pushTimer4 = updateProduction ? timers.push({ timerName: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
-            const pushTimer5 = updateMicroinverters ? timers.push({ timerName: 'updateMicroinverters', sampling: 80000 }) : false;
-            this.impulseGenerator.start(timers);
+            const pushTimer = updateHome ? this.timers.push({ timerName: 'updateHome', sampling: 60000 }) : false;
+            const pushTimer1 = updateMeters ? this.timers.push({ timerName: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
+            const pushTimer2 = updateEnsembleInventory ? this.timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer3 = updateLive ? this.timers.push({ timerName: 'updateLive', sampling: this.liveDataRefreshTime }) : false;
+            const pushTimer4 = updateProduction ? this.timers.push({ timerName: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer5 = updateMicroinverters ? this.timers.push({ timerName: 'updateMicroinverters', sampling: 80000 }) : false;
+            this.impulseGenerator.start(this.timers);
         } catch (error) {
             this.emit('errorStart', `Start error: ${error}`);
         };
@@ -3080,6 +3081,8 @@ class EnvoyDevice extends EventEmitter {
                     const serialNumber = this.envoy.serialNumber;
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare System Service`) : false;
                     this.systemService = accessory.addService(Service.Lightbulb, accessoryName, `systemPvService`);
+                    this.systemService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                    this.systemService.setCharacteristic(Characteristic.ConfiguredName, accessoryName);
                     this.systemService.getCharacteristic(Characteristic.On)
                         .onGet(async () => {
                             const state = this.productionCtData.powerState;
@@ -3104,6 +3107,25 @@ class EnvoyDevice extends EventEmitter {
                                 this.systemService.updateCharacteristic(Characteristic.Brightness, this.productionCtData.powerLevel);
                             } catch (error) {
                                 this.emit('error', `Set production power level error: ${error}`);
+                            };
+                        })
+
+                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare System Data Sampling Service`) : false;
+                    this.systemDataSamplingService = accessory.addService(Service.Switch, `${accessoryName} sampling`, `systemDataSamplingService`);
+                    this.systemDataSamplingService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                    this.systemDataSamplingService.setCharacteristic(Characteristic.ConfiguredName, `${accessoryName} sampling`);
+                    this.systemDataSamplingService.getCharacteristic(Characteristic.On)
+                        .onGet(async () => {
+                            const state = this.impulseGenerator.state();
+                            const info = this.disableLogInfo ? false : this.emit('message', `System data sampling: ${state ? 'Enabled' : 'Disabled'}`);
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            try {
+                                const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
+                                const info = this.disableLogInfo ? false : this.emit('message', `System data sampling: ${state ? `Enable` : `Disable`}`);
+                            } catch (error) {
+                                this.emit('error', `Set system data sampling error: ${error}`);
                             };
                         })
 
