@@ -630,6 +630,7 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Start.`) : false;
 
         try {
+            //create timers array
             this.timers = [];
 
             //get and validate jwt token
