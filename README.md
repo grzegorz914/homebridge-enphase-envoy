@@ -92,69 +92,69 @@
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
 | `powerProductionStateSensor` | This enable `Power State` monitoring for production and expose sensor in HomeKit app. |
 | `powerProductionStateSensor.name` | Here set Your own sensor name. |
-| `powerProductionStateSensor.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `powerProductionStateSensor.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `powerProductionLevelSensors` | This enable `Power Level` monitoring for production and expose sensor in HomeKit app. |
 | `powerProductionLevelSensors.name` | Here set Your own sensor name. |
 | `powerProductionLevelSensors.powerLevel` | Here set power level in `W` at which the sensor fired. |
-| `powerProductionLevelSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `powerProductionLevelSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyProductionStateSensor` | This enable `Energy State` monitoring for production and expose sensor in HomeKit app. |
 | `energyProductionStateSensor.name` | Here set Your own sensor name. |
-| `energyProductionStateSensor.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `energyProductionStateSensor.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyProductionLevelSensors` | This enable `Energy Level` monitoring for production and expose sensor in HomeKit app. |
 | `energyProductionLevelSensors.name` | Here set Your own sensor name. |
 | `energyProductionLevelSensors.energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
-| `energyProductionLevelSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `energyProductionLevelSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded `+/-`. |
 | `powerConsumptionTotalStateSensor` | This enable `Power State` monitoring for consumption `(Total` and expose sensor in HomeKit app. |
 | `powerConsumptionTotalStateSensor.name` | Here set Your own sensor name. |
-| `powerConsumptionTotalStateSensor.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `powerConsumptionTotalStateSensor.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `powerConsumptionTotalLevelSensors` | This enable `Power Level` monitoring for consumption `Total` and expose sensor in HomeKit app. |
 | `powerConsumptionTotalLevelSensors.name` | Here set Your own sensor name. |
 | `powerConsumptionTotalLevelSensors.powerLevel` | Here set power level in `W` at which the sensor fired. |
-| `powerConsumptionTotalLevelSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `powerConsumptionTotalLevelSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyConsumptionTotalStateSensor` | This enable `Energy State` monitoring for consumption `Total` and expose sensor in HomeKit app. |
 | `energyConsumptionTotalStateSensor.name` | Here set Your own sensor name. |
-| `energyConsumptionTotalStateSensor.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `energyConsumptionTotalStateSensor.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyConsumptionTotalLevelSensors` | This enable `Energy Level` monitoring for consumption `Total` and expose sensor in HomeKit app. |
 | `energyConsumptionTotalLevelSensors.name` | Here set Your own sensor name. |
 | `energyConsumptionTotalLevelSensors.energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
-| `energyConsumptionTotalLevelSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `energyConsumptionTotalLevelSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Total` if nedded `+/-`. |
 | `powerConsumptionNetStateSensor` | This enable `Power State` monitoring for consumption `Net` and expose sensor in HomeKit app. |
 | `powerConsumptionNetStateSensor.name` | Here set Your own sensor name. |
-| `powerConsumptionNetStateSensor.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `powerConsumptionNetStateSensor.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `powerConsumptionNetLevelSensors` | This enable `Power Level` monitoring for consumption `Net` and expose sensor in HomeKit app. |
 | `powerConsumptionNetLevelSensors.name` | Here set Your own sensor name. |
 | `powerConsumptionNetLevelSensors.powerLevel` | Here set power level in `W` at which the sensor fired. |
-| `powerConsumptionNetLevelSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `powerConsumptionNetLevelSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyConsumptionNetStateSensor` | This enable `Energy State` monitoring for consumption `Net` and expose sensor in HomeKit app. |
 | `energyConsumptionNetStateSensor.name` | Here set Your own sensor name. |
-| `energyConsumptionNetStateSensor.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `energyConsumptionNetStateSensor.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyConsumptionNetLevelSensors` | This enable `Energy Level` monitoring for consumption `Net` and expose sensor in HomeKit app. |
 | `energyConsumptionNetLevelSensors.name` | Here set Your own sensor name. |
 | `energyConsumptionNetLevelSensors.energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
-| `energyConsumptionNetLevelSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `energyConsumptionNetLevelSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Net` if nedded `+/-`. |
 | `enepowerGridModeSensors` | Sensors`Enpower Grid Mode` monitoring and expose sensor in HomeKit app. If `Enpower Grid Mode` matches, the contact fired. |
 | `enepowerGridModeSensors.name` | Here set Your own sensor name. |
 | `enepowerGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming` for sensor. |
-| `enepowerGridModeSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `enepowerGridModeSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `enchargeGridModeSensors` |Sensors `Encharge Grid Mode` monitoring and expose sensor in HomeKit app. If `Encharge Grid Mod` matches, the contact fired. |
 | `enchargeGridModeSensors.name` | Here set Your own sensor name. |
 | `enchargeGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming` for sensor. |
-| `enchargeGridModeSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `enchargeGridModeSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `enchargeBackupLevelSensors` |Sensors `Encharge Backup Level` monitoring and expose as a contact sensor in HomeKit app. If `Encharge Backup Level` matches, the contact fired. |
 | `enchargeBackupLevelSensors.name` | Here set Your own sensor name. |
 | `enchargeBackupLevelSensors.compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
 | `enchargeBackupLevelSensors.backupLevel` | Here set backup level in `%` to compare at which the sensor fired. |
-| `enchargeBackupLevelSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `enchargeBackupLevelSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `solarGridModeSensors` | Sensors `Solar Grid Mode` monitoring and expose sensors in HomeKit app. If `Solar Grid Mode` matches, the contact fired. |
 | `solarGridModeSensors.name` | Here set Your own sensor name. |
 | `solarGridModeSensors.gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming` for sensor. |
-| `solarGridModeSensors.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `solarGridModeSensors.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `dataRefreshSensor` | This enable `Data Refresh` monitoring and expose sensor in HomeKit app. |
 | `dataRefreshSensor.name` | Here set Your own sensor name. |
-| `dataRefreshSensor.displayType` | Here select the characterristic type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `dataRefreshSensor.displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app), Fw. 7.x.x and newer require installer credentials data. |
 | `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
 | `supportEnchargeProfile` | This enable support to check/control encharge profile, not working yet. |
