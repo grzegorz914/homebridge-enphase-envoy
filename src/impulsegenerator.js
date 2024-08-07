@@ -15,14 +15,17 @@ class ImpulseGenerator extends EventEmitter {
             }, sampling);
 
             this.timers.push(timer);
-            this.timerState = true;
         });
+
+        this.timerState = true;
+        this.emit('state', true);
     }
 
     stop() {
         this.timers.forEach(timer => clearInterval(timer));
         this.timers = [];
         this.timerState = false;
+        this.emit('state', false);
     }
 
     state() {

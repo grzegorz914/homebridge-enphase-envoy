@@ -393,6 +393,18 @@ module.exports = (api) => {
   }
   Characteristic.enphaseEnvoyProductionPowerMode = enphaseEnvoyProductionPowerMode;
 
+  class enphaseEnvoyDataRefresh extends Characteristic {
+    constructor() {
+      super('Data sampling', '00000300-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyDataRefresh = enphaseEnvoyDataRefresh;
+
   //power production service
   class enphaseEnvoyService extends Service {
     constructor(displayName, subtype) {
@@ -420,6 +432,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyDataRefresh);
       this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }

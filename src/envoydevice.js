@@ -58,6 +58,7 @@ class EnvoyDevice extends EventEmitter {
         this.supportPlcLevel = device.supportPlcLevel || false;
         this.supportEnchargeProfile = device.supportEnchargeProfile || false;
 
+        this.dataRefreshSensor = device.dataRefreshSensor || {};
         this.metersDataRefreshTime = device.metersDataRefreshTime * 1000 || 2000;
         this.productionDataRefreshTime = device.productionDataRefreshTime * 1000 || 5000;
         this.liveDataRefreshTime = device.liveDataRefreshTime * 1000 || 2000;
@@ -73,6 +74,22 @@ class EnvoyDevice extends EventEmitter {
         this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
 
         //active sensors 
+        //system data refresh sensor
+        const dataRefreshSensorName = this.dataRefreshSensor.name || false;
+        const dataRefreshSensorDisplayType = this.dataRefreshSensor.displayType ?? 0;
+        this.dataRefreshActiveSensors = [];
+        if (dataRefreshSensorName && dataRefreshSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = dataRefreshSensorName;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][dataRefreshSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][dataRefreshSensorDisplayType];
+            sensor.state = false;
+            this.dataRefreshActiveSensors.push(sensor);
+        } else {
+            const log = dataRefreshSensorDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.dataRefreshActiveSensorsCount = this.dataRefreshActiveSensors.length || 0;
+
         //power production state sensor
         const powerProductionStateSensorName = this.powerProductionStateSensor.name || false;
         const powerProductionStateSensorDisplayType = this.powerProductionStateSensor.displayType ?? 0;
@@ -592,6 +609,18 @@ class EnvoyDevice extends EventEmitter {
             } catch (error) {
                 this.emit('error', `Update microinverters error: ${error}`);
             };
+        }).on('state', (state) => {
+            if (this.dataRefreshActiveSensorsCount > 0) {
+                for (let i = 0; i < this.dataRefreshActiveSensorsCount; i++) {
+                    this.dataRefreshActiveSensors[i].state = state;
+
+                    if (this.dataRefreshSensorsService) {
+                        const characteristicType = this.dataRefreshActiveSensors[i].characteristicType;
+                        this.dataRefreshSensorsService[i]
+                            .updateCharacteristic(characteristicType, state)
+                    }
+                }
+            }
         });
 
         this.start();
@@ -649,7 +678,7 @@ class EnvoyDevice extends EventEmitter {
             }
 
             //create timers and start impulse generator
-            const pushTimer = updateHome ? this.timers.push({ timerName: 'updateHome', sampling: 60000 }) : false;
+            const pushTimer0 = updateHome ? this.timers.push({ timerName: 'updateHome', sampling: 60000 }) : false;
             const pushTimer1 = updateMeters ? this.timers.push({ timerName: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
             const pushTimer2 = updateEnsembleInventory ? this.timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
             const pushTimer3 = updateLive ? this.timers.push({ timerName: 'updateLive', sampling: this.liveDataRefreshTime }) : false;
@@ -3110,29 +3139,64 @@ class EnvoyDevice extends EventEmitter {
                             };
                         })
 
-                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare System Data Sampling Service`) : false;
-                    this.systemDataSamplingService = accessory.addService(Service.Switch, `${accessoryName} sampling`, `systemDataSamplingService`);
-                    this.systemDataSamplingService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                    this.systemDataSamplingService.setCharacteristic(Characteristic.ConfiguredName, `${accessoryName} sampling`);
-                    this.systemDataSamplingService.getCharacteristic(Characteristic.On)
+                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare System Data Refresh Service`) : false;
+                    this.dataRefreshService = accessory.addService(Service.Switch, `${accessoryName} refresh`, `dataRefreshService`);
+                    this.dataRefreshService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                    this.dataRefreshService.setCharacteristic(Characteristic.ConfiguredName, `${accessoryName} refresh`);
+                    this.dataRefreshService.getCharacteristic(Characteristic.On)
                         .onGet(async () => {
                             const state = this.impulseGenerator.state();
-                            const info = this.disableLogInfo ? false : this.emit('message', `System data sampling: ${state ? 'Enabled' : 'Disabled'}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `System data refresh: ${state ? 'Enabled' : 'Disabled'}`);
                             return state;
                         })
                         .onSet(async (state) => {
                             try {
                                 const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
-                                const info = this.disableLogInfo ? false : this.emit('message', `Set system data sampling to: ${state ? `Enable` : `Disable`}`);
+                                const info = this.disableLogInfo ? false : this.emit('message', `Set system data refresh to: ${state ? `Enable` : `Disable`}`);
                             } catch (error) {
-                                this.emit('error', `Set system data sampling error: ${error}`);
+                                this.emit('error', `Set system data refresh error: ${error}`);
                             };
                         })
+
+                    //system data refresh sensor service
+                    if (this.dataRefreshActiveSensorsCount > 0) {
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare System Data Refresh Sensor Service`) : false;
+                        this.dataRefreshSensorsService = [];
+                        for (let i = 0; i < this.dataRefreshActiveSensorsCount; i++) {
+                            const sensorName = this.dataRefreshActiveSensors[i].name;
+                            const serviceType = this.dataRefreshActiveSensors[i].serviceType;
+                            const characteristicType = this.dataRefreshActiveSensors[i].characteristicType;
+                            const dataRefreshSensorService = accessory.addService(serviceType, sensorName, `dataRefreshSensorService`);
+                            dataRefreshSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            dataRefreshSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                            dataRefreshSensorService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.impulseGenerator.state();
+                                    const info = this.disableLogInfo ? false : this.emit('message', `System data refresh sensor: ${state ? 'Active' : 'Not active'}`);
+                                    return state;
+                                });
+                            this.dataRefreshSensorsService.push(dataRefreshSensorService);
+                        };
+                    };
 
                     //envoy
                     const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Envoy Service`) : false;
                     this.envoyService = accessory.addService(Service.enphaseEnvoyService, `Envoy ${serialNumber}`, serialNumber);
                     this.envoyService.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${serialNumber}`);
+                    this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyDataRefresh)
+                        .onGet(async () => {
+                            const state = this.impulseGenerator.state();
+                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, system data refresh: ${state ? 'Enabled' : 'Disabled'}`);
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            try {
+                                const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
+                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set system data refresh to: ${state ? `Enable` : `Disable`}`);
+                            } catch (error) {
+                                this.emit('error', `Envoy: ${serialNumber}, set system data refresh error: ${error}`);
+                            };
+                        });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyAlerts)
                         .onGet(async () => {
                             const value = this.envoy.home.alerts;

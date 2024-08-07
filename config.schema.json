@@ -708,7 +708,6 @@
                   "required": true
                 }
               },
-              "description": "This enable consumptiom net energy state monitoring and expose contact sensor in HomeKit.",
               "required": false
             },
             "energyConsumptionNetLevelSensors": {
@@ -1182,6 +1181,54 @@
               },
               "required": false
             },
+            "dataRefreshSensor": {
+              "title": "Data Refresh Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the characterristic type to be displayed in HomeKit app.",
+                  "required": true
+                }
+              },
+              "required": false
+            },
             "liveDataRefreshTime": {
               "title": "Live Data Sampling",
               "type": "number",
@@ -1400,7 +1447,17 @@
                     "devices[].metersDataRefreshTime",
                     "devices[].productionDataRefreshTime",
                     "devices[].liveDataRefreshTime",
-                    "devices[].ensembleDataRefreshTime"
+                    "devices[].ensembleDataRefreshTime",
+                    {
+                      "key": "devices[].dataRefreshSensor",
+                      "type": "section",
+                      "title": "Data Refresh Sensor",
+                      "description": "In this section You can enable sensor for system data refresh monitoring and expose it in HomeKit.",
+                      "items": [
+                        "devices[].dataRefreshSensor.name",
+                        "devices[].dataRefreshSensor.displayType"
+                      ]
+                    }
                   ],
                   "description": "Here You can configure envoy gateway."
                 },
