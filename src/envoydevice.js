@@ -3115,7 +3115,7 @@ class EnvoyDevice extends EventEmitter {
                     this.systemService.getCharacteristic(Characteristic.On)
                         .onGet(async () => {
                             const state = this.productionCtData.powerState;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Production power state: ${state ? 'Active' : 'Not active'}`);
+                            const info = this.disableLogInfo ? false : this.emit('message', `Production power state: ${state ? 'Enabled' : 'Disabled'}`);
                             return state;
                         })
                         .onSet(async (state) => {
