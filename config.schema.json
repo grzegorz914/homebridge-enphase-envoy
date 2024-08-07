@@ -1239,7 +1239,7 @@
               "required": false
             },
             "productionDataRefreshTime": {
-              "title": "Production Sampling",
+              "title": "Production Refresh Time",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
