@@ -90,7 +90,7 @@
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
-| `powerProductionStateSensor` | This is `Power State Sensor` for production,monitoring. |
+| `powerProductionStateSensor` | This is `Power State Sensor` for production monitoring. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `powerProductionLevelSensors` | This is `Power Level Sensor` for production monitoring. |
