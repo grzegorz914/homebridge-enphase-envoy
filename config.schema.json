@@ -26,7 +26,7 @@
               "type": "string",
               "placeholder": "IP Address or Hostname",
               "format": "hostname",
-              "description": "Here set the envoy ip address/hostname or leave empty (will be used default path envoy.local).",
+              "description": "Here set the envoy ip address/hostname or leave empty, will use default path envoy.local.",
               "required": false
             },
             "envoyFirmware7xx": {
@@ -63,7 +63,7 @@
               "title": "Envoy Password",
               "type": "string",
               "placeholder": "Envoy password",
-              "description": "Here set the envoy password (only if You already changed default password).",
+              "description": "Here set the envoy password, only if You already changed the default password.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
               },
@@ -102,7 +102,7 @@
             "enlightenPasswd": {
               "title": "Enlighten Password",
               "type": "string",
-              "placeholder": "Enlighten password",
+              "placeholder": "password",
               "description": "Here set the enlighten password.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
@@ -157,7 +157,7 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit app.",
+                  "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
                 }
               },
@@ -214,7 +214,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -263,7 +263,7 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit app.",
+                  "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
                 }
               },
@@ -320,7 +320,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -375,7 +375,7 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit app.",
+                  "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
                 }
               },
@@ -432,7 +432,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -487,7 +487,7 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit app.",
+                  "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
                 }
               },
@@ -544,7 +544,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -593,7 +593,7 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit app.",
+                  "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
                 }
               },
@@ -615,7 +615,7 @@
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
-                    "description": "Here set power level in (W) at which the sensor fired, (-) negative value mean exporting energy to the grid.",
+                    "description": "Here set power level in (W) at which the sensor fired, negative value (-) mean exporting energy to the grid.",
                     "required": false
                   },
                   "displayType": {
@@ -649,7 +649,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -704,7 +704,7 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit app.",
+                  "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
                 }
               },
@@ -761,7 +761,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -877,7 +877,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -972,7 +972,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -1073,7 +1073,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -1171,7 +1171,7 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit app.",
+                    "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
                   }
                 }
@@ -1223,14 +1223,14 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit app.",
+                  "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
                 }
               },
               "required": false
             },
             "metersDataRefreshTime": {
-              "title": "Meters Sampling",
+              "title": "Meters Refresh Time",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
@@ -1248,7 +1248,7 @@
               "required": false
             },
             "liveDataRefreshTime": {
-              "title": "Live Data Sampling",
+              "title": "Live Data Refresh Time",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
@@ -1260,7 +1260,7 @@
               "required": false
             },
             "ensembleDataRefreshTime": {
-              "title": "Ensemble Sampling",
+              "title": "Ensemble Refresh Time",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
