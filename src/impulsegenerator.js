@@ -2,17 +2,16 @@
 const EventEmitter = require('events');
 
 class ImpulseGenerator extends EventEmitter {
-    constructor(outputs) {
+    constructor() {
         super();
-        this.outputs = outputs;
-        this.timers = [];
     }
 
-    start() {
-        this.outputs.forEach(({ name, interval }) => {
+    start(outputs) {
+        this.timers = [];
+        outputs.forEach(({ timerName, sampling }) => {
             const timer = setInterval(() => {
-                this.emit(name);
-            }, interval);
+                this.emit(timerName);
+            }, sampling);
 
             this.timers.push(timer);
         });

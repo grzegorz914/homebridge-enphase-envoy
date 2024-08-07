@@ -82,12 +82,6 @@ class EnvoyDevice extends EventEmitter {
         this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
         this.checkCommLevel = false;
         this.startPrepareAccessory = true;
-        this.updateHome = false;
-        this.updateMeters = false;
-        this.updateEnsembleInventory = false;
-        this.updateLive = false;
-        this.updateProduction = false;
-        this.updateMicroinverters = false;
 
         //active sensors 
         //power production state sensor
@@ -553,19 +547,11 @@ class EnvoyDevice extends EventEmitter {
         };
 
         //start update data
-        const timers = [
-            { name: 'updateHome', interval: 60000 },
-            { name: 'updateMeters', interval: this.metersDataRefreshTime },
-            { name: 'updateEnsemble', interval: this.ensembleDataRefreshTime },
-            { name: 'updateLive', interval: this.liveDataRefreshTime },
-            { name: 'updateProduction', interval: this.productionDataRefreshTime },
-            { name: 'updateMicroinverters', interval: 80000 }
-        ];
-        this.impulseGenerator = new ImpulseGenerator(timers);
+        this.impulseGenerator = new ImpulseGenerator();
         this.impulseGenerator.on('updateHome', async () => {
             try {
                 const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : this.checkJwtToken() : false;
-                const updateHome = !this.updateHome || tokenExpired ? false : await this.updateHomeData();
+                const updateHome = tokenExpired ? false : await this.updateHomeData();
                 const updateInventory = updateHome ? await this.updateInventoryData() : false;
             } catch (error) {
                 this.emit('error', `Update home error: ${error}`);
@@ -573,7 +559,7 @@ class EnvoyDevice extends EventEmitter {
         }).on('updateMeters', async () => {
             try {
                 const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
-                const updateMeters = !this.updateMeters || tokenExpired ? false : await this.updateMetersData();
+                const updateMeters = tokenExpired ? false : await this.updateMetersData();
                 const updateMetersReading = updateMeters ? await this.updateMetersReadingData() : false;
             } catch (error) {
                 this.emit('error', `Update meters error: ${error}`);
@@ -581,7 +567,7 @@ class EnvoyDevice extends EventEmitter {
         }).on('updateEnsemble', async () => {
             try {
                 const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
-                const updateEnsembleInventory = !this.updateEnsembleInventory || tokenExpired ? false : await this.updateEnsembleInventoryData();
+                const updateEnsembleInventory = tokenExpired ? false : await this.updateEnsembleInventoryData();
                 const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
             } catch (error) {
                 this.emit('error', `Update ensemble inventoty error: ${error}`);
@@ -589,14 +575,14 @@ class EnvoyDevice extends EventEmitter {
         }).on('updateLive', async () => {
             try {
                 const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
-                const updateLive = !this.updateLive || tokenExpired ? false : await this.updateLiveData();
+                const updateLive = tokenExpired ? false : await this.updateLiveData();
             } catch (error) {
                 this.emit('error', `Update live data error: ${error}`);
             };
         }).on('updateProduction', async () => {
             try {
                 const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
-                const updateProduction = !this.updateProduction || tokenExpired ? false : await this.updateProductionData();
+                const updateProduction = tokenExpired ? false : await this.updateProductionData();
                 const updateProductionCt = updateProduction ? await this.updateProductionCtData() : false;
             } catch (error) {
                 this.emit('error', `Update production error: ${error}`);
@@ -604,7 +590,7 @@ class EnvoyDevice extends EventEmitter {
         }).on('updateMicroinverters', async () => {
             try {
                 const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
-                const updateMicroinverters = !this.updateMicroinverters || tokenExpired ? false : await this.updateMicroinvertersData();
+                const updateMicroinverters = tokenExpired ? false : await this.updateMicroinvertersData();
             } catch (error) {
                 this.emit('error', `Update microinverters error: ${error}`);
             };
@@ -662,14 +648,15 @@ class EnvoyDevice extends EventEmitter {
                 return;
             }
 
-            //start update data
-            this.updateHome = updateHome;
-            this.updateMeters = updateMeters;
-            this.updateEnsembleInventory = updateEnsembleInventory;
-            this.updateLive = updateLive;
-            this.updateProduction = updateProduction;
-            this.updateMicroinverters = updateMicroinverters;
-            this.impulseGenerator.start();
+            //create timers and start impulse generator
+            const timers = [];
+            const pushTimer = updateHome ? timers.push({ timerName: 'updateHome', sampling: 60000 }) : false;
+            const pushTimer1 = updateMeters ? timers.push({ timerName: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
+            const pushTimer2 = updateEnsembleInventory ? timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer3 = updateLive ? timers.push({ timerName: 'updateLive', sampling: this.liveDataRefreshTime }) : false;
+            const pushTimer4 = updateProduction ? timers.push({ timerName: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer5 = updateMicroinverters ? timers.push({ timerName: 'updateMicroinverters', sampling: 80000 }) : false;
+            this.impulseGenerator.start(timers);
         } catch (error) {
             this.emit('errorStart', `Start error: ${error}`);
         };
