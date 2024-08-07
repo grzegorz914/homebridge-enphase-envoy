@@ -137,11 +137,7 @@ class EnvoyPlatform {
 }
 
 module.exports = (api) => {
-  const Service = api.hap.Service;
-  const Characteristic = api.hap.Characteristic;
-  const Units = api.hap.Units;
-  const Formats = api.hap.Formats;
-  const Perms = api.hap.Perms;
+  const { Service, Characteristic, Units, Formats, Perms } = api.hap;
 
   //Envoy
   class enphaseEnvoyAlerts extends Characteristic {
