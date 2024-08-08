@@ -30,7 +30,7 @@
     * Token generated with enlighten credentials data will be automatically refreshed if expire.
     * Token generated with externall tools cannot be refreshed automatically if expire.
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
-* Installer `password` is generated automatically, no need generate it manually in external generator anymore.
+* Installer `password` is generated automatically, only Fw. <= v5.x.x.
 * Envoy `device ID` is detected automatically.
 * Support `Production Power Mode` and `PLC Level`, Fw. 7.x.x and newer require installer credentials data.
 * For best experiences and display all data please use `Controller` or `EVE` app.
