@@ -159,6 +159,12 @@
                   ],
                   "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "required": false
                 }
               },
               "required": false
@@ -216,6 +222,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -265,6 +277,12 @@
                   ],
                   "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "required": false
                 }
               },
               "required": false
@@ -322,6 +340,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -377,6 +401,12 @@
                   ],
                   "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "required": false
                 }
               },
               "required": false
@@ -434,6 +464,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -489,6 +525,12 @@
                   ],
                   "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "required": false
                 }
               },
               "required": false
@@ -546,6 +588,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -595,6 +643,12 @@
                   ],
                   "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "required": false
                 }
               },
               "required": false
@@ -651,6 +705,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -706,6 +766,12 @@
                   ],
                   "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "required": false
                 }
               },
               "required": false
@@ -763,6 +829,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -879,6 +951,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -974,6 +1052,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -1075,6 +1159,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -1173,6 +1263,12 @@
                     ],
                     "description": "Select the sensor type to be displayed in HomeKit.",
                     "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "required": false
                   }
                 }
               },
@@ -1225,6 +1321,12 @@
                   ],
                   "description": "Select the sensor type to be displayed in HomeKit.",
                   "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "required": false
                 }
               },
               "required": false
@@ -1468,7 +1570,8 @@
                               "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
                               "items": [
                                 "devices[].powerProductionStateSensor.name",
-                                "devices[].powerProductionStateSensor.displayType"
+                                "devices[].powerProductionStateSensor.displayType",
+                                "devices[].powerProductionStateSensor.namePrefix"
                               ]
                             },
                             {
@@ -1486,7 +1589,8 @@
                                   "items": [
                                     "devices[].powerProductionLevelSensors[].name",
                                     "devices[].powerProductionLevelSensors[].powerLevel",
-                                    "devices[].powerProductionLevelSensors[].displayType"
+                                    "devices[].powerProductionLevelSensors[].displayType",
+                                    "devices[].powerProductionLevelSensors[].namePrefix"
                                   ]
                                 }
                               ]
@@ -1505,7 +1609,8 @@
                               "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
                               "items": [
                                 "devices[].energyProductionStateSensor.name",
-                                "devices[].energyProductionStateSensor.displayType"
+                                "devices[].energyProductionStateSensor.displayType",
+                                "devices[].energyProductionStateSensor.namePrefix"
                               ]
                             },
                             {
@@ -1523,7 +1628,8 @@
                                   "items": [
                                     "devices[].energyProductionLevelSensors[].name",
                                     "devices[].energyProductionLevelSensors[].energyLevel",
-                                    "devices[].energyProductionLevelSensors[].displayType"
+                                    "devices[].energyProductionLevelSensors[].displayType",
+                                    "devices[].energyProductionLevelSensors[].namePrefix"
                                   ]
                                 }
                               ]
@@ -1563,7 +1669,8 @@
                                       "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
                                       "items": [
                                         "devices[].powerConsumptionTotalStateSensor.name",
-                                        "devices[].powerConsumptionTotalStateSensor.displayType"
+                                        "devices[].powerConsumptionTotalStateSensor.displayType",
+                                        "devices[].powerConsumptionTotalStateSensor.namePrefix"
                                       ]
                                     },
                                     {
@@ -1581,7 +1688,8 @@
                                           "items": [
                                             "devices[].powerConsumptionTotalLevelSensors[].name",
                                             "devices[].powerConsumptionTotalLevelSensors[].powerLevel",
-                                            "devices[].powerConsumptionTotalLevelSensors[].displayType"
+                                            "devices[].powerConsumptionTotalLevelSensors[].displayType",
+                                            "devices[].powerConsumptionTotalLevelSensors[].namePrefix"
                                           ]
                                         }
                                       ]
@@ -1600,7 +1708,8 @@
                                       "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
                                       "items": [
                                         "devices[].energyConsumptionTotalStateSensor.name",
-                                        "devices[].energyConsumptionTotalStateSensor.displayType"
+                                        "devices[].energyConsumptionTotalStateSensor.displayType",
+                                        "devices[].energyConsumptionTotalStateSensor.namePrefix"
                                       ]
                                     },
                                     {
@@ -1618,7 +1727,8 @@
                                           "items": [
                                             "devices[].energyConsumptionTotalLevelSensors[].name",
                                             "devices[].energyConsumptionTotalLevelSensors[].energyLevel",
-                                            "devices[].energyConsumptionTotalLevelSensors[].displayType"
+                                            "devices[].energyConsumptionTotalLevelSensors[].displayType",
+                                            "devices[].energyConsumptionTotalLevelSensors[].namePrefix"
                                           ]
                                         }
                                       ]
@@ -1649,7 +1759,8 @@
                                       "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
                                       "items": [
                                         "devices[].powerConsumptionNetStateSensor.name",
-                                        "devices[].powerConsumptionNetStateSensor.displayType"
+                                        "devices[].powerConsumptionNetStateSensor.displayType",
+                                        "devices[].powerConsumptionNetStateSensor.namePrefix"
                                       ]
                                     },
                                     {
@@ -1667,7 +1778,8 @@
                                           "items": [
                                             "devices[].powerConsumptionNetLevelSensors[].name",
                                             "devices[].powerConsumptionNetLevelSensors[].powerLevel",
-                                            "devices[].powerConsumptionNetLevelSensors[].displayType"
+                                            "devices[].powerConsumptionNetLevelSensors[].displayType",
+                                            "devices[].powerConsumptionNetLevelSensors[].namePrefix"
                                           ]
                                         }
                                       ]
@@ -1686,7 +1798,8 @@
                                       "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
                                       "items": [
                                         "devices[].energyConsumptionNetStateSensor.name",
-                                        "devices[].energyConsumptionNetStateSensor.displayType"
+                                        "devices[].energyConsumptionNetStateSensor.displayType",
+                                        "devices[].energyConsumptionNetStateSensor.namePrefix"
                                       ]
                                     },
                                     {
@@ -1704,7 +1817,8 @@
                                           "items": [
                                             "devices[].energyConsumptionNetLevelSensors[].name",
                                             "devices[].energyConsumptionNetLevelSensors[].energyLevel",
-                                            "devices[].energyConsumptionNetLevelSensors[].displayType"
+                                            "devices[].energyConsumptionNetLevelSensors[].displayType",
+                                            "devices[].energyConsumptionNetLevelSensors[].namePrefix"
                                           ]
                                         }
                                       ]
@@ -1747,7 +1861,8 @@
                                   "items": [
                                     "devices[].enpowerGridModeSensors[].name",
                                     "devices[].enpowerGridModeSensors[].gridMode",
-                                    "devices[].enpowerGridModeSensors[].displayType"
+                                    "devices[].enpowerGridModeSensors[].displayType",
+                                    "devices[].enpowerGridModeSensors[].namePrefix"
                                   ]
                                 }
                               ]
@@ -1774,7 +1889,8 @@
                                   "items": [
                                     "devices[].enchargeGridModeSensors[].name",
                                     "devices[].enchargeGridModeSensors[].gridMode",
-                                    "devices[].enchargeGridModeSensors[].displayType"
+                                    "devices[].enchargeGridModeSensors[].displayType",
+                                    "devices[].enchargeGridModeSensors[].namePrefix"
                                   ]
                                 }
                               ]
@@ -1795,7 +1911,8 @@
                                     "devices[].enchargeBackupLevelSensors[].name",
                                     "devices[].enchargeBackupLevelSensors[].compareMode",
                                     "devices[].enchargeBackupLevelSensors[].backupLevel",
-                                    "devices[].enchargeBackupLevelSensors[].displayType"
+                                    "devices[].enchargeBackupLevelSensors[].displayType",
+                                    "devices[].enchargeBackupLevelSensors[].namePrefix"
                                   ]
                                 }
                               ]
@@ -1821,7 +1938,8 @@
                                   "items": [
                                     "devices[].solarGridModeSensors[].name",
                                     "devices[].solarGridModeSensors[].gridMode",
-                                    "devices[].solarGridModeSensors[].displayType"
+                                    "devices[].solarGridModeSensors[].displayType",
+                                    "devices[].solarGridModeSensors[].namePrefix"
                                   ]
                                 }
                               ]

@@ -3164,7 +3164,7 @@ class EnvoyDevice extends EventEmitter {
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Data Refresh Sensor Service`) : false;
                         this.dataRefreshSensorsService = [];
                         for (let i = 0; i < this.dataRefreshActiveSensorsCount; i++) {
-                            const sensorName = this.dataRefreshActiveSensors[i].name;
+                            const sensorName = this.dataRefreshActiveSensors[i].namePrefix ? `${accessoryName} ${this.dataRefreshActiveSensors[i].name}` : this.dataRefreshActiveSensors[i].name;
                             const serviceType = this.dataRefreshActiveSensors[i].serviceType;
                             const characteristicType = this.dataRefreshActiveSensors[i].characteristicType;
                             const dataRefreshSensorService = accessory.addService(serviceType, sensorName, `dataRefreshSensorService`);
@@ -3647,7 +3647,7 @@ class EnvoyDevice extends EventEmitter {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Power State Sensor Service`) : false;
                     this.powerProductionStateSensorsService = [];
                     for (let i = 0; i < this.powerProductionStateActiveSensorsCount; i++) {
-                        const sensorName = this.powerProductionStateActiveSensors[i].name;
+                        const sensorName = this.powerProductionStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerProductionStateActiveSensors[i].name}` : this.powerProductionStateActiveSensors[i].name;
                         const serviceType = this.powerProductionStateActiveSensors[i].serviceType;
                         const characteristicType = this.powerProductionStateActiveSensors[i].characteristicType;
                         const powerProductionStateSensorService = accessory.addService(serviceType, sensorName, `powerProductionStateSensorService`);
@@ -3667,7 +3667,7 @@ class EnvoyDevice extends EventEmitter {
                 if (this.powerProductionLevelActiveSensorsCount > 0) {
                     this.powerProductionLevelSensorsService = [];
                     for (let i = 0; i < this.powerProductionLevelActiveSensorsCount; i++) {
-                        const sensorName = this.powerProductionLevelActiveSensors[i].name;
+                        const sensorName = this.powerProductionLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerProductionLevelActiveSensors[i].name}` : this.powerProductionLevelActiveSensors[i].name;
                         const serviceType = this.powerProductionLevelActiveSensors[i].serviceType;
                         const characteristicType = this.powerProductionLevelActiveSensors[i].characteristicType;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Power Level ${sensorName} Sensor Service`) : false;
@@ -3689,8 +3689,7 @@ class EnvoyDevice extends EventEmitter {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Energy State Sensor Service`) : false;
                     this.energyProductionStateSensorsService = [];
                     for (let i = 0; i < this.energyProductionStateActiveSensorsCount; i++) {
-                        const sensorName = this.energyProductionStateActiveSensors[i].name;
-                        const serviceType = this.energyProductionStateActiveSensors[i].serviceType;
+                        const sensorName = this.energyProductionStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyProductionStateActiveSensors[i].name}` : this.energyProductionStateActiveSensors[i].name;
                         const characteristicType = this.energyProductionStateActiveSensors[i].characteristicType;
                         const energyProductionStateSensorService = accessory.addService(serviceType, sensorName, `energyProductionStateSensorService`);
                         energyProductionStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
@@ -3709,7 +3708,7 @@ class EnvoyDevice extends EventEmitter {
                 if (this.energyProductionLevelActiveSensorsCount > 0) {
                     this.energyProductionLevelSensorsService = [];
                     for (let i = 0; i < this.energyProductionLevelActiveSensorsCount; i++) {
-                        const sensorName = this.energyProductionLevelActiveSensors[i].name;
+                        const sensorName = this.energyProductionLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyProductionLevelActiveSensors[i].name}` : this.energyProductionLevelActiveSensors[i].name;
                         const serviceType = this.energyProductionLevelActiveSensors[i].serviceType;
                         const characteristicType = this.energyProductionLevelActiveSensors[i].characteristicType;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Energy Level ${sensorName} Sensor Service`) : false;
@@ -3830,7 +3829,7 @@ class EnvoyDevice extends EventEmitter {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power State Sensor Service`) : false;
                                 this.powerConsumptionTotalStateSensorsService = [];
                                 for (let i = 0; i < this.powerConsumptionTotalStateActiveSensorsCount; i++) {
-                                    const sensorName = this.powerConsumptionTotalStateActiveSensors[i].name;
+                                    const sensorName = this.powerConsumptionTotalStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionTotalStateActiveSensors[i].name}` : this.powerConsumptionTotalStateActiveSensors[i].name;
                                     const serviceType = this.powerConsumptionTotalStateActiveSensors[i].serviceType;
                                     const characteristicType = this.powerConsumptionTotalStateActiveSensors[i].characteristicType;
                                     const powerConsumptionTotalStateSensorService = accessory.addService(serviceType, sensorName, `powerConsumptionTotalStateSensorService`);
@@ -3850,7 +3849,7 @@ class EnvoyDevice extends EventEmitter {
                             if (this.powerConsumptionTotalLevelActiveSensorsCount > 0) {
                                 this.powerConsumptionTotalLevelSensorsService = [];
                                 for (let i = 0; i < this.powerConsumptionTotalLevelActiveSensorsCount; i++) {
-                                    const sensorName = this.powerConsumptionTotalLevelActiveSensors[i].name;
+                                    const sensorName = this.powerConsumptionTotalLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionTotalLevelActiveSensors[i].name}` : this.powerConsumptionTotalLevelActiveSensors[i].name;
                                     const serviceType = this.powerConsumptionTotalLevelActiveSensors[i].serviceType;
                                     const characteristicType = this.powerConsumptionTotalLevelActiveSensors[i].characteristicType;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power Level ${sensorName} Sensor Service`) : false;
@@ -3872,7 +3871,7 @@ class EnvoyDevice extends EventEmitter {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy State Sensor Service`) : false;
                                 this.energyConsumptionTotalStateSensorsService = [];
                                 for (let i = 0; i < this.energyConsumptionTotalStateActiveSensorsCount; i++) {
-                                    const sensorName = this.energyConsumptionTotalStateActiveSensors[i].name;
+                                    const sensorName = this.energyConsumptionTotalStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionTotalStateActiveSensors[i].name}` : this.energyConsumptionTotalStateActiveSensors[i].name;
                                     const serviceType = this.energyConsumptionTotalStateActiveSensors[i].serviceType;
                                     const characteristicType = this.energyConsumptionTotalStateActiveSensors[i].characteristicType;
                                     const energyConsumptionTotalStateSensorService = accessory.addService(serviceType, sensorName, `energyConsumptionTotalStateSensorService`);
@@ -3892,7 +3891,7 @@ class EnvoyDevice extends EventEmitter {
                             if (this.energyConsumptionTotalLevelActiveSensorsCount > 0) {
                                 this.energyConsumptionTotalLevelSensorsService = [];
                                 for (let i = 0; i < this.energyConsumptionTotalLevelActiveSensorsCount; i++) {
-                                    const sensorName = this.energyConsumptionTotalLevelActiveSensors[i].name;
+                                    const sensorName = this.energyConsumptionTotalLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionTotalLevelActiveSensors[i].name}` : this.energyConsumptionTotalLevelActiveSensors[i].name;
                                     const serviceType = this.energyConsumptionTotalLevelActiveSensors[i].serviceType;
                                     const characteristicType = this.energyConsumptionTotalLevelActiveSensors[i].characteristicType;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy Level ${sensorName} Sensor Service`) : false;
@@ -3917,7 +3916,7 @@ class EnvoyDevice extends EventEmitter {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power State Sensor Service`) : false;
                                 this.powerConsumptionNetStateSensorsService = [];
                                 for (let i = 0; i < this.powerConsumptionNetStateActiveSensorsCount; i++) {
-                                    const sensorName = this.powerConsumptionNetStateActiveSensors[i].name;
+                                    const sensorName = this.powerConsumptionNetStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionNetStateActiveSensors[i].name}` : this.powerConsumptionNetStateActiveSensors[i].name;
                                     const serviceType = this.powerConsumptionNetStateActiveSensors[i].serviceType;
                                     const characteristicType = this.powerConsumptionNetStateActiveSensors[i].characteristicType;
                                     const powerConsumptionNetStateSensorService = accessory.addService(serviceType, sensorName, `powerConsumptionNetStateSensorService`);
@@ -3937,7 +3936,7 @@ class EnvoyDevice extends EventEmitter {
                             if (this.powerConsumptionNetLevelActiveSensorsCount > 0) {
                                 this.powerConsumptionNetLevelSensorsService = [];
                                 for (let i = 0; i < this.powerConsumptionNetLevelActiveSensorsCount; i++) {
-                                    const sensorName = this.powerConsumptionNetLevelActiveSensors[i].name;
+                                    const sensorName = this.powerConsumptionNetLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionNetLevelActiveSensors[i].name}` : this.powerConsumptionNetLevelActiveSensors[i].name;
                                     const serviceType = this.powerConsumptionNetLevelActiveSensors[i].serviceType;
                                     const characteristicType = this.powerConsumptionNetLevelActiveSensors[i].characteristicType;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power Level ${sensorName} Sensor Service`) : false;
@@ -3959,7 +3958,7 @@ class EnvoyDevice extends EventEmitter {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy State Sensor Service`) : false;
                                 this.energyConsumptionNetStateSensorsService = [];
                                 for (let i = 0; i < this.energyConsumptionNetStateActiveSensorsCount; i++) {
-                                    const sensorName = this.energyConsumptionNetStateActiveSensors[i].name;
+                                    const sensorName = this.energyConsumptionNetStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionNetStateActiveSensors[i].name}` : this.energyConsumptionNetStateActiveSensors[i].name;
                                     const serviceType = this.energyConsumptionNetStateActiveSensors[i].serviceType;
                                     const characteristicType = this.energyConsumptionNetStateActiveSensors[i].characteristicType;
                                     const energyConsumptionNetStateSensorService = accessory.addService(serviceType, sensorName, `energyConsumptionNetStateSensorService`);
@@ -3978,7 +3977,7 @@ class EnvoyDevice extends EventEmitter {
                             if (this.energyConsumptionNetLevelActiveSensorsCount > 0) {
                                 this.energyConsumptionNetLevelSensorsService = [];
                                 for (let i = 0; i < this.energyConsumptionNetLevelActiveSensorsCount; i++) {
-                                    const sensorName = this.energyConsumptionNetLevelActiveSensors[i].name;
+                                    const sensorName = this.energyConsumptionNetLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionNetLevelActiveSensors[i].name}` : this.energyConsumptionNetLevelActiveSensors[i].name;
                                     const serviceType = this.energyConsumptionNetLevelActiveSensors[i].serviceType;
                                     const characteristicType = this.energyConsumptionNetLevelActiveSensors[i].characteristicType;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy Level ${sensorName} Sensor Service`) : false;
@@ -4435,7 +4434,7 @@ class EnvoyDevice extends EventEmitter {
                     if (this.enchargeGridModeActiveSensorsCount > 0) {
                         this.enchargeGridModeSensorsServices = [];
                         for (let i = 0; i < this.enchargeGridModeActiveSensorsCount; i++) {
-                            const sensorName = this.enchargeGridModeActiveSensors[i].name;
+                            const sensorName = this.enchargeGridModeActiveSensors[i].namePrefix ? `${accessoryName} ${this.enchargeGridModeActiveSensors[i].name}` : this.enchargeGridModeActiveSensors[i].name;
                             const serviceType = this.enchargeGridModeActiveSensors[i].serviceType;
                             const characteristicType = this.enchargeGridModeActiveSensors[i].characteristicType;
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Grid Mode Sensor ${sensorName} Service`) : false;
@@ -4456,7 +4455,7 @@ class EnvoyDevice extends EventEmitter {
                     if (this.enchargeBackupLevelActiveSensorsCount > 0) {
                         this.enchargeBackupLevelSensorsServices = [];
                         for (let i = 0; i < this.enchargeBackupLevelActiveSensorsCount; i++) {
-                            const sensorName = this.enchargeBackupLevelActiveSensors[i].name;
+                            const sensorName = this.enchargeBackupLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.enchargeBackupLevelActiveSensors[i].name}` : this.enchargeBackupLevelActiveSensors[i].name;
                             const serviceType = this.enchargeBackupLevelActiveSensors[i].serviceType;
                             const characteristicType = this.enchargeBackupLevelActiveSensors[i].characteristicType;
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Backup Level Sensor ${sensorName} Service`) : false;
@@ -4477,7 +4476,7 @@ class EnvoyDevice extends EventEmitter {
                     if (this.solarGridModeActiveSensorsCount > 0) {
                         this.solarGridModeSensorsServices = [];
                         for (let i = 0; i < this.solarGridModeActiveSensorsCount; i++) {
-                            const sensorName = this.solarGridModeActiveSensors[i].name;
+                            const sensorName = this.solarGridModeActiveSensors[i].namePrefix ? `${accessoryName} ${this.solarGridModeActiveSensors[i].name}` : this.solarGridModeActiveSensors[i].name;
                             const serviceType = this.solarGridModeActiveSensors[i].serviceType;
                             const characteristicType = this.solarGridModeActiveSensors[i].characteristicType;
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Solar Grid Mode Sensor ${sensorName} Service`) : false;
@@ -4844,7 +4843,7 @@ class EnvoyDevice extends EventEmitter {
                     if (this.enpowerGridModeActiveSensorsCount > 0) {
                         this.enpowerGridModeSensorsServices = [];
                         for (let i = 0; i < this.enpowerGridModeActiveSensorsCount; i++) {
-                            const sensorName = this.enpowerGridModeActiveSensors[i].name;
+                            const sensorName = this.enpowerGridModeActiveSensors[i].namePrefix ? `${accessoryName} ${this.enpowerGridModeActiveSensors[i].name}` : this.enpowerGridModeActiveSensors[i].name;
                             const serviceType = this.enpowerGridModeActiveSensors[i].serviceType;
                             const characteristicType = this.enpowerGridModeActiveSensors[i].characteristicType;
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Enpower Grid Mode Sensor ${sensorName} Service`) : false;
