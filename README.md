@@ -51,6 +51,7 @@
     * System `Data Refresh`
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
+    * Enpower `Grid State`.
     * Encharge: `Backup Level`
     * Grid Mode:
       * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
@@ -60,6 +61,7 @@
     * System `Data Refresh`,
     * Production `Power State`, `Power Level`.
     * AC Battery `Energy State`, `Energy Level`.
+    * Enpower `Grid State`.
     * Encharge `Energy State`, `Energy Level`.
     * Encharge Profile:
       * Self Consumption `Activate`, `Set Reserve`.
