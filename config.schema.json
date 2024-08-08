@@ -2034,10 +2034,6 @@
                     "devices[].enableDebugMode",
                     "devices[].disableLogInfo",
                     "devices[].disableLogDeviceInfo",
-                    "devices[].metersDataRefreshTime",
-                    "devices[].productionDataRefreshTime",
-                    "devices[].liveDataRefreshTime",
-                    "devices[].ensembleDataRefreshTime",
                     {
                       "key": "devices[].dataRefreshControl",
                       "type": "section",
@@ -2063,7 +2059,11 @@
                         "devices[].dataRefreshSensor.displayType",
                         "devices[].dataRefreshSensor.namePrefix"
                       ]
-                    }
+                    },
+                    "devices[].metersDataRefreshTime",
+                    "devices[].productionDataRefreshTime",
+                    "devices[].liveDataRefreshTime",
+                    "devices[].ensembleDataRefreshTime"
                   ]
                 },
                 {
