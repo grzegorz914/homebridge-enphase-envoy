@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - support for Homebridge v2.0.0
 - full code refactor
-- restFul and MQTT config refactor
+- RESTFul and MQTT config refactor
 - stability and performance improvements
 - added data refresh control direct from home app as a extra tile, native app
 - added data refresh control direct from envoy section, 3rd party app
