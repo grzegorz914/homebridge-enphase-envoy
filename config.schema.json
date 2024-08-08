@@ -1602,14 +1602,24 @@
                   "title": "Envoy",
                   "items": [
                     "devices[].envoyFirmware7xx",
-                    "devices[].envoyFirmware7xxTokenGenerationMode",
-                    "devices[].envoyToken",
-                    "devices[].envoyPasswd",
-                    "devices[].envoySerialNumber",
-                    "devices[].enlightenUser",
-                    "devices[].enlightenPasswd",
                     "devices[].supportProductionPowerMode",
-                    "devices[].supportPlcLevel"
+                    "devices[].supportPlcLevel",
+                    {
+                      "key": "devices[]",
+                      "type": "section",
+                      "title": "Credentials Data",
+                      "description": "In this section You can set envoy and enphase credentils data.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].envoyFirmware7xxTokenGenerationMode",
+                        "devices[].envoyToken",
+                        "devices[].envoyPasswd",
+                        "devices[].envoySerialNumber",
+                        "devices[].enlightenUser",
+                        "devices[].enlightenPasswd"
+                      ]
+                    }
                   ],
                   "description": "Here You can configure envoy gateway."
                 },
@@ -2035,6 +2045,20 @@
                     "devices[].disableLogInfo",
                     "devices[].disableLogDeviceInfo",
                     {
+                      "key": "devices[]",
+                      "type": "section",
+                      "title": "Data Refresh",
+                      "description": "In this section You can set indyvidual data refesh time for devices.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].metersDataRefreshTime",
+                        "devices[].productionDataRefreshTime",
+                        "devices[].liveDataRefreshTime",
+                        "devices[].ensembleDataRefreshTime"
+                      ]
+                    },
+                    {
                       "key": "devices[].dataRefreshControl",
                       "type": "section",
                       "title": "Data Refresh Control",
@@ -2051,27 +2075,13 @@
                       "key": "devices[].dataRefreshSensor",
                       "type": "section",
                       "title": "Data Refresh Sensor",
-                      "description": "In this section You can enable/disable sensor for system data refresh monitoring and expose it in HomeKit.",
+                      "description": "In this section You can enable/disable sensor for data refresh monitoring and expose it in HomeKit.",
                       "expandable": true,
                       "expanded": false,
                       "items": [
                         "devices[].dataRefreshSensor.name",
                         "devices[].dataRefreshSensor.displayType",
                         "devices[].dataRefreshSensor.namePrefix"
-                      ]
-                    },
-                    {
-                      "key": "devices[]",
-                      "type": "section",
-                      "title": "Data Refresh",
-                      "description": "In this section You can set data refesh time for individual devices.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].metersDataRefreshTime",
-                        "devices[].productionDataRefreshTime",
-                        "devices[].liveDataRefreshTime",
-                        "devices[].ensembleDataRefreshTime"
                       ]
                     }
                   ]
