@@ -176,7 +176,7 @@
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
-| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` section (EVE or Controler app), Fw. 7.x.x and newer require installer credentials data. |
+| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` 3rd apps, Fw. 7.x.x and newer require installer credentials data. |
 | `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
 | `supportEnchargeProfile` | This is support to check/control encharge profile, not working yet. |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
