@@ -861,6 +861,60 @@
               "description": "This enable support to check/control encharge profile, not working yet.",
               "required": false
             },
+            "enpowerGridStateSensor": {
+              "title": "Grid State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "required": false
+                }
+              },
+              "required": false
+            },
             "enpowerGridModeSensors": {
               "title": "Enepower Grid Sensors",
               "type": "array",
@@ -1932,6 +1986,19 @@
                           "key": "devices[]",
                           "title": "Enpower",
                           "items": [
+                            {
+                              "key": "devices[].enpowerGridStateSensor",
+                              "type": "section",
+                              "title": "Grid State Sensor",
+                              "description": "In this section You can enable/disable sensor for grid monitoring and expose it in HomeKit.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].enpowerGridStateSensor.name",
+                                "devices[].enpowerGridStateSensor.displayType",
+                                "devices[].enpowerGridStateSensor.namePrefix"
+                              ]
+                            },
                             {
                               "key": "devices[]",
                               "type": "section",

@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added data refresh control direct from home app as a extra tile, native app
 - added data refresh control direct from envoy section, 3rd party app
 - added data refresh sensor
+- added enpower grid state sensor
 - added possibility to enable/disable accessory name as a prefix for all services
 - dependencies updated
 - config schema updated
