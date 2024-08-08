@@ -186,11 +186,11 @@
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
 | `disableLogInfo`| If enabled, info log will be hidden, all values and state will not be displayed in Homebridge log console. |
 | `disableLogDeviceInfo` | If enabled, the info device log will be hidden by every plugin restart. |
-| `restFul` | This is ESTful server. |
+| RESTFul | This is RSTful server. |
 | `enable` | If enabled, RESTful server will start automatically and respond to any path request. |
 | `port` | Here set the listening `Port` for RESTful server. |
 | `debug` | If enabled, deep log will be present in homebridge console for RESTFul server. |
-| `mqtt` | This is MQTT Broker. |
+| MQTT | This is MQTT Broker. |
 | `enable` | If enabled, MQTT Broker will start automatically and publish all awailable PV data. |
 | `host` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
 | `port` | Here set the `Port` for MQTT Broker, default 1883. |
