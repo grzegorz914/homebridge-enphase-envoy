@@ -2060,10 +2060,20 @@
                         "devices[].dataRefreshSensor.namePrefix"
                       ]
                     },
-                    "devices[].metersDataRefreshTime",
-                    "devices[].productionDataRefreshTime",
-                    "devices[].liveDataRefreshTime",
-                    "devices[].ensembleDataRefreshTime"
+                    {
+                      "key": "devices[]",
+                      "type": "section",
+                      "title": "Data Refresh",
+                      "description": "In this section You can set data refesh time for individual devices.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].metersDataRefreshTime",
+                        "devices[].productionDataRefreshTime",
+                        "devices[].liveDataRefreshTime",
+                        "devices[].ensembleDataRefreshTime"
+                      ]
+                    }
                   ]
                 },
                 {
