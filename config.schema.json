@@ -986,18 +986,6 @@
                     "type": "string",
                     "oneOf": [
                       {
-                        "title": "Grid On",
-                        "enum": [
-                          "on-grid"
-                        ]
-                      },
-                      {
-                        "title": "Grid Off",
-                        "enum": [
-                          "off-grid"
-                        ]
-                      },
-                      {
                         "title": "Multimode Grid On",
                         "enum": [
                           "multimode-ongrid"
@@ -1013,12 +1001,6 @@
                         "title": "Grid Tied",
                         "enum": [
                           "grid-tied"
-                        ]
-                      },
-                      {
-                        "title": "Grid Forming",
-                        "enum": [
-                          "grid-forming"
                         ]
                       }
                     ],
@@ -1087,18 +1069,6 @@
                     "type": "string",
                     "oneOf": [
                       {
-                        "title": "Grid On",
-                        "enum": [
-                          "on-grid"
-                        ]
-                      },
-                      {
-                        "title": "Grid Off",
-                        "enum": [
-                          "off-grid"
-                        ]
-                      },
-                      {
                         "title": "Multimode Grid On",
                         "enum": [
                           "multimode-ongrid"
@@ -1108,18 +1078,6 @@
                         "title": "Multimode Grid Off",
                         "enum": [
                           "multimode-offgrid"
-                        ]
-                      },
-                      {
-                        "title": "Grid Tied",
-                        "enum": [
-                          "grid-tied"
-                        ]
-                      },
-                      {
-                        "title": "Grid Forming",
-                        "enum": [
-                          "grid-forming"
                         ]
                       }
                     ],
