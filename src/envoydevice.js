@@ -645,6 +645,11 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(characteristicType, state)
                     }
                 }
+
+                if (this.envoyService) {
+                    this.envoyService
+                        .updateCharacteristic(Characteristic.enphaseEnvoyDataRefresh, state)
+                }
             }
 
             if (this.dataRefreshActiveSensorsCount > 0) {
@@ -3231,20 +3236,6 @@ class EnvoyDevice extends EventEmitter {
                     const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Envoy Service`) : false;
                     this.envoyService = accessory.addService(Service.enphaseEnvoyService, `Envoy ${serialNumber}`, serialNumber);
                     this.envoyService.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${serialNumber}`);
-                    this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyDataRefresh)
-                        .onGet(async () => {
-                            const state = this.impulseGenerator.state();
-                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data refresh: ${state ? 'Enabled' : 'Disabled'}`);
-                            return state;
-                        })
-                        .onSet(async (state) => {
-                            try {
-                                const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
-                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set data refresh to: ${state ? `Enable` : `Disable`}`);
-                            } catch (error) {
-                                this.emit('error', `Envoy: ${serialNumber}, set data refresh error: ${error}`);
-                            };
-                        });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyAlerts)
                         .onGet(async () => {
                             const value = this.envoy.home.alerts;
@@ -3399,6 +3390,22 @@ class EnvoyDevice extends EventEmitter {
                                 };
                             });
                     }
+                    if (this.dataRefreshActiveControlsCount > 0) {
+                        this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyDataRefresh)
+                            .onGet(async () => {
+                                const state = this.impulseGenerator.state();
+                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data refresh control: ${state ? 'Enabled' : 'Disabled'}`);
+                                return state;
+                            })
+                            .onSet(async (state) => {
+                                try {
+                                    const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set data refresh control to: ${state ? `Enable` : `Disable`}`);
+                                } catch (error) {
+                                    this.emit('error', `Envoy: ${serialNumber}, set data refresh control error: ${error}`);
+                                };
+                            });
+                    };
                 }
 
                 //qrelays
