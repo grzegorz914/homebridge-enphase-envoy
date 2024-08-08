@@ -35,6 +35,7 @@
 * Support `Production Power Mode` and `PLC Level`, Fw. 7.x.x and newer require installer credentials data.
 * For best experiences and display all data please use `Controller` or `EVE` app.
 * Support external integrations, [RESTFul](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration), [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
+
 * Supported devices:
   * Firmware `v5.x.x`, `6.x.x`, `v7.x.x`, `v8.x.x`.
   * Envoy `Envoy S`, `IQ Envoy`, `IQ Load Controller`, `IQ Combiner`.
@@ -70,8 +71,7 @@
 
 * Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
 * Install and use [Homebridge Config UI X](https://github.com/homebridge/homebridge-config-ui-x) to configure this plugin (Highly Recommended).
-* The `sample-config.json` can be edited and used manually as an alternative.
-* Be sure to always make a backup copy of your config.json file before making any changes to it.
+* The `sample-config.json` can be edited and used as an alternative.
 
 <p align="center">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/ustawienia.png" width="840"></a>
