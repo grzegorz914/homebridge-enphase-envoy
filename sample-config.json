@@ -152,8 +152,13 @@
                         }
                     ],
                     "supportEnchargeProfile": false,
+                    "dataRefreshControl": {
+                        "name": "Data refresh control",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "dataRefreshSensor": {
-                        "name": "Data refresh",
+                        "name": "Data refresh sensor",
                         "displayType": 0,
                         "namePrefix": false
                     },

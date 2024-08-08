@@ -12,12 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### v9.0.0 require Homebridge v2.0.0
 
 - support for Homebridge v2.0.0
-- added possibility to disable/enable data refresh direct from home app as a extra tile
-- added possibility to disable/enable data refresh from envoy section
-- added system data refresh sensor
-- added possibility to enable/disable accessory name as a prefix for sensor name
 - full code refactor
 - stability and performance improvements
+- added data refresh control direct from home app as a extra tile
+- added data refresh control direct from envoy section
+- added data refresh sensor
+- added possibility to enable/disable accessory name as a prefix for sensor and data refresh control name
 - dependencies updated
 - config schema updated
 - cleanup

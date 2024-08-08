@@ -58,6 +58,7 @@ class EnvoyDevice extends EventEmitter {
         this.supportPlcLevel = device.supportPlcLevel || false;
         this.supportEnchargeProfile = device.supportEnchargeProfile || false;
 
+        this.dataRefreshControl = device.dataRefreshControl || {};
         this.dataRefreshSensor = device.dataRefreshSensor || {};
         this.metersDataRefreshTime = device.metersDataRefreshTime * 1000 || 2000;
         this.productionDataRefreshTime = device.productionDataRefreshTime * 1000 || 5000;
@@ -74,6 +75,23 @@ class EnvoyDevice extends EventEmitter {
         this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
 
         //active sensors 
+        //data refresh control
+        const dataRefreshControlName = this.dataRefreshControl.name || false;
+        const dataRefreshControlDisplayType = this.dataRefreshControl.displayType ?? 0;
+        this.dataRefreshActiveControls = [];
+        if (dataRefreshControlName && dataRefreshControlDisplayType > 0) {
+            const tile = {};
+            tile.name = dataRefreshControlName;
+            tile.namePrefix = this.dataRefreshControl.namePrefix;
+            tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][dataRefreshControlDisplayType];
+            tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][dataRefreshControlDisplayType];
+            tile.state = false;
+            this.dataRefreshActiveControls.push(tile);
+        } else {
+            const log = dataRefreshControlDisplayType === 0 ? false : this.emit('message', `Tile Name Missing.`);
+        };
+        this.dataRefreshActiveControlsCount = this.dataRefreshActiveControls.length || 0;
+
         //data refresh sensor
         const dataRefreshSensorName = this.dataRefreshSensor.name || false;
         const dataRefreshSensorDisplayType = this.dataRefreshSensor.displayType ?? 0;
@@ -81,6 +99,7 @@ class EnvoyDevice extends EventEmitter {
         if (dataRefreshSensorName && dataRefreshSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = dataRefreshSensorName;
+            sensor.namePrefix = this.dataRefreshSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][dataRefreshSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][dataRefreshSensorDisplayType];
             sensor.state = false;
@@ -97,6 +116,7 @@ class EnvoyDevice extends EventEmitter {
         if (powerProductionStateSensorName && powerProductionStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = powerProductionStateSensorName;
+            sensor.namePrefix = this.powerProductionStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerProductionStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerProductionStateSensorDisplayType];
             sensor.state = false;
@@ -113,6 +133,7 @@ class EnvoyDevice extends EventEmitter {
         if (energyProductionStateSensorName && energyProductionStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = energyProductionStateSensorName;
+            sensor.namePrefix = this.energyProductionStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyProductionStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyProductionStateSensorDisplayType];
             sensor.state = false;
@@ -129,6 +150,7 @@ class EnvoyDevice extends EventEmitter {
         if (powerConsumptionTotalStateSensorName && powerConsumptionTotalStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = powerConsumptionTotalStateSensorName;
+            sensor.namePrefix = this.powerConsumptionTotalStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerConsumptionTotalStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerConsumptionTotalStateSensorDisplayType];
             sensor.state = false;
@@ -145,6 +167,7 @@ class EnvoyDevice extends EventEmitter {
         if (energyConsumptionTotalStateSensorName && energyConsumptionTotalStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = energyConsumptionTotalStateSensorName;
+            sensor.namePrefix = this.energyConsumptionTotalStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyConsumptionTotalStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyConsumptionTotalStateSensorDisplayType];
             sensor.state = false;
@@ -161,6 +184,7 @@ class EnvoyDevice extends EventEmitter {
         if (powerConsumptionNetStateSensorName && powerConsumptionNetStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = powerConsumptionNetStateSensorName;
+            sensor.namePrefix = this.powerConsumptionNetStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerConsumptionNetStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerConsumptionNetStateSensorDisplayType];
             sensor.state = false;
@@ -177,6 +201,7 @@ class EnvoyDevice extends EventEmitter {
         if (energyConsumptionNetStateSensorName && energyConsumptionNetStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = energyConsumptionNetStateSensorName;
+            sensor.namePrefix = this.energyConsumptionNetStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyConsumptionNetStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyConsumptionNetStateSensorDisplayType];
             sensor.state = false;
@@ -610,6 +635,18 @@ class EnvoyDevice extends EventEmitter {
                 this.emit('error', `Update microinverters error: ${error}`);
             };
         }).on('state', (state) => {
+            if (this.dataRefreshActiveControlsCount > 0) {
+                for (let i = 0; i < this.dataRefreshActiveControlsCount; i++) {
+                    this.dataRefreshActiveControls[i].state = state;
+
+                    if (this.dataRefreshControlsService) {
+                        const characteristicType = this.dataRefreshActiveControls[i].characteristicType;
+                        this.dataRefreshControlsService[i]
+                            .updateCharacteristic(characteristicType, state)
+                    }
+                }
+            }
+
             if (this.dataRefreshActiveSensorsCount > 0) {
                 for (let i = 0; i < this.dataRefreshActiveSensorsCount; i++) {
                     this.dataRefreshActiveSensors[i].state = state;
@@ -3140,24 +3177,34 @@ class EnvoyDevice extends EventEmitter {
                             };
                         })
 
-                    const debug2 = this.enableDebugMode ? this.emit('debug', `Prepare Data Refresh Service`) : false;
-                    this.dataRefreshService = accessory.addService(Service.Switch, `${accessoryName} refresh`, `dataRefreshService`);
-                    this.dataRefreshService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                    this.dataRefreshService.setCharacteristic(Characteristic.ConfiguredName, `${accessoryName} refresh`);
-                    this.dataRefreshService.getCharacteristic(Characteristic.On)
-                        .onGet(async () => {
-                            const state = this.impulseGenerator.state();
-                            const info = this.disableLogInfo ? false : this.emit('message', `Data refresh: ${state ? 'Enabled' : 'Disabled'}`);
-                            return state;
-                        })
-                        .onSet(async (state) => {
-                            try {
-                                const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
-                                const info = this.disableLogInfo ? false : this.emit('message', `Set data refresh to: ${state ? `Enable` : `Disable`}`);
-                            } catch (error) {
-                                this.emit('error', `Set data refresh error: ${error}`);
-                            };
-                        })
+                    //data refresh control service
+                    if (this.dataRefreshActiveControlsCount > 0) {
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Data Refresh Control Service`) : false;
+                        this.dataRefreshControlsService = [];
+                        for (let i = 0; i < this.dataRefreshActiveControlsCount; i++) {
+                            const controlName = this.dataRefreshActiveControls[i].namePrefix ? `${accessoryName} ${this.dataRefreshActiveControls[i].name}` : this.dataRefreshActiveControls[i].name;
+                            const serviceType = this.dataRefreshActiveControls[i].serviceType;
+                            const characteristicType = this.dataRefreshActiveControls[i].characteristicType;
+                            const dataRefreshContolService = accessory.addService(serviceType, controlName, `dataRefreshControlService`);
+                            dataRefreshContolService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            dataRefreshContolService.setCharacteristic(Characteristic.ConfiguredName, controlName);
+                            dataRefreshContolService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.impulseGenerator.state();
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Data refresh control: ${state ? 'Enabled' : 'Disabled'}`);
+                                    return state;
+                                })
+                                .onSet(async (state) => {
+                                    try {
+                                        const setState = state ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop();
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Set data refresh control to: ${state ? `Enable` : `Disable`}`);
+                                    } catch (error) {
+                                        this.emit('error', `Set data refresh contol error: ${error}`);
+                                    };
+                                })
+                            this.dataRefreshControlsService.push(dataRefreshContolService);
+                        };
+                    };
 
                     //data refresh sensor service
                     if (this.dataRefreshActiveSensorsCount > 0) {
@@ -3690,6 +3737,7 @@ class EnvoyDevice extends EventEmitter {
                     this.energyProductionStateSensorsService = [];
                     for (let i = 0; i < this.energyProductionStateActiveSensorsCount; i++) {
                         const sensorName = this.energyProductionStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyProductionStateActiveSensors[i].name}` : this.energyProductionStateActiveSensors[i].name;
+                        const serviceType = this.energyProductionStateActiveSensors[i].serviceType;
                         const characteristicType = this.energyProductionStateActiveSensors[i].characteristicType;
                         const energyProductionStateSensorService = accessory.addService(serviceType, sensorName, `energyProductionStateSensorService`);
                         energyProductionStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);

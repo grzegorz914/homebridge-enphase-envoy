@@ -163,7 +163,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -226,7 +226,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -281,7 +281,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -344,7 +344,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -405,7 +405,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -468,7 +468,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -529,7 +529,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -592,7 +592,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -647,7 +647,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -709,7 +709,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -770,7 +770,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -833,7 +833,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -955,7 +955,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -1056,7 +1056,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -1163,7 +1163,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -1267,7 +1267,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -1276,6 +1276,59 @@
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               },
               "required": false
+            },
+            "dataRefreshControl": {
+              "title": "Data Refresh Control",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Tile name",
+                  "description": "Here set Your own tile name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Switch",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Outlet",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Lightbulb",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for the tile name.",
+                  "required": false
+                }
+              }
             },
             "dataRefreshSensor": {
               "title": "Data Refresh Sensor",
@@ -1325,7 +1378,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for sensor name.",
+                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -1568,6 +1621,8 @@
                               "type": "section",
                               "title": "Power State Sensor",
                               "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
+                              "expandable": true,
+                              "expanded": false,
                               "items": [
                                 "devices[].powerProductionStateSensor.name",
                                 "devices[].powerProductionStateSensor.displayType",
@@ -1607,6 +1662,8 @@
                               "type": "section",
                               "title": "Energy State Sensor",
                               "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
+                              "expandable": true,
+                              "expanded": false,
                               "items": [
                                 "devices[].energyProductionStateSensor.name",
                                 "devices[].energyProductionStateSensor.displayType",
@@ -1667,6 +1724,8 @@
                                       "type": "section",
                                       "title": "Power State Sensor",
                                       "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
                                         "devices[].powerConsumptionTotalStateSensor.name",
                                         "devices[].powerConsumptionTotalStateSensor.displayType",
@@ -1706,6 +1765,8 @@
                                       "type": "section",
                                       "title": "Energy State Sensor",
                                       "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
                                         "devices[].energyConsumptionTotalStateSensor.name",
                                         "devices[].energyConsumptionTotalStateSensor.displayType",
@@ -1757,6 +1818,8 @@
                                       "type": "section",
                                       "title": "Power State Sensor",
                                       "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
                                         "devices[].powerConsumptionNetStateSensor.name",
                                         "devices[].powerConsumptionNetStateSensor.displayType",
@@ -1796,6 +1859,8 @@
                                       "type": "section",
                                       "title": "Energy State Sensor",
                                       "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
                                         "devices[].energyConsumptionNetStateSensor.name",
                                         "devices[].energyConsumptionNetStateSensor.displayType",
@@ -1963,13 +2028,29 @@
                     "devices[].liveDataRefreshTime",
                     "devices[].ensembleDataRefreshTime",
                     {
+                      "key": "devices[].dataRefreshControl",
+                      "type": "section",
+                      "title": "Data Refresh Control",
+                      "description": "In this section You can enable/disable extra tile for data refresh control and expose it in HomeKit.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].dataRefreshControl.name",
+                        "devices[].dataRefreshControl.displayType",
+                        "devices[].dataRefreshControl.namePrefix"
+                      ]
+                    },
+                    {
                       "key": "devices[].dataRefreshSensor",
                       "type": "section",
                       "title": "Data Refresh Sensor",
-                      "description": "In this section You can enable sensor for system data refresh monitoring and expose it in HomeKit.",
+                      "description": "In this section You can enable/disable sensor for system data refresh monitoring and expose it in HomeKit.",
+                      "expandable": true,
+                      "expanded": false,
                       "items": [
                         "devices[].dataRefreshSensor.name",
-                        "devices[].dataRefreshSensor.displayType"
+                        "devices[].dataRefreshSensor.displayType",
+                        "devices[].dataRefreshSensor.namePrefix"
                       ]
                     }
                   ]
