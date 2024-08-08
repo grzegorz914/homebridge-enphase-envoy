@@ -347,19 +347,19 @@ module.exports = (api) => {
   }
   Characteristic.enphaseEnvoyLastEnlightenReporDate = enphaseEnvoyLastEnlightenReporDate;
 
-  class enphaseEnvoyEnpowerConnected extends Characteristic {
+  class enphaseEnvoyEnpowerGridState extends Characteristic {
     constructor() {
-      super('Enpower connected', '00000027-000B-1000-8000-0026BB765291');
+      super('Grid state', '00000027-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Formats.BOOL,
-        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+        perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnvoyEnpowerConnected = enphaseEnvoyEnpowerConnected;
+  Characteristic.enphaseEnvoyEnpowerGridState = enphaseEnvoyEnpowerGridState;
 
-  class enphaseEnvoyEnpowerGridStatus extends Characteristic {
+  class enphaseEnvoyEnpowerGridMode extends Characteristic {
     constructor() {
       super('Enpower grid mode', '00000028-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -369,7 +369,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnvoyEnpowerGridStatus = enphaseEnvoyEnpowerGridStatus;
+  Characteristic.enphaseEnvoyEnpowerGridMode = enphaseEnvoyEnpowerGridMode;
+
+
 
   class enphaseEnvoyCheckCommLevel extends Characteristic {
     constructor() {
@@ -430,8 +432,8 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyTimeZone);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridState);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridMode);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyDataRefresh);

@@ -861,6 +861,59 @@
               "description": "This enable support to check/control encharge profile, not working yet.",
               "required": false
             },
+            "enpowerGridStateControl": {
+              "title": "Grid State Control",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Tile name",
+                  "description": "Here set Your own tile name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Switch",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Outlet",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Lightbulb",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable/disable the accessory name as a prefix for the tile name.",
+                  "required": false
+                }
+              }
+            },
             "enpowerGridStateSensor": {
               "title": "Grid State Sensor",
               "type": "object",
@@ -1695,7 +1748,7 @@
                               "key": "devices[].powerProductionStateSensor",
                               "type": "section",
                               "title": "Power State Sensor",
-                              "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
+                              "description": "In this section You can enable sensor for power state monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -1708,7 +1761,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Power Level Sensors",
-                              "description": "In this section You can create multiple sensors for power level monitoring and expose it in HomeKit.",
+                              "description": "In this section You can create sensors for power level monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -1736,7 +1789,7 @@
                               "key": "devices[].energyProductionStateSensor",
                               "type": "section",
                               "title": "Energy State Sensor",
-                              "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
+                              "description": "In this section You can enable sensor for energy state monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -1749,7 +1802,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Energy Level Sensors",
-                              "description": "In this section You can create multiple sensors for energy level monitoring and expose it in HomeKit.",
+                              "description": "In this section You can create sensors for energy level monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -1798,7 +1851,7 @@
                                       "key": "devices[].powerConsumptionTotalStateSensor",
                                       "type": "section",
                                       "title": "Power State Sensor",
-                                      "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
+                                      "description": "In this section You can enable sensor for power state monitoring.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -1811,7 +1864,7 @@
                                       "key": "devices[]",
                                       "type": "section",
                                       "title": "Power Level Sensors",
-                                      "description": "In this section You can create multiple sensors for power level monitoring and expose it in HomeKit.",
+                                      "description": "In this section You can create sensors for power level monitoring.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -1839,7 +1892,7 @@
                                       "key": "devices[].energyConsumptionTotalStateSensor",
                                       "type": "section",
                                       "title": "Energy State Sensor",
-                                      "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
+                                      "description": "In this section You can enable sensor for energy state monitoring.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -1852,7 +1905,7 @@
                                       "key": "devices[]",
                                       "type": "section",
                                       "title": "Energy Level Sensors",
-                                      "description": "In this section You can create multiple sensors for energy level monitoring and expose it in HomeKit.",
+                                      "description": "In this section You can create sensors for energy level monitoring.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -1892,7 +1945,7 @@
                                       "key": "devices[].powerConsumptionNetStateSensor",
                                       "type": "section",
                                       "title": "Power State Sensor",
-                                      "description": "In this section You can enable sensor for power state monitoring and expose it in HomeKit.",
+                                      "description": "In this section You can enable sensor for power state monitoring.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -1905,7 +1958,7 @@
                                       "key": "devices[]",
                                       "type": "section",
                                       "title": "Power Level Sensors",
-                                      "description": "In this section You can create multiple sensors for power level monitoring and expose it in HomeKit.",
+                                      "description": "In this section You can create sensors for power level monitoring.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -1933,7 +1986,7 @@
                                       "key": "devices[].energyConsumptionNetStateSensor",
                                       "type": "section",
                                       "title": "Energy State Sensor",
-                                      "description": "In this section You can enable sensor for energy state monitoring and expose it in HomeKit.",
+                                      "description": "In this section You can enable sensor for energy state monitoring.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -1946,7 +1999,7 @@
                                       "key": "devices[]",
                                       "type": "section",
                                       "title": "Energy Level Sensors",
-                                      "description": "In this section You can create multiple sensors for energy level monitoring and expose it in HomeKit.",
+                                      "description": "In this section You can create sensors for energy level monitoring.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -1987,10 +2040,23 @@
                           "title": "Enpower",
                           "items": [
                             {
+                              "key": "devices[].enpowerGridStateControl",
+                              "type": "section",
+                              "title": "Grid State Control",
+                              "description": "In this section You can enable extra tile for grid state control.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].enpowerGridStateControl.name",
+                                "devices[].enpowerGridStateControl.displayType",
+                                "devices[].enpowerGridStateControl.namePrefix"
+                              ]
+                            },
+                            {
                               "key": "devices[].enpowerGridStateSensor",
                               "type": "section",
                               "title": "Grid State Sensor",
-                              "description": "In this section You can enable/disable sensor for grid monitoring and expose it in HomeKit.",
+                              "description": "In this section You can enable sensor for grid state monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2003,7 +2069,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Grid Mode Sensors",
-                              "description": "In this section You can create sensors for enpower grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                              "description": "In this section You can create sensors for grid mode monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2031,7 +2097,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Grid Mode Sensors",
-                              "description": "In this section You can enable sensor for encharge grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                              "description": "In this section You can enable sensor for grid mode monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2052,7 +2118,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Backup Level Sensors",
-                              "description": "In this section You can enable sensor for encharge backup level and expose it in HomeKit. If backup level matches, the contact fired.",
+                              "description": "In this section You can enable sensor for backup level monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2080,7 +2146,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Grid Mode Sensors",
-                              "description": "In this section You can enable sensor for solar grid mode monitoring and expose it in HomeKit. If grid mode matches, the contact fired.",
+                              "description": "In this section You can enable sensor for grid mode monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2129,7 +2195,7 @@
                       "key": "devices[].dataRefreshControl",
                       "type": "section",
                       "title": "Data Refresh Control",
-                      "description": "In this section You can enable/disable extra tile for data refresh control and expose it in HomeKit.",
+                      "description": "In this section You can enable extra tile for data refresh control.",
                       "expandable": true,
                       "expanded": false,
                       "items": [
@@ -2142,7 +2208,7 @@
                       "key": "devices[].dataRefreshSensor",
                       "type": "section",
                       "title": "Data Refresh Sensor",
-                      "description": "In this section You can enable/disable sensor for data refresh monitoring and expose it in HomeKit.",
+                      "description": "In this section You can enable sensor for data refresh monitoring.",
                       "expandable": true,
                       "expanded": false,
                       "items": [

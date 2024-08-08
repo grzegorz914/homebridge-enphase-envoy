@@ -65,6 +65,7 @@ class EnvoyDevice extends EventEmitter {
         this.liveDataRefreshTime = device.liveDataRefreshTime * 1000 || 2000;
         this.ensembleDataRefreshTime = device.ensembleDataRefreshTime * 1000 || 15000;
 
+        this.enpowerGridStateControl = device.enpowerGridStateControl || {};
         this.enpowerGridStateSensor = device.enpowerGridStateSensor || {};
         this.enpowerGridModeSensors = device.enpowerGridModeSensors || [];
         this.enchargeGridModeSensors = this.envoyFirmware7xx ? device.enchargeGridModeSensors || [] : [];
@@ -321,6 +322,23 @@ class EnvoyDevice extends EventEmitter {
         }
         this.energyConsumptionNetLevelActiveSensorsCount = this.energyConsumptionNetLevelActiveSensors.length || 0;
 
+        //enpower grid state control
+        const enpowerGridStateControlName = this.enpowerGridStateControl.name || false;
+        const enpowerGridStateControlDisplaqyType = this.enpowerGridStateControl.displayType ?? 0;
+        this.enpowerGridStateActiveControls = [];
+        if (enpowerGridStateControlName && enpowerGridStateControlDisplaqyType > 0) {
+            const tile = {};
+            tile.name = enpowerGridStateControlName;
+            tile.namePrefix = this.enpowerGridStateControl.namePrefix;
+            tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][enpowerGridStateControlDisplaqyType];
+            tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][enpowerGridStateControlDisplaqyType];
+            tile.state = false;
+            this.enpowerGridStateActiveControls.push(tile);
+        } else {
+            const log = enpowerGridStateControlDisplaqyType === 0 ? false : this.emit('message', `Tile Name Missing.`);
+        };
+        this.enpowerGridStateActiveControlsCount = this.enpowerGridStateActiveControls.length || 0;
+
         const enpowerGridStateSensorName = this.enpowerGridStateSensor.name || false;
         const enpowerGridStateSensorDisplayType = this.enpowerGridStateSensor.displayType ?? 0;
         this.enpowerGridStateActiveSensors = [];
@@ -467,7 +485,6 @@ class EnvoyDevice extends EventEmitter {
         //enpowers
         this.enpowersSupported = false;
         this.enpowersInstalled = false;
-        this.enpowersConnected = false;
         this.enpowersCount = 0;
 
         //generators
@@ -656,9 +673,9 @@ class EnvoyDevice extends EventEmitter {
                 for (let i = 0; i < this.dataRefreshActiveControlsCount; i++) {
                     this.dataRefreshActiveControls[i].state = state;
 
-                    if (this.dataRefreshControlsService) {
+                    if (this.dataRefreshControlsServices) {
                         const characteristicType = this.dataRefreshActiveControls[i].characteristicType;
-                        this.dataRefreshControlsService[i]
+                        this.dataRefreshControlsServices[i]
                             .updateCharacteristic(characteristicType, state)
                     }
                 }
@@ -673,9 +690,9 @@ class EnvoyDevice extends EventEmitter {
                 for (let i = 0; i < this.dataRefreshActiveSensorsCount; i++) {
                     this.dataRefreshActiveSensors[i].state = state;
 
-                    if (this.dataRefreshSensorsService) {
+                    if (this.dataRefreshSensorsServices) {
                         const characteristicType = this.dataRefreshActiveSensors[i].characteristicType;
-                        this.dataRefreshSensorsService[i]
+                        this.dataRefreshSensorsServices[i]
                             .updateCharacteristic(characteristicType, state)
                     }
                 }
@@ -1236,11 +1253,6 @@ class EnvoyDevice extends EventEmitter {
                         this.envoyService
                             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, `${commEnchargeNum} / ${commEnchargeLevel} %`)
                     }
-                    if (this.enpowersInstalled) {
-                        this.envoyService
-                            .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected, this.enpowersConnected)
-                            .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus, this.enpowers[0].gridModeTranslated)
-                    }
                 }
 
                 this.envoy.home = {
@@ -1792,11 +1804,12 @@ class EnvoyDevice extends EventEmitter {
                             commLevel24Ghz: encharge.comm_level_2_4_ghz * 20,
                             ledStatus: CONSTANTS.LedStatus[encharge.led_status] ?? 'Unknown',
                             dcSwitchOff: encharge.dc_switch_off,
-                            enchargeRev: encharge.encharge_rev,
-                            enchargeCapacity: parseFloat(encharge.encharge_capacity) / 1000, //in kWh
+                            rev: encharge.encharge_rev,
+                            capacity: parseFloat(encharge.encharge_capacity) / 1000, //in kWh
                             phase: encharge.phase ?? 'Unknown',
                             derIndex: encharge.der_index ?? 0,
-                            commLevel: 0
+                            commLevel: 0,
+                            status: {}
                         }
                         this.encharges.push(obj);
 
@@ -1815,8 +1828,8 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel24Ghz, obj.commLevel24Ghz)
                                 .updateCharacteristic(Characteristic.enphaseEnchargeLedStatus, obj.ledStatus)
                                 .updateCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff, obj.dcSwitchOff)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeRev, obj.enchargeRev)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, obj.enchargeCapacity)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeRev, obj.rev)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, obj.capacity)
                                 .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, this.arfProfile.name)
                         }
 
@@ -1868,11 +1881,13 @@ class EnvoyDevice extends EventEmitter {
                             commLevelSubGhz: enpower.comm_level_sub_ghz * 20,
                             commLevel24Ghz: enpower.comm_level_2_4_ghz * 20,
                             mainsAdminState: CONSTANTS.ApiCodes[enpower.mains_admin_state] ?? 'Unknown',
+                            mainsAdminStateBool: CONSTANTS.ApiCodes[enpower.mains_admin_state] === 'Closed' ?? false,
                             mainsOperState: CONSTANTS.ApiCodes[enpower.mains_oper_state] ?? 'Unknown',
+                            mainsOperStateBool: CONSTANTS.ApiCodes[enpower.mains_oper_sate] === 'Closed' ?? false,
                             enpwrGridMode: enpower.Enpwr_grid_mode ?? 'Unknown',
-                            enpwrGridModeTranslated: CONSTANTS.ApiCodes[enpwrGridMode] ?? enpower.Enpwr_grid_mode,
+                            enpwrGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enpwr_grid_mode] ?? enpower.Enpwr_grid_mode,
                             enchgGridMode: enpower.Enchg_grid_mode ?? 'Unknown',
-                            enchgGridModeTranslated: CONSTANTS.ApiCodes[enchgGridMode] ?? enpower.Enchg_grid_mode,
+                            enchgGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enchg_grid_mode] ?? enpower.Enchg_grid_mode,
                             enpwrRelayStateBm: enpower.Enpwr_relay_state_bm,
                             enpwrCurrStateId: enpower.Enpwr_curr_state_id,
                         }
@@ -1896,9 +1911,28 @@ class EnvoyDevice extends EventEmitter {
                         }
 
                         //enpower grid state sensor
+                        if (this.enpowerGridStateActiveControlsCount > 0) {
+                            for (let i = 0; i < this.enpowerGridStateActiveControlsCount; i++) {
+                                const state = obj.mainsAdminStateBool;
+                                this.enpowerGridStateActiveControls[i].state = state;
+
+                                if (this.enpowerGridStateControlsServices) {
+                                    const characteristicType = this.enpowerGridStateActiveControls[i].characteristicType;
+                                    this.enpowerGridStateControlsServices[i]
+                                        .updateCharacteristic(characteristicType, state)
+                                }
+
+                                if (this.envoyService) {
+                                    this.envoyService
+                                        .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridState, state)
+                                }
+                            }
+                        }
+
+                        //enpower grid state sensor
                         if (this.enpowerGridStateActiveSensorsCount > 0) {
                             for (let i = 0; i < this.enpowerGridStateActiveSensorsCount; i++) {
-                                const state = obj.mainsAdminState === 'Closed';
+                                const state = obj.mainsAdminStateBool;
                                 this.enpowerGridStateActiveSensors[i].state = state;
 
                                 if (this.enpowerGridStateSensorsServices) {
@@ -1923,10 +1957,15 @@ class EnvoyDevice extends EventEmitter {
                                 }
                             }
                         }
+
+                        //update envoy section
+                        if (this.envoyService) {
+                            this.envoyService
+                                .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridMode, obj.enpwrGridModeTranslated)
+                        }
                     });
                     this.enpowersSupported = enpowersSupported;
                     this.enpowersInstalled = enpowersInstalled;
-                    this.enpowersConnected = this.enpowers.some(enpower => enpower.mainsAdminState === 'Closed');
                     this.enpowersCount = enpowersCount;
                 }
 
@@ -2027,7 +2066,7 @@ class EnvoyDevice extends EventEmitter {
                 });
 
                 // Sum rated power for all encharges and convert to kW
-                this.enchargesRatedPowerSum = parseFloat = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000) || 0;
+                this.enchargesRatedPowerSum = parseFloat(enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000) || 0;
 
                 //counters
                 const countersSupported = ensembleStatusKeys.includes('counters');
@@ -2195,7 +2234,9 @@ class EnvoyDevice extends EventEmitter {
                 const relay = relaySupported ? ensembleStatus.relay : {};
                 const ensembleRelay = {
                     mainsAdminState: CONSTANTS.ApiCodes[relay.mains_admin_state] ?? 'Unknown',
+                    mainsAdminStateBool: CONSTANTS.ApiCodes[relay.mains_admin_state] === 'Closed' ?? false,
                     mainsOperState: CONSTANTS.ApiCodes[relay.mains_oper_sate] ?? 'Unknown',
+                    mainsOperStateBool: CONSTANTS.ApiCodes[relay.mains_oper_sate] === 'Closed' ?? false,
                     der1State: relay.der1_state ?? 0,
                     der2State: relay.der2_state ?? 0,
                     der3State: relay.der3_state ?? 0,
@@ -2612,9 +2653,9 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < this.powerProductionStateActiveSensorsCount; i++) {
                         this.powerProductionStateActiveSensors[i].state = productionPowerState;
 
-                        if (this.powerProductionStateSensorsService) {
+                        if (this.powerProductionStateSensorsServices) {
                             const characteristicType = this.powerProductionStateActiveSensors[i].characteristicType;
-                            this.powerProductionStateSensorsService[i]
+                            this.powerProductionStateSensorsServices[i]
                                 .updateCharacteristic(characteristicType, productionPowerState)
                         }
                     }
@@ -2625,9 +2666,9 @@ class EnvoyDevice extends EventEmitter {
                         const state = productionPower >= powerLevel;
                         this.powerProductionLevelActiveSensors[i].state = state;
 
-                        if (this.powerProductionLevelSensorsService) {
+                        if (this.powerProductionLevelSensorsServices) {
                             const characteristicType = this.powerProductionLevelActiveSensors[i].characteristicType;
-                            this.powerProductionLevelSensorsService[i]
+                            this.powerProductionLevelSensorsServices[i]
                                 .updateCharacteristic(characteristicType, state)
                         }
                     }
@@ -2638,9 +2679,9 @@ class EnvoyDevice extends EventEmitter {
                     for (let i = 0; i < this.energyProductionStateActiveSensorsCount; i++) {
                         this.energyProductionStateActiveSensors[i].state = productionEnergyState;
 
-                        if (this.energyProductionStateSensorsService) {
+                        if (this.energyProductionStateSensorsServices) {
                             const characteristicType = this.energyProductionStateActiveSensors[i].characteristicType;
-                            this.energyProductionStateSensorsService[i]
+                            this.energyProductionStateSensorsServices[i]
                                 .updateCharacteristic(characteristicType, productionEnergyState)
                         }
                     }
@@ -2651,9 +2692,9 @@ class EnvoyDevice extends EventEmitter {
                         const state = productionEnergyToday >= energyLevel;
                         this.energyProductionLevelActiveSensors[i].state = state;
 
-                        if (this.energyProductionLevelSensorsService) {
+                        if (this.energyProductionLevelSensorsServices) {
                             const characteristicType = this.energyProductionLevelActiveSensors[i].characteristicType;
-                            this.energyProductionLevelSensorsService[i]
+                            this.energyProductionLevelSensorsServices[i]
                                 .updateCharacteristic(characteristicType, state)
                         }
                     }
@@ -2719,9 +2760,9 @@ class EnvoyDevice extends EventEmitter {
                                 for (let i = 0; i < this.powerConsumptionTotalStateActiveSensorsCount; i++) {
                                     this.powerConsumptionTotalStateActiveSensors[i].state = obj.powerState;
 
-                                    if (this.powerConsumptionTotalStateSensorsService) {
+                                    if (this.powerConsumptionTotalStateSensorsServices) {
                                         const characteristicType = this.powerConsumptionTotalStateActiveSensors[i].characteristicType;
-                                        this.powerConsumptionTotalStateSensorsService[i]
+                                        this.powerConsumptionTotalStateSensorsServices[i]
                                             .updateCharacteristic(characteristicType, obj.powerState)
                                     }
                                 }
@@ -2732,9 +2773,9 @@ class EnvoyDevice extends EventEmitter {
                                     const state = obj.power >= powerLevel;
                                     this.powerConsumptionTotalLevelActiveSensors[i].state = state;
 
-                                    if (this.powerConsumptionTotalLevelSensorsService) {
+                                    if (this.powerConsumptionTotalLevelSensorsServices) {
                                         const characteristicType = this.powerConsumptionTotalLevelActiveSensors[i].characteristicType;
-                                        this.powerConsumptionTotalLevelSensorsService[i]
+                                        this.powerConsumptionTotalLevelSensorsServices[i]
                                             .updateCharacteristic(characteristicType, state)
                                     }
                                 }
@@ -2745,9 +2786,9 @@ class EnvoyDevice extends EventEmitter {
                                 for (let i = 0; i < this.energyConsumptionTotalStateActiveSensorsCount; i++) {
                                     this.energyConsumptionTotalStateActiveSensors[i].state = obj.energyState;
 
-                                    if (this.energyConsumptionTotalStateSensorsService) {
+                                    if (this.energyConsumptionTotalStateSensorsServices) {
                                         const characteristicType = this.energyConsumptionTotalStateActiveSensors[i].characteristicType;
-                                        this.energyConsumptionTotalStateSensorsService[i]
+                                        this.energyConsumptionTotalStateSensorsServices[i]
                                             .updateCharacteristic(characteristicType, obj.energyState)
                                     }
                                 }
@@ -2758,9 +2799,9 @@ class EnvoyDevice extends EventEmitter {
                                     const state = obj.energyToday >= energyLevel;
                                     this.energyConsumptionTotalLevelActiveSensors[i].state = state;
 
-                                    if (this.energyConsumptionTotalLevelSensorsService) {
+                                    if (this.energyConsumptionTotalLevelSensorsServices) {
                                         const characteristicType = this.energyConsumptionTotalLevelActiveSensors[i].characteristicType;
-                                        this.energyConsumptionTotalLevelSensorsService[i]
+                                        this.energyConsumptionTotalLevelSensorsServices[i]
                                             .updateCharacteristic(characteristicType, state)
                                     }
                                 }
@@ -2774,9 +2815,9 @@ class EnvoyDevice extends EventEmitter {
                                 for (let i = 0; i < this.powerConsumptionNetStateActiveSensorsCount; i++) {
                                     this.powerConsumptionNetStateActiveSensors[i].state = obj.powerState;
 
-                                    if (this.powerConsumptionNetStateSensorsService) {
+                                    if (this.powerConsumptionNetStateSensorsServices) {
                                         const characteristicType = this.powerConsumptionNetStateActiveSensors[i].characteristicType;
-                                        this.powerConsumptionNetStateSensorsService[i]
+                                        this.powerConsumptionNetStateSensorsServices[i]
                                             .updateCharacteristic(characteristicType, obj.powerState)
                                     }
                                 }
@@ -2788,9 +2829,9 @@ class EnvoyDevice extends EventEmitter {
                                     const state = importing ? obj.power >= powerLevel : obj.power <= powerLevel;
                                     this.powerConsumptionNetLevelActiveSensors[i].state = state;
 
-                                    if (this.powerConsumptionNetLevelSensorsService) {
+                                    if (this.powerConsumptionNetLevelSensorsServices) {
                                         const characteristicType = this.powerConsumptionNetLevelActiveSensors[i].characteristicType;
-                                        this.powerConsumptionNetLevelSensorsService[i]
+                                        this.powerConsumptionNetLevelSensorsServices[i]
                                             .updateCharacteristic(characteristicType, state)
                                     }
                                 }
@@ -2801,9 +2842,9 @@ class EnvoyDevice extends EventEmitter {
                                 for (let i = 0; i < this.energyConsumptionNetStateActiveSensorsCount; i++) {
                                     this.energyConsumptionNetStateActiveSensors[i].state = obj.energyState;
 
-                                    if (this.energyConsumptionNetStateSensorsService) {
+                                    if (this.energyConsumptionNetStateSensorsServices) {
                                         const characteristicType = this.energyConsumptionNetStateActiveSensors[i].characteristicType;
-                                        this.energyConsumptionNetStateSensorsService[i]
+                                        this.energyConsumptionNetStateSensorsServices[i]
                                             .updateCharacteristic(characteristicType, obj.energyState)
                                     }
                                 }
@@ -2814,9 +2855,9 @@ class EnvoyDevice extends EventEmitter {
                                     const state = obj.energyToday >= energyLevel;
                                     this.energyConsumptionNetLevelActiveSensors[i].state = state;
 
-                                    if (this.energyConsumptionNetLevelSensorsService) {
+                                    if (this.energyConsumptionNetLevelSensorsServices) {
                                         const characteristicType = this.energyConsumptionNetLevelActiveSensors[i].characteristicType;
-                                        this.energyConsumptionNetLevelSensorsService[i]
+                                        this.energyConsumptionNetLevelSensorsServices[i]
                                             .updateCharacteristic(characteristicType, state)
                                     }
                                 }
@@ -3088,7 +3129,6 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting encharge profile set.`) : false;
 
             try {
-                //create axios instance post with token and data
                 const options = {
                     headers: {
                         'Content-Type': 'application/json',
@@ -3110,6 +3150,34 @@ class EnvoyDevice extends EventEmitter {
                 resolve();
             } catch (error) {
                 reject(`Set encharge profile error: ${error}.`);
+            };
+        });
+    };
+
+    setEnpowerGridState(state) {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting enpower grid state set.`) : false;
+
+            try {
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Cookie: this.cookie
+                    },
+                    withCredentials: true,
+                    httpsAgent: new https.Agent({
+                        keepAlive: true,
+                        rejectUnauthorized: false
+                    })
+                }
+
+                state = state ? 'closed' : 'open';
+                const url = this.url + CONSTANTS.ApiUrls.EnchargeRelay;
+                const enpowerGridState = await axios.post(url, { 'mains_admin_state': state }, options);
+                const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state: ${JSON.stringify(enpowerGridState.data, null, 2)}`) : false;
+                resolve();
+            } catch (error) {
+                reject(`Set enpower grid state error: ${error}.`);
             };
         });
     };
@@ -3216,12 +3284,12 @@ class EnvoyDevice extends EventEmitter {
                     //data refresh control service
                     if (this.dataRefreshActiveControlsCount > 0) {
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Data Refresh Control Service`) : false;
-                        this.dataRefreshControlsService = [];
+                        this.dataRefreshControlsServices = [];
                         for (let i = 0; i < this.dataRefreshActiveControlsCount; i++) {
                             const controlName = this.dataRefreshActiveControls[i].namePrefix ? `${accessoryName} ${this.dataRefreshActiveControls[i].name}` : this.dataRefreshActiveControls[i].name;
                             const serviceType = this.dataRefreshActiveControls[i].serviceType;
                             const characteristicType = this.dataRefreshActiveControls[i].characteristicType;
-                            const dataRefreshContolService = accessory.addService(serviceType, controlName, `dataRefreshControlService`);
+                            const dataRefreshContolService = accessory.addService(serviceType, controlName, `dataRefreshControlService${i}`);
                             dataRefreshContolService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                             dataRefreshContolService.setCharacteristic(Characteristic.ConfiguredName, controlName);
                             dataRefreshContolService.getCharacteristic(characteristicType)
@@ -3238,19 +3306,19 @@ class EnvoyDevice extends EventEmitter {
                                         this.emit('error', `Set data refresh contol error: ${error}`);
                                     };
                                 })
-                            this.dataRefreshControlsService.push(dataRefreshContolService);
+                            this.dataRefreshControlsServices.push(dataRefreshContolService);
                         };
                     };
 
                     //data refresh sensor service
                     if (this.dataRefreshActiveSensorsCount > 0) {
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Data Refresh Sensor Service`) : false;
-                        this.dataRefreshSensorsService = [];
+                        this.dataRefreshSensorsServices = [];
                         for (let i = 0; i < this.dataRefreshActiveSensorsCount; i++) {
                             const sensorName = this.dataRefreshActiveSensors[i].namePrefix ? `${accessoryName} ${this.dataRefreshActiveSensors[i].name}` : this.dataRefreshActiveSensors[i].name;
                             const serviceType = this.dataRefreshActiveSensors[i].serviceType;
                             const characteristicType = this.dataRefreshActiveSensors[i].characteristicType;
-                            const dataRefreshSensorService = accessory.addService(serviceType, sensorName, `dataRefreshSensorService`);
+                            const dataRefreshSensorService = accessory.addService(serviceType, sensorName, `dataRefreshSensorService${i}`);
                             dataRefreshSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                             dataRefreshSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                             dataRefreshSensorService.getCharacteristic(characteristicType)
@@ -3259,7 +3327,7 @@ class EnvoyDevice extends EventEmitter {
                                     const info = this.disableLogInfo ? false : this.emit('message', `Data refresh sensor: ${state ? 'Active' : 'Not active'}`);
                                     return state;
                                 });
-                            this.dataRefreshSensorsService.push(dataRefreshSensorService);
+                            this.dataRefreshSensorsServices.push(dataRefreshSensorService);
                         };
                     };
 
@@ -3367,26 +3435,34 @@ class EnvoyDevice extends EventEmitter {
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, last report to enlighten: ${value}`);
                             return value;
                         });
-                    if (enpowersInstalled) {
-                        this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerConnected)
-                            .onGet(async () => {
-                                const value = this.enpowersConnected;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, enpower connected: ${value ? 'Yes' : 'No'}`);
-                                return value;
-                            });
-                        this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerGridStatus)
-                            .onGet(async () => {
-                                const value = this.enpowers[0].gridModeTranslated;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, enpower grid mode: ${value}`);
-                                return value;
-                            });
-                    }
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyGridProfile)
                         .onGet(async () => {
                             const value = this.arfProfile.name;
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, grid profile: ${value}`);
                             return value;
                         });
+                    if (enpowersInstalled) {
+                        this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerGridMode)
+                            .onGet(async () => {
+                                const value = this.enpowers[0].enpwrGridModeTranslated;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, enpower grid mode: ${value}`);
+                                return value;
+                            });
+                        this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyEnpowerGridState)
+                            .onGet(async () => {
+                                const state = this.enpowers[0].mainsAdminStateBool;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, enpower grid state: ${state ? 'Grid ON' : 'Grid OFF'}`);
+                                return state;
+                            })
+                            .onSet(async (state) => {
+                                try {
+                                    const data = await this.setEnpowerGridState(state);
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set enpower grid state to: ${state ? `Grid ON` : `Grid OFF`}`);
+                                } catch (error) {
+                                    this.emit('error', `Set enpower grid state error: ${error}`);
+                                };
+                            })
+                    }
                     if (plcLevelSupported) {
                         this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel)
                             .onGet(async () => {
@@ -3730,12 +3806,12 @@ class EnvoyDevice extends EventEmitter {
                 //production state sensor service
                 if (this.powerProductionStateActiveSensorsCount > 0) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Power State Sensor Service`) : false;
-                    this.powerProductionStateSensorsService = [];
+                    this.powerProductionStateSensorsServices = [];
                     for (let i = 0; i < this.powerProductionStateActiveSensorsCount; i++) {
                         const sensorName = this.powerProductionStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerProductionStateActiveSensors[i].name}` : this.powerProductionStateActiveSensors[i].name;
                         const serviceType = this.powerProductionStateActiveSensors[i].serviceType;
                         const characteristicType = this.powerProductionStateActiveSensors[i].characteristicType;
-                        const powerProductionStateSensorService = accessory.addService(serviceType, sensorName, `powerProductionStateSensorService`);
+                        const powerProductionStateSensorService = accessory.addService(serviceType, sensorName, `powerProductionStateSensorService${i}`);
                         powerProductionStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                         powerProductionStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                         powerProductionStateSensorService.getCharacteristic(characteristicType)
@@ -3744,13 +3820,13 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('message', `Production power state sensor: ${state ? 'Active' : 'Not active'}`);
                                 return state;
                             });
-                        this.powerProductionStateSensorsService.push(powerProductionStateSensorService);
+                        this.powerProductionStateSensorsServices.push(powerProductionStateSensorService);
                     };
                 };
 
                 //production power level sensors service
                 if (this.powerProductionLevelActiveSensorsCount > 0) {
-                    this.powerProductionLevelSensorsService = [];
+                    this.powerProductionLevelSensorsServices = [];
                     for (let i = 0; i < this.powerProductionLevelActiveSensorsCount; i++) {
                         const sensorName = this.powerProductionLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerProductionLevelActiveSensors[i].name}` : this.powerProductionLevelActiveSensors[i].name;
                         const serviceType = this.powerProductionLevelActiveSensors[i].serviceType;
@@ -3765,19 +3841,19 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('message', `Production power level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                 return state;
                             });
-                        this.powerProductionLevelSensorsService.push(powerProductionLevelSensorsService);
+                        this.powerProductionLevelSensorsServices.push(powerProductionLevelSensorsService);
                     };
                 };
 
                 //production energy state sensor service
                 if (this.energyProductionStateActiveSensorsCount > 0) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Production Energy State Sensor Service`) : false;
-                    this.energyProductionStateSensorsService = [];
+                    this.energyProductionStateSensorsServices = [];
                     for (let i = 0; i < this.energyProductionStateActiveSensorsCount; i++) {
                         const sensorName = this.energyProductionStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyProductionStateActiveSensors[i].name}` : this.energyProductionStateActiveSensors[i].name;
                         const serviceType = this.energyProductionStateActiveSensors[i].serviceType;
                         const characteristicType = this.energyProductionStateActiveSensors[i].characteristicType;
-                        const energyProductionStateSensorService = accessory.addService(serviceType, sensorName, `energyProductionStateSensorService`);
+                        const energyProductionStateSensorService = accessory.addService(serviceType, sensorName, `energyProductionStateSensorService${i}`);
                         energyProductionStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                         energyProductionStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                         energyProductionStateSensorService.getCharacteristic(characteristicType)
@@ -3786,13 +3862,13 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('message', `Production energy state sensor: ${state ? 'Active' : 'Not active'}`);
                                 return state;
                             });
-                        this.energyProductionStateSensorsService.push(energyProductionStateSensorService);
+                        this.energyProductionStateSensorsServices.push(energyProductionStateSensorService);
                     };
                 };
 
                 //production energy level sensor service
                 if (this.energyProductionLevelActiveSensorsCount > 0) {
-                    this.energyProductionLevelSensorsService = [];
+                    this.energyProductionLevelSensorsServices = [];
                     for (let i = 0; i < this.energyProductionLevelActiveSensorsCount; i++) {
                         const sensorName = this.energyProductionLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyProductionLevelActiveSensors[i].name}` : this.energyProductionLevelActiveSensors[i].name;
                         const serviceType = this.energyProductionLevelActiveSensors[i].serviceType;
@@ -3807,7 +3883,7 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('message', `Production energy level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                 return state;
                             });
-                        this.energyProductionLevelSensorsService.push(energyProductionLevelSensorsService);
+                        this.energyProductionLevelSensorsServices.push(energyProductionLevelSensorsService);
                     };
                 };
 
@@ -3913,12 +3989,12 @@ class EnvoyDevice extends EventEmitter {
                             //consumption total state sensor service
                             if (this.powerConsumptionTotalStateActiveSensorsCount > 0) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power State Sensor Service`) : false;
-                                this.powerConsumptionTotalStateSensorsService = [];
+                                this.powerConsumptionTotalStateSensorsServices = [];
                                 for (let i = 0; i < this.powerConsumptionTotalStateActiveSensorsCount; i++) {
                                     const sensorName = this.powerConsumptionTotalStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionTotalStateActiveSensors[i].name}` : this.powerConsumptionTotalStateActiveSensors[i].name;
                                     const serviceType = this.powerConsumptionTotalStateActiveSensors[i].serviceType;
                                     const characteristicType = this.powerConsumptionTotalStateActiveSensors[i].characteristicType;
-                                    const powerConsumptionTotalStateSensorService = accessory.addService(serviceType, sensorName, `powerConsumptionTotalStateSensorService`);
+                                    const powerConsumptionTotalStateSensorService = accessory.addService(serviceType, sensorName, `powerConsumptionTotalStateSensorService${i}`);
                                     powerConsumptionTotalStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                     powerConsumptionTotalStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                                     powerConsumptionTotalStateSensorService.getCharacteristic(characteristicType)
@@ -3927,13 +4003,13 @@ class EnvoyDevice extends EventEmitter {
                                             const info = this.disableLogInfo ? false : this.emit('message', `${measurmentType} power state sensor: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
-                                    this.powerConsumptionTotalStateSensorsService.push(powerConsumptionTotalStateSensorService);
+                                    this.powerConsumptionTotalStateSensorsServices.push(powerConsumptionTotalStateSensorService);
                                 };
                             };
 
                             //consumption total power peak sensors service
                             if (this.powerConsumptionTotalLevelActiveSensorsCount > 0) {
-                                this.powerConsumptionTotalLevelSensorsService = [];
+                                this.powerConsumptionTotalLevelSensorsServices = [];
                                 for (let i = 0; i < this.powerConsumptionTotalLevelActiveSensorsCount; i++) {
                                     const sensorName = this.powerConsumptionTotalLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionTotalLevelActiveSensors[i].name}` : this.powerConsumptionTotalLevelActiveSensors[i].name;
                                     const serviceType = this.powerConsumptionTotalLevelActiveSensors[i].serviceType;
@@ -3948,19 +4024,19 @@ class EnvoyDevice extends EventEmitter {
                                             const info = this.disableLogInfo ? false : this.emit('message', `Consumption total power level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
-                                    this.powerConsumptionTotalLevelSensorsService.push(powerConsumptionTotalLevelSensorsService);
+                                    this.powerConsumptionTotalLevelSensorsServices.push(powerConsumptionTotalLevelSensorsService);
                                 };
                             };
 
                             //consumption total energy state sensor service
                             if (this.energyConsumptionTotalStateActiveSensorsCount > 0) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy State Sensor Service`) : false;
-                                this.energyConsumptionTotalStateSensorsService = [];
+                                this.energyConsumptionTotalStateSensorsServices = [];
                                 for (let i = 0; i < this.energyConsumptionTotalStateActiveSensorsCount; i++) {
                                     const sensorName = this.energyConsumptionTotalStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionTotalStateActiveSensors[i].name}` : this.energyConsumptionTotalStateActiveSensors[i].name;
                                     const serviceType = this.energyConsumptionTotalStateActiveSensors[i].serviceType;
                                     const characteristicType = this.energyConsumptionTotalStateActiveSensors[i].characteristicType;
-                                    const energyConsumptionTotalStateSensorService = accessory.addService(serviceType, sensorName, `energyConsumptionTotalStateSensorService`);
+                                    const energyConsumptionTotalStateSensorService = accessory.addService(serviceType, sensorName, `energyConsumptionTotalStateSensorService${i}`);
                                     energyConsumptionTotalStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                     energyConsumptionTotalStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                                     energyConsumptionTotalStateSensorService.getCharacteristic(characteristicType)
@@ -3969,13 +4045,13 @@ class EnvoyDevice extends EventEmitter {
                                             const info = this.disableLogInfo ? false : this.emit('message', `${measurmentType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
-                                    this.energyConsumptionTotalStateSensorsService.push(energyConsumptionTotalStateSensorService);
+                                    this.energyConsumptionTotalStateSensorsServices.push(energyConsumptionTotalStateSensorService);
                                 };
                             };
 
                             //consumption total energy level sensor service
                             if (this.energyConsumptionTotalLevelActiveSensorsCount > 0) {
-                                this.energyConsumptionTotalLevelSensorsService = [];
+                                this.energyConsumptionTotalLevelSensorsServices = [];
                                 for (let i = 0; i < this.energyConsumptionTotalLevelActiveSensorsCount; i++) {
                                     const sensorName = this.energyConsumptionTotalLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionTotalLevelActiveSensors[i].name}` : this.energyConsumptionTotalLevelActiveSensors[i].name;
                                     const serviceType = this.energyConsumptionTotalLevelActiveSensors[i].serviceType;
@@ -3990,7 +4066,7 @@ class EnvoyDevice extends EventEmitter {
                                             const info = this.disableLogInfo ? false : this.emit('message', `Consumption total energy level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
-                                    this.energyConsumptionTotalLevelSensorsService.push(energyConsumptionTotalLevelSensorsService);
+                                    this.energyConsumptionTotalLevelSensorsServices.push(energyConsumptionTotalLevelSensorsService);
                                 };
                             };
                         };
@@ -4000,12 +4076,12 @@ class EnvoyDevice extends EventEmitter {
                             //consumption net state sensor service
                             if (this.powerConsumptionNetStateActiveSensorsCount > 0) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power State Sensor Service`) : false;
-                                this.powerConsumptionNetStateSensorsService = [];
+                                this.powerConsumptionNetStateSensorsServices = [];
                                 for (let i = 0; i < this.powerConsumptionNetStateActiveSensorsCount; i++) {
                                     const sensorName = this.powerConsumptionNetStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionNetStateActiveSensors[i].name}` : this.powerConsumptionNetStateActiveSensors[i].name;
                                     const serviceType = this.powerConsumptionNetStateActiveSensors[i].serviceType;
                                     const characteristicType = this.powerConsumptionNetStateActiveSensors[i].characteristicType;
-                                    const powerConsumptionNetStateSensorService = accessory.addService(serviceType, sensorName, `powerConsumptionNetStateSensorService`);
+                                    const powerConsumptionNetStateSensorService = accessory.addService(serviceType, sensorName, `powerConsumptionNetStateSensorService${i}`);
                                     powerConsumptionNetStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                     powerConsumptionNetStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                                     powerConsumptionNetStateSensorService.getCharacteristic(characteristicType)
@@ -4014,13 +4090,13 @@ class EnvoyDevice extends EventEmitter {
                                             const info = this.disableLogInfo ? false : this.emit('message', `${measurmentType} power state sensor: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
-                                    this.powerConsumptionNetStateSensorsService.push(powerConsumptionNetStateSensorService);
+                                    this.powerConsumptionNetStateSensorsServices.push(powerConsumptionNetStateSensorService);
                                 };
                             };
 
                             //consumption net power peak sensor service
                             if (this.powerConsumptionNetLevelActiveSensorsCount > 0) {
-                                this.powerConsumptionNetLevelSensorsService = [];
+                                this.powerConsumptionNetLevelSensorsServices = [];
                                 for (let i = 0; i < this.powerConsumptionNetLevelActiveSensorsCount; i++) {
                                     const sensorName = this.powerConsumptionNetLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionNetLevelActiveSensors[i].name}` : this.powerConsumptionNetLevelActiveSensors[i].name;
                                     const serviceType = this.powerConsumptionNetLevelActiveSensors[i].serviceType;
@@ -4035,19 +4111,19 @@ class EnvoyDevice extends EventEmitter {
                                             const info = this.disableLogInfo ? false : this.emit('message', `Consumption net power level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
-                                    this.powerConsumptionNetLevelSensorsService.push(powerConsumptionNetLevelSensorsService);
+                                    this.powerConsumptionNetLevelSensorsServices.push(powerConsumptionNetLevelSensorsService);
                                 };
                             };
 
                             //consumption net energy state sensor service
                             if (this.energyConsumptionNetStateActiveSensorsCount > 0) {
                                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy State Sensor Service`) : false;
-                                this.energyConsumptionNetStateSensorsService = [];
+                                this.energyConsumptionNetStateSensorsServices = [];
                                 for (let i = 0; i < this.energyConsumptionNetStateActiveSensorsCount; i++) {
                                     const sensorName = this.energyConsumptionNetStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionNetStateActiveSensors[i].name}` : this.energyConsumptionNetStateActiveSensors[i].name;
                                     const serviceType = this.energyConsumptionNetStateActiveSensors[i].serviceType;
                                     const characteristicType = this.energyConsumptionNetStateActiveSensors[i].characteristicType;
-                                    const energyConsumptionNetStateSensorService = accessory.addService(serviceType, sensorName, `energyConsumptionNetStateSensorService`);
+                                    const energyConsumptionNetStateSensorService = accessory.addService(serviceType, sensorName, `energyConsumptionNetStateSensorService${i}`);
                                     energyConsumptionNetStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                                     energyConsumptionNetStateSensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                                     energyConsumptionNetStateSensorService.getCharacteristic(characteristicType)
@@ -4056,12 +4132,12 @@ class EnvoyDevice extends EventEmitter {
                                             const info = this.disableLogInfo ? false : this.emit('message', `${measurmentType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
-                                    this.energyConsumptionNetStateSensorsService.push(energyConsumptionNetStateSensorService);
+                                    this.energyConsumptionNetStateSensorsServices.push(energyConsumptionNetStateSensorService);
                                 };
                             };
 
                             if (this.energyConsumptionNetLevelActiveSensorsCount > 0) {
-                                this.energyConsumptionNetLevelSensorsService = [];
+                                this.energyConsumptionNetLevelSensorsServices = [];
                                 for (let i = 0; i < this.energyConsumptionNetLevelActiveSensorsCount; i++) {
                                     const sensorName = this.energyConsumptionNetLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionNetLevelActiveSensors[i].name}` : this.energyConsumptionNetLevelActiveSensors[i].name;
                                     const serviceType = this.energyConsumptionNetLevelActiveSensors[i].serviceType;
@@ -4076,7 +4152,7 @@ class EnvoyDevice extends EventEmitter {
                                             const info = this.disableLogInfo ? false : this.emit('message', `Consumption net energy level sensor: ${sensorName}: ${state ? 'Active' : 'Not active'}`);
                                             return state;
                                         });
-                                    this.energyConsumptionNetLevelSensorsService.push(energyConsumptionNetLevelSensorsService);
+                                    this.energyConsumptionNetLevelSensorsServices.push(energyConsumptionNetLevelSensorsService);
                                 };
                             };
                         };
@@ -4923,6 +4999,35 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                         this.enpowersServices.push(enphaseEnpowerService);
+                    };
+
+                    //enpower grid state control service
+                    if (this.enpwerGridStateActiveControlsCount > 0) {
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Grid State Control Service`) : false;
+                        this.enpowerGridStateControlsServices = [];
+                        for (let i = 0; i < this.enpwerGridStateActiveControlsCount; i++) {
+                            const controlName = this.enpowerGridStateActiveControls[i].namePrefix ? `${accessoryName} ${this.enpowerGridStateActiveControls[i].name}` : this.enpowerGridStateActiveControls[i].name;
+                            const serviceType = this.enpowerGridStateActiveControls[i].serviceType;
+                            const characteristicType = this.enpowerGridStateActiveControls[i].characteristicType;
+                            const enpowerGridStateContolService = accessory.addService(serviceType, controlName, `enpwerGridStateControlService${i}`);
+                            enpowerGridStateContolService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            enpowerGridStateContolService.setCharacteristic(Characteristic.ConfiguredName, controlName);
+                            enpowerGridStateContolService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.enpowerGridStateActiveControls[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Enpower grid state: ${state ? 'Grid ON' : 'Grid OFF'}`);
+                                    return state;
+                                })
+                                .onSet(async (state) => {
+                                    try {
+                                        const data = await this.setEnpowerGridState(state);
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Set enpower grid state to: ${state ? `Grid ON` : `Grid OFF`}`);
+                                    } catch (error) {
+                                        this.emit('error', `Set enpower grid state error: ${error}`);
+                                    };
+                                })
+                            this.enpowerGridStateControlsServices.push(enpowerGridStateContolService);
+                        };
                     };
 
                     //enpower grid state sensor services

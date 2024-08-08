@@ -118,7 +118,12 @@
                         }
                     ],
                     "energyConsumptionNetLifetimeOffset": 0,
-                    "enpowerGridStateSensors": {
+                    "enpowerGridStateControl": {
+                        "name": "Sensor name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "enpowerGridStateSensor": {
                         "name": "Sensor name",
                         "displayType": 0,
                         "namePrefix": false

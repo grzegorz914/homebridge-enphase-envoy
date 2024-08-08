@@ -145,6 +145,10 @@
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Net` if nedded `+/-`. |
+| `enepowerGridStateControl` | This is `Enpower Grid State Tile` for `Grid ON/OFF` control from HomeKit. |
+| `name` | Here set Your own tile name. |
+| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
+| `namePrefix` | This enable/disable the accessory name as a prefix for the tile name. |
 | `enepowerGridStateSensor` | This is `Enpower Grid State Sensor` for `Grid` monitoring, if `Grid ON`, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
