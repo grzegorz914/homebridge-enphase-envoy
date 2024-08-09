@@ -2414,7 +2414,6 @@ class EnvoyDevice extends EventEmitter {
                 if (this.enchargeProfileFullBackupService) {
                     this.enchargeProfileFullBackupService
                         .updateCharacteristic(Characteristic.Characteristic.On, backupMode)
-                        .updateCharacteristic(Characteristic.Characteristic.Brightness, reservedSoc)
                 }
 
                 this.enchargeSettingsInstalled = enchargeSettingsKeysCount > 0;
