@@ -847,7 +847,7 @@ class EnvoyDevice extends EventEmitter {
 
             //access with installer password
             const calculateInstallerPassword = !this.envoyFirmware7xx ? await this.calculateInstallerPassword() : false;
-            const getProductionPowerMode = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.getProductionPowerModeData() : false;
+            const updateProductionPowerMode = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.updateProductionPowerModeData() : false;
             const updatePlcLevel = this.supportPlcLevel && (validJwtToken || calculateInstallerPassword) ? await this.updatePlcLevelData() : false;
 
             //get device info
@@ -3279,7 +3279,7 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    getProductionPowerModeData() {
+    updateProductionPowerModeData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting power production mode.`) : false;
 
@@ -3313,36 +3313,6 @@ class EnvoyDevice extends EventEmitter {
                 resolve(true);
             } catch (error) {
                 reject(`Requesting power production mode error: ${error}.`);
-            };
-        });
-    }
-
-    setProductionPowerModeData(state) {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Set power production mode.`) : false;
-
-            try {
-                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModePut.replace("EID", this.envoyDevId);
-                const data = JSON.stringify({
-                    length: 1,
-                    arr: [state ? 0 : 1]
-                });
-
-                const options = {
-                    method: 'PUT',
-                    baseURL: this.url,
-                    data: data,
-                    headers: {
-                        Accept: 'application/json'
-                    }
-                }
-
-                const productionPowerModeData = this.productionPowerMode !== state ? (this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options)) : false;
-                const productionPowerMode = productionPowerModeData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Set power mode: ${JSON.stringify(productionPowerMode, null, 2)}`) : false;
-                resolve();
-            } catch (error) {
-                reject(`Set power production mode error: ${error}.`);
             };
         });
     }
@@ -3440,6 +3410,36 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
+    setProductionPowerModeData(state) {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Set power production mode.`) : false;
+
+            try {
+                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModePut.replace("EID", this.envoyDevId);
+                const data = JSON.stringify({
+                    length: 1,
+                    arr: [state ? 0 : 1]
+                });
+
+                const options = {
+                    method: 'PUT',
+                    baseURL: this.url,
+                    data: data,
+                    headers: {
+                        Accept: 'application/json'
+                    }
+                }
+
+                const productionPowerModeData = this.productionPowerMode !== state ? (this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options)) : false;
+                const productionPowerMode = productionPowerModeData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Set power mode: ${JSON.stringify(productionPowerMode, null, 2)}`) : false;
+                resolve();
+            } catch (error) {
+                reject(`Set power production mode error: ${error}.`);
+            };
+        });
+    }
+
     setEnchargeProfile(profile, reserve, independence) {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting encharge profile set.`) : false;
@@ -3467,6 +3467,8 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile: ${JSON.stringify(enchargeProfileSet.data, null, 2)}`) : false;
+
+                await this.updateEnsembleEnchargeSettingsData();
                 resolve();
             } catch (error) {
                 reject(`Set encharge profile error: ${error}.`);
@@ -3495,6 +3497,8 @@ class EnvoyDevice extends EventEmitter {
                 const url = this.url + CONSTANTS.ApiUrls.EnchargeRelay;
                 const enpowerGridState = await axios.post(url, { 'mains_admin_state': state }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state: ${JSON.stringify(enpowerGridState.data, null, 2)}`) : false;
+
+                await this.updateEnsembleInventoryData();
                 resolve();
             } catch (error) {
                 reject(`Set enpower grid state error: ${error}.`);
@@ -3524,6 +3528,8 @@ class EnvoyDevice extends EventEmitter {
                 const url = this.url + CONSTANTS.ApiUrls.GeneratorModeSet;
                 const generatorState = await axios.post(url, { 'gen_cmd': genMode }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set generator state: ${JSON.stringify(generatorState.data, null, 2)}`) : false;
+
+                await this.updateGridProfileData();
                 resolve();
             } catch (error) {
                 reject(`Set generator state error: ${error}.`);

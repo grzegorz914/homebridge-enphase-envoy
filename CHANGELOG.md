@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - added enpower grid state control direct from envoy section, 3rd party appp
    - added enpower grid state sensor
 * encharge   
-   - added support to control encharge profile  
+   - added encharge profile control direct from home app as a extra tile, native app
 * other changes   
    - added possibility to enable accessory name as a prefix for all services
    - stability and performance improvements
