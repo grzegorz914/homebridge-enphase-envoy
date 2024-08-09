@@ -2399,20 +2399,20 @@ class EnvoyDevice extends EventEmitter {
                 }
                 this.enchargeSettings = enchargeSettings;
 
-                if (this.enchargeProfileSelfConsumptionServices) {
-                    this.enchargeProfileSelfConsumptionServices
+                if (this.enchargeProfileSelfConsumptionService) {
+                    this.enchargeProfileSelfConsumptionService
                         .updateCharacteristic(Characteristic.Characteristic.On, selfConsumptionMode)
                         .updateCharacteristic(Characteristic.Characteristic.Brightness, reservedSoc)
                 }
 
-                if (this.enchargeProfileSavingsServices) {
-                    this.enchargeProfileSavingsServices
+                if (this.enchargeProfileSavingsService) {
+                    this.enchargeProfileSavingsService
                         .updateCharacteristic(Characteristic.Characteristic.On, savingMode)
                         .updateCharacteristic(Characteristic.Characteristic.Brightness, reservedSoc)
                 }
 
-                if (this.enchargeProfileFullBackupServices) {
-                    this.enchargeProfileFullBackupServices
+                if (this.enchargeProfileFullBackupService) {
+                    this.enchargeProfileFullBackupService
                         .updateCharacteristic(Characteristic.Characteristic.On, backupMode)
                         .updateCharacteristic(Characteristic.Characteristic.Brightness, reservedSoc)
                 }
@@ -4960,21 +4960,25 @@ class EnvoyDevice extends EventEmitter {
 
                     //encharge profile service
                     if (this.supportEnchargeProfile && this.enchargeSettingsInstalled) {
+                        const selfConsumptionMode = this.enchargeSettings.selfConsumptionMode;
+                        const savingsMode = this.enchargeSettings.savingsMode;
+                        const backupMode = this.enchargeSettings.backupMode;
+                        const reservedSoc = this.enchargeSettings.reservedSoc;
+                        const chargeFromGrid = this.enchargeSettings.chargeFromGrid;
                         //self consumption
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile Self Consumption Service`) : false;
-                        this.enchargeProfileSelfConsumptionServices = [];
-                        const enchargeProfileSelfConsumptionService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileSelfConsumptionService`);
-                        enchargeProfileSelfConsumptionService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        enchargeProfileSelfConsumptionService.setCharacteristic(Characteristic.ConfiguredName, 'Self Consumption');
-                        enchargeProfileSelfConsumptionService.getCharacteristic(Characteristic.On)
+                        this.enchargeProfileSelfConsumptionService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileSelfConsumptionService`);
+                        this.enchargeProfileSelfConsumptionService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                        this.enchargeProfileSelfConsumptionService.setCharacteristic(Characteristic.ConfiguredName, 'Self Consumption');
+                        this.enchargeProfileSelfConsumptionService.getCharacteristic(Characteristic.On)
                             .onGet(async () => {
-                                const state = this.enchargeSettings.selfConsumptionMode;
+                                const state = selfConsumptionMode;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile self consumption: ${state ? 'Active' : 'Not Active'}`);
                                 return state;
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const setProfile = state ? await this.setEnchargeProfile('self-consumption', this.enchargeSettings.reservedSoc, this.enchargeSettings.chargeFromGrid) : false;
+                                    const setProfile = state ? await this.setEnchargeProfile('self-consumption', reservedSoc, chargeFromGrid) : false;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Self Consumption`) : false;
                                 } catch (error) {
                                     this.emit('error', `Encharge set profile self consumption error: ${error}`);
@@ -4982,7 +4986,7 @@ class EnvoyDevice extends EventEmitter {
                             })
                         enchargeProfileSelfConsumptionService.getCharacteristic(Characteristic.Brightness)
                             .onGet(async () => {
-                                const value = this.enchargeSettings.reservedSoc;
+                                const value = reservedSoc;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile self consumption reserve: ${value} %`);
                                 return value;
                             })
@@ -4992,29 +4996,27 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 try {
-                                    const setProfileReserve = await this.setEnchargeProfile('self-consumption', value, false);
+                                    const setProfileReserve = await this.setEnchargeProfile('self-consumption', value, chargeFromGrid);
                                     const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile self consumption reserve: ${value} %`) : false;
                                 } catch (error) {
                                     this.emit('error', `Encharge set profile self consumption reserve error: ${error}`);
                                 };
                             })
-                        this.enchargeProfileSelfConsumptionServices.push(enchargeProfileSelfConsumptionService);
 
                         //savings
                         const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile Savings Service`) : false;
-                        this.enchargeProfileSavingsServices = [];
-                        const enchargeProfileSavingsService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileSavingsService`);
-                        enchargeProfileSavingsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        enchargeProfileSavingsService.setCharacteristic(Characteristic.ConfiguredName, 'Savings');
-                        enchargeProfileSavingsService.getCharacteristic(Characteristic.On)
+                        this.enchargeProfileSavingsService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileSavingsService`);
+                        this.enchargeProfileSavingsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                        this.enchargeProfileSavingsService.setCharacteristic(Characteristic.ConfiguredName, 'Savings');
+                        this.enchargeProfileSavingsService.getCharacteristic(Characteristic.On)
                             .onGet(async () => {
-                                const state = this.enchargeSettings.savingMode;
+                                const state = savingsMode;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile savings: ${state ? 'Active' : 'Not Active'}`);
                                 return state;
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const setProfile = state ? await this.setEnchargeProfile('savings-mode', this.enchargeSettings.reservedSoc, this.enchargeSettings.chargeFromGrid) : false;
+                                    const setProfile = state ? await this.setEnchargeProfile('savings-mode', reservedSoc, chargeFromGrid) : false;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Savings`) : false;
                                 } catch (error) {
                                     this.emit('error', `Encharge set profile savings error: ${error}`);
@@ -5022,7 +5024,7 @@ class EnvoyDevice extends EventEmitter {
                             })
                         enchargeProfileSavingsService.getCharacteristic(Characteristic.Brightness)
                             .onGet(async () => {
-                                const value = this.enchargeSettings.reservedSoc;
+                                const value = reservedSoc;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile savings reserve: ${value} %`);
                                 return value;
                             })
@@ -5032,35 +5034,32 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 try {
-                                    const setProfileReserve = await this.setEnchargeProfile('savings-mode', value, this.enchargeSettings.chargeFromGrid);
+                                    const setProfileReserve = await this.setEnchargeProfile('savings-mode', value, chargeFromGrid);
                                     const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile savings reserve: ${value} %`) : false;
                                 } catch (error) {
                                     this.emit('error', `Encharge set profile savings reserve error: ${error}`);
                                 };
                             })
-                        this.enchargeProfileSavingsServices.push(enchargeProfileSavingsService);
 
                         //full backup
                         const debug3 = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile Full Backup Service`) : false;
-                        this.enchargeProfileFullBackupServices = [];
-                        const enchargeProfileFullBackupService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileFullBackupService`);
-                        enchargeProfileFullBackupService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        enchargeProfileFullBackupService.setCharacteristic(Characteristic.ConfiguredName, 'Full Backup');
-                        enchargeProfileFullBackupService.getCharacteristic(Characteristic.On)
+                        this.enchargeProfileFullBackupService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileFullBackupService`);
+                        this.enchargeProfileFullBackupService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                        this.enchargeProfileFullBackupService.setCharacteristic(Characteristic.ConfiguredName, 'Full Backup');
+                        this.enchargeProfileFullBackupService.getCharacteristic(Characteristic.On)
                             .onGet(async () => {
-                                const state = false;
+                                const state = backupMode;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile full backup: ${state ? 'Active' : 'Not Active'}`);
                                 return state;
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const setProfile = state ? await this.setEnchargeProfile('backup', 100, this.enchargeSettings.chargeFromGrid) : false;
+                                    const setProfile = state ? await this.setEnchargeProfile('backup', 100, chargeFromGrid) : false;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Full Backup`) : false;
                                 } catch (error) {
                                     this.emit('error', `Encharge set profile full backup error: ${error}`);
                                 };
                             })
-                        this.enchargeProfileFullBackupServices.push(enchargeProfileFullBackupService);
                     };
                 }
 
