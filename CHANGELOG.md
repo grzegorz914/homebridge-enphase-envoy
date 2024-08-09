@@ -14,21 +14,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - support for Homebridge v2.0.0
 - full code refactor
 - RESTFul and MQTT config refactor
-- stability and performance improvements
-- added generator support
-- added generator state sensor
-- added generator mode sensor
-- added generator mode control
-- added data refresh control direct from home app as a extra tile, native app
-- added data refresh control direct from envoy section, 3rd party app
-- added data refresh sensor
-- added enpower grid state control direct from home app as a extra tile, native app
-- added enpower grid state control direct from envoy section, 3rd party appp
-- added enpower grid state sensor
-- added possibility to enable/disable accessory name as a prefix for all services
-- dependencies updated
-- config schema updated
-- cleanup
+* generator
+   - added generator support
+   - added generator control direct from home app as a extra tile, native app
+   - added generator control direct from envoy section, 3rd party app
+   - added generator state sensor
+   - added generator mode sensor
+* data refresh
+   - added data refresh control direct from home app as a extra tile, native app
+   - added data refresh control direct from envoy section, 3rd party app
+   - added data refresh sensor
+* enpower   
+   - added enpower grid state control direct from home app as a extra tile, native app
+   - added enpower grid state control direct from envoy section, 3rd party appp
+   - added enpower grid state sensor
+* other changes   
+   - added possibility to enable accessory name as a prefix for all services
+   - stability and performance improvements
+   - dependencies updated
+   - config schema updated
+   - cleanup
 
 ## [8.1.1] - (04.08.2024)
 
