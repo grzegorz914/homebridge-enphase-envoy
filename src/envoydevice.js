@@ -2425,7 +2425,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble encharge settings.`) : false;
 
             try {
-                const ensembleEnchargeSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnchargeSettingsUpdate);
+                const ensembleEnchargeSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnchargeSettings);
                 const ensembleEnchargeSettings = ensembleEnchargeSettingsData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Encharge settings: ${JSON.stringify(ensembleEnchargeSettings, null, 2)}`) : false;
 
@@ -2630,7 +2630,7 @@ class EnvoyDevice extends EventEmitter {
 
     updateEnsembleGeneratorSettingsData() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator. settings`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator settings`) : false;
 
             try {
                 const ensembleGeneratorSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.GeneratorSettingsGetSet);
@@ -3516,13 +3516,13 @@ class EnvoyDevice extends EventEmitter {
                         rejectUnauthorized: false
                     })
                 }
-                const url = this.url + CONSTANTS.ApiUrls.EnsembleStatus;
+                const url = this.url + CONSTANTS.ApiUrls.TariffSettingsGetPut;
                 const enchargeProfileSet = await axios.put(url, {
                     tariff: {
                         mode: profile, //str economy/savings-mode, backup, self-consumption
                         operation_mode_sub_type: '', //str
                         reserved_soc: reserve, //float
-                        very_low_soc: 10, //int
+                        very_low_soc: this.encharges[0].settings.veryLowSoc, //int
                         charge_from_grid: independence //bool
                     }
                 }, options);
