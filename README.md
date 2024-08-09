@@ -201,7 +201,7 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` 3rd apps, Fw. 7.x.x and newer require installer credentials data. |
 | `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
-| `supportEnchargeProfile` | This is support to check/control encharge profile, not working yet. |
+| `supportEnchargeProfile` | This is support to check/control encharge profile. |
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (sec). |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
