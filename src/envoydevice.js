@@ -728,7 +728,7 @@ class EnvoyDevice extends EventEmitter {
         this.impulseGenerator = new ImpulseGenerator();
         this.impulseGenerator.on('updateHome', async () => {
             try {
-                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                const tokenExpired = await this.checkJwtToken();
                 const updateHome = tokenExpired ? false : await this.updateHomeData();
                 const updateInventory = updateHome ? await this.updateInventoryData() : false;
             } catch (error) {
@@ -736,7 +736,7 @@ class EnvoyDevice extends EventEmitter {
             };
         }).on('updateMeters', async () => {
             try {
-                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                const tokenExpired = await this.checkJwtToken();
                 const updateMeters = tokenExpired ? false : await this.updateMetersData();
                 const updateMetersReading = updateMeters ? await this.updateMetersReadingData() : false;
             } catch (error) {
@@ -744,7 +744,7 @@ class EnvoyDevice extends EventEmitter {
             };
         }).on('updateEnsemble', async () => {
             try {
-                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                const tokenExpired = await this.checkJwtToken();
                 const updateEnsembleInventory = tokenExpired ? false : await this.updateEnsembleInventoryData();
                 const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
                 const updateEnsembleEnchargeSettings = updateEnsembleInventory ? await this.updateEnsembleEnchargeSettingsData() : false;
@@ -754,14 +754,14 @@ class EnvoyDevice extends EventEmitter {
             };
         }).on('updateLive', async () => {
             try {
-                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                const tokenExpired = await this.checkJwtToken();
                 const updateLive = tokenExpired ? false : await this.updateLiveData();
             } catch (error) {
                 this.emit('error', `Update live data error: ${error}`);
             };
         }).on('updateProduction', async () => {
             try {
-                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                const tokenExpired = await this.checkJwtToken();
                 const updateProduction = tokenExpired ? false : await this.updateProductionData();
                 const updateProductionCt = updateProduction ? await this.updateProductionCtData() : false;
             } catch (error) {
@@ -769,7 +769,7 @@ class EnvoyDevice extends EventEmitter {
             };
         }).on('updateMicroinverters', async () => {
             try {
-                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                const tokenExpired = await this.checkJwtToken();
                 const updateMicroinverters = tokenExpired ? false : await this.updateMicroinvertersData();
             } catch (error) {
                 this.emit('error', `Update microinverters error: ${error}`);
@@ -879,7 +879,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token.`) : false;
 
             try {
-                const tokenExpired = Math.floor(new Date().getTime() / 1000) > this.jwtToken.expires_at;
+                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : (Math.floor(new Date().getTime() / 1000) > this.jwtToken.expires_at) : false;
                 const refreshToken = tokenExpired ? this.emit('tokenExpired', `JWT token expired, refreshing.`) : false;
                 resolve(tokenExpired);
             } catch (error) {
@@ -3804,7 +3804,7 @@ class EnvoyDevice extends EventEmitter {
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                    const tokenExpired = await this.checkJwtToken();
                                     const set = !tokenExpired && state ? await this.updatePlcLevelData() : false;
                                     const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, check plc level: ${state ? `Yes` : `No`}`);
                                 } catch (error) {
@@ -3821,7 +3821,7 @@ class EnvoyDevice extends EventEmitter {
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                    const tokenExpired = await this.checkJwtToken();
                                     const set = !tokenExpired ? await this.setProductionPowerModeData(state) : false;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Envoy: ${serialNumber}, set production power mode: ${state ? 'Enabled' : 'Disabled'}`) : false;
                                 } catch (error) {
@@ -3844,7 +3844,7 @@ class EnvoyDevice extends EventEmitter {
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                    const tokenExpired = await this.checkJwtToken();
                                     const set = !tokenExpired ? await this.setEnpowerGridState(state) : false;
                                     const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set enpower grid state to: ${state ? `Grid ON` : `Grid OFF`}`);
                                 } catch (error) {
@@ -3868,7 +3868,7 @@ class EnvoyDevice extends EventEmitter {
                             .onSet(async (state) => {
                                 try {
                                     const genMode = state ? 1 : 0;
-                                    const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                    const tokenExpired = await this.checkJwtToken();
                                     const set = !tokenExpired ? await this.setGeneratorMode(genMode) : false;
                                     const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set generator state to: ${state ? `ON` : `OFF`}`);
                                 } catch (error) {
@@ -5067,7 +5067,7 @@ class EnvoyDevice extends EventEmitter {
                                     })
                                     .onSet(async (state) => {
                                         try {
-                                            const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                            const tokenExpired = await this.checkJwtToken();
                                             const set = !tokenExpired ? state ? await this.setEnchargeProfile('self-consumption', reservedSoc, chargeFromGrid) : false : false;
                                             const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Self Consumption`) : false;
                                         } catch (error) {
@@ -5086,7 +5086,7 @@ class EnvoyDevice extends EventEmitter {
                                         }
 
                                         try {
-                                            const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                            const tokenExpired = await this.checkJwtToken();
                                             const set = !tokenExpired ? await this.setEnchargeProfile('self-consumption', value, chargeFromGrid) : false;
                                             const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile self consumption reserve: ${value} %`) : false;
                                         } catch (error) {
@@ -5116,7 +5116,7 @@ class EnvoyDevice extends EventEmitter {
                                     })
                                     .onSet(async (state) => {
                                         try {
-                                            const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                            const tokenExpired = await this.checkJwtToken();
                                             const set = !tokenExpired ? state ? await this.setEnchargeProfile('savings-mode', reservedSoc, chargeFromGrid) : false : false;
                                             const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Savings`) : false;
                                         } catch (error) {
@@ -5135,7 +5135,7 @@ class EnvoyDevice extends EventEmitter {
                                         }
 
                                         try {
-                                            const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                            const tokenExpired = await this.checkJwtToken();
                                             const set = !tokenExpired ? await this.setEnchargeProfile('savings-mode', value, chargeFromGrid) : false;
                                             const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile savings reserve: ${value} %`) : false;
                                         } catch (error) {
@@ -5166,7 +5166,7 @@ class EnvoyDevice extends EventEmitter {
                                     })
                                     .onSet(async (state) => {
                                         try {
-                                            const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                            const tokenExpired = await this.checkJwtToken();
                                             const set = !tokenExpired ? state ? await this.setEnchargeProfile('backup', 100, chargeFromGrid) : false : false;
                                             const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Full Backup`) : false;
                                         } catch (error) {
@@ -5437,7 +5437,7 @@ class EnvoyDevice extends EventEmitter {
                                 })
                                 .onSet(async (state) => {
                                     try {
-                                        const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                        const tokenExpired = await this.checkJwtToken();
                                         const set = !tokenExpired ? await this.setEnpowerGridState(state) : false;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Set enpower grid state to: ${state ? `Grid ON` : `Grid OFF`}`);
                                     } catch (error) {
@@ -5668,7 +5668,7 @@ class EnvoyDevice extends EventEmitter {
                                 .onSet(async (state) => {
                                     try {
                                         const genMode = state ? 1 : 0;
-                                        const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : await this.checkJwtToken() : false;
+                                        const tokenExpired = await this.checkJwtToken();
                                         const set = !tokenExpired ? await this.setGeneratorMode(genMode) : false;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Set generator state to: ${state ? `ON` : `OFF`}`);
                                     } catch (error) {
