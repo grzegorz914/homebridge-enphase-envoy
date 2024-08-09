@@ -816,7 +816,7 @@ class EnvoyDevice extends EventEmitter {
             this.timers = [];
 
             //get and validate jwt token
-            const getJwtToken = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? true : await this.getJwtToken() : false;
+            const getJwtToken = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 0 ? await this.getJwtToken() : true : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
             const updateGridProfileData = validJwtToken ? await this.updateGridProfileData() : false;
 
