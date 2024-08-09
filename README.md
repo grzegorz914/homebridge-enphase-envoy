@@ -239,14 +239,14 @@
 ### RESTFul Integration
 
 * Request: `http//homebridge_ip_address:port/path`.
-* Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
+* Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus` `enchargeettings`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
 * Respone as JSON data.
 
 ### MQTT Integration
 
 | Direction | Topic | Message | Payload Data |
 | --- | --- | --- | --- |
-|  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level` | `{"wattHoursToday": 2353, "wattsNow": 550}` | JSON object. |
+|  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level` | `{"wattHoursToday": 2353, "wattsNow": 550}` | JSON object. |
 |  Subscribe   | `Set` | `{"Power": true}` | JSON object. |
 
 | Subscribe | Key | Value | Type | Description |

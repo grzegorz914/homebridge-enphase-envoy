@@ -17,6 +17,9 @@ class RestFul extends EventEmitter {
             metersReading: 'This data is not available in your system.',
             ensembleInventory: 'This data is not available in your system.',
             ensembleStatus: 'This data is not available in your system.',
+            enchargesettings: 'This data is not available in your system.',
+            generator: 'This data is not available in your system.',
+            generatorsettings: 'This data is not available in your system.',
             gridProfile: 'This data is not available in your system.',
             liveData: 'This data is not available in your system.',
             production: 'This data is not available in your system.',
@@ -41,6 +44,9 @@ class RestFul extends EventEmitter {
             restFul.get('/metersreading', (req, res) => { res.json(this.restFulData.metersReading) });
             restFul.get('/ensembleinventory', (req, res) => { res.json(this.restFulData.ensembleInventory) });
             restFul.get('/ensemblestatus', (req, res) => { res.json(this.restFulData.ensembleStatus) });
+            restFul.get('/enchargesettings', (req, res) => { res.json(this.restFulData.enchargesettings) });
+            restFul.get('/generator', (req, res) => { res.json(this.restFulData.generator) });
+            restFul.get('/generatorsettings', (req, res) => { res.json(this.restFulData.generatorsettings) });
             restFul.get('/gridprofile', (req, res) => { res.json(this.restFulData.gridProfile) });
             restFul.get('/livedata', (req, res) => { res.json(this.restFulData.liveData) });
             restFul.get('/production', (req, res) => { res.json(this.restFulData.production) });
@@ -83,6 +89,15 @@ class RestFul extends EventEmitter {
                 break;
             case 'ensemblestatus':
                 this.restFulData.ensembleStatus = data;
+                break;
+            case 'enchargesettings':
+                this.restFulData.enchargesettings = data;
+                break;
+            case 'generator':
+                this.restFulData.generator = data;
+                break;
+            case 'generatorsettings':
+                this.restFulData.generatorsettings = data;
                 break;
             case 'gridprofile':
                 this.restFulData.gridProfile = data;

@@ -595,6 +595,7 @@ class EnvoyDevice extends EventEmitter {
         //generators
         this.generatorsSupported = false;
         this.generatorsInstalled = false;
+        this.generatorsSettingsSupported = false;
 
         //ct meters
         this.metersSupported = false;
@@ -698,13 +699,13 @@ class EnvoyDevice extends EventEmitter {
                             case 'EnchargeProfile':
                                 switch (value) {
                                     case 'selfconsumption':
-                                        await this.setEnchargeProfile('self-consumption', this.enchargeSettings.reservedSoc, this.enchargeSettings.chargeFromGrid);
+                                        await this.setEnchargeProfile('self-consumption', this.encharges[0].settings.reservedSoc, this.encharges[0].settings.chargeFromGrid);
                                         break;
                                     case 'savings':
-                                        await this.setEnchargeProfile('savings-mode', this.enchargeSettings.reservedSoc, this.enchargeSettings.chargeFromGrid);
+                                        await this.setEnchargeProfile('savings-mode', this.encharges[0].settings.reservedSoc, this.encharges[0].settings.chargeFromGrid);
                                         break;
                                     case 'fullbackup':
-                                        await this.setEnchargeProfile('backup', 100, this.enchargeSettings.chargeFromGrid);
+                                        await this.setEnchargeProfile('backup', 100, this.encharges[0].settings.chargeFromGrid);
                                         break;
                                 };
                                 break;
@@ -749,6 +750,7 @@ class EnvoyDevice extends EventEmitter {
                 const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
                 const updateEnsembleEnchargeSettings = updateEnsembleInventory ? await this.updateEnsembleEnchargeSettingsData() : false;
                 const updateEnsembleGenerator = updateEnsembleInventory ? await this.updateEnsembleGeneratorData() : false;
+                const updateEnsembleGeneratorSettings = updateEnsembleGenerator ? await this.updateEnsembleGeneratorSettingsData() : false;
             } catch (error) {
                 this.emit('error', `Update ensemble inventoty error: ${error}`);
             };
@@ -879,7 +881,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token.`) : false;
 
             try {
-                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 1 ? false : (Math.floor(new Date().getTime() / 1000) > this.jwtToken.expires_at) : false;
+                const tokenExpired = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 0 ? (Math.floor(new Date().getTime() / 1000) > this.jwtToken.expires_at) : false : false;
                 const refreshToken = tokenExpired ? this.emit('tokenExpired', `JWT token expired, refreshing.`) : false;
                 resolve(tokenExpired);
             } catch (error) {
@@ -1919,7 +1921,8 @@ class EnvoyDevice extends EventEmitter {
                             percentFullSum: 0,
                             ratedPowerSum: 0,
                             energyState: false,
-                            status: {}
+                            status: {},
+                            settings: {}
                         }
                         this.encharges.push(obj);
 
@@ -2154,7 +2157,7 @@ class EnvoyDevice extends EventEmitter {
                         submodules: encharge.submodules
                     };
                     //add status to encharges
-                    this.encharges[index].status.push(status);
+                    this.encharges[index].status = status;
 
                     //push encharge rated power to the array
                     enchargesRatedPowerSummary.push(status.ratedPower);
@@ -2448,7 +2451,11 @@ class EnvoyDevice extends EventEmitter {
                     chargeFromGrid: tariff.charge_from_grid,
                     date: date ?? new Date()
                 }
-                this.enchargeSettings = enchargeSettings;
+
+                //add settings to encharges object
+                for (let i = 0; i < this.enchargesCount; i++) {
+                    this.encharges[i].settings = enchargeSettings;
+                }
 
                 if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
                     for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
@@ -2528,12 +2535,16 @@ class EnvoyDevice extends EventEmitter {
                     adminState: CONSTANTS.ApiCodes[ensembleGenerator.admin_state] ?? 'Unknown',
                     operState: CONSTANTS.ApiCodes[ensembleGenerator.oper_state] ?? 'Unknown',
                     adminMode: ['Off', 'On', 'Auto'][ensembleGenerator.admin_mode] ?? ensembleGenerator.admin_mode.toString(),
+                    adminModeOffBool: ensembleGenerator.admin_mode === 'Off',
+                    adminModeOnBool: ensembleGenerator.admin_mode === 'On',
+                    adminModeAutoBool: ensembleGenerator.admin_mode === 'Auto',
                     schedule: ensembleGenerator.schedule,
                     startSoc: ensembleGenerator.start_soc,
                     stopSoc: ensembleGenerator.stop_soc,
                     excOn: ensembleGenerator.exc_on,
                     present: ensembleGenerator.present,
-                    type: ensembleGenerator.type
+                    type: ensembleGenerator.type,
+                    settings: {}
                 }
                 this.generator = generator;
 
@@ -2553,7 +2564,7 @@ class EnvoyDevice extends EventEmitter {
                 //generator control
                 if (this.generatorStateActiveControlsCount > 0) {
                     for (let i = 0; i < this.generatorStateActiveControlsCount; i++) {
-                        const state = generator.adminMode !== 'Off';
+                        const state = generator.adminModeOnBool || generator.adminModeAutoBool;
                         this.generatorStateActiveControls[i].state = state;
 
                         if (this.generatorStateControlsServices) {
@@ -2617,12 +2628,62 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
+    updateEnsembleGeneratorSettingsData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator. settings`) : false;
+
+            try {
+                const ensembleGeneratorSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.GeneratorSettingsGetSet);
+                const ensembleGeneratorSettings = ensembleGeneratorSettingsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Generator settings: ${JSON.stringify(ensembleGeneratorSettings, null, 2)}`) : false;
+
+                //ensemble generator keys
+                const generatorSettingsKeys = Object.keys(ensembleGeneratorSettings);
+                const generatorSettingsKeysCount = generatorSettingsKeys.length;
+
+                //ensemble generator settings not exist
+                if (generatorSettingsKeysCount === 0) {
+                    resolve(false);
+                    return;
+                }
+
+                const settings = ensembleGeneratorSettings.generator_settings;
+                const generatorSettings = {
+                    maxContGenAmps: settings.max_cont_gen_amps, //float
+                    minGenLoadingPerc: settings.min_gen_loading_perc, //int
+                    maxGenEfficiencyPerc: settings.max_gen_efficiency_perc, //int
+                    namePlateRatingWat: settings.name_plate_rating_wat, //float
+                    startMethod: settings.start_method, //str Auto, Manual
+                    warmUpMins: settings.warm_up_mins, //str
+                    coolDownMins: settings.cool_down_mins, //str
+                    genType: settings.gen_type, //str
+                    model: settings.model, //str
+                    manufacturer: settings.manufacturer, //str
+                    lastUpdatedBy: settings.last_updated_by, //str
+                    generatorId: settings.generator_id, //str
+                    chargeFromGenerator: settings.charge_from_generator //bool
+                }
+                this.generator.settings = generatorSettings;
+                this.generatorsSettingsSupported = generatorSettingsKeysCount > 0;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('generatorsettings', ensembleGeneratorSettings) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator Settings', ensembleGeneratorSettings) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting ensemble generator settings error: ${error}.`);
+            };
+        });
+    };
+
     updateLiveData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data.`) : false;
 
             try {
-                const liveData = await this.axiosInstance(CONSTANTS.ApiUrls.LiveData);
+                const liveData = await this.axiosInstance(CONSTANTS.ApiUrls.LiveDataStatus);
                 const live = liveData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(live, null, 2)}`) : false;
 
@@ -3283,7 +3344,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting power production mode.`) : false;
 
             try {
-                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModeGet.replace("EID", this.envoyDevId);
+                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
                 const options = {
                     method: 'GET',
                     baseURL: this.url,
@@ -3414,7 +3475,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set power production mode.`) : false;
 
             try {
-                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModePut.replace("EID", this.envoyDevId);
+                const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
                 const data = JSON.stringify({
                     length: 1,
                     arr: [state ? 0 : 1]
@@ -3524,7 +3585,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 const genMode = ['off', 'on', 'auto'][mode]
-                const url = this.url + CONSTANTS.ApiUrls.GeneratorModeSet;
+                const url = this.url + CONSTANTS.ApiUrls.GeneratorModeGetSet;
                 const generatorState = await axios.post(url, { 'gen_cmd': genMode }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set generator state: ${JSON.stringify(generatorState.data, null, 2)}`) : false;
 
@@ -3559,8 +3620,9 @@ class EnvoyDevice extends EventEmitter {
         const displayLog5 = this.ensemblesInstalled ? this.emit('devInfo', `Ensemble: Yes`) : false;
         const displayLog6 = this.enpowersInstalled ? this.emit('devInfo', `Enpowers: ${this.enpowersCount}`) : false;
         const displayLog7 = this.enchargesInstalled ? this.emit('devInfo', `Encharges: ${this.enchargesCount}`) : false;
-        const displayLog8 = this.wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: ${this.wirelessConnectionKitConnectionsCount}`) : false;
-        const displayLog9 = this.ensemblesInstalled || this.enpowersInstalled || this.enchargesInstalled || this.wirelessConnectionKitInstalled ? this.emit('devInfo', `--------------------------------`) : false;
+        const displayLog8 = this.generatorsInstalled ? this.emit('devInfo', `Generator: Yes`) : false;
+        const displayLog9 = this.wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: ${this.wirelessConnectionKitConnectionsCount}`) : false;
+        const displayLog10 = this.ensemblesInstalled || this.enpowersInstalled || this.enchargesInstalled || this.wirelessConnectionKitInstalled ? this.emit('devInfo', `--------------------------------`) : false;
     };
 
     //Prepare accessory
@@ -3861,7 +3923,7 @@ class EnvoyDevice extends EventEmitter {
                             });
                         this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyGeneratorState)
                             .onGet(async () => {
-                                const state = this.generator.adminMode !== 'Off';
+                                const state = this.generator.adminModeOnBool || this.generator.adminModeAutoBool;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, generator state: ${state ? 'ON' : 'OFF'}`);
                                 return state;
                             })
@@ -5042,11 +5104,11 @@ class EnvoyDevice extends EventEmitter {
 
                     //encharge profile service
                     if (this.enchargeSettingsSupported) {
-                        const selfConsumptionMode = this.enchargeSettings.selfConsumptionMode;
-                        const savingsMode = this.enchargeSettings.savingsMode;
-                        const fullBackupMode = this.enchargeSettings.fullBackupMode;
-                        const reservedSoc = this.enchargeSettings.reservedSoc;
-                        const chargeFromGrid = this.enchargeSettings.chargeFromGrid;
+                        const selfConsumptionMode = this.encharges[0].settings.selfConsumptionMode;
+                        const savingsMode = this.encharges[0].settings.savingsMode;
+                        const fullBackupMode = this.encharges[0].settings.fullBackupMode;
+                        const reservedSoc = this.encharges[0].settings.reservedSoc;
+                        const chargeFromGrid = this.encharges[0].settings.chargeFromGrid;
 
                         //self consumption
                         if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
