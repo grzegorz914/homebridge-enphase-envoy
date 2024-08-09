@@ -5208,7 +5208,7 @@ class EnvoyDevice extends EventEmitter {
                 if (generatorsInstalled) {
                     const type = this.generator.type;
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Generator ${type} Service`) : false;
-                    this.generatorService = accessory.addService(Service.generatorService, `Generator ${type}`, type);
+                    this.generatorService = accessory.addService(Service.enphaseGerneratorService, `Generator ${type}`, type);
                     this.generatorService.setCharacteristic(Characteristic.ConfiguredName, `Generator ${type}`);
                     this.generatorService.getCharacteristic(Characteristic.enphaseEnsembleGeneratorType)
                         .onGet(async () => {
