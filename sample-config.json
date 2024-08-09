@@ -136,6 +136,21 @@
                             "namePrefix": false
                         }
                     ],
+                    "enpowerProfileSelfConsumptionControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "enpowerProfileSavingsControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "enpowerProfileFullBackupControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "enchargeGridModeSensors": [
                         {
                             "name": "Sensor name",

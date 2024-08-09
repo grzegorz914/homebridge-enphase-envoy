@@ -56,7 +56,6 @@ class EnvoyDevice extends EventEmitter {
 
         this.supportProductionPowerMode = device.supportProductionPowerMode || false;
         this.supportPlcLevel = device.supportPlcLevel || false;
-        this.supportEnchargeProfile = device.supportEnchargeProfile || false;
 
         this.dataRefreshControl = device.dataRefreshControl || {};
         this.dataRefreshSensor = device.dataRefreshSensor || {};
@@ -68,8 +67,13 @@ class EnvoyDevice extends EventEmitter {
         this.enpowerGridStateControl = device.enpowerGridStateControl || {};
         this.enpowerGridStateSensor = device.enpowerGridStateSensor || {};
         this.enpowerGridModeSensors = device.enpowerGridModeSensors || [];
+
+        this.enchargeProfileSelfConsumptionControl = device.enchargeProfileSelfConsumptionControl || {};
+        this.enchargeProfileSavingsControl = device.enchargeProfileSavingsControl || {};
+        this.enchargeProfileFullBackupControl = device.enchargeProfileFullBackupControl || {};
         this.enchargeGridModeSensors = this.envoyFirmware7xx ? device.enchargeGridModeSensors || [] : [];
         this.enchargeBackupLevelSensors = this.envoyFirmware7xx ? device.enchargeBackupLevelSensors || [] : [];
+
         this.solarGridModeSensors = this.envoyFirmware7xx ? device.solarGridModeSensors || [] : [];
 
         this.generatorStateControl = device.generatorStateControl || {};
@@ -376,6 +380,54 @@ class EnvoyDevice extends EventEmitter {
         this.enpowerGridModeActiveSensorsCount = this.enpowerGridModeActiveSensors.length || 0;
 
         //encharge
+        const enchargeProfileSelfConsumptionControlName = this.enchargeProfileSelfConsumptionControl.name || false;
+        const enchargeProfileSelfConsumptionControlDisplayType = this.enchargeProfileSelfConsumptionControl.displayType ?? 0;
+        this.enchargeProfileSelfConsumptionActiveControls = [];
+        if (enchargeProfileSelfConsumptionControlName && enchargeProfileSelfConsumptionControlDisplayType > 0) {
+            const tile = {};
+            tile.name = enchargeProfileSelfConsumptionControlName;
+            tile.namePrefix = this.enchargeProfileSelfConsumptionControl.namePrefix;
+            tile.serviceType = ['', Service.Lightbulb][enchargeProfileSelfConsumptionControlDisplayType];
+            tile.characteristicType = ['', Characteristic.On][enchargeProfileSelfConsumptionControlDisplayType];
+            tile.state = false;
+            this.enchargeProfileSelfConsumptionActiveControls.push(tile);
+        } else {
+            const log = enchargeProfileSelfConsumptionControlDisplayType === 0 ? false : this.emit('message', `Tile Name Missing.`);
+        };
+        this.enchargeProfileSelfConsumptionActiveControlsCount = this.enchargeProfileSelfConsumptionActiveControls.length || 0;
+
+        const enchargeProfileSavingsControlName = this.enchargeProfileSavingsControl.name || false;
+        const enchargeProfileSavingsControlDisplayType = this.enchargeProfileSavingsControl.displayType ?? 0;
+        this.enchargeProfileSavingsActiveControls = [];
+        if (enchargeProfileSavingsControlName && enchargeProfileSavingsControlDisplayType > 0) {
+            const tile = {};
+            tile.name = enchargeProfileSavingsControlName;
+            tile.namePrefix = this.enchargeProfileSavingsControl.namePrefix;
+            tile.serviceType = ['', Service.Lightbulb][enchargeProfileSavingsControlDisplayType];
+            tile.characteristicType = ['', Characteristic.On][enchargeProfileSavingsControlDisplayType];
+            tile.state = false;
+            this.enchargeProfileSavingsActiveControls.push(tile);
+        } else {
+            const log = enchargeProfileSavingsControlDisplayType === 0 ? false : this.emit('message', `Tile Name Missing.`);
+        };
+        this.enchargeProfileSavingsActiveControlsCount = this.enchargeProfileSavingsActiveControls.length || 0;
+
+        const enchargeProfileFullBackupControlName = this.enchargeProfileFullBackupControl.name || false;
+        const enchargeProfileFullBackupControlDisplayType = this.enchargeProfileFullBackupControl.displayType ?? 0;
+        this.enchargeProfileFullBackupActiveControls = [];
+        if (enchargeProfileFullBackupControlName && enchargeProfileFullBackupControlDisplayType > 0) {
+            const tile = {};
+            tile.name = enchargeProfileFullBackupControlName;
+            tile.namePrefix = this.enchargeProfileFullBackupControl.namePrefix;
+            tile.serviceType = ['', Service.Switch, Service.Outlet][enchargeProfileFullBackupControlDisplayType];
+            tile.characteristicType = ['', Characteristic.On, Characteristic.On][enchargeProfileFullBackupControlDisplayType];
+            tile.state = false;
+            this.enchargeProfileFullBackupActiveControls.push(tile);
+        } else {
+            const log = enchargeProfileFullBackupControlDisplayType === 0 ? false : this.emit('message', `Tile Name Missing.`);
+        };
+        this.enchargeProfileFullBackupActiveControlsCount = this.enchargeProfileFullBackupActiveControls.length || 0;
+
         this.enchargeGridModeActiveSensors = [];
         for (const sensor of this.enchargeGridModeSensors) {
             const name = sensor.name ?? false;
@@ -2389,8 +2441,8 @@ class EnvoyDevice extends EventEmitter {
                 const enchargeSettings = {
                     mode: tariff.mode,
                     selfConsumptionMode: tariff.mode === 'self-consumption',
-                    backupMode: tariff.mode === 'backup',
-                    savingMode: (tariff.mode === 'savings-mode' || tariff.mode === 'economy'),
+                    fullBackupMode: tariff.mode === 'backup',
+                    savingsMode: (tariff.mode === 'savings-mode' || tariff.mode === 'economy'),
                     operationModeSubType: tariff.operation_mode_sub_type,
                     reservedSoc: tariff.reserved_soc,
                     veryLowSoc: tariff.very_low_soc,
@@ -2399,21 +2451,45 @@ class EnvoyDevice extends EventEmitter {
                 }
                 this.enchargeSettings = enchargeSettings;
 
-                if (this.enchargeProfileSelfConsumptionService) {
-                    this.enchargeProfileSelfConsumptionService
-                        .updateCharacteristic(Characteristic.Characteristic.On, enchargeSettings.selfConsumptionMode)
-                        .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
+                if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
+                        const state = enchargeSettings.selfConsumptionMode;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileSelfConsumptionActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileSelfConsumptionActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                                .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
+                        }
+                    }
                 }
 
-                if (this.enchargeProfileSavingsService) {
-                    this.enchargeProfileSavingsService
-                        .updateCharacteristic(Characteristic.Characteristic.On, enchargeSettings.savingMode)
-                        .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
+                if (this.enchargeProfileSavingsActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileSavingsActiveControlsCount; i++) {
+                        const state = enchargeSettings.savingsMode;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileSavingsActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileSavingsActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                                .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
+                        }
+                    }
                 }
 
-                if (this.enchargeProfileFullBackupService) {
-                    this.enchargeProfileFullBackupService
-                        .updateCharacteristic(Characteristic.Characteristic.On, enchargeSettings.backupMode)
+                if (this.enchargeProfileFullBackupActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileFullBackupActiveControlsCount; i++) {
+                        const state = enchargeSettings.fullBackupMode;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileFullBackupActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileFullBackupActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
                 }
 
                 this.enchargeSettingsSupported = enchargeSettingsKeysCount > 0;
@@ -4958,107 +5034,136 @@ class EnvoyDevice extends EventEmitter {
                     };
 
                     //encharge profile service
-                    if (this.supportEnchargeProfile && this.enchargeSettingsSupported) {
+                    if (this.enchargeSettingsSupported) {
                         const selfConsumptionMode = this.enchargeSettings.selfConsumptionMode;
                         const savingsMode = this.enchargeSettings.savingsMode;
-                        const backupMode = this.enchargeSettings.backupMode;
+                        const fullBackupMode = this.enchargeSettings.fullBackupMode;
                         const reservedSoc = this.enchargeSettings.reservedSoc;
                         const chargeFromGrid = this.enchargeSettings.chargeFromGrid;
-                        //self consumption
-                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile Self Consumption Service`) : false;
-                        this.enchargeProfileSelfConsumptionService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileSelfConsumptionService`);
-                        this.enchargeProfileSelfConsumptionService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        this.enchargeProfileSelfConsumptionService.setCharacteristic(Characteristic.ConfiguredName, 'Self Consumption');
-                        this.enchargeProfileSelfConsumptionService.getCharacteristic(Characteristic.On)
-                            .onGet(async () => {
-                                const state = selfConsumptionMode;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile self consumption: ${state ? 'Active' : 'Not Active'}`);
-                                return state;
-                            })
-                            .onSet(async (state) => {
-                                try {
-                                    const setProfile = state ? await this.setEnchargeProfile('self-consumption', reservedSoc, chargeFromGrid) : false;
-                                    const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Self Consumption`) : false;
-                                } catch (error) {
-                                    this.emit('error', `Encharge set profile self consumption error: ${error}`);
-                                };
-                            })
-                        enchargeProfileSelfConsumptionService.getCharacteristic(Characteristic.Brightness)
-                            .onGet(async () => {
-                                const value = reservedSoc;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile self consumption reserve: ${value} %`);
-                                return value;
-                            })
-                            .onSet(async (value) => {
-                                if (value === 0 || value === 100) {
-                                    return;
-                                }
 
-                                try {
-                                    const setProfileReserve = await this.setEnchargeProfile('self-consumption', value, chargeFromGrid);
-                                    const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile self consumption reserve: ${value} %`) : false;
-                                } catch (error) {
-                                    this.emit('error', `Encharge set profile self consumption reserve error: ${error}`);
-                                };
-                            })
+                        //self consumption
+                        if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
+                            this.enchargeProfileSelfConsumptionControlServices = [];
+                            for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
+                                const sensorName = this.enchargeProfileSelfConsumptionActiveControls[i].namePrefix ? `${accessoryName} ${this.enchargeProfileSelfConsumptionActiveControls[i].name}` : this.enchargeProfileSelfConsumptionActiveControls[i].name;
+                                const serviceType = this.enchargeProfileSelfConsumptionActiveControls[i].serviceType;
+                                const characteristicType = this.enchargeProfileSelfConsumptionActiveControls[i].characteristicType;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile ${sensorName} Service`) : false;
+                                const enchargeProfileSelfConsumptionControlService = accessory.addService(serviceType, sensorName, `enchargeProfileSelfConsumptionControlService${i}`);
+                                enchargeProfileSelfConsumptionControlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                enchargeProfileSelfConsumptionControlService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                                enchargeProfileSelfConsumptionControlService.getCharacteristic(characteristicType)
+                                    .onGet(async () => {
+                                        const state = selfConsumptionMode;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile self consumption: ${state ? 'Active' : 'Not Active'}`);
+                                        return state;
+                                    })
+                                    .onSet(async (state) => {
+                                        try {
+                                            const setProfile = state ? await this.setEnchargeProfile('self-consumption', reservedSoc, chargeFromGrid) : false;
+                                            const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Self Consumption`) : false;
+                                        } catch (error) {
+                                            this.emit('error', `Encharge set profile self consumption error: ${error}`);
+                                        };
+                                    })
+                                enchargeProfileSelfConsumptionControlService.getCharacteristic(Characteristic.Brightness)
+                                    .onGet(async () => {
+                                        const value = reservedSoc;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile self consumption reserve: ${value} %`);
+                                        return value;
+                                    })
+                                    .onSet(async (value) => {
+                                        if (value === 0 || value === 100) {
+                                            return;
+                                        }
+
+                                        try {
+                                            const setProfileReserve = await this.setEnchargeProfile('self-consumption', value, chargeFromGrid);
+                                            const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile self consumption reserve: ${value} %`) : false;
+                                        } catch (error) {
+                                            this.emit('error', `Encharge set profile self consumption reserve error: ${error}`);
+                                        };
+                                    });
+                                this.enchargeProfileSelfConsumptionControlServices.push(enchargeProfileSelfConsumptionControlService);
+                            };
+                        };
 
                         //savings
-                        const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile Savings Service`) : false;
-                        this.enchargeProfileSavingsService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileSavingsService`);
-                        this.enchargeProfileSavingsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        this.enchargeProfileSavingsService.setCharacteristic(Characteristic.ConfiguredName, 'Savings');
-                        this.enchargeProfileSavingsService.getCharacteristic(Characteristic.On)
-                            .onGet(async () => {
-                                const state = savingsMode;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile savings: ${state ? 'Active' : 'Not Active'}`);
-                                return state;
-                            })
-                            .onSet(async (state) => {
-                                try {
-                                    const setProfile = state ? await this.setEnchargeProfile('savings-mode', reservedSoc, chargeFromGrid) : false;
-                                    const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Savings`) : false;
-                                } catch (error) {
-                                    this.emit('error', `Encharge set profile savings error: ${error}`);
-                                };
-                            })
-                        enchargeProfileSavingsService.getCharacteristic(Characteristic.Brightness)
-                            .onGet(async () => {
-                                const value = reservedSoc;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile savings reserve: ${value} %`);
-                                return value;
-                            })
-                            .onSet(async (value) => {
-                                if (value === 0 || value === 100) {
-                                    return;
-                                }
+                        if (this.enchargeProfileSavingsActiveControlsCount > 0) {
+                            this.enchargeProfileSavingsControlServices = [];
+                            for (let i = 0; i < this.enchargeProfileSavingsActiveControlsCount; i++) {
+                                const sensorName = this.enchargeProfileSavingsActiveControls[i].namePrefix ? `${accessoryName} ${this.enchargeProfileSavingsActiveControls[i].name}` : this.enchargeProfileSavingsActiveControls[i].name;
+                                const serviceType = this.enchargeProfileSavingsActiveControls[i].serviceType;
+                                const characteristicType = this.enchargeProfileSavingsActiveControls[i].characteristicType;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile ${sensorName} Service`) : false;
+                                const enchargeProfileSavingsControlService = accessory.addService(serviceType, sensorName, `enchargeProfileSavingsControlService${i}`);
+                                enchargeProfileSavingsControlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                enchargeProfileSavingsControlService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                                enchargeProfileSavingsControlService.getCharacteristic(characteristicType)
+                                    .onGet(async () => {
+                                        const state = savingsMode;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile savings: ${state ? 'Active' : 'Not Active'}`);
+                                        return state;
+                                    })
+                                    .onSet(async (state) => {
+                                        try {
+                                            const setProfile = state ? await this.setEnchargeProfile('savings-mode', reservedSoc, chargeFromGrid) : false;
+                                            const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Savings`) : false;
+                                        } catch (error) {
+                                            this.emit('error', `Encharge set profile savings error: ${error}`);
+                                        };
+                                    })
+                                enchargeProfileSavingsControlService.getCharacteristic(Characteristic.Brightness)
+                                    .onGet(async () => {
+                                        const value = reservedSoc;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile savings reserve: ${value} %`);
+                                        return value;
+                                    })
+                                    .onSet(async (value) => {
+                                        if (value === 0 || value === 100) {
+                                            return;
+                                        }
 
-                                try {
-                                    const setProfileReserve = await this.setEnchargeProfile('savings-mode', value, chargeFromGrid);
-                                    const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile savings reserve: ${value} %`) : false;
-                                } catch (error) {
-                                    this.emit('error', `Encharge set profile savings reserve error: ${error}`);
-                                };
-                            })
+                                        try {
+                                            const setProfileReserve = await this.setEnchargeProfile('savings-mode', value, chargeFromGrid);
+                                            const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile savings reserve: ${value} %`) : false;
+                                        } catch (error) {
+                                            this.emit('error', `Encharge set profile savings reserve error: ${error}`);
+                                        };
+                                    })
+                                this.enchargeProfileSavingsControlServices.push(enchargeProfileSavingsControlService);
+                            };
+                        };
+
 
                         //full backup
-                        const debug3 = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile Full Backup Service`) : false;
-                        this.enchargeProfileFullBackupService = accessory.addService(Service.Lightbulb, accessoryName, `enchargeProfileFullBackupService`);
-                        this.enchargeProfileFullBackupService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        this.enchargeProfileFullBackupService.setCharacteristic(Characteristic.ConfiguredName, 'Full Backup');
-                        this.enchargeProfileFullBackupService.getCharacteristic(Characteristic.On)
-                            .onGet(async () => {
-                                const state = backupMode;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile full backup: ${state ? 'Active' : 'Not Active'}`);
-                                return state;
-                            })
-                            .onSet(async (state) => {
-                                try {
-                                    const setProfile = state ? await this.setEnchargeProfile('backup', 100, chargeFromGrid) : false;
-                                    const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Full Backup`) : false;
-                                } catch (error) {
-                                    this.emit('error', `Encharge set profile full backup error: ${error}`);
-                                };
-                            })
+                        if (this.enchargeProfileFullBackupActiveControlsCount > 0) {
+                            this.enchargeProfileFullBackupControlServices = [];
+                            for (let i = 0; i < this.enchargeProfileFullBackupActiveControlsCount; i++) {
+                                const sensorName = this.enchargeProfileFullBackupActiveControls[i].namePrefix ? `${accessoryName} ${this.enchargeProfileFullBackupActiveControls[i].name}` : this.enchargeProfileFullBackupActiveControls[i].name;
+                                const serviceType = this.enchargeProfileFullBackupActiveControls[i].serviceType;
+                                const characteristicType = this.enchargeProfileFullBackupActiveControls[i].characteristicType;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare Encharge Profile ${sensorName} Service`) : false;
+                                const enchargeProfileFullBackupControlService = accessory.addService(serviceType, sensorName, `enchargeProfileFullBackupControlService${i}`);
+                                enchargeProfileFullBackupControlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                enchargeProfileFullBackupControlService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                                enchargeProfileFullBackupControlService.getCharacteristic(characteristicType)
+                                    .onGet(async () => {
+                                        const state = fullBackupMode;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Encharge profile full backup: ${state ? 'Active' : 'Not Active'}`);
+                                        return state;
+                                    })
+                                    .onSet(async (state) => {
+                                        try {
+                                            const setProfile = state ? await this.setEnchargeProfile('backup', 100, chargeFromGrid) : false;
+                                            const debug = this.enableDebugMode ? this.emit('debug', `Encharge set profile: Full Backup`) : false;
+                                        } catch (error) {
+                                            this.emit('error', `Encharge set profile full backup error: ${error}`);
+                                        };
+                                    })
+                                this.enchargeProfileFullBackupControlServices.push(enchargeProfileFullBackupControlService);
+                            };
+                        };
                     };
                 }
 

@@ -162,6 +162,18 @@
 | `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| `enchargeProfileSelfConsumptionControl` | This is `Encharge Self Consumption Tile` for `Profile` control from HomeKit. |
+| `name` | Here set Your own tile name. |
+| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Lightbulb`. |
+| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
+| `enchargeProfileSavingsControl` | This is `Encharge Savings Tile` for `Profile` control from HomeKit. |
+| `name` | Here set Your own tile name. |
+| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Lightbulb`. |
+| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
+| `enchargeProfileFullBackupControl` | This is `Full Backup Tile` for `Profile` control from HomeKit. |
+| `name` | Here set Your own tile name. |
+| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`. |
+| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
 | `enchargeGridModeSensors` | That are `Encharge Grid Mode Sensors` for `Encharge Grid Mod` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`. |
@@ -201,7 +213,7 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` 3rd apps, Fw. 7.x.x and newer require installer credentials data. |
 | `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
-| `supportEnchargeProfile` | This is support to check/control encharge profile. |
+
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (sec). |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
