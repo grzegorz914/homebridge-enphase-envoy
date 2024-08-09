@@ -53,6 +53,7 @@
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Enpower `Grid State`.
     * Encharge: `Backup Level`
+    * Generator `State`, `Mode`.
     * Grid Mode:
       * Enpower `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`.
       * Encharge `Multimode Grid On`, `Multimode Grid Off`.
@@ -67,6 +68,7 @@
       * Self Consumption `Activate`, `Set Reserve`.
       * Savings `Activate`, `Set Reserve`.
       * Full Backup `Activate`.
+    * Generator `State`.
 
 ### Configuration
 
@@ -93,97 +95,110 @@
 | `powerProductionStateSensor` | This is `Power State Sensor` for production monitoring. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `powerProductionLevelSensors` | This is `Power Level Sensor` for production monitoring. |
 | `name` | Here set Your own sensor name. |
 | `powerLevel` | Here set power level in `W` at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyProductionStateSensor` | This is `Energy State Sensor` for production monitoring. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyProductionLevelSensors` | This is `Energy Level Sensor` for production monitoring. |
 | `name` | Here set Your own sensor name. |
 | `energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded `+/-`. |
 | `powerConsumptionTotalStateSensor` | This is `Power State Sensor` for consumption `Total` monitoring. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `powerConsumptionTotalLevelSensors` | This is `Power Level Sensor` for consumption `Total` monitoring. |
 | `name` | Here set Your own sensor name. |
 | `powerLevel` | Here set power level in `W` at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionTotalStateSensor` | This is `Energy State Sensor` for consumption `Total` monitoring. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionTotalLevelSensors` | This is `Energy Level Sensor` for consumption `Total` monitoring. |
 | `name` | Here set Your own sensor name. |
 | `energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Total` if nedded `+/-`. |
 | `powerConsumptionNetStateSensor` | This is `Power State Sensor` for consumption `Net` monitoring. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `powerConsumptionNetLevelSensors` | This is `Power Level Sensor` for consumption `Net` monitoring. |
 | `name` | Here set Your own sensor name. |
 | `powerLevel` | Here set power level in `W` at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionNetStateSensor` | This is `Energy State Sensor` for consumption `Net` monitoring. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionNetLevelSensors` | This is `Energy Level Sensor` for consumption `Net` monitoring. |
 | `name` | Here set Your own sensor name. |
 | `energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Net` if nedded `+/-`. |
 | `enepowerGridStateControl` | This is `Enpower Grid State Tile` for `Grid ON/OFF` control from HomeKit. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the tile name. |
+| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
 | `enepowerGridStateSensor` | This is `Enpower Grid State Sensor` for `Grid` monitoring, if `Grid ON`, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enepowerGridModeSensors` | That are `Enpower Grid Mode Sensors` for `Enpower Grid Mode` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enchargeGridModeSensors` | That are `Encharge Grid Mode Sensors` for `Encharge Grid Mod` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enchargeBackupLevelSensors` | That are `Encharge Backup Level Sensors` for `Encharge Backup Level` monitoring, if the `Level` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
 | `backupLevel` | Here set backup level in `%` to compare at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `solarGridModeSensors` | That are `Solar Grid Mode Sensors` for `Solar Grid Mode` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| `generatorStateControl` | This is `Generator State Tile` for `Generator ON/OFF` control from HomeKit. |
+| `name` | Here set Your own tile name. |
+| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
+| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
+| `generatorStateSensor` | This is `Generator State Sensor` for `State` monitoring, if `State not Off`, the contact fired. |
+| `name` | Here set Your own sensor name. |
+| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| `generatorModeSensors` | That are `Generator Mode Sensors` for `Generator Mode` monitoring, if the `Mode` matches, the contact fired. |
+| `name` | Here set Your own sensor name. |
+| `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
+| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `dataRefreshControl` | This is `Data Refresh Tile` for `Data Refresh` control from HomeKit. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the tile name. |
+| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
 | `dataRefreshSensor` | This is `Data Refresh Sensor` for `Data Refresh` monitoring, if working, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable/disable the accessory name as a prefix for the sensor name. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` 3rd apps, Fw. 7.x.x and newer require installer credentials data. |
 | `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
 | `supportEnchargeProfile` | This is support to check/control encharge profile, not working yet. |

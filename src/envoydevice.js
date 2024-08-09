@@ -72,6 +72,10 @@ class EnvoyDevice extends EventEmitter {
         this.enchargeBackupLevelSensors = this.envoyFirmware7xx ? device.enchargeBackupLevelSensors || [] : [];
         this.solarGridModeSensors = this.envoyFirmware7xx ? device.solarGridModeSensors || [] : [];
 
+        this.generatorStateControl = device.generatorStateControl || {};
+        this.generatorStateSensor = device.generatorStateSensor || {};
+        this.generatorModeSensors = device.generatorModeSensors || [];
+
         this.enableDebugMode = device.enableDebugMode || false;
         this.disableLogInfo = device.disableLogInfo || false;
         this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
@@ -371,6 +375,7 @@ class EnvoyDevice extends EventEmitter {
         }
         this.enpowerGridModeActiveSensorsCount = this.enpowerGridModeActiveSensors.length || 0;
 
+        //encharge
         this.enchargeGridModeActiveSensors = [];
         for (const sensor of this.enchargeGridModeSensors) {
             const name = sensor.name ?? false;
@@ -407,6 +412,7 @@ class EnvoyDevice extends EventEmitter {
         }
         this.enchargeBackupLevelActiveSensorsCount = this.enchargeBackupLevelActiveSensors.length || 0;
 
+        //solar
         this.solarGridModeActiveSensors = [];
         for (const sensor of this.solarGridModeSensors) {
             const name = sensor.name ?? false;
@@ -422,6 +428,55 @@ class EnvoyDevice extends EventEmitter {
             this.solarGridModeActiveSensors.push(sensor);
         }
         this.solarGridModeActiveSensorsCount = this.solarGridModeActiveSensors.length || 0;
+
+        //generator
+        const generatorStateControlName = this.generatorStateControl.name || false;
+        const generatorStateControlDisplaqyType = this.generatorStateControl.displayType ?? 0;
+        this.generatorStateActiveControls = [];
+        if (generatorStateControlName && generatorStateControlDisplaqyType > 0) {
+            const tile = {};
+            tile.name = generatorStateControlName;
+            tile.namePrefix = this.generatorStateControl.namePrefix;
+            tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][generatorStateControlDisplaqyType];
+            tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][generatorStateControlDisplaqyType];
+            tile.state = false;
+            this.generatorStateActiveControls.push(tile);
+        } else {
+            const log = generatorStateControlDisplaqyType === 0 ? false : this.emit('message', `Tile Name Missing.`);
+        };
+        this.generatorStateActiveControlsCount = this.generatorStateActiveControls.length || 0;
+
+        const generatorStateSensorName = this.generatorStateSensor.name || false;
+        const generatorStateSensorDisplayType = this.generatorStateSensor.displayType ?? 0;
+        this.generatorStateActiveSensors = [];
+        if (generatorStateSensorName && generatorStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = dataRefreshControlName;
+            sensor.namePrefix = this.generatorStateSensor.namePrefix;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][generatorStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][generatorStateSensorDisplayType];
+            sensor.state = false;
+            this.generatorStateActiveSensors.push(sensor);
+        } else {
+            const log = generatorStateSensorDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.generatorStateActiveSensorsCount = this.generatorStateActiveSensors.length || 0;
+
+        this.generatorModeActiveSensors = [];
+        for (const sensor of this.generatorModeSensors) {
+            const name = sensor.name ?? false;
+            const displayType = sensor.displayType ?? 0;
+            if (!name || displayType === 0) {
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+                continue;
+            }
+
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.state = false;
+            this.generatorModeActiveSensors.push(sensor);
+        }
+        this.generatorModeActiveSensorsCount = this.generatorModeActiveSensors.length || 0;
 
         //setup variables
         this.envoyIdFile = envoyIdFile;
@@ -1916,7 +1971,7 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnpowerGridProfile, this.arfProfile.name)
                         }
 
-                        //enpower grid state sensor
+                        //enpower grid control
                         if (this.enpowerGridStateActiveControlsCount > 0) {
                             for (let i = 0; i < this.enpowerGridStateActiveControlsCount; i++) {
                                 const state = obj.mainsAdminStateBool;
@@ -2353,6 +2408,60 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorPresent, generator.present)
                         .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorType, generator.type);
                 }
+
+                //generator control
+                if (this.generatorStateActiveControlsCount > 0) {
+                    for (let i = 0; i < this.generatorStateActiveControlsCount; i++) {
+                        const state = generator.adminMode !== 'Off';
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.generatorStateControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.generatorStateControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+
+                        if (this.envoyService) {
+                            this.envoyService
+                                .updateCharacteristic(Characteristic.enphaseEnvoyGeneratorState, state)
+                        }
+                    }
+                }
+
+                //generator state sensor
+                if (this.generatorStateActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.generatorStateActiveSensorsCount; i++) {
+                        const state = generator.adminMode !== 'Off';
+                        this.generatorStateActiveSensors[i].state = state;
+
+                        if (this.generatorStateSensorsServices) {
+                            const characteristicType = this.generatorStateActiveSensors[i].characteristicType;
+                            this.generatorStateSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+
+                //generator mode sensors
+                if (this.generatorModeActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.generatorModeActiveSensorsCount; i++) {
+                        const mode = this.generatorModeActiveSensors[i].mode;
+                        const state = mode === generator.adminMode;
+                        this.generatorModeActiveSensors[i].state = state;
+
+                        if (this.generatorModeSensorsServices) {
+                            const characteristicType = this.generatorModeActiveSensors[i].characteristicType;
+                            this.generatorModeSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+
+                    if (this.envoyService) {
+                        this.envoyService
+                            .updateCharacteristic(Characteristic.enphaseEnvoyGeneratorMode, generator.adminMode)
+                    }
+                }
+
                 this.generatorsInstalled = generatorKeysCount > 0;
 
                 //restFul
@@ -3525,6 +3634,28 @@ class EnvoyDevice extends EventEmitter {
                                     const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set enpower grid state to: ${state ? `Grid ON` : `Grid OFF`}`);
                                 } catch (error) {
                                     this.emit('error', `Set enpower grid state error: ${error}`);
+                                };
+                            })
+                    }
+                    if (generatorsInstalled) {
+                        this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyGeneratorMode)
+                            .onGet(async () => {
+                                const value = this.generator.adminMode;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, generator mode: ${value}`);
+                                return value;
+                            });
+                        this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyGeneratorState)
+                            .onGet(async () => {
+                                const state = this.generator.adminMode !== 'Off';
+                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, generator state: ${state ? 'ON' : 'OFF'}`);
+                                return state;
+                            })
+                            .onSet(async (state) => {
+                                try {
+                                    const data = await this.setGeneratorState(state);
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set generator state to: ${state ? `ON` : `OFF`}`);
+                                } catch (error) {
+                                    this.emit('error', `Set generator state error: ${error}`);
                                 };
                             })
                     }
@@ -5300,6 +5431,77 @@ class EnvoyDevice extends EventEmitter {
                             });
                         this.wirelessConnektionsKitServices.push(enphaseWirelessConnectionKitService);
                     }
+
+                    //generator control service
+                    if (this.generatorStateActiveControlsCount > 0) {
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Generator Control Service`) : false;
+                        this.generatorStateControlsServices = [];
+                        for (let i = 0; i < this.generatorStateActiveControlsCount; i++) {
+                            const controlName = this.generatorStateActiveControls[i].namePrefix ? `${accessoryName} ${this.generatorStateActiveControls[i].name}` : this.generatorStateActiveControls[i].name;
+                            const serviceType = this.generatorStateActiveControls[i].serviceType;
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            const generatorStateContolService = accessory.addService(serviceType, controlName, `generatorStateContolService${i}`);
+                            generatorStateContolService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            generatorStateContolService.setCharacteristic(Characteristic.ConfiguredName, controlName);
+                            generatorStateContolService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.generatorStateActiveControls[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Generator state: ${state ? 'ON' : 'OFF'}`);
+                                    return state;
+                                })
+                                .onSet(async (state) => {
+                                    try {
+                                        const data = await this.setgeneratorState(state);
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Set generator state to: ${state ? `ON` : `OFF`}`);
+                                    } catch (error) {
+                                        this.emit('error', `Set generator state error: ${error}`);
+                                    };
+                                })
+                            this.generatorStateControlsServices.push(generatorStateContolService);
+                        };
+                    };
+
+                    //generator state sensor services
+                    if (this.generatorStateActiveSensorsCount > 0) {
+                        this.generatorStateSensorsServices = [];
+                        for (let i = 0; i < this.generatorStateActiveSensorsCount; i++) {
+                            const sensorName = this.generatorStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.generatorStateActiveSensors[i].name}` : this.generatorStateActiveSensors[i].name;
+                            const serviceType = this.generatorStateActiveSensors[i].serviceType;
+                            const characteristicType = this.generatorStateActiveSensors[i].characteristicType;
+                            const debug = this.enableDebugMode ? this.emit('debug', `Prepare Generator State Sensor ${sensorName} Service`) : false;
+                            const generatorStateSensorsService = accessory.addService(serviceType, sensorName, `generatorStateSensorsService${i}`);
+                            generatorStateSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            generatorStateSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                            generatorStateSensorsService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.generatorStateActiveSensors[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Generator state sensor: ${sensorName} state: ${state ? 'Grid ON' : 'Grid Off'}`);
+                                    return state;
+                                });
+                            this.generatorStateSensorsServices.push(generatorStateSensorsService);
+                        };
+                    };
+
+                    //generator mode sensor services
+                    if (this.generatorModeActiveSensorsCount > 0) {
+                        this.generatorModeSensorsServices = [];
+                        for (let i = 0; i < this.generatorModeActiveSensorsCount; i++) {
+                            const sensorName = this.generatorModeActiveSensors[i].namePrefix ? `${accessoryName} ${this.generatorModeActiveSensors[i].name}` : this.generatorModeActiveSensors[i].name;
+                            const serviceType = this.generatorModeActiveSensors[i].serviceType;
+                            const characteristicType = this.generatorModeActiveSensors[i].characteristicType;
+                            const debug = this.enableDebugMode ? this.emit('debug', `Prepare Generator Mode Sensor ${sensorName} Service`) : false;
+                            const generatorModeSensorsService = accessory.addService(serviceType, sensorName, `generatorModeSensorsService${i}`);
+                            generatorModeSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            generatorModeSensorsService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
+                            generatorModeSensorsService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.generatorModeActiveSensors[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Generator mode sensor: ${sensorName} state: ${state ? 'Active' : 'Not active'}`);
+                                    return state;
+                                });
+                            this.generatorModeSensorsServices.push(generatorModeSensorsService);
+                        };
+                    };
                 }
 
                 resolve(accessory);

@@ -349,7 +349,7 @@ module.exports = (api) => {
 
   class enphaseEnvoyEnpowerGridState extends Characteristic {
     constructor() {
-      super('Grid state', '00000027-000B-1000-8000-0026BB765291');
+      super('Enpower grid state', '00000027-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Formats.BOOL,
         perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
@@ -371,6 +371,29 @@ module.exports = (api) => {
   }
   Characteristic.enphaseEnvoyEnpowerGridMode = enphaseEnvoyEnpowerGridMode;
 
+  class enphaseEnvoyGeneratorState extends Characteristic {
+    constructor() {
+      super('Generator state', '00000301-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.BOOL,
+        perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyGeneratorState = enphaseEnvoyGeneratorState;
+
+  class enphaseEnvoyGeneratorMode extends Characteristic {
+    constructor() {
+      super('Generator mode', '00000302-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnvoyGeneratorMode = enphaseEnvoyGeneratorMode;
 
 
   class enphaseEnvoyCheckCommLevel extends Characteristic {
@@ -434,6 +457,8 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridState);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyEnpowerGridMode);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyGeneratorState);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnvoyGeneratorMode);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode);
       this.addOptionalCharacteristic(Characteristic.enphaseEnvoyDataRefresh);

@@ -163,7 +163,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -226,7 +226,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -281,7 +281,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -344,7 +344,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -405,7 +405,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -468,7 +468,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -529,7 +529,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -592,7 +592,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -647,7 +647,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -709,7 +709,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -770,7 +770,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -833,7 +833,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -909,7 +909,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the tile name.",
+                  "description": "This enable the accessory name as a prefix for the tile name.",
                   "required": false
                 }
               }
@@ -962,7 +962,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -1044,7 +1044,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -1121,7 +1121,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -1228,7 +1228,7 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -1332,13 +1332,203 @@
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
               },
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
+              },
+              "required": false
+            },
+            "generatorStateControl": {
+              "title": "State Control",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Tile name",
+                  "description": "Here set Your own tile name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Switch",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Outlet",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Lightbulb",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable the accessory name as a prefix for the tile name.",
+                  "required": false
+                }
+              }
+            },
+            "generatorStateSensor": {
+              "title": "State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "required": false
+                }
+              },
+              "required": false
+            },
+            "generatorModeSensors": {
+              "title": "Mode Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Mode",
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "title": "Off",
+                        "enum": [
+                          "Off"
+                        ]
+                      },
+                      {
+                        "title": "On",
+                        "enum": [
+                          "On"
+                        ]
+                      },
+                      {
+                        "title": "Auto",
+                        "enum": [
+                          "Auto"
+                        ]
+                      }
+                    ],
+                    "description": "Here select the mode.",
+                    "required": true
+                  },
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "required": false
+                  }
+                }
               },
               "required": false
             },
@@ -1390,7 +1580,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the tile name.",
+                  "description": "This enable the accessory name as a prefix for the tile name.",
                   "required": false
                 }
               }
@@ -1443,7 +1633,7 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable/disable the accessory name as a prefix for the sensor name.",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
               },
@@ -2117,6 +2307,59 @@
                                     "devices[].solarGridModeSensors[].gridMode",
                                     "devices[].solarGridModeSensors[].displayType",
                                     "devices[].solarGridModeSensors[].namePrefix"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "title": "Generator",
+                          "items": [
+                            {
+                              "key": "devices[].generatorStateControl",
+                              "type": "section",
+                              "title": "State Control",
+                              "description": "In this section You can enable extra tile for grid state control.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].generatorStateControl.name",
+                                "devices[].generatorStateControl.displayType",
+                                "devices[].generatorStateControl.namePrefix"
+                              ]
+                            },
+                            {
+                              "key": "devices[].generatorStateSensor",
+                              "type": "section",
+                              "title": "State Sensor",
+                              "description": "In this section You can enable sensor for grid state monitoring.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].generatorStateSensor.name",
+                                "devices[].generatorStateSensor.displayType",
+                                "devices[].generatorStateSensor.namePrefix"
+                              ]
+                            },
+                            {
+                              "key": "devices[]",
+                              "type": "section",
+                              "title": "Mode Sensors",
+                              "description": "In this section You can create sensors for grid mode monitoring.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                {
+                                  "key": "devices[].generatorModeSensors",
+                                  "type": "tabarray",
+                                  "title": "{{ value.name || 'sensor' }}",
+                                  "items": [
+                                    "devices[].generatorModeSensors[].name",
+                                    "devices[].generatorModeSensors[].mode",
+                                    "devices[].generatorModeSensors[].displayType",
+                                    "devices[].generatorModeSensors[].namePrefix"
                                   ]
                                 }
                               ]
