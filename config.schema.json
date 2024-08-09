@@ -2321,7 +2321,7 @@
                               "key": "devices[].generatorStateControl",
                               "type": "section",
                               "title": "State Control",
-                              "description": "In this section You can enable extra tile for grid state control.",
+                              "description": "In this section You can enable extra tile for state control.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2334,7 +2334,7 @@
                               "key": "devices[].generatorStateSensor",
                               "type": "section",
                               "title": "State Sensor",
-                              "description": "In this section You can enable sensor for grid state monitoring.",
+                              "description": "In this section You can enable sensor state monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2347,7 +2347,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Mode Sensors",
-                              "description": "In this section You can create sensors for grid mode monitoring.",
+                              "description": "In this section You can create sensors mode monitoring.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
