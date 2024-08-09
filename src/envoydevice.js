@@ -533,6 +533,7 @@ class EnvoyDevice extends EventEmitter {
         this.enchargesSupported = false;
         this.enchargesInstalled = false;
         this.enchargesCount = 0;
+        this.enchargeSettingsSupported = false;
 
         //enpowers
         this.enpowersSupported = false;
@@ -2415,7 +2416,7 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.Characteristic.On, enchargeSettings.backupMode)
                 }
 
-                this.enchargeSettingsInstalled = enchargeSettingsKeysCount > 0;
+                this.enchargeSettingsSupported = enchargeSettingsKeysCount > 0;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('enchargesettings', ensembleGenerator) : false;
@@ -4957,7 +4958,7 @@ class EnvoyDevice extends EventEmitter {
                     };
 
                     //encharge profile service
-                    if (this.supportEnchargeProfile && this.enchargeSettingsInstalled) {
+                    if (this.supportEnchargeProfile && this.enchargeSettingsSupported) {
                         const selfConsumptionMode = this.enchargeSettings.selfConsumptionMode;
                         const savingsMode = this.enchargeSettings.savingsMode;
                         const backupMode = this.enchargeSettings.backupMode;
