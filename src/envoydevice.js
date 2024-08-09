@@ -2384,36 +2384,35 @@ class EnvoyDevice extends EventEmitter {
                     return;
                 }
 
+                const tariff = ensembleEnchargeSettings.tariff;
                 const enchargeSettings = {
-                    tariff: {
-                        mode: ensembleEnchargeSettings.mode,
-                        selfConsumptionMode: ensembleEnchargeSettings.mode === 'self-consumption',
-                        backupMode: ensembleEnchargeSettings.mode === 'backup',
-                        savingMode: (ensembleEnchargeSettings.mode === 'savings-mode' || ensembleEnchargeSettings.mode === 'economy'),
-                        operationModeSubType: ensembleEnchargeSettings.operation_mode_sub_type,
-                        reservedSoc: ensembleEnchargeSettings.reserved_soc,
-                        veryLowSoc: ensembleEnchargeSettings.very_low_soc,
-                        chargeFromGrid: ensembleEnchargeSettings.charge_from_grid,
-                        date: date ?? new Date()
-                    }
+                    mode: tariff.mode,
+                    selfConsumptionMode: tariff.mode === 'self-consumption',
+                    backupMode: tariff.mode === 'backup',
+                    savingMode: (tariff.mode === 'savings-mode' || tariff.mode === 'economy'),
+                    operationModeSubType: tariff.operation_mode_sub_type,
+                    reservedSoc: tariff.reserved_soc,
+                    veryLowSoc: tariff.very_low_soc,
+                    chargeFromGrid: tariff.charge_from_grid,
+                    date: date ?? new Date()
                 }
                 this.enchargeSettings = enchargeSettings;
 
                 if (this.enchargeProfileSelfConsumptionService) {
                     this.enchargeProfileSelfConsumptionService
-                        .updateCharacteristic(Characteristic.Characteristic.On, selfConsumptionMode)
-                        .updateCharacteristic(Characteristic.Characteristic.Brightness, reservedSoc)
+                        .updateCharacteristic(Characteristic.Characteristic.On, enchargeSettings.selfConsumptionMode)
+                        .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
                 }
 
                 if (this.enchargeProfileSavingsService) {
                     this.enchargeProfileSavingsService
-                        .updateCharacteristic(Characteristic.Characteristic.On, savingMode)
-                        .updateCharacteristic(Characteristic.Characteristic.Brightness, reservedSoc)
+                        .updateCharacteristic(Characteristic.Characteristic.On, enchargeSettings.savingMode)
+                        .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
                 }
 
                 if (this.enchargeProfileFullBackupService) {
                     this.enchargeProfileFullBackupService
-                        .updateCharacteristic(Characteristic.Characteristic.On, backupMode)
+                        .updateCharacteristic(Characteristic.Characteristic.On, enchargeSettings.backupMode)
                 }
 
                 this.enchargeSettingsInstalled = enchargeSettingsKeysCount > 0;
