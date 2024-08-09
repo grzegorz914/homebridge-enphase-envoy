@@ -459,7 +459,7 @@ module.exports = (api) => {
     constructor() {
       super('Lines', '00000032-000B-1000-8000-0026BB765291');
       this.setProps({
-        format: Formats.INT,
+        format: Formats.UINT8,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
       this.value = this.getDefaultValue();
@@ -2350,6 +2350,22 @@ module.exports = (api) => {
   }
   Characteristic.enphaseEnsembleStatusEncAggRatedPower = enphaseEnsembleStatusEncAggRatedPower;
 
+  class enphaseEnsembleStatusEncAggPercentFull extends Characteristic {
+    constructor() {
+      super('ENC percent full', '00000211-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.UINT8,
+        unit: Units.PERCENTAGE,
+        maxValue: 100,
+        minValue: 0,
+        minStep: 1,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleStatusEncAggPercentFull = enphaseEnsembleStatusEncAggPercentFull;
+
   class enphaseEnsembleStatusEncAggBackupEnergy extends Characteristic {
     constructor() {
       super('ENC backup energy', '00000209-000B-1000-8000-0026BB765291');
@@ -2382,6 +2398,7 @@ module.exports = (api) => {
   }
   Characteristic.enphaseEnsembleStatusEncAggAvailEnergy = enphaseEnsembleStatusEncAggAvailEnergy;
 
+
   //Enpower service
   class enphaseEnsembleStatusService extends Service {
     constructor(displayName, subtype) {
@@ -2407,6 +2424,7 @@ module.exports = (api) => {
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusAggMaxEnergy);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggSoc);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggPercentFull);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggBackupEnergy);
       this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggAvailEnergy);
       this.addOptionalCharacteristic(Characteristic.ConfiguredName);
@@ -2744,6 +2762,136 @@ module.exports = (api) => {
     }
   }
   Service.enphaseLiveDataService = enphaseLiveDataService;
+
+//generator
+class enphaseEnsembleGeneratorAdminMode extends Characteristic {
+  constructor() {
+    super('Admin mode', '00000250-000B-1000-8000-0026BB765291');
+    this.setProps({
+      format: Formats.STRING,
+      perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+    });
+    this.value = this.getDefaultValue();
+  }
+}
+Characteristic.enphaseEnsembleGeneratorAdminMode = enphaseEnsembleGeneratorAdminMode;
+
+class enphaseEnsembleGeneratorType extends Characteristic {
+    constructor() {
+      super('Type', '00000251-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleGeneratorType = enphaseEnsembleGeneratorType;
+
+  class enphaseEnsembleGeneratorAdminState extends Characteristic {
+    constructor() {
+      super('Admin state', '00000252-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleGeneratorAdminState = enphaseEnsembleGeneratorAdminState;
+
+  class enphaseEnsembleGeneratorOperState extends Characteristic {
+    constructor() {
+      super('Operation state', '00000253-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleGeneratorOperState = enphaseEnsembleGeneratorOperState;
+
+  class enphaseEnsembleGeneratorStartSoc extends Characteristic {
+    constructor() {
+      super('Start soc', '00000254-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.INT,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleGeneratorStartSoc = enphaseEnsembleGeneratorStartSoc;
+
+  class enphaseEnsembleGeneratorStopSoc extends Characteristic {
+    constructor() {
+      super('Stop soc', '00000254-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.INT,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleGeneratorStopSoc = enphaseEnsembleGeneratorStopSoc;
+
+  class enphaseEnsembleGeneratorExexOn extends Characteristic {
+    constructor() {
+      super('Exec on', '00000255-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.INT,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleGeneratorExexOn = enphaseEnsembleGeneratorExexOn;
+
+  class enphaseEnsembleGeneratorShedule extends Characteristic {
+    constructor() {
+      super('Schedule', '00000256-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.INT,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleGeneratorShedule = enphaseEnsembleGeneratorShedule;
+
+  class enphaseEnsembleGeneratorPresent extends Characteristic {
+    constructor() {
+      super('Present', '00000257-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.INT,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
+  }
+  Characteristic.enphaseEnsembleGeneratorPresent = enphaseEnsembleGeneratorPresent;
+
+
+  //generator service
+  class enphaseGerneratorService extends Service {
+    constructor(displayName, subtype) {
+      super(displayName, '00000013-000A-1000-8000-0026BB765291', subtype);
+      // Mandatory Characteristics
+      this.addCharacteristic(Characteristic.enphaseEnsembleGeneratorAdminMode);
+      // Optional Characteristics
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleGeneratorType);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleGeneratorAdminState);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleGeneratorOperState);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleGeneratorStartSoc);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleGeneratorStopSoc);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleGeneratorExexOn);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleGeneratorShedule);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleGeneratorPresent);
+      this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+    }
+  }
+  Service.enphaseGerneratorService = enphaseGerneratorService;
 
   api.registerPlatform(CONSTANTS.PluginName, CONSTANTS.PlatformName, EnvoyPlatform, true);
 }

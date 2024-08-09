@@ -160,6 +160,11 @@
         "xxx-xxxxx-xx3": "COMMS-KIT-01"
     },
     "ApiCodes": {
+        "on": "On",
+        "off": "Off",
+        "auto": "Auto",
+        "manual": "Manual",
+        "always_on": "Always On",
         "Unknown": "Unknown",
         "inverters": "Microinverters",
         "acb": "AC Batterie",
