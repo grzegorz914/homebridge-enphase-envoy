@@ -733,7 +733,7 @@ class EnvoyDevice extends EventEmitter {
                     try {
                         switch (key) {
                             case 'ProductionPowerMode':
-                                const set = this.productionPowerModeSupported ? await this.setProductionPowerModeData(value) : false;
+                                const set = this.productionPowerModeSupported ? await this.setProductionPowerMode(value) : false;
                                 break;
                             case 'PlcLevel':
                                 const set1 = this.plcLevelSupported ? await this.updatePlcLevelData(value) : false;
@@ -3699,9 +3699,9 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    setProductionPowerModeData(state) {
+    setProductionPowerMode(state) {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Set power production mode.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Set production power mode.`) : false;
 
             try {
                 const powerModeUrl = CONSTANTS.ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
@@ -3721,17 +3721,17 @@ class EnvoyDevice extends EventEmitter {
 
                 const productionPowerModeData = this.productionPowerMode !== state ? (this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options)) : false;
                 const productionPowerMode = productionPowerModeData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Set power mode: ${JSON.stringify(productionPowerMode, null, 2)}`) : false;
+                const debug = this.enableDebugMode ? this.emit('debug', `Set production power mode: ${JSON.stringify(productionPowerMode, null, 2)}`) : false;
                 resolve();
             } catch (error) {
-                reject(`Set power production mode error: ${error}.`);
+                reject(`Set production power mode error: ${error}.`);
             };
         });
     }
 
     setEnchargeProfile(profile, reserve, independence) {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting encharge profile set.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile.`) : false;
 
             try {
                 const options = {
@@ -3767,7 +3767,7 @@ class EnvoyDevice extends EventEmitter {
 
     setEnpowerGridState(state) {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting enpower grid state set.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state.`) : false;
 
             try {
                 const options = {
@@ -3782,9 +3782,8 @@ class EnvoyDevice extends EventEmitter {
                     })
                 }
 
-                state = state ? 'closed' : 'open';
                 const url = this.url + CONSTANTS.ApiUrls.EnchargeRelay;
-                const enpowerGridState = await axios.post(url, { 'mains_admin_state': state }, options);
+                const enpowerGridState = await axios.post(url, { 'mains_admin_state': state ? 'closed' : 'open' }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state: ${JSON.stringify(enpowerGridState.data, null, 2)}`) : false;
 
                 await this.updateEnsembleInventoryData();
@@ -3797,7 +3796,7 @@ class EnvoyDevice extends EventEmitter {
 
     setDryContact(id, state) {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contact set.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact.`) : false;
 
             try {
                 const options = {
@@ -3825,7 +3824,7 @@ class EnvoyDevice extends EventEmitter {
 
     setDryContactSettings(id, index, state) {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contact settings set.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact settings.`) : false;
 
             try {
                 const options = {
@@ -3866,7 +3865,7 @@ class EnvoyDevice extends EventEmitter {
 
     setGeneratorMode(mode) {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting generator state set.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Set generator state.`) : false;
 
             try {
                 const options = {
@@ -3886,7 +3885,7 @@ class EnvoyDevice extends EventEmitter {
                 const generatorState = await axios.post(url, { 'gen_cmd': genMode }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set generator state: ${JSON.stringify(generatorState.data, null, 2)}`) : false;
 
-                await this.updateGridProfileData();
+                await this.updateEnsembleGeneratorData();
                 resolve();
             } catch (error) {
                 reject(`Set generator state error: ${error}.`);
@@ -4182,7 +4181,7 @@ class EnvoyDevice extends EventEmitter {
                             .onSet(async (state) => {
                                 try {
                                     const tokenExpired = await this.checkJwtToken();
-                                    const set = !tokenExpired ? await this.setProductionPowerModeData(state) : false;
+                                    const set = !tokenExpired ? await this.setProductionPowerMode(state) : false;
                                     const debug = this.enableDebugMode ? this.emit('debug', `Envoy: ${serialNumber}, set production power mode: ${state ? 'Enabled' : 'Disabled'}`) : false;
                                 } catch (error) {
                                     this.emit('error', `Envoy: ${serialNumber}, set production power mode error: ${error}`);
