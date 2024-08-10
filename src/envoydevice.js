@@ -653,7 +653,10 @@ class EnvoyDevice extends EventEmitter {
             ensembles: {
                 supported: false,
                 installed: false,
-                count: 0
+                count: 0,
+                status: {
+                    supported: false
+                }
             },
             enpowers: {
                 supported: false,
@@ -1301,7 +1304,6 @@ class EnvoyDevice extends EventEmitter {
                 const qRelaysSupported = envoyCommKeys.includes('nsrb');
                 const ensemblesSupported = envoyCommKeys.includes('esub');
                 const enchargesSupported = envoyCommKeys.includes('encharge');
-                const generatorsSupported = envoyCommKeys.includes('generator');
                 const wirelessConnectionKitSupported = envoyKeys.includes('wireless_connection');
 
                 //envoy
@@ -1483,9 +1485,8 @@ class EnvoyDevice extends EventEmitter {
                 this.feature.qRelays.supported = qRelaysSupported;
                 this.feature.ensembles.supported = ensemblesSupported;
                 this.feature.encharges.supported = enchargesSupported;
-                this.feature.generators.supported = generatorsSupported;
-                this.feature.wirelessConnectionKit.count = wirelessConnectionKitConnectionsCount;
                 this.feature.wirelessConnectionKit.supported = wirelessConnectionKitSupported;
+                this.feature.wirelessConnectionKit.count = wirelessConnectionKitConnectionsCount;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('home', envoy) : false;
@@ -1559,8 +1560,8 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, obj.operating);
                         }
                     });
-                    this.feature.microinverters.count = microinvertersCount;
                     this.feature.microinverters.installed = microinvertersInstalled;
+                    this.feature.microinverters.count = microinvertersCount;
                 }
 
                 //ac btteries inventoty
@@ -1619,8 +1620,8 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseAcBatterieChargeStatus, obj.chargeStatus);
                         }
                     });
-                    this.feature.acBatteries.count = acBatteriesCount;
                     this.feature.acBatteries.installed = acBatteriesInstalled;
+                    this.feature.acBatteries.count = acBatteriesCount;
                 }
 
                 //qrelays inventory
@@ -1689,8 +1690,8 @@ class EnvoyDevice extends EventEmitter {
                             }
                         }
                     });
-                    this.feature.qRelays.count = qRelaysCount;
                     this.feature.qRelays.installed = qRelaysInstalled;
+                    this.feature.qRelays.count = qRelaysCount;
                 }
 
                 //ensembles
@@ -1735,7 +1736,6 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnsembleOperating, obj.operating)
                         }
                     });
-                    this.feature.ensembles.supported = ensemblesSupported;
                     this.feature.ensembles.installed = ensemblesInstalled;
                     this.feature.ensembles.count = ensemblesCount;
                 }
@@ -3027,7 +3027,7 @@ class EnvoyDevice extends EventEmitter {
                 this.ensembleFakeInventoryMode = fakeInventoryModeSupported ? ensembleStatus.fakeit.fake_inventory_mode === true : false;
 
                 //ensemble status supported
-                this.ensembleStatusSupported = ensembleStatusSupported;
+                this.feature.ensembles.status.supported = ensembleStatusSupported;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('ensemblestatus', ensembleStatus) : false;
@@ -3118,7 +3118,7 @@ class EnvoyDevice extends EventEmitter {
                         }
                     }
                 }
-                this.feature.encharge.settings.supported = enchargeSettingsSupported;
+                this.feature.encharges.settings.supported = enchargeSettingsSupported;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('enchargesettings', ensembleGenerator) : false;
@@ -3153,8 +3153,8 @@ class EnvoyDevice extends EventEmitter {
 
                 //dry contacts installed
                 const dryContacts = ensembleDryContacts.dry_contacts;
-                const dryContactsInstalled = dryContacts.length > 0;
-                if (!dryContactsInstalled) {
+                const dryContactsSupported = dryContacts.length > 0;
+                if (!dryContactsSupported) {
                     resolve(false);
                     return;
                 }
@@ -3182,7 +3182,7 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.ContactSensorState, obj.stateBool)
                     }
                 });
-                this.feature.dryContacts.installed = dryContactsInstalled;
+                this.feature.dryContacts.supported = dryContactsSupported;
                 this.feature.dryContacts.count = dryContacts.length;
 
                 //restFul
@@ -3218,8 +3218,8 @@ class EnvoyDevice extends EventEmitter {
 
                 //dry contacts installed
                 const dryContactsSettings = ensembleDryContactsSettings.dry_contacts;
-                const dryContactsSettingsInstalled = dryContactsSettings.length > 0;
-                if (!dryContactsSettingsInstalled) {
+                const dryContactsSettingsSupported = dryContactsSettings.length > 0;
+                if (!dryContactsSettingsSupported) {
                     resolve(false);
                     return;
                 }
@@ -3247,7 +3247,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                     this.dryContacts[index].settings = obj;
                 });
-                this.feature.dryContacts.settings.installed = dryContactsSettingsInstalled;
+                this.feature.dryContacts.settings.supported = dryContactsSettingsSupported;
                 this.feature.dryContacts.settings.count = dryContactsSettings.length;
 
                 //restFul
@@ -3273,10 +3273,10 @@ class EnvoyDevice extends EventEmitter {
 
                 //ensemble generator keys
                 const generatorKeys = Object.keys(ensembleGenerator);
-                const generatorSupported = generatorKeys.length > 0;
+                const generatorInstalled = generatorKeys.length > 0;
 
                 //ensemble generator not exist
-                if (!generatorSupported) {
+                if (!generatorInstalled) {
                     resolve(false);
                     return;
                 }
@@ -3363,7 +3363,7 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.enphaseEnvoyGeneratorMode, generator.adminMode)
                     }
                 }
-                this.generatorSupported = generatorSupported;
+                this.feature.generators.installed = generatorInstalled;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('generator', ensembleGenerator) : false;
@@ -3413,7 +3413,7 @@ class EnvoyDevice extends EventEmitter {
                     chargeFromGenerator: settings.charge_from_generator //bool
                 }
                 this.generator.settings = generatorSettings;
-                this.generatorSettingsSupported = generatorSettingsSupported;
+                this.feature.generators.settings.supported = generatorSettingsSupported;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('generatorsettings', ensembleGeneratorSettings) : false;
@@ -3970,22 +3970,22 @@ class EnvoyDevice extends EventEmitter {
 
                 //get enabled devices
                 const envoyInstalled = this.feature.envoy.installed;
+                const wirelessConnectionKitInstalled = this.feature.wirelessConnectionKit.installed;
+                const productionPowerModeSupported = this.feature.productionPowerMode.supported;
+                const plcLevelSupported = this.feature.plcLevel.supported;
+                const qRelaysInstalled = this.feature.qRelays.installed;
                 const metersSupported = this.feature.meters.supported;
                 const metersInstalled = this.feature.meters.installed;
                 const metersProductionEnabled = this.feature.meters.production.enabled;
                 const metersConsumptionEnabled = this.feature.meters.consumption.enabled;
                 const microinvertersInstalled = this.feature.microinverters.installed;
                 const acBatteriesInstalled = this.feature.acBatteries.installed;
-                const qRelaysInstalled = this.feature.qRelays.installed;
                 const ensemblesInstalled = this.feature.ensembles.installed;
+                const ensembleStatusSupported = this.feature.ensembles.status.supported;
                 const enpowersInstalled = this.feature.enpowers.installed;
                 const enchargesInstalled = this.feature.encharges.installed;
-                const ensembleStatusSupported = this.ensembleStatusSupported;
-                const generatorsInstalled = this.generatorsInstalled;
-                const wirelessConnectionKitInstalled = this.feature.wirelessConnectionKit.installed;
+                const generatorsInstalled = this.feature.generators.installed;
                 const liveDataSupported = this.feature.liveData.supported;
-                const productionPowerModeSupported = this.feature.productionPowerMode.supported;
-                const plcLevelSupported = this.feature.plcLevel.supported;
 
                 //system
                 if (envoyInstalled) {
@@ -4340,6 +4340,42 @@ class EnvoyDevice extends EventEmitter {
                             this.powerProductionControlsServices.push(powerProductionContolService);
                         };
                     };
+
+                    //wireless connektion kit
+                    if (wirelessConnectionKitInstalled) {
+                        this.wirelessConnektionsKitServices = [];
+                        for (const wirelessConnection of this.wirelessConnections) {
+                            const connectionType = wirelessConnection.type;
+                            const debug = this.enableDebugMode ? this.emit('debug', `Prepare Wireless Connection ${connectionType} Service`) : false;
+                            const enphaseWirelessConnectionKitService = accessory.addService(Service.enphaseWirelessConnectionKitService, `Wireless connection ${connectionType}`, connectionType);
+                            enphaseWirelessConnectionKitService.setCharacteristic(Characteristic.ConfiguredName, `Wireless connection ${connectionType}`);
+                            enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitType)
+                                .onGet(async () => {
+                                    const value = wirelessConnection.type;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${connectionType}`);
+                                    return value;
+                                });
+                            enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected)
+                                .onGet(async () => {
+                                    const value = wirelessConnection.connected;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${connectionType}, state: ${value ? 'Connected' : 'Disconnected'}`);
+                                    return value;
+                                });
+                            enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength)
+                                .onGet(async () => {
+                                    const value = wirelessConnection.signalStrength;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${connectionType}, signal strength: ${value} %`);
+                                    return value;
+                                });
+                            enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax)
+                                .onGet(async () => {
+                                    const value = wirelessConnection.signalStrengthMax;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${connectionType}, signal strength max: ${value} %`);
+                                    return value;
+                                });
+                            this.wirelessConnektionsKitServices.push(enphaseWirelessConnectionKitService);
+                        }
+                    }
                 }
 
                 //qrelays
@@ -5489,7 +5525,7 @@ class EnvoyDevice extends EventEmitter {
                     };
 
                     //encharge profile service
-                    if (this.feature.encharge.settings.supported) {
+                    if (this.feature.encharges.settings.supported) {
                         const selfConsumptionMode = this.encharges[0].settings.selfConsumptionMode;
                         const savingsMode = this.encharges[0].settings.savingsMode;
                         const fullBackupMode = this.encharges[0].settings.fullBackupMode;
@@ -5988,66 +6024,6 @@ class EnvoyDevice extends EventEmitter {
                     };
                 }
 
-                //live data
-                if (liveDataSupported) {
-                    this.liveDataMetersServices = [];
-                    for (const liveData of this.liveDatas) {
-                        const liveDataType = liveData.type;
-                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Live Data ${liveDataType} Service`) : false;
-                        const enphaseLiveDataService = accessory.addService(Service.enphaseLiveDataService, `Live Data ${liveDataType}`, liveDataType);
-                        enphaseLiveDataService.setCharacteristic(Characteristic.ConfiguredName, `Live Data ${liveDataType}`);
-                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePower)
-                            .onGet(async () => {
-                                const value = liveData.activePower;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, active power: ${value} kW`);
-                                return value;
-                            });
-                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL1)
-                            .onGet(async () => {
-                                const value = liveData.activePowerL1;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, active power: ${value} kW`);
-                                return value;
-                            });
-                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL2)
-                            .onGet(async () => {
-                                const value = liveData.activePowerL2;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, active power: ${value} kW`);
-                                return value;
-                            });
-                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL3)
-                            .onGet(async () => {
-                                const value = liveData.activePowerL3;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, active power: ${value} kW`);
-                                return value;
-                            });
-                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPower)
-                            .onGet(async () => {
-                                const value = liveData.apparentPower;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, apparent power: ${value} kVA`);
-                                return value;
-                            });
-                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1)
-                            .onGet(async () => {
-                                const value = liveData.apparentPowerL1;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, apparent power: ${value} kVA`);
-                                return value;
-                            });
-                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2)
-                            .onGet(async () => {
-                                const value = liveData.apparentPowerL2;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, apparent power: ${value} kVA`);
-                                return value;
-                            });
-                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3)
-                            .onGet(async () => {
-                                const value = liveData.apparentPowerL3;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, apparent power: ${value} kVA`);
-                                return value;
-                            });
-                        this.liveDataMetersServices.push(enphaseLiveDataService);
-                    }
-                }
-
                 //generators
                 if (generatorsInstalled) {
                     const type = this.generator.type;
@@ -6108,42 +6084,6 @@ class EnvoyDevice extends EventEmitter {
                             const info = this.disableLogInfo ? false : this.emit('message', `Generator: ${type}, present: ${value}`);
                             return value;
                         });
-                }
-
-                //wireless connektion kit
-                if (wirelessConnectionKitInstalled) {
-                    this.wirelessConnektionsKitServices = [];
-                    for (const wirelessConnection of this.wirelessConnections) {
-                        const connectionType = wirelessConnection.type;
-                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Wireless Connection ${connectionType} Service`) : false;
-                        const enphaseWirelessConnectionKitService = accessory.addService(Service.enphaseWirelessConnectionKitService, `Wireless connection ${connectionType}`, connectionType);
-                        enphaseWirelessConnectionKitService.setCharacteristic(Characteristic.ConfiguredName, `Wireless connection ${connectionType}`);
-                        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitType)
-                            .onGet(async () => {
-                                const value = wirelessConnection.type;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${connectionType}`);
-                                return value;
-                            });
-                        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected)
-                            .onGet(async () => {
-                                const value = wirelessConnection.connected;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${connectionType}, state: ${value ? 'Connected' : 'Disconnected'}`);
-                                return value;
-                            });
-                        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength)
-                            .onGet(async () => {
-                                const value = wirelessConnection.signalStrength;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${connectionType}, signal strength: ${value} %`);
-                                return value;
-                            });
-                        enphaseWirelessConnectionKitService.getCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrengthMax)
-                            .onGet(async () => {
-                                const value = wirelessConnection.signalStrengthMax;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Wireless connection: ${connectionType}, signal strength max: ${value} %`);
-                                return value;
-                            });
-                        this.wirelessConnektionsKitServices.push(enphaseWirelessConnectionKitService);
-                    }
 
                     //generator control service
                     if (this.generatorStateActiveControlsCount > 0) {
@@ -6217,6 +6157,66 @@ class EnvoyDevice extends EventEmitter {
                             this.generatorModeSensorsServices.push(generatorModeSensorsService);
                         };
                     };
+                }
+
+                //live data
+                if (liveDataSupported) {
+                    this.liveDataMetersServices = [];
+                    for (const liveData of this.liveDatas) {
+                        const liveDataType = liveData.type;
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Live Data ${liveDataType} Service`) : false;
+                        const enphaseLiveDataService = accessory.addService(Service.enphaseLiveDataService, `Live Data ${liveDataType}`, liveDataType);
+                        enphaseLiveDataService.setCharacteristic(Characteristic.ConfiguredName, `Live Data ${liveDataType}`);
+                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePower)
+                            .onGet(async () => {
+                                const value = liveData.activePower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL1)
+                            .onGet(async () => {
+                                const value = liveData.activePowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL2)
+                            .onGet(async () => {
+                                const value = liveData.activePowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL3)
+                            .onGet(async () => {
+                                const value = liveData.activePowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, active power: ${value} kW`);
+                                return value;
+                            });
+                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPower)
+                            .onGet(async () => {
+                                const value = liveData.apparentPower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1)
+                            .onGet(async () => {
+                                const value = liveData.apparentPowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2)
+                            .onGet(async () => {
+                                const value = liveData.apparentPowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        enphaseLiveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3)
+                            .onGet(async () => {
+                                const value = liveData.apparentPowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                        this.liveDataMetersServices.push(enphaseLiveDataService);
+                    }
                 }
 
                 resolve(accessory);
