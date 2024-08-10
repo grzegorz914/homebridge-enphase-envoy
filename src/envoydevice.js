@@ -3745,6 +3745,7 @@ class EnvoyDevice extends EventEmitter {
                         rejectUnauthorized: false
                     })
                 }
+
                 const url = this.url + CONSTANTS.ApiUrls.TariffSettingsGetPut;
                 const enchargeProfileSet = await axios.put(url, {
                     tariff: {
@@ -3780,8 +3781,9 @@ class EnvoyDevice extends EventEmitter {
                     })
                 }
 
+                const gridState = state ? 'closed' : 'open';
                 const url = this.url + CONSTANTS.ApiUrls.EnchargeRelay;
-                const enpowerGridState = await axios.post(url, { 'mains_admin_state': state ? 'closed' : 'open' }, options);
+                const enpowerGridState = await axios.post(url, { 'mains_admin_state': gridState }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state: ${JSON.stringify(enpowerGridState.data, null, 2)}`) : false;
                 resolve();
             } catch (error) {
@@ -3806,8 +3808,10 @@ class EnvoyDevice extends EventEmitter {
                         rejectUnauthorized: false
                     })
                 }
+
+                const dryState = state ? 'closed' : 'open';
                 const url = this.url + CONSTANTS.ApiUrls.EnsembleDryContact;
-                const dryContactSet = await axios.post(url, { dry_contacts: { id: id, status: state ? 'closed' : 'open' } }, options);
+                const dryContactSet = await axios.post(url, { dry_contacts: { id: id, status: dryState } }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact: ${JSON.stringify(dryContactSet.data, null, 2)}`) : false;
                 resolve();
             } catch (error) {
@@ -3872,7 +3876,7 @@ class EnvoyDevice extends EventEmitter {
                     })
                 }
 
-                const genMode = ['off', 'on', 'auto'][mode]
+                const genMode = ['off', 'on', 'auto'][mode];
                 const url = this.url + CONSTANTS.ApiUrls.GeneratorModeGetSet;
                 const generatorState = await axios.post(url, { 'gen_cmd': genMode }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set generator state: ${JSON.stringify(generatorState.data, null, 2)}`) : false;
