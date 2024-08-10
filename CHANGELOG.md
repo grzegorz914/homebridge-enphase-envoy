@@ -31,11 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - added grid state control direct from home app as a extra tile
    - added grid state control direct from envoy section, 3rd party appp
    - added grid state sensor
+   - added dry contacts control direct from home app as a extra tile
+   - added dry contacts state sensors    
 * encharge:   
-   - added profile control direct from home app as a extra tile
-* dry contacts
-   - added control direct from home app as a extra tile
-   - added state sensor   
+   - added profile control direct from home app as a extra tile  
 * other changes   
    - added possibility to enable accessory name as a prefix for all services
    - stability and performance improvements
