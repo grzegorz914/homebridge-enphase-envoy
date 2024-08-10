@@ -613,27 +613,6 @@ class EnvoyDevice extends EventEmitter {
         this.acBatteriesInstalled = false;
         this.acBatteriesCount = 0;
 
-        //ensembles
-        this.ensemblesSupported = false;
-        this.ensemblesInstalled = false;
-        this.ensemblesCount = 0;
-
-        //encharges
-        this.enchargesSupported = false;
-        this.enchargesInstalled = false;
-        this.enchargesCount = 0;
-        this.enchargeSettingsSupported = false;
-
-        //enpowers
-        this.enpowersSupported = false;
-        this.enpowersInstalled = false;
-        this.enpowersCount = 0;
-
-        //generators
-        this.generatorsSupported = false;
-        this.generatorsInstalled = false;
-        this.generatorsSettingsSupported = false;
-
         //ct meters
         this.metersSupported = false;
         this.metersInstalled = false;
@@ -654,17 +633,40 @@ class EnvoyDevice extends EventEmitter {
 
         //production
         this.productionPowerPeak = 0;
+        this.productionPowerModeSupported = false;
+        this.productionPowerMode = false;
 
         //consumption CT
         this.consumptionsPowerPeak = [0, 0];
 
+        //ensembles
+        this.ensemblesSupported = false;
+        this.ensemblesInstalled = false;
+        this.ensemblesCount = 0;
+
+        //enpowers
+        this.enpowersSupported = false;
+        this.enpowersInstalled = false;
+        this.enpowersCount = 0;
+
+        //encharges
+        this.enchargesSupported = false;
+        this.enchargesInstalled = false;
+        this.enchargesCount = 0;
+        this.enchargeSettingsSupported = false;
+
+        //dry contacts
+        this.dryContactsInstalled = false;
+        this.dryContactsCount = 0;
+        this.dryContactsSettingsInstalled = false;
+        this.dryContactsSettingsCount = 0;
+
+        //generators
+        this.generatorsSupported = false;
+        this.generatorsSettingsSupported = false;
+
         //liveData
         this.liveDataSupported = false;
-        this.liveDataInstalled = false;
-
-        //production power mode
-        this.productionPowerModeSupported = false;
-        this.productionPowerMode = false;
 
         //plc level
         this.plcLevelSupported = false;
@@ -780,24 +782,6 @@ class EnvoyDevice extends EventEmitter {
             } catch (error) {
                 this.emit('error', `Update meters error: ${error}`);
             };
-        }).on('updateEnsemble', async () => {
-            try {
-                const tokenExpired = await this.checkJwtToken();
-                const updateEnsembleInventory = tokenExpired ? false : await this.updateEnsembleInventoryData();
-                const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
-                const updateEnsembleEnchargeSettings = updateEnsembleInventory ? await this.updateEnsembleEnchargeSettingsData() : false;
-                const updateEnsembleGenerator = updateEnsembleInventory ? await this.updateEnsembleGeneratorData() : false;
-                const updateEnsembleGeneratorSettings = updateEnsembleGenerator ? await this.updateEnsembleGeneratorSettingsData() : false;
-            } catch (error) {
-                this.emit('error', `Update ensemble inventoty error: ${error}`);
-            };
-        }).on('updateLive', async () => {
-            try {
-                const tokenExpired = await this.checkJwtToken();
-                const updateLive = tokenExpired ? false : await this.updateLiveData();
-            } catch (error) {
-                this.emit('error', `Update live data error: ${error}`);
-            };
         }).on('updateProduction', async () => {
             try {
                 const tokenExpired = await this.checkJwtToken();
@@ -812,6 +796,26 @@ class EnvoyDevice extends EventEmitter {
                 const updateMicroinverters = tokenExpired ? false : await this.updateMicroinvertersData();
             } catch (error) {
                 this.emit('error', `Update microinverters error: ${error}`);
+            };
+        }).on('updateEnsemble', async () => {
+            try {
+                const tokenExpired = await this.checkJwtToken();
+                const updateEnsembleInventory = tokenExpired ? false : await this.updateEnsembleInventoryData();
+                const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
+                const updateEnsembleEnchargeSettings = updateEnsembleInventory ? await this.updateEnsembleEnchargeSettingsData() : false;
+                const updateEnsembleDryContacts = updateEnsembleInventory ? await this.updateEnsembleDryContactsData() : false;
+                const updateEnsembleDryContactsSettings = updateEnsembleDryContacts ? await this.updateEnsembleDryContactsSettingsData() : false;
+                const updateEnsembleGenerator = updateEnsembleInventory ? await this.updateEnsembleGeneratorData() : false;
+                const updateEnsembleGeneratorSettings = updateEnsembleGenerator ? await this.updateEnsembleGeneratorSettingsData() : false;
+            } catch (error) {
+                this.emit('error', `Update ensemble inventoty error: ${error}`);
+            };
+        }).on('updateLive', async () => {
+            try {
+                const tokenExpired = await this.checkJwtToken();
+                const updateLive = tokenExpired ? false : await this.updateLiveData();
+            } catch (error) {
+                this.emit('error', `Update live data error: ${error}`);
             };
         }).on('state', (state) => {
             if (this.dataRefreshActiveControlsCount > 0) {
@@ -869,12 +873,6 @@ class EnvoyDevice extends EventEmitter {
             const updateMeters = this.metersSupported ? await this.updateMetersData() : false;
             const updateMetersReading = updateMeters ? await this.updateMetersReadingData() : false;
 
-            //get ensemble data only FW. >= 7.x.x.
-            const updateEnsembleInventory = validJwtToken ? await this.updateEnsembleInventoryData() : false;
-            const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
-            const updateEnsembleGenerator = updateEnsembleInventory ? await this.updateEnsembleGeneratorData() : false;
-            const updateLive = validJwtToken ? await this.updateLiveData() : false;
-
             //get production and inverters data
             const updateProduction = await this.updateProductionData();
             const updateProductionCt = updateProduction ? await this.updateProductionCtData() : false;
@@ -886,6 +884,17 @@ class EnvoyDevice extends EventEmitter {
             //access with installer password
             const calculateInstallerPassword = !this.envoyFirmware7xx ? await this.calculateInstallerPassword() : false;
             const updateProductionPowerMode = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.updateProductionPowerModeData() : false;
+
+            //get ensemble data only FW. >= 7.x.x.
+            const updateEnsembleInventory = validJwtToken ? await this.updateEnsembleInventoryData() : false;
+            const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
+            const updateEnsembleDryContacts = updateEnsembleInventory ? await this.updateEnsembleDryContactsData() : false;
+            const updateEnsembleDryContactsSettings = updateEnsembleDryContacts ? await this.updateEnsembleDryContactsSettingsData() : false;
+            const updateEnsembleGenerator = updateEnsembleInventory ? await this.updateEnsembleGeneratorData() : false;
+            const updateEnsembleGeneratorSettings = updateEnsembleGenerator ? await this.updateEnsembleGeneratorSettingsData() : false;
+            const updateLive = validJwtToken ? await this.updateLiveData() : false;
+
+            //get plc communication level
             const updatePlcLevel = this.supportPlcLevel && (validJwtToken || calculateInstallerPassword) ? await this.updatePlcLevelData() : false;
 
             //get device info
@@ -903,10 +912,10 @@ class EnvoyDevice extends EventEmitter {
             //create timers and start impulse generator
             const pushTimer0 = updateHome ? this.timers.push({ timerName: 'updateHome', sampling: 60000 }) : false;
             const pushTimer1 = updateMeters ? this.timers.push({ timerName: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
-            const pushTimer2 = updateEnsembleInventory ? this.timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
-            const pushTimer3 = updateLive ? this.timers.push({ timerName: 'updateLive', sampling: this.liveDataRefreshTime }) : false;
-            const pushTimer4 = updateProduction ? this.timers.push({ timerName: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
-            const pushTimer5 = updateMicroinverters ? this.timers.push({ timerName: 'updateMicroinverters', sampling: 80000 }) : false;
+            const pushTimer2 = updateProduction ? this.timers.push({ timerName: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer3 = updateMicroinverters ? this.timers.push({ timerName: 'updateMicroinverters', sampling: 80000 }) : false;
+            const pushTimer4 = updateEnsembleInventory ? this.timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer5 = updateLive ? this.timers.push({ timerName: 'updateLive', sampling: this.liveDataRefreshTime }) : false;
             this.impulseGenerator.start(this.timers);
         } catch (error) {
             this.emit('errorStart', `Start error: ${error}`);
@@ -1464,8 +1473,8 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Inventory: ${JSON.stringify(inventory, null, 2)}`) : false;
 
                 //inventory devices count
-                const inventoryDevicesCount = inventory.length;
-                if (inventoryDevicesCount === 0) {
+                const inventoryDevicesExist = inventory.length > 0;
+                if (!inventoryDevicesExist) {
                     resolve(false);
                     return;
                 }
@@ -1522,7 +1531,7 @@ class EnvoyDevice extends EventEmitter {
                         }
                     });
                     this.microinvertersCount = microinvertersCount;
-                    this.microinvertersInstalled = true;
+                    this.microinvertersInstalled = microinvertersInstalled;
                 }
 
                 //ac btteries inventoty
@@ -1582,7 +1591,7 @@ class EnvoyDevice extends EventEmitter {
                         }
                     });
                     this.acBatteriesCount = acBatteriesCount;
-                    this.acBatteriesInstalled = true;
+                    this.acBatteriesInstalled = acBatteriesInstalled;
                 }
 
                 //qrelays inventory
@@ -1652,7 +1661,7 @@ class EnvoyDevice extends EventEmitter {
                         }
                     });
                     this.qRelaysCount = qRelaysCount;
-                    this.qRelaysInstalled = true;
+                    this.qRelaysInstalled = qRelaysInstalled;
                 }
 
                 //ensembles
@@ -1724,8 +1733,8 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Meters: ${JSON.stringify(meters, null, 2)}`) : false;
 
                 //meters count
-                const metersCount = meters.length;
-                if (metersCount === 0) {
+                const metersExis = meters.length > 0;
+                if (!metersExis) {
                     resolve(false);
                     return;
                 }
@@ -1789,7 +1798,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //meters enabled and count
                 this.metersInstalled = this.meters.some(meter => meter.state);
-                this.metersCount = metersCount;
+                this.metersCount = meters.length;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('meters', meters) : false;
@@ -1813,8 +1822,8 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Meters reading: ${JSON.stringify(metersReading, null, 2)}`) : false;
 
                 //meters reading count
-                const metersReadingCount = metersReading.length;
-                if (metersReadingCount === 0) {
+                const metersReadingSupported = metersReading.length > 0;
+                if (!metersReadingSupported) {
                     resolve(false);
                     return;
                 }
@@ -1852,10 +1861,10 @@ class EnvoyDevice extends EventEmitter {
 
                     //meters reading phases data
                     const meterReadingKeys = Object.keys(meter);
-                    const meterReadingChannelsSupported = meterReadingKeys.includes('channels');
-                    const meterReadingChannels = meterReadingChannelsSupported ? meter.channels : [];
-                    const meterReadingChannelsCount = meterReadingChannels.length;
-                    if (meterReadingChannelsCount > 0) {
+                    const meterReadingChannelsExist = meterReadingKeys.includes('channels');
+                    const meterReadingChannels = meterReadingChannelsExist ? meter.channels : [];
+                    const meterReadingChannelsSupported = meterReadingChannels.length > 0;
+                    if (meterReadingChannelsSupported) {
                         meterReadingChannels.forEach((meterChannel, index1) => {
                             const obj = {
                                 eid: meterChannel.eid,
@@ -1877,11 +1886,11 @@ class EnvoyDevice extends EventEmitter {
                             this.meters[index].channels.push(obj);
                         });
                     }
-                    this.metersReadingPhaseInstalled = meterReadingChannelsCount > 0;
-                    this.metersReadingPhaseCount = meterReadingChannelsCount;
+                    this.metersReadingPhaseInstalled = meterReadingChannelsSupported;
+                    this.metersReadingPhaseCount = meterReadingChannels.length;
                 });
-                this.metersReadingInstalled = metersReadingCount > 0;
-                this.metersReadingCount = metersReadingCount;
+                this.metersReadingInstalled = metersReadingSupported;
+                this.metersReadingCount = metersReading.length;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('metersreading', metersReading) : false;
@@ -1895,1019 +1904,6 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    updateEnsembleInventoryData() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble inventory.`) : false;
-
-            try {
-                const ensembleInventoryData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleInventory);
-                const ensembleInventory = ensembleInventoryData.data ?? [];
-                const debug = this.enableDebugMode ? this.emit('debug', `Ensemble inventory: ${JSON.stringify(ensembleInventory, null, 2)}`) : false;
-
-                //ensemble inventory devices count
-                const ensembleInventoryDevicesCount = ensembleInventory.length;
-                if (ensembleInventoryDevicesCount === 0) {
-                    resolve(false);
-                    return;
-                }
-
-                //ensemble inventory keys
-                const ensembleInventoryKeys = ensembleInventory.map(device => device.type);
-
-                //encharges
-                const enchargesSupported = ensembleInventoryKeys.includes('ENCHARGE');
-                const encharges = enchargesSupported ? ensembleInventory[0].devices : [];
-                const enchargesCount = encharges.length;
-                const enchargesInstalled = enchargesCount > 0;
-                const enchargesPercentFullSummary = [];
-                this.encharges = [];
-
-                if (enchargesInstalled) {
-                    const type = CONSTANTS.ApiCodes[ensembleInventory[0].type];
-                    encharges.forEach((encharge, index) => {
-                        const obj = {
-                            type: type,
-                            partNumber: CONSTANTS.PartNumbers[encharge.part_num] ?? encharge.part_num,
-                            serialNumber: encharge.serial_num,
-                            installed: new Date(encharge.installed * 1000).toLocaleString(),
-                            deviceStatus: (Array.isArray(encharge.device_status) && (encharge.device_status).length > 0) ? ((encharge.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
-                            lastReportDate: new Date(encharge.last_rpt_date * 1000).toLocaleString(),
-                            adminState: encharge.admin_state,
-                            adminStateStr: CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown',
-                            createdDate: new Date(encharge.created_date * 1000).toLocaleString(),
-                            imgLoadDate: new Date(encharge.img_load_date * 1000).toLocaleString(),
-                            imgPnumRunning: encharge.img_pnum_running,
-                            zigbeeDongleFwVersion: encharge.zigbee_dongle_fw_version ?? 'Unknown',
-                            bmuFwVersion: encharge.bmu_fw_version,
-                            operating: encharge.operating === true ?? false,
-                            communicating: encharge.communicating === true,
-                            sleepEnabled: encharge.sleep_enabled,
-                            percentFull: encharge.percentFull ?? 0,
-                            temperature: encharge.temperature ?? 0,
-                            maxCellTemp: encharge.maxCellTemp ?? 0,
-                            reportedEncGridState: CONSTANTS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown',
-                            commLevelSubGhz: encharge.comm_level_sub_ghz * 20 ?? 0,
-                            commLevel24Ghz: encharge.comm_level_2_4_ghz * 20 ?? 0,
-                            ledStatus: CONSTANTS.LedStatus[encharge.led_status] ?? encharge.led_status,
-                            dcSwitchOff: encharge.dc_switch_off,
-                            rev: encharge.encharge_rev,
-                            capacity: encharge.encharge_capacity / 1000 ?? 0, //in kWh
-                            phase: encharge.phase ?? 'Unknown',
-                            derIndex: encharge.der_index ?? 0,
-                            commLevel: 0,
-                            percentFullSum: 0,
-                            ratedPowerSum: 0,
-                            energyState: false,
-                            status: {},
-                            settings: {}
-                        }
-                        this.encharges.push(obj);
-
-                        //encharges percent full summary
-                        enchargesPercentFullSummary.push(obj.percentFull);
-
-                        if (this.enchargesServices) {
-                            this.enchargesServices[index]
-                                .updateCharacteristic(Characteristic.enphaseEnchargeStatus, obj.deviceStatus)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, obj.lastReportDate)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeAdminStateStr, obj.adminStateStr)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeOperating, obj.operating)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeCommunicating, obj.communicating)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeSleepEnabled, obj.sleepEnabled)
-                                .updateCharacteristic(Characteristic.enphaseEnchargePercentFull, obj.percentFull)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeTemperature, obj.temperature)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp, obj.maxCellTemp)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeCommLevelSubGhz, obj.commLevelSubGhz)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel24Ghz, obj.commLevel24Ghz)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeLedStatus, obj.ledStatus)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff, obj.dcSwitchOff)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeRev, obj.rev)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, obj.capacity)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, this.arfProfile.name)
-                        }
-                    });
-                    this.enchargesCount = enchargesCount;
-                    this.enchargesInstalled = enchargesInstalled;
-
-                    //calculate encharges percent full summ
-                    const enchargesPercentFullSum = (enchargesPercentFullSummary.reduce((total, num) => total + num, 0) / enchargesCount) ?? 0;
-                    const enchargesEnergyState = enchargesPercentFullSum > 0;
-
-                    //add percent full summ and energy state to encharges object
-                    for (let i = 0; i < enchargesCount; i++) {
-                        this.encharges[i].percentFullSum = enchargesPercentFullSum;
-                        this.encharges[i].energyState = enchargesEnergyState;
-                    }
-
-                    if (this.enphaseEnchargesSummaryLevelAndStateService) {
-                        this.enphaseEnchargesSummaryLevelAndStateService
-                            .updateCharacteristic(Characteristic.On, enchargesEnergyState)
-                            .updateCharacteristic(Characteristic.Brightness, enchargesPercentFullSum)
-                    }
-                }
-
-                //enpowers
-                const enpowersSupported = ensembleInventoryKeys.includes('ENPOWER');
-                const enpowers = enpowersSupported ? ensembleInventory[1].devices : [];
-                const enpowersCount = enpowers.length;
-                const enpowersInstalled = enpowersCount > 0;
-                this.enpowers = [];
-
-                if (enpowersInstalled) {
-                    const type = CONSTANTS.ApiCodes[ensembleInventory[1].type];
-                    enpowers.forEach((enpower, index) => {
-                        const obj = {
-                            type: type,
-                            partNumber: CONSTANTS.PartNumbers[enpower.part_num] ?? enpower.part_num,
-                            serialNumber: enpower.serial_num,
-                            installed: new Date(enpower.installed * 1000).toLocaleString(),
-                            deviceStatus: (Array.isArray(enpower.device_status) && (enpower.device_status).length > 0) ? ((enpower.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
-                            lastReportDate: new Date(enpower.last_rpt_date * 1000).toLocaleString(),
-                            adminState: enpower.admin_state,
-                            adminStateStr: CONSTANTS.ApiCodes[enpower.admin_state_str] ?? 'Unknown',
-                            createdDate: new Date(enpower.created_date * 1000).toLocaleString(),
-                            imgLoadDate: new Date(enpower.img_load_date * 1000).toLocaleString(),
-                            imgPnumRunning: enpower.img_pnum_running,
-                            zigbeeDongleFwVersion: enpower.zigbee_dongle_fw_version ?? 'Unknown',
-                            operating: enpower.operating === true ?? false,
-                            communicating: enpower.communicating === true,
-                            temperature: enpower.temperature ?? 0,
-                            commLevelSubGhz: enpower.comm_level_sub_ghz * 20 ?? 0,
-                            commLevel24Ghz: enpower.comm_level_2_4_ghz * 20 ?? 0,
-                            mainsAdminState: CONSTANTS.ApiCodes[enpower.mains_admin_state] ?? 'Unknown',
-                            mainsAdminStateBool: CONSTANTS.ApiCodes[enpower.mains_admin_state] === 'Closed' ?? false,
-                            mainsOperState: CONSTANTS.ApiCodes[enpower.mains_oper_state] ?? 'Unknown',
-                            mainsOperStateBool: CONSTANTS.ApiCodes[enpower.mains_oper_sate] === 'Closed' ?? false,
-                            enpwrGridMode: enpower.Enpwr_grid_mode ?? 'Unknown',
-                            enpwrGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enpwr_grid_mode] ?? enpower.Enpwr_grid_mode,
-                            enchgGridMode: enpower.Enchg_grid_mode ?? 'Unknown',
-                            enchgGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enchg_grid_mode] ?? enpower.Enchg_grid_mode,
-                            enpwrRelayStateBm: enpower.Enpwr_relay_state_bm ?? 0,
-                            enpwrCurrStateId: enpower.Enpwr_curr_state_id ?? 0,
-                        }
-                        this.enpowers.push(obj);
-
-                        if (this.enpowersServices) {
-                            this.enpowersServices[index]
-                                .updateCharacteristic(Characteristic.enphaseEnpowerStatus, obj.deviceStatus)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerLastReportDate, obj.lastReportDate)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerAdminStateStr, obj.adminStateStr)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerOperating, obj.operating)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerCommunicating, obj.communicating)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerTemperature, obj.temperature)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerCommLevelSubGhz, obj.commLevelSubGhz)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerCommLevel24Ghz, obj.commLevel24Ghz)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerMainsAdminState, obj.mainsAdminState)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerMainsOperState, obj.mainsOperState)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerEnpwrGridMode, obj.enpwrGridModeTranslated)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode, obj.enchgGridModeTranslated)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerGridProfile, this.arfProfile.name)
-                        }
-
-                        //enpower grid control
-                        if (this.enpowerGridStateActiveControlsCount > 0) {
-                            for (let i = 0; i < this.enpowerGridStateActiveControlsCount; i++) {
-                                const state = obj.mainsAdminStateBool;
-                                this.enpowerGridStateActiveControls[i].state = state;
-
-                                if (this.enpowerGridStateControlsServices) {
-                                    const characteristicType = this.enpowerGridStateActiveControls[i].characteristicType;
-                                    this.enpowerGridStateControlsServices[i]
-                                        .updateCharacteristic(characteristicType, state)
-                                }
-
-                                if (this.envoyService) {
-                                    this.envoyService
-                                        .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridState, state)
-                                }
-                            }
-                        }
-
-                        //enpower grid state sensor
-                        if (this.enpowerGridStateActiveSensorsCount > 0) {
-                            for (let i = 0; i < this.enpowerGridStateActiveSensorsCount; i++) {
-                                const state = obj.mainsAdminStateBool;
-                                this.enpowerGridStateActiveSensors[i].state = state;
-
-                                if (this.enpowerGridStateSensorsServices) {
-                                    const characteristicType = this.enpowerGridStateActiveSensors[i].characteristicType;
-                                    this.enpowerGridStateSensorsServices[i]
-                                        .updateCharacteristic(characteristicType, state)
-                                }
-                            }
-                        }
-
-                        //enpower grid mode sensors
-                        if (this.enpowerGridModeActiveSensorsCount > 0) {
-                            for (let i = 0; i < this.enpowerGridModeActiveSensorsCount; i++) {
-                                const gridMode = this.enpowerGridModeActiveSensors[i].gridMode;
-                                const state = gridMode === obj.enpwrGridMode;
-                                this.enpowerGridModeActiveSensors[i].state = state;
-
-                                if (this.enpowerGridModeSensorsServices) {
-                                    const characteristicType = this.enpowerGridModeActiveSensors[i].characteristicType;
-                                    this.enpowerGridModeSensorsServices[i]
-                                        .updateCharacteristic(characteristicType, state)
-                                }
-                            }
-                        }
-
-                        //update envoy section
-                        if (this.envoyService) {
-                            this.envoyService
-                                .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridMode, obj.enpwrGridModeTranslated)
-                        }
-                    });
-                    this.enpowersSupported = enpowersSupported;
-                    this.enpowersInstalled = enpowersInstalled;
-                    this.enpowersCount = enpowersCount;
-                }
-
-                //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('ensembleinventory', ensembleInventory) : false;
-
-                //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Inventory', ensembleInventory) : false;
-                resolve(true);
-            } catch (error) {
-                reject(`Requesting ensemble inventory error: ${error}.`);
-            };
-        });
-    };
-
-    updateEnsembleStatusData() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble status.`) : false;
-
-            try {
-                const ensembleStatusData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleStatus);
-                const ensembleStatus = ensembleStatusData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Ensemble status: ${JSON.stringify(ensembleStatus, null, 2)}`) : false;
-
-                //ensemble status keys
-                const ensembleStatusKeys = Object.keys(ensembleStatus);
-                const ensembleStatusKeysCount = ensembleStatusKeys.length;
-
-                //ensemble status not exist
-                if (ensembleStatusKeysCount === 0) {
-                    resolve(false);
-                    return;
-                }
-
-                //inventoty
-                const inventorySupported = ensembleStatusKeys.includes('inventory');
-                const inventory = inventorySupported ? ensembleStatus.inventory : {};
-
-                //encharges
-                // Extract serial numbers
-                const enchargesSerialNumbersKeys = Object.keys(inventory.serial_nums);
-
-                //initialize array to hold rated power values
-                const enchargesRatedPowerSummary = [];
-
-                //iterate over encharges
-                enchargesSerialNumbersKeys.forEach((enchargeKey, index) => {
-                    const encharge = inventory.serial_nums[enchargeKey];
-                    const status = {
-                        deviceType: encharge.device_type,
-                        comInterfacStr: encharge.com_interface_str ?? 'Unknown',
-                        deviceId: encharge.device_id ?? 'Unknown',
-                        adminState: encharge.admin_state,
-                        adminStateStr: CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown',
-                        reportedGridMode: CONSTANTS.ApiCodes[encharge.reported_grid_mode] ?? 'Unknown',
-                        phase: encharge.phase ?? 'Unknown',
-                        derIndex: encharge.der_index ?? 0,
-                        revision: encharge.encharge_revision ?? 0,
-                        capacity: encharge.encharge_capacity ?? 0,
-                        ratedPower: encharge.encharge_rated_power ?? 0,
-                        reportedGridState: CONSTANTS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown',
-                        msgRetryCount: encharge.msg_retry_count ?? 0,
-                        partNumber: encharge.part_number,
-                        assemblyNumber: encharge.assembly_number,
-                        appFwVersion: encharge.app_fw_version,
-                        zbFwVersion: encharge.zb_fw_version ?? 'Unknown',
-                        zbBootloaderVers: encharge.zb_bootloader_vers ?? 'Unknown',
-                        iblFwVersion: encharge.ibl_fw_version,
-                        swiftAsicFwVersion: encharge.swift_asic_fw_version,
-                        bmuFwVersion: encharge.bmu_fw_version,
-                        submodulesCount: encharge.submodule_count,
-                        submodules: encharge.submodules
-                    };
-                    //add status to encharges
-                    this.encharges[index].status = status;
-
-                    //push encharge rated power to the array
-                    enchargesRatedPowerSummary.push(status.ratedPower);
-                });
-
-                //sum rated power for all encharges to kW and add to encharge object
-                const enchargesRatedPowerSum = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000) ?? 0;
-                for (let i = 0; i < this.enchargesCount; i++) {
-                    this.encharges[i].ratedPowerSum = enchargesRatedPowerSum;
-                }
-
-                //get encharges percent full summary from encharges
-                const enchargesPercentFullSum = this.encharges[0].percentFullSum;
-
-                //debug object encharges
-                const debug1 = this.enableDebugMode ? this.emit('debug', `Encharges debug: ${JSON.stringify(this.encharges, null, 2)}`) : false;
-
-                //ensemble summary
-                this.ensemble = {
-                    counters: {},
-                    secctrl: {},
-                    relay: {},
-                    enchPercentFullSum: enchargesRatedPowerSum,
-                    enchRatedPowerSum: enchargesPercentFullSum
-                };
-
-                //counters
-                const countersSupported = ensembleStatusKeys.includes('counters');
-                const counterData = countersSupported ? ensembleStatus.counters : {};
-                const counters = {
-                    apiEcagtInit: counterData.api_ecagtInit ?? 0,
-                    apiEcagtTick: counterData.api_ecagtTick ?? 0,
-                    apiEcagtDeviceInsert: counterData.api_ecagtDeviceInsert ?? 0,
-                    apiEcagtDeviceNetworkStatus: counterData.api_ecagtDeviceNetworkStatus ?? 0,
-                    apiEcagtDeviceCommissionStatus: counterData.api_ecagtDeviceCommissionStatus ?? 0,
-                    apiEcagtDeviceRemoved: counterData.api_ecagtDeviceRemoved ?? 0,
-                    apiEcagtGetDeviceCount: counterData.api_ecagtGetDeviceCount ?? 0,
-                    apiEcagtGetDeviceInfo: counterData.api_ecagtGetDeviceInfo ?? 0,
-                    apiEcagtGetOneDeviceInfo: counterData.api_ecagtGetOneDeviceInfo ?? 0,
-                    apiEcagtDevIdToSerial: counterData.api_ecagtDevIdToSerial ?? 0,
-                    apiEcagtHandleMsg: counterData.api_ecagtHandleMsg ?? 0,
-                    apiEcagtGetSubmoduleInv: counterData.api_ecagtGetSubmoduleInv ?? 0,
-                    apiEcagtGetDataModelRaw: counterData.api_ecagtGetDataModelRaw ?? 0,
-                    apiEcagtSetSecCtrlBias: counterData.api_ecagtSetSecCtrlBias ?? 0,
-                    apiEcagtGetSecCtrlBias: counterData.api_ecagtGetSecCtrlBias ?? 0,
-                    apiEcagtGetSecCtrlBiasQ: counterData.api_ecagtGetSecCtrlBiasQ ?? 0,
-                    apiEcagtSetRelayAdmin: counterData.api_ecagtSetRelayAdmin ?? 0,
-                    apiEcagtGetRelayState: counterData.api_ecagtGetRelayState ?? 0,
-                    apiEcagtSetDataModelCache: counterData.api_ecagtSetDataModelCache ?? 0,
-                    apiAggNameplate: counterData.api_AggNameplate ?? 0,
-                    apiChgEstimated: counterData.api_ChgEstimated ?? 0,
-                    apiEcagtGetGridFreq: counterData.api_ecagtGetGridFreq ?? 0,
-                    apiEcagtGetGridVolt: counterData.api_ecagtGetGridVolt ?? 0,
-                    apiEcagtGetGridFreqErrNotfound: counterData.api_ecagtGetGridFreq_err_notfound ?? 0,
-                    apiEcagtGetGridFreqErrOor: counterData.api_ecagtGetGridFreq_err_oor ?? 0,
-                    restStatusGet: counterData.rest_StatusGet ?? 0,
-                    restInventoryGet: counterData.rest_InventoryGet ?? 0,
-                    restSubmodGet: counterData.rest_SubmodGet ?? 0,
-                    restSecCtrlGet: counterData.rest_SecCtrlGet ?? 0,
-                    restRelayGet: counterData.rest_RelayGet ?? 0,
-                    restRelayPost: counterData.rest_RelayPost ?? 0,
-                    restCommCheckGet: counterData.rest_CommCheckGet ?? 0,
-                    restPow: counterData.rest_Power ?? 0,
-                    restPower: counterData.rest_Power / 1000 ?? 0, //in kW
-                    extZbRemove: counterData.ext_zb_remove ?? 0,
-                    extZbRemoveErr: counterData.ext_zb_remove_err ?? 0,
-                    extZbSendMsg: counterData.ext_zb_send_msg ?? 0,
-                    extCfgSaveDevice: counterData.ext_cfg_save_device ?? 0,
-                    extCfgSaveDeviceErr: counterData.ext_cfg_save_device_err ?? 0,
-                    extSendPerfData: counterData.ext_send_perf_data ?? 0,
-                    extEventSetStateful: counterData.ext_event_set_stateful ?? 0,
-                    extEventSetModgone: counterData.ext_event_set_modgone ?? 0,
-                    rxmsgObjMdlMetaRsp: counterData.rxmsg_OBJ_MDL_META_RSP ?? 0,
-                    rxmsgObjMdlInvUpdRsp: counterData.rxmsg_OBJ_MDL_INV_UPD_RSP ?? 0,
-                    rxmsgObjMdlPollRsp: counterData.rxmsg_OBJ_MDL_POLL_RSP ?? 0,
-                    rxmsgObjMdlRelayCtrlRsp: counterData.rxmsg_OBJ_MDL_RELAY_CTRL_RSP ?? 0,
-                    rxmsgObjMdlRelayStatusReq: counterData.rxmsg_OBJ_MDL_RELAY_STATUS_REQ ?? 0,
-                    rxmsgObjMdlGridStatusRsp: counterData.rxmsg_OBJ_MDL_GRID_STATUS_RSP ?? 0,
-                    rxmsgObjMdlEventMsg: counterData.rxmsg_OBJ_MDL_EVENT_MSG ?? 0,
-                    rxmsgObjMdlSosConfigRsp: counterData.rxmsg_OBJ_MDL_SOC_CONFIG_RSP ?? 0,
-                    txmsgObjMdlMetaReq: counterData.txmsg_OBJ_MDL_META_REQ ?? 0,
-                    txmsgObjMdlEncRtPollReq: counterData.txmsg_OBJ_MDL_ENC_RT_POLL_REQ ?? 0,
-                    txmsgObjMdlEnpRtPollReq: counterData.txmsg_OBJ_MDL_ENP_RT_POLL_REQ ?? 0,
-                    txmsgObjMdlBmuPollReq: counterData.txmsg_OBJ_MDL_BMU_POLL_REQ ?? 0,
-                    txmsgObjMdlPcuPollReq: counterData.txmsg_OBJ_MDL_PCU_POLL_REQ ?? 0,
-                    txmsgObjMdlSecondaryCtrlReq: counterData.txmsg_OBJ_MDL_SECONDARY_CTRL_REQ ?? 0,
-                    txmsgObjMdlRelayCtrlReq: counterData.txmsg_OBJ_MDL_RELAY_CTRL_REQ ?? 0,
-                    txmsgObjMdlGridStatusReq: counterData.txmsg_OBJ_MDL_GRID_STATUS_REQ ?? 0,
-                    txmsgObjMdlEventsAck: counterData.txmsg_OBJ_MDL_EVENTS_ACK ?? 0,
-                    txmsgObjMdlRelayStatusRsp: counterData.txmsg_OBJ_MDL_RELAY_STATUS_RSP ?? 0,
-                    txmsgObjMdlcosConfigReq: counterData.txmsg_OBJ_MDL_SOC_CONFIG_REQ ?? 0,
-                    txmsgObjMdlTnsStart: counterData.txmsg_OBJ_MDL_TNS_START ?? 0,
-                    rxmsgObjMdlTnsStartRsp: counterData.rxmsg_OBJ_MDL_TNS_START_RSP ?? 0,
-                    txmsgObjMdlSetUdmir: counterData.txmsg_OBJ_MDL_SET_UDMIR ?? 0,
-                    rxmsgObjMdlSetUdmirRsp: counterData.rxmsg_OBJ_MDL_SET_UDMIR_RSP ?? 0,
-                    txmsgObjMdlTnsEdn: counterData.txmsg_OBJ_MDL_TNS_END ?? 0,
-                    rxmsgObjMdlTnsEndRsp: counterData.rxmsg_OBJ_MDL_TNS_END_RSP ?? 0,
-                    txmsgLvsPoll: counterData.txmsg_lvs_poll ?? 0,
-                    zmqEcaHello: counterData.zmq_ecaHello ?? 0,
-                    zmqEcaDevInfo: counterData.zmq_ecaDevInfo ?? 0,
-                    zmqEcaNetworkStatus: counterData.zmq_ecaNetworkStatus ?? 0,
-                    zmqEcaAppMsg: counterData.zmq_ecaAppMsg ?? 0,
-                    zmqStreamdata: counterData.zmq_streamdata ?? 0,
-                    zmqLiveDebug: counterData.zmq_live_debug ?? 0,
-                    zmqEcaLiveDebugReq: counterData.zmq_eca_live_debug_req ?? 0,
-                    zmqNameplate: counterData.zmq_nameplate ?? 0,
-                    zmqEcaSecCtrlMsg: counterData.zmq_ecaSecCtrlMsg ?? 0,
-                    zmqMeterlogOk: counterData.zmq_meterlog_ok ?? 0,
-                    dmdlFilesIndexed: counterData.dmdl_FILES_INDEXED ?? 0,
-                    pfStart: counterData.pf_start ?? 0,
-                    pfActivate: counterData.pf_activate ?? 0,
-                    devPollMissing: counterData.devPollMissing ?? 0,
-                    devMsgRspMissing: counterData.devMsgRspMissing ?? 0,
-                    gridProfileTransaction: counterData.gridProfileTransaction ?? 0,
-                    secctrlNotReady: counterData.secctrlNotReady ?? 0,
-                    fsmRetryTimeout: counterData.fsm_retry_timeout ?? 0,
-                    profileTxnAck: counterData.profile_txn_ack ?? 0,
-                    backupSocLimitSet: counterData.backupSocLimitSet ?? 0,
-                    backupSocLimitChanged: counterData.backupSocLimitChanged ?? 0,
-                    backupSocLimitAbove100: counterData.backupSocLimitAbove100 ?? 0,
-                    apiEcagtGetGenRelayState: counterData.api_ecagtGetGenRelayState ?? 0,
-                };
-                this.ensemble.counters = counters;
-
-                //secctrl
-                const secctrlSupported = ensembleStatusKeys.includes('secctrl');
-                const secctrlData = secctrlSupported ? ensembleStatus.secctrl : {};
-                const secctrl = {
-                    shutDown: secctrlData.shutdown,
-                    freqBiasHz: secctrlData.freq_bias_hz,
-                    voltageBiasV: secctrlData.voltage_bias_v,
-                    freqBiasHzQ8: secctrlData.freq_bias_hz_q8,
-                    voltageBiasVQ5: secctrlData.voltage_bias_v_q5,
-                    freqBiasHzPhaseB: secctrlData.freq_bias_hz_phaseb,
-                    voltageBiasVPhaseB: secctrlData.voltage_bias_v_phaseb,
-                    freqBiasHzQ8PhaseB: secctrlData.freq_bias_hz_q8_phaseb,
-                    voltageBiasVQ5PhaseB: secctrlData.voltage_bias_v_q5_phaseb,
-                    freqBiasHzPhaseC: secctrlData.freq_bias_hz_phasec,
-                    voltageBiasVPhaseC: secctrlData.voltage_bias_v_phasec,
-                    freqBiasHzQ8PhaseC: secctrlData.freq_bias_hz_q8_phasec,
-                    voltageBiasVQ5PhaseC: secctrlData.voltage_bias_v_q5_phasec,
-                    configuredBackupSoc: secctrlData.configured_backup_soc, //in %
-                    adjustedBackupSoc: secctrlData.adjusted_backup_soc, //in %
-                    aggSoc: secctrlData.agg_soc, //in %
-                    aggMaxEnergy: secctrlData.Max_energy / 1000, //in kWh
-                    encAggSoc: secctrlData.ENC_agg_soc, //in %
-                    encAggSoh: secctrlData.ENC_agg_soh, //in %
-                    encAggBackupEnergy: secctrlData.ENC_agg_backup_energy / 1000, //in kWh
-                    encAggAvailEnergy: secctrlData.ENC_agg_avail_energy / 1000, //in kWh
-                    encCommissionedCapacity: secctrlData.Enc_commissioned_capacity / 1000, //in kWh
-                    encMaxAvailableCapacity: secctrlData.Enc_max_available_capacity / 1000, //in kWh
-                    acbAggSoc: secctrlData.ACB_agg_soc, //in %
-                    acbAggEnergy: secctrlData.ACB_agg_energy / 1000, //in kWh
-                    vlsLimit: secctrlData.VLS_Limit ?? 0,
-                    socRecEnabled: secctrlData.soc_rec_enabled ?? false,
-                    socRecoveryEntry: secctrlData.soc_recovery_entry ?? 0,
-                    socRecoveryExit: secctrlData.soc_recovery_exit ?? 0,
-                    commisionInProgress: secctrlData.Commission_in_progress ?? false,
-                    essInProgress: secctrlData.ESS_in_progress ?? false
-                }
-                this.ensemble.secctrl = secctrl;
-
-                if (this.ensembleStatusService) {
-                    this.ensembleStatusService
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusRestPower, counters.restPower)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHz, secctrl.freqBiasHz)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasV, secctrl.voltageBiasV)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8, secctrl.freqBiasHzQ8)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5, secctrl.voltageBiasVQ5)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzPhaseB, secctrl.freqBiasHzPhaseB)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseB, secctrl.voltageBiasVPhaseB)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseB, secctrl.freqBiasHzQ8PhaseB)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseB, secctrl.voltageBiasVQ5PhaseB)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzPhaseC, secctrl.freqBiasHzPhaseC)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseC, secctrl.voltageBiasVPhaseC)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseC, secctrl.freqBiasHzQ8PhaseC)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseC, secctrl.voltageBiasVQ5PhaseC)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusConfiguredBackupSoc, secctrl.configuredBackupSoc)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusAdjustedBackupSoc, secctrl.adjustedBackupSoc)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusAggSoc, secctrl.aggSoc)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusAggMaxEnergy, secctrl.aggMaxEnergy)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggSoc, secctrl.encAggSoc)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower, enchargesRatedPowerSum)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggPercentFull, enchargesPercentFullSum)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggBackupEnergy, secctrl.encAggBackupEnergy)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggAvailEnergy, secctrl.encAggAvailEnergy)
-                }
-
-                //relay
-                const relaySupported = ensembleStatusKeys.includes('relay');
-                const relayData = relaySupported ? ensembleStatus.relay : {};
-                const relay = {
-                    mainsAdminState: CONSTANTS.ApiCodes[relayData.mains_admin_state] ?? 'Unknown',
-                    mainsAdminStateBool: CONSTANTS.ApiCodes[relayData.mains_admin_state] === 'Closed' ?? false,
-                    mainsOperState: CONSTANTS.ApiCodes[relayData.mains_oper_sate] ?? 'Unknown',
-                    mainsOperStateBool: CONSTANTS.ApiCodes[relayData.mains_oper_sate] === 'Closed' ?? false,
-                    der1State: relayData.der1_state ?? 0,
-                    der2State: relayData.der2_state ?? 0,
-                    der3State: relayData.der3_state ?? 0,
-                    enchgGridMode: relayData.Enchg_grid_mode ?? 'Unknown',
-                    enchgGridModeTranslated: CONSTANTS.ApiCodes[relayData.Enchg_grid_mode] ?? relayData.Enchg_grid_mode,
-                    solarGridMode: relayData.Solar_grid_mode ?? 'Unknown',
-                    solarGridModeTranslated: CONSTANTS.ApiCodes[relayData.Solar_grid_mode] ?? relayData.Solar_grid_mode
-                }
-                this.ensemble.relay = relay;
-
-                //debug object ensemble
-                const debug2 = this.enableDebugMode ? this.emit('debug', `Encharges debug: ${JSON.stringify(this.ensemble, null, 2)}`) : false;
-
-                //encharge grid state sensors
-                if (this.enchargeGridModeActiveSensorsCount > 0) {
-                    for (let i = 0; i < this.enchargeGridModeActiveSensorsCount; i++) {
-                        const gridMode = this.enchargeGridModeActiveSensors[i].gridMode;
-                        const state = gridMode === relay.enchgGridMode;
-                        this.enchargeGridModeActiveSensors[i].state = state;
-
-                        if (this.enchargeGridModeSensorsServices) {
-                            const characteristicType = this.enchargeGridModeActiveSensors[i].characteristicType;
-                            this.enchargeGridModeSensorsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                        }
-                    }
-                }
-
-                //solar grid state sensors
-                if (this.solarGridModeActiveSensorsCount > 0) {
-                    for (let i = 0; i < this.solarGridModeActiveSensorsCount; i++) {
-                        const gridMode = this.solarGridModeActiveSensors[i].gridMode;
-                        const state = gridMode === relay.solarGridMode;
-                        this.solarGridModeActiveSensors[i].state = state;
-
-                        if (this.solarGridModeSensorsServices) {
-                            const characteristicType = this.solarGridModeActiveSensors[i].characteristicType;
-                            this.solarGridModeSensorsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                        }
-                    }
-                }
-
-                //profile
-                const profileSupported = ensembleStatusKeys.includes('profile');
-                const profile = profileSupported ? ensembleStatus.profile : await this.updateGridProfileData();
-
-                //fakeit
-                const fakeInventoryModeSupported = ensembleStatusKeys.includes('fakeit');
-                this.ensembleFakeInventoryMode = fakeInventoryModeSupported ? ensembleStatus.fakeit.fake_inventory_mode === true : false;
-
-                //ensemble status supported
-                this.ensembleStatusSupported = true;
-
-                //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('ensemblestatus', ensembleStatus) : false;
-
-                //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Status', ensembleStatus) : false;
-                resolve(true);
-            } catch (error) {
-                reject(`Requesting ensemble status error: ${error}.`);
-            };
-        });
-    };
-
-    updateEnsembleEnchargeSettingsData() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble encharge settings.`) : false;
-
-            try {
-                const ensembleEnchargeSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnchargeSettings);
-                const ensembleEnchargeSettings = ensembleEnchargeSettingsData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Encharge settings: ${JSON.stringify(ensembleEnchargeSettings, null, 2)}`) : false;
-
-                //ensemble generator keys
-                const enchargeSettingsKeys = Object.keys(ensembleEnchargeSettings);
-                const enchargeSettingsKeysCount = enchargeSettingsKeys.length;
-
-                //encharge settings not exist
-                if (enchargeSettingsKeysCount === 0) {
-                    resolve(false);
-                    return;
-                }
-
-                const tariff = ensembleEnchargeSettings.tariff;
-                const enchargeSettings = {
-                    mode: tariff.mode,
-                    selfConsumptionMode: tariff.mode === 'self-consumption',
-                    fullBackupMode: tariff.mode === 'backup',
-                    savingsMode: (tariff.mode === 'savings-mode' || tariff.mode === 'economy'),
-                    operationModeSubType: tariff.operation_mode_sub_type,
-                    reservedSoc: tariff.reserved_soc,
-                    veryLowSoc: tariff.very_low_soc,
-                    chargeFromGrid: tariff.charge_from_grid,
-                    date: date ?? new Date()
-                }
-
-                //add settings to encharges object
-                for (let i = 0; i < this.enchargesCount; i++) {
-                    this.encharges[i].settings = enchargeSettings;
-                }
-
-                if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
-                    for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
-                        const state = enchargeSettings.selfConsumptionMode;
-                        this.generatorStateActiveControls[i].state = state;
-
-                        if (this.enchargeProfileSelfConsumptionActiveControlsServices) {
-                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
-                            this.enchargeProfileSelfConsumptionActiveControlsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                                .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
-                        }
-                    }
-                }
-
-                if (this.enchargeProfileSavingsActiveControlsCount > 0) {
-                    for (let i = 0; i < this.enchargeProfileSavingsActiveControlsCount; i++) {
-                        const state = enchargeSettings.savingsMode;
-                        this.generatorStateActiveControls[i].state = state;
-
-                        if (this.enchargeProfileSavingsActiveControlsServices) {
-                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
-                            this.enchargeProfileSavingsActiveControlsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                                .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
-                        }
-                    }
-                }
-
-                if (this.enchargeProfileFullBackupActiveControlsCount > 0) {
-                    for (let i = 0; i < this.enchargeProfileFullBackupActiveControlsCount; i++) {
-                        const state = enchargeSettings.fullBackupMode;
-                        this.generatorStateActiveControls[i].state = state;
-
-                        if (this.enchargeProfileFullBackupActiveControlsServices) {
-                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
-                            this.enchargeProfileFullBackupActiveControlsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                        }
-                    }
-                }
-
-                this.enchargeSettingsSupported = enchargeSettingsKeysCount > 0;
-
-                //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('enchargesettings', ensembleGenerator) : false;
-
-                //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Encharge Settings', ensembleGenerator) : false;
-                resolve(true);
-            } catch (error) {
-                reject(`Requesting ensemble encharge settings. error: ${error}.`);
-            };
-        });
-    };
-
-    updateEnsembleGeneratorData() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator.`) : false;
-
-            try {
-                const ensembleGeneratorData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleGenerator);
-                const ensembleGenerator = ensembleGeneratorData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Generator: ${JSON.stringify(ensembleGenerator, null, 2)}`) : false;
-
-                //ensemble generator keys
-                const generatorKeys = Object.keys(ensembleGenerator);
-                const generatorKeysCount = generatorKeys.length;
-
-                //ensemble generator not exist
-                if (generatorKeysCount === 0) {
-                    resolve(false);
-                    return;
-                }
-
-                const generator = {
-                    adminState: CONSTANTS.ApiCodes[ensembleGenerator.admin_state] ?? 'Unknown',
-                    operState: CONSTANTS.ApiCodes[ensembleGenerator.oper_state] ?? 'Unknown',
-                    adminMode: ['Off', 'On', 'Auto'][ensembleGenerator.admin_mode] ?? ensembleGenerator.admin_mode.toString(),
-                    adminModeOffBool: ensembleGenerator.admin_mode === 'Off',
-                    adminModeOnBool: ensembleGenerator.admin_mode === 'On',
-                    adminModeAutoBool: ensembleGenerator.admin_mode === 'Auto',
-                    schedule: ensembleGenerator.schedule,
-                    startSoc: ensembleGenerator.start_soc,
-                    stopSoc: ensembleGenerator.stop_soc,
-                    excOn: ensembleGenerator.exc_on,
-                    present: ensembleGenerator.present,
-                    type: ensembleGenerator.type,
-                    settings: {}
-                }
-                this.generator = generator;
-
-                if (this.generatorService) {
-                    this.generatorService
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorAdminState, generator.adminState)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorOperState, generator.operState)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorAdminMode, generator.adminMode)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorShedule, generator.schedule)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorStartSoc, generator.startSoc)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorStopSoc, generator.stopSoc)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorExexOn, generator.excOn)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorPresent, generator.present)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorType, generator.type);
-                }
-
-                //generator control
-                if (this.generatorStateActiveControlsCount > 0) {
-                    for (let i = 0; i < this.generatorStateActiveControlsCount; i++) {
-                        const state = generator.adminModeOnBool || generator.adminModeAutoBool;
-                        this.generatorStateActiveControls[i].state = state;
-
-                        if (this.generatorStateControlsServices) {
-                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
-                            this.generatorStateControlsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                        }
-
-                        if (this.envoyService) {
-                            this.envoyService
-                                .updateCharacteristic(Characteristic.enphaseEnvoyGeneratorState, state)
-                        }
-                    }
-                }
-
-                //generator state sensor
-                if (this.generatorStateActiveSensorsCount > 0) {
-                    for (let i = 0; i < this.generatorStateActiveSensorsCount; i++) {
-                        const state = generator.adminMode !== 'Off';
-                        this.generatorStateActiveSensors[i].state = state;
-
-                        if (this.generatorStateSensorsServices) {
-                            const characteristicType = this.generatorStateActiveSensors[i].characteristicType;
-                            this.generatorStateSensorsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                        }
-                    }
-                }
-
-                //generator mode sensors
-                if (this.generatorModeActiveSensorsCount > 0) {
-                    for (let i = 0; i < this.generatorModeActiveSensorsCount; i++) {
-                        const mode = this.generatorModeActiveSensors[i].mode;
-                        const state = mode === generator.adminMode;
-                        this.generatorModeActiveSensors[i].state = state;
-
-                        if (this.generatorModeSensorsServices) {
-                            const characteristicType = this.generatorModeActiveSensors[i].characteristicType;
-                            this.generatorModeSensorsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                        }
-                    }
-
-                    if (this.envoyService) {
-                        this.envoyService
-                            .updateCharacteristic(Characteristic.enphaseEnvoyGeneratorMode, generator.adminMode)
-                    }
-                }
-
-                this.generatorsInstalled = generatorKeysCount > 0;
-
-                //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('generator', ensembleGenerator) : false;
-
-                //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator', ensembleGenerator) : false;
-                resolve(true);
-            } catch (error) {
-                reject(`Requesting ensemble generator error: ${error}.`);
-            };
-        });
-    };
-
-    updateEnsembleGeneratorSettingsData() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator settings`) : false;
-
-            try {
-                const ensembleGeneratorSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.GeneratorSettingsGetSet);
-                const ensembleGeneratorSettings = ensembleGeneratorSettingsData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Generator settings: ${JSON.stringify(ensembleGeneratorSettings, null, 2)}`) : false;
-
-                //ensemble generator keys
-                const generatorSettingsKeys = Object.keys(ensembleGeneratorSettings);
-                const generatorSettingsKeysCount = generatorSettingsKeys.length;
-
-                //ensemble generator settings not exist
-                if (generatorSettingsKeysCount === 0) {
-                    resolve(false);
-                    return;
-                }
-
-                const settings = ensembleGeneratorSettings.generator_settings;
-                const generatorSettings = {
-                    maxContGenAmps: settings.max_cont_gen_amps, //float
-                    minGenLoadingPerc: settings.min_gen_loading_perc, //int
-                    maxGenEfficiencyPerc: settings.max_gen_efficiency_perc, //int
-                    namePlateRatingWat: settings.name_plate_rating_wat, //float
-                    startMethod: settings.start_method, //str Auto, Manual
-                    warmUpMins: settings.warm_up_mins, //str
-                    coolDownMins: settings.cool_down_mins, //str
-                    genType: settings.gen_type, //str
-                    model: settings.model, //str
-                    manufacturer: settings.manufacturer, //str
-                    lastUpdatedBy: settings.last_updated_by, //str
-                    generatorId: settings.generator_id, //str
-                    chargeFromGenerator: settings.charge_from_generator //bool
-                }
-                this.generator.settings = generatorSettings;
-                this.generatorsSettingsSupported = generatorSettingsKeysCount > 0;
-
-                //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('generatorsettings', ensembleGeneratorSettings) : false;
-
-                //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator Settings', ensembleGeneratorSettings) : false;
-                resolve(true);
-            } catch (error) {
-                reject(`Requesting ensemble generator settings error: ${error}.`);
-            };
-        });
-    };
-
-    updateLiveData() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data.`) : false;
-
-            try {
-                const liveData = await this.axiosInstance(CONSTANTS.ApiUrls.LiveDataStatus);
-                const live = liveData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(live, null, 2)}`) : false;
-
-                //live data keys
-                const liveDadaKeys = Object.keys(live);
-                const liveDadaKeysCount = liveDadaKeys.length;
-
-                //live data
-                if (liveDadaKeysCount === 0) {
-                    resolve(false);
-                    return;
-                }
-
-                //connection
-                const lconnectionSupported = liveDadaKeys.includes('connection');
-                const connection = lconnectionSupported ? live.connection : {};
-                const connectionMqttState = connection.mqtt_state;
-                const connectionProvState = connection.prov_state;
-                const connectionAuthState = connection.auth_state;
-                const connectionScStream = connection.sc_stream === 'enabled';
-                const connectionScDebug = connection.sc_debug === 'enabled';
-
-                //enable live data stream if not enabled
-                const enableLiveDataStream = !connectionScStream ? await this.enableLiveDataStream() : false;
-
-                //meters
-                const liveDataMetersSupported = liveDadaKeys.includes('meters');
-                const liveDataMeters = liveDataMetersSupported ? live.meters : {};
-                const metersLastUpdate = liveDataMeters.last_update;
-                const metersSoc = liveDataMeters.soc;
-                const metersMainRelayState = liveDataMeters.main_relay_state;
-                const metersGenRelayState = liveDataMeters.gen_relay_state;
-                const metersBackupBatMode = liveDataMeters.backup_bat_mode;
-                const metersBackupSoc = liveDataMeters.backup_soc;
-                const metersIsSplitPhase = liveDataMeters.is_split_phase;
-                const metersPhaseCount = liveDataMeters.phase_count;
-                const metersEncAggSoc = liveDataMeters.enc_agg_soc;
-                const metersEncAggEnergy = liveDataMeters.enc_agg_energy;
-                const metersAcbAggSoc = liveDataMeters.acb_agg_soc;
-                const metersAcbAggEnergy = liveDataMeters.acb_agg_energy;
-
-                //lived data meteres types add to array
-                const liveDataTypes = [];
-                const pushPvTypeToArray = this.metersInstalled && (this.metersProductionEnabled || this.metersConsumptionEnabled) ? liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
-                const pushStorageTypeToArray = this.metersInstalled && this.metersStorageEnabled ? liveDataTypes.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
-                const pushGridTypeToArray = this.metersInstalled && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
-                const pushLoadTypeToArray = this.metersInstalled && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Load', meter: liveDataMeters.load }) : false;
-                const pushGeneratorTypeToArray = this.metersInstalled && this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
-
-                //read meters data
-                this.liveDatas = [];
-                liveDataTypes.forEach((liveDataType, index) => {
-                    const obj = {
-                        type: liveDataType.type,
-                        activePower: liveDataType.meter.agg_p_mw / 1000000 || 0,
-                        apparentPower: liveDataType.meter.agg_s_mva / 1000000 || 0,
-                        activePowerL1: liveDataType.meter.agg_p_ph_a_mw / 1000000 || 0,
-                        activePowerL2: liveDataType.meter.agg_p_ph_b_mw / 1000000 || 0,
-                        activePowerL3: liveDataType.meter.agg_p_ph_c_mw / 1000000 || 0,
-                        apparentPowerL1: liveDataType.meter.agg_s_ph_a_mva / 1000000 || 0,
-                        apparentPowerL2: liveDataType.meter.agg_s_ph_b_mva / 1000000 || 0,
-                        apparentPowerL3: liveDataType.meter.agg_s_ph_c_mva / 1000000 || 0
-                    }
-                    this.liveDatas.push(obj);
-
-                    if (this.liveDataMetersServices) {
-                        this.liveDataMetersServices[index]
-                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePower, obj.activePower)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL1, obj.activePowerL1)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL2, obj.activePowerL2)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL3, obj.activePowerL3)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPower, obj.apparentPower)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1, obj.apparentPowerL1)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2, obj.apparentPowerL2)
-                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3, obj.apparentPowerL3)
-                    }
-                });
-
-                //encharge backup level sensors
-                if (this.enchargeBackupLevelActiveSensorsCount > 0) {
-                    for (let i = 0; i < this.enchargeBackupLevelActiveSensorsCount; i++) {
-                        const backupLevel = this.enchargeBackupLevelActiveSensors[i].backupLevel;
-                        const compareMode = this.enchargeBackupLevelActiveSensors[i].compareMode;
-                        let state = false;
-                        switch (compareMode) {
-                            case 0:
-                                state = metersBackupSoc > backupLevel;
-                                break;
-                            case 1:
-                                state = metersBackupSoc >= backupLevel;
-                                break;
-                            case 2:
-                                state = metersBackupSoc === backupLevel;
-                                break;
-                            case 3:
-                                state = metersBackupSoc < backupLevel;
-                                break;
-                            case 4:
-                                state = metersBackupSoc <= backupLevel;
-                                break;
-                        }
-                        this.enchargeBackupLevelActiveSensors[i].state = state;
-
-                        if (this.enchargeBackupLevelSensorsServices) {
-                            const characteristicType = this.enchargeBackupLevelActiveSensors[i].characteristicType;
-                            this.enchargeBackupLevelSensorsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                        }
-                    }
-                }
-
-                //tasks
-                const tasksSupported = liveDadaKeys.includes('tasks');
-                const tasks = tasksSupported ? live.tasks : {};
-                const tasksId = tasks.task_id;
-                const tasksTimeStamp = tasks.timestamp;
-
-                //counters
-                const countersSupported = liveDadaKeys.includes('counters');
-                const counters = countersSupported ? live.counters : {};
-                const countersMainCfgLoad = counters.main_CfgLoad;
-                const countersMainCfgChanged = counters.main_CfgChanged;
-                const countersSigHup = counters.main_sigHUP;
-                const countersMgttClientPublish = counters.MqttClient_publish;
-                const countersMgttClientLiveDebug = counters.MqttClient_live_debug;
-                const countersMgttClientRespond = counters.MqttClient_respond;
-                const countersMgttClientMsgarrvd = counters.MqttClient_msgarrvd;
-                const countersMgttClientCreate = counters.MqttClient_create;
-                const countersMgttClientSetCallbacks = counters.MqttClient_setCallbacks;
-                const countersMgttClientConnect = counters.MqttClient_connect;
-                const countersMgttClientSubscribe = counters.MqttClient_subscribe;
-                const countersSslKeysCreate = counters.SSL_Keys_Create;
-                const countersScHdlDataPub = counters.sc_hdlDataPub;
-                const countersScSendStreamCtrl = counters.sc_SendStreamCtrl;
-                const countersScSendDemandRspCtrl = counters.sc_SendDemandRspCtrl;
-                const countersRestStatus = counters.rest_Status;
-
-                //dry contacts
-                const dryContactsSupported = liveDadaKeys.includes('dry_contacts');
-                const dryContacts = dryContactsSupported ? live.dry_contacts[''] : {};
-                const dryContactId = dryContacts.dry_contact_id ?? '';
-                const dryContactLoadName = dryContacts.dry_contact_load_name ?? '';
-                const dryContactStatus = dryContacts.dry_contact_status ?? 0;
-
-                //live data supported
-                this.liveDataSupported = true;
-                this.liveDataInstalled = this.liveDatas.length > 0;
-
-                //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('livedata', live) : false;
-
-                //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Live Data', live) : false;
-                resolve(true);
-            } catch (error) {
-                reject(`Requesting live data error: ${error}.`);
-            };
-        });
-    };
-
-    enableLiveDataStream() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream enable.`) : false;
-
-            try {
-                //create axios instance post with token and data
-                const options = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Cookie: this.cookie
-                    },
-                    withCredentials: true,
-                    httpsAgent: new https.Agent({
-                        keepAlive: true,
-                        rejectUnauthorized: false
-                    })
-                }
-                const url = this.url + CONSTANTS.ApiUrls.LiveDataStream;
-                const enableLiveDataStream = await axios.post(url, { 'enable': 1 }, options);
-                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
-                resolve();
-            } catch (error) {
-                reject(`Requesting live data stream eenable rror: ${error}.`);
-            };
-        });
-    };
-
     updateProductionData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting production.`) : false;
@@ -2916,6 +1912,14 @@ class EnvoyDevice extends EventEmitter {
                 const productionData = await this.axiosInstance(CONSTANTS.ApiUrls.InverterProductionSumm);
                 const production = productionData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Production: ${JSON.stringify(production, null, 2)}`) : false;
+
+                //production supported
+                const productionKeys = Object.keys(production);
+                const productionSupported = productionKeys.length > 0;
+                if (!productionSupported) {
+                    resolve(false);
+                    return;
+                }
 
                 //microinverters summary 
                 const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
@@ -2946,6 +1950,13 @@ class EnvoyDevice extends EventEmitter {
                 const productionCtData = await this.axiosInstance(CONSTANTS.ApiUrls.SystemReadingStats);
                 const productionCt = productionCtData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Production ct: ${JSON.stringify(productionCt, null, 2)}`) : false;
+
+                //production ct count
+                const productionCtSupported = productionCt.length > 0;
+                if (!productionCtSupported) {
+                    resolve(false);
+                    return;
+                }
 
                 //get enabled devices
                 const metersProductionEnabled = this.metersProductionEnabled;
@@ -3341,8 +2352,8 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Microinverters: ${JSON.stringify(microinverters, null, 2)}`) : false;
 
                 //microinverters devices count
-                const microinvertersCount = microinverters.length;
-                if (microinvertersCount === 0) {
+                const microinvertersSupported = microinverters.length > 0;
+                if (!microinvertersSupported) {
                     resolve(false);
                     return;
                 }
@@ -3394,11 +2405,22 @@ class EnvoyDevice extends EventEmitter {
                 const productionPowerMode = productionPowerModeData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(productionPowerMode, null, 2)}`) : false;
 
+                //production power mode
+                const productionPowerModeKeys = Object.keys(productionPowerMode);
+                const productionPowerModeSupported = productionPowerModeKeys.includes('powerForcedOff');
+                if (!productionPowerModeSupported) {
+                    resolve(false);
+                    return;
+                }
+
                 //update power production control state
-                const state = productionPowerMode.powerForcedOff === false ?? false;
+                const state = productionPowerMode.powerForcedOff === false;
+                this.productionPowerMode = state;
+
+                //update services
                 if (this.envoyService) {
                     this.envoyService
-                        .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, powerMode)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, state)
                 }
 
                 if (this.powerProductionActiveControlsCount > 0) {
@@ -3412,8 +2434,7 @@ class EnvoyDevice extends EventEmitter {
                         }
                     }
                 }
-                this.productionPowerMode = state;
-                this.productionPowerModeSupported = true;
+                this.productionPowerModeSupported = productionPowerModeSupported;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('powermode', productionPowerMode) : false;
@@ -3426,6 +2447,1140 @@ class EnvoyDevice extends EventEmitter {
             };
         });
     }
+
+    updateEnsembleInventoryData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble inventory.`) : false;
+
+            try {
+                const ensembleInventoryData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleInventory);
+                const ensembleInventory = ensembleInventoryData.data ?? [];
+                const debug = this.enableDebugMode ? this.emit('debug', `Ensemble inventory: ${JSON.stringify(ensembleInventory, null, 2)}`) : false;
+
+                //ensemble inventory devices count
+                const ensembleInventorySupported = ensembleInventory.length > 0;
+                if (!ensembleInventorySupported) {
+                    resolve(false);
+                    return;
+                }
+
+                //ensemble inventory keys
+                const ensembleInventoryKeys = ensembleInventory.map(device => device.type);
+
+                //encharges
+                const enchargesSupported = ensembleInventoryKeys.includes('ENCHARGE');
+                const encharges = enchargesSupported ? ensembleInventory[0].devices : [];
+                const enchargesCount = encharges.length;
+                const enchargesInstalled = enchargesCount > 0;
+                const enchargesPercentFullSummary = [];
+                this.encharges = [];
+
+                if (enchargesInstalled) {
+                    const type = CONSTANTS.ApiCodes[ensembleInventory[0].type];
+                    encharges.forEach((encharge, index) => {
+                        const obj = {
+                            type: type,
+                            partNumber: CONSTANTS.PartNumbers[encharge.part_num] ?? encharge.part_num,
+                            serialNumber: encharge.serial_num,
+                            installed: new Date(encharge.installed * 1000).toLocaleString(),
+                            deviceStatus: (Array.isArray(encharge.device_status) && (encharge.device_status).length > 0) ? ((encharge.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                            lastReportDate: new Date(encharge.last_rpt_date * 1000).toLocaleString(),
+                            adminState: encharge.admin_state,
+                            adminStateStr: CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown',
+                            createdDate: new Date(encharge.created_date * 1000).toLocaleString(),
+                            imgLoadDate: new Date(encharge.img_load_date * 1000).toLocaleString(),
+                            imgPnumRunning: encharge.img_pnum_running,
+                            zigbeeDongleFwVersion: encharge.zigbee_dongle_fw_version ?? 'Unknown',
+                            bmuFwVersion: encharge.bmu_fw_version,
+                            operating: encharge.operating === true ?? false,
+                            communicating: encharge.communicating === true,
+                            sleepEnabled: encharge.sleep_enabled,
+                            percentFull: encharge.percentFull ?? 0,
+                            temperature: encharge.temperature ?? 0,
+                            maxCellTemp: encharge.maxCellTemp ?? 0,
+                            reportedEncGridState: CONSTANTS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown',
+                            commLevelSubGhz: encharge.comm_level_sub_ghz * 20 ?? 0,
+                            commLevel24Ghz: encharge.comm_level_2_4_ghz * 20 ?? 0,
+                            ledStatus: CONSTANTS.LedStatus[encharge.led_status] ?? encharge.led_status,
+                            dcSwitchOff: encharge.dc_switch_off,
+                            rev: encharge.encharge_rev,
+                            capacity: encharge.encharge_capacity / 1000 ?? 0, //in kWh
+                            phase: encharge.phase ?? 'Unknown',
+                            derIndex: encharge.der_index ?? 0,
+                            commLevel: 0,
+                            percentFullSum: 0,
+                            ratedPowerSum: 0,
+                            energyState: false,
+                            status: {},
+                            settings: {}
+                        }
+                        this.encharges.push(obj);
+
+                        //encharges percent full summary
+                        enchargesPercentFullSummary.push(obj.percentFull);
+
+                        if (this.enchargesServices) {
+                            this.enchargesServices[index]
+                                .updateCharacteristic(Characteristic.enphaseEnchargeStatus, obj.deviceStatus)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeLastReportDate, obj.lastReportDate)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeAdminStateStr, obj.adminStateStr)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeOperating, obj.operating)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeCommunicating, obj.communicating)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeSleepEnabled, obj.sleepEnabled)
+                                .updateCharacteristic(Characteristic.enphaseEnchargePercentFull, obj.percentFull)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeTemperature, obj.temperature)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeMaxCellTemp, obj.maxCellTemp)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeCommLevelSubGhz, obj.commLevelSubGhz)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel24Ghz, obj.commLevel24Ghz)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeLedStatus, obj.ledStatus)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff, obj.dcSwitchOff)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeRev, obj.rev)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, obj.capacity)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, this.arfProfile.name)
+                        }
+                    });
+                    this.enchargesInstalled = enchargesInstalled;
+                    this.enchargesCount = enchargesCount;
+
+                    //calculate encharges percent full summ
+                    const enchargesPercentFullSum = (enchargesPercentFullSummary.reduce((total, num) => total + num, 0) / enchargesCount) ?? 0;
+                    const enchargesEnergyState = enchargesPercentFullSum > 0;
+
+                    //add percent full summ and energy state to encharges object
+                    for (let i = 0; i < enchargesCount; i++) {
+                        this.encharges[i].percentFullSum = enchargesPercentFullSum;
+                        this.encharges[i].energyState = enchargesEnergyState;
+                    }
+
+                    if (this.enphaseEnchargesSummaryLevelAndStateService) {
+                        this.enphaseEnchargesSummaryLevelAndStateService
+                            .updateCharacteristic(Characteristic.On, enchargesEnergyState)
+                            .updateCharacteristic(Characteristic.Brightness, enchargesPercentFullSum)
+                    }
+                }
+
+                //enpowers
+                const enpowersSupported = ensembleInventoryKeys.includes('ENPOWER');
+                const enpowers = enpowersSupported ? ensembleInventory[1].devices : [];
+                const enpowersCount = enpowers.length;
+                const enpowersInstalled = enpowersCount > 0;
+                this.enpowers = [];
+
+                if (enpowersInstalled) {
+                    const type = CONSTANTS.ApiCodes[ensembleInventory[1].type];
+                    enpowers.forEach((enpower, index) => {
+                        const obj = {
+                            type: type,
+                            partNumber: CONSTANTS.PartNumbers[enpower.part_num] ?? enpower.part_num,
+                            serialNumber: enpower.serial_num,
+                            installed: new Date(enpower.installed * 1000).toLocaleString(),
+                            deviceStatus: (Array.isArray(enpower.device_status) && (enpower.device_status).length > 0) ? ((enpower.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                            lastReportDate: new Date(enpower.last_rpt_date * 1000).toLocaleString(),
+                            adminState: enpower.admin_state,
+                            adminStateStr: CONSTANTS.ApiCodes[enpower.admin_state_str] ?? 'Unknown',
+                            createdDate: new Date(enpower.created_date * 1000).toLocaleString(),
+                            imgLoadDate: new Date(enpower.img_load_date * 1000).toLocaleString(),
+                            imgPnumRunning: enpower.img_pnum_running,
+                            zigbeeDongleFwVersion: enpower.zigbee_dongle_fw_version ?? 'Unknown',
+                            operating: enpower.operating === true ?? false,
+                            communicating: enpower.communicating === true,
+                            temperature: enpower.temperature ?? 0,
+                            commLevelSubGhz: enpower.comm_level_sub_ghz * 20 ?? 0,
+                            commLevel24Ghz: enpower.comm_level_2_4_ghz * 20 ?? 0,
+                            mainsAdminState: CONSTANTS.ApiCodes[enpower.mains_admin_state] ?? 'Unknown',
+                            mainsAdminStateBool: CONSTANTS.ApiCodes[enpower.mains_admin_state] === 'Closed' ?? false,
+                            mainsOperState: CONSTANTS.ApiCodes[enpower.mains_oper_state] ?? 'Unknown',
+                            mainsOperStateBool: CONSTANTS.ApiCodes[enpower.mains_oper_sate] === 'Closed' ?? false,
+                            enpwrGridMode: enpower.Enpwr_grid_mode ?? 'Unknown',
+                            enpwrGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enpwr_grid_mode] ?? enpower.Enpwr_grid_mode,
+                            enchgGridMode: enpower.Enchg_grid_mode ?? 'Unknown',
+                            enchgGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enchg_grid_mode] ?? enpower.Enchg_grid_mode,
+                            enpwrRelayStateBm: enpower.Enpwr_relay_state_bm ?? 0,
+                            enpwrCurrStateId: enpower.Enpwr_curr_state_id ?? 0,
+                        }
+                        this.enpowers.push(obj);
+
+                        if (this.enpowersServices) {
+                            this.enpowersServices[index]
+                                .updateCharacteristic(Characteristic.enphaseEnpowerStatus, obj.deviceStatus)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerLastReportDate, obj.lastReportDate)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerAdminStateStr, obj.adminStateStr)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerOperating, obj.operating)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerCommunicating, obj.communicating)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerTemperature, obj.temperature)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerCommLevelSubGhz, obj.commLevelSubGhz)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerCommLevel24Ghz, obj.commLevel24Ghz)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerMainsAdminState, obj.mainsAdminState)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerMainsOperState, obj.mainsOperState)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerEnpwrGridMode, obj.enpwrGridModeTranslated)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode, obj.enchgGridModeTranslated)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerGridProfile, this.arfProfile.name)
+                        }
+
+                        //enpower grid control
+                        if (this.enpowerGridStateActiveControlsCount > 0) {
+                            for (let i = 0; i < this.enpowerGridStateActiveControlsCount; i++) {
+                                const state = obj.mainsAdminStateBool;
+                                this.enpowerGridStateActiveControls[i].state = state;
+
+                                if (this.enpowerGridStateControlsServices) {
+                                    const characteristicType = this.enpowerGridStateActiveControls[i].characteristicType;
+                                    this.enpowerGridStateControlsServices[i]
+                                        .updateCharacteristic(characteristicType, state)
+                                }
+
+                                if (this.envoyService) {
+                                    this.envoyService
+                                        .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridState, state)
+                                }
+                            }
+                        }
+
+                        //enpower grid state sensor
+                        if (this.enpowerGridStateActiveSensorsCount > 0) {
+                            for (let i = 0; i < this.enpowerGridStateActiveSensorsCount; i++) {
+                                const state = obj.mainsAdminStateBool;
+                                this.enpowerGridStateActiveSensors[i].state = state;
+
+                                if (this.enpowerGridStateSensorsServices) {
+                                    const characteristicType = this.enpowerGridStateActiveSensors[i].characteristicType;
+                                    this.enpowerGridStateSensorsServices[i]
+                                        .updateCharacteristic(characteristicType, state)
+                                }
+                            }
+                        }
+
+                        //enpower grid mode sensors
+                        if (this.enpowerGridModeActiveSensorsCount > 0) {
+                            for (let i = 0; i < this.enpowerGridModeActiveSensorsCount; i++) {
+                                const gridMode = this.enpowerGridModeActiveSensors[i].gridMode;
+                                const state = gridMode === obj.enpwrGridMode;
+                                this.enpowerGridModeActiveSensors[i].state = state;
+
+                                if (this.enpowerGridModeSensorsServices) {
+                                    const characteristicType = this.enpowerGridModeActiveSensors[i].characteristicType;
+                                    this.enpowerGridModeSensorsServices[i]
+                                        .updateCharacteristic(characteristicType, state)
+                                }
+                            }
+                        }
+
+                        //update envoy section
+                        if (this.envoyService) {
+                            this.envoyService
+                                .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridMode, obj.enpwrGridModeTranslated)
+                        }
+                    });
+                    this.enpowersSupported = enpowersSupported;
+                    this.enpowersInstalled = enpowersInstalled;
+                    this.enpowersCount = enpowersCount;
+                }
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('ensembleinventory', ensembleInventory) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Inventory', ensembleInventory) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting ensemble inventory error: ${error}.`);
+            };
+        });
+    };
+
+    updateEnsembleStatusData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble status.`) : false;
+
+            try {
+                const ensembleStatusData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleStatus);
+                const ensembleStatus = ensembleStatusData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Ensemble status: ${JSON.stringify(ensembleStatus, null, 2)}`) : false;
+
+                //ensemble status keys
+                const ensembleStatusKeys = Object.keys(ensembleStatus);
+                const ensembleStatusSupported = ensembleStatusKeys.length > 0;
+
+                //ensemble status not exist
+                if (!ensembleStatusSupported) {
+                    resolve(false);
+                    return;
+                }
+
+                //inventoty
+                const inventorySupported = ensembleStatusKeys.includes('inventory');
+                const inventory = inventorySupported ? ensembleStatus.inventory : {};
+
+                //encharges
+                // Extract serial numbers
+                const enchargesSerialNumbersKeys = Object.keys(inventory.serial_nums);
+
+                //initialize array to hold rated power values
+                const enchargesRatedPowerSummary = [];
+
+                //iterate over encharges
+                enchargesSerialNumbersKeys.forEach((enchargeKey, index) => {
+                    const encharge = inventory.serial_nums[enchargeKey];
+                    const status = {
+                        deviceType: encharge.device_type,
+                        comInterfacStr: encharge.com_interface_str ?? 'Unknown',
+                        deviceId: encharge.device_id ?? 'Unknown',
+                        adminState: encharge.admin_state,
+                        adminStateStr: CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown',
+                        reportedGridMode: CONSTANTS.ApiCodes[encharge.reported_grid_mode] ?? 'Unknown',
+                        phase: encharge.phase ?? 'Unknown',
+                        derIndex: encharge.der_index ?? 0,
+                        revision: encharge.encharge_revision ?? 0,
+                        capacity: encharge.encharge_capacity ?? 0,
+                        ratedPower: encharge.encharge_rated_power ?? 0,
+                        reportedGridState: CONSTANTS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown',
+                        msgRetryCount: encharge.msg_retry_count ?? 0,
+                        partNumber: encharge.part_number,
+                        assemblyNumber: encharge.assembly_number,
+                        appFwVersion: encharge.app_fw_version,
+                        zbFwVersion: encharge.zb_fw_version ?? 'Unknown',
+                        zbBootloaderVers: encharge.zb_bootloader_vers ?? 'Unknown',
+                        iblFwVersion: encharge.ibl_fw_version,
+                        swiftAsicFwVersion: encharge.swift_asic_fw_version,
+                        bmuFwVersion: encharge.bmu_fw_version,
+                        submodulesCount: encharge.submodule_count,
+                        submodules: encharge.submodules
+                    };
+                    //add status to encharges
+                    this.encharges[index].status = status;
+
+                    //push encharge rated power to the array
+                    enchargesRatedPowerSummary.push(status.ratedPower);
+                });
+
+                //sum rated power for all encharges to kW and add to encharge object
+                const enchargesRatedPowerSum = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000) ?? 0;
+                for (let i = 0; i < this.enchargesCount; i++) {
+                    this.encharges[i].ratedPowerSum = enchargesRatedPowerSum;
+                }
+
+                //get encharges percent full summary from encharges
+                const enchargesPercentFullSum = this.encharges[0].percentFullSum;
+
+                //debug object encharges
+                const debug1 = this.enableDebugMode ? this.emit('debug', `Encharges debug: ${JSON.stringify(this.encharges, null, 2)}`) : false;
+
+                //ensemble summary
+                this.ensemble = {
+                    counters: {},
+                    secctrl: {},
+                    relay: {},
+                    enchPercentFullSum: enchargesRatedPowerSum,
+                    enchRatedPowerSum: enchargesPercentFullSum
+                };
+
+                //counters
+                const countersSupported = ensembleStatusKeys.includes('counters');
+                const counterData = countersSupported ? ensembleStatus.counters : {};
+                const counters = {
+                    apiEcagtInit: counterData.api_ecagtInit ?? 0,
+                    apiEcagtTick: counterData.api_ecagtTick ?? 0,
+                    apiEcagtDeviceInsert: counterData.api_ecagtDeviceInsert ?? 0,
+                    apiEcagtDeviceNetworkStatus: counterData.api_ecagtDeviceNetworkStatus ?? 0,
+                    apiEcagtDeviceCommissionStatus: counterData.api_ecagtDeviceCommissionStatus ?? 0,
+                    apiEcagtDeviceRemoved: counterData.api_ecagtDeviceRemoved ?? 0,
+                    apiEcagtGetDeviceCount: counterData.api_ecagtGetDeviceCount ?? 0,
+                    apiEcagtGetDeviceInfo: counterData.api_ecagtGetDeviceInfo ?? 0,
+                    apiEcagtGetOneDeviceInfo: counterData.api_ecagtGetOneDeviceInfo ?? 0,
+                    apiEcagtDevIdToSerial: counterData.api_ecagtDevIdToSerial ?? 0,
+                    apiEcagtHandleMsg: counterData.api_ecagtHandleMsg ?? 0,
+                    apiEcagtGetSubmoduleInv: counterData.api_ecagtGetSubmoduleInv ?? 0,
+                    apiEcagtGetDataModelRaw: counterData.api_ecagtGetDataModelRaw ?? 0,
+                    apiEcagtSetSecCtrlBias: counterData.api_ecagtSetSecCtrlBias ?? 0,
+                    apiEcagtGetSecCtrlBias: counterData.api_ecagtGetSecCtrlBias ?? 0,
+                    apiEcagtGetSecCtrlBiasQ: counterData.api_ecagtGetSecCtrlBiasQ ?? 0,
+                    apiEcagtSetRelayAdmin: counterData.api_ecagtSetRelayAdmin ?? 0,
+                    apiEcagtGetRelayState: counterData.api_ecagtGetRelayState ?? 0,
+                    apiEcagtSetDataModelCache: counterData.api_ecagtSetDataModelCache ?? 0,
+                    apiAggNameplate: counterData.api_AggNameplate ?? 0,
+                    apiChgEstimated: counterData.api_ChgEstimated ?? 0,
+                    apiEcagtGetGridFreq: counterData.api_ecagtGetGridFreq ?? 0,
+                    apiEcagtGetGridVolt: counterData.api_ecagtGetGridVolt ?? 0,
+                    apiEcagtGetGridFreqErrNotfound: counterData.api_ecagtGetGridFreq_err_notfound ?? 0,
+                    apiEcagtGetGridFreqErrOor: counterData.api_ecagtGetGridFreq_err_oor ?? 0,
+                    restStatusGet: counterData.rest_StatusGet ?? 0,
+                    restInventoryGet: counterData.rest_InventoryGet ?? 0,
+                    restSubmodGet: counterData.rest_SubmodGet ?? 0,
+                    restSecCtrlGet: counterData.rest_SecCtrlGet ?? 0,
+                    restRelayGet: counterData.rest_RelayGet ?? 0,
+                    restRelayPost: counterData.rest_RelayPost ?? 0,
+                    restCommCheckGet: counterData.rest_CommCheckGet ?? 0,
+                    restPow: counterData.rest_Power ?? 0,
+                    restPower: counterData.rest_Power / 1000 ?? 0, //in kW
+                    extZbRemove: counterData.ext_zb_remove ?? 0,
+                    extZbRemoveErr: counterData.ext_zb_remove_err ?? 0,
+                    extZbSendMsg: counterData.ext_zb_send_msg ?? 0,
+                    extCfgSaveDevice: counterData.ext_cfg_save_device ?? 0,
+                    extCfgSaveDeviceErr: counterData.ext_cfg_save_device_err ?? 0,
+                    extSendPerfData: counterData.ext_send_perf_data ?? 0,
+                    extEventSetStateful: counterData.ext_event_set_stateful ?? 0,
+                    extEventSetModgone: counterData.ext_event_set_modgone ?? 0,
+                    rxmsgObjMdlMetaRsp: counterData.rxmsg_OBJ_MDL_META_RSP ?? 0,
+                    rxmsgObjMdlInvUpdRsp: counterData.rxmsg_OBJ_MDL_INV_UPD_RSP ?? 0,
+                    rxmsgObjMdlPollRsp: counterData.rxmsg_OBJ_MDL_POLL_RSP ?? 0,
+                    rxmsgObjMdlRelayCtrlRsp: counterData.rxmsg_OBJ_MDL_RELAY_CTRL_RSP ?? 0,
+                    rxmsgObjMdlRelayStatusReq: counterData.rxmsg_OBJ_MDL_RELAY_STATUS_REQ ?? 0,
+                    rxmsgObjMdlGridStatusRsp: counterData.rxmsg_OBJ_MDL_GRID_STATUS_RSP ?? 0,
+                    rxmsgObjMdlEventMsg: counterData.rxmsg_OBJ_MDL_EVENT_MSG ?? 0,
+                    rxmsgObjMdlSosConfigRsp: counterData.rxmsg_OBJ_MDL_SOC_CONFIG_RSP ?? 0,
+                    txmsgObjMdlMetaReq: counterData.txmsg_OBJ_MDL_META_REQ ?? 0,
+                    txmsgObjMdlEncRtPollReq: counterData.txmsg_OBJ_MDL_ENC_RT_POLL_REQ ?? 0,
+                    txmsgObjMdlEnpRtPollReq: counterData.txmsg_OBJ_MDL_ENP_RT_POLL_REQ ?? 0,
+                    txmsgObjMdlBmuPollReq: counterData.txmsg_OBJ_MDL_BMU_POLL_REQ ?? 0,
+                    txmsgObjMdlPcuPollReq: counterData.txmsg_OBJ_MDL_PCU_POLL_REQ ?? 0,
+                    txmsgObjMdlSecondaryCtrlReq: counterData.txmsg_OBJ_MDL_SECONDARY_CTRL_REQ ?? 0,
+                    txmsgObjMdlRelayCtrlReq: counterData.txmsg_OBJ_MDL_RELAY_CTRL_REQ ?? 0,
+                    txmsgObjMdlGridStatusReq: counterData.txmsg_OBJ_MDL_GRID_STATUS_REQ ?? 0,
+                    txmsgObjMdlEventsAck: counterData.txmsg_OBJ_MDL_EVENTS_ACK ?? 0,
+                    txmsgObjMdlRelayStatusRsp: counterData.txmsg_OBJ_MDL_RELAY_STATUS_RSP ?? 0,
+                    txmsgObjMdlcosConfigReq: counterData.txmsg_OBJ_MDL_SOC_CONFIG_REQ ?? 0,
+                    txmsgObjMdlTnsStart: counterData.txmsg_OBJ_MDL_TNS_START ?? 0,
+                    rxmsgObjMdlTnsStartRsp: counterData.rxmsg_OBJ_MDL_TNS_START_RSP ?? 0,
+                    txmsgObjMdlSetUdmir: counterData.txmsg_OBJ_MDL_SET_UDMIR ?? 0,
+                    rxmsgObjMdlSetUdmirRsp: counterData.rxmsg_OBJ_MDL_SET_UDMIR_RSP ?? 0,
+                    txmsgObjMdlTnsEdn: counterData.txmsg_OBJ_MDL_TNS_END ?? 0,
+                    rxmsgObjMdlTnsEndRsp: counterData.rxmsg_OBJ_MDL_TNS_END_RSP ?? 0,
+                    txmsgLvsPoll: counterData.txmsg_lvs_poll ?? 0,
+                    zmqEcaHello: counterData.zmq_ecaHello ?? 0,
+                    zmqEcaDevInfo: counterData.zmq_ecaDevInfo ?? 0,
+                    zmqEcaNetworkStatus: counterData.zmq_ecaNetworkStatus ?? 0,
+                    zmqEcaAppMsg: counterData.zmq_ecaAppMsg ?? 0,
+                    zmqStreamdata: counterData.zmq_streamdata ?? 0,
+                    zmqLiveDebug: counterData.zmq_live_debug ?? 0,
+                    zmqEcaLiveDebugReq: counterData.zmq_eca_live_debug_req ?? 0,
+                    zmqNameplate: counterData.zmq_nameplate ?? 0,
+                    zmqEcaSecCtrlMsg: counterData.zmq_ecaSecCtrlMsg ?? 0,
+                    zmqMeterlogOk: counterData.zmq_meterlog_ok ?? 0,
+                    dmdlFilesIndexed: counterData.dmdl_FILES_INDEXED ?? 0,
+                    pfStart: counterData.pf_start ?? 0,
+                    pfActivate: counterData.pf_activate ?? 0,
+                    devPollMissing: counterData.devPollMissing ?? 0,
+                    devMsgRspMissing: counterData.devMsgRspMissing ?? 0,
+                    gridProfileTransaction: counterData.gridProfileTransaction ?? 0,
+                    secctrlNotReady: counterData.secctrlNotReady ?? 0,
+                    fsmRetryTimeout: counterData.fsm_retry_timeout ?? 0,
+                    profileTxnAck: counterData.profile_txn_ack ?? 0,
+                    backupSocLimitSet: counterData.backupSocLimitSet ?? 0,
+                    backupSocLimitChanged: counterData.backupSocLimitChanged ?? 0,
+                    backupSocLimitAbove100: counterData.backupSocLimitAbove100 ?? 0,
+                    apiEcagtGetGenRelayState: counterData.api_ecagtGetGenRelayState ?? 0,
+                };
+                this.ensemble.counters = counters;
+
+                //secctrl
+                const secctrlSupported = ensembleStatusKeys.includes('secctrl');
+                const secctrlData = secctrlSupported ? ensembleStatus.secctrl : {};
+                const secctrl = {
+                    shutDown: secctrlData.shutdown,
+                    freqBiasHz: secctrlData.freq_bias_hz,
+                    voltageBiasV: secctrlData.voltage_bias_v,
+                    freqBiasHzQ8: secctrlData.freq_bias_hz_q8,
+                    voltageBiasVQ5: secctrlData.voltage_bias_v_q5,
+                    freqBiasHzPhaseB: secctrlData.freq_bias_hz_phaseb,
+                    voltageBiasVPhaseB: secctrlData.voltage_bias_v_phaseb,
+                    freqBiasHzQ8PhaseB: secctrlData.freq_bias_hz_q8_phaseb,
+                    voltageBiasVQ5PhaseB: secctrlData.voltage_bias_v_q5_phaseb,
+                    freqBiasHzPhaseC: secctrlData.freq_bias_hz_phasec,
+                    voltageBiasVPhaseC: secctrlData.voltage_bias_v_phasec,
+                    freqBiasHzQ8PhaseC: secctrlData.freq_bias_hz_q8_phasec,
+                    voltageBiasVQ5PhaseC: secctrlData.voltage_bias_v_q5_phasec,
+                    configuredBackupSoc: secctrlData.configured_backup_soc, //in %
+                    adjustedBackupSoc: secctrlData.adjusted_backup_soc, //in %
+                    aggSoc: secctrlData.agg_soc, //in %
+                    aggMaxEnergy: secctrlData.Max_energy / 1000, //in kWh
+                    encAggSoc: secctrlData.ENC_agg_soc, //in %
+                    encAggSoh: secctrlData.ENC_agg_soh, //in %
+                    encAggBackupEnergy: secctrlData.ENC_agg_backup_energy / 1000, //in kWh
+                    encAggAvailEnergy: secctrlData.ENC_agg_avail_energy / 1000, //in kWh
+                    encCommissionedCapacity: secctrlData.Enc_commissioned_capacity / 1000, //in kWh
+                    encMaxAvailableCapacity: secctrlData.Enc_max_available_capacity / 1000, //in kWh
+                    acbAggSoc: secctrlData.ACB_agg_soc, //in %
+                    acbAggEnergy: secctrlData.ACB_agg_energy / 1000, //in kWh
+                    vlsLimit: secctrlData.VLS_Limit ?? 0,
+                    socRecEnabled: secctrlData.soc_rec_enabled ?? false,
+                    socRecoveryEntry: secctrlData.soc_recovery_entry ?? 0,
+                    socRecoveryExit: secctrlData.soc_recovery_exit ?? 0,
+                    commisionInProgress: secctrlData.Commission_in_progress ?? false,
+                    essInProgress: secctrlData.ESS_in_progress ?? false
+                }
+                this.ensemble.secctrl = secctrl;
+
+                if (this.ensembleStatusService) {
+                    this.ensembleStatusService
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusRestPower, counters.restPower)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHz, secctrl.freqBiasHz)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasV, secctrl.voltageBiasV)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8, secctrl.freqBiasHzQ8)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5, secctrl.voltageBiasVQ5)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzPhaseB, secctrl.freqBiasHzPhaseB)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseB, secctrl.voltageBiasVPhaseB)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseB, secctrl.freqBiasHzQ8PhaseB)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseB, secctrl.voltageBiasVQ5PhaseB)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzPhaseC, secctrl.freqBiasHzPhaseC)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseC, secctrl.voltageBiasVPhaseC)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseC, secctrl.freqBiasHzQ8PhaseC)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseC, secctrl.voltageBiasVQ5PhaseC)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusConfiguredBackupSoc, secctrl.configuredBackupSoc)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusAdjustedBackupSoc, secctrl.adjustedBackupSoc)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusAggSoc, secctrl.aggSoc)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusAggMaxEnergy, secctrl.aggMaxEnergy)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggSoc, secctrl.encAggSoc)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower, enchargesRatedPowerSum)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggPercentFull, enchargesPercentFullSum)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggBackupEnergy, secctrl.encAggBackupEnergy)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggAvailEnergy, secctrl.encAggAvailEnergy)
+                }
+
+                //relay
+                const relaySupported = ensembleStatusKeys.includes('relay');
+                const relayData = relaySupported ? ensembleStatus.relay : {};
+                const relay = {
+                    mainsAdminState: CONSTANTS.ApiCodes[relayData.mains_admin_state] ?? 'Unknown',
+                    mainsAdminStateBool: CONSTANTS.ApiCodes[relayData.mains_admin_state] === 'Closed' ?? false,
+                    mainsOperState: CONSTANTS.ApiCodes[relayData.mains_oper_sate] ?? 'Unknown',
+                    mainsOperStateBool: CONSTANTS.ApiCodes[relayData.mains_oper_sate] === 'Closed' ?? false,
+                    der1State: relayData.der1_state ?? 0,
+                    der2State: relayData.der2_state ?? 0,
+                    der3State: relayData.der3_state ?? 0,
+                    enchgGridMode: relayData.Enchg_grid_mode ?? 'Unknown',
+                    enchgGridModeTranslated: CONSTANTS.ApiCodes[relayData.Enchg_grid_mode] ?? relayData.Enchg_grid_mode,
+                    solarGridMode: relayData.Solar_grid_mode ?? 'Unknown',
+                    solarGridModeTranslated: CONSTANTS.ApiCodes[relayData.Solar_grid_mode] ?? relayData.Solar_grid_mode
+                }
+                this.ensemble.relay = relay;
+
+                //debug object ensemble
+                const debug2 = this.enableDebugMode ? this.emit('debug', `Encharges debug: ${JSON.stringify(this.ensemble, null, 2)}`) : false;
+
+                //encharge grid state sensors
+                if (this.enchargeGridModeActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.enchargeGridModeActiveSensorsCount; i++) {
+                        const gridMode = this.enchargeGridModeActiveSensors[i].gridMode;
+                        const state = gridMode === relay.enchgGridMode;
+                        this.enchargeGridModeActiveSensors[i].state = state;
+
+                        if (this.enchargeGridModeSensorsServices) {
+                            const characteristicType = this.enchargeGridModeActiveSensors[i].characteristicType;
+                            this.enchargeGridModeSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+
+                //solar grid state sensors
+                if (this.solarGridModeActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.solarGridModeActiveSensorsCount; i++) {
+                        const gridMode = this.solarGridModeActiveSensors[i].gridMode;
+                        const state = gridMode === relay.solarGridMode;
+                        this.solarGridModeActiveSensors[i].state = state;
+
+                        if (this.solarGridModeSensorsServices) {
+                            const characteristicType = this.solarGridModeActiveSensors[i].characteristicType;
+                            this.solarGridModeSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+
+                //profile
+                const profileSupported = ensembleStatusKeys.includes('profile');
+                const profile = profileSupported ? ensembleStatus.profile : await this.updateGridProfileData();
+
+                //fakeit
+                const fakeInventoryModeSupported = ensembleStatusKeys.includes('fakeit');
+                this.ensembleFakeInventoryMode = fakeInventoryModeSupported ? ensembleStatus.fakeit.fake_inventory_mode === true : false;
+
+                //ensemble status supported
+                this.ensembleStatusSupported = ensembleStatusSupported;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('ensemblestatus', ensembleStatus) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Status', ensembleStatus) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting ensemble status error: ${error}.`);
+            };
+        });
+    };
+
+    updateEnsembleEnchargeSettingsData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble encharge settings.`) : false;
+
+            try {
+                const ensembleEnchargeSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnchargeSettings);
+                const ensembleEnchargeSettings = ensembleEnchargeSettingsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Encharge settings: ${JSON.stringify(ensembleEnchargeSettings, null, 2)}`) : false;
+
+                //ensemble generator keys
+                const enchargeSettingsKeys = Object.keys(ensembleEnchargeSettings);
+                const enchargeSettingsSupported = enchargeSettingsKeys.length > 0;
+
+                //encharge settings not exist
+                if (!enchargeSettingsSupported) {
+                    resolve(false);
+                    return;
+                }
+
+                const tariff = ensembleEnchargeSettings.tariff;
+                const enchargeSettings = {
+                    mode: tariff.mode,
+                    selfConsumptionMode: tariff.mode === 'self-consumption',
+                    fullBackupMode: tariff.mode === 'backup',
+                    savingsMode: (tariff.mode === 'savings-mode' || tariff.mode === 'economy'),
+                    operationModeSubType: tariff.operation_mode_sub_type,
+                    reservedSoc: tariff.reserved_soc,
+                    veryLowSoc: tariff.very_low_soc,
+                    chargeFromGrid: tariff.charge_from_grid,
+                    date: date ?? new Date()
+                }
+
+                //add settings to encharges object
+                for (let i = 0; i < this.enchargesCount; i++) {
+                    this.encharges[i].settings = enchargeSettings;
+                }
+
+                if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
+                        const state = enchargeSettings.selfConsumptionMode;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileSelfConsumptionActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileSelfConsumptionActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                                .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
+                        }
+                    }
+                }
+
+                if (this.enchargeProfileSavingsActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileSavingsActiveControlsCount; i++) {
+                        const state = enchargeSettings.savingsMode;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileSavingsActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileSavingsActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                                .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
+                        }
+                    }
+                }
+
+                if (this.enchargeProfileFullBackupActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileFullBackupActiveControlsCount; i++) {
+                        const state = enchargeSettings.fullBackupMode;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileFullBackupActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileFullBackupActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+                this.enchargeSettingsSupported = enchargeSettingsSupported;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('enchargesettings', ensembleGenerator) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Encharge Settings', ensembleGenerator) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting ensemble encharge settings. error: ${error}.`);
+            };
+        });
+    };
+
+    updateEnsembleDryContactsData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble dry contacts.`) : false;
+
+            try {
+                const ensembleDryContactsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleDryContact);
+                const ensembleDryContacts = ensembleDryContactsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Dry contacts: ${JSON.stringify(ensembleDryContacts, null, 2)}`) : false;
+
+                //ensemble dry contacts keys
+                const ensembleDryContactsKeys = Object.keys(ensembleDryContacts);
+                const dryContactsExist = ensembleDryContactsKeys.includes('dry_contacts');
+
+                //ensemble dry contacts not exist
+                if (!dryContactsExist) {
+                    resolve(false);
+                    return;
+                }
+
+                //dry contacts installed
+                const dryContacts = ensembleDryContacts.dry_contacts;
+                const dryContactsInstalled = dryContacts.length > 0;
+                if (!dryContactsInstalled) {
+                    resolve(false);
+                    return;
+                }
+
+                //dry contacte
+                this.dryContacts = [];
+                dryContacts.forEach((contact, index) => {
+                    const obj = {
+                        id: contact.id, //str NC1
+                        status: contact.status, //str closed
+                        settings: {}
+                    }
+                    this.dryContacts.push(obj);
+                });
+                this.dryContactsInstalled = dryContactsInstalled;
+                this.dryContactsCount = dryContacts.length;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('drycontacts', ensembleDryContacts) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts', ensembleDryContacts) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting ensemble dry contacts error: ${error}.`);
+            };
+        });
+    };
+
+    updateEnsembleDryContactsSettingsData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble dry contacts settings.`) : false;
+
+            try {
+                const ensembleDryContactsSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleDryContactSettings);
+                const ensembleDryContactsSettings = ensembleDryContactsSettingsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Dry contacts settings: ${JSON.stringify(ensembleDryContactsSettings, null, 2)}`) : false;
+
+                //ensemble dry contacts settings keys
+                const ensembleDryContactsKeys = Object.keys(ensembleDryContactsSettings);
+                const ensembleDryContactsExist = ensembleDryContactsKeys.includes('dry_contacts');
+
+                //ensemble dry contacts settings not exist
+                if (!ensembleDryContactsExist) {
+                    resolve(false);
+                    return;
+                }
+
+                //dry contacts installed
+                const dryContactsSettings = ensembleDryContactsSettings.dry_contacts;
+                const dryContactsSettingsInstalled = dryContactsSettings.length > 0;
+                if (!dryContactsSettingsInstalled) {
+                    resolve(false);
+                    return;
+                }
+
+                //dry contacts settings array
+                const settings = ensembleDryContactsSettings.dry_contacts;
+                settings.forEach((setting, index) => {
+                    const obj = {
+                        id: setting.id, //str NC1
+                        type: setting.type, //str NONE
+                        grid_action: setting.grid_action, //str apply
+                        type: setting.micro_grid_action, //str apply
+                        gen_action: setting.gen_action, //str apply
+                        essential_start_time: setting.essential_start_time, //flota
+                        essential_end_time: setting.essential_end_time, //flota
+                        priority: setting.priority, //flota
+                        black_s_start: setting.black_s_start, //flota
+                        override: setting.override, //str false
+                        manual_override: setting.manual_override, //str true
+                        load_name: setting.load_name, //str
+                        mode: setting.mode, //str manual
+                        soc_low: setting.soc_low, //flota
+                        soc_high: setting.soc_high, //flota
+                        pv_serial_nb: setting.pv_serial_nb, //array
+                    }
+                    this.dryContacts[index].settings = obj;
+                });
+                this.dryContactsSettingsInstalled = dryContactsSettingsInstalled;
+                this.dryContactsSettingsCount = dryContactsSettings.length;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('drycontactssettings', ensembleDryContactsSettings) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts Settings', ensembleDryContactsSettings) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting ensemble dry contacts error: ${error}.`);
+            };
+        });
+    };
+
+    updateEnsembleGeneratorData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator.`) : false;
+
+            try {
+                const ensembleGeneratorData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleGenerator);
+                const ensembleGenerator = ensembleGeneratorData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Generator: ${JSON.stringify(ensembleGenerator, null, 2)}`) : false;
+
+                //ensemble generator keys
+                const generatorKeys = Object.keys(ensembleGenerator);
+                const generatorSupported = generatorKeys.length > 0;
+
+                //ensemble generator not exist
+                if (!generatorSupported) {
+                    resolve(false);
+                    return;
+                }
+
+                const generator = {
+                    adminState: CONSTANTS.ApiCodes[ensembleGenerator.admin_state] ?? 'Unknown',
+                    operState: CONSTANTS.ApiCodes[ensembleGenerator.oper_state] ?? 'Unknown',
+                    adminMode: ['Off', 'On', 'Auto'][ensembleGenerator.admin_mode] ?? ensembleGenerator.admin_mode.toString(),
+                    adminModeOffBool: ensembleGenerator.admin_mode === 'Off',
+                    adminModeOnBool: ensembleGenerator.admin_mode === 'On',
+                    adminModeAutoBool: ensembleGenerator.admin_mode === 'Auto',
+                    schedule: ensembleGenerator.schedule,
+                    startSoc: ensembleGenerator.start_soc,
+                    stopSoc: ensembleGenerator.stop_soc,
+                    excOn: ensembleGenerator.exc_on,
+                    present: ensembleGenerator.present,
+                    type: ensembleGenerator.type,
+                    settings: {}
+                }
+                this.generator = generator;
+
+                if (this.generatorService) {
+                    this.generatorService
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorAdminState, generator.adminState)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorOperState, generator.operState)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorAdminMode, generator.adminMode)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorShedule, generator.schedule)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorStartSoc, generator.startSoc)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorStopSoc, generator.stopSoc)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorExexOn, generator.excOn)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorPresent, generator.present)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleGeneratorType, generator.type);
+                }
+
+                //generator control
+                if (this.generatorStateActiveControlsCount > 0) {
+                    for (let i = 0; i < this.generatorStateActiveControlsCount; i++) {
+                        const state = generator.adminModeOnBool || generator.adminModeAutoBool;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.generatorStateControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.generatorStateControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+
+                        if (this.envoyService) {
+                            this.envoyService
+                                .updateCharacteristic(Characteristic.enphaseEnvoyGeneratorState, state)
+                        }
+                    }
+                }
+
+                //generator state sensor
+                if (this.generatorStateActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.generatorStateActiveSensorsCount; i++) {
+                        const state = generator.adminMode !== 'Off';
+                        this.generatorStateActiveSensors[i].state = state;
+
+                        if (this.generatorStateSensorsServices) {
+                            const characteristicType = this.generatorStateActiveSensors[i].characteristicType;
+                            this.generatorStateSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+
+                //generator mode sensors
+                if (this.generatorModeActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.generatorModeActiveSensorsCount; i++) {
+                        const mode = this.generatorModeActiveSensors[i].mode;
+                        const state = mode === generator.adminMode;
+                        this.generatorModeActiveSensors[i].state = state;
+
+                        if (this.generatorModeSensorsServices) {
+                            const characteristicType = this.generatorModeActiveSensors[i].characteristicType;
+                            this.generatorModeSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+
+                    if (this.envoyService) {
+                        this.envoyService
+                            .updateCharacteristic(Characteristic.enphaseEnvoyGeneratorMode, generator.adminMode)
+                    }
+                }
+                this.generatorSupported = generatorSupported;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('generator', ensembleGenerator) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator', ensembleGenerator) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting ensemble generator error: ${error}.`);
+            };
+        });
+    };
+
+    updateEnsembleGeneratorSettingsData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator settings`) : false;
+
+            try {
+                const ensembleGeneratorSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.GeneratorSettingsGetSet);
+                const ensembleGeneratorSettings = ensembleGeneratorSettingsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Generator settings: ${JSON.stringify(ensembleGeneratorSettings, null, 2)}`) : false;
+
+                //ensemble generator settings keys
+                const generatorSettingsKeys = Object.keys(ensembleGeneratorSettings);
+                const generatorSettingsSupported = generatorSettingsKeys.length > 0;
+
+                //ensemble generator settings not exist
+                if (!generatorSettingsSupported) {
+                    resolve(false);
+                    return;
+                }
+
+                const settings = ensembleGeneratorSettings.generator_settings;
+                const generatorSettings = {
+                    maxContGenAmps: settings.max_cont_gen_amps, //float
+                    minGenLoadingPerc: settings.min_gen_loading_perc, //int
+                    maxGenEfficiencyPerc: settings.max_gen_efficiency_perc, //int
+                    namePlateRatingWat: settings.name_plate_rating_wat, //float
+                    startMethod: settings.start_method, //str Auto, Manual
+                    warmUpMins: settings.warm_up_mins, //str
+                    coolDownMins: settings.cool_down_mins, //str
+                    genType: settings.gen_type, //str
+                    model: settings.model, //str
+                    manufacturer: settings.manufacturer, //str
+                    lastUpdatedBy: settings.last_updated_by, //str
+                    generatorId: settings.generator_id, //str
+                    chargeFromGenerator: settings.charge_from_generator //bool
+                }
+                this.generator.settings = generatorSettings;
+                this.generatorSettingsSupported = generatorSettingsSupported;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('generatorsettings', ensembleGeneratorSettings) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator Settings', ensembleGeneratorSettings) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting ensemble generator settings error: ${error}.`);
+            };
+        });
+    };
+
+    updateLiveData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data.`) : false;
+
+            try {
+                const liveData = await this.axiosInstance(CONSTANTS.ApiUrls.LiveDataStatus);
+                const live = liveData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Live data: ${JSON.stringify(live, null, 2)}`) : false;
+
+                //live data keys
+                const liveDadaKeys = Object.keys(live);
+                const liveDataSupported = liveDadaKeys.length > 0;
+
+                //live data supported
+                if (!liveDataSupported) {
+                    resolve(false);
+                    return;
+                }
+
+                //connection
+                const lconnectionSupported = liveDadaKeys.includes('connection');
+                const connection = lconnectionSupported ? live.connection : {};
+                const connectionMqttState = connection.mqtt_state;
+                const connectionProvState = connection.prov_state;
+                const connectionAuthState = connection.auth_state;
+                const connectionScStream = connection.sc_stream === 'enabled';
+                const connectionScDebug = connection.sc_debug === 'enabled';
+
+                //enable live data stream if not enabled
+                const enableLiveDataStream = !connectionScStream ? await this.enableLiveDataStream() : false;
+
+                //meters
+                const liveDataMetersSupported = liveDadaKeys.includes('meters');
+                const liveDataMeters = liveDataMetersSupported ? live.meters : {};
+                const metersLastUpdate = liveDataMeters.last_update;
+                const metersSoc = liveDataMeters.soc;
+                const metersMainRelayState = liveDataMeters.main_relay_state;
+                const metersGenRelayState = liveDataMeters.gen_relay_state;
+                const metersBackupBatMode = liveDataMeters.backup_bat_mode;
+                const metersBackupSoc = liveDataMeters.backup_soc;
+                const metersIsSplitPhase = liveDataMeters.is_split_phase;
+                const metersPhaseCount = liveDataMeters.phase_count;
+                const metersEncAggSoc = liveDataMeters.enc_agg_soc;
+                const metersEncAggEnergy = liveDataMeters.enc_agg_energy;
+                const metersAcbAggSoc = liveDataMeters.acb_agg_soc;
+                const metersAcbAggEnergy = liveDataMeters.acb_agg_energy;
+
+                //lived data meteres types add to array
+                const liveDataTypes = [];
+                const pushPvTypeToArray = this.metersInstalled && (this.metersProductionEnabled || this.metersConsumptionEnabled) ? liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
+                const pushStorageTypeToArray = this.metersInstalled && this.metersStorageEnabled ? liveDataTypes.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
+                const pushGridTypeToArray = this.metersInstalled && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
+                const pushLoadTypeToArray = this.metersInstalled && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Load', meter: liveDataMeters.load }) : false;
+                const pushGeneratorTypeToArray = this.metersInstalled && this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
+
+                //live data exist
+                const liveDataExist = liveDataTypes.length > 0;
+                if (!liveDataExist) {
+                    resolve(false);
+                    return;
+                }
+
+                //read meters data
+                this.liveDatas = [];
+                liveDataTypes.forEach((liveDataType, index) => {
+                    const obj = {
+                        type: liveDataType.type,
+                        activePower: liveDataType.meter.agg_p_mw / 1000000 || 0,
+                        apparentPower: liveDataType.meter.agg_s_mva / 1000000 || 0,
+                        activePowerL1: liveDataType.meter.agg_p_ph_a_mw / 1000000 || 0,
+                        activePowerL2: liveDataType.meter.agg_p_ph_b_mw / 1000000 || 0,
+                        activePowerL3: liveDataType.meter.agg_p_ph_c_mw / 1000000 || 0,
+                        apparentPowerL1: liveDataType.meter.agg_s_ph_a_mva / 1000000 || 0,
+                        apparentPowerL2: liveDataType.meter.agg_s_ph_b_mva / 1000000 || 0,
+                        apparentPowerL3: liveDataType.meter.agg_s_ph_c_mva / 1000000 || 0
+                    }
+                    this.liveDatas.push(obj);
+
+                    if (this.liveDataMetersServices) {
+                        this.liveDataMetersServices[index]
+                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePower, obj.activePower)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL1, obj.activePowerL1)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL2, obj.activePowerL2)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL3, obj.activePowerL3)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPower, obj.apparentPower)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1, obj.apparentPowerL1)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2, obj.apparentPowerL2)
+                            .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3, obj.apparentPowerL3)
+                    }
+                });
+
+                //encharge backup level sensors
+                if (this.enchargeBackupLevelActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.enchargeBackupLevelActiveSensorsCount; i++) {
+                        const backupLevel = this.enchargeBackupLevelActiveSensors[i].backupLevel;
+                        const compareMode = this.enchargeBackupLevelActiveSensors[i].compareMode;
+                        let state = false;
+                        switch (compareMode) {
+                            case 0:
+                                state = metersBackupSoc > backupLevel;
+                                break;
+                            case 1:
+                                state = metersBackupSoc >= backupLevel;
+                                break;
+                            case 2:
+                                state = metersBackupSoc === backupLevel;
+                                break;
+                            case 3:
+                                state = metersBackupSoc < backupLevel;
+                                break;
+                            case 4:
+                                state = metersBackupSoc <= backupLevel;
+                                break;
+                        }
+                        this.enchargeBackupLevelActiveSensors[i].state = state;
+
+                        if (this.enchargeBackupLevelSensorsServices) {
+                            const characteristicType = this.enchargeBackupLevelActiveSensors[i].characteristicType;
+                            this.enchargeBackupLevelSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+
+                //tasks
+                const tasksSupported = liveDadaKeys.includes('tasks');
+                const tasks = tasksSupported ? live.tasks : {};
+                const tasksId = tasks.task_id;
+                const tasksTimeStamp = tasks.timestamp;
+
+                //counters
+                const countersSupported = liveDadaKeys.includes('counters');
+                const counters = countersSupported ? live.counters : {};
+                const countersMainCfgLoad = counters.main_CfgLoad;
+                const countersMainCfgChanged = counters.main_CfgChanged;
+                const countersSigHup = counters.main_sigHUP;
+                const countersMgttClientPublish = counters.MqttClient_publish;
+                const countersMgttClientLiveDebug = counters.MqttClient_live_debug;
+                const countersMgttClientRespond = counters.MqttClient_respond;
+                const countersMgttClientMsgarrvd = counters.MqttClient_msgarrvd;
+                const countersMgttClientCreate = counters.MqttClient_create;
+                const countersMgttClientSetCallbacks = counters.MqttClient_setCallbacks;
+                const countersMgttClientConnect = counters.MqttClient_connect;
+                const countersMgttClientSubscribe = counters.MqttClient_subscribe;
+                const countersSslKeysCreate = counters.SSL_Keys_Create;
+                const countersScHdlDataPub = counters.sc_hdlDataPub;
+                const countersScSendStreamCtrl = counters.sc_SendStreamCtrl;
+                const countersScSendDemandRspCtrl = counters.sc_SendDemandRspCtrl;
+                const countersRestStatus = counters.rest_Status;
+
+                //dry contacts
+                const dryContactsSupported = liveDadaKeys.includes('dry_contacts');
+                const dryContacts = dryContactsSupported ? live.dry_contacts[''] : {};
+                const dryContactId = dryContacts.dry_contact_id ?? '';
+                const dryContactLoadName = dryContacts.dry_contact_load_name ?? '';
+                const dryContactStatus = dryContacts.dry_contact_status ?? 0;
+
+                //live data installed
+                this.liveDataSupported = liveDataSupported;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('livedata', live) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Live Data', live) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting live data error: ${error}.`);
+            };
+        });
+    };
+
+    enableLiveDataStream() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream enable.`) : false;
+
+            try {
+                //create axios instance post with token and data
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Cookie: this.cookie
+                    },
+                    withCredentials: true,
+                    httpsAgent: new https.Agent({
+                        keepAlive: true,
+                        rejectUnauthorized: false
+                    })
+                }
+                const url = this.url + CONSTANTS.ApiUrls.LiveDataStream;
+                const enableLiveDataStream = await axios.post(url, { 'enable': 1 }, options);
+                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
+                resolve();
+            } catch (error) {
+                reject(`Requesting live data stream eenable rror: ${error}.`);
+            };
+        });
+    };
 
     updatePlcLevelData() {
         return new Promise(async (resolve, reject) => {
@@ -3683,9 +3838,10 @@ class EnvoyDevice extends EventEmitter {
         const displayLog5 = this.ensemblesInstalled ? this.emit('devInfo', `Ensemble: Yes`) : false;
         const displayLog6 = this.enpowersInstalled ? this.emit('devInfo', `Enpowers: ${this.enpowersCount}`) : false;
         const displayLog7 = this.enchargesInstalled ? this.emit('devInfo', `Encharges: ${this.enchargesCount}`) : false;
-        const displayLog8 = this.generatorsInstalled ? this.emit('devInfo', `Generator: Yes`) : false;
-        const displayLog9 = this.wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: ${this.wirelessConnectionKitConnectionsCount}`) : false;
-        const displayLog10 = this.ensemblesInstalled || this.enpowersInstalled || this.enchargesInstalled || this.wirelessConnectionKitInstalled ? this.emit('devInfo', `--------------------------------`) : false;
+        const displayLog8 = this.dryContactsInstalled ? this.emit('devInfo', `Dry Contacts: ${this.dryContactsCount}`) : false;
+        const displayLog9 = this.generatorsInstalled ? this.emit('devInfo', `Generator: Yes`) : false;
+        const displayLog10 = this.wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: ${this.wirelessConnectionKitConnectionsCount}`) : false;
+        const displayLog11 = this.ensemblesInstalled || this.enpowersInstalled || this.enchargesInstalled || this.generatorsInstalled || this.dryContactsInstalled || this.wirelessConnectionKitInstalled ? this.emit('devInfo', `--------------------------------`) : false;
     };
 
     //Prepare accessory
@@ -3722,7 +3878,7 @@ class EnvoyDevice extends EventEmitter {
                 const ensembleStatusSupported = this.ensembleStatusSupported;
                 const generatorsInstalled = this.generatorsInstalled;
                 const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
-                const liveDataInstalled = this.liveDataInstalled;
+                const liveDataSupported = this.liveDataSupported;
                 const productionPowerModeSupported = this.productionPowerModeSupported;
                 const plcLevelSupported = this.plcLevelSupported;
 
@@ -5679,7 +5835,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //live data
-                if (liveDataInstalled) {
+                if (liveDataSupported) {
                     this.liveDataMetersServices = [];
                     for (const liveData of this.liveDatas) {
                         const liveDataType = liveData.type;
