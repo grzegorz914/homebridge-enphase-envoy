@@ -52,24 +52,22 @@
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Enpower `Grid State`.
-    * Encharge: `Backup Level`
+    * Encharge: `Backup Level`, `Dry Contacts`.
     * Grid Mode:
       * Enpower `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`.
       * Encharge `Multimode Grid On`, `Multimode Grid Off`.
       * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-    * Dry Contacts `State`.
     * Generator `State`, `Mode`.  
   * Switches, Outlets, Lightbulbs:
     * System `Data Refresh`,
     * Production `Plc Level`, `Power Mode`, `Power State`, `Power Level`.
     * AC Battery `Energy State`, `Energy Level`.
-    * Enpower `Grid State`.
+    * Enpower `Grid State`, `Dry Contacts`.
     * Encharge `Energy State`, `Energy Level`.
     * Encharge Profile:
       * Self Consumption `Activate`, `Set Reserve`.
       * Savings `Activate`, `Set Reserve`.
       * Full Backup `Activate`.
-    * Dry Contacts `State`.
     * Generator `State`.
 
 ### Configuration
