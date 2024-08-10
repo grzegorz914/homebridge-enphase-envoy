@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - stability and performance improvements
    - dependencies updated
    - config schema updated
+   - bug fixes
    - cleanup
 
 ## [8.1.1] - (04.08.2024)
