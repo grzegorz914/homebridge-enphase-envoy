@@ -1395,6 +1395,7 @@ class EnvoyDevice extends EventEmitter {
 
                 const alerts = (Array.isArray(envoy.alerts) && (envoy.alerts).length > 0) ? ((envoy.alerts).map(a => CONSTANTS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
                 const updateStatus = CONSTANTS.ApiCodes[envoy.update_status] ?? 'Unknown';
+                const gridProfile = this.arfProfile.name;
 
                 //wireless connection kit
                 const wirelessConnections = wirelessConnectionKitSupported ? envoy.wireless_connection : [];
@@ -1425,7 +1426,7 @@ class EnvoyDevice extends EventEmitter {
 
                 if (this.envoyService) {
                     this.envoyService
-                        .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.arfProfile.name)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, gridProfile)
                         .updateCharacteristic(Characteristic.enphaseEnvoyAlerts, alerts)
                         .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, `${dbSize} MB / ${dbPercentFull} %`)
                         .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, timeZone)
@@ -1449,6 +1450,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 this.envoy.home = {
+                    gridProfile: gridProfile,
                     softwareBuildEpoch: softwareBuildEpoch,
                     isEnvoy: isEnvoy,
                     dbSize: dbSize,
@@ -1542,6 +1544,7 @@ class EnvoyDevice extends EventEmitter {
                             provisioned: microinverter.provisioned === true,
                             operating: microinverter.operating === true,
                             phase: microinverter.phase ?? 'Unknown',
+                            gridProfile: this.arfProfile.name,
                             lastReportWatts: 0,
                             maxReportWatts: 0,
                             commLevel: 0
@@ -1550,7 +1553,7 @@ class EnvoyDevice extends EventEmitter {
 
                         if (this.microinvertersServices) {
                             this.microinvertersServices[index]
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterGridProfile, this.arfProfile.name)
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterGridProfile, obj.gridProfile)
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, obj.deviceStatus)
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, obj.lastReportDate)
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, obj.firmware)
@@ -1661,13 +1664,14 @@ class EnvoyDevice extends EventEmitter {
                             line1Connected: qRelay['line-count'] >= 1 ? qRelay['line1-connected'] === true : false,
                             line2Connected: qRelay['line-count'] >= 2 ? qRelay['line2-connected'] === true : false,
                             line3Connected: qRelay['line-count'] >= 3 ? qRelay['line3-connected'] === true : false,
+                            gridProfile: this.arfProfile.name,
                             commLevel: 0
                         }
                         this.qRelays.push(obj);
 
                         if (this.qRelaysServices) {
                             this.qRelaysServices[index]
-                                .updateCharacteristic(Characteristic.enphaseQrelayGridProfile, this.arfProfile.name)
+                                .updateCharacteristic(Characteristic.enphaseQrelayGridProfile, obj.gridProfile)
                                 .updateCharacteristic(Characteristic.enphaseQrelayStatus, obj.deviceStatus)
                                 .updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, obj.lastReportDate)
                                 .updateCharacteristic(Characteristic.enphaseQrelayFirmware, obj.firmware)
@@ -2543,6 +2547,7 @@ class EnvoyDevice extends EventEmitter {
                             capacity: encharge.encharge_capacity / 1000 ?? 0, //in kWh
                             phase: encharge.phase ?? 'Unknown',
                             derIndex: encharge.der_index ?? 0,
+                            gridProfile: this.arfProfile.name,
                             commLevel: 0,
                             percentFullSum: 0,
                             ratedPowerSum: 0,
@@ -2572,7 +2577,7 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff, obj.dcSwitchOff)
                                 .updateCharacteristic(Characteristic.enphaseEnchargeRev, obj.rev)
                                 .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, obj.capacity)
-                                .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, this.arfProfile.name)
+                                .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, obj.gridProfile)
                         }
                     });
                     this.feature.encharges.installed = enchargesInstalled;
@@ -2617,8 +2622,6 @@ class EnvoyDevice extends EventEmitter {
                             createdDate: new Date(enpower.created_date * 1000).toLocaleString(),
                             imgLoadDate: new Date(enpower.img_load_date * 1000).toLocaleString(),
                             imgPnumRunning: enpower.img_pnum_running,
-                            zigbeeDongleFwVersion: enpower.zigbee_dongle_fw_version ?? 'Unknown',
-                            operating: enpower.operating === true ?? false,
                             communicating: enpower.communicating === true,
                             temperature: enpower.temperature ?? 0,
                             commLevelSubGhz: enpower.comm_level_sub_ghz * 20 ?? 0,
@@ -2633,6 +2636,10 @@ class EnvoyDevice extends EventEmitter {
                             enchgGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enchg_grid_mode] ?? enpower.Enchg_grid_mode,
                             enpwrRelayStateBm: enpower.Enpwr_relay_state_bm ?? 0,
                             enpwrCurrStateId: enpower.Enpwr_curr_state_id ?? 0,
+                            gridProfile: this.arfProfile.name,
+                            status: {},
+                            settings: {},
+                            dryContacts: []
                         }
                         this.enpowers.push(obj);
 
@@ -2641,7 +2648,7 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnpowerStatus, obj.deviceStatus)
                                 .updateCharacteristic(Characteristic.enphaseEnpowerLastReportDate, obj.lastReportDate)
                                 .updateCharacteristic(Characteristic.enphaseEnpowerAdminStateStr, obj.adminStateStr)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerOperating, obj.operating)
+                                //.updateCharacteristic(Characteristic.enphaseEnpowerOperating, obj.operating)
                                 .updateCharacteristic(Characteristic.enphaseEnpowerCommunicating, obj.communicating)
                                 .updateCharacteristic(Characteristic.enphaseEnpowerTemperature, obj.temperature)
                                 .updateCharacteristic(Characteristic.enphaseEnpowerCommLevelSubGhz, obj.commLevelSubGhz)
@@ -2650,7 +2657,7 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnpowerMainsOperState, obj.mainsOperState)
                                 .updateCharacteristic(Characteristic.enphaseEnpowerEnpwrGridMode, obj.enpwrGridModeTranslated)
                                 .updateCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode, obj.enchgGridModeTranslated)
-                                .updateCharacteristic(Characteristic.enphaseEnpowerGridProfile, this.arfProfile.name)
+                                .updateCharacteristic(Characteristic.enphaseEnpowerGridProfile, obj.gridProfile)
                         }
 
                         //enpower grid control
@@ -2748,40 +2755,39 @@ class EnvoyDevice extends EventEmitter {
                 const inventory = inventorySupported ? ensembleStatus.inventory : {};
 
                 //encharges
-                // Extract serial numbers
-                const enchargesSerialNumbersKeys = Object.keys(inventory.serial_nums);
-
                 //initialize array to hold rated power values
                 const enchargesRatedPowerSummary = [];
 
                 //iterate over encharges
-                enchargesSerialNumbersKeys.forEach((enchargeKey, index) => {
-                    const encharge = inventory.serial_nums[enchargeKey];
+                this.encharges.forEach((encharge, index) => {
+                    const serialNumber = encharge.serialNumber;
+                    const enchargeStatus = inventory.serial_nums[serialNumber];
                     const status = {
-                        deviceType: encharge.device_type,
-                        comInterfacStr: encharge.com_interface_str ?? 'Unknown',
-                        deviceId: encharge.device_id ?? 'Unknown',
-                        adminState: encharge.admin_state,
-                        adminStateStr: CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown',
-                        reportedGridMode: CONSTANTS.ApiCodes[encharge.reported_grid_mode] ?? 'Unknown',
-                        phase: encharge.phase ?? 'Unknown',
-                        derIndex: encharge.der_index ?? 0,
-                        revision: encharge.encharge_revision ?? 0,
-                        capacity: encharge.encharge_capacity ?? 0,
-                        ratedPower: encharge.encharge_rated_power ?? 0,
-                        reportedGridState: CONSTANTS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown',
-                        msgRetryCount: encharge.msg_retry_count ?? 0,
-                        partNumber: encharge.part_number,
-                        assemblyNumber: encharge.assembly_number,
-                        appFwVersion: encharge.app_fw_version,
-                        zbFwVersion: encharge.zb_fw_version ?? 'Unknown',
-                        zbBootloaderVers: encharge.zb_bootloader_vers ?? 'Unknown',
-                        iblFwVersion: encharge.ibl_fw_version,
-                        swiftAsicFwVersion: encharge.swift_asic_fw_version,
-                        bmuFwVersion: encharge.bmu_fw_version,
-                        submodulesCount: encharge.submodule_count,
-                        submodules: encharge.submodules
+                        deviceType: enchargeStatus.device_type,
+                        comInterfacStr: enchargeStatus.com_interface_str ?? 'Unknown',
+                        deviceId: enchargeStatus.device_id ?? 'Unknown',
+                        adminState: enchargeStatus.admin_state,
+                        adminStateStr: CONSTANTS.ApiCodes[enchargeStatus.admin_state_str] ?? 'Unknown',
+                        reportedGridMode: CONSTANTS.ApiCodes[enchargeStatus.reported_grid_mode] ?? 'Unknown',
+                        phase: enchargeStatus.phase ?? 'Unknown',
+                        derIndex: enchargeStatus.der_index ?? 0,
+                        revision: enchargeStatus.encharge_revision ?? 0,
+                        capacity: enchargeStatus.encharge_capacity ?? 0,
+                        ratedPower: enchargeStatus.encharge_rated_power ?? 0,
+                        reportedGridState: CONSTANTS.ApiCodes[enchargeStatus.reported_enc_grid_state] ?? 'Unknown',
+                        msgRetryCount: enchargeStatus.msg_retry_count ?? 0,
+                        partNumber: enchargeStatus.part_number,
+                        assemblyNumber: enchargeStatus.assembly_number,
+                        appFwVersion: enchargeStatus.app_fw_version,
+                        zbFwVersion: enchargeStatus.zb_fw_version ?? 'Unknown',
+                        zbBootloaderVers: enchargeStatus.zb_bootloader_vers ?? 'Unknown',
+                        iblFwVersion: enchargeStatus.ibl_fw_version,
+                        swiftAsicFwVersion: enchargeStatus.swift_asic_fw_version,
+                        bmuFwVersion: enchargeStatus.bmu_fw_version,
+                        submodulesCount: enchargeStatus.submodule_count,
+                        submodules: enchargeStatus.submodules
                     };
+
                     //add status to encharges
                     this.encharges[index].status = status;
 
@@ -2798,8 +2804,30 @@ class EnvoyDevice extends EventEmitter {
                 //get encharges percent full summary from encharges
                 const enchargesPercentFullSum = this.encharges[0].percentFullSum;
 
-                //debug object encharges
-                const debug1 = this.enableDebugMode ? this.emit('debug', `Encharges debug: ${JSON.stringify(this.encharges, null, 2)}`) : false;
+                //enpowers
+                //iterate over enpowers
+                this.enpowers.forEach((enpower, index) => {
+                    const serialNumber = enpower.serialNumber;
+                    const enpowerStatus = inventory.serial_nums[serialNumber];
+                    const status = {
+                        deviceType: enpowerStatus.device_type,
+                        comInterfacStr: enpowerStatus.com_interface_str ?? 'Unknown',
+                        deviceId: enpowerStatus.device_id ?? 'Unknown',
+                        adminState: enpowerStatus.admin_state,
+                        adminStateStr: CONSTANTS.ApiCodes[enpowerStatus.admin_state_str] ?? 'Unknown',
+                        msgRetryCount: enpowerStatus.msg_retry_count ?? 0,
+                        partNumber: enpowerStatus.part_number,
+                        assemblyNumber: enpowerStatus.assembly_number,
+                        appFwVersion: enpowerStatus.app_fw_version,
+                        iblFwVersion: enpowerStatus.ibl_fw_version,
+                        swiftAsicFwVersion: enpowerStatus.swift_asic_fw_version,
+                        bmuFwVersion: enpowerStatus.bmu_fw_version,
+                        submodulesCount: enpowerStatus.submodule_count,
+                        submodules: enpowerStatus.submodules
+                    };
+                    //add status to encharges
+                    this.enpowers[index].status = status;
+                });
 
                 //ensemble summary
                 this.ensemble = {
@@ -2948,7 +2976,7 @@ class EnvoyDevice extends EventEmitter {
 
                 if (this.ensembleStatusService) {
                     this.ensembleStatusService
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusRestPower, counters.restPower)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusRestPower, counters.restPower ?? 0)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHz, secctrl.freqBiasHz)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasV, secctrl.voltageBiasV)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8, secctrl.freqBiasHzQ8)
@@ -3029,7 +3057,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //fakeit
                 const fakeInventoryModeSupported = ensembleStatusKeys.includes('fakeit');
-                this.ensembleFakeInventoryMode = fakeInventoryModeSupported ? ensembleStatus.fakeit.fake_inventory_mode === true : false;
+                const ensembleFakeInventoryMode = fakeInventoryModeSupported ? ensembleStatus.fakeit.fake_inventory_mode === true : false;
 
                 //ensemble status supported
                 this.feature.ensembles.status.supported = ensembleStatusSupported;
@@ -3068,9 +3096,9 @@ class EnvoyDevice extends EventEmitter {
                 const tariff = ensembleEnchargeSettings.tariff;
                 const enchargeSettings = {
                     mode: tariff.mode,
-                    selfConsumptionMode: tariff.mode === 'self-consumption',
-                    fullBackupMode: tariff.mode === 'backup',
-                    savingsMode: (tariff.mode === 'savings-mode' || tariff.mode === 'economy'),
+                    selfConsumptionModeBool: tariff.mode === 'self-consumption',
+                    fullBackupModeBool: tariff.mode === 'backup',
+                    savingsModeBool: (tariff.mode === 'savings-mode' || tariff.mode === 'economy'),
                     operationModeSubType: tariff.operation_mode_sub_type,
                     reservedSoc: tariff.reserved_soc,
                     veryLowSoc: tariff.very_low_soc,
@@ -3083,9 +3111,13 @@ class EnvoyDevice extends EventEmitter {
                     this.encharges[i].settings = enchargeSettings;
                 }
 
+                //debug object encharges
+                const debug1 = this.enableDebugMode ? this.emit('debug', `Encharges: ${JSON.stringify(this.encharges, null, 2)}`) : false;
+
+                //update characteristics
                 if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
                     for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
-                        const state = enchargeSettings.selfConsumptionMode;
+                        const state = enchargeSettings.selfConsumptionModeBool;
                         this.generatorStateActiveControls[i].state = state;
 
                         if (this.enchargeProfileSelfConsumptionActiveControlsServices) {
@@ -3099,7 +3131,7 @@ class EnvoyDevice extends EventEmitter {
 
                 if (this.enchargeProfileSavingsActiveControlsCount > 0) {
                     for (let i = 0; i < this.enchargeProfileSavingsActiveControlsCount; i++) {
-                        const state = enchargeSettings.savingsMode;
+                        const state = enchargeSettings.savingsModeBool;
                         this.generatorStateActiveControls[i].state = state;
 
                         if (this.enchargeProfileSavingsActiveControlsServices) {
@@ -3113,7 +3145,7 @@ class EnvoyDevice extends EventEmitter {
 
                 if (this.enchargeProfileFullBackupActiveControlsCount > 0) {
                     for (let i = 0; i < this.enchargeProfileFullBackupActiveControlsCount; i++) {
-                        const state = enchargeSettings.fullBackupMode;
+                        const state = enchargeSettings.fullBackupModeBool;
                         this.generatorStateActiveControls[i].state = state;
 
                         if (this.enchargeProfileFullBackupActiveControlsServices) {
@@ -3252,6 +3284,15 @@ class EnvoyDevice extends EventEmitter {
                     }
                     this.dryContacts[index].settings = obj;
                 });
+
+                //add settings to enpowers object
+                for (let i = 0; i < this.feature.enpowers.count; i++) {
+                    this.enpowers[i].dryContacts = this.dryContacts;
+                }
+
+                //debug object enpowers
+                const debug3 = this.enableDebugMode ? this.emit('debug', `Enpowers: ${JSON.stringify(this.enpowers, null, 2)}`) : false;
+
                 this.feature.dryContacts.settings.supported = dryContactsSettingsSupported;
                 this.feature.dryContacts.settings.count = dryContactsSettings.length;
 
@@ -4175,7 +4216,7 @@ class EnvoyDevice extends EventEmitter {
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyGridProfile)
                         .onGet(async () => {
-                            const value = this.arfProfile.name;
+                            const value = this.envoy.home.gridProfile;
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, grid profile: ${value}`);
                             return value;
                         });
@@ -4470,7 +4511,7 @@ class EnvoyDevice extends EventEmitter {
                             });
                         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayGridProfile)
                             .onGet(async () => {
-                                const value = this.arfProfile.name;
+                                const value = qRelay.gridProfile;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, grid profile: ${value}`);
                                 return value;
                             });
@@ -5256,7 +5297,7 @@ class EnvoyDevice extends EventEmitter {
                             });
                         enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterGridProfile)
                             .onGet(async () => {
-                                const value = this.arfProfile.name;
+                                const value = microinverter.gridProfile;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${serialNumber}, grid profile: ${value}`);
                                 return value;
                             });
@@ -5320,7 +5361,7 @@ class EnvoyDevice extends EventEmitter {
                     this.ensembleStatusService.setCharacteristic(Characteristic.ConfiguredName, `Ensemble summary`);
                     this.ensembleStatusService.getCharacteristic(Characteristic.enphaseEnsembleStatusRestPower)
                         .onGet(async () => {
-                            const value = this.ensemble.counters.restPower;
+                            const value = this.ensemble.counters.restPower ?? 0;
                             const info = this.disableLogInfo ? false : this.emit('message', `Ensemble summary, rest power: ${value} kW`);
                             return value;
                         });
@@ -5565,7 +5606,7 @@ class EnvoyDevice extends EventEmitter {
                                 enchargeProfileSelfConsumptionControlService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                                 enchargeProfileSelfConsumptionControlService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
-                                        const state = enchargeSettings.selfConsumptionMode;;
+                                        const state = enchargeSettings.selfConsumptionModeBool;;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Encharges profile: Self Consumption, state: ${state ? 'Active' : 'Not Active'}`);
                                         return state;
                                     })
@@ -5614,7 +5655,7 @@ class EnvoyDevice extends EventEmitter {
                                 enchargeProfileSavingsControlService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                                 enchargeProfileSavingsControlService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
-                                        const state = enchargeSettings.savingsMode;;
+                                        const state = enchargeSettings.savingsModeBool;;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Encharges profile: Savings, state: ${state ? 'Active' : 'Not Active'}`);
                                         return state;
                                     })
@@ -5664,7 +5705,7 @@ class EnvoyDevice extends EventEmitter {
                                 enchargeProfileFullBackupControlService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
                                 enchargeProfileFullBackupControlService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
-                                        const state = enchargeSettings.fullBackupMode;;
+                                        const state = enchargeSettings.fullBackupModeBool;;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Encharges profile full backup: ${state ? 'Active' : 'Not Active'}`);
                                         return state;
                                     })
@@ -5777,7 +5818,7 @@ class EnvoyDevice extends EventEmitter {
                             });
                         enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeGridProfile)
                             .onGet(async () => {
-                                const value = this.arfProfile.name;
+                                const value = encharge.gridProfile;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Encharge: ${serialNumber}, grid profile: ${value}`);
                                 return value;
                             });
@@ -5873,7 +5914,7 @@ class EnvoyDevice extends EventEmitter {
                         };
                     };
 
-                    //dry contacts
+                    //enpower dry contacts
                     if (this.feature.dryContacts.installed) {
                         if (this.enpowerDryContactsControl) {
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Enpower ${serialNumber} Dry Contacts Control Services`) : false;
@@ -5934,12 +5975,12 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('message', `Enpower: ${serialNumber}, state: ${value}`);
                                 return value;
                             });
-                        enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerOperating)
-                            .onGet(async () => {
-                                const value = enpower.operating;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Enpower: ${serialNumber}, operating: ${value ? 'Yes' : 'No'}`);
-                                return value;
-                            });
+                        //enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerOperating)
+                        //    .onGet(async () => {
+                        //       const value = enpower.operating;
+                        //        const info = this.disableLogInfo ? false : this.emit('message', `Enpower: ${serialNumber}, operating: ${value ? 'Yes' : 'No'}`);
+                        //        return value;
+                        //   });
                         enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerCommunicating)
                             .onGet(async () => {
                                 const value = enpower.communicating;
@@ -5990,7 +6031,7 @@ class EnvoyDevice extends EventEmitter {
                             });
                         enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerGridProfile)
                             .onGet(async () => {
-                                const value = this.arfProfile.name;
+                                const value = enpower.gridProfile;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Enpower: ${serialNumber}, grid profile: ${value}`);
                                 return value;
                             });
