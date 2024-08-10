@@ -72,8 +72,8 @@ class EnvoyDevice extends EventEmitter {
 
         this.solarGridModeSensors = this.envoyFirmware7xx ? device.solarGridModeSensors || [] : [];
 
-        this.dryContactsControl = device.dryContactsControl || false;
-        this.dryContactsSensors = device.dryContactsSensors || false;
+        this.enpowerDryContactsControl = device.enpowerDryContactsControl || false;
+        this.enpowerDryContactsSensors = device.enpowerDryContactsSensors || false;
 
         this.generatorStateControl = device.generatorStateControl || {};
         this.generatorStateSensor = device.generatorStateSensor || {};
@@ -5914,7 +5914,7 @@ class EnvoyDevice extends EventEmitter {
 
                     //dry contacts
                     if (this.dryContactsInstalled) {
-                        if (this.dryContactsControl) {
+                        if (this.enpowerDryContactsControl) {
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Dry Contacts Control Service`) : false;
                             this.dryContactsControlServices = [];
                             this.dryContacts.forEach((contact, index) => {
@@ -5942,7 +5942,7 @@ class EnvoyDevice extends EventEmitter {
                             });
                         };
 
-                        if (this.dryContactsSensors) {
+                        if (this.enpowerDryContactsSensors) {
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Dry Contacts Sensors Service`) : false;
                             this.dryContactsSensorsServices = [];
                             this.dryContacts.forEach((contact, index) => {

@@ -1285,6 +1285,20 @@
               },
               "required": false
             },
+            "enpowerDryContactsControl": {
+              "title": "Dry Contacts Control",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable control of dry contacts state.",
+              "required": false
+            },
+            "enpowerDryContactsSensors": {
+              "title": "Dry Contacts Sensors",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable monitoring of dry contacts state.",
+              "required": false
+            },
             "enchargeGridModeSensors": {
               "title": "Encharge Grid Sensors",
               "type": "array",
@@ -1574,20 +1588,6 @@
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               },
-              "required": false
-            },
-            "dryContactsControl": {
-              "title": "Dry Contacts Control",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable control of dry contacts state.",
-              "required": false
-            },
-            "dryContactsSensors": {
-              "title": "Dry Contacts Sensors",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable monitoring of dry contacts state.",
               "required": false
             },
             "generatorStateControl": {
@@ -2452,8 +2452,6 @@
                   "key": "devices[]",
                   "title": "Ensemble",
                   "items": [
-                    "devices[].dryContactsControl",
-                    "devices[].dryContactsSensors",
                     {
                       "key": "devices[]",
                       "type": "tabarray",
@@ -2463,6 +2461,8 @@
                           "key": "devices[]",
                           "title": "Enpower",
                           "items": [
+                            "devices[].enpowerDryContactsControl",
+                            "devices[].enpowerDryContactsSensors",
                             {
                               "key": "devices[].enpowerGridStateControl",
                               "type": "section",

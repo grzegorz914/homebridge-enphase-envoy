@@ -188,8 +188,8 @@
                             "namePrefix": false
                         }
                     ],
-                    "dryContactsControl": false,
-                    "dryContactsSensors": false,
+                    "enpowerDryContactsControl": false,
+                    "enpowerDryContactsSensors": false,
                     "generatorStateControl": {
                         "name": "Control name",
                         "displayType": 0,
