@@ -3146,7 +3146,7 @@ class EnvoyDevice extends EventEmitter {
                     //dry contacts sensors
                     if (this.dryContactsSensorsServices) {
                         this.dryContactsSensorsServices[index]
-                            .updateCharacteristic(Characteristic.On, obj.stateBool)
+                            .updateCharacteristic(Characteristic.ContactSensorState, obj.stateBool)
                     }
                 });
                 this.dryContactsInstalled = dryContactsInstalled;
