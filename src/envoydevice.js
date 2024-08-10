@@ -3756,8 +3756,6 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile: ${JSON.stringify(enchargeProfileSet.data, null, 2)}`) : false;
-
-                await this.updateEnsembleEnchargeSettingsData();
                 resolve();
             } catch (error) {
                 reject(`Set encharge profile error: ${error}.`);
@@ -3785,8 +3783,6 @@ class EnvoyDevice extends EventEmitter {
                 const url = this.url + CONSTANTS.ApiUrls.EnchargeRelay;
                 const enpowerGridState = await axios.post(url, { 'mains_admin_state': state ? 'closed' : 'open' }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state: ${JSON.stringify(enpowerGridState.data, null, 2)}`) : false;
-
-                await this.updateEnsembleInventoryData();
                 resolve();
             } catch (error) {
                 reject(`Set enpower grid state error: ${error}.`);
@@ -3813,8 +3809,6 @@ class EnvoyDevice extends EventEmitter {
                 const url = this.url + CONSTANTS.ApiUrls.EnsembleDryContact;
                 const dryContactSet = await axios.post(url, { dry_contacts: { id: id, status: state ? 'closed' : 'open' } }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact: ${JSON.stringify(dryContactSet.data, null, 2)}`) : false;
-
-                await this.updateEnsembleDryContactsData();
                 resolve();
             } catch (error) {
                 reject(`Set dry contact error: ${error}.`);
@@ -3854,8 +3848,6 @@ class EnvoyDevice extends EventEmitter {
                     type: this.dryContacts[index].settings.type
                 }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact settings: ${JSON.stringify(dryContactSet.data, null, 2)}`) : false;
-
-                await this.updateEnsembleDryContactsSettingsData();
                 resolve();
             } catch (error) {
                 reject(`Set dry contact settings error: ${error}.`);
@@ -3884,8 +3876,6 @@ class EnvoyDevice extends EventEmitter {
                 const url = this.url + CONSTANTS.ApiUrls.GeneratorModeGetSet;
                 const generatorState = await axios.post(url, { 'gen_cmd': genMode }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set generator state: ${JSON.stringify(generatorState.data, null, 2)}`) : false;
-
-                await this.updateEnsembleGeneratorData();
                 resolve();
             } catch (error) {
                 reject(`Set generator state error: ${error}.`);
