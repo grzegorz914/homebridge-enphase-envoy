@@ -5916,7 +5916,7 @@ class EnvoyDevice extends EventEmitter {
                     if (this.dryContactsInstalled) {
                         if (this.dryContactsControl) {
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Dry Contacts Control Service`) : false;
-                            this.dryContactsControlsServices = [];
+                            this.dryContactsControlServices = [];
                             this.dryContacts.forEach((contact, index) => {
                                 const controlId = contact.settings.id;
                                 const controlName = contact.settings.loadName;
@@ -5938,7 +5938,7 @@ class EnvoyDevice extends EventEmitter {
                                             this.emit('error', `Set ${controlName} control state error: ${error}`);
                                         };
                                     })
-                                this.dryContactsControlsServices.push(dryContactsContolService);
+                                this.dryContactsControlServices.push(dryContactsContolService);
                             });
                         };
 
