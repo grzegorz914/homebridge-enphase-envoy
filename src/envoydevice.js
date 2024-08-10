@@ -592,87 +592,120 @@ class EnvoyDevice extends EventEmitter {
             item_count: 0
         }
 
+        //supported functions
+        this.feature = {
+            envoy: {
+                installed: false
+            },
+            wirelessConnectionKit: {
+                supported: false,
+                installed: false,
+                count: 0
+            },
+            microinverters: {
+                supported: false,
+                installed: false,
+                count: 0
+            },
+            qRelays: {
+                supported: false,
+                installed: false,
+                count: 0
+            },
+            acBatteries: {
+                supported: false,
+                installed: false,
+                count: 0
+            },
+            meters: {
+                supported: false,
+                installed: false,
+                count: 0,
+                production: {
+                    supported: false,
+                    enabled: false,
+                    voltageDivide: 1
+                },
+                consumption: {
+                    supported: false,
+                    enabled: false,
+                    voltageDivide: 1
+                },
+                storage: {
+                    supported: false,
+                    enabled: false,
+                    voltageDivide: 1
+                },
+                readings: {
+                    supported: false,
+                    installed: false,
+                    count: 0,
+                    channels: {
+                        supported: false,
+                        installed: false,
+                        count: 0
+                    }
+                }
+            },
+            productionPowerMode: {
+                supported: false
+            },
+            ensembles: {
+                supported: false,
+                installed: false,
+                count: 0
+            },
+            enpowers: {
+                supported: false,
+                installed: false,
+                count: 0
+            },
+            encharges: {
+                supported: false,
+                installed: false,
+                count: 0,
+                settings: {
+                    supported: false,
+                    installed: false,
+                }
+            },
+            dryContacts: {
+                supported: false,
+                installed: false,
+                count: 0,
+                settings: {
+                    supported: false,
+                    installed: false,
+                    count: 0
+                }
+            },
+            generators: {
+                supported: false,
+                installed: false,
+                count: 0,
+                settings: {
+                    supported: false
+                }
+            },
+            liveData: {
+                supported: false,
+                installed: false,
+            },
+            plcLevel: {
+                supported: false,
+                installed: false
+            }
+        }
+
         //envoy
         this.envoyDevId = '';
-        this.envoyInstalled = false;
-
-        //envoy section ensemble
-        this.wirelessConnectionKitSupported = false;
-        this.wirelessConnectionKitInstalled = false;
-        this.wirelessConnectionKitConnectionsCount = 0;
-
-        //microinverters
-        this.microinvertersSupported = false;
-        this.microinvertersInstalled = false;
-        this.microinvertersCount = 0;
-
-        //qrelays
-        this.qRelaysSupported = false;
-        this.qRelaysInstalled = false;
-        this.qRelaysCount = 0;
-
-        //ac batteries
-        this.acBatteriesSupported = false;
-        this.acBatteriesInstalled = false;
-        this.acBatteriesCount = 0;
-
-        //ct meters
-        this.metersSupported = false;
-        this.metersInstalled = false;
-        this.metersCount = 0;
-        this.metersProductionSupported = false;
-        this.metersProductionEnabled = false;
-        this.metersProductionVoltageDivide = 1;
-        this.metersConsumptionSupported = false;
-        this.metersConsumptionEnabled = false;
-        this.metersConsumpionVoltageDivide = 1;
-        this.metersStorageSupported = false;
-        this.metersStorageEnabled = false;
-        this.metersStorageVoltageDivide = 1;
-        this.metersReadingInstalled = false;
-        this.metersReadingCount = 0;
-        this.metersReadingPhaseInstalled = false
-        this.metersReadingPhaseCount = 0;
 
         //production
         this.productionPowerPeak = 0;
-        this.productionPowerModeSupported = false;
         this.productionPowerMode = false;
 
         //consumption CT
         this.consumptionsPowerPeak = [0, 0];
-
-        //ensembles
-        this.ensemblesSupported = false;
-        this.ensemblesInstalled = false;
-        this.ensemblesCount = 0;
-
-        //enpowers
-        this.enpowersSupported = false;
-        this.enpowersInstalled = false;
-        this.enpowersCount = 0;
-
-        //encharges
-        this.enchargesSupported = false;
-        this.enchargesInstalled = false;
-        this.enchargesCount = 0;
-        this.enchargeSettingsSupported = false;
-
-        //dry contacts
-        this.dryContactsInstalled = false;
-        this.dryContactsCount = 0;
-        this.dryContactsSettingsInstalled = false;
-        this.dryContactsSettingsCount = 0;
-
-        //generators
-        this.generatorsSupported = false;
-        this.generatorsSettingsSupported = false;
-
-        //liveData
-        this.liveDataSupported = false;
-
-        //plc level
-        this.plcLevelSupported = false;
 
         //url
         this.url = this.envoyFirmware7xx ? `https://${this.host}` : `http://${this.host}`;
@@ -733,10 +766,10 @@ class EnvoyDevice extends EventEmitter {
                     try {
                         switch (key) {
                             case 'ProductionPowerMode':
-                                const set = this.productionPowerModeSupported ? await this.setProductionPowerMode(value) : false;
+                                const set = this.feature.productionPowerMode.supported ? await this.setProductionPowerMode(value) : false;
                                 break;
                             case 'PlcLevel':
-                                const set1 = this.plcLevelSupported ? await this.updatePlcLevelData(value) : false;
+                                const set1 = this.feature.plcLevel.supported ? await this.updatePlcLevelData(value) : false;
                                 break;
                             case 'EnchargeProfile':
                                 switch (value) {
@@ -803,20 +836,20 @@ class EnvoyDevice extends EventEmitter {
         }).on('updateEnsemble', async () => {
             try {
                 const tokenExpired = await this.checkJwtToken();
-                const updateEnsembleInventory = tokenExpired ? false : await this.updateEnsembleInventoryData();
-                const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
-                const updateEnsembleEnchargeSettings = updateEnsembleInventory ? await this.updateEnsembleEnchargeSettingsData() : false;
-                const updateEnsembleDryContacts = updateEnsembleInventory ? await this.updateEnsembleDryContactsData() : false;
+                const updateEnsemble = tokenExpired ? false : await this.updateEnsembleInventoryData();
+                const updateEnsembleStatus = updateEnsemble ? await this.updateEnsembleStatusData() : false;
+                const updateEnsembleEnchargeSettings = updateEnsemble ? await this.updateEnsembleEnchargeSettingsData() : false;
+                const updateEnsembleDryContacts = updateEnsemble ? await this.updateEnsembleDryContactsData() : false;
                 const updateEnsembleDryContactsSettings = updateEnsembleDryContacts ? await this.updateEnsembleDryContactsSettingsData() : false;
-                const updateEnsembleGenerator = updateEnsembleInventory ? await this.updateEnsembleGeneratorData() : false;
+                const updateEnsembleGenerator = updateEnsemble ? await this.updateEnsembleGeneratorData() : false;
                 const updateEnsembleGeneratorSettings = updateEnsembleGenerator ? await this.updateEnsembleGeneratorSettingsData() : false;
             } catch (error) {
-                this.emit('error', `Update ensemble inventoty error: ${error}`);
+                this.emit('error', `Update ensemble error: ${error}`);
             };
-        }).on('updateLive', async () => {
+        }).on('updateLiveData', async () => {
             try {
                 const tokenExpired = await this.checkJwtToken();
-                const updateLive = tokenExpired ? false : await this.updateLiveData();
+                const updateLiveData = tokenExpired ? false : await this.updateLiveData();
             } catch (error) {
                 this.emit('error', `Update live data error: ${error}`);
             };
@@ -873,7 +906,7 @@ class EnvoyDevice extends EventEmitter {
             await this.updateInfoData();
             const updateHome = await this.updateHomeData();
             const updateInventory = updateHome ? await this.updateInventoryData() : false;
-            const updateMeters = this.metersSupported ? await this.updateMetersData() : false;
+            const updateMeters = this.feature.meters.supported ? await this.updateMetersData() : false;
             const updateMetersReading = updateMeters ? await this.updateMetersReadingData() : false;
 
             //get production and inverters data
@@ -889,13 +922,13 @@ class EnvoyDevice extends EventEmitter {
             const updateProductionPowerMode = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.updateProductionPowerModeData() : false;
 
             //get ensemble data only FW. >= 7.x.x.
-            const updateEnsembleInventory = validJwtToken ? await this.updateEnsembleInventoryData() : false;
-            const updateEnsembleStatus = updateEnsembleInventory ? await this.updateEnsembleStatusData() : false;
-            const updateEnsembleDryContacts = updateEnsembleInventory ? await this.updateEnsembleDryContactsData() : false;
+            const updateEnsemble = validJwtToken ? await this.updateEnsembleInventoryData() : false;
+            const updateEnsembleStatus = updateEnsemble ? await this.updateEnsembleStatusData() : false;
+            const updateEnsembleDryContacts = updateEnsemble ? await this.updateEnsembleDryContactsData() : false;
             const updateEnsembleDryContactsSettings = updateEnsembleDryContacts ? await this.updateEnsembleDryContactsSettingsData() : false;
-            const updateEnsembleGenerator = updateEnsembleInventory ? await this.updateEnsembleGeneratorData() : false;
+            const updateEnsembleGenerator = updateEnsemble ? await this.updateEnsembleGeneratorData() : false;
             const updateEnsembleGeneratorSettings = updateEnsembleGenerator ? await this.updateEnsembleGeneratorSettingsData() : false;
-            const updateLive = validJwtToken ? await this.updateLiveData() : false;
+            const updateLiveData = validJwtToken ? await this.updateLiveData() : false;
 
             //get plc communication level
             const updatePlcLevel = this.supportPlcLevel && (validJwtToken || calculateInstallerPassword) ? await this.updatePlcLevelData() : false;
@@ -917,8 +950,8 @@ class EnvoyDevice extends EventEmitter {
             const pushTimer1 = updateMeters ? this.timers.push({ timerName: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
             const pushTimer2 = updateProduction ? this.timers.push({ timerName: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
             const pushTimer3 = updateMicroinverters ? this.timers.push({ timerName: 'updateMicroinverters', sampling: 80000 }) : false;
-            const pushTimer4 = updateEnsembleInventory ? this.timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
-            const pushTimer5 = updateLive ? this.timers.push({ timerName: 'updateLive', sampling: this.liveDataRefreshTime }) : false;
+            const pushTimer4 = updateEnsemble ? this.timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer5 = updateLiveData ? this.timers.push({ timerName: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
             this.impulseGenerator.start(this.timers);
         } catch (error) {
             this.emit('errorStart', `Start error: ${error}`);
@@ -1165,8 +1198,8 @@ class EnvoyDevice extends EventEmitter {
                     metersSupported: imeter,
                     home: {}
                 };
-                this.metersSupported = imeter;
-                this.envoyInstalled = true;
+                this.feature.meters.supported = imeter;
+                this.feature.envoy.installed = true;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('info', parseInfoData) : false;
@@ -1385,7 +1418,7 @@ class EnvoyDevice extends EventEmitter {
                                 ?.updateCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected, obj.connected);
                         }
                     });
-                    this.wirelessConnectionKitInstalled = this.wirelessConnections.some(connection => connection.connected);
+                    this.feature.wirelessConnectionKit.installed = this.wirelessConnections.some(connection => connection.connected);
                 }
 
                 if (this.envoyService) {
@@ -1403,11 +1436,11 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, `${commNum} / ${commLevel} %`)
                         .updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, `${commPcuNum} / ${commPcuLevel} %`)
                         .updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, `${commNsrbNum} / ${commNsrbLevel} %`);
-                    if (this.acBatteriesInstalled) {
+                    if (this.feature.acBatteries.installed) {
                         this.envoyService
                             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, `${commAcbNum} / ${commAcbLevel} %`)
                     }
-                    if (this.enchargesInstalled) {
+                    if (this.feature.encharges.installed) {
                         this.envoyService
                             .updateCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, `${commEnchargeNum} / ${commEnchargeLevel} %`)
                     }
@@ -1445,14 +1478,14 @@ class EnvoyDevice extends EventEmitter {
                     updateStatus: updateStatus
                 };
 
-                this.microinvertersSupported = microinvertersSupported;
-                this.acBatteriesSupported = acBatteriesSupported;
-                this.qRelaysSupported = qRelaysSupported;
-                this.ensemblesSupported = ensemblesSupported;
-                this.enchargesSupported = enchargesSupported;
-                this.generatorsSupported = generatorsSupported;
-                this.wirelessConnectionKitConnectionsCount = wirelessConnectionKitConnectionsCount;
-                this.wirelessConnectionKitSupported = wirelessConnectionKitSupported;
+                this.feature.microinverters.supported = microinvertersSupported;
+                this.feature.acBatteries.supported = acBatteriesSupported;
+                this.feature.qRelays.supported = qRelaysSupported;
+                this.feature.ensembles.supported = ensemblesSupported;
+                this.feature.encharges.supported = enchargesSupported;
+                this.feature.generators.supported = generatorsSupported;
+                this.feature.wirelessConnectionKit.count = wirelessConnectionKitConnectionsCount;
+                this.feature.wirelessConnectionKit.supported = wirelessConnectionKitSupported;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('home', envoy) : false;
@@ -1526,8 +1559,8 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, obj.operating);
                         }
                     });
-                    this.microinvertersCount = microinvertersCount;
-                    this.microinvertersInstalled = microinvertersInstalled;
+                    this.feature.microinverters.count = microinvertersCount;
+                    this.feature.microinverters.installed = microinvertersInstalled;
                 }
 
                 //ac btteries inventoty
@@ -1586,8 +1619,8 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseAcBatterieChargeStatus, obj.chargeStatus);
                         }
                     });
-                    this.acBatteriesCount = acBatteriesCount;
-                    this.acBatteriesInstalled = acBatteriesInstalled;
+                    this.feature.acBatteries.count = acBatteriesCount;
+                    this.feature.acBatteries.installed = acBatteriesInstalled;
                 }
 
                 //qrelays inventory
@@ -1656,8 +1689,8 @@ class EnvoyDevice extends EventEmitter {
                             }
                         }
                     });
-                    this.qRelaysCount = qRelaysCount;
-                    this.qRelaysInstalled = qRelaysInstalled;
+                    this.feature.qRelays.count = qRelaysCount;
+                    this.feature.qRelays.installed = qRelaysInstalled;
                 }
 
                 //ensembles
@@ -1702,9 +1735,9 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnsembleOperating, obj.operating)
                         }
                     });
-                    this.ensemblesSupported = ensemblesSupported;
-                    this.ensemblesInstalled = ensemblesInstalled;
-                    this.ensemblesCount = ensemblesCount;
+                    this.feature.ensembles.supported = ensemblesSupported;
+                    this.feature.ensembles.installed = ensemblesInstalled;
+                    this.feature.ensembles.count = ensemblesCount;
                 }
 
                 //restFul
@@ -1776,32 +1809,32 @@ class EnvoyDevice extends EventEmitter {
 
                 //production
                 const productionMeter = this.meters.find(meter => meter.measurementType === 'Production');
-                this.metersProductionSupported = Boolean(productionMeter);
-                this.metersProductionEnabled = productionMeter?.state ?? false;
-                this.metersProductionVoltageDivide = productionMeter ? (productionMeter.phaseMode === 'Split' ? 1 : productionMeter.phaseCount) : 1;
+                this.feature.meters.production.supported = Boolean(productionMeter);
+                this.feature.meters.production.enabled = productionMeter?.state ?? false;
+                this.feature.meters.production.voltageDivide = productionMeter ? (productionMeter.phaseMode === 'Split' ? 1 : productionMeter.phaseCount) : 1;
 
                 //consumption
                 const consumptionMeter = this.meters.find(meter => meter.measurementType === 'Consumption Net');
-                this.metersConsumptionSupported = Boolean(productionMeter);
-                this.metersConsumptionEnabled = consumptionMeter?.state ?? false;
-                this.metersConsumpionVoltageDivide = consumptionMeter ? (consumptionMeter.phaseMode === 'Split' ? 1 : consumptionMeter.phaseCount) : 1;
+                this.feature.meters.consumption.supported = Boolean(productionMeter);
+                this.feature.meters.consumption.enabled = consumptionMeter?.state ?? false;
+                this.feature.meters.consumption.voltageDivide = consumptionMeter ? (consumptionMeter.phaseMode === 'Split' ? 1 : consumptionMeter.phaseCount) : 1;
 
                 //storage
                 const storageMeter = this.meters.find(meter => meter.measurementType === 'Storage');
-                this.metersStorageSupported = Boolean(storageMeter);
-                this.metersStorageEnabled = storageMeter?.state ?? false;
-                this.metersStorageVoltageDivide = storageMeter ? (storageMeter.phaseMode === 'Split' ? 1 : storageMeter.phaseCount) : 1;
+                this.feature.meters.storage.supported = Boolean(storageMeter);
+                this.feature.meters.storage.enabled = storageMeter?.state ?? false;
+                this.feature.meters.storage.voltageDivide = storageMeter ? (storageMeter.phaseMode === 'Split' ? 1 : storageMeter.phaseCount) : 1;
 
                 //meters enabled and count
-                this.metersInstalled = this.meters.some(meter => meter.state);
-                this.metersCount = meters.length;
+                this.feature.meters.installed = this.meters.some(meter => meter.state);
+                this.feature.meters.count = meters.length;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('meters', meters) : false;
 
                 //mqtt
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Meters', meters) : false;
-                resolve(this.metersInstalled);
+                resolve(this.feature.meters.installed);
             } catch (error) {
                 reject(`Requesting meters error: ${error}.`);
             };
@@ -1882,11 +1915,11 @@ class EnvoyDevice extends EventEmitter {
                             this.meters[index].channels.push(obj);
                         });
                     }
-                    this.metersReadingPhaseInstalled = meterReadingChannelsSupported;
-                    this.metersReadingPhaseCount = meterReadingChannels.length;
+                    this.feature.meters.readings.channels.installed = meterReadingChannelsSupported;
+                    this.feature.meters.readings.channels.count = meterReadingChannels.length;
                 });
-                this.metersReadingInstalled = metersReadingSupported;
-                this.metersReadingCount = metersReading.length;
+                this.feature.meters.readings.installed = metersReadingSupported;
+                this.feature.meters.readings.count = metersReading.length;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('metersreading', metersReading) : false;
@@ -1957,11 +1990,11 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //get enabled devices
-                const metersProductionEnabled = this.metersProductionEnabled;
-                const metersProductionVoltageDivide = this.metersProductionVoltageDivide;
-                const metersConsumptionEnabled = this.metersConsumptionEnabled;
-                const metersConsumpionVoltageDivide = this.metersConsumpionVoltageDivide;
-                const acBatteriesInstalled = this.acBatteriesInstalled;
+                const metersProductionEnabled = this.feature.meters.production.enabled;
+                const metersProductionVoltageDivide = this.feature.meters.production.voltageDivide;
+                const metersConsumptionEnabled = this.feature.meters.consumption.enabled;
+                const metersConsumpionVoltageDivide = this.feature.meters.consumption.voltageDivide;
+                const acBatteriesInstalled = this.feature.acBatteries.installed;
                 const productionEnergyLifetimeOffset = this.energyProductionLifetimeOffset;
 
                 //microinverters data 0
@@ -2432,7 +2465,7 @@ class EnvoyDevice extends EventEmitter {
                         }
                     }
                 }
-                this.productionPowerModeSupported = productionPowerModeSupported;
+                this.feature.productionPowerMode.supported = productionPowerModeSupported;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('powermode', productionPowerMode) : false;
@@ -2537,8 +2570,8 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, this.arfProfile.name)
                         }
                     });
-                    this.enchargesInstalled = enchargesInstalled;
-                    this.enchargesCount = enchargesCount;
+                    this.feature.encharges.installed = enchargesInstalled;
+                    this.feature.encharges.count = enchargesCount;
 
                     //calculate encharges percent full summ
                     const enchargesPercentFullSum = (enchargesPercentFullSummary.reduce((total, num) => total + num, 0) / enchargesCount) ?? 0;
@@ -2669,9 +2702,9 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnvoyEnpowerGridMode, obj.enpwrGridModeTranslated)
                         }
                     });
-                    this.enpowersSupported = enpowersSupported;
-                    this.enpowersInstalled = enpowersInstalled;
-                    this.enpowersCount = enpowersCount;
+                    this.feature.enpowers.supported = enpowersSupported;
+                    this.feature.enpowers.installed = enpowersInstalled;
+                    this.feature.enpowers.count = enpowersCount;
                 }
 
                 //restFul
@@ -2753,7 +2786,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //sum rated power for all encharges to kW and add to encharge object
                 const enchargesRatedPowerSum = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000) ?? 0;
-                for (let i = 0; i < this.enchargesCount; i++) {
+                for (let i = 0; i < this.feature.encharges.count; i++) {
                     this.encharges[i].ratedPowerSum = enchargesRatedPowerSum;
                 }
 
@@ -3041,7 +3074,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //add settings to encharges object
-                for (let i = 0; i < this.enchargesCount; i++) {
+                for (let i = 0; i < this.feature.encharges.count; i++) {
                     this.encharges[i].settings = enchargeSettings;
                 }
 
@@ -3085,7 +3118,7 @@ class EnvoyDevice extends EventEmitter {
                         }
                     }
                 }
-                this.enchargeSettingsSupported = enchargeSettingsSupported;
+                this.feature.encharge.settings.supported = enchargeSettingsSupported;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('enchargesettings', ensembleGenerator) : false;
@@ -3149,8 +3182,8 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.ContactSensorState, obj.stateBool)
                     }
                 });
-                this.dryContactsInstalled = dryContactsInstalled;
-                this.dryContactsCount = dryContacts.length;
+                this.feature.dryContacts.installed = dryContactsInstalled;
+                this.feature.dryContacts.count = dryContacts.length;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('drycontacts', ensembleDryContacts) : false;
@@ -3214,8 +3247,8 @@ class EnvoyDevice extends EventEmitter {
                     }
                     this.dryContacts[index].settings = obj;
                 });
-                this.dryContactsSettingsInstalled = dryContactsSettingsInstalled;
-                this.dryContactsSettingsCount = dryContactsSettings.length;
+                this.feature.dryContacts.settings.installed = dryContactsSettingsInstalled;
+                this.feature.dryContacts.settings.count = dryContactsSettings.length;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('drycontactssettings', ensembleDryContactsSettings) : false;
@@ -3443,11 +3476,11 @@ class EnvoyDevice extends EventEmitter {
 
                 //lived data meteres types add to array
                 const liveDataTypes = [];
-                const pushPvTypeToArray = this.metersInstalled && (this.metersProductionEnabled || this.metersConsumptionEnabled) ? liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
-                const pushStorageTypeToArray = this.metersInstalled && this.metersStorageEnabled ? liveDataTypes.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
-                const pushGridTypeToArray = this.metersInstalled && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
-                const pushLoadTypeToArray = this.metersInstalled && this.metersConsumptionEnabled ? liveDataTypes.push({ type: 'Load', meter: liveDataMeters.load }) : false;
-                const pushGeneratorTypeToArray = this.metersInstalled && this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
+                const pushPvTypeToArray = this.feature.meters.installed && (this.feature.meters.production.enabled || this.feature.meters.consumption.enabled) ? liveDataTypes.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
+                const pushStorageTypeToArray = this.feature.meters.installed && this.feature.meters.storage.enabled ? liveDataTypes.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
+                const pushGridTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? liveDataTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
+                const pushLoadTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? liveDataTypes.push({ type: 'Load', meter: liveDataMeters.load }) : false;
+                const pushGeneratorTypeToArray = this.feature.meters.installed && this.generatorsInstalled ? liveDataTypes.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
 
                 //live data exist
                 const liveDataExist = liveDataTypes.length > 0;
@@ -3552,7 +3585,7 @@ class EnvoyDevice extends EventEmitter {
                 const dryContactStatus = dryContacts.dry_contact_status ?? 0;
 
                 //live data installed
-                this.liveDataSupported = liveDataSupported;
+                this.feature.liveData.supported = liveDataSupported;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('livedata', live) : false;
@@ -3613,7 +3646,7 @@ class EnvoyDevice extends EventEmitter {
                 const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevel, null, 2)}`) : false;
 
                 // get comm level data
-                if (this.microinvertersInstalled) {
+                if (this.feature.microinverters.installed) {
                     this.microinverters.forEach((microinverter, index) => {
                         const key = `${microinverter.serialNumber}`;
                         const value = (plcLevel[key] ?? 0) * 20;
@@ -3626,7 +3659,7 @@ class EnvoyDevice extends EventEmitter {
                     });
                 }
 
-                if (this.acBatteriesInstalled) {
+                if (this.feature.acBatteries.installed) {
                     this.acBatteries.forEach((acBatterie, index) => {
                         const key = `${acBatterie.serialNumber}`;
                         const value = (plcLevel[key] ?? 0) * 20;
@@ -3640,7 +3673,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
 
-                if (this.qRelaysInstalled) {
+                if (this.feature.qRelays.installed) {
                     this.qRelays.forEach((qRelay, index) => {
                         const key = `${qRelay.serialNumber}`;
                         const value = (plcLevel[key] ?? 0) * 20;
@@ -3653,7 +3686,7 @@ class EnvoyDevice extends EventEmitter {
                     });
                 }
 
-                if (this.enchargesInstalled) {
+                if (this.feature.encharges.installed) {
                     this.encharges.forEach((encharge, index) => {
                         const key = `${encharge.serialNumber}`;
                         const value = (plcLevel[key] ?? 0) * 20;
@@ -3685,7 +3718,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
                 this.checkCommLevel = state;
-                this.plcLevelSupported = true;
+                this.feature.plcLevel.supported = true;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('plclevel', plcLevel) : false;
@@ -3898,22 +3931,22 @@ class EnvoyDevice extends EventEmitter {
         this.emit('devInfo', `Time: ${this.envoy.time}`);
         const displayLog = this.envoyFirmware7xx && this.envoyFirmware7xxTokenGenerationMode === 0 ? this.emit('devInfo', `Token Valid: ${new Date(this.jwtToken.expires_at * 1000).toLocaleString()}`) : false;
         this.emit('devInfo', `------------------------------`);
-        this.emit('devInfo', `Q-Relays: ${this.qRelaysCount}`);
-        this.emit('devInfo', `Inverters: ${this.microinvertersCount}`);
-        this.emit('devInfo', `Batteries: ${this.acBatteriesCount}`);
+        this.emit('devInfo', `Q-Relays: ${this.feature.qRelays.count}`);
+        this.emit('devInfo', `Inverters: ${this.feature.microinverters.count}`);
+        this.emit('devInfo', `Batteries: ${this.feature.acBatteries.count}`);
         this.emit('devInfo', `--------------------------------`);
-        const displayLog0 = this.metersSupported ? this.emit('devInfo', `Meters: Yes`) : false;
-        const displayLog1 = this.metersSupported && this.metersProductionSupported ? this.emit('devInfo', `Production: ${this.metersProductionEnabled ? `Enabled` : `Disabled`}`) : false;
-        const displayLog2 = this.metersSupported && this.metersConsumptionSupported ? this.emit('devInfo', `Consumption: ${this.metersConsumptionEnabled ? `Enabled` : `Disabled`}`) : false;
-        const displayLog3 = this.metersSupported && this.metersStorageSupported ? this.emit('devInfo', `Storage: ${this.metersStorageEnabled ? `Enabled` : `Disabled`}`) : false;
-        const displayLog4 = this.metersSupported ? this.emit('devInfo', `--------------------------------`) : false;
-        const displayLog5 = this.ensemblesInstalled ? this.emit('devInfo', `Ensemble: Yes`) : false;
-        const displayLog6 = this.enpowersInstalled ? this.emit('devInfo', `Enpowers: ${this.enpowersCount}`) : false;
-        const displayLog7 = this.enchargesInstalled ? this.emit('devInfo', `Encharges: ${this.enchargesCount}`) : false;
-        const displayLog8 = this.dryContactsInstalled ? this.emit('devInfo', `Dry Contacts: ${this.dryContactsCount}`) : false;
+        const displayLog0 = this.feature.meters.supported ? this.emit('devInfo', `Meters: Yes`) : false;
+        const displayLog1 = this.feature.meters.supported && this.feature.meters.production.supported ? this.emit('devInfo', `Production: ${this.feature.meters.production.enabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog2 = this.feature.meters.supported && this.feature.meters.consumption.supported ? this.emit('devInfo', `Consumption: ${this.feature.meters.consumption.enabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog3 = this.feature.meters.supported && this.feature.meters.storage.supported ? this.emit('devInfo', `Storage: ${this.feature.meters.storage.enabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog4 = this.feature.meters.supported ? this.emit('devInfo', `--------------------------------`) : false;
+        const displayLog5 = this.feature.ensembles.installed ? this.emit('devInfo', `Ensemble: Yes`) : false;
+        const displayLog6 = this.feature.enpowers.installed ? this.emit('devInfo', `Enpowers: ${this.feature.enpowers.count}`) : false;
+        const displayLog7 = this.feature.encharges.installed ? this.emit('devInfo', `Encharges: ${this.feature.encharges.count}`) : false;
+        const displayLog8 = this.feature.dryContacts.installed ? this.emit('devInfo', `Dry Contacts: ${this.feature.dryContacts.count}`) : false;
         const displayLog9 = this.generatorsInstalled ? this.emit('devInfo', `Generator: Yes`) : false;
-        const displayLog10 = this.wirelessConnectionKitInstalled ? this.emit('devInfo', `Wireless Kit: ${this.wirelessConnectionKitConnectionsCount}`) : false;
-        const displayLog11 = this.ensemblesInstalled || this.enpowersInstalled || this.enchargesInstalled || this.generatorsInstalled || this.dryContactsInstalled || this.wirelessConnectionKitInstalled ? this.emit('devInfo', `--------------------------------`) : false;
+        const displayLog10 = this.feature.wirelessConnectionKit.installed ? this.emit('devInfo', `Wireless Kit: ${this.feature.wirelessConnectionKit.count}`) : false;
+        const displayLog11 = this.feature.ensembles.installed || this.feature.enpowers.installed || this.feature.encharges.installed || this.generatorsInstalled || this.feature.dryContacts.installed || this.feature.wirelessConnectionKit.installed ? this.emit('devInfo', `--------------------------------`) : false;
     };
 
     //Prepare accessory
@@ -3936,23 +3969,23 @@ class EnvoyDevice extends EventEmitter {
                     .setCharacteristic(Characteristic.FirmwareRevision, this.envoy.firmware.replace(/[a-zA-Z]/g, '') ?? '0');
 
                 //get enabled devices
-                const envoyInstalled = this.envoyInstalled;
-                const metersSupported = this.metersSupported;
-                const metersInstalled = this.metersInstalled;
-                const metersProductionEnabled = this.metersProductionEnabled;
-                const metersConsumptionEnabled = this.metersConsumptionEnabled;
-                const microinvertersInstalled = this.microinvertersInstalled;
-                const acBatteriesInstalled = this.acBatteriesInstalled;
-                const qRelaysInstalled = this.qRelaysInstalled;
-                const ensemblesInstalled = this.ensemblesInstalled;
-                const enpowersInstalled = this.enpowersInstalled;
-                const enchargesInstalled = this.enchargesInstalled;
+                const envoyInstalled = this.feature.envoy.installed;
+                const metersSupported = this.feature.meters.supported;
+                const metersInstalled = this.feature.meters.installed;
+                const metersProductionEnabled = this.feature.meters.production.enabled;
+                const metersConsumptionEnabled = this.feature.meters.consumption.enabled;
+                const microinvertersInstalled = this.feature.microinverters.installed;
+                const acBatteriesInstalled = this.feature.acBatteries.installed;
+                const qRelaysInstalled = this.feature.qRelays.installed;
+                const ensemblesInstalled = this.feature.ensembles.installed;
+                const enpowersInstalled = this.feature.enpowers.installed;
+                const enchargesInstalled = this.feature.encharges.installed;
                 const ensembleStatusSupported = this.ensembleStatusSupported;
                 const generatorsInstalled = this.generatorsInstalled;
-                const wirelessConnectionKitInstalled = this.wirelessConnectionKitInstalled;
-                const liveDataSupported = this.liveDataSupported;
-                const productionPowerModeSupported = this.productionPowerModeSupported;
-                const plcLevelSupported = this.plcLevelSupported;
+                const wirelessConnectionKitInstalled = this.feature.wirelessConnectionKit.installed;
+                const liveDataSupported = this.feature.liveData.supported;
+                const productionPowerModeSupported = this.feature.productionPowerMode.supported;
+                const plcLevelSupported = this.feature.plcLevel.supported;
 
                 //system
                 if (envoyInstalled) {
@@ -5456,7 +5489,7 @@ class EnvoyDevice extends EventEmitter {
                     };
 
                     //encharge profile service
-                    if (this.enchargeSettingsSupported) {
+                    if (this.feature.encharge.settings.supported) {
                         const selfConsumptionMode = this.encharges[0].settings.selfConsumptionMode;
                         const savingsMode = this.encharges[0].settings.savingsMode;
                         const fullBackupMode = this.encharges[0].settings.fullBackupMode;
@@ -5906,7 +5939,7 @@ class EnvoyDevice extends EventEmitter {
                     };
 
                     //dry contacts
-                    if (this.dryContactsInstalled) {
+                    if (this.feature.dryContacts.installed) {
                         if (this.enpowerDryContactsControl) {
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Dry Contacts Control Service`) : false;
                             this.dryContactsControlServices = [];
