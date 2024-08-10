@@ -35,6 +35,12 @@ class EnvoyDevice extends EventEmitter {
         this.enlightenUser = enlightenUser;
         this.enlightenPassword = enlightenPasswd;
 
+        this.supportProductionPowerMode = device.supportProductionPowerMode || false;
+        this.powerProductionControl = device.powerProductionControl || {};
+
+        this.supportPlcLevel = device.supportPlcLevel || false;
+        this.plcLevelControl = device.plcLevelControl || {};
+
         this.powerProductionSummary = device.powerProductionSummary || 0;
         this.powerProductionStateSensor = device.powerProductionStateSensor || {};
         this.powerProductionLevelSensors = device.powerProductionLevelSensors || [];
@@ -53,9 +59,6 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionNetStateSensor = device.energyConsumptionNetStateSensor || {};
         this.energyConsumptionNetLevelSensors = device.energyConsumptionNetLevelSensors || [];
         this.energyConsumptionNetLifetimeOffset = device.energyConsumptionNetLifetimeOffset || 0;
-
-        this.supportProductionPowerMode = device.supportProductionPowerMode || false;
-        this.supportPlcLevel = device.supportPlcLevel || false;
 
         this.dataRefreshControl = device.dataRefreshControl || {};
         this.dataRefreshSensor = device.dataRefreshSensor || {};
@@ -85,6 +88,40 @@ class EnvoyDevice extends EventEmitter {
         this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
 
         //active sensors 
+        //power production control
+        const powerProductionControlName = this.powerProductionControl.name || false;
+        const powerProductionControlDisplayType = this.powerProductionControl.displayType ?? 0;
+        this.powerProductionControlActiveSensors = [];
+        if (powerProductionControlName && powerProductionControlDisplayType > 0) {
+            const tile = {};
+            tile.name = powerProductionControlName;
+            tile.namePrefix = this.powerProductionStateSensor.namePrefix;
+            tile.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerProductionControlDisplayType];
+            tile.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerProductionControlDisplayType];
+            tile.state = false;
+            this.powerProductionControlActiveSensors.push(tile);
+        } else {
+            const log = powerProductionControlDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.powerProductionControlActiveSensorsCount = this.supportProductionPowerMode ? this.powerProductionControlActiveSensors.length || 0 : 0;
+
+        //plc level control
+        const plcLevelControlName = this.plcLevelControl.name || false;
+        const plcLevelControlDisplayType = this.plcLevelControl.displayType ?? 0;
+        this.plcLevelControlActiveSensors = [];
+        if (plcLevelControlName && plcLevelControlDisplayType > 0) {
+            const tile = {};
+            tile.name = plcLevelControlName;
+            tile.namePrefix = this.plcLevelStateSensor.namePrefix;
+            tile.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][plcLevelControlDisplayType];
+            tile.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][plcLevelControlDisplayType];
+            tile.state = false;
+            this.plcLevelControlActiveSensors.push(tile);
+        } else {
+            const log = plcLevelControlDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+        };
+        this.plcLevelControlActiveSensorsCount = this.supportProductionPowerMode ? this.plcLevelControlActiveSensors.length || 0 : 0;
+
         //data refresh control
         const dataRefreshControlName = this.dataRefreshControl.name || false;
         const dataRefreshControlDisplayType = this.dataRefreshControl.displayType ?? 0;
@@ -221,7 +258,7 @@ class EnvoyDevice extends EventEmitter {
         };
         this.energyConsumptionNetStateActiveSensorsCount = this.energyConsumptionNetStateActiveSensors.length || 0
 
-        //
+        //power production level sensors
         this.powerProductionLevelActiveSensors = [];
         for (const sensor of this.powerProductionLevelSensors) {
             const name = sensor.name ?? false;
@@ -3357,12 +3394,25 @@ class EnvoyDevice extends EventEmitter {
                 const productionPowerMode = productionPowerModeData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(productionPowerMode, null, 2)}`) : false;
 
-                const powerMode = productionPowerMode.powerForcedOff === false ?? false;
+                //update power production control state
+                const state = productionPowerMode.powerForcedOff === false ?? false;
                 if (this.envoyService) {
                     this.envoyService
                         .updateCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode, powerMode)
                 }
-                this.productionPowerMode = powerMode;
+
+                if (this.powerProductionActiveControlsCount > 0) {
+                    for (let i = 0; i < this.powerProductionActiveControlsCount; i++) {
+                        this.powerProductionActiveControls[i].state = state;
+
+                        if (this.powerProductionControlsServices) {
+                            const characteristicType = this.powerProductionActiveControls[i].characteristicType;
+                            this.powerProductionControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+                this.productionPowerMode = state;
                 this.productionPowerModeSupported = true;
 
                 //restFul
@@ -3450,12 +3500,25 @@ class EnvoyDevice extends EventEmitter {
                     });
                 }
 
-                //disable check comm level switch
+                //update plc level control state
+                const state = false;
                 if (this.envoyService) {
                     this.envoyService
                         .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
                 }
-                this.checkCommLevel = false;
+
+                if (this.plcLevelActiveControlsCount > 0) {
+                    for (let i = 0; i < this.plcLevelActiveControlsCount; i++) {
+                        this.plcLevelActiveControls[i].state = state;
+
+                        if (this.plcLevelControlsServices) {
+                            const characteristicType = this.plcLevelActiveControls[i].characteristicType;
+                            this.plcLevelControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+                this.checkCommLevel = state;
                 this.plcLevelSupported = true;
 
                 //restFul
@@ -3953,6 +4016,68 @@ class EnvoyDevice extends EventEmitter {
                                     this.emit('error', `Envoy: ${serialNumber}, set data refresh control error: ${error}`);
                                 };
                             });
+                    };
+
+                    //plc level control service
+                    if (this.plcLevelActiveControlsCount > 0 && plcLevelSupported) {
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Plc Level Control Service`) : false;
+                        this.plcLevelControlsServices = [];
+                        for (let i = 0; i < this.plcLevelActiveControlsCount; i++) {
+                            const controlName = this.plcLevelActiveControls[i].namePrefix ? `${accessoryName} ${this.plcLevelActiveControls[i].name}` : this.plcLevelActiveControls[i].name;
+                            const serviceType = this.plcLevelActiveControls[i].serviceType;
+                            const characteristicType = this.plcLevelActiveControls[i].characteristicType;
+                            const plcLevelContolService = accessory.addService(serviceType, controlName, `plcLevelContolService${i}`);
+                            plcLevelContolService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            plcLevelContolService.setCharacteristic(Characteristic.ConfiguredName, controlName);
+                            plcLevelContolService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.plcLevelActiveControls[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Plc level control state: ${state ? 'ON' : 'OFF'}`);
+                                    return state;
+                                })
+                                .onSet(async (state) => {
+                                    try {
+                                        const genMode = state ? 1 : 0;
+                                        const tokenExpired = await this.checkJwtToken();
+                                        const set = !tokenExpired ? await this.setGeneratorMode(genMode) : false;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Set plc level control state to: ${state ? `ON` : `OFF`}`);
+                                    } catch (error) {
+                                        this.emit('error', `Set plc level control state error: ${error}`);
+                                    };
+                                })
+                            this.plcLevelControlsServices.push(plcLevelContolService);
+                        };
+                    };
+
+                    //power production control service
+                    if (this.powerProductionActiveControlsCount > 0 && productionPowerModeSupported) {
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Power Production Control Service`) : false;
+                        this.powerProductionControlsServices = [];
+                        for (let i = 0; i < this.powerProductionActiveControlsCount; i++) {
+                            const controlName = this.powerProductionActiveControls[i].namePrefix ? `${accessoryName} ${this.powerProductionActiveControls[i].name}` : this.powerProductionActiveControls[i].name;
+                            const serviceType = this.powerProductionActiveControls[i].serviceType;
+                            const characteristicType = this.powerProductionActiveControls[i].characteristicType;
+                            const powerProductionContolService = accessory.addService(serviceType, controlName, `powerProductionContolService${i}`);
+                            powerProductionContolService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            powerProductionContolService.setCharacteristic(Characteristic.ConfiguredName, controlName);
+                            powerProductionContolService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.powerProductionActiveControls[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Power production control state: ${state ? 'ON' : 'OFF'}`);
+                                    return state;
+                                })
+                                .onSet(async (state) => {
+                                    try {
+                                        const genMode = state ? 1 : 0;
+                                        const tokenExpired = await this.checkJwtToken();
+                                        const set = !tokenExpired ? await this.setGeneratorMode(genMode) : false;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Set power production control state to: ${state ? `ON` : `OFF`}`);
+                                    } catch (error) {
+                                        this.emit('error', `Set power production control state error: ${error}`);
+                                    };
+                                })
+                            this.powerProductionControlsServices.push(powerProductionContolService);
+                        };
                     };
                 }
 

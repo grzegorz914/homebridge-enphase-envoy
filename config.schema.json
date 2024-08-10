@@ -109,6 +109,132 @@
               },
               "required": false
             },
+            "supportPlcLevel": {
+              "title": "PLC Level",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable support to check plc level, firmware 7.x.x and newer require installer credentials data.",
+              "required": false
+            },
+            "plcLevelControl": {
+              "title": "Plc Level Control",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Tile name",
+                  "description": "Here set Your own tile name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Switch",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Outlet",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Lightbulb",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable the accessory name as a prefix for the tile name.",
+                  "required": false
+                }
+              },
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].supportPlcLevel === true"
+              }
+            },
+            "supportProductionPowerMode": {
+              "title": "Power Production",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable support to check/control power production, firmware 7.x.x and newer require installer credentials data.",
+              "required": false
+            },
+            "powerProductionControl": {
+              "title": "Power Production Control",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Tile name",
+                  "description": "Here set Your own tile name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Switch",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Outlet",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Lightbulb",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable the accessory name as a prefix for the tile name.",
+                  "required": false
+                }
+              },
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].supportProductionPowerMode === true"
+              }
+            },
             "powerProductionSummary": {
               "title": "Power Summary",
               "type": "integer",
@@ -838,20 +964,6 @@
                   }
                 }
               },
-              "required": false
-            },
-            "supportProductionPowerMode": {
-              "title": "Power Production",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable support to check/control power production, firmware 7.x.x and newer require installer credentials data.",
-              "required": false
-            },
-            "supportPlcLevel": {
-              "title": "PLC Level",
-              "type": "boolean",
-              "default": false,
-              "description": "This enable support to check plc level, firmware 7.x.x and newer require installer credentials data.",
               "required": false
             },
             "enchargeProfileSelfConsumptionControl": {
@@ -1979,8 +2091,34 @@
                   "title": "Envoy",
                   "items": [
                     "devices[].envoyFirmware7xx",
-                    "devices[].supportProductionPowerMode",
                     "devices[].supportPlcLevel",
+                    "devices[].supportProductionPowerMode",
+                    {
+                      "key": "devices[].plcLevelControl",
+                      "type": "section",
+                      "title": "Plc Level Refresh Control",
+                      "description": "In this section You can enable extra tile for plc level refresh control.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].plcLevelControl.name",
+                        "devices[].plcLevelControl.displayType",
+                        "devices[].plcLevelControl.namePrefix"
+                      ]
+                    },
+                    {
+                      "key": "devices[].powerProductionControl",
+                      "type": "section",
+                      "title": "Power Production Control",
+                      "description": "In this section You can enable extra tile for power production control.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].powerProductionControl.name",
+                        "devices[].powerProductionControl.displayType",
+                        "devices[].powerProductionControl.namePrefix"
+                      ]
+                    },
                     {
                       "key": "devices[]",
                       "type": "section",

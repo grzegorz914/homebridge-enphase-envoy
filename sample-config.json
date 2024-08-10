@@ -31,6 +31,18 @@
                     "envoySerialNumber": "",
                     "enlightenUser": "",
                     "enlightenPasswd": "",
+                    "supportProductionPowerMode": false,
+                    "powerProductionControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "supportPlcLevel": false,
+                    "plcLevelControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "powerProductionSummary": 7200,
                     "powerProductionStateSensor": {
                         "name": "Production power state",
@@ -194,9 +206,13 @@
                             "namePrefix": false
                         }
                     ],
-                    "supportEnchargeProfile": false,
+                    "enchargeProfileControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "dataRefreshControl": {
-                        "name": "Tile name",
+                        "name": "Control name",
                         "displayType": 0,
                         "namePrefix": false
                     },
@@ -209,8 +225,6 @@
                     "productionDataRefreshTime": 5.0,
                     "liveDataRefreshTime": 3.0,
                     "ensembleDataRefreshTime": 15.0,
-                    "supportProductionPowerMode": false,
-                    "supportPlcLevel": false,
                     "restFul": {
                         "enable": false,
                         "port": 3000,

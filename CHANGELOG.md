@@ -14,15 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - support for Homebridge v2.0.0
 - full code refactor
 - RESTFul and MQTT config refactor
-* generator:
-   - added native control from home app as a extra tile
-   - added direct control from envoy section, 3rd party app
-   - added state sensor
-   - added mode sensors
 * system data refresh
    - added control direct from home app as a extra tile
    - added control direct from envoy section, 3rd party app
    - added state sensor
+* plc level refresh:   
+   - added control direct from home app as a extra tile
+* power production:   
+   - added control direct from home app as a extra tile
+* generator:
+   - added native control from home app as a extra tile
+   - added direct control from envoy section, 3rd party app
+   - added state sensor
+   - added mode sensors   
 * enpower:   
    - added grid state control direct from home app as a extra tile
    - added grid state control direct from envoy section, 3rd party appp

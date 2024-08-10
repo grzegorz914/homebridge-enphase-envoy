@@ -60,7 +60,7 @@
       * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
   * Switches, Outlets, Lightbulbs:
     * System `Data Refresh`,
-    * Production `Power State`, `Power Level`.
+    * Production `Plc Level`, `Power Mode`, `Power State`, `Power Level`.
     * AC Battery `Energy State`, `Energy Level`.
     * Enpower `Grid State`.
     * Encharge `Energy State`, `Energy Level`.
@@ -91,6 +91,16 @@
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |
+| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` 3rd apps, Fw. 7.x.x and newer require installer credentials data. |
+| `powerProductionControl` | This is `Power Production Tile` for `Production` control from HomeKit. |
+| `name` | Here set Your own tile name. |
+| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
+| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
+| `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
+| `lcLevelControl` | This is `Plc Level Tile` for `Plc Communication Refresh` control from HomeKit. |
+| `name` | Here set Your own tile name. |
+| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
+| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
 | `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
 | `powerProductionStateSensor` | This is `Power State Sensor` for production monitoring. |
 | `name` | Here set Your own sensor name. |
@@ -211,9 +221,6 @@
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` 3rd apps, Fw. 7.x.x and newer require installer credentials data. |
-| `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
-
 | `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (sec). |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
