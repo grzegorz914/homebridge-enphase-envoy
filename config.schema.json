@@ -1576,6 +1576,20 @@
               },
               "required": false
             },
+            "dryContactsControl": {
+              "title": "Dry Contacts Control",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable control of dry contacts state.",
+              "required": false
+            },
+            "dryContactsSensors": {
+              "title": "Dry Contacts Sensors",
+              "type": "boolean",
+              "default": false,
+              "description": "This enable monitoring of dry contacts state.",
+              "required": false
+            },
             "generatorStateControl": {
               "title": "State Control",
               "type": "object",
@@ -2438,6 +2452,8 @@
                   "key": "devices[]",
                   "title": "Ensemble",
                   "items": [
+                    "devices[].dryContactsControl",
+                    "devices[].dryContactsSensors",
                     {
                       "key": "devices[]",
                       "type": "tabarray",

@@ -53,11 +53,12 @@
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Enpower `Grid State`.
     * Encharge: `Backup Level`
-    * Generator `State`, `Mode`.
     * Grid Mode:
       * Enpower `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`.
       * Encharge `Multimode Grid On`, `Multimode Grid Off`.
       * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
+    * Dry Contacts `State`.
+    * Generator `State`, `Mode`.  
   * Switches, Outlets, Lightbulbs:
     * System `Data Refresh`,
     * Production `Plc Level`, `Power Mode`, `Power State`, `Power Level`.
@@ -68,6 +69,7 @@
       * Self Consumption `Activate`, `Set Reserve`.
       * Savings `Activate`, `Set Reserve`.
       * Full Backup `Activate`.
+    * Dry Contacts `State`.
     * Generator `State`.
 
 ### Configuration
@@ -200,6 +202,8 @@
 | `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| `dryContactsControl` | This enable `Dry Contacts` control and expose `Switches` in HomeKit. |
+| `dryContactsSensors` | This enable `Dry Contacts` monitoring and expose `Sensors` in HomeKit. |
 | `generatorStateControl` | This is `Generator State Tile` for `Generator ON/OFF` control from HomeKit. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |

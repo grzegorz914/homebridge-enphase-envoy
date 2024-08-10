@@ -60,13 +60,6 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionNetLevelSensors = device.energyConsumptionNetLevelSensors || [];
         this.energyConsumptionNetLifetimeOffset = device.energyConsumptionNetLifetimeOffset || 0;
 
-        this.dataRefreshControl = device.dataRefreshControl || {};
-        this.dataRefreshSensor = device.dataRefreshSensor || {};
-        this.metersDataRefreshTime = device.metersDataRefreshTime * 1000 || 2000;
-        this.productionDataRefreshTime = device.productionDataRefreshTime * 1000 || 5000;
-        this.liveDataRefreshTime = device.liveDataRefreshTime * 1000 || 2000;
-        this.ensembleDataRefreshTime = device.ensembleDataRefreshTime * 1000 || 15000;
-
         this.enpowerGridStateControl = device.enpowerGridStateControl || {};
         this.enpowerGridStateSensor = device.enpowerGridStateSensor || {};
         this.enpowerGridModeSensors = device.enpowerGridModeSensors || [];
@@ -79,9 +72,19 @@ class EnvoyDevice extends EventEmitter {
 
         this.solarGridModeSensors = this.envoyFirmware7xx ? device.solarGridModeSensors || [] : [];
 
+        this.dryContactsControl = device.dryContactsControl || false;
+        this.dryContactsSensors = device.dryContactsSensors || false;
+
         this.generatorStateControl = device.generatorStateControl || {};
         this.generatorStateSensor = device.generatorStateSensor || {};
         this.generatorModeSensors = device.generatorModeSensors || [];
+
+        this.dataRefreshControl = device.dataRefreshControl || {};
+        this.dataRefreshSensor = device.dataRefreshSensor || {};
+        this.metersDataRefreshTime = device.metersDataRefreshTime * 1000 || 2000;
+        this.productionDataRefreshTime = device.productionDataRefreshTime * 1000 || 5000;
+        this.liveDataRefreshTime = device.liveDataRefreshTime * 1000 || 2000;
+        this.ensembleDataRefreshTime = device.ensembleDataRefreshTime * 1000 || 15000;
 
         this.enableDebugMode = device.enableDebugMode || false;
         this.disableLogInfo = device.disableLogInfo || false;
@@ -1127,7 +1130,7 @@ class EnvoyDevice extends EventEmitter {
                 const euaid = envoyInfoDevice.euaid;
                 const seqNum = envoyInfoDevice.seqnum;
                 const apiVer = envoyInfoDevice.apiver;
-                const imeter = envoyInfoDevice.imeter ?? false;
+                const imeter = envoyInfoDevice.imeter === true ?? false;
 
                 //web tokens
                 const webTokens = envoyKeys.includes('web-tokens') ? envoyInfo['web-tokens'] === true : false;
@@ -1472,13 +1475,6 @@ class EnvoyDevice extends EventEmitter {
                 const inventory = inventoryData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Inventory: ${JSON.stringify(inventory, null, 2)}`) : false;
 
-                //inventory devices count
-                const inventoryDevicesExist = inventory.length > 0;
-                if (!inventoryDevicesExist) {
-                    resolve(false);
-                    return;
-                }
-
                 //inventory keys
                 const inventoryKeys = inventory.map(device => device.type);
 
@@ -1706,9 +1702,9 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.enphaseEnsembleOperating, obj.operating)
                         }
                     });
-                    this.ensemblesCount = ensemblesCount;
                     this.ensemblesSupported = ensemblesSupported;
                     this.ensemblesInstalled = ensemblesInstalled;
+                    this.ensemblesCount = ensemblesCount;
                 }
 
                 //restFul
@@ -1951,8 +1947,10 @@ class EnvoyDevice extends EventEmitter {
                 const productionCt = productionCtData.data ?? [];
                 const debug = this.enableDebugMode ? this.emit('debug', `Production ct: ${JSON.stringify(productionCt, null, 2)}`) : false;
 
-                //production ct count
-                const productionCtSupported = productionCt.length > 0;
+                //production ct exist
+                const productionCtKeys = Object.keys(productionCt);
+                const productionCtExist = productionCtKeys.includes('production');
+                const productionCtSupported = productionCtExist ? productionCt.production.length > 0 : false;
                 if (!productionCtSupported) {
                     resolve(false);
                     return;
@@ -2128,7 +2126,7 @@ class EnvoyDevice extends EventEmitter {
                 if (metersConsumptionEnabled) {
                     this.consumptions = [];
 
-                    const consumptions = productionCt.consumption ?? {};
+                    const consumptions = productionCt.consumption ?? [];
                     consumptions.forEach((consumption, index) => {
                         const obj = {
                             type: CONSTANTS.ApiCodes[consumption.type],
@@ -3134,9 +3132,22 @@ class EnvoyDevice extends EventEmitter {
                     const obj = {
                         id: contact.id, //str NC1
                         status: contact.status, //str closed
+                        stateBool: contact.status === 'closed' ?? false,
                         settings: {}
                     }
                     this.dryContacts.push(obj);
+
+                    //dry contacts control
+                    if (this.dryContactsControlServices) {
+                        this.dryContactsControlServices[index]
+                            .updateCharacteristic(Characteristic.On, obj.stateBool)
+                    }
+
+                    //dry contacts sensors
+                    if (this.dryContactsSensorsServices) {
+                        this.dryContactsSensorsServices[index]
+                            .updateCharacteristic(Characteristic.On, obj.stateBool)
+                    }
                 });
                 this.dryContactsInstalled = dryContactsInstalled;
                 this.dryContactsCount = dryContacts.length;
@@ -3186,20 +3197,20 @@ class EnvoyDevice extends EventEmitter {
                     const obj = {
                         id: setting.id, //str NC1
                         type: setting.type, //str NONE
-                        grid_action: setting.grid_action, //str apply
-                        type: setting.micro_grid_action, //str apply
-                        gen_action: setting.gen_action, //str apply
-                        essential_start_time: setting.essential_start_time, //flota
-                        essential_end_time: setting.essential_end_time, //flota
+                        gridAction: setting.grid_action, //str apply
+                        microGridAction: setting.micro_grid_action, //str apply
+                        genAction: setting.gen_action, //str apply
+                        essentialStartTime: setting.essential_start_time, //flota
+                        essentialEndTime: setting.essential_end_time, //flota
                         priority: setting.priority, //flota
-                        black_s_start: setting.black_s_start, //flota
+                        blackSStart: setting.black_s_start, //flota
                         override: setting.override, //str false
-                        manual_override: setting.manual_override, //str true
-                        load_name: setting.load_name, //str
+                        manualOverride: setting.manual_override, //str true
+                        loadName: setting.load_name, //str
                         mode: setting.mode, //str manual
-                        soc_low: setting.soc_low, //flota
-                        soc_high: setting.soc_high, //flota
-                        pv_serial_nb: setting.pv_serial_nb, //array
+                        socLow: setting.soc_low, //flota
+                        socHigh: setting.soc_high, //flota
+                        pvSerialNb: setting.pv_serial_nb, //array
                     }
                     this.dryContacts[index].settings = obj;
                 });
@@ -3784,6 +3795,74 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
+    setDryContact(id, state) {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contact set.`) : false;
+
+            try {
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Cookie: this.cookie
+                    },
+                    withCredentials: true,
+                    httpsAgent: new https.Agent({
+                        keepAlive: true,
+                        rejectUnauthorized: false
+                    })
+                }
+                const url = this.url + CONSTANTS.ApiUrls.EnsembleDryContact;
+                const dryContactSet = await axios.post(url, { dry_contacts: { id: id, status: state ? 'closed' : 'open' } }, options);
+                const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact: ${JSON.stringify(dryContactSet.data, null, 2)}`) : false;
+
+                await this.updateEnsembleDryContactsData();
+                resolve();
+            } catch (error) {
+                reject(`Set dry contact error: ${error}.`);
+            };
+        });
+    }
+
+    setDryContactSettings(id, index, state) {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contact settings set.`) : false;
+
+            try {
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Cookie: this.cookie
+                    },
+                    withCredentials: true,
+                    httpsAgent: new https.Agent({
+                        keepAlive: true,
+                        rejectUnauthorized: false
+                    })
+                }
+                const url = this.url + CONSTANTS.ApiUrls.EnsembleDryContactSettings;
+                const dryContactSet = await axios.post(url, {
+                    id: id,
+                    gen_action: self.generator_action,
+                    grid_action: this.dryContacts[index].settings.gridAction,
+                    load_name: this.dryContacts[index].settings.loadName,
+                    manual_override: this.dryContacts[index].settings.manualOverride.toString(), //bool must be as a lowercase string
+                    micro_grid_action: this.dryContacts[index].settings.microGridAction,
+                    mode: state ? 'closed' : 'open',
+                    override: this.dryContacts[index].settings.override.toString(), //bool must be as a lowercase string
+                    pv_serial_nb: this.dryContacts[index].settings.pvSerialNb,
+                    soc_high: this.dryContacts[index].settings.socHigh,
+                    soc_low: this.dryContacts[index].settings.socLow,
+                    type: this.dryContacts[index].settings.type
+                }, options);
+                const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact settings: ${JSON.stringify(dryContactSet.data, null, 2)}`) : false;
+
+                await this.updateEnsembleDryContactsSettingsData();
+                resolve();
+            } catch (error) {
+                reject(`Set dry contact settings error: ${error}.`);
+            };
+        });
+    }
 
     setGeneratorMode(mode) {
         return new Promise(async (resolve, reject) => {
@@ -5761,7 +5840,7 @@ class EnvoyDevice extends EventEmitter {
                         this.enpowersServices.push(enphaseEnpowerService);
                     };
 
-                    //enpower grid state control service
+                    //grid state control service
                     if (this.enpowerGridStateActiveControlsCount > 0) {
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Grid State Control Service`) : false;
                         this.enpowerGridStateControlsServices = [];
@@ -5791,7 +5870,7 @@ class EnvoyDevice extends EventEmitter {
                         };
                     };
 
-                    //enpower grid state sensor services
+                    //grid state sensor services
                     if (this.enpowerGridStateActiveSensorsCount > 0) {
                         this.enpowerGridStateSensorsServices = [];
                         for (let i = 0; i < this.enpowerGridStateActiveSensorsCount; i++) {
@@ -5812,7 +5891,7 @@ class EnvoyDevice extends EventEmitter {
                         };
                     };
 
-                    //enpower grid mode sensor services
+                    //grid mode sensor services
                     if (this.enpowerGridModeActiveSensorsCount > 0) {
                         this.enpowerGridModeSensorsServices = [];
                         for (let i = 0; i < this.enpowerGridModeActiveSensorsCount; i++) {
@@ -5830,6 +5909,55 @@ class EnvoyDevice extends EventEmitter {
                                     return state;
                                 });
                             this.enpowerGridModeSensorsServices.push(enpowerGridModeSensorsService);
+                        };
+                    };
+
+                    //dry contacts
+                    if (this.dryContactsInstalled) {
+                        if (this.dryContactsControl) {
+                            const debug = this.enableDebugMode ? this.emit('debug', `Prepare Dry Contacts Control Service`) : false;
+                            this.dryContactsControlsServices = [];
+                            this.dryContacts.forEach((contact, index) => {
+                                const controlId = contact.settings.id;
+                                const controlName = contact.settings.loadName;
+                                const dryContactsContolService = accessory.addService(Service.Switch, controlName, `dryContactsContolService${index}`);
+                                dryContactsContolService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                dryContactsContolService.setCharacteristic(Characteristic.ConfiguredName, controlName);
+                                dryContactsContolService.getCharacteristic(Characteristic.On)
+                                    .onGet(async () => {
+                                        const state = contact.stateBool;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `${controlName} control state: ${state ? 'ON' : 'OFF'}`);
+                                        return state;
+                                    })
+                                    .onSet(async (state) => {
+                                        try {
+                                            const tokenExpired = await this.checkJwtToken();
+                                            const set = !tokenExpired ? await this.setDryContact(controlId, state) : false;
+                                            const info = this.disableLogInfo ? false : this.emit('message', `Set ${controlName} control state to: ${state ? `Manual` : `Soc`}`);
+                                        } catch (error) {
+                                            this.emit('error', `Set ${controlName} control state error: ${error}`);
+                                        };
+                                    })
+                                this.dryContactsControlsServices.push(dryContactsContolService);
+                            });
+                        };
+
+                        if (this.dryContactsSensors) {
+                            const debug = this.enableDebugMode ? this.emit('debug', `Prepare Dry Contacts Sensors Service`) : false;
+                            this.dryContactsSensorsServices = [];
+                            this.dryContacts.forEach((contact, index) => {
+                                const controlName = contact.settings.loadName;
+                                const dryContactsSensorsService = accessory.addService(Service.ContactSensor, controlName, `dryContactsSensorsService${index}`);
+                                dryContactsSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                dryContactsSensorsService.setCharacteristic(Characteristic.ConfiguredName, controlName);
+                                dryContactsSensorsService.getCharacteristic(Characteristic.ContactSensorState)
+                                    .onGet(async () => {
+                                        const state = contact.stateBool;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `${controlName} sensor state: ${state ? 'Active' : 'Not Active'}`);
+                                        return state;
+                                    })
+                                this.dryContactsSensorsServices.push(dryContactsSensorsService);
+                            });
                         };
                     };
                 }
