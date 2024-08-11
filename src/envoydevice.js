@@ -4064,7 +4064,7 @@ class EnvoyDevice extends EventEmitter {
         this.emit('devInfo', `-------- ${this.name} --------`);
         this.emit('devInfo', `Manufacturer: Enphase`);
         this.emit('devInfo', `Model: ${this.pv.envoy.modelName}`);
-        this.emit('devInfo', `Firmware: ${this.pv.envoy.firmware}`);
+        this.emit('devInfo', `Firmware: ${this.pv.envoy.software}`);
         this.emit('devInfo', `SerialNr: ${this.pv.envoy.serialNumber}`);
         this.emit('devInfo', `Time: ${this.pv.envoy.time}`);
         const displayLog = this.envoyFirmware7xx && this.envoyFirmware7xxTokenGenerationMode === 0 ? this.emit('devInfo', `Token Valid: ${new Date(this.jwtToken.expires_at * 1000).toLocaleString()}`) : false;
@@ -4104,7 +4104,7 @@ class EnvoyDevice extends EventEmitter {
                     .setCharacteristic(Characteristic.Manufacturer, 'Enphase')
                     .setCharacteristic(Characteristic.Model, this.pv.envoy.modelName ?? 'Model Name')
                     .setCharacteristic(Characteristic.SerialNumber, this.pv.envoy.serialNumber ?? 'Serial Number')
-                    .setCharacteristic(Characteristic.FirmwareRevision, this.pv.envoy.firmware.replace(/[a-zA-Z]/g, '') ?? '0');
+                    .setCharacteristic(Characteristic.FirmwareRevision, this.pv.envoy.software.replace(/[a-zA-Z]/g, '') ?? '0');
 
                 //get enabled devices
                 const envoyInstalled = this.feature.envoy.installed;
@@ -4286,7 +4286,7 @@ class EnvoyDevice extends EventEmitter {
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyFirmware)
                         .onGet(async () => {
-                            const value = this.pv.envoy.firmware;
+                            const value = this.pv.envoy.software;
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, firmware: ${value}`);
                             return value;
                         });
