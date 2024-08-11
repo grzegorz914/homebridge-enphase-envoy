@@ -1233,13 +1233,13 @@ class EnvoyDevice extends EventEmitter {
                 //packages
                 const envoyInfoPackages = envoyInfo.package;
                 for (const devPackage of envoyInfoPackages) {
-                    const package = {
+                    const infoPackage = {
                         packagePn: devPackage.pn,
                         packageVersion: devPackage.version,
                         packageBuild: devPackage.build,
                         packageName: devPackage.name,
                     }
-                    envoy.packages.push(package);
+                    envoy.packages.push(infoPackage);
                 };
 
                 //build info
