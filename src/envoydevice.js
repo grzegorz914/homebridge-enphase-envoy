@@ -586,7 +586,7 @@ class EnvoyDevice extends EventEmitter {
 
         //arf profile
         this.arfProfile = {
-            name: 'Unknown',
+            name: 'Undefined',
             id: 0,
             version: '',
             item_count: 0
@@ -670,6 +670,9 @@ class EnvoyDevice extends EventEmitter {
                 settings: {
                     supported: false,
                     installed: false,
+                },
+                tariff: {
+                    supported: false
                 }
             },
             dryContacts: {
@@ -842,6 +845,7 @@ class EnvoyDevice extends EventEmitter {
                 const updateEnsemble = tokenExpired ? false : await this.updateEnsembleInventoryData();
                 const updateEnsembleStatus = updateEnsemble ? await this.updateEnsembleStatusData() : false;
                 const updateEnchargeSettings = updateEnsemble ? await this.updateEnchargeSettingsData() : false;
+                const updateTariffSettings = updateEnsemble ? await this.updateTariffData() : false;
                 const updateDryContacts = updateEnsemble ? await this.updateDryContactsData() : false;
                 const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettingsData() : false;
                 const updateGenerator = updateEnsemble ? await this.updateGeneratorData() : false;
@@ -2553,7 +2557,8 @@ class EnvoyDevice extends EventEmitter {
                             ratedPowerSum: 0,
                             energyState: false,
                             status: {},
-                            settings: {}
+                            settings: {},
+                            tariff: {}
                         }
                         this.encharges.push(obj);
 
@@ -3019,9 +3024,6 @@ class EnvoyDevice extends EventEmitter {
                 }
                 this.ensemble.relay = relay;
 
-                //debug object ensemble
-                const debug2 = this.enableDebugMode ? this.emit('debug', `Ensemble object: ${JSON.stringify(this.ensemble, null, 2)}`) : false;
-
                 //encharge grid state sensors
                 if (this.enchargeGridModeActiveSensorsCount > 0) {
                     for (let i = 0; i < this.enchargeGridModeActiveSensorsCount; i++) {
@@ -3077,16 +3079,16 @@ class EnvoyDevice extends EventEmitter {
 
     updateEnchargeSettingsData() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble encharge settings.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting encharge settings.`) : false;
 
             try {
-                const ensembleEnchargeSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnchargeSettings);
-                const ensembleEnchargeSettings = ensembleEnchargeSettingsData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Encharge settings: ${JSON.stringify(ensembleEnchargeSettings, null, 2)}`) : false;
+                const enchargeSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnchargeSettings);
+                const enchargeSettings = enchargeSettingsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Encharge settings: ${JSON.stringify(enchargeSettings, null, 2)}`) : false;
 
                 //encharge keys
-                const enchargeSettingsKeys = Object.keys(ensembleEnchargeSettings);
-                const enchargeSettingsSupported = enchargeSettingsKeys.length > 0;
+                const enchargeSettingsKeys = Object.keys(enchargeSettings);
+                const enchargeSettingsSupported = enchargeSettingsKeys.includes('enc_settings');
 
                 //encharge settings not exist
                 if (!enchargeSettingsSupported) {
@@ -3094,59 +3096,52 @@ class EnvoyDevice extends EventEmitter {
                     return;
                 }
 
-                const tariff = ensembleEnchargeSettings.tariff;
-                const enchargeSettings = {
-                    mode: tariff.mode,
-                    selfConsumptionModeBool: tariff.mode === 'self-consumption',
-                    fullBackupModeBool: tariff.mode === 'backup',
-                    savingsModeBool: (tariff.mode === 'savings-mode' || tariff.mode === 'economy'),
-                    operationModeSubType: tariff.operation_mode_sub_type,
-                    reservedSoc: tariff.reserved_soc,
-                    veryLowSoc: tariff.very_low_soc,
-                    chargeFromGrid: tariff.charge_from_grid,
-                    date: date ?? new Date()
+                const settingsData = enchargeSettings.enc_settings;
+                const settings = {
+                    enable: settingsData.enable,
+                    country: settingsData.country,
+                    currentLimit: settingsData.current_limit,
+                    perPhase: settingsData.per_phase
                 }
 
                 //add settings to encharges object
                 for (let i = 0; i < this.feature.encharges.count; i++) {
-                    this.encharges[i].settings = enchargeSettings;
+                    this.encharges[i].settings = settings;
                 }
 
-                //debug object encharges
-                const debug1 = this.enableDebugMode ? this.emit('debug', `Encharges object: ${JSON.stringify(this.encharges, null, 2)}`) : false;
-
+                resolve(true);
                 //update characteristics
                 if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
                     for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
-                        const state = enchargeSettings.selfConsumptionModeBool;
+                        const state = settings.selfConsumptionModeBool;
                         this.generatorStateActiveControls[i].state = state;
 
                         if (this.enchargeProfileSelfConsumptionActiveControlsServices) {
                             const characteristicType = this.generatorStateActiveControls[i].characteristicType;
                             this.enchargeProfileSelfConsumptionActiveControlsServices[i]
                                 .updateCharacteristic(characteristicType, state)
-                                .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
+                                .updateCharacteristic(Characteristic.Characteristic.Brightness, settings.reservedSoc)
                         }
                     }
                 }
 
                 if (this.enchargeProfileSavingsActiveControlsCount > 0) {
                     for (let i = 0; i < this.enchargeProfileSavingsActiveControlsCount; i++) {
-                        const state = enchargeSettings.savingsModeBool;
+                        const state = settings.savingsModeBool;
                         this.generatorStateActiveControls[i].state = state;
 
                         if (this.enchargeProfileSavingsActiveControlsServices) {
                             const characteristicType = this.generatorStateActiveControls[i].characteristicType;
                             this.enchargeProfileSavingsActiveControlsServices[i]
                                 .updateCharacteristic(characteristicType, state)
-                                .updateCharacteristic(Characteristic.Characteristic.Brightness, enchargeSettings.reservedSoc)
+                                .updateCharacteristic(Characteristic.Characteristic.Brightness, settings.reservedSoc)
                         }
                     }
                 }
 
                 if (this.enchargeProfileFullBackupActiveControlsCount > 0) {
                     for (let i = 0; i < this.enchargeProfileFullBackupActiveControlsCount; i++) {
-                        const state = enchargeSettings.fullBackupModeBool;
+                        const state = settings.fullBackupModeBool;
                         this.generatorStateActiveControls[i].state = state;
 
                         if (this.enchargeProfileFullBackupActiveControlsServices) {
@@ -3159,13 +3154,66 @@ class EnvoyDevice extends EventEmitter {
                 this.feature.encharges.settings.supported = enchargeSettingsSupported;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('enchargesettings', ensembleGenerator) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('enchargesettings', enchargeSettings) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Encharge Settings', ensembleGenerator) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Encharge Settings', enchargeSettings) : false;
                 resolve(true);
             } catch (error) {
-                reject(`Requesting ensemble encharge settings. error: ${error}.`);
+                reject(`Requesting encharge settings. error: ${error}.`);
+            };
+        });
+    };
+
+    updateTariffData() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting tariff.`) : false;
+
+            try {
+                const tariffSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.TariffSettingsGetPut);
+                const tariffSettings = tariffSettingsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Tariff: ${JSON.stringify(tariffSettings, null, 2)}`) : false;
+                resolve(false);
+
+                //encharge keys
+                const tariffSettingsKeys = Object.keys(tariffSettings);
+                const tariffSettingsSupported = tariffSettingsKeys.includes('tariff');
+
+                //encharge settings not exist
+                if (!tariffSettingsSupported) {
+                    resolve(false);
+                    return;
+                }
+
+                const tariffData = tariff.tariff
+                const tariff = {
+                    enable: tariffData.mode,
+                    selfConsumptionModeBool: tariffData.mode === 'self-consumption',
+                    fullBackupModeBool: tariffData.mode === 'backup',
+                    savingsModeBool: (tariffData.mode === 'savings-mode' || tariff.mode === 'economy'),
+                    operationModeSubType: tariffData.operation_mode_sub_type,
+                    reservedSoc: tariffData.reserved_soc,
+                    veryLowSoc: tariffData.very_low_soc,
+                    chargeFromGrid: tariffData.charge_from_grid,
+                    date: tariffData.date ?? new Date()
+                }
+
+                //add settings to encharges object
+                for (let i = 0; i < this.feature.encharges.count; i++) {
+                    this.encharges[i].tariff = tariff;
+                }
+
+                //update characteristics
+                this.feature.encharges.tariff.supported = tariffSettingsSupported;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('tariff', tariffSettings) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Tariff', tariffSettings) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting tariff. error: ${error}.`);
             };
         });
     };
@@ -3290,9 +3338,6 @@ class EnvoyDevice extends EventEmitter {
                 for (let i = 0; i < this.feature.enpowers.count; i++) {
                     this.enpowers[i].dryContacts = this.dryContacts;
                 }
-
-                //debug object enpowers
-                const debug3 = this.enableDebugMode ? this.emit('debug', `Enpowers object: ${JSON.stringify(this.enpowers, null, 2)}`) : false;
 
                 this.feature.dryContacts.settings.supported = dryContactsSettingsSupported;
                 this.feature.dryContacts.settings.count = dryContactsSettings.length;
@@ -3503,7 +3548,7 @@ class EnvoyDevice extends EventEmitter {
                 const connectionScDebug = connection.sc_debug === 'enabled';
 
                 //enable live data stream if not enabled
-                const enableLiveDataStream = !connectionScStream ? await this.enableLiveDataStream() : false;
+                const setLiveDataStream = !connectionScStream ? await this.setLiveDataStream() : false;
 
                 //meters
                 const liveDataMetersSupported = liveDadaKeys.includes('meters');
@@ -3646,33 +3691,6 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    enableLiveDataStream() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream enable.`) : false;
-
-            try {
-                //create axios instance post with token and data
-                const options = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Cookie: this.cookie
-                    },
-                    withCredentials: true,
-                    httpsAgent: new https.Agent({
-                        keepAlive: true,
-                        rejectUnauthorized: false
-                    })
-                }
-                const url = this.url + CONSTANTS.ApiUrls.LiveDataStream;
-                const enableLiveDataStream = await axios.post(url, { 'enable': 1 }, options);
-                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable: ${JSON.stringify(enableLiveDataStream.data, null, 2)}`) : false;
-                resolve();
-            } catch (error) {
-                reject(`Requesting live data stream eenable rror: ${error}.`);
-            };
-        });
-    };
-
     updatePlcLevelData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level.`) : false;
@@ -3775,6 +3793,33 @@ class EnvoyDevice extends EventEmitter {
                 resolve(true);
             } catch (error) {
                 reject(`Requesting plc level error: ${error}.`);
+            };
+        });
+    };
+
+    setLiveDataStream() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream enable.`) : false;
+
+            try {
+                //create axios instance post with token and data
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Cookie: this.cookie
+                    },
+                    withCredentials: true,
+                    httpsAgent: new https.Agent({
+                        keepAlive: true,
+                        rejectUnauthorized: false
+                    })
+                }
+                const url = this.url + CONSTANTS.ApiUrls.LiveDataStream;
+                const setLiveDataStream = await axios.post(url, { 'enable': 1 }, options);
+                const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable: ${JSON.stringify(setLiveDataStream.data, null, 2)}`) : false;
+                resolve();
+            } catch (error) {
+                reject(`Requesting live data stream eenable rror: ${error}.`);
             };
         });
     };
@@ -3969,6 +4014,13 @@ class EnvoyDevice extends EventEmitter {
 
     getDeviceInfo() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info.`) : false;
+        //debug object enpowers
+        const debug20 = this.enableDebugMode ? this.emit('debug', `Ensemble object: ${JSON.stringify(this.ensemble, null, 2)}`) : false;
+        const debug21 = this.enableDebugMode ? this.emit('debug', `Enpowers object: ${JSON.stringify(this.enpowers, null, 2)}`) : false;
+        const debug22 = this.enableDebugMode ? this.emit('debug', `Encharges object: ${JSON.stringify(this.encharges, null, 2)}`) : false;
+        const debug23 = this.enableDebugMode ? this.emit('debug', `Dry Contacts object: ${JSON.stringify(this.dryContacts, null, 2)}`) : false;
+        const debug24 = this.enableDebugMode ? this.emit('debug', `Generator object: ${JSON.stringify(this.generator, null, 2)}`) : false;
+
 
         this.emit('devInfo', `-------- ${this.name} --------`);
         this.emit('devInfo', `Manufacturer: Enphase`);
