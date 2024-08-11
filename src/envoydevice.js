@@ -70,7 +70,7 @@ class EnvoyDevice extends EventEmitter {
         this.enchargeGridModeSensors = this.envoyFirmware7xx ? device.enchargeGridModeSensors || [] : [];
         this.enchargeBackupLevelSensors = this.envoyFirmware7xx ? device.enchargeBackupLevelSensors || [] : [];
 
-        this.solarGridModeSensors = this.envoyFirmware7xx ? device.solarGridModeSensors || [] : [];
+        this.solarGridModeSensors = device.solarGridModeSensors || [];
 
         this.enpowerDryContactsControl = device.enpowerDryContactsControl || false;
         this.enpowerDryContactsSensors = device.enpowerDryContactsSensors || false;
@@ -543,7 +543,7 @@ class EnvoyDevice extends EventEmitter {
         this.generatorStateActiveSensors = [];
         if (generatorStateSensorName && generatorStateSensorDisplayType > 0) {
             const sensor = {};
-            sensor.name = dataRefreshControlName;
+            sensor.name = generatorStateSensorName;
             sensor.namePrefix = this.generatorStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][generatorStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][generatorStateSensorDisplayType];
@@ -841,11 +841,11 @@ class EnvoyDevice extends EventEmitter {
                 const tokenExpired = await this.checkJwtToken();
                 const updateEnsemble = tokenExpired ? false : await this.updateEnsembleInventoryData();
                 const updateEnsembleStatus = updateEnsemble ? await this.updateEnsembleStatusData() : false;
-                const updateEnsembleEnchargeSettings = updateEnsemble ? await this.updateEnsembleEnchargeSettingsData() : false;
-                const updateEnsembleDryContacts = updateEnsemble ? await this.updateEnsembleDryContactsData() : false;
-                const updateEnsembleDryContactsSettings = updateEnsembleDryContacts ? await this.updateEnsembleDryContactsSettingsData() : false;
-                const updateEnsembleGenerator = updateEnsemble ? await this.updateEnsembleGeneratorData() : false;
-                const updateEnsembleGeneratorSettings = updateEnsembleGenerator ? await this.updateEnsembleGeneratorSettingsData() : false;
+                const updateEnchargeSettings = updateEnsemble ? await this.updateEnchargeSettingsData() : false;
+                const updateDryContacts = updateEnsemble ? await this.updateDryContactsData() : false;
+                const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettingsData() : false;
+                const updateGenerator = updateEnsemble ? await this.updateGeneratorData() : false;
+                const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettingsData() : false;
             } catch (error) {
                 this.emit('error', `Update ensemble error: ${error}`);
             };
@@ -927,10 +927,10 @@ class EnvoyDevice extends EventEmitter {
             //get ensemble data only FW. >= 7.x.x.
             const updateEnsemble = validJwtToken ? await this.updateEnsembleInventoryData() : false;
             const updateEnsembleStatus = updateEnsemble ? await this.updateEnsembleStatusData() : false;
-            const updateEnsembleDryContacts = updateEnsemble ? await this.updateEnsembleDryContactsData() : false;
-            const updateEnsembleDryContactsSettings = updateEnsembleDryContacts ? await this.updateEnsembleDryContactsSettingsData() : false;
-            const updateEnsembleGenerator = updateEnsemble ? await this.updateEnsembleGeneratorData() : false;
-            const updateEnsembleGeneratorSettings = updateEnsembleGenerator ? await this.updateEnsembleGeneratorSettingsData() : false;
+            const updateDryContacts = updateEnsemble ? await this.updateDryContactsData() : false;
+            const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettingsData() : false;
+            const updateGenerator = updateEnsemble ? await this.updateGeneratorData() : false;
+            const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettingsData() : false;
             const updateLiveData = validJwtToken ? await this.updateLiveData() : false;
 
             //get plc communication level
@@ -2007,8 +2007,8 @@ class EnvoyDevice extends EventEmitter {
                 const productionMicroType = CONSTANTS.ApiCodes[productionMicro.type];
                 const productionMicroActiveCount = productionMicro.activeCount;
                 const productionMicroReadingTime = new Date(productionMicro.readingTime * 1000).toLocaleString();
-                const productionMicroPower = parseFloat(productionMicro.wNow) / 1000;
-                const productionMicroEnergyLifeTime = parseFloat(productionMicro.whLifetime + productionEnergyLifetimeOffset) / 1000;
+                const productionMicroPower = productionMicro.wNow / 1000;
+                const productionMicroEnergyLifeTime = productionMicro.whLifetime + productionEnergyLifetimeOffset / 1000;
 
                 //production data 1
                 const production = productionCt.production[1] ?? {};
@@ -2016,7 +2016,7 @@ class EnvoyDevice extends EventEmitter {
                 const productionActiveCount = metersProductionEnabled ? production.activeCount : productionMicroActiveCount;
                 const productionMeasurmentType = metersProductionEnabled ? CONSTANTS.ApiCodes[production.measurementType] : productionMicroType;
                 const productionReadingTime = metersProductionEnabled ? new Date(production.readingTime * 1000).toLocaleString() : productionMicroReadingTime;
-                const productionPower = metersProductionEnabled ? parseFloat(production.wNow) / 1000 : productionMicroPower;
+                const productionPower = metersProductionEnabled ? production.wNow / 1000 : productionMicroPower;
 
                 //power state
                 const productionPowerState = productionPower > 0; // true if power > 0
@@ -2037,14 +2037,14 @@ class EnvoyDevice extends EventEmitter {
                 this.productionPowerPeak = productionPowerPeakDetected ? productionPower : this.productionPowerPeak;
 
                 //energy
-                const productionEnergyLifeTime = metersProductionEnabled ? parseFloat((production.whLifetime + productionEnergyLifetimeOffset) / 1000) : productionMicroEnergyLifeTime;
-                const productionEnergyVarhLeadLifetime = metersProductionEnabled ? parseFloat(production.varhLeadLifetime) / 1000 : 0;
-                const productionEnergyVarhLagLifetime = metersProductionEnabled ? parseFloat(production.varhLagLifetime) / 1000 : 0;
-                const productionEnergyLastSevenDays = metersProductionEnabled ? parseFloat(production.whLastSevenDays) / 1000 : this.productionMicroinvertersSummary.whLastSevenDays;
-                const productionEnergyToday = metersProductionEnabled ? parseFloat(production.whToday) / 1000 : this.productionMicroinvertersSummary.whToday;
-                const productionEnergyVahToday = metersProductionEnabled ? parseFloat(production.vahToday) / 1000 : 0;
-                const productionEnergyVarhLeadToday = metersProductionEnabled ? parseFloat(production.varhLeadToday) / 1000 : 0;
-                const productionEnergyVarhLagToday = metersProductionEnabled ? parseFloat(production.varhLagToday) / 1000 : 0;
+                const productionEnergyLifeTime = metersProductionEnabled ? (production.whLifetime + productionEnergyLifetimeOffset) / 1000 : productionMicroEnergyLifeTime;
+                const productionEnergyVarhLeadLifetime = metersProductionEnabled ? production.varhLeadLifetime / 1000 : 0;
+                const productionEnergyVarhLagLifetime = metersProductionEnabled ? production.varhLagLifetime / 1000 : 0;
+                const productionEnergyLastSevenDays = metersProductionEnabled ? production.whLastSevenDays / 1000 : this.productionMicroinvertersSummary.whLastSevenDays;
+                const productionEnergyToday = metersProductionEnabled ? production.whToday / 1000 : this.productionMicroinvertersSummary.whToday;
+                const productionEnergyVahToday = metersProductionEnabled ? production.vahToday / 1000 : 0;
+                const productionEnergyVarhLeadToday = metersProductionEnabled ? production.varhLeadToday / 1000 : 0;
+                const productionEnergyVarhLagToday = metersProductionEnabled ? production.varhLagToday / 1000 : 0;
 
                 //energy lifetime fix for negative value
                 const productionEnergyLifeTimeFix = Math.min(productionEnergyLifeTime, 0);
@@ -2054,11 +2054,11 @@ class EnvoyDevice extends EventEmitter {
                 const debug5 = this.enableDebugMode ? this.emit('debug', `Production energy state: ${productionEnergyState}`) : false;
 
                 //param
-                const productionRmsCurrent = metersProductionEnabled ? parseFloat(production.rmsCurrent) : 0;
-                const productionRmsVoltage = metersProductionEnabled ? parseFloat(production.rmsVoltage / metersProductionVoltageDivide) : 1;
-                const productionReactivePower = metersProductionEnabled ? parseFloat(production.reactPwr) / 1000 : 0;
-                const productionApparentPower = metersProductionEnabled ? parseFloat(production.apprntPwr) / 1000 : 0;
-                const productionPwrFactor = metersProductionEnabled ? parseFloat(production.pwrFactor) : 0;
+                const productionRmsCurrent = metersProductionEnabled ? production.rmsCurrent : 0;
+                const productionRmsVoltage = metersProductionEnabled ? production.rmsVoltage / metersProductionVoltageDivide : 1;
+                const productionReactivePower = metersProductionEnabled ? production.reactPwr / 1000 : 0;
+                const productionApparentPower = metersProductionEnabled ? production.apprntPwr / 1000 : 0;
+                const productionPwrFactor = metersProductionEnabled ? production.pwrFactor : 0;
 
                 this.productionCtData = {
                     powerState: productionPowerState,
@@ -2073,8 +2073,8 @@ class EnvoyDevice extends EventEmitter {
                     energyToday: productionEnergyToday,
                     energyLastSevenDays: productionEnergyLastSevenDays,
                     energyLifeTime: productionEnergyLifeTimeFix,
+                    powerState: productionPowerState,
                     energyState: productionEnergyState,
-
                     rmsCurrent: productionRmsCurrent,
                     rmsVoltage: productionRmsVoltage,
                     reactivePower: productionReactivePower,
@@ -2834,8 +2834,8 @@ class EnvoyDevice extends EventEmitter {
                     counters: {},
                     secctrl: {},
                     relay: {},
-                    enchPercentFullSum: enchargesRatedPowerSum,
-                    enchRatedPowerSum: enchargesPercentFullSum
+                    percentFullSum: enchargesRatedPowerSum,
+                    ratedPowerSum: enchargesPercentFullSum
                 };
 
                 //counters
@@ -3019,7 +3019,7 @@ class EnvoyDevice extends EventEmitter {
                 this.ensemble.relay = relay;
 
                 //debug object ensemble
-                const debug2 = this.enableDebugMode ? this.emit('debug', `Encharges debug: ${JSON.stringify(this.ensemble, null, 2)}`) : false;
+                const debug2 = this.enableDebugMode ? this.emit('debug', `Ensemble debug: ${JSON.stringify(this.ensemble, null, 2)}`) : false;
 
                 //encharge grid state sensors
                 if (this.enchargeGridModeActiveSensorsCount > 0) {
@@ -3074,7 +3074,7 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    updateEnsembleEnchargeSettingsData() {
+    updateEnchargeSettingsData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble encharge settings.`) : false;
 
@@ -3112,7 +3112,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //debug object encharges
-                const debug1 = this.enableDebugMode ? this.emit('debug', `Encharges: ${JSON.stringify(this.encharges, null, 2)}`) : false;
+                const debug1 = this.enableDebugMode ? this.emit('debug', `Encharges object: ${JSON.stringify(this.encharges, null, 2)}`) : false;
 
                 //update characteristics
                 if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
@@ -3169,12 +3169,12 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    updateEnsembleDryContactsData() {
+    updateDryContactsData() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble dry contacts.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts.`) : false;
 
             try {
-                const ensembleDryContactsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleDryContact);
+                const ensembleDryContactsData = await this.axiosInstance(CONSTANTS.ApiUrls.DryContacts);
                 const ensembleDryContacts = ensembleDryContactsData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Dry contacts: ${JSON.stringify(ensembleDryContacts, null, 2)}`) : false;
 
@@ -3229,17 +3229,17 @@ class EnvoyDevice extends EventEmitter {
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts', ensembleDryContacts) : false;
                 resolve(true);
             } catch (error) {
-                reject(`Requesting ensemble dry contacts error: ${error}.`);
+                reject(`Requesting dry contacts error: ${error}.`);
             };
         });
     };
 
-    updateEnsembleDryContactsSettingsData() {
+    updateDryContactsSettingsData() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble dry contacts settings.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts settings.`) : false;
 
             try {
-                const ensembleDryContactsSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleDryContactSettings);
+                const ensembleDryContactsSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.DryContactsSettings);
                 const ensembleDryContactsSettings = ensembleDryContactsSettingsData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Dry contacts settings: ${JSON.stringify(ensembleDryContactsSettings, null, 2)}`) : false;
 
@@ -3291,7 +3291,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //debug object enpowers
-                const debug3 = this.enableDebugMode ? this.emit('debug', `Enpowers: ${JSON.stringify(this.enpowers, null, 2)}`) : false;
+                const debug3 = this.enableDebugMode ? this.emit('debug', `Enpowers object: ${JSON.stringify(this.enpowers, null, 2)}`) : false;
 
                 this.feature.dryContacts.settings.supported = dryContactsSettingsSupported;
                 this.feature.dryContacts.settings.count = dryContactsSettings.length;
@@ -3303,17 +3303,17 @@ class EnvoyDevice extends EventEmitter {
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts Settings', ensembleDryContactsSettings) : false;
                 resolve(true);
             } catch (error) {
-                reject(`Requesting ensemble dry contacts error: ${error}.`);
+                reject(`Requesting dry contacts error: ${error}.`);
             };
         });
     };
 
-    updateEnsembleGeneratorData() {
+    updateGeneratorData() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator.`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting generator.`) : false;
 
             try {
-                const ensembleGeneratorData = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleGenerator);
+                const ensembleGeneratorData = await this.axiosInstance(CONSTANTS.ApiUrls.Generator);
                 const ensembleGenerator = ensembleGeneratorData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Generator: ${JSON.stringify(ensembleGenerator, null, 2)}`) : false;
 
@@ -3418,14 +3418,14 @@ class EnvoyDevice extends EventEmitter {
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator', ensembleGenerator) : false;
                 resolve(true);
             } catch (error) {
-                reject(`Requesting ensemble generator error: ${error}.`);
+                reject(`Requesting generator error: ${error}.`);
             };
         });
     };
 
-    updateEnsembleGeneratorSettingsData() {
+    updateGeneratorSettingsData() {
         return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble generator settings`) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting generator settings`) : false;
 
             try {
                 const ensembleGeneratorSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.GeneratorSettingsGetSet);
@@ -3468,7 +3468,7 @@ class EnvoyDevice extends EventEmitter {
                 const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator Settings', ensembleGeneratorSettings) : false;
                 resolve(true);
             } catch (error) {
-                reject(`Requesting ensemble generator settings error: ${error}.`);
+                reject(`Requesting generator settings error: ${error}.`);
             };
         });
     };
@@ -3889,7 +3889,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 const dryState = state ? 'closed' : 'open';
-                const url = this.url + CONSTANTS.ApiUrls.EnsembleDryContact;
+                const url = this.url + CONSTANTS.ApiUrls.DryContacts;
                 const dryContactSet = await axios.post(url, { dry_contacts: { id: id, status: dryState } }, options);
                 const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact: ${JSON.stringify(dryContactSet.data, null, 2)}`) : false;
                 resolve();
@@ -3915,7 +3915,7 @@ class EnvoyDevice extends EventEmitter {
                         rejectUnauthorized: false
                     })
                 }
-                const url = this.url + CONSTANTS.ApiUrls.EnsembleDryContactSettings;
+                const url = this.url + CONSTANTS.ApiUrls.DryContactsSettings;
                 const dryContactSet = await axios.post(url, {
                     id: id,
                     gen_action: self.generator_action,
@@ -4424,7 +4424,7 @@ class EnvoyDevice extends EventEmitter {
                         const serialNumber = qRelay.serialNumber;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Q-Relay ${serialNumber} Service`) : false;
                         const enphaseQrelayService = accessory.addService(Service.enphaseQrelayService, `QRelay ${serialNumber}`, serialNumber);
-                        enphaseQrelayService.setCharacteristic(Characteristic.ConfiguredName, `QRelay ${serialNumber}`);
+                        enphaseQrelayService.setCharacteristic(Characteristic.ConfiguredName, `qRelay ${serialNumber}`);
                         enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayState)
                             .onGet(async () => {
                                 const value = qRelay.relay;

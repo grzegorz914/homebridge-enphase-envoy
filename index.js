@@ -2851,7 +2851,7 @@ class enphaseEnsembleGeneratorType extends Characteristic {
 
   class enphaseEnsembleGeneratorStopSoc extends Characteristic {
     constructor() {
-      super('Stop soc', '00000254-000B-1000-8000-0026BB765291');
+      super('Stop soc', '00000255-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Formats.INT,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -2863,7 +2863,7 @@ class enphaseEnsembleGeneratorType extends Characteristic {
 
   class enphaseEnsembleGeneratorExexOn extends Characteristic {
     constructor() {
-      super('Exec on', '00000255-000B-1000-8000-0026BB765291');
+      super('Exec on', '00000256-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Formats.INT,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -2875,7 +2875,7 @@ class enphaseEnsembleGeneratorType extends Characteristic {
 
   class enphaseEnsembleGeneratorShedule extends Characteristic {
     constructor() {
-      super('Schedule', '00000256-000B-1000-8000-0026BB765291');
+      super('Schedule', '00000257-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Formats.INT,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -2887,7 +2887,7 @@ class enphaseEnsembleGeneratorType extends Characteristic {
 
   class enphaseEnsembleGeneratorPresent extends Characteristic {
     constructor() {
-      super('Present', '00000257-000B-1000-8000-0026BB765291');
+      super('Present', '00000258-000B-1000-8000-0026BB765291');
       this.setProps({
         format: Formats.INT,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
