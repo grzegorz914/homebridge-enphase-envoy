@@ -896,7 +896,7 @@ class EnvoyDevice extends EventEmitter {
                 const tokenExpired = await this.checkJwtToken();
                 const updateEnsemble = tokenExpired ? false : await this.updateEnsembleInventoryData();
                 const updateEnsembleStatus = updateEnsemble ? await this.updateEnsembleStatusData() : false;
-                const updateEnchargeSettings = updateEnsemble ? await this.updateEnchargeSettingsData() : false;
+                const updateEnchargeSettings = updateEnsemble ? await this.updateEnchargesSettingsData() : false;
                 const updateTariffSettings = updateEnsemble ? await this.updateTariffData() : false;
                 const updateDryContacts = updateEnsemble ? await this.updateDryContactsData() : false;
                 const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettingsData() : false;
@@ -983,6 +983,8 @@ class EnvoyDevice extends EventEmitter {
             //get ensemble data only FW. >= 7.x.x.
             const updateEnsemble = validJwtToken ? await this.updateEnsembleInventoryData() : false;
             const updateEnsembleStatus = updateEnsemble ? await this.updateEnsembleStatusData() : false;
+            const updateEnchargeSettings = updateEnsemble ? await this.updateEnchargesSettingsData() : false;
+            const updateTariffSettings = updateEnsemble ? await this.updateTariffData() : false;
             const updateDryContacts = updateEnsemble ? await this.updateDryContactsData() : false;
             const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettingsData() : false;
             const updateGenerator = updateEnsemble ? await this.updateGeneratorData() : false;
@@ -3099,7 +3101,7 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
-    updateEnchargeSettingsData() {
+    updateEnchargesSettingsData() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting encharge settings.`) : false;
 
