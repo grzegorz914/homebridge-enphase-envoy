@@ -1455,7 +1455,6 @@ class EnvoyDevice extends EventEmitter {
 
                 const alerts = (Array.isArray(envoy.alerts) && (envoy.alerts).length > 0) ? ((envoy.alerts).map(a => CONSTANTS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
                 const updateStatus = CONSTANTS.ApiCodes[envoy.update_status] ?? 'Unknown';
-                const arfProfileName = this.pv.arfProfile.name;
 
                 //wireless connection kit
                 const wirelessConnections = wirelessConnectionKitSupported ? envoy.wireless_connection : [];
@@ -1485,7 +1484,7 @@ class EnvoyDevice extends EventEmitter {
 
                 if (this.envoyService) {
                     this.envoyService
-                        .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, arfProfileName)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.pv.arfProfile.name)
                         .updateCharacteristic(Characteristic.enphaseEnvoyAlerts, alerts)
                         .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, `${dbSize} MB / ${dbPercentFull} %`)
                         .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, timeZone)
@@ -1538,7 +1537,7 @@ class EnvoyDevice extends EventEmitter {
                     commEnchagLevelSubg: commEnchagLevelSubg,
                     alerts: alerts,
                     updateStatus: updateStatus,
-                    arfProfileName: arfProfileName
+                    arfProfileName: this.pv.arfProfile.name
                 };
                 //add home to pv object
                 this.pv.home = home;
@@ -1605,7 +1604,7 @@ class EnvoyDevice extends EventEmitter {
                             provisioned: microinverter.provisioned === true,
                             operating: microinverter.operating === true,
                             phase: microinverter.phase ?? 'Unknown',
-                            arfProfileName: this.pv.arfProfile.name.name,
+                            arfProfileName: this.pv.arfProfile.name,
                             commLevel: 0,
                             power: {}
                         }
@@ -1664,6 +1663,7 @@ class EnvoyDevice extends EventEmitter {
                             sleepMinSoc: acBatterie.sleep_min_soc,
                             sleepMaxSoc: acBatterie.sleep_max_soc,
                             chargeStatus: CONSTANTS.ApiCodes[acBatterie.charge_status] ?? 'Unknown',
+                            arfProfileName: this.pv.arfProfile.name,
                             commLevel: 0
                         }
                         //add ac batteries to pv object
@@ -1794,6 +1794,7 @@ class EnvoyDevice extends EventEmitter {
                             producing: ensemble.producing === true,
                             communicating: ensemble.communicating === true,
                             operating: ensemble.operating === true,
+                            arfProfileName: this.pv.arfProfile.name
                         }
                         this.pv.ensembles.push(obj);
 
@@ -3401,6 +3402,7 @@ class EnvoyDevice extends EventEmitter {
                     excOn: ensembleGenerator.exc_on,
                     present: ensembleGenerator.present,
                     type: ensembleGenerator.type,
+                    arfProfileName: this.pv.arfProfile.name,
                     settings: {}
                 }
                 //add generator to ensemble object
@@ -3618,6 +3620,7 @@ class EnvoyDevice extends EventEmitter {
                         apparentPowerL1: liveDataType.meter.agg_s_ph_a_mva / 1000000 || 0,
                         apparentPowerL2: liveDataType.meter.agg_s_ph_b_mva / 1000000 || 0,
                         apparentPowerL3: liveDataType.meter.agg_s_ph_c_mva / 1000000 || 0,
+                        arfProfileName: this.pv.arfProfile.name,
                         taask: {},
                         counters: {},
                         dryContacts: {}
