@@ -2834,6 +2834,7 @@ class EnvoyDevice extends EventEmitter {
                     counters: {},
                     secctrl: {},
                     relay: {},
+                    gridProfile: this.arfProfile.name,
                     percentFullSum: enchargesRatedPowerSum,
                     ratedPowerSum: enchargesPercentFullSum
                 };
@@ -3019,7 +3020,7 @@ class EnvoyDevice extends EventEmitter {
                 this.ensemble.relay = relay;
 
                 //debug object ensemble
-                const debug2 = this.enableDebugMode ? this.emit('debug', `Ensemble debug: ${JSON.stringify(this.ensemble, null, 2)}`) : false;
+                const debug2 = this.enableDebugMode ? this.emit('debug', `Ensemble object: ${JSON.stringify(this.ensemble, null, 2)}`) : false;
 
                 //encharge grid state sensors
                 if (this.enchargeGridModeActiveSensorsCount > 0) {
@@ -3053,7 +3054,7 @@ class EnvoyDevice extends EventEmitter {
 
                 //profile
                 const profileSupported = ensembleStatusKeys.includes('profile');
-                const profile = profileSupported ? ensembleStatus.profile : await this.updateGridProfileData();
+                const profile = this.emsemble.gridProfile.name ?? (profileSupported ? ensembleStatus.profile : await this.updateGridProfileData());
 
                 //fakeit
                 const fakeInventoryModeSupported = ensembleStatusKeys.includes('fakeit');
@@ -3083,7 +3084,7 @@ class EnvoyDevice extends EventEmitter {
                 const ensembleEnchargeSettings = ensembleEnchargeSettingsData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Encharge settings: ${JSON.stringify(ensembleEnchargeSettings, null, 2)}`) : false;
 
-                //ensemble generator keys
+                //encharge keys
                 const enchargeSettingsKeys = Object.keys(ensembleEnchargeSettings);
                 const enchargeSettingsSupported = enchargeSettingsKeys.length > 0;
 
