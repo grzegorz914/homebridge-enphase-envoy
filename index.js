@@ -760,8 +760,8 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kVA',
-        maxValue: 1000,
-        minValue: -1000,
+        maxValue: 10000,
+        minValue: -10000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -776,8 +776,8 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kVAr',
-        maxValue: 1000,
-        minValue: -1000,
+        maxValue: 10000,
+        minValue: -10000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -938,7 +938,7 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kWh',
-        maxValue: 1000000,
+        maxValue: 100000000,
         minValue: 0,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -954,7 +954,7 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kWh',
-        maxValue: 1000000,
+        maxValue: 100000000,
         minValue: 0,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -970,7 +970,7 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kWh',
-        maxValue: 1000000,
+        maxValue: 100000000,
         minValue: 0,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -1131,7 +1131,7 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kWh',
-        maxValue: 1000,
+        maxValue: 100000000,
         minValue: 0,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -1758,7 +1758,7 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kWh',
-        maxValue: 1000,
+        maxValue: 100000000,
         minValue: 0,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -2333,7 +2333,7 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kWh',
-        maxValue: 1000,
+        maxValue: 100000000,
         minValue: 0,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -2397,7 +2397,7 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kWh',
-        maxValue: 1000,
+        maxValue: 100000000,
         minValue: 0,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -2413,7 +2413,7 @@ module.exports = (api) => {
       this.setProps({
         format: Formats.FLOAT,
         unit: 'kWh',
-        maxValue: 1000,
+        maxValue: 100000000,
         minValue: 0,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]

@@ -147,6 +147,7 @@
         "xxx-xxxxx-xx3": "COMMS-KIT-01"
     },
     "ApiCodes": {
+        "unknown": "Unknown",
         "on": "On",
         "off": "Off",
         "auto": "Auto",
