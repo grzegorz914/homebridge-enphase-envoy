@@ -1219,7 +1219,8 @@ class EnvoyDevice extends EventEmitter {
                 const envoy = {
                     time: new Date(envoyInfo.time * 1000).toLocaleString(),
                     serialNumber: this.envoySerialNumber ? this.envoySerialNumber : envoyInfoDevice.sn.toString(),
-                    partNumber: CONSTANTS.PartNumbers[envoyInfoDevice.pn] ?? envoyInfoDevice.pn,
+                    partNumber: envoyInfoDevice.pn,
+                    modelName: CONSTANTS.PartNumbers[envoyInfoDevice.pn] ?? envoyInfoDevice.pn,
                     software: envoyInfoDevice.software,
                     euaid: envoyInfoDevice.euaid,
                     seqNum: envoyInfoDevice.seqnum,
