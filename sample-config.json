@@ -148,17 +148,22 @@
                             "namePrefix": false
                         }
                     ],
-                    "enpowerProfileSelfConsumptionControl": {
+                    "enchargeStateSensor": {
+                        "name": "Sensor name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "enchargeProfileSelfConsumptionControl": {
                         "name": "Control name",
                         "displayType": 0,
                         "namePrefix": false
                     },
-                    "enpowerProfileSavingsControl": {
+                    "enchargeProfileSavingsControl": {
                         "name": "Control name",
                         "displayType": 0,
                         "namePrefix": false
                     },
-                    "enpowerProfileFullBackupControl": {
+                    "enchargeProfileFullBackupControl": {
                         "name": "Control name",
                         "displayType": 0,
                         "namePrefix": false

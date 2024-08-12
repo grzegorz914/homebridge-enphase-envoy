@@ -52,7 +52,7 @@
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Enpower `Grid State`.
-    * Encharge: `Backup Level`, `Dry Contacts`.
+    * Encharge: `State`, `Backup Level`, `Dry Contacts`.
     * Grid Mode:
       * Enpower `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`.
       * Encharge `Multimode Grid On`, `Multimode Grid Off`.
@@ -170,6 +170,10 @@
 | `enepowerGridModeSensors` | That are `Enpower Grid Mode Sensors` for `Enpower Grid Mode` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
+| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| `enchargeStateSensor` | This is `Encharge State Sensor` for `State` monitoring, if `State ON`, the contact fired. |
+| `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enchargeProfileSelfConsumptionControl` | This is `Encharge Self Consumption Tile` for `Profile` control from HomeKit. |

@@ -24,10 +24,10 @@ class ImpulseGenerator extends EventEmitter {
     stop() {
         if (this.timersState) {
             this.timers.forEach(timer => clearInterval(timer));
-            this.timers = [];
         }
 
         //update state
+        this.timers = [];
         this.timersState = false;
         this.emit('state', false);
     }

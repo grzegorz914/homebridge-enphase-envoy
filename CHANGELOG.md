@@ -15,26 +15,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - full code refactor
 - RESTFul and MQTT config refactor
 * system data refresh
-   - added control direct from home app as a extra tile
+   - added native control from home app as a extra tile
    - added control direct from envoy section, 3rd party app
    - added state sensor
 * plc level refresh:   
-   - added control direct from home app as a extra tile
-* power production:   
-   - added control direct from home app as a extra tile
-* generator:
    - added native control from home app as a extra tile
-   - added direct control from envoy section, 3rd party app
+* power production:   
+   - added native control from home app as a extra tile
+* generator:
+   - added state native control from home app as a extra tile
+   - added state direct control from envoy section, 3rd party app
    - added state sensor
    - added mode sensors   
 * enpower:   
-   - added grid state control direct from home app as a extra tile
+   - added grid state native control from home app as a extra tile
    - added grid state control direct from envoy section, 3rd party appp
    - added grid state sensor
-   - added dry contacts control direct from home app as a extra tile
+   - added dry contacts native control from home app as a extra tile
    - added dry contacts state sensors    
 * encharge:   
-   - added profile control direct from home app as a extra tile  
+   - added state sensor
+   - added profile native control from home app as a extra tile  
 * other changes   
    - added possibility to enable accessory name as a prefix for all services
    - stability and performance improvements

@@ -966,6 +966,60 @@
               },
               "required": false
             },
+            "enchargeStateSensor": {
+              "title": "Encharge State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "required": false
+                }
+              },
+              "required": false
+            },
             "enchargeProfileSelfConsumptionControl": {
               "title": "Self Consumption",
               "type": "object",
@@ -1094,6 +1148,193 @@
                   "required": false
                 }
               }
+            },
+            "enchargeGridModeSensors": {
+              "title": "Encharge Grid Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "gridMode": {
+                    "title": "Mode",
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "title": "Multimode Grid On",
+                        "enum": [
+                          "multimode-ongrid"
+                        ]
+                      },
+                      {
+                        "title": "Multimode Grid Off",
+                        "enum": [
+                          "multimode-offgrid"
+                        ]
+                      }
+                    ],
+                    "description": "Here select the grid mode.",
+                    "required": true
+                  },
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "required": false
+                  }
+                }
+              },
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
+              },
+              "required": false
+            },
+            "enchargeBackupLevelSensors": {
+              "title": "Encharge Backup Level Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "compareMode": {
+                    "title": "Compare Mode",
+                    "type": "integer",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Here select the compare mode.",
+                    "required": true
+                  },
+                  "backupLevel": {
+                    "title": "Level",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "multipleOf": 1,
+                    "description": "Here set backup level in (%) to compare at which the sensor fired.",
+                    "required": false
+                  },
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "required": false
+                  }
+                }
+              },
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
+              },
+              "required": false
             },
             "enpowerGridStateControl": {
               "title": "Grid State Control",
@@ -1297,193 +1538,6 @@
               "type": "boolean",
               "default": false,
               "description": "This enable monitoring of dry contacts state.",
-              "required": false
-            },
-            "enchargeGridModeSensors": {
-              "title": "Encharge Grid Sensors",
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "title": "Name",
-                    "type": "string",
-                    "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
-                    "required": false
-                  },
-                  "gridMode": {
-                    "title": "Mode",
-                    "type": "string",
-                    "oneOf": [
-                      {
-                        "title": "Multimode Grid On",
-                        "enum": [
-                          "multimode-ongrid"
-                        ]
-                      },
-                      {
-                        "title": "Multimode Grid Off",
-                        "enum": [
-                          "multimode-offgrid"
-                        ]
-                      }
-                    ],
-                    "description": "Here select the grid mode.",
-                    "required": true
-                  },
-                  "displayType": {
-                    "title": "Type",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 3,
-                    "oneOf": [
-                      {
-                        "title": "None/Disabled",
-                        "enum": [
-                          0
-                        ]
-                      },
-                      {
-                        "title": "Motion Sensor",
-                        "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "Occupancy Sensor",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "Contact Sensor",
-                        "enum": [
-                          3
-                        ]
-                      }
-                    ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
-                    "required": true
-                  },
-                  "namePrefix": {
-                    "title": "Prefix",
-                    "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
-                    "required": false
-                  }
-                }
-              },
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              },
-              "required": false
-            },
-            "enchargeBackupLevelSensors": {
-              "title": "Encharge Backup Level Sensors",
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "title": "Name",
-                    "type": "string",
-                    "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
-                    "required": false
-                  },
-                  "compareMode": {
-                    "title": "Compare Mode",
-                    "type": "integer",
-                    "oneOf": [
-                      {
-                        "title": ">",
-                        "enum": [
-                          0
-                        ]
-                      },
-                      {
-                        "title": ">=",
-                        "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "==",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "<",
-                        "enum": [
-                          3
-                        ]
-                      },
-                      {
-                        "title": "<=",
-                        "enum": [
-                          4
-                        ]
-                      }
-                    ],
-                    "description": "Here select the compare mode.",
-                    "required": true
-                  },
-                  "backupLevel": {
-                    "title": "Level",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 100,
-                    "multipleOf": 1,
-                    "description": "Here set backup level in (%) to compare at which the sensor fired.",
-                    "required": false
-                  },
-                  "displayType": {
-                    "title": "Type",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 3,
-                    "oneOf": [
-                      {
-                        "title": "None/Disabled",
-                        "enum": [
-                          0
-                        ]
-                      },
-                      {
-                        "title": "Motion Sensor",
-                        "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "Occupancy Sensor",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "Contact Sensor",
-                        "enum": [
-                          3
-                        ]
-                      }
-                    ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
-                    "required": true
-                  },
-                  "namePrefix": {
-                    "title": "Prefix",
-                    "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
-                    "required": false
-                  }
-                }
-              },
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              },
               "required": false
             },
             "solarGridModeSensors": {
@@ -2516,6 +2570,19 @@
                           "key": "devices[]",
                           "title": "Encharge",
                           "items": [
+                            {
+                              "key": "devices[].enchargeStateSensor",
+                              "type": "section",
+                              "title": "Encharges State Sensor",
+                              "description": "In this section You can enable sensor for encharges state monitoring.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].enchargeStateSensor.name",
+                                "devices[].enchargeStateSensor.displayType",
+                                "devices[].enchargeStateSensor.namePrefix"
+                              ]
+                            },
                             {
                               "key": "devices[]",
                               "type": "section",
