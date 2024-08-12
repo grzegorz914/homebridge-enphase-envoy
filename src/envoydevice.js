@@ -1354,7 +1354,7 @@ class EnvoyDevice extends EventEmitter {
 
 
                 const envoyNetworkInterfaces = envoyNework.interfaces ?? [];
-                home.network.envoyNetworkInterfacesCount = envoyNetworkInterfaces.length;
+                home.envoyNetworkInterfacesCount = envoyNetworkInterfaces.length;
                 home.envoyNetworkInterfaces = [];
                 home.network.envoyInterfaces = envoyNetworkInterfaces.map(networkInterface => {
                     return {
@@ -4508,7 +4508,7 @@ class EnvoyDevice extends EventEmitter {
                     //wireless connektion kit
                     if (wirelessConnectionKitInstalled) {
                         this.wirelessConnektionsKitServices = [];
-                        for (const wirelessConnection of this.pv.envoy.home.wirelessConnektions) {
+                        for (const wirelessConnection of this.pv.envoy.home.wirelessConnections) {
                             const connectionType = wirelessConnection.type;
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Wireless Connection ${connectionType} Service`) : false;
                             const enphaseWirelessConnectionKitService = accessory.addService(Service.enphaseWirelessConnectionKitService, `Wireless connection ${connectionType}`, connectionType);
