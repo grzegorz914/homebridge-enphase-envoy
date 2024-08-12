@@ -1412,6 +1412,7 @@ class EnvoyDevice extends EventEmitter {
                 //wireless connection kit
                 const wirelessConnections = wirelessConnectionKitSupported ? envoy.wireless_connection : [];
                 home.wirelessConnectionKitConnectionsCount = wirelessConnections.length;
+                home.wirelessConnectionKitInstalled = false;
                 home.wirelessConnections = [];
                 if (wirelessConnectionKitSupported) {
                     wirelessConnections.forEach((wirelessConnection, index) => {
@@ -1431,8 +1432,8 @@ class EnvoyDevice extends EventEmitter {
                                 ?.updateCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected, obj.connected);
                         }
                     });
-                    this.feature.wirelessConnectionKit.installed = home.wirelessConnections.some(connection => connection.connected);
                 }
+                home.wirelessConnectionKitInstalled = home.wirelessConnections.some(connection => connection.connected);
 
                 if (this.envoyService) {
                     this.envoyService
@@ -1466,6 +1467,7 @@ class EnvoyDevice extends EventEmitter {
                 this.feature.ensembles.supported = ensemblesSupported;
                 this.feature.encharges.supported = enchargesSupported;
                 this.feature.wirelessConnectionKit.supported = wirelessConnectionKitSupported;
+                this.feature.wirelessConnectionKit.installed = home.wirelessConnectionKitInstalled;
                 this.feature.wirelessConnectionKit.count = home.wirelessConnectionKitConnectionsCount;
 
                 //add home to envoy object
