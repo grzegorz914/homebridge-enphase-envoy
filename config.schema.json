@@ -33,7 +33,7 @@
               "title": "Firmware 7.x.x",
               "type": "boolean",
               "default": false,
-              "description": "This enable support for Envoy with firmware 7.x.x and newer.",
+              "description": "This enable support for Envoy with firmware v7.x.x and newer.",
               "required": true
             },
             "envoyFirmware7xxTokenGenerationMode": {
@@ -41,7 +41,7 @@
               "type": "integer",
               "oneOf": [
                 {
-                  "title": "Enlighten User And Password",
+                  "title": "Enlighten Credentials",
                   "enum": [
                     0
                   ]
