@@ -92,8 +92,8 @@
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |
-| `supportProductionPowerMode` | If enabled, control `Production Power Mode` will be possible in `Envoy` 3rd apps, Fw. 7.x.x and newer require installer credentials data. |
-| `powerProductionControl` | This is `Power Production Tile` for `Production` control from HomeKit. |
+| `supportProductionPowerMode` | This enable support for `Power Production State` check, Fw. 7.x.x and newer require installer credentials data. |
+| `powerProductionStateControl` | This is `Power Production State Tile` to control production state from HomeKit and 3rd apps, Fw. 7.x.x and newer require installer credentials data.. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
 | `namePrefix` | This enable the accessory name as a prefix for the tile name. |

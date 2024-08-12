@@ -31,8 +31,8 @@
                     "envoySerialNumber": "",
                     "enlightenUser": "",
                     "enlightenPasswd": "",
-                    "supportProductionPowerMode": false,
-                    "powerProductionControl": {
+                    "supportPowerProductionState": false,
+                    "powerProductionStateControl": {
                         "name": "Control name",
                         "displayType": 0,
                         "namePrefix": false

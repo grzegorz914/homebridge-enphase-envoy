@@ -172,14 +172,14 @@
                 "functionBody": "return model.devices[arrayIndices].supportPlcLevel === true"
               }
             },
-            "supportProductionPowerMode": {
+            "supportPowerProductionState": {
               "title": "Power Production",
               "type": "boolean",
               "default": false,
               "description": "This enable support to check/control power production, firmware 7.x.x and newer require installer credentials data.",
               "required": false
             },
-            "powerProductionControl": {
+            "powerProductionStateControl": {
               "title": "Power Production Control",
               "type": "object",
               "properties": {
@@ -232,7 +232,7 @@
                 }
               },
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].supportProductionPowerMode === true"
+                "functionBody": "return model.devices[arrayIndices].supportPowerProductionState === true"
               }
             },
             "powerProductionSummary": {
@@ -2108,7 +2108,7 @@
                   "items": [
                     "devices[].envoyFirmware7xx",
                     "devices[].supportPlcLevel",
-                    "devices[].supportProductionPowerMode",
+                    "devices[].supportPowerProductionState",
                     {
                       "key": "devices[].plcLevelControl",
                       "type": "section",
@@ -2123,16 +2123,16 @@
                       ]
                     },
                     {
-                      "key": "devices[].powerProductionControl",
+                      "key": "devices[].powerProductionStateControl",
                       "type": "section",
                       "title": "Power Production Control",
                       "description": "In this section You can enable extra tile for power production control.",
                       "expandable": true,
                       "expanded": false,
                       "items": [
-                        "devices[].powerProductionControl.name",
-                        "devices[].powerProductionControl.displayType",
-                        "devices[].powerProductionControl.namePrefix"
+                        "devices[].powerProductionStateControl.name",
+                        "devices[].powerProductionStateControl.displayType",
+                        "devices[].powerProductionStateControl.namePrefix"
                       ]
                     },
                     {

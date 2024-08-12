@@ -35,8 +35,8 @@ class EnvoyDevice extends EventEmitter {
         this.enlightenUser = enlightenUser;
         this.enlightenPassword = enlightenPasswd;
 
-        this.supportProductionPowerMode = device.supportProductionPowerMode || false;
-        this.powerProductionControl = device.powerProductionControl || {};
+        this.supportPowerProductionState = device.supportPowerProductionState || false;
+        this.powerProductionStateControl = this.supportPowerProductionState ? device.powerProductionStateControl || {} : {};
 
         this.supportPlcLevel = device.supportPlcLevel || false;
         this.plcLevelControl = device.plcLevelControl || {};
@@ -60,24 +60,26 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionNetLevelSensors = device.energyConsumptionNetLevelSensors || [];
         this.energyConsumptionNetLifetimeOffset = device.energyConsumptionNetLifetimeOffset || 0;
 
-        this.enpowerGridStateControl = device.enpowerGridStateControl || {};
-        this.enpowerGridStateSensor = device.enpowerGridStateSensor || {};
-        this.enpowerGridModeSensors = device.enpowerGridModeSensors || [];
+        //ensemble
+        this.enpowerGridStateControl = this.envoyFirmware7xx ? device.enpowerGridStateControl || {} : {};
+        this.enpowerGridStateSensor = this.envoyFirmware7xx ? device.enpowerGridStateSensor || {} : {};
+        this.enpowerGridModeSensors = this.envoyFirmware7xx ? device.enpowerGridModeSensors || [] : [];
 
         this.enchargeStateSensor = this.envoyFirmware7xx ? device.enchargeStateSensor || {} : {};
         this.enchargeProfileControl = this.envoyFirmware7xx ? device.enchargeProfileControl || [] : [];
         this.enchargeGridModeSensors = this.envoyFirmware7xx ? device.enchargeGridModeSensors || [] : [];
         this.enchargeBackupLevelSensors = this.envoyFirmware7xx ? device.enchargeBackupLevelSensors || [] : [];
 
-        this.solarGridModeSensors = device.solarGridModeSensors || [];
+        this.solarGridModeSensors = this.envoyFirmware7xx ? device.solarGridModeSensors || [] : [];
 
-        this.enpowerDryContactsControl = device.enpowerDryContactsControl || false;
-        this.enpowerDryContactsSensors = device.enpowerDryContactsSensors || false;
+        this.enpowerDryContactsControl = this.envoyFirmware7xx ? device.enpowerDryContactsControl || false : false;
+        this.enpowerDryContactsSensors = this.envoyFirmware7xx ? device.enpowerDryContactsSensors || false : false;
 
-        this.generatorStateControl = device.generatorStateControl || {};
-        this.generatorStateSensor = device.generatorStateSensor || {};
-        this.generatorModeSensors = device.generatorModeSensors || [];
+        this.generatorStateControl = this.envoyFirmware7xx ? device.generatorStateControl || {} : {};
+        this.generatorStateSensor = this.envoyFirmware7xx ? device.generatorStateSensor || {} : {};
+        this.generatorModeSensors = this.envoyFirmware7xx ? device.generatorModeSensors || [] : [];
 
+        //data refresh
         this.dataRefreshControl = device.dataRefreshControl || {};
         this.dataRefreshSensor = device.dataRefreshSensor || {};
         this.metersDataRefreshTime = device.metersDataRefreshTime * 1000 || 2000;
@@ -85,14 +87,15 @@ class EnvoyDevice extends EventEmitter {
         this.liveDataRefreshTime = device.liveDataRefreshTime * 1000 || 2000;
         this.ensembleDataRefreshTime = device.ensembleDataRefreshTime * 1000 || 15000;
 
+        //log
         this.enableDebugMode = device.enableDebugMode || false;
         this.disableLogInfo = device.disableLogInfo || false;
         this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
 
         //active sensors 
         //power production control
-        const powerProductionControlName = this.powerProductionControl.name || false;
-        const powerProductionControlDisplayType = this.powerProductionControl.displayType ?? 0;
+        const powerProductionControlName = this.powerProductionStateControl.name || false;
+        const powerProductionControlDisplayType = this.powerProductionStateControl.displayType ?? 0;
         this.powerProductionControlActiveSensors = [];
         if (powerProductionControlName && powerProductionControlDisplayType > 0) {
             const tile = {};
@@ -105,7 +108,7 @@ class EnvoyDevice extends EventEmitter {
         } else {
             const log = powerProductionControlDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
         };
-        this.powerProductionControlActiveSensorsCount = this.supportProductionPowerMode ? this.powerProductionControlActiveSensors.length || 0 : 0;
+        this.powerProductionControlActiveSensorsCount = this.supportPowerProductionState ? this.powerProductionControlActiveSensors.length || 0 : 0;
 
         //plc level control
         const plcLevelControlName = this.plcLevelControl.name || false;
@@ -122,7 +125,7 @@ class EnvoyDevice extends EventEmitter {
         } else {
             const log = plcLevelControlDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
         };
-        this.plcLevelControlActiveSensorsCount = this.supportProductionPowerMode ? this.plcLevelControlActiveSensors.length || 0 : 0;
+        this.plcLevelControlActiveSensorsCount = this.supportPlcLevel ? this.plcLevelControlActiveSensors.length || 0 : 0;
 
         //data refresh control
         const dataRefreshControlName = this.dataRefreshControl.name || false;
@@ -624,7 +627,7 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
             },
-            productionPowerMode: {
+            powerProductionState: {
                 supported: false
             },
             ensembles: {
@@ -716,7 +719,7 @@ class EnvoyDevice extends EventEmitter {
             },
             productionState: false,
             productionEnergyState: false,
-            productionPowerMode: false
+            powerProductionState: false
         };
 
         //ensemble object
@@ -809,7 +812,7 @@ class EnvoyDevice extends EventEmitter {
                     try {
                         switch (key) {
                             case 'ProductionPowerMode':
-                                const set = this.feature.productionPowerMode.supported ? await this.setProductionPowerState(value) : false;
+                                const set = this.feature.powerProductionState.supported ? await this.setProductionPowerState(value) : false;
                                 break;
                             case 'PlcLevel':
                                 const set1 = this.feature.commLevel.supported ? await this.updatePlcLevel(value) : false;
@@ -944,7 +947,7 @@ class EnvoyDevice extends EventEmitter {
             const updateGridProfileData = validJwtToken ? await this.updateGridProfile() : false;
 
             //get envoy dev id
-            const envoyDevIdExist = this.supportProductionPowerMode ? await this.getEnvoyBackboneApp() : false;
+            const envoyDevIdExist = this.supportPowerProductionState ? await this.getEnvoyBackboneApp() : false;
 
             //get envoy info and inventory data
             await this.updateInfo();
@@ -2434,20 +2437,20 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 const productionPowerModeData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
-                const productionPowerMode = productionPowerModeData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(productionPowerMode, null, 2)}`) : false;
+                const powerProductionState = productionPowerModeData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(powerProductionState, null, 2)}`) : false;
 
                 //production power mode
-                const productionPowerModeKeys = Object.keys(productionPowerMode);
-                const productionPowerModeSupported = productionPowerModeKeys.includes('powerForcedOff');
-                if (!productionPowerModeSupported) {
+                const productionPowerModeKeys = Object.keys(powerProductionState);
+                const powerProductionStateSupported = productionPowerModeKeys.includes('powerForcedOff');
+                if (!powerProductionStateSupported) {
                     resolve(false);
                     return;
                 }
 
                 //update power production control state
-                const state = productionPowerMode.powerForcedOff === false;
-                this.pv.productionPowerMode = state;
+                const state = powerProductionState.powerForcedOff === false;
+                this.pv.powerProductionState = state;
 
                 //update services
                 if (this.envoyService) {
@@ -2466,13 +2469,13 @@ class EnvoyDevice extends EventEmitter {
                         }
                     }
                 }
-                this.feature.productionPowerMode.supported = productionPowerModeSupported;
+                this.feature.powerProductionState.supported = powerProductionStateSupported;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('powermode', productionPowerMode) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('powermode', powerProductionState) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Power Mode', productionPowerMode) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Power Mode', powerProductionState) : false;
                 resolve(state);
             } catch (error) {
                 reject(`Requesting power production mode error: ${error}.`);
@@ -4170,7 +4173,7 @@ class EnvoyDevice extends EventEmitter {
                 //get enabled devices
                 const envoyInstalled = this.feature.envoy.installed;
                 const wirelessConnectionKitInstalled = this.feature.wirelessConnectionKit.installed;
-                const productionPowerModeSupported = this.feature.productionPowerMode.supported;
+                const powerProductionStateSupported = this.feature.powerProductionState.supported;
                 const plcLevelSupported = this.feature.commLevel.supported;
                 const qRelaysInstalled = this.feature.qRelays.installed;
                 const metersSupported = this.feature.meters.supported;
@@ -4393,10 +4396,10 @@ class EnvoyDevice extends EventEmitter {
                                 };
                             });
                     }
-                    if (productionPowerModeSupported) {
+                    if (powerProductionStateSupported) {
                         this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyProductionPowerMode)
                             .onGet(async () => {
-                                const state = this.pv.productionPowerMode;
+                                const state = this.pv.powerProductionState;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, production power mode: ${state ? 'Enabled' : 'Disabled'}`);
                                 return state;
                             })
@@ -4507,7 +4510,7 @@ class EnvoyDevice extends EventEmitter {
                     };
 
                     //power production control service
-                    if (this.powerProductionActiveControlsCount > 0 && productionPowerModeSupported) {
+                    if (this.powerProductionActiveControlsCount > 0) {
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Power Production Control Service`) : false;
                         this.powerProductionControlsServices = [];
                         for (let i = 0; i < this.powerProductionActiveControlsCount; i++) {
