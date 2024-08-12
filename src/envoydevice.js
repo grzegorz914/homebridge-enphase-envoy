@@ -1996,10 +1996,10 @@ class EnvoyDevice extends EventEmitter {
 
                 //microinverters summary 
                 const productionMicroinverters = {
-                    whToday: production.wattHoursToday / 1000 ?? 0,
-                    whLastSevenDays: production.wattHoursSevenDays / 1000 ?? 0,
-                    whLifeTime: (production.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000 ?? 0,
-                    wattsNow: production.wattsNow / 1000 ?? 0
+                    whToday: production.wattHoursToday / 1000,
+                    whLastSevenDays: production.wattHoursSevenDays / 1000,
+                    whLifeTime: (production.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000,
+                    wattsNow: production.wattsNow / 1000
                 };
 
                 //add production microinverters to pv object
@@ -2221,12 +2221,12 @@ class EnvoyDevice extends EventEmitter {
                             powerPeak: powerPeak,
                             powerPeakDetected: powerPeakDetected,
                             powerState: consumption.wNow > 0,
-                            energyLifeTime: whLifetimeFix ? 0 : (consumption.whLifetime + consumptionLifetimeOffset) / 1000 ?? 0,
+                            energyLifeTime: whLifetimeFix ? 0 : (consumption.whLifetime + consumptionLifetimeOffset) / 1000,
                             energyVarhLeadLifetime: consumption.varhLeadLifetime / 1000,
                             energyVarhLagLifetime: consumption.varhLagLifetime / 1000,
                             energyVahLifetime: consumption.vahLifetime / 1000,
-                            energyLastSevenDays: consumption.whLastSevenDays / 1000 ?? 0,
-                            energyToday: consumption.whToday / 1000 ?? 0,
+                            energyLastSevenDays: consumption.whLastSevenDays / 1000,
+                            energyToday: consumption.whToday / 1000,
                             energyVahToday: consumption.vahToday / 1000,
                             energyVarhLeadToday: consumption.varhLeadToday / 1000,
                             energyVarhLagToday: consumption.varhLagToday / 1000,
@@ -2534,7 +2534,7 @@ class EnvoyDevice extends EventEmitter {
                             ledStatus: CONSTANTS.LedStatus[encharge.led_status] ?? encharge.led_status,
                             dcSwitchOff: encharge.dc_switch_off,
                             rev: encharge.encharge_rev,
-                            capacity: encharge.encharge_capacity / 1000 ?? 0, //in kWh
+                            capacity: encharge.encharge_capacity / 1000, //in kWh
                             phase: encharge.phase ?? 'Unknown',
                             derIndex: encharge.der_index ?? 0,
                             arfProfileName: this.ensemble.arfProfile.name
@@ -2775,7 +2775,7 @@ class EnvoyDevice extends EventEmitter {
                 });
 
                 //sum rated power for all encharges to kW and add to encharge object
-                const enchargesRatedPowerSum = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000) ?? 0;
+                const enchargesRatedPowerSum = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000);
 
                 //add encharges and rated power summ to ensemble object
                 this.ensemble.encharges.ratedPowerSum = enchargesRatedPowerSum;
@@ -2843,7 +2843,7 @@ class EnvoyDevice extends EventEmitter {
                     restRelayPost: counterData.rest_RelayPost ?? 0,
                     restCommCheckGet: counterData.rest_CommCheckGet ?? 0,
                     restPow: counterData.rest_Power ?? 0,
-                    restPower: counterData.rest_Power / 1000 ?? 0, //in kW
+                    restPower: counterData.rest_Power > 0 ? counterData.rest_Power / 1000 : 0, //in kW
                     extZbRemove: counterData.ext_zb_remove ?? 0,
                     extZbRemoveErr: counterData.ext_zb_remove_err ?? 0,
                     extZbSendMsg: counterData.ext_zb_send_msg ?? 0,
@@ -2950,7 +2950,7 @@ class EnvoyDevice extends EventEmitter {
                 const enchargesPercentFullSum = this.ensemble.encharges.percentFullSum;
                 if (this.ensembleStatusService) {
                     this.ensembleStatusService
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusRestPower, counters.restPower ?? 0)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusRestPower, counters.restPower)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHz, secctrl.freqBiasHz)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasV, secctrl.voltageBiasV)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8, secctrl.freqBiasHzQ8)
@@ -3128,9 +3128,9 @@ class EnvoyDevice extends EventEmitter {
                 const tariffSupported = tariffSettingsKeys.includes('tariff');
                 const tariffData = tariffDaata.tariff ?? {};
                 const tariff = {
-                    currencyCode: tariffData.currecny.code,
-                    logger: tariffData.logger,
-                    date: tariffData.date
+                    currencyCode: tariffData.currency.code, //str USD
+                    logger: tariffData.logger, //str
+                    date: new Date(tariffData.date * 1000).toLocaleString() ?? ''
                 }
 
                 const storageSettingsSupported = tariffSettingsKeys.includes('storage_settings');
@@ -3139,7 +3139,8 @@ class EnvoyDevice extends EventEmitter {
                     mode: storageSettingsData.mode,
                     selfConsumptionModeBool: storageSettingsData.mode === 'self-consumption',
                     fullBackupModeBool: storageSettingsData.mode === 'backup',
-                    savingsModeBool: (storageSettingsData.mode === 'savings-mode' || tariff.mode === 'economy'),
+                    savingsModeBool: (storageSettingsData.mode === 'savings-mode'),
+                    economyModeBool: (storageSettingsData.mode === 'economy'),
                     operationModeSubType: storageSettingsData.operation_mode_sub_type,
                     reservedSoc: storageSettingsData.reserved_soc,
                     veryLowSoc: storageSettingsData.very_low_soc,
@@ -3174,9 +3175,9 @@ class EnvoyDevice extends EventEmitter {
 
                         //periods
                         for (const period of periods) {
-                            const id = day.id; //str period_3
-                            const start = day.start; //float 0
-                            const rate = day.must_charge_start; //float 0.36
+                            const id = period.id; //str period_3
+                            const start = period.start; //float 0
+                            const rate = period.must_charge_start; //float 0.36
                         }
                     }
                     const tiers = season.tiers ?? []; //arr
@@ -3202,9 +3203,9 @@ class EnvoyDevice extends EventEmitter {
 
                         //periods
                         for (const period of periods) {
-                            const id = day.id; //str period_3
-                            const start = day.start; //float 0
-                            const rate = day.must_charge_start; //float 0.36
+                            const id = period.id; //str period_3
+                            const start = period.start; //float 0
+                            const rate = period.must_charge_start; //float 0.36
                         }
                     }
                     const tiers = season.tiers ?? []; //arr
@@ -3246,7 +3247,6 @@ class EnvoyDevice extends EventEmitter {
                         //tariff
                         if (category === "tariff") {
                             const { start: periodStart, end: periodEnd, ...days } = period;
-
                             for (const [dayName, dayDetails] of Object.entries(days)) {
                                 for (const detail of dayDetails) {
                                     const start = detail.start; // float 0
@@ -4268,6 +4268,7 @@ class EnvoyDevice extends EventEmitter {
                     //envoy
                     const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Envoy Service`) : false;
                     this.envoyService = accessory.addService(Service.enphaseEnvoyService, `Envoy ${serialNumber}`, serialNumber);
+                    this.envoyService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                     this.envoyService.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${serialNumber}`);
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyAlerts)
                         .onGet(async () => {
@@ -5516,7 +5517,7 @@ class EnvoyDevice extends EventEmitter {
                         this.ensembleStatusService.setCharacteristic(Characteristic.ConfiguredName, `Ensemble summary`);
                         this.ensembleStatusService.getCharacteristic(Characteristic.enphaseEnsembleStatusRestPower)
                             .onGet(async () => {
-                                const value = this.ensemble.counters.restPower ?? 0;
+                                const value = this.ensemble.counters.restPower;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble summary, rest power: ${value} kW`);
                                 return value;
                             });
