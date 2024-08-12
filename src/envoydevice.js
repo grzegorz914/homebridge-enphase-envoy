@@ -717,24 +717,23 @@ class EnvoyDevice extends EventEmitter {
                 version: '',
                 itemCount: 0
             },
+            powerProductionState: false,
             productionState: false,
-            productionEnergyState: false,
-            powerProductionState: false
+            productionEnergyState: false
         };
 
         //ensemble object
         this.ensemble = {
             enpowers: {
-                devices: [
-                    {
-                        status: {}
-                    }
-                ]
+                devices: []
             },
             encharges: {
                 devices: [],
                 status: {},
-                settings: {}
+                settings: {},
+                percentFullSum: 0,
+                ratedPowerSum: 0,
+                energyStateSum: false
             },
             counters: {},
             secctrl: {},
@@ -747,10 +746,7 @@ class EnvoyDevice extends EventEmitter {
                 id: 0,
                 version: '',
                 itemCount: 0
-            },
-            enchargesPercentFullSum: 0,
-            enchargesRatedPowerSum: 0,
-            enchargesEnergyState: false
+            }
         };
 
         //url
@@ -977,10 +973,10 @@ class EnvoyDevice extends EventEmitter {
             const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettings() : false;
             const updateGenerator = updateEnsemble ? await this.updateGenerator() : false;
             const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
-            const updateLiveData = validJwtToken ? await this.updateLive() : false;
 
             //get plc communication level
             const updatePlcLevel = this.supportPlcLevel && (validJwtToken || calculateInstallerPassword) ? await this.updatePlcLevel() : false;
+            const updateLiveData = validJwtToken ? await this.updateLive() : false;
 
             //get device info
             const logDeviceInfo = !this.disableLogDeviceInfo ? this.getDeviceInfo() : false;
@@ -2576,8 +2572,8 @@ class EnvoyDevice extends EventEmitter {
                     const enchargesEnergyState = enchargesPercentFullSum > 0;
 
                     //add encharges percent full sum to ensemble object
-                    this.ensemble.enchargesPercentFullSum = enchargesPercentFullSum;
-                    this.ensemble.enchargesEnergyState = enchargesEnergyState;
+                    this.ensemble.encharges.percentFullSum = enchargesPercentFullSum;
+                    this.ensemble.encharges.energyState = enchargesEnergyState;
 
                     if (this.enphaseEnchargesSummaryLevelAndStateService) {
                         this.enphaseEnchargesSummaryLevelAndStateService
@@ -2782,7 +2778,7 @@ class EnvoyDevice extends EventEmitter {
                 const enchargesRatedPowerSum = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000) ?? 0;
 
                 //add encharges and rated power summ to ensemble object
-                this.ensemble.enchargesRatedPowerSum = enchargesRatedPowerSum;
+                this.ensemble.encharges.ratedPowerSum = enchargesRatedPowerSum;
 
                 //enpowers
                 //iterate over enpowers
@@ -2951,7 +2947,7 @@ class EnvoyDevice extends EventEmitter {
                 this.ensemble.secctrl = secctrl;
 
                 //ensemble status services
-                const enchargesPercentFullSum = this.ensemble.enchargesPercentFullSum;
+                const enchargesPercentFullSum = this.ensemble.encharges.percentFullSum;
                 if (this.ensembleStatusService) {
                     this.ensembleStatusService
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusRestPower, counters.restPower ?? 0)
@@ -3072,7 +3068,7 @@ class EnvoyDevice extends EventEmitter {
 
                 const settingsData = enchargeSettings.enc_settings;
                 const settings = {
-                    enable: settingsData.enable, //bool
+                    enable: settingsData.enable === true, //bool
                     country: settingsData.country, //str
                     currentLimit: settingsData.current_limit, //float
                     perPhase: settingsData.per_phase //bool
@@ -3140,7 +3136,7 @@ class EnvoyDevice extends EventEmitter {
                 const storageSettingsSupported = tariffSettingsKeys.includes('storage_settings');
                 const storageSettingsData = tariffDaata.storage_settings ?? {};
                 const storageSettings = {
-                    enable: storageSettingsData.mode,
+                    mode: storageSettingsData.mode,
                     selfConsumptionModeBool: storageSettingsData.mode === 'self-consumption',
                     fullBackupModeBool: storageSettingsData.mode === 'backup',
                     savingsModeBool: (storageSettingsData.mode === 'savings-mode' || tariff.mode === 'economy'),
@@ -3606,6 +3602,118 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
+    updatePlcLevel() {
+        return new Promise(async (resolve, reject) => {
+            const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level.`) : false;
+
+            try {
+                const options = {
+                    method: 'GET',
+                    baseURL: this.url,
+                    headers: {
+                        Accept: 'application/json'
+                    }
+                }
+
+                const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANTS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANTS.ApiUrls.InverterComm, options);
+                const plcLevel = plcLevelData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevel, null, 2)}`) : false;
+
+                // get comm level data
+                if (this.feature.microinverters.installed) {
+                    this.pv.microinverters.forEach((microinverter, index) => {
+                        const key = `${microinverter.serialNumber}`;
+                        const value = (plcLevel[key] ?? 0) * 20;
+
+                        //add microinverters comm level to microinverters and pv object
+                        this.pv.microinverters[index].commLevel = value;
+
+                        if (this.microinvertersServices) {
+                            this.microinvertersServices[index]
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
+                        };
+                    });
+                }
+
+                if (this.feature.acBatteries.installed) {
+                    this.acBatteries.devices.forEach((acBatterie, index) => {
+                        const key = `${acBatterie.serialNumber}`;
+                        const value = (plcLevel[key] ?? 0) * 20;
+
+                        //add ac batteries comm level to ac batteries and pv object
+                        this.pv.acBatteries.devices[index].commLevel = value;
+
+                        if (this.acBatteriesServices) {
+                            this.acBatteriesServices[index]
+                                .updateCharacteristic(Characteristic.enphaseAcBatterieCommLevel, value)
+                        };
+                    });
+                }
+
+
+                if (this.feature.qRelays.installed) {
+                    this.pv.qRelays.forEach((qRelay, index) => {
+                        const key = `${qRelay.serialNumber}`;
+                        const value = (plcLevel[key] ?? 0) * 20;
+
+                        //add qrelays comm level to qrelays and pv object
+                        this.pv.qRelays[index].commLevel = value;
+
+                        if (this.qRelaysServices) {
+                            this.qRelaysServices[index]
+                                .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
+                        };
+                    });
+                }
+
+                if (this.feature.encharges.installed) {
+                    this.ensemble.encharges.devices.forEach((encharge, index) => {
+                        const key = `${encharge.serialNumber}`;
+                        const value = (plcLevel[key] ?? 0) * 20;
+
+                        //add encharges comm level to ensemble and encharges object
+                        this.ensemble.encharges.devices[index].commLevel = value;
+
+                        if (this.enchargesServices) {
+                            this.enchargesServices[index]
+                                .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
+                        }
+                    });
+                }
+
+                //update plc level control state
+                if (this.envoyService) {
+                    this.envoyService
+                        .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
+                }
+
+                if (this.plcLevelActiveControlsCount > 0) {
+                    for (let i = 0; i < this.plcLevelActiveControlsCount; i++) {
+                        this.plcLevelActiveControls[i].state = false;
+
+                        if (this.plcLevelControlsServices) {
+                            const characteristicType = this.plcLevelActiveControls[i].characteristicType;
+                            this.plcLevelControlsServices[i]
+                                .updateCharacteristic(characteristicType, false)
+                        }
+                    }
+                }
+
+                //check comm level supported
+                this.feature.commLevel.supported = true;
+
+                //restFul
+                const restFul = this.restFulConnected ? this.restFul.update('plclevel', plcLevel) : false;
+
+                //mqtt
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'PLC Level', plcLevel) : false;
+                resolve(true);
+            } catch (error) {
+                reject(`Requesting plc level error: ${error}.`);
+            };
+        });
+    };
+
     updateLive() {
         return new Promise(async (resolve, reject) => {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data.`) : false;
@@ -3787,118 +3895,6 @@ class EnvoyDevice extends EventEmitter {
                 resolve(true);
             } catch (error) {
                 reject(`Requesting live data error: ${error}.`);
-            };
-        });
-    };
-
-    updatePlcLevel() {
-        return new Promise(async (resolve, reject) => {
-            const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level.`) : false;
-
-            try {
-                const options = {
-                    method: 'GET',
-                    baseURL: this.url,
-                    headers: {
-                        Accept: 'application/json'
-                    }
-                }
-
-                const plcLevelData = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANTS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANTS.ApiUrls.InverterComm, options);
-                const plcLevel = plcLevelData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Plc level: ${JSON.stringify(plcLevel, null, 2)}`) : false;
-
-                // get comm level data
-                if (this.feature.microinverters.installed) {
-                    this.pv.microinverters.forEach((microinverter, index) => {
-                        const key = `${microinverter.serialNumber}`;
-                        const value = (plcLevel[key] ?? 0) * 20;
-
-                        //add microinverters comm level to microinverters and pv object
-                        this.pv.microinverters[index].commLevel = value;
-
-                        if (this.microinvertersServices) {
-                            this.microinvertersServices[index]
-                                .updateCharacteristic(Characteristic.enphaseMicroinverterCommLevel, value)
-                        };
-                    });
-                }
-
-                if (this.feature.acBatteries.installed) {
-                    this.acBatteries.devices.forEach((acBatterie, index) => {
-                        const key = `${acBatterie.serialNumber}`;
-                        const value = (plcLevel[key] ?? 0) * 20;
-
-                        //add ac batteries comm level to ac batteries and pv object
-                        this.pv.acBatteries.devices[index].commLevel = value;
-
-                        if (this.acBatteriesServices) {
-                            this.acBatteriesServices[index]
-                                .updateCharacteristic(Characteristic.enphaseAcBatterieCommLevel, value)
-                        };
-                    });
-                }
-
-
-                if (this.feature.qRelays.installed) {
-                    this.pv.qRelays.forEach((qRelay, index) => {
-                        const key = `${qRelay.serialNumber}`;
-                        const value = (plcLevel[key] ?? 0) * 20;
-
-                        //add qrelays comm level to qrelays and pv object
-                        this.pv.qRelays[index].commLevel = value;
-
-                        if (this.qRelaysServices) {
-                            this.qRelaysServices[index]
-                                .updateCharacteristic(Characteristic.enphaseQrelayCommLevel, value)
-                        };
-                    });
-                }
-
-                if (this.feature.encharges.installed) {
-                    this.ensemble.encharges.devices.forEach((encharge, index) => {
-                        const key = `${encharge.serialNumber}`;
-                        const value = (plcLevel[key] ?? 0) * 20;
-
-                        //add encharges comm level to ensemble and encharges object
-                        this.ensemble.encharges.devices[index].commLevel = value;
-
-                        if (this.enchargesServices) {
-                            this.enchargesServices[index]
-                                .updateCharacteristic(Characteristic.enphaseEnchargeCommLevel, value)
-                        }
-                    });
-                }
-
-                //update plc level control state
-                if (this.envoyService) {
-                    this.envoyService
-                        .updateCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel, false);
-                }
-
-                if (this.plcLevelActiveControlsCount > 0) {
-                    for (let i = 0; i < this.plcLevelActiveControlsCount; i++) {
-                        this.plcLevelActiveControls[i].state = false;
-
-                        if (this.plcLevelControlsServices) {
-                            const characteristicType = this.plcLevelActiveControls[i].characteristicType;
-                            this.plcLevelControlsServices[i]
-                                .updateCharacteristic(characteristicType, false)
-                        }
-                    }
-                }
-
-                //check comm level supported
-                this.feature.commLevel.supported = true;
-
-                //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('plclevel', plcLevel) : false;
-
-                //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'PLC Level', plcLevel) : false;
-                resolve(true);
-            } catch (error) {
-                reject(`Requesting plc level error: ${error}.`);
             };
         });
     };
@@ -5630,13 +5626,13 @@ class EnvoyDevice extends EventEmitter {
                             });
                         this.ensembleStatusService.getCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower)
                             .onGet(async () => {
-                                const value = this.ensemble.enchargesRatedPowerSum;
+                                const value = this.ensemble.encharges.ratedPowerSum;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble summary, encharges agg rated power: ${value} kW`);
                                 return value;
                             });
                         this.ensembleStatusService.getCharacteristic(Characteristic.enphaseEnsembleStatusEncAggPercentFull)
                             .onGet(async () => {
-                                const value = this.ensemble.enchargesPercentFullSum;
+                                const value = this.ensemble.encharges.percentFullSum;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Ensemble summary, encharges agg percent full: ${value} %`);
                                 return value;
                             });
@@ -5726,26 +5722,26 @@ class EnvoyDevice extends EventEmitter {
                         this.enphaseEnchargesSummaryLevelAndStateService.setCharacteristic(Characteristic.ConfiguredName, 'Encharges');
                         this.enphaseEnchargesSummaryLevelAndStateService.getCharacteristic(Characteristic.On)
                             .onGet(async () => {
-                                const state = this.ensemble.enchargesEnergyState;
+                                const state = this.ensemble.encharges.energyStateSum;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Encharges energy state: ${state ? 'Charged' : 'Discharged'}`);
                                 return state;
                             })
                             .onSet(async (state) => {
                                 try {
-                                    this.enphaseEnchargesSummaryLevelAndStateService.updateCharacteristic(Characteristic.On, this.ensemble.enchargesEnergyState);
+                                    this.enphaseEnchargesSummaryLevelAndStateService.updateCharacteristic(Characteristic.On, this.ensemble.encharges.energyStateSum);
                                 } catch (error) {
                                     this.emit('error', `Set Encharges energy state error: ${error}`);
                                 };
                             })
                         this.enphaseEnchargesSummaryLevelAndStateService.getCharacteristic(Characteristic.Brightness)
                             .onGet(async () => {
-                                const state = this.ensemble.enchargesPercentFullSum;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Encharges energy level: ${this.ensemble.enchargesPercentFullSum} %`);
+                                const state = this.ensemble.encharges.percentFullSum;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Encharges energy level: ${this.ensemble.encharges.percentFullSum} %`);
                                 return state;
                             })
                             .onSet(async (value) => {
                                 try {
-                                    this.enphaseEnchargesSummaryLevelAndStateService.updateCharacteristic(Characteristic.Brightness, this.ensemble.enchargesPercentFullSum);
+                                    this.enphaseEnchargesSummaryLevelAndStateService.updateCharacteristic(Characteristic.Brightness, this.ensemble.encharges.percentFullSum);
                                 } catch (error) {
                                     this.emit('error', `Set Encharges energy level error: ${error}`);
                                 };
