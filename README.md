@@ -93,12 +93,12 @@
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |
 | `supportPowerProductionState` | This enable support for `Power Production State` check, Fw. 7.x.x and newer require installer credentials data. |
-| `powerProductionStateControl` | This is `Power Production Control Tile` for production state fcontrol, Fw. 7.x.x and newer require installer credentials data.. |
+| `powerProductionStateControl` | This is `Power Production Control Tile` for production state control, Fw. 7.x.x and newer require installer credentials data. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
 | `namePrefix` | This enable the accessory name as a prefix for the tile name. |
-| `supportPlcLevel` | If enabled, check `PLC Level` for all devices will be possible, Fw. 7.x.x and newer require installer credentials data. |
-| `lcLevelControl` | This is `Plc Level Tile` for `Plc Communication Refresh` control from HomeKit. |
+| `supportPlcLevel` | This enable support for `PLC Level Check` for all devices, Fw. 7.x.x and newer require installer credentials data. |
+| `plcLevelControl` | This is `Plc Level Control Tile` for plc level check, Fw. 7.x.x and newer require installer credentials data |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
 | `namePrefix` | This enable the accessory name as a prefix for the tile name. |
