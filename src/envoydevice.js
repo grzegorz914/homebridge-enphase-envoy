@@ -1015,7 +1015,7 @@ class EnvoyDevice extends EventEmitter {
             const pushTimer5 = updateLiveData ? this.timers.push({ timerName: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
             this.impulseGenerator.start(this.timers);
         } catch (error) {
-            this.emit('errorStart', `Start error: ${error}`);
+            this.emit('error', `Start error: ${error}`);
         };
     };
 
@@ -1213,11 +1213,12 @@ class EnvoyDevice extends EventEmitter {
                 const debug1 = this.enableDebugMode ? this.emit('debug', `Parsed info: ${JSON.stringify(parseInfoData, null, 2)}`) : false;
 
                 //envoy info
-                const envoyInfo = parseInfoData.envoy_info;
+                const envoyInfo = parseInfoData.envoy_info ?? {};
                 const envoyKeys = Object.keys(envoyInfo);
 
                 //device
-                const envoyInfoDevice = envoyInfo.device;
+                const envoyInfoDevice = envoyInfo.device ?? {};
+                const envoyInfoBuildInfo = envoyInfo.build_info ?? {};
                 const envoy = {
                     time: new Date(envoyInfo.time * 1000).toLocaleString(),
                     serialNumber: this.envoySerialNumber ? this.envoySerialNumber : envoyInfoDevice.sn.toString(),
@@ -1229,29 +1230,13 @@ class EnvoyDevice extends EventEmitter {
                     apiVer: envoyInfoDevice.apiver,
                     imeter: envoyInfoDevice.imeter === true ?? false,
                     webTokens: envoyKeys.includes('web-tokens') ? envoyInfo['web-tokens'] === true : false,
-                    packages: [],
-                    buildInfo: {}
-                };
-
-                //packages
-                const envoyInfoPackages = envoyInfo.package;
-                for (const devPackage of envoyInfoPackages) {
-                    const infoPackage = {
-                        packagePn: devPackage.pn,
-                        packageVersion: devPackage.version,
-                        packageBuild: devPackage.build,
-                        packageName: devPackage.name,
+                    packages: envoyInfo.package ?? [],
+                    buildInfo: {
+                        buildId: envoyInfoBuildInfo.build_id,
+                        buildTimeQmt: new Date(envoyInfoBuildInfo.build_time_gmt * 1000).toLocaleString(),
+                        releaseVer: envoyInfoBuildInfo.release_ver ?? 'Unknown',
+                        releaseStage: envoyInfoBuildInfo.release_stage ?? 'Unknown'
                     }
-                    envoy.packages.push(infoPackage);
-                };
-
-                //build info
-                const envoyInfoBuildInfo = envoyInfo.build_info;
-                envoy.buildInfo = {
-                    buildId: envoyInfoBuildInfo.build_id,
-                    buildTimeQmt: new Date(envoyInfoBuildInfo.build_time_gmt * 1000).toLocaleString(),
-                    releaseVer: envoyInfoBuildInfo.release_ver ?? 'Unknown',
-                    releaseStage: envoyInfoBuildInfo.release_stage ?? 'Unknown'
                 };
 
                 //check serial number
@@ -1386,51 +1371,29 @@ class EnvoyDevice extends EventEmitter {
                 const primaryInterface = CONSTANTS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown';
                 const envoyNetworkInterfaces = envoyNework.interfaces ?? [];
                 const envoyNetworkInterfacesCount = envoyNetworkInterfaces.length;
-                for (let i = 0; i < envoyNetworkInterfacesCount; i++) {
-                    const envoyNetworkInterfacesValues = Object.values(envoyNetworkInterfaces[i]);
-                    const envoyInterfaceCellular = envoyNetworkInterfacesValues.includes('cellular');
-                    const envoyInterfaceLan = envoyNetworkInterfacesValues.includes('ethernet');
-                    const envoyInterfaceWlan = envoyNetworkInterfacesValues.includes('wifi');
-                    const envoyInterfaceStartIndex = envoyInterfaceCellular ? 1 : 0;
+                const envoyInterfaces = envoyNetworkInterfaces.map(networkInterface => {
+                    return {
+                        type: CONSTANTS.ApiCodes[networkInterface.type] ?? 'Unknown',
+                        interface: networkInterface.interface,
+                        mac: networkInterface.mac,
+                        dhcp: networkInterface.dhcp,
+                        ip: networkInterface.ip,
+                        signalStrength: networkInterface.signal_strength * 20,
+                        signalStrengthMax: networkInterface.signal_strength_max * 20,
+                        carrier: networkInterface.carrier === true ?? false,
+                        supported: networkInterface.supported ?? false,
+                        present: networkInterface.present ?? false,
+                        configured: networkInterface.configured ?? false,
+                        status: CONSTANTS.ApiCodes[networkInterface.status] ?? 'Unknown',
+                        stateCellular: networkInterface.type === 'cellular' ?? false,
+                        stateEthernet: networkInterface.type === 'ethernet' ?? false,
+                        stateWiFi: networkInterface.type === 'wifi' ?? false
+                    };
+                });
 
-                    if (envoyInterfaceCellular) {
-                        const envoyInterfaceSignalStrength = envoyNetworkInterfaces[0].signal_strength * 20;
-                        const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[0].signal_strength_max * 20;
-                        const envoyInterfaceNetwork = envoyNetworkInterfaces[0].network;
-                        const envoyInterfaceType = CONSTANTS.ApiCodes[envoyNetworkInterfaces[0].type] ?? 'Unknown';
-                        const envoyInterfaceInterface = envoyNetworkInterfaces[0].interface;
-                        const envoyInterfaceDhcp = envoyNetworkInterfaces[0].dhcp;
-                        const envoyInterfaceIp = envoyNetworkInterfaces[0].ip;
-                        const envoyInterfaceCarrier = envoyNetworkInterfaces[0].carrier === true;
-                        this.envoyInterfaceCellular = true;
-                    }
-                    if (envoyInterfaceLan) {
-                        const envoyInterfaceType = CONSTANTS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex].type] ?? 'Unknown';
-                        const envoyInterfaceInterface = envoyNetworkInterfaces[envoyInterfaceStartIndex].interface;
-                        const envoyInterfaceMac = envoyNetworkInterfaces[envoyInterfaceStartIndex].mac;
-                        const envoyInterfaceDhcp = envoyNetworkInterfaces[envoyInterfaceStartIndex].dhcp;
-                        const envoyInterfaceIp = envoyNetworkInterfaces[envoyInterfaceStartIndex].ip;
-                        const envoyInterfaceSignalStrength = envoyNetworkInterfaces[envoyInterfaceStartIndex].signal_strength * 20;
-                        const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[envoyInterfaceStartIndex].signal_strength_max * 20;
-                        const envoyInterfaceCarrier = envoyNetworkInterfaces[envoyInterfaceStartIndex].carrier === true;
-                        this.envoyInterfaceLan = true;
-                    }
-                    if (envoyInterfaceWlan) {
-                        const envoyInterfaceSignalStrenth = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength * 20;
-                        const envoyInterfaceSignalStrengthMax = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].signal_strength_max * 20;
-                        const envoyInterfaceType = CONSTANTS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].type] ?? 'Unknown';
-                        const envoyInterfaceInterface = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].interface;
-                        const envoyInterfaceMac = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].mac;
-                        const envoyInterfaceDhcp = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].dhcp;
-                        const envoyInterfaceIp = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].ip;
-                        const envoyInterfaceCarrier = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].carrier === true;
-                        const envoyInterfaceSupported = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].supported;
-                        const envoyInterfacePresent = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].present;
-                        const envoyInterfaceConfigured = envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].configured;
-                        const envoyInterfaceStatus = CONSTANTS.ApiCodes[envoyNetworkInterfaces[envoyInterfaceStartIndex + 1].status] ?? 'Unknown';
-                        this.envoyInterfaceWlan = true;
-                    }
-                }
+                this.envoyInterfaceCellular = envoyInterfaces.some(networkInterface => networkInterface.stateCellular);
+                this.envoyInterfaceLan = envoyInterfaces.some(networkInterface => networkInterface.stateEthernet);
+                this.envoyInterfaceWlan = envoyInterfaces.some(networkInterface => networkInterface.stateWiFi);
                 const tariff = CONSTANTS.ApiCodes[envoy.tariff] ?? 'Unknown';
 
                 //comm
@@ -2856,7 +2819,7 @@ class EnvoyDevice extends EventEmitter {
                         submodules: enpowerStatus.submodules
                     };
                     //add status to encharges
-                    this.ensemble.enpowers[index].status = status;
+                    this.ensemble.enpowers.devices[index].status = status;
                 });
 
                 //ensemble summary
@@ -3130,48 +3093,6 @@ class EnvoyDevice extends EventEmitter {
                 //add encharges settings to ensemble object
                 this.ensemble.encharges.settings = settings;
 
-                //update characteristics
-                if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
-                    for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
-                        const state = settings.selfConsumptionModeBool;
-                        this.generatorStateActiveControls[i].state = state;
-
-                        if (this.enchargeProfileSelfConsumptionActiveControlsServices) {
-                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
-                            this.enchargeProfileSelfConsumptionActiveControlsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                                .updateCharacteristic(Characteristic.Characteristic.Brightness, settings.reservedSoc)
-                        }
-                    }
-                }
-
-                if (this.enchargeProfileSavingsActiveControlsCount > 0) {
-                    for (let i = 0; i < this.enchargeProfileSavingsActiveControlsCount; i++) {
-                        const state = settings.savingsModeBool;
-                        this.generatorStateActiveControls[i].state = state;
-
-                        if (this.enchargeProfileSavingsActiveControlsServices) {
-                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
-                            this.enchargeProfileSavingsActiveControlsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                                .updateCharacteristic(Characteristic.Characteristic.Brightness, settings.reservedSoc)
-                        }
-                    }
-                }
-
-                if (this.enchargeProfileFullBackupActiveControlsCount > 0) {
-                    for (let i = 0; i < this.enchargeProfileFullBackupActiveControlsCount; i++) {
-                        const state = settings.fullBackupModeBool;
-                        this.generatorStateActiveControls[i].state = state;
-
-                        if (this.enchargeProfileFullBackupActiveControlsServices) {
-                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
-                            this.enchargeProfileFullBackupActiveControlsServices[i]
-                                .updateCharacteristic(characteristicType, state)
-                        }
-                    }
-                }
-
                 //encharges settings supported
                 this.feature.encharges.settings.supported = enchargeSettingsSupported;
 
@@ -3193,30 +3114,194 @@ class EnvoyDevice extends EventEmitter {
 
             try {
                 const tariffSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.TariffSettingsGetPut);
-                const tariffSettings = tariffSettingsData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Tariff: ${JSON.stringify(tariffSettings, null, 2)}`) : false;
+                const tariffDaata = tariffSettingsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Tariff: ${JSON.stringify(tariffDaata, null, 2)}`) : false;
 
                 //encharge keys
-                const tariffSettingsKeys = Object.keys(tariffSettings);
-                const tariffSupported = tariffSettingsKeys.includes('tariff');
+                const tariffSettingsKeys = Object.keys(tariffDaata);
+                const tariffDaataSupported = tariffSettingsKeys.length > 0;
 
                 //encharge settings not exist
-                if (!tariffSupported) {
+                if (!tariffDaataSupported) {
                     resolve(false);
                     return;
                 }
 
-                const tariffData = tariff.tariff
+                //tariff
+                const tariffSupported = tariffSettingsKeys.includes('tariff');
+                const tariffData = tariffDaata.tariff ?? {};
                 const tariff = {
-                    enable: tariffData.mode,
-                    selfConsumptionModeBool: tariffData.mode === 'self-consumption',
-                    fullBackupModeBool: tariffData.mode === 'backup',
-                    savingsModeBool: (tariffData.mode === 'savings-mode' || tariff.mode === 'economy'),
-                    operationModeSubType: tariffData.operation_mode_sub_type,
-                    reservedSoc: tariffData.reserved_soc,
-                    veryLowSoc: tariffData.very_low_soc,
-                    chargeFromGrid: tariffData.charge_from_grid,
-                    date: tariffData.date ?? new Date()
+                    currencyCode: tariffData.currecny.code,
+                    logger: tariffData.logger,
+                    date: tariffData.date
+                }
+
+                const storageSettingsSupported = tariffSettingsKeys.includes('storage_settings');
+                const storageSettingsData = tariffDaata.storage_settings ?? {};
+                const storageSettings = {
+                    enable: storageSettingsData.mode,
+                    selfConsumptionModeBool: storageSettingsData.mode === 'self-consumption',
+                    fullBackupModeBool: storageSettingsData.mode === 'backup',
+                    savingsModeBool: (storageSettingsData.mode === 'savings-mode' || tariff.mode === 'economy'),
+                    operationModeSubType: storageSettingsData.operation_mode_sub_type,
+                    reservedSoc: storageSettingsData.reserved_soc,
+                    veryLowSoc: storageSettingsData.very_low_soc,
+                    chargeFromGrid: storageSettingsData.charge_from_grid,
+                    date: new Date(storageSettingsData.date * 1000).toLocaleString() ?? ''
+                }
+
+                const singleRateSupported = tariffSettingsKeys.includes('single_rate');
+                const singleRateData = tariffDaata.single_Rate ?? {};
+                const singleRate = {
+                    rate: singleRateData.rate,
+                    sell: singleRateData.sell
+                }
+
+                const seasonsSupported = tariffSettingsKeys.includes('seasons');
+                const seasonsData = tariffDaata.seasons ?? [];
+                seasonsData.forEach((season, index) => {
+                    const id = season.id; //str fall, winter, spring, summer
+                    const start = season.start; //str 6/1
+                    const days = season.days ?? []; //arr
+
+                    //days
+                    for (const day of days) {
+                        const id = day.id; //str weekdays, weekend
+                        const days = day.days; //str Mon,Tue,Wed
+                        const mustChargeStart = day.must_charge_start; //float
+                        const mustChargeDuration = day.must_charge_duration; //float
+                        const mustChargeNode = day.must_charge_node; //str CP
+                        const peakRule = day.peak_rule; //str DL
+                        const enableDischargeToGrid = day.enable_discharge_to_grid; //bool false
+                        const periods = day.periods ?? []; //arr
+
+                        //periods
+                        for (const period of periods) {
+                            const id = day.id; //str period_3
+                            const start = day.start; //float 0
+                            const rate = day.must_charge_start; //float 0.36
+                        }
+                    }
+                    const tiers = season.tiers ?? []; //arr
+                })
+
+                const seasonsSellSupported = tariffSettingsKeys.includes('seasons_sell');
+                const seasonsSellData = tariffDaata.seasons_sell ?? [];
+                seasonsSellData.forEach((season, index) => {
+                    const id = season.id; //str fall, winter, spring, summer
+                    const start = season.start; //str 6/1
+                    const days = season.days ?? []; //arr
+
+                    //days
+                    for (const day of days) {
+                        const id = day.id; //str weekdays, weekend
+                        const days = day.days; //str Mon,Tue,Wed
+                        const mustChargeStart = day.must_charge_start; //float
+                        const mustChargeDuration = day.must_charge_duration; //float
+                        const mustChargeNode = day.must_charge_node; //str CP
+                        const peakRule = day.peak_rule; //str DL
+                        const enableDischargeToGrid = day.enable_discharge_to_grid; //bool false
+                        const periods = day.periods ?? []; //arr
+
+                        //periods
+                        for (const period of periods) {
+                            const id = day.id; //str period_3
+                            const start = day.start; //float 0
+                            const rate = day.must_charge_start; //float 0.36
+                        }
+                    }
+                    const tiers = season.tiers ?? []; //arr
+                })
+
+                const scheduleSupported = tariffSettingsKeys.includes('schedule');
+                const scheduleData = tariffDaata.schedule ?? [];
+                const fileName = scheduleData.filename;
+                const source = scheduleData.source;
+                const version = scheduleData.version;
+                const reservedSoc = scheduleData.reserved_soc;
+                const veryLowSoc = scheduleData.very_low_soc;
+                const chargeFromGrid = scheduleData.charge_from_grid;
+                const battMode = scheduleData.batt_mode;
+                const batteryMode = scheduleData.battery_mode;
+                const operationModeSubType = scheduleData.operation_mode_sub_type;
+                const override = scheduleData.override;
+                const overrideBackupSoc = scheduleData.override_backup_soc;
+                const overrideChgDischargeRate = scheduleData.override_chg_discharge_rate;
+                const overrideTouMode = scheduleData.override_tou_mode;
+
+                const schedule = scheduleData.schedule ?? {};
+                for (const [category, periods] of Object.entries(schedule)) {
+                    for (const period of periods) {
+
+                        // disable
+                        if (category === "Disable") {
+                            for (const day of periods) {
+                                for (const [dayName, dayDetails] of Object.entries(day)) {
+                                    for (const detail of dayDetails) {
+                                        const start = detail.start; // float 0
+                                        const duration = detail.duration; // float 1440
+                                        const setting = detail.setting; // str ID or ZN
+                                    }
+                                }
+                            }
+                        }
+
+                        //tariff
+                        if (category === "tariff") {
+                            const { start: periodStart, end: periodEnd, ...days } = period;
+
+                            for (const [dayName, dayDetails] of Object.entries(days)) {
+                                for (const detail of dayDetails) {
+                                    const start = detail.start; // float 0
+                                    const duration = detail.duration; // float 1440
+                                    const setting = detail.setting; // str ID or ZN
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                //update characteristics
+                if (this.enchargeProfileSelfConsumptionActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileSelfConsumptionActiveControlsCount; i++) {
+                        const state = storageSettings.selfConsumptionModeBool;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileSelfConsumptionActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileSelfConsumptionActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                                .updateCharacteristic(Characteristic.Characteristic.Brightness, settings.reservedSoc)
+                        }
+                    }
+                }
+
+                if (this.enchargeProfileSavingsActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileSavingsActiveControlsCount; i++) {
+                        const state = storageSettings.savingsModeBool;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileSavingsActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileSavingsActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                                .updateCharacteristic(Characteristic.Characteristic.Brightness, settings.reservedSoc)
+                        }
+                    }
+                }
+
+                if (this.enchargeProfileFullBackupActiveControlsCount > 0) {
+                    for (let i = 0; i < this.enchargeProfileFullBackupActiveControlsCount; i++) {
+                        const state = storageSettings.fullBackupModeBool;
+                        this.generatorStateActiveControls[i].state = state;
+
+                        if (this.enchargeProfileFullBackupActiveControlsServices) {
+                            const characteristicType = this.generatorStateActiveControls[i].characteristicType;
+                            this.enchargeProfileFullBackupActiveControlsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
                 }
 
                 //add tariff to ensemble object
@@ -3226,10 +3311,10 @@ class EnvoyDevice extends EventEmitter {
                 this.feature.encharges.tariff.supported = tariffSupported;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('tariff', tariffSettings) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('tariff', tariffDaata) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Tariff', tariffSettings) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Tariff', tariffDaata) : false;
                 resolve(true);
             } catch (error) {
                 reject(`Requesting tariff. error: ${error}.`);

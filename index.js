@@ -105,19 +105,9 @@ class EnvoyPlatform {
           .on('error', async (error) => {
             const match = error.match(STATUSCODEREGEX);
             const tokenNotValid = envoyFirmware7xx && match && match[1] === '401';
-            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}.`);
+            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15s.`);
 
-            //start read data
-            if (tokenNotValid) {
-              envoyDevice.impulseGenerator.stop();
-              await new Promise(resolve => setTimeout(resolve, 15000));
-              envoyDevice.start();
-            }
-          })
-          .on('errorStart', async (error) => {
-            log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15s.`);
-
-            //start read data
+            envoyDevice.impulseGenerator.stop();
             await new Promise(resolve => setTimeout(resolve, 15000));
             envoyDevice.start();
           })
@@ -2788,20 +2778,20 @@ module.exports = (api) => {
   }
   Service.enphaseLiveDataService = enphaseLiveDataService;
 
-//generator
-class enphaseEnsembleGeneratorAdminMode extends Characteristic {
-  constructor() {
-    super('Admin mode', '00000250-000B-1000-8000-0026BB765291');
-    this.setProps({
-      format: Formats.STRING,
-      perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-    });
-    this.value = this.getDefaultValue();
+  //generator
+  class enphaseEnsembleGeneratorAdminMode extends Characteristic {
+    constructor() {
+      super('Admin mode', '00000250-000B-1000-8000-0026BB765291');
+      this.setProps({
+        format: Formats.STRING,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    }
   }
-}
-Characteristic.enphaseEnsembleGeneratorAdminMode = enphaseEnsembleGeneratorAdminMode;
+  Characteristic.enphaseEnsembleGeneratorAdminMode = enphaseEnsembleGeneratorAdminMode;
 
-class enphaseEnsembleGeneratorType extends Characteristic {
+  class enphaseEnsembleGeneratorType extends Characteristic {
     constructor() {
       super('Type', '00000251-000B-1000-8000-0026BB765291');
       this.setProps({
