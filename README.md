@@ -67,8 +67,9 @@
     * Encharge Profile:
       * Self Consumption `Activate`, `Set Reserve`.
       * Savings `Activate`, `Set Reserve`.
+      * Economy `Activate`, `Set Reserve`.
       * Full Backup `Activate`.
-    * Generator `State`.
+    * Generator `State`, `Set Reserve`.
 
 ### Configuration
 
@@ -176,18 +177,10 @@
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `enchargeProfileSelfConsumptionControl` | This is `Encharge Self Consumption Tile` for `Profile` control from HomeKit. |
+| `enchargeProfileControl` | This is `Encharge Profile Tile` for `Profile` control from HomeKit. |
 | `name` | Here set Your own tile name. |
+| `profile` | Here select the profile `Savings`, `Economy`, `Full Backup`, `Self Consumption`. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
-| `enchargeProfileSavingsControl` | This is `Encharge Savings Tile` for `Profile` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
-| `enchargeProfileFullBackupControl` | This is `Full Backup Tile` for `Profile` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
 | `enchargeGridModeSensors` | That are `Encharge Grid Mode Sensors` for `Encharge Grid Mod` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`. |

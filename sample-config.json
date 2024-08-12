@@ -153,21 +153,14 @@
                         "displayType": 0,
                         "namePrefix": false
                     },
-                    "enchargeProfileSelfConsumptionControl": {
-                        "name": "Control name",
-                        "displayType": 0,
-                        "namePrefix": false
-                    },
-                    "enchargeProfileSavingsControl": {
-                        "name": "Control name",
-                        "displayType": 0,
-                        "namePrefix": false
-                    },
-                    "enchargeProfileFullBackupControl": {
-                        "name": "Control name",
-                        "displayType": 0,
-                        "namePrefix": false
-                    },
+                    "enchargeProfileControl": [
+                        {
+                            "name": "Tile name",
+                            "profile": "self-consumption",
+                            "displayType": 0,
+                            "namePrefix": false
+                        }
+                    ],
                     "enchargeGridModeSensors": [
                         {
                             "name": "Sensor name",
@@ -213,11 +206,6 @@
                             "namePrefix": false
                         }
                     ],
-                    "enchargeProfileControl": {
-                        "name": "Control name",
-                        "displayType": 0,
-                        "namePrefix": false
-                    },
                     "dataRefreshControl": {
                         "name": "Control name",
                         "displayType": 0,

@@ -1020,134 +1020,82 @@
               },
               "required": false
             },
-            "enchargeProfileSelfConsumptionControl": {
-              "title": "Self Consumption",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Name",
-                  "type": "string",
-                  "placeholder": "Tile name",
-                  "description": "Here set Your own tile name.",
-                  "required": false
-                },
-                "displayType": {
-                  "title": "Type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 1,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Lightbulb",
-                      "enum": [
-                        1
-                      ]
-                    }
-                  ],
-                  "description": "Select the tile type to be displayed in HomeKit.",
-                  "required": true
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the tile name.",
-                  "required": false
+            "enchargeProfileControl": {
+              "title": "Profile Control",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Tile name",
+                    "description": "Here set Your own tile name.",
+                    "required": false
+                  },
+                  "profile": {
+                    "title": "Profile",
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "title": "Savings",
+                        "enum": [
+                          "savings-mode"
+                        ]
+                      },
+                      {
+                        "title": "Economy",
+                        "enum": [
+                          "economy"
+                        ]
+                      },
+                      {
+                        "title": "Full Backup",
+                        "enum": [
+                          "backup"
+                        ]
+                      },
+                      {
+                        "title": "Self Consumption",
+                        "enum": [
+                          "self-consumption"
+                        ]
+                      }
+                    ],
+                    "description": "Here select the grid mode.",
+                    "required": true
+                  },
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Lightbulb",
+                        "enum": [
+                          1
+                        ]
+                      }
+                    ],
+                    "description": "Select the tile type to be displayed in HomeKit.",
+                    "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable the accessory name as a prefix for the tile name.",
+                    "required": false
+                  }
                 }
-              }
-            },
-            "enchargeProfileSavingsControl": {
-              "title": "Savings",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Name",
-                  "type": "string",
-                  "placeholder": "Tile name",
-                  "description": "Here set Your own tile name.",
-                  "required": false
-                },
-                "displayType": {
-                  "title": "Type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 1,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Lightbulb",
-                      "enum": [
-                        1
-                      ]
-                    }
-                  ],
-                  "description": "Select the tile type to be displayed in HomeKit.",
-                  "required": true
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the tile name.",
-                  "required": false
-                }
-              }
-            },
-            "enchargeProfileFullBackupControl": {
-              "title": "Full Backup",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Name",
-                  "type": "string",
-                  "placeholder": "Tile name",
-                  "description": "Here set Your own tile name.",
-                  "required": false
-                },
-                "displayType": {
-                  "title": "Type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 2,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Switch",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Outlet",
-                      "enum": [
-                        2
-                      ]
-                    }
-                  ],
-                  "description": "Select the tile type to be displayed in HomeKit.",
-                  "required": true
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the tile name.",
-                  "required": false
-                }
-              }
+              },
+              "required": false
             },
             "enchargeGridModeSensors": {
               "title": "Encharge Grid Sensors",
@@ -2586,43 +2534,20 @@
                             {
                               "key": "devices[]",
                               "type": "section",
-                              "title": "Profile",
-                              "description": "In this section You can enable extra tile for encharge profile control.",
+                              "title": "Profile Control",
+                              "description": "In this section You can create encharge profile control.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
                                 {
-                                  "key": "devices[]",
+                                  "key": "devices[].enchargeProfileControl",
                                   "type": "tabarray",
-                                  "title": "{{ value.title }}",
+                                  "title": "{{ value.name || 'control' }}",
                                   "items": [
-                                    {
-                                      "key": "devices[].enchargeProfileSelfConsumptionControl",
-                                      "title": "Self Consumption",
-                                      "items": [
-                                        "devices[].enchargeProfileSelfConsumptionControl.name",
-                                        "devices[].enchargeProfileSelfConsumptionControl.displayType",
-                                        "devices[].enchargeProfileSelfConsumptionControl.namePrefix"
-                                      ]
-                                    },
-                                    {
-                                      "key": "devices[].enchargeProfileSavingsControl",
-                                      "title": "Savings",
-                                      "items": [
-                                        "devices[].enchargeProfileSavingsControl.name",
-                                        "devices[].enchargeProfileSavingsControl.displayType",
-                                        "devices[].enchargeProfileSavingsControl.namePrefix"
-                                      ]
-                                    },
-                                    {
-                                      "key": "devices[].enchargeProfileFullBackupControl",
-                                      "title": "Full Backup",
-                                      "items": [
-                                        "devices[].enchargeProfileFullBackupControl.name",
-                                        "devices[].enchargeProfileFullBackupControl.displayType",
-                                        "devices[].enchargeProfileFullBackupControl.namePrefix"
-                                      ]
-                                    }
+                                    "devices[].enchargeProfileControl[].name",
+                                    "devices[].enchargeProfileControl[].profile",
+                                    "devices[].enchargeProfileControl[].displayType",
+                                    "devices[].enchargeProfileControl[].namePrefix"
                                   ]
                                 }
                               ]
