@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - support for Homebridge v2.0.0
 - full code refactor
 - RESTFul and MQTT config refactor
+- renamed config properties, `supportProductionPowerMode` to `supportPowerProductionState`
+- renamed config properties, `powerProductionControl` to `powerProductionStateControl`
 * system data refresh
    - added native control from home app as a extra tile
    - added control direct from envoy section, 3rd party app
@@ -37,8 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - added state sensor
    - added profile native control from home app as a extra tile  
 * other changes  
-   - renamed config properties, `supportProductionPowerMode` to `supportPowerProductionState`
-   - renamed config properties, `powerProductionControl` to `powerProductionStateControl`
    - added possibility to enable accessory name as a prefix for all services
    - stability and performance improvements
    - dependencies updated
