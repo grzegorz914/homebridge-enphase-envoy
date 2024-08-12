@@ -966,60 +966,6 @@
               },
               "required": false
             },
-            "enchargeStateSensor": {
-              "title": "State Sensor",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
-                  "required": false
-                },
-                "displayType": {
-                  "title": "Type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Motion Sensor",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Occupancy Sensor",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Contact Sensor",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
-                  "required": true
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
-                  "required": false
-                }
-              },
-              "required": false
-            },
             "enchargeProfileControl": {
               "title": "Profile Control",
               "type": "array",
@@ -1093,6 +1039,60 @@
                     "description": "This enable the accessory name as a prefix for the tile name.",
                     "required": false
                   }
+                }
+              },
+              "required": false
+            },
+            "enchargeStateSensor": {
+              "title": "State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Here set Your own sensor name.",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "required": false
                 }
               },
               "required": false
@@ -2466,48 +2466,55 @@
                             "devices[].enpowerDryContactsControl",
                             "devices[].enpowerDryContactsSensors",
                             {
-                              "key": "devices[].enpowerGridStateControl",
-                              "type": "section",
-                              "title": "Grid State Control",
-                              "description": "In this section You can enable extra tile for grid state control.",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].enpowerGridStateControl.name",
-                                "devices[].enpowerGridStateControl.displayType",
-                                "devices[].enpowerGridStateControl.namePrefix"
-                              ]
-                            },
-                            {
-                              "key": "devices[].enpowerGridStateSensor",
-                              "type": "section",
-                              "title": "Grid State Sensor",
-                              "description": "In this section You can enable sensor for grid state monitoring.",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].enpowerGridStateSensor.name",
-                                "devices[].enpowerGridStateSensor.displayType",
-                                "devices[].enpowerGridStateSensor.namePrefix"
-                              ]
-                            },
-                            {
                               "key": "devices[]",
-                              "type": "section",
-                              "title": "Grid Mode Sensors",
-                              "description": "In this section You can create sensors for grid mode monitoring.",
-                              "expandable": true,
-                              "expanded": false,
+                              "type": "tabarray",
+                              "title": "{{ value.title }}",
                               "items": [
                                 {
-                                  "key": "devices[].enpowerGridModeSensors",
-                                  "type": "tabarray",
-                                  "title": "{{ value.name || 'sensor' }}",
+                                  "key": "devices[].enpowerGridStateControl",
+                                  "type": "section",
+                                  "title": "Grid State Control",
+                                  "description": "In this section You can enable extra tile for grid state control.",
+                                  "expandable": true,
+                                  "expanded": false,
                                   "items": [
-                                    "devices[].enpowerGridModeSensors[].name",
-                                    "devices[].enpowerGridModeSensors[].gridMode",
-                                    "devices[].enpowerGridModeSensors[].displayType",
-                                    "devices[].enpowerGridModeSensors[].namePrefix"
+                                    "devices[].enpowerGridStateControl.name",
+                                    "devices[].enpowerGridStateControl.displayType",
+                                    "devices[].enpowerGridStateControl.namePrefix"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[].enpowerGridStateSensor",
+                                  "type": "section",
+                                  "title": "Grid State Sensor",
+                                  "description": "In this section You can enable sensor for grid state monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    "devices[].enpowerGridStateSensor.name",
+                                    "devices[].enpowerGridStateSensor.displayType",
+                                    "devices[].enpowerGridStateSensor.namePrefix"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Grid Mode Sensors",
+                                  "description": "In this section You can create sensors for grid mode monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    {
+                                      "key": "devices[].enpowerGridModeSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].enpowerGridModeSensors[].name",
+                                        "devices[].enpowerGridModeSensors[].gridMode",
+                                        "devices[].enpowerGridModeSensors[].displayType",
+                                        "devices[].enpowerGridModeSensors[].namePrefix"
+                                      ]
+                                    }
                                   ]
                                 }
                               ]
@@ -2519,78 +2526,85 @@
                           "title": "Encharge",
                           "items": [
                             {
-                              "key": "devices[].enchargeStateSensor",
-                              "type": "section",
-                              "title": "State Sensor",
-                              "description": "In this section You can enable sensor for encharges state monitoring.",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].enchargeStateSensor.name",
-                                "devices[].enchargeStateSensor.displayType",
-                                "devices[].enchargeStateSensor.namePrefix"
-                              ]
-                            },
-                            {
                               "key": "devices[]",
-                              "type": "section",
-                              "title": "Profile Control",
-                              "description": "In this section You can create encharge profile control.",
-                              "expandable": true,
-                              "expanded": false,
+                              "type": "tabarray",
+                              "title": "{{ value.title }}",
                               "items": [
                                 {
-                                  "key": "devices[].enchargeProfileControl",
-                                  "type": "tabarray",
-                                  "title": "{{ value.name || 'control' }}",
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Profile Control",
+                                  "description": "In this section You can create encharge profile control.",
+                                  "expandable": true,
+                                  "expanded": false,
                                   "items": [
-                                    "devices[].enchargeProfileControl[].name",
-                                    "devices[].enchargeProfileControl[].profile",
-                                    "devices[].enchargeProfileControl[].displayType",
-                                    "devices[].enchargeProfileControl[].namePrefix"
+                                    {
+                                      "key": "devices[].enchargeProfileControl",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'control' }}",
+                                      "items": [
+                                        "devices[].enchargeProfileControl[].name",
+                                        "devices[].enchargeProfileControl[].profile",
+                                        "devices[].enchargeProfileControl[].displayType",
+                                        "devices[].enchargeProfileControl[].namePrefix"
+                                      ]
+                                    }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "key": "devices[]",
-                              "type": "section",
-                              "title": "Grid Mode Sensors",
-                              "description": "In this section You can enable sensor for grid mode monitoring.",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
+                                },
                                 {
-                                  "key": "devices[].enchargeGridModeSensors",
-                                  "type": "tabarray",
-                                  "title": "{{ value.name || 'sensor' }}",
+                                  "key": "devices[].enchargeStateSensor",
+                                  "type": "section",
+                                  "title": "State Sensor",
+                                  "description": "In this section You can enable sensor for encharges state monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
                                   "items": [
-                                    "devices[].enchargeGridModeSensors[].name",
-                                    "devices[].enchargeGridModeSensors[].gridMode",
-                                    "devices[].enchargeGridModeSensors[].displayType",
-                                    "devices[].enchargeGridModeSensors[].namePrefix"
+                                    "devices[].enchargeStateSensor.name",
+                                    "devices[].enchargeStateSensor.displayType",
+                                    "devices[].enchargeStateSensor.namePrefix"
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "key": "devices[]",
-                              "type": "section",
-                              "title": "Backup Level Sensors",
-                              "description": "In this section You can enable sensor for backup level monitoring.",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
+                                },
                                 {
-                                  "key": "devices[].enchargeBackupLevelSensors",
-                                  "type": "tabarray",
-                                  "title": "{{ value.name || 'sensor' }}",
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Grid Mode Sensors",
+                                  "description": "In this section You can enable sensor for grid mode monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
                                   "items": [
-                                    "devices[].enchargeBackupLevelSensors[].name",
-                                    "devices[].enchargeBackupLevelSensors[].compareMode",
-                                    "devices[].enchargeBackupLevelSensors[].backupLevel",
-                                    "devices[].enchargeBackupLevelSensors[].displayType",
-                                    "devices[].enchargeBackupLevelSensors[].namePrefix"
+                                    {
+                                      "key": "devices[].enchargeGridModeSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].enchargeGridModeSensors[].name",
+                                        "devices[].enchargeGridModeSensors[].gridMode",
+                                        "devices[].enchargeGridModeSensors[].displayType",
+                                        "devices[].enchargeGridModeSensors[].namePrefix"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Backup Level Sensors",
+                                  "description": "In this section You can enable sensor for backup level monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    {
+                                      "key": "devices[].enchargeBackupLevelSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].enchargeBackupLevelSensors[].name",
+                                        "devices[].enchargeBackupLevelSensors[].compareMode",
+                                        "devices[].enchargeBackupLevelSensors[].backupLevel",
+                                        "devices[].enchargeBackupLevelSensors[].displayType",
+                                        "devices[].enchargeBackupLevelSensors[].namePrefix"
+                                      ]
+                                    }
                                   ]
                                 }
                               ]
@@ -2603,21 +2617,28 @@
                           "items": [
                             {
                               "key": "devices[]",
-                              "type": "section",
-                              "title": "Grid Mode Sensors",
-                              "description": "In this section You can enable sensor for grid mode monitoring.",
-                              "expandable": true,
-                              "expanded": false,
+                              "type": "tabarray",
+                              "title": "{{ value.title }}",
                               "items": [
                                 {
-                                  "key": "devices[].solarGridModeSensors",
-                                  "type": "tabarray",
-                                  "title": "{{ value.name || 'sensor' }}",
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Grid Mode Sensors",
+                                  "description": "In this section You can enable sensor for grid mode monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
                                   "items": [
-                                    "devices[].solarGridModeSensors[].name",
-                                    "devices[].solarGridModeSensors[].gridMode",
-                                    "devices[].solarGridModeSensors[].displayType",
-                                    "devices[].solarGridModeSensors[].namePrefix"
+                                    {
+                                      "key": "devices[].solarGridModeSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].solarGridModeSensors[].name",
+                                        "devices[].solarGridModeSensors[].gridMode",
+                                        "devices[].solarGridModeSensors[].displayType",
+                                        "devices[].solarGridModeSensors[].namePrefix"
+                                      ]
+                                    }
                                   ]
                                 }
                               ]
@@ -2629,48 +2650,55 @@
                           "title": "Generator",
                           "items": [
                             {
-                              "key": "devices[].generatorStateControl",
-                              "type": "section",
-                              "title": "State Control",
-                              "description": "In this section You can enable extra tile for state control.",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].generatorStateControl.name",
-                                "devices[].generatorStateControl.displayType",
-                                "devices[].generatorStateControl.namePrefix"
-                              ]
-                            },
-                            {
-                              "key": "devices[].generatorStateSensor",
-                              "type": "section",
-                              "title": "State Sensor",
-                              "description": "In this section You can enable sensor state monitoring.",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].generatorStateSensor.name",
-                                "devices[].generatorStateSensor.displayType",
-                                "devices[].generatorStateSensor.namePrefix"
-                              ]
-                            },
-                            {
                               "key": "devices[]",
-                              "type": "section",
-                              "title": "Mode Sensors",
-                              "description": "In this section You can create sensors mode monitoring.",
-                              "expandable": true,
-                              "expanded": false,
+                              "type": "tabarray",
+                              "title": "{{ value.title }}",
                               "items": [
                                 {
-                                  "key": "devices[].generatorModeSensors",
-                                  "type": "tabarray",
-                                  "title": "{{ value.name || 'sensor' }}",
+                                  "key": "devices[].generatorStateControl",
+                                  "type": "section",
+                                  "title": "State Control",
+                                  "description": "In this section You can enable extra tile for state control.",
+                                  "expandable": true,
+                                  "expanded": false,
                                   "items": [
-                                    "devices[].generatorModeSensors[].name",
-                                    "devices[].generatorModeSensors[].mode",
-                                    "devices[].generatorModeSensors[].displayType",
-                                    "devices[].generatorModeSensors[].namePrefix"
+                                    "devices[].generatorStateControl.name",
+                                    "devices[].generatorStateControl.displayType",
+                                    "devices[].generatorStateControl.namePrefix"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[].generatorStateSensor",
+                                  "type": "section",
+                                  "title": "State Sensor",
+                                  "description": "In this section You can enable sensor state monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    "devices[].generatorStateSensor.name",
+                                    "devices[].generatorStateSensor.displayType",
+                                    "devices[].generatorStateSensor.namePrefix"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Mode Sensors",
+                                  "description": "In this section You can create sensors mode monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    {
+                                      "key": "devices[].generatorModeSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].generatorModeSensors[].name",
+                                        "devices[].generatorModeSensors[].mode",
+                                        "devices[].generatorModeSensors[].displayType",
+                                        "devices[].generatorModeSensors[].namePrefix"
+                                      ]
+                                    }
                                   ]
                                 }
                               ]
