@@ -32,7 +32,7 @@
 * Envoy `password` is detected automatically or can be added in config if was already chenged by user.
 * Installer `password` is generated automatically, only Fw. <= v5.x.x.
 * Envoy `device ID` is detected automatically.
-* Support `Production Power Mode` and `PLC Level`, Fw. 7.x.x and newer require installer credentials data.
+* Support [Power Production State]https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control] and `PLC Level`, Fw. 7.x.x and newer require installer credentials data.
 * For best experiences and display all data please use `Controller` or `EVE` app.
 * Support external integrations, [RESTFul](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration), [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
 * Supported devices:
@@ -92,7 +92,7 @@
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |
-| `supportPowerProductionState` | This enable support for `Power Production State` check, Fw. 7.x.x and newer require installer credentials data. |
+| `supportPowerProductionState` | This enable support for [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) check, Fw. 7.x.x and newer require installer credentials data. |
 | `powerProductionStateControl` | This is `Power Production Control Tile` for production state control, Fw. 7.x.x and newer require installer credentials data. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
