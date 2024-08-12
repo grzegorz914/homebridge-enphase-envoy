@@ -36,7 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * encharge:   
    - added state sensor
    - added profile native control from home app as a extra tile  
-* other changes   
+* other changes  
+   - renamed config properties, `supportProductionPowerMode` to `supportPowerProductionState`
+   - renamed config properties, `powerProductionControl` to `powerProductionStateControl`
    - added possibility to enable accessory name as a prefix for all services
    - stability and performance improvements
    - dependencies updated
