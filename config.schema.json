@@ -2719,42 +2719,49 @@
                     "devices[].disableLogDeviceInfo",
                     {
                       "key": "devices[]",
-                      "type": "section",
-                      "title": "Data Refresh",
-                      "description": "In this section You can set indyvidual data refesh time for devices.",
-                      "expandable": true,
-                      "expanded": false,
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
                       "items": [
-                        "devices[].metersDataRefreshTime",
-                        "devices[].productionDataRefreshTime",
-                        "devices[].liveDataRefreshTime",
-                        "devices[].ensembleDataRefreshTime"
-                      ]
-                    },
-                    {
-                      "key": "devices[].dataRefreshControl",
-                      "type": "section",
-                      "title": "Data Refresh Control",
-                      "description": "In this section You can enable extra tile for data refresh control.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].dataRefreshControl.name",
-                        "devices[].dataRefreshControl.displayType",
-                        "devices[].dataRefreshControl.namePrefix"
-                      ]
-                    },
-                    {
-                      "key": "devices[].dataRefreshSensor",
-                      "type": "section",
-                      "title": "Data Refresh Sensor",
-                      "description": "In this section You can enable sensor for data refresh monitoring.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].dataRefreshSensor.name",
-                        "devices[].dataRefreshSensor.displayType",
-                        "devices[].dataRefreshSensor.namePrefix"
+                        {
+                          "key": "devices[]",
+                          "type": "section",
+                          "title": "Data Refresh",
+                          "description": "In this section You can set indyvidual data refesh time for devices.",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].metersDataRefreshTime",
+                            "devices[].productionDataRefreshTime",
+                            "devices[].liveDataRefreshTime",
+                            "devices[].ensembleDataRefreshTime"
+                          ]
+                        },
+                        {
+                          "key": "devices[].dataRefreshControl",
+                          "type": "section",
+                          "title": "Data Refresh Control",
+                          "description": "In this section You can enable extra tile for data refresh control.",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].dataRefreshControl.name",
+                            "devices[].dataRefreshControl.displayType",
+                            "devices[].dataRefreshControl.namePrefix"
+                          ]
+                        },
+                        {
+                          "key": "devices[].dataRefreshSensor",
+                          "type": "section",
+                          "title": "Data Refresh Sensor",
+                          "description": "In this section You can enable sensor for data refresh monitoring.",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].dataRefreshSensor.name",
+                            "devices[].dataRefreshSensor.displayType",
+                            "devices[].dataRefreshSensor.namePrefix"
+                          ]
+                        }
                       ]
                     }
                   ]

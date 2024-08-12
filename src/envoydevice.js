@@ -2432,8 +2432,8 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const powerProductionStateData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
-                const powerProductionState = powerProductionStateData.data ?? {};
+                const productionPowerStateData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
+                const powerProductionState = productionPowerStateData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(powerProductionState, null, 2)}`) : false;
 
                 //production power mode
@@ -3919,8 +3919,8 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                const powerProductionStateData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
-                const debug = this.enableDebugMode ? this.emit('debug', `Set power produstion state: ${JSON.stringify(powerProductionStateData.data, null, 2)}`) : false;
+                const productionPowerStateData = this.envoyFirmware7xx ? await this.axiosInstance(powerModeUrl) : await this.digestAuthInstaller.request(powerModeUrl, options);
+                const debug = this.enableDebugMode ? this.emit('debug', `Set power produstion state: ${JSON.stringify(productionPowerStateData.data, null, 2)}`) : false;
                 resolve(true);
             } catch (error) {
                 reject(`Set production power mode error: ${error}.`);
