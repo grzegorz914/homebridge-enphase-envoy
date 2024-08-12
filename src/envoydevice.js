@@ -688,10 +688,7 @@ class EnvoyDevice extends EventEmitter {
 
         //pv object
         this.pv = {
-            envoy: {
-                home: {}
-            },
-            wirelessConnektions: [],
+            envoy: {},
             microinverters: [],
             qRelays: [],
             acBatteries: {
@@ -1203,7 +1200,7 @@ class EnvoyDevice extends EventEmitter {
                 //device
                 const envoyInfoDevice = envoyInfo.device ?? {};
                 const envoyInfoBuildInfo = envoyInfo.build_info ?? {};
-                const envoy = {
+                this.pv.envoy = {
                     time: new Date(envoyInfo.time * 1000).toLocaleString(),
                     serialNumber: this.envoySerialNumber ? this.envoySerialNumber : envoyInfoDevice.sn.toString(),
                     partNumber: envoyInfoDevice.pn,
@@ -1221,22 +1218,18 @@ class EnvoyDevice extends EventEmitter {
                         releaseVer: envoyInfoBuildInfo.release_ver ?? 'Unknown',
                         releaseStage: envoyInfoBuildInfo.release_stage ?? 'Unknown'
                     },
-                    arfProfileName: this.pv.arfProfile.name,
-                    home: {}
+                    arfProfileName: this.pv.arfProfile.name
                 };
 
                 //check serial number
-                if (!envoy.serialNumber) {
+                if (!this.pv.envoy.serialNumber) {
                     reject(`Envoy serial number missing: ${serialNumber}.`);
                     return;
                 };
 
-                //add envoy to pv object
-                this.pv.envoy = envoy;
-
                 //envoy installed and meters supported
                 this.feature.envoy.installed = true;
-                this.feature.meters.supported = envoy.imeter;
+                this.feature.meters.supported = this.pv.envoy.imeter;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('info', parseInfoData) : false;
@@ -1342,22 +1335,28 @@ class EnvoyDevice extends EventEmitter {
 
                 //envoy
                 const softwareBuildEpoch = new Date(envoy.software_build_epoch * 1000).toLocaleString();
-                const isEnvoy = envoy.is_nonvoy === false ?? true;
-                const dbSize = envoy.db_size ?? 0;
-                const dbPercentFull = envoy.db_percent_full ?? 0;
-                const timeZone = envoy.timezone;
-                const currentDate = new Date(envoy.current_date).toLocaleString().slice(0, 11);
-                const currentTime = envoy.current_time;
+                const home = {};
+                home.isEnvoy = envoy.is_nonvoy === false ?? true;
+                home.dbSize = envoy.db_size ?? 0;
+                home.dbPercentFull = envoy.db_percent_full ?? 0;
+                home.timeZone = envoy.timezone;
+                home.currentDate = new Date(envoy.current_date).toLocaleString().slice(0, 11);
+                home.currentTime = envoy.current_time;
+                home.tariff = CONSTANTS.ApiCodes[envoy.tariff] ?? 'Unknown';
 
                 //network
                 const envoyNework = envoy.network;
-                const webComm = envoyNework.web_comm === true;
-                const everReportedToEnlighten = envoyNework.ever_reported_to_enlighten === true;
-                const lastEnlightenReporDate = new Date(envoyNework.last_enlighten_report_time * 1000).toLocaleString();
-                const primaryInterface = CONSTANTS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown';
+                home.network = {};
+                home.network.webComm = envoyNework.web_comm === true;
+                home.network.everReportedToEnlighten = envoyNework.ever_reported_to_enlighten === true;
+                home.network.lastEnlightenReporDate = new Date(envoyNework.last_enlighten_report_time * 1000).toLocaleString();
+                home.network.primaryInterface = CONSTANTS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown';
+
+
                 const envoyNetworkInterfaces = envoyNework.interfaces ?? [];
-                const envoyNetworkInterfacesCount = envoyNetworkInterfaces.length;
-                const envoyInterfaces = envoyNetworkInterfaces.map(networkInterface => {
+                home.network.envoyNetworkInterfacesCount = envoyNetworkInterfaces.length;
+                home.envoyNetworkInterfaces = [];
+                home.network.envoyInterfaces = envoyNetworkInterfaces.map(networkInterface => {
                     return {
                         type: CONSTANTS.ApiCodes[networkInterface.type] ?? 'Unknown',
                         interface: networkInterface.interface,
@@ -1377,43 +1376,44 @@ class EnvoyDevice extends EventEmitter {
                     };
                 });
 
-                this.envoyInterfaceCellular = envoyInterfaces.some(networkInterface => networkInterface.stateCellular);
-                this.envoyInterfaceLan = envoyInterfaces.some(networkInterface => networkInterface.stateEthernet);
-                this.envoyInterfaceWlan = envoyInterfaces.some(networkInterface => networkInterface.stateWiFi);
-                const tariff = CONSTANTS.ApiCodes[envoy.tariff] ?? 'Unknown';
+                home.network.envoyInterfaceCellular = home.network.envoyInterfaces.some(networkInterface => networkInterface.stateCellular);
+                home.network.envoyInterfaceLan = home.network.envoyInterfaces.some(networkInterface => networkInterface.stateEthernet);
+                home.network.envoyInterfaceWlan = home.network.envoyInterfaces.some(networkInterface => networkInterface.stateWiFi);
 
                 //comm
                 const comm = envoy.comm;
-                const commNum = comm.num;
-                const commLevel = comm.level * 20;
-                const commPcuNum = comm.pcu.num;
-                const commPcuLevel = comm.pcu.level * 20;
-                const commAcbNum = comm.acb.num;
-                const commAcbLevel = comm.acb.level * 20;
-                const commNsrbNum = comm.nsrb.num;
-                const commNsrbLevel = comm.nsrb.level * 20;
+                home.comm = {};
+                home.comm.commNum = comm.num;
+                home.comm.commLevel = comm.level * 20;
+                home.comm.commPcuNum = comm.pcu.num;
+                home.comm.commPcuLevel = comm.pcu.level * 20;
+                home.comm.commAcbNum = comm.acb.num;
+                home.comm.commAcbLevel = comm.acb.level * 20;
+                home.comm.commNsrbNum = comm.nsrb.num;
+                home.comm.commNsrbLevel = comm.nsrb.level * 20;
 
                 //comm ensemble
                 const commEnsemble = ensemblesSupported ? comm.esub : {};
-                const commEnsembleNum = commEnsemble.num ?? 0;
-                const commEnsembleLevel = commEnsemble.level * 20 ?? 0;
+                home.commEnsemble = {};
+                home.commEnsemble.commEnsembleNum = commEnsemble.num ?? 0;
+                home.commEnsemble.commEnsembleLevel = commEnsemble.level * 20 ?? 0;
 
                 //comm encharge
                 const commEncharge = enchargesSupported ? comm.encharge[0] : {};
-                const commEnchargeNum = commEncharge.num ?? 0;
-                const commEnchargeLevel = commEncharge.level * 20 ?? 0;
-                const commEnchargeLevel24g = commEncharge.level_24g * 20 ?? 0;
-                const commEnchagLevelSubg = commEncharge.level_subg * 20 ?? 0;
+                home.commEncharge = {};
+                home.commEncharge.commEnchargeNum = commEncharge.num ?? 0;
+                home.commEncharge.commEnchargeLevel = commEncharge.level * 20 ?? 0;
+                home.commEncharge.commEnchargeLevel24g = commEncharge.level_24g * 20 ?? 0;
+                home.commEncharge.commEnchagLevelSubg = commEncharge.level_subg * 20 ?? 0;
 
-                const alerts = (Array.isArray(envoy.alerts) && (envoy.alerts).length > 0) ? ((envoy.alerts).map(a => CONSTANTS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
-                const updateStatus = CONSTANTS.ApiCodes[envoy.update_status] ?? 'Unknown';
+                home.alerts = (Array.isArray(envoy.alerts) && (envoy.alerts).length > 0) ? ((envoy.alerts).map(a => CONSTANTS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
+                home.updateStatus = CONSTANTS.ApiCodes[envoy.update_status] ?? 'Unknown';
 
                 //wireless connection kit
                 const wirelessConnections = wirelessConnectionKitSupported ? envoy.wireless_connection : [];
-                const wirelessConnectionKitConnectionsCount = wirelessConnections.length;
+                home.wirelessConnectionKitConnectionsCount = wirelessConnections.length;
+                home.wirelessConnections = [];
                 if (wirelessConnectionKitSupported) {
-                    this.pv.wirelessConnektions = [];
-
                     wirelessConnections.forEach((wirelessConnection, index) => {
                         const obj = {
                             signalStrength: wirelessConnection.signal_strength * 20,
@@ -1421,7 +1421,7 @@ class EnvoyDevice extends EventEmitter {
                             type: CONSTANTS.ApiCodes[wirelessConnection.type] ?? 'Unknown',
                             connected: wirelessConnection.connected ?? false,
                         };
-                        this.pv.wirelessConnektions.push(obj);
+                        home.wirelessConnections.push(obj);
 
                         if (this.wirelessConnectionsKitServices) {
                             this.wirelessConnectionsKitServices[index]
@@ -1431,63 +1431,31 @@ class EnvoyDevice extends EventEmitter {
                                 ?.updateCharacteristic(Characteristic.enphaseWirelessConnectionKitConnected, obj.connected);
                         }
                     });
-                    this.feature.wirelessConnectionKit.installed = this.pv.wirelessConnektions.some(connection => connection.connected);
+                    this.feature.wirelessConnectionKit.installed = home.wirelessConnections.some(connection => connection.connected);
                 }
-
-                this.pv.envoy.home = {
-                    softwareBuildEpoch: softwareBuildEpoch,
-                    isEnvoy: isEnvoy,
-                    dbSize: dbSize,
-                    dbPercentFull: dbPercentFull,
-                    timeZone: timeZone,
-                    currentDate: currentDate,
-                    currentTime: currentTime,
-                    webComm: webComm,
-                    everReportedToEnlighten: everReportedToEnlighten,
-                    lastEnlightenReporDate: lastEnlightenReporDate,
-                    primaryInterface: primaryInterface,
-                    networkInterfacesCount: envoyNetworkInterfacesCount,
-                    tariff: tariff,
-                    commNum: commNum,
-                    commLevel: commLevel,
-                    commPcuNum: commPcuNum,
-                    commPcuLevel: commPcuLevel,
-                    commAcbNum: commAcbNum,
-                    commAcbLevel: commAcbLevel,
-                    commNsrbNum: commNsrbNum,
-                    commNsrbLevel: commNsrbLevel,
-                    commEsubNum: commEnsembleNum,
-                    commEsubLevel: commEnsembleLevel,
-                    commEnchgNum: commEnchargeNum,
-                    commEnchgLevel: commEnchargeLevel,
-                    commEnchgLevel24g: commEnchargeLevel24g,
-                    commEnchagLevelSubg: commEnchagLevelSubg,
-                    alerts: alerts,
-                    updateStatus: updateStatus
-                };
 
                 if (this.envoyService) {
                     this.envoyService
                         .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.pv.arfProfile.name)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyAlerts, alerts)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, `${dbSize} MB / ${dbPercentFull} %`)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, timeZone)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, `${currentDate} ${currentTime}`)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm, webComm)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten, everReportedToEnlighten)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, lastEnlightenReporDate)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface, primaryInterface)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyTariff, tariff)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, `${commNum} / ${commLevel} %`)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, `${commPcuNum} / ${commPcuLevel} %`)
-                        .updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, `${commNsrbNum} / ${commNsrbLevel} %`);
+                        .updateCharacteristic(Characteristic.enphaseEnvoyAlerts, home.alerts)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, `${home.dbSize} MB / ${home.dbPercentFull} %`)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, home.timeZone)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, `${home.currentDate} ${home.currentTime}`)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm, home.network.webComm)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten, home.network.everReportedToEnlighten)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate, home.network.lastEnlightenReporDate)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface, home.network.primaryInterface)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyTariff, home.tariff)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, `${home.comm.commNum} / ${home.comm.commLevel} %`)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, `${home.comm.commPcuNum} / ${home.comm.commPcuLevel} %`)
+                        .updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, `${home.comm.commNsrbNum} / ${home.comm.commNsrbLevel} %`);
                     if (this.feature.acBatteries.installed) {
                         this.envoyService
-                            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, `${commAcbNum} / ${commAcbLevel} %`)
+                            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, `${home.comm.commAcbNum} / ${home.comm.commAcbLevel} %`)
                     }
                     if (this.feature.encharges.installed) {
                         this.envoyService
-                            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, `${commEnchargeNum} / ${commEnchargeLevel} %`)
+                            .updateCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel, `${home.commEncharge.commEnchargeNum} / ${home.commEncharge.commEnchargeLevel} %`)
                     }
                 }
 
@@ -1498,7 +1466,10 @@ class EnvoyDevice extends EventEmitter {
                 this.feature.ensembles.supported = ensemblesSupported;
                 this.feature.encharges.supported = enchargesSupported;
                 this.feature.wirelessConnectionKit.supported = wirelessConnectionKitSupported;
-                this.feature.wirelessConnectionKit.count = wirelessConnectionKitConnectionsCount;
+                this.feature.wirelessConnectionKit.count = home.wirelessConnectionKitConnectionsCount;
+
+                //add home to envoy object
+                this.pv.envoy.home = home;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('home', envoy) : false;
@@ -2520,7 +2491,6 @@ class EnvoyDevice extends EventEmitter {
                             createdDate: new Date(encharge.created_date * 1000).toLocaleString(),
                             imgLoadDate: new Date(encharge.img_load_date * 1000).toLocaleString(),
                             imgPnumRunning: encharge.img_pnum_running,
-                            zigbeeDongleFwVersion: encharge.zigbee_dongle_fw_version ?? 'Unknown',
                             bmuFwVersion: encharge.bmu_fw_version,
                             operating: encharge.operating === true ?? false,
                             communicating: encharge.communicating === true,
@@ -3135,7 +3105,7 @@ class EnvoyDevice extends EventEmitter {
 
                 const storageSettingsSupported = tariffSettingsKeys.includes('storage_settings');
                 const storageSettingsData = tariffDaata.storage_settings ?? {};
-                const storageSettings = {
+                tariff.storageSettings = {
                     mode: storageSettingsData.mode,
                     selfConsumptionModeBool: storageSettingsData.mode === 'self-consumption',
                     fullBackupModeBool: storageSettingsData.mode === 'backup',
@@ -3150,7 +3120,7 @@ class EnvoyDevice extends EventEmitter {
 
                 const singleRateSupported = tariffSettingsKeys.includes('single_rate');
                 const singleRateData = tariffDaata.single_Rate ?? {};
-                const singleRate = {
+                tariff.singleRate = {
                     rate: singleRateData.rate,
                     sell: singleRateData.sell
                 }
@@ -4166,7 +4136,7 @@ class EnvoyDevice extends EventEmitter {
                     .setCharacteristic(Characteristic.SerialNumber, this.pv.envoy.serialNumber ?? 'Serial Number')
                     .setCharacteristic(Characteristic.FirmwareRevision, this.pv.envoy.software.replace(/[a-zA-Z]/g, '') ?? '0');
 
-                //get enabled devices
+                //suppored feature
                 const envoyInstalled = this.feature.envoy.installed;
                 const wirelessConnectionKitInstalled = this.feature.wirelessConnectionKit.installed;
                 const powerProductionStateSupported = this.feature.powerProductionState.supported;
@@ -4278,25 +4248,25 @@ class EnvoyDevice extends EventEmitter {
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyPrimaryInterface)
                         .onGet(async () => {
-                            const value = this.pv.envoy.home.primaryInterface;
+                            const value = this.pv.envoy.home.network.primaryInterface;
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, network interface: ${value}`);
                             return value;
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm)
                         .onGet(async () => {
-                            const value = this.pv.envoy.home.webComm;
+                            const value = this.pv.envoy.home.network.webComm;
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, web communication: ${value ? 'Yes' : 'No'}`);
                             return value;
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyEverReportedToEnlighten)
                         .onGet(async () => {
-                            const value = this.pv.envoy.home.everReportedToEnlighten;
+                            const value = this.pv.envoy.home.network.everReportedToEnlighten;
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, report to enlighten: ${value ? 'Yes' : 'No'}`);
                             return value;
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel)
                         .onGet(async () => {
-                            const value = (`${this.pv.envoy.home.commNum} / ${this.pv.envoy.home.commLevel} %`);
+                            const value = (`${this.pv.envoy.home.comm.commNum} / ${this.pv.envoy.home.comm.commLevel} %`);
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication devices and level: ${value}`);
                             return value;
                         });
@@ -4308,14 +4278,14 @@ class EnvoyDevice extends EventEmitter {
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel)
                         .onGet(async () => {
-                            const value = (`${this.pv.envoy.home.commPcuNum} / ${this.pv.envoy.home.commPcuLevel} %`);
+                            const value = (`${this.pv.envoy.home.comm.commPcuNum} / ${this.pv.envoy.home.comm.commPcuLevel} %`);
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication Microinverters and level: ${value}`);
                             return value;
                         });
                     if (acBatteriesInstalled) {
                         this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel)
                             .onGet(async () => {
-                                const value = (`${this.pv.envoy.home.commAcbNum} / ${this.pv.envoy.home.commAcbLevel} %`);
+                                const value = (`${this.pv.envoy.home.comm.commAcbNum} / ${this.pv.envoy.home.comm.commAcbLevel} %`);
                                 const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication AC Batteries and level ${value}`);
                                 return value;
                             });
@@ -4323,7 +4293,7 @@ class EnvoyDevice extends EventEmitter {
                     if (enchargesInstalled) {
                         this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCommNumEnchgAndLevel)
                             .onGet(async () => {
-                                const value = (`${this.pv.envoy.home.commEnchgNum} / ${this.pv.envoy.home.commEnchgLevel} %`);
+                                const value = (`${this.pv.envoy.home.commEncharge.commEnchargeNum} / ${this.pv.envoy.home.commEncharge.commEnchargeLevel} %`);
                                 const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, communication Encharges and level ${value}`);
                                 return value;
                             });
@@ -4366,7 +4336,7 @@ class EnvoyDevice extends EventEmitter {
                         });
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyLastEnlightenReporDate)
                         .onGet(async () => {
-                            const value = this.pv.envoy.home.lastEnlightenReporDate;
+                            const value = this.pv.envoy.home.network.lastEnlightenReporDate;
                             const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, last report to enlighten: ${value}`);
                             return value;
                         });
@@ -4538,7 +4508,7 @@ class EnvoyDevice extends EventEmitter {
                     //wireless connektion kit
                     if (wirelessConnectionKitInstalled) {
                         this.wirelessConnektionsKitServices = [];
-                        for (const wirelessConnection of this.pv.wirelessConnektions) {
+                        for (const wirelessConnection of this.pv.envoy.home.wirelessConnektions) {
                             const connectionType = wirelessConnection.type;
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Wireless Connection ${connectionType} Service`) : false;
                             const enphaseWirelessConnectionKitService = accessory.addService(Service.enphaseWirelessConnectionKitService, `Wireless connection ${connectionType}`, connectionType);
