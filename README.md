@@ -85,8 +85,8 @@
 | --- | --- |
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
 | `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
-| `envoyFirmware7xx` | This is support for Envoy Fw. v7.x.x and newer. If for some reason in the log You get `validate JWT token error`, log-in with stored in `/homebridge/enphaseEnvoy/envoyToken_xxxxx` token to Envoy from web browser first. |
-| `envoyFirmware7xxTokenGenerationMode` | Here select how You wuld to obtain the token, `0 - Enlighten User And Password`, `1 - Your Own Generated Token`. |
+| `envoyFirmware7xx` | This enable support for Envoy Fw. v7.x.x and newer. |
+| `envoyFirmware7xxTokenGenerationMode` | Here select how You wuld to obtain the token, `0 - Enlighten Credentials`, `1 - Your Own Generated Token`. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `envoyToken` | Here set Your own Token only if You select `1 - Your Own Generated Token`. |
 | `envoySerialNumber` | Here set the envoy serial number. |
