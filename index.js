@@ -929,7 +929,7 @@ module.exports = (api) => {
         format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 100000000,
-        minValue: 0,
+        minValue: -100000000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -945,7 +945,7 @@ module.exports = (api) => {
         format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 100000000,
-        minValue: 0,
+        minValue: -100000000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -961,7 +961,7 @@ module.exports = (api) => {
         format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 100000000,
-        minValue: 0,
+        minValue: -100000000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -1122,7 +1122,7 @@ module.exports = (api) => {
         format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 100000000,
-        minValue: 0,
+        minValue: -100000000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -1749,7 +1749,7 @@ module.exports = (api) => {
         format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 100000000,
-        minValue: 0,
+        minValue: -100000000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -2324,7 +2324,7 @@ module.exports = (api) => {
         format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 100000000,
-        minValue: 0,
+        minValue: -100000000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -2388,7 +2388,7 @@ module.exports = (api) => {
         format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 100000000,
-        minValue: 0,
+        minValue: -100000000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
@@ -2404,7 +2404,7 @@ module.exports = (api) => {
         format: Formats.FLOAT,
         unit: 'kWh',
         maxValue: 100000000,
-        minValue: 0,
+        minValue: -100000000,
         minStep: 0.001,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY]
       });
