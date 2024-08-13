@@ -105,7 +105,7 @@ class EnvoyDevice extends EventEmitter {
             tile.state = false;
             this.powerProductionStateActiveControls.push(tile);
         } else {
-            const log = powerProductionStateControlDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            const log = powerProductionStateControlDisplayType === 0 ? false : this.emit('message', `Tile Name Missing.`);
         };
         this.powerProductionStateActiveControlsCount = this.powerProductionStateActiveControls.length || 0;
 
@@ -122,7 +122,7 @@ class EnvoyDevice extends EventEmitter {
             tile.state = false;
             this.plcLevelActiveControls.push(tile);
         } else {
-            const log = plcLevelControlDisplayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+            const log = plcLevelControlDisplayType === 0 ? false : this.emit('message', `Tile Name Missing.`);
         };
         this.plcLevelActiveControlsCount = this.plcLevelActiveControls.length || 0;
 
@@ -442,14 +442,14 @@ class EnvoyDevice extends EventEmitter {
             const name = tile.name ?? false;
             const displayType = tile.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('message', `Tile Name Missing.`);
                 continue;
             }
 
             tile.serviceType = ['', Service.Lightbulb][displayType];
             tile.characteristicType = ['', Characteristic.On][displayType];
             tile.state = false;
-            this.enchargeProfileActiveControls.push(sensor);
+            this.enchargeProfileActiveControls.push(tile);
         }
         this.enchargeProfileActiveControlsCount = this.enchargeProfileActiveControls.length || 0;
 
@@ -1327,41 +1327,38 @@ class EnvoyDevice extends EventEmitter {
 
                 //network
                 const envoyNework = envoy.network;
-                home.network = {};
-                home.network.webComm = envoyNework.web_comm === true;
-                home.network.everReportedToEnlighten = envoyNework.ever_reported_to_enlighten === true;
-                home.network.lastEnlightenReporDate = new Date(envoyNework.last_enlighten_report_time * 1000).toLocaleString();
-                home.network.primaryInterface = CONSTANTS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown';
-
                 const networkInterfaces = envoyNework.interfaces ?? [];
-                home.network.networkinterfaceCount = networkInterfaces.length;
-                home.network.networkInterfaces = networkInterfaces.map(networkInterface => {
-                    return {
-                        type: CONSTANTS.ApiCodes[networkInterface.type] ?? 'Unknown',
-                        interface: networkInterface.interface,
-                        mac: networkInterface.mac,
-                        dhcp: networkInterface.dhcp,
-                        ip: networkInterface.ip,
-                        signalStrength: networkInterface.signal_strength * 20,
-                        signalStrengthMax: networkInterface.signal_strength_max * 20,
-                        carrier: networkInterface.carrier === true ?? false,
-                        supported: networkInterface.supported ?? false,
-                        present: networkInterface.present ?? false,
-                        configured: networkInterface.configured ?? false,
-                        status: CONSTANTS.ApiCodes[networkInterface.status] ?? 'Unknown',
-                        stateCellular: networkInterface.type === 'cellular' ?? false,
-                        stateEthernet: networkInterface.type === 'ethernet' ?? false,
-                        stateWiFi: networkInterface.type === 'wifi' ?? false
-                    };
-                });
-
-                home.network.interfaceCellular = home.network.networkInterfaces.some(networkInterface => networkInterface.stateCellular);
-                home.network.interfaceLan = home.network.networkInterfaces.some(networkInterface => networkInterface.stateEthernet);
-                home.network.interfaceWlan = home.network.networkInterfaces.some(networkInterface => networkInterface.stateWiFi);
+                home.network = {
+                    webComm: envoyNework.web_comm === true,
+                    everReportedToEnlighten: envoyNework.ever_reported_to_enlighten === true,
+                    lastEnlightenReporDate: new Date(envoyNework.last_enlighten_report_time * 1000).toLocaleString(),
+                    primaryInterface: CONSTANTS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown',
+                    networkinterfaceCount: networkInterfaces.length,
+                    networkInterfaces: networkInterfaces.map(networkInterface => {
+                        return {
+                            type: CONSTANTS.ApiCodes[networkInterface.type] ?? 'Unknown',
+                            interface: networkInterface.interface,
+                            mac: networkInterface.mac,
+                            dhcp: networkInterface.dhcp,
+                            ip: networkInterface.ip,
+                            signalStrength: networkInterface.signal_strength * 20,
+                            signalStrengthMax: networkInterface.signal_strength_max * 20,
+                            carrier: networkInterface.carrier === true ?? false,
+                            supported: networkInterface.supported ?? false,
+                            present: networkInterface.present ?? false,
+                            configured: networkInterface.configured ?? false,
+                            status: CONSTANTS.ApiCodes[networkInterface.status] ?? 'Unknown'
+                        };
+                    }),
+                };
+                home.network.interfaceCellular = home.network.networkInterfaces.some(networkInterface => networkInterface.type === 'zCellular');
+                home.network.interfaceLan = home.network.networkInterfaces.some(networkInterface => networkInterface.type === 'Ethernet');
+                home.network.interfaceWlan = home.network.networkInterfaces.some(networkInterface => networkInterface.type === 'WiFi');
 
                 //comm
                 const comm = envoy.comm;
                 const commEnsemble = ensemblesSupported ? comm.esub : {};
+                const commEnchargesData = enchargesSupported ? comm.encharge : [];
                 home.comm = {
                     num: comm.num ?? 0,
                     level: comm.level * 20 ?? 0,
@@ -1372,21 +1369,16 @@ class EnvoyDevice extends EventEmitter {
                     nsrbNum: comm.nsrb.num ?? 0,
                     nsrbLevel: comm.nsrb.level * 20 ?? 0,
                     esubNum: commEnsemble.num ?? 0,
-                    esubLevel: commEnsemble.level * 20 ?? 0
-                };
-
-                //comm encharge
-                const commEnchargesData = enchargesSupported ? comm.encharge : [];
-                home.comm.enchargesCount = commEnchargesData.length;
-                home.comm.encharges = [];
-                for (const encharge of commEnchargesData) {
-                    const obj = {
-                        num: encharge.num ?? 0,
-                        level: encharge.level * 20 ?? 0,
-                        level24g: encharge.level_24g * 20 ?? 0,
-                        levelSubg: encharge.level_subg * 20 ?? 0,
-                    };
-                    home.comm.encharges.push(obj);
+                    esubLevel: commEnsemble.level * 20 ?? 0,
+                    enchargesCount: commEnchargesData.length,
+                    encharges: commEnchargesData.map(encharge => {
+                        return {
+                            num: encharge.num ?? 0,
+                            level: encharge.level * 20 ?? 0,
+                            level24g: encharge.level_24g * 20 ?? 0,
+                            levelSubg: encharge.level_subg * 20 ?? 0
+                        };
+                    }),
                 };
 
                 home.alerts = (Array.isArray(envoy.alerts) && (envoy.alerts).length > 0) ? ((envoy.alerts).map(a => CONSTANTS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
@@ -2022,6 +2014,7 @@ class EnvoyDevice extends EventEmitter {
                 this.pv.production = production;
                 this.pv.powerState = production.ct.powerState;
                 this.pv.powerLevel = production.ct.powerLevel;
+                this.pv.productionPowerPeak = production.ct.powerPeak;
 
                 const debug1 = this.enableDebugMode ? this.emit('debug', `Production power state: ${production.ct.powerState}`) : false;
                 const debug2 = this.enableDebugMode ? this.emit('debug', `Production power level: ${production.ct.powerLevel} %`) : false;
@@ -2114,7 +2107,7 @@ class EnvoyDevice extends EventEmitter {
                     const consumptions = productionCtData.consumption ?? [];
                     consumptions.forEach((consumption, index) => {
                         const measurementType = CONSTANTS.ApiCodes[consumption.measurementType];
-                        const storedConsumptionPower = measurementType == 'Consumption Total' ? this.pv.consumptionTotalPowerPeak : measurementType == 'Consumption Net' ? this.pv.consumptionNetPowerPeak : 0;
+                        const storedConsumptionPower = measurementType === 'Consumption Total' ? this.pv.consumptionTotalPowerPeak : measurementType === 'Consumption Net' ? this.pv.consumptionNetPowerPeak : 0;
                         const consumptionLifetimeOffset = [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][index];
                         const obj = {
                             type: CONSTANTS.ApiCodes[consumption.type],
@@ -2142,6 +2135,8 @@ class EnvoyDevice extends EventEmitter {
                             pwrFactor: consumption.pwrFactor
                         }
                         this.pv.consumptions.push(obj);
+                        const addTotal = measurementType === 'Consumption Total' ? this.pv.consumptionTotalPowerPeak = obj.powerPeak : false;
+                        const addNet = measurementType === 'Consumption Net' ? this.pv.consumptionNetPowerPeak = obj.powerPeak : false;
 
                         //debug
                         const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;

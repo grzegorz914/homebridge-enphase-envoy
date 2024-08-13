@@ -215,7 +215,7 @@
         "eth0": "Ethernet",
         "wifi": "WiFi",
         "wlan0": "WiFi",
-        "cellurar": "Cellurar",
+        "cellular": "Cellular",
         "zigbee": "ZigBee",
         "subghz": "Sub GHz",
         "connected": "Connected",
