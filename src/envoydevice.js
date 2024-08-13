@@ -3678,15 +3678,15 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 //lived data meteres types add to array
-                liveData.types = [];
-                const pushPvTypeToArray = this.feature.meters.installed && (this.feature.meters.production.enabled || this.feature.meters.consumption.enabled) ? liveData.types.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
-                const pushStorageTypeToArray = this.feature.meters.installed && this.feature.meters.storage.enabled ? liveData.types.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
-                const pushGridTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? liveData.types.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
-                const pushLoadTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? liveData.types.push({ type: 'Load', meter: liveDataMeters.load }) : false;
-                const pushGeneratorTypeToArray = this.feature.meters.installed && this.feature.generators.installed ? liveData.types.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
+                const types = [];
+                const pushPvTypeToArray = this.feature.meters.installed && (this.feature.meters.production.enabled || this.feature.meters.consumption.enabled) ? types.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
+                const pushStorageTypeToArray = this.feature.meters.installed && this.feature.meters.storage.enabled ? types.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
+                const pushGridTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? types.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
+                const pushLoadTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? types.push({ type: 'Load', meter: liveDataMeters.load }) : false;
+                const pushGeneratorTypeToArray = this.feature.meters.installed && this.feature.generators.installed ? types.push({ type: 'Generator', meter: liveDataMeters.generator }) : false;
 
                 //live data exist
-                const liveDataExist = liveData.types.length > 0;
+                const liveDataExist = types.length > 0;
                 if (!liveDataExist) {
                     resolve(false);
                     return;
@@ -3694,17 +3694,17 @@ class EnvoyDevice extends EventEmitter {
 
                 //read meters data
                 liveData.devices = [];
-                liveData.types.forEach((liveDataType, index) => {
+                types.forEach((type, index) => {
                     const obj = {
-                        type: liveDataType.type,
-                        activePower: liveDataType.meter.agg_p_mw / 1000000 || 0,
-                        apparentPower: liveDataType.meter.agg_s_mva / 1000000 || 0,
-                        activePowerL1: liveDataType.meter.agg_p_ph_a_mw / 1000000 || 0,
-                        activePowerL2: liveDataType.meter.agg_p_ph_b_mw / 1000000 || 0,
-                        activePowerL3: liveDataType.meter.agg_p_ph_c_mw / 1000000 || 0,
-                        apparentPowerL1: liveDataType.meter.agg_s_ph_a_mva / 1000000 || 0,
-                        apparentPowerL2: liveDataType.meter.agg_s_ph_b_mva / 1000000 || 0,
-                        apparentPowerL3: liveDataType.meter.agg_s_ph_c_mva / 1000000 || 0
+                        type: type.type,
+                        activePower: type.meter.agg_p_mw / 1000000 || 0,
+                        apparentPower: type.meter.agg_s_mva / 1000000 || 0,
+                        activePowerL1: type.meter.agg_p_ph_a_mw / 1000000 || 0,
+                        activePowerL2: type.meter.agg_p_ph_b_mw / 1000000 || 0,
+                        activePowerL3: type.meter.agg_p_ph_c_mw / 1000000 || 0,
+                        apparentPowerL1: type.meter.agg_s_ph_a_mva / 1000000 || 0,
+                        apparentPowerL2: type.meter.agg_s_ph_b_mva / 1000000 || 0,
+                        apparentPowerL3: type.meter.agg_s_ph_c_mva / 1000000 || 0
                     }
                     liveData.devices.push(obj);
 
@@ -4177,7 +4177,7 @@ class EnvoyDevice extends EventEmitter {
                     };
 
                     //envoy
-                    const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Envoy Service`) : false;
+                    const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Envoy ${serialNumber} Service`) : false;
                     this.envoyService = accessory.addService(Service.enphaseEnvoyService, `Envoy ${serialNumber}`, serialNumber);
                     this.envoyService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                     this.envoyService.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${serialNumber}`);
