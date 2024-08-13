@@ -18,6 +18,9 @@ class RestFul extends EventEmitter {
             ensembleInventory: 'This data is not available in your system.',
             ensembleStatus: 'This data is not available in your system.',
             enchargesettings: 'This data is not available in your system.',
+            tariff: 'This data is not available in your system.',
+            drycontacts: 'This data is not available in your system.',
+            drycontactssettings: 'This data is not available in your system.',
             generator: 'This data is not available in your system.',
             generatorsettings: 'This data is not available in your system.',
             gridProfile: 'This data is not available in your system.',
@@ -45,6 +48,9 @@ class RestFul extends EventEmitter {
             restFul.get('/ensembleinventory', (req, res) => { res.json(this.restFulData.ensembleInventory) });
             restFul.get('/ensemblestatus', (req, res) => { res.json(this.restFulData.ensembleStatus) });
             restFul.get('/enchargesettings', (req, res) => { res.json(this.restFulData.enchargesettings) });
+            restFul.get('/tariff', (req, res) => { res.json(this.restFulData.tariff) });
+            restFul.get('/drycontacts', (req, res) => { res.json(this.restFulData.drycontacts) });
+            restFul.get('/drycontactssettings', (req, res) => { res.json(this.restFulData.drycontactssettings) });
             restFul.get('/generator', (req, res) => { res.json(this.restFulData.generator) });
             restFul.get('/generatorsettings', (req, res) => { res.json(this.restFulData.generatorsettings) });
             restFul.get('/gridprofile', (req, res) => { res.json(this.restFulData.gridProfile) });
@@ -92,6 +98,15 @@ class RestFul extends EventEmitter {
                 break;
             case 'enchargesettings':
                 this.restFulData.enchargesettings = data;
+                break;
+            case 'tariff':
+                this.restFulData.tariff = data;
+                break;
+            case 'drycontacts':
+                this.restFulData.drycontacts = data;
+                break;
+            case 'drycontactssettings':
+                this.restFulData.drycontactssettings = data;
                 break;
             case 'generator':
                 this.restFulData.generator = data;
