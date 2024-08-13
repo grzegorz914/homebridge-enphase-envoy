@@ -711,9 +711,9 @@ class EnvoyDevice extends EventEmitter {
             counters: {},
             secctrl: {},
             relay: {},
+            tariff: {},
             dryContacts: [],
             generator: {},
-            tariff: {},
             arfProfile: {}
         };
 
@@ -3012,11 +3012,11 @@ class EnvoyDevice extends EventEmitter {
 
             try {
                 const tariffSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.TariffSettingsGetPut);
-                const tariffDaata = tariffSettingsData.data ?? {};
-                const debug = this.enableDebugMode ? this.emit('debug', `Tariff: ${JSON.stringify(tariffDaata, null, 2)}`) : false;
+                const tariffSettings = tariffSettingsData.data ?? {};
+                const debug = this.enableDebugMode ? this.emit('debug', `Tariff: ${JSON.stringify(tariffSettings, null, 2)}`) : false;
 
                 //encharge keys
-                const tariffSettingsKeys = Object.keys(tariffDaata);
+                const tariffSettingsKeys = Object.keys(tariffSettings);
                 const tariffDaataSupported = tariffSettingsKeys.length > 0;
 
                 //encharge settings not exist
@@ -3028,7 +3028,7 @@ class EnvoyDevice extends EventEmitter {
                 //tariff
                 const tariff = {};
                 const tariffSupported = tariffSettingsKeys.includes('tariff');
-                const tariffData = tariffDaata.tariff ?? {};
+                const tariffData = tariffSettings.tariff ?? {};
                 tariff.info = {
                     currencyCode: tariffData.currency.code, //str USD
                     logger: tariffData.logger, //str
@@ -3036,7 +3036,7 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 const storageSettingsSupported = tariffSettingsKeys.includes('storage_settings');
-                const storageSettingsData = tariffDaata.storage_settings ?? {};
+                const storageSettingsData = tariffSettings.storage_settings ?? {};
                 tariff.storageSettings = {
                     mode: storageSettingsData.mode,
                     selfConsumptionModeBool: storageSettingsData.mode === 'self-consumption',
@@ -3051,14 +3051,14 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 const singleRateSupported = tariffSettingsKeys.includes('single_rate');
-                const singleRateData = tariffDaata.single_Rate ?? {};
+                const singleRateData = tariffSettings.single_Rate ?? {};
                 tariff.singleRate = {
                     rate: singleRateData.rate,
                     sell: singleRateData.sell
                 }
 
                 const seasonsSupported = tariffSettingsKeys.includes('seasons');
-                const seasonsData = tariffDaata.seasons ?? [];
+                const seasonsData = tariffSettings.seasons ?? [];
                 seasonsData.forEach((season, index) => {
                     const id = season.id; //str fall, winter, spring, summer
                     const start = season.start; //str 6/1
@@ -3086,7 +3086,7 @@ class EnvoyDevice extends EventEmitter {
                 })
 
                 const seasonsSellSupported = tariffSettingsKeys.includes('seasons_sell');
-                const seasonsSellData = tariffDaata.seasons_sell ?? [];
+                const seasonsSellData = tariffSettings.seasons_sell ?? [];
                 seasonsSellData.forEach((season, index) => {
                     const id = season.id; //str fall, winter, spring, summer
                     const start = season.start; //str 6/1
@@ -3114,7 +3114,7 @@ class EnvoyDevice extends EventEmitter {
                 })
 
                 const scheduleSupported = tariffSettingsKeys.includes('schedule');
-                const scheduleData = tariffDaata.schedule ?? {};
+                const scheduleData = tariffSettings.schedule ?? {};
                 tariff.schedule = {
                     fileName: scheduleData.filename,
                     source: scheduleData.source,
@@ -3184,10 +3184,10 @@ class EnvoyDevice extends EventEmitter {
                 this.feature.encharges.tariff.supported = tariffSupported;
 
                 //restFul
-                const restFul = this.restFulConnected ? this.restFul.update('tariff', tariffDaata) : false;
+                const restFul = this.restFulConnected ? this.restFul.update('tariff', tariffSettings) : false;
 
                 //mqtt
-                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Tariff', tariffDaata) : false;
+                const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Tariff', tariffSettings) : false;
                 resolve(true);
             } catch (error) {
                 reject(`Requesting tariff. error: ${error}.`);
@@ -3200,8 +3200,8 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts.`) : false;
 
             try {
-                const ensembleDryContactsData = await this.axiosInstance(CONSTANTS.ApiUrls.DryContacts);
-                const ensembleDryContacts = ensembleDryContactsData.data ?? {};
+                const dryContactsData = await this.axiosInstance(CONSTANTS.ApiUrls.DryContacts);
+                const ensembleDryContacts = dryContactsData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Dry contacts: ${JSON.stringify(ensembleDryContacts, null, 2)}`) : false;
 
                 //ensemble dry contacts keys
@@ -3215,7 +3215,7 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //dry contacts supported
-                const dryContacts = ensembleDryContacts.dry_contacts;
+                const dryContacts = ensembleDryContacts.dry_contacts ?? [];
                 const dryContactsInstalled = dryContacts.length > 0;
                 if (!dryContactsInstalled) {
                     resolve(false);
@@ -3267,8 +3267,8 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts settings.`) : false;
 
             try {
-                const ensembleDryContactsSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.DryContactsSettings);
-                const ensembleDryContactsSettings = ensembleDryContactsSettingsData.data ?? {};
+                const dryContactsSettingsData = await this.axiosInstance(CONSTANTS.ApiUrls.DryContactsSettings);
+                const ensembleDryContactsSettings = dryContactsSettingsData.data ?? {};
                 const debug = this.enableDebugMode ? this.emit('debug', `Dry contacts settings: ${JSON.stringify(ensembleDryContactsSettings, null, 2)}`) : false;
 
                 //ensemble dry contacts settings keys
