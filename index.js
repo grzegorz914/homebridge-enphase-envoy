@@ -58,11 +58,9 @@ class EnvoyPlatform {
           envoyPasswd: 'removed',
           envoyToken: 'removed',
           envoySerialNumber: 'removed',
-          enlightenUser: 'removed',
           enlightenPasswd: 'removed',
           mqtt: {
             ...device.mqtt,
-            user: 'removed',
             passwd: 'removed'
           }
         };

@@ -2011,7 +2011,7 @@
               "required": false
             },
             "restFul": {
-              "title": "Data Refresh Control",
+              "title": "RESTFul",
               "type": "object",
               "properties": {
                 "enable": {
@@ -2043,7 +2043,7 @@
               }
             },
             "mqtt": {
-              "title": "Data Refresh Control",
+              "title": "MQTT",
               "type": "object",
               "properties": {
                 "enable": {

@@ -701,7 +701,12 @@ class EnvoyDevice extends EventEmitter {
             production: {},
             consumptions: [],
             liveData: {},
-            arfProfile: {},
+            arfProfile: {
+                name: 'Unknown',
+                id: 0,
+                version: '',
+                itemCount: 0
+            },
             powerState: false,
             powerLevel: 0,
             productionPowerPeak: 0,
@@ -719,7 +724,12 @@ class EnvoyDevice extends EventEmitter {
             tariff: {},
             dryContacts: [],
             generator: {},
-            arfProfile: {}
+            arfProfile: {
+                name: 'Unknown',
+                id: 0,
+                version: '',
+                itemCount: 0
+            },
         };
 
         //url
@@ -913,7 +923,9 @@ class EnvoyDevice extends EventEmitter {
             //get and validate jwt token
             const getJwtToken = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 0 ? await this.getJwtToken() : true : false;
             const validJwtToken = getJwtToken ? await this.validateJwtToken() : false;
-            const updateGridProfileData = validJwtToken ? await this.updateGridProfile() : false;
+
+            //update grid profile
+            const updateGridProfileData = await this.updateGridProfile();
 
             //get envoy dev id
             const envoyDevIdExist = this.supportPowerProductionState ? await this.getEnvoyBackboneApp() : false;
@@ -1089,17 +1101,9 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Grid Profile', profile) : false;
-            return arfProfile;
+            return true;
         } catch (error) {
-            const arfProfile = {
-                name: 'Unknown',
-                id: 0,
-                version: '',
-                itemCount: 0
-            }
-            this.pv.arfProfile = arfProfile;
-            this.ensemble.arfProfile = arfProfile;
-            return arfProfile;
+            this.emit('message', 'Arf Profile not supported, dont worry all working correct.')
         };
     };
 
@@ -1847,7 +1851,7 @@ class EnvoyDevice extends EventEmitter {
                 this.pv.meters[index].readings = obj;
 
                 //update chaaracteristics
-                if (this.metersServices && this.pv.meters[index].state) {
+                if (this.metersServices) {
                     this.metersServices[index]
                         .updateCharacteristic(Characteristic.enphaseMeterReadingTime, obj.timeStamp)
                         .updateCharacteristic(Characteristic.enphaseMeterActivePower, obj.activePower)
@@ -2939,7 +2943,7 @@ class EnvoyDevice extends EventEmitter {
 
             //profile
             const profileSupported = ensembleStatusKeys.includes('profile');
-            const profile = this.ensemble.arfProfile.name ?? (profileSupported ? ensembleStatus.profile : await this.updateGridProfile());
+            const profile = profileSupported ? ensembleStatus.profile : {};
 
             //fakeit
             const fakeInventoryModeSupported = ensembleStatusKeys.includes('fakeit');
