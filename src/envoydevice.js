@@ -2038,11 +2038,13 @@ class EnvoyDevice extends EventEmitter {
                     apparentPower: metersProductionEnabled ? productionCt.apprntPwr / 1000 : 0,
                     pwrFactor: metersProductionEnabled ? productionCt.pwrFactor : 0
                 }
+                //add to pv object
                 this.pv.production = production;
                 this.pv.powerState = production.ct.powerState;
                 this.pv.powerLevel = production.ct.powerLevel;
                 this.pv.productionPowerPeak = production.ct.powerPeak;
 
+                //debug
                 const debug1 = this.enableDebugMode ? this.emit('debug', `Production power state: ${production.ct.powerState}`) : false;
                 const debug2 = this.enableDebugMode ? this.emit('debug', `Production power level: ${production.ct.powerLevel} %`) : false;
                 const debug3 = this.enableDebugMode ? this.emit('debug', `Production power peak detected: ${production.ct.powerPeakDetected}`) : false;
@@ -2162,6 +2164,8 @@ class EnvoyDevice extends EventEmitter {
                             apparentPower: consumption.apprntPwr / 1000,
                             pwrFactor: consumption.pwrFactor
                         }
+                        //add obj to array
+                        this.pv.consumptions.push(obj);
 
                         //store power peak in pv object
                         const addTotal = measurementType === 'Consumption Total' ? this.pv.consumptionTotalPowerPeak = obj.powerPeak : false;
@@ -2170,9 +2174,6 @@ class EnvoyDevice extends EventEmitter {
                         //debug
                         const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;
                         const debug2 = this.enableDebugMode ? this.emit('debug', `${measurementType} energy state: ${obj.energyState}`) : false;
-
-                        //add obj to array
-                        this.pv.consumptions.push(obj);
 
                         //update characteristics
                         if (this.consumptionsServices) {
