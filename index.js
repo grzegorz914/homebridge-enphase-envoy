@@ -60,8 +60,11 @@ class EnvoyPlatform {
           envoySerialNumber: 'removed',
           enlightenUser: 'removed',
           enlightenPasswd: 'removed',
-          mqttUser: 'removed',
-          mqttPasswd: 'removed'
+          mqtt: {
+            ...device.mqtt,
+            user: 'removed',
+            passwd: 'removed'
+          }
         };
         const debug1 = enableDebugMode ? log(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
 

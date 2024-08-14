@@ -64,6 +64,7 @@
               "type": "string",
               "placeholder": "Envoy password",
               "description": "Here set the envoy password, only if You already changed the default password.",
+              "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
               },
@@ -74,6 +75,7 @@
               "type": "string",
               "placeholder": "Token",
               "description": "Here paste Your own Token.",
+              "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
               },
@@ -84,6 +86,7 @@
               "type": "string",
               "placeholder": "Serial number",
               "description": "Here set the envoy serial number.",
+              "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
               },
@@ -104,6 +107,7 @@
               "type": "string",
               "placeholder": "password",
               "description": "Here set the enlighten password.",
+              "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
               },
@@ -2124,6 +2128,7 @@
                   "type": "string",
                   "placeholder": "password",
                   "description": "Here set the password of MQTT Broker.",
+                  "format": "password",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true && model.devices[arrayIndices].mqtt.auth === true;"
                   },
@@ -2198,11 +2203,23 @@
                       "expanded": false,
                       "items": [
                         "devices[].envoyFirmware7xxTokenGenerationMode",
-                        "devices[].envoyToken",
-                        "devices[].envoyPasswd",
-                        "devices[].envoySerialNumber",
+                        {
+                          "key": "devices[].enlightenPasswd",
+                          "type": "password"
+                        },
+                        {
+                          "key": "devices[].envoyPasswd",
+                          "type": "password"
+                        },
+                        {
+                          "key": "devices[].envoySerialNumber",
+                          "type": "password"
+                        },
                         "devices[].enlightenUser",
-                        "devices[].enlightenPasswd"
+                        {
+                          "key": "devices[].enlightenPasswd",
+                          "type": "password"
+                        }
                       ]
                     }
                   ],
@@ -2850,7 +2867,10 @@
                             "devices[].mqtt.prefix",
                             "devices[].mqtt.auth",
                             "devices[].mqtt.user",
-                            "devices[].mqtt.passwd"
+                            {
+                              "key": "devices[].mqtt.passwd",
+                              "type": "password"
+                            }
                           ]
                         }
                       ]
