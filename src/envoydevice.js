@@ -1351,10 +1351,10 @@ class EnvoyDevice extends EventEmitter {
                             carrier: data.carrier,
                             signalStrength: type === 'cellular' ? data.signal_strength : data.signal_strength * 20,
                             signalStrengthMax: type === 'cellular' ? data.signal_strength_max : data.signal_strength_max * 20,
-                            supported: type === 'ethernet' ? data.supported : null,
-                            present: type === 'ethernet' ? data.present : null,
-                            configured: type === 'ethernet' ? data.configured : null,
-                            status: type === 'ethernet' ? CONSTANTS.ApiCodes[data.status] : null
+                            supported: type === 'wifi' ? data.supported : null,
+                            present: type === 'wifi' ? data.present : null,
+                            configured: type === 'wifi' ? data.configured : null,
+                            status: type === 'wifi' ? CONSTANTS.ApiCodes[data.status] : null
                         };
                     }),
                 };
@@ -1745,18 +1745,17 @@ class EnvoyDevice extends EventEmitter {
                         meteringStatus: CONSTANTS.ApiCodes[meter.meteringStatus] ?? 'Unknown',
                         statusFlags: (Array.isArray(meter.statusFlags) && (meter.statusFlags).length > 0) ? ((meter.statusFlags).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status'
                     }
-                    this.pv.meters.push(obj);
 
                     //production
-                    const productionMeter = obj.measurementType === 'Production';
-                    if (productionMeter) {
+                    const production = obj.measurementType === 'Production';
+                    if (production) {
                         this.feature.meters.production.supported = true;
                         this.feature.meters.production.enabled = obj.state ?? false;
                         this.feature.meters.production.voltageDivide = obj.phaseMode === 'Split' ? obj.phaseCount : 1;
                     }
 
                     //consumption
-                    const consumption = obj.measurementType === 'Consumption';
+                    const consumption = obj.measurementType === 'Consumption Net';
                     if (consumption) {
                         this.feature.meters.consumption.supported = true;
                         this.feature.meters.consumption.enabled = obj.state ?? false;
@@ -1771,6 +1770,10 @@ class EnvoyDevice extends EventEmitter {
                         this.feature.meters.storage.voltageDivide = obj.phaseMode === 'Split' ? obj.phaseCount : 1;
                     }
 
+                    //add meter to arry
+                    this.pv.meters.push(obj);
+
+                    //update characteristics
                     if (this.metersServices) {
                         this.metersServices[index]
                             .updateCharacteristic(Characteristic.enphaseMeterState, obj.state)
