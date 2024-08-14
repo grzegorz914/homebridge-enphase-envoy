@@ -54,8 +54,8 @@
     * Enpower `Grid State`.
     * Encharge: `State`, `Backup Level`, `Dry Contacts`.
     * Grid Mode:
-      * Enpower `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`.
-      * Encharge `Multimode Grid On`, `Multimode Grid Off`.
+      * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
+      * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
       * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
     * Generator `State`, `Mode`.  
   * Switches, Outlets, Lightbulbs:
@@ -170,7 +170,7 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enepowerGridModeSensors` | That are `Enpower Grid Mode Sensors` for `Enpower Grid Mode` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
-| `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
+| `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enchargeStateSensor` | This is `Encharge State Sensor` for `State` monitoring, if `State ON`, the contact fired. |
@@ -194,7 +194,7 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `solarGridModeSensors` | That are `Solar Grid Mode Sensors` for `Solar Grid Mode` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
-| `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
+| `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enpowerDryContactsControl` | This enable `Dry Contacts` control and expose `Switches` in HomeKit. |
@@ -209,7 +209,7 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `generatorModeSensors` | That are `Generator Mode Sensors` for `Generator Mode` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
-| `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`. |
+| `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `dataRefreshControl` | This is `Data Refresh Tile` for `Data Refresh` control from HomeKit. |
