@@ -2028,7 +2028,7 @@ class EnvoyDevice extends EventEmitter {
                 pwrFactor: metersProductionEnabled ? productionCt.pwrFactor : 0
             }
             //add to pv object
-            this.pv.production = production;
+            this.pv.production.ct = production;
             this.pv.powerState = production.ct.powerState;
             this.pv.powerLevel = production.ct.powerLevel;
             this.pv.productionPowerPeak = production.ct.powerPeak;
