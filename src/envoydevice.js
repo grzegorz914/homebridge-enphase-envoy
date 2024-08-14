@@ -1953,7 +1953,7 @@ class EnvoyDevice extends EventEmitter {
                 whLifeTime: (production.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000,
                 wattsNow: production.wattsNow / 1000
             };
-            this.pv.production = microinverters;
+            this.pv.production.microinverters = microinverters;
 
             //restFul
             const restFul = this.restFulConnected ? this.restFul.update('production', production) : false;
@@ -2028,7 +2028,7 @@ class EnvoyDevice extends EventEmitter {
                 pwrFactor: metersProductionEnabled ? productionCt.pwrFactor : 0
             }
             //add to pv object
-            this.pv.production.ct = production;
+            this.pv.production = production;
             this.pv.powerState = production.ct.powerState;
             this.pv.powerLevel = production.ct.powerLevel;
             this.pv.productionPowerPeak = production.ct.powerPeak;
