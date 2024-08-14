@@ -31,27 +31,43 @@
                     "envoySerialNumber": "",
                     "enlightenUser": "",
                     "enlightenPasswd": "",
+                    "supportPowerProductionState": false,
+                    "powerProductionStateControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "supportPlcLevel": false,
+                    "plcLevelControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "powerProductionSummary": 7200,
                     "powerProductionStateSensor": {
                         "name": "Production power state",
-                        "displayType": 0
+                        "displayType": 0,
+                        "namePrefix": false
                     },
                     "powerProductionLevelSensors": [
                         {
                             "name": "Production >= 7500W",
                             "powerLevel": 7500,
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "energyProductionStateSensor": {
                         "name": "Production energy state",
-                        "displayType": 0
+                        "displayType": 0,
+                        "namePrefix": false
                     },
                     "energyProductionLevelSensors": [
                         {
                             "name": "Production energy level >= 5000Wh",
                             "energyLevel": 5000,
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "energyProductionLifetimeOffset": 0,
@@ -63,97 +79,163 @@
                         {
                             "name": "Consumption Total >= 5500W",
                             "powerLevel": 5500,
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "energyConsumptionTotalStateSensor": {
                         "name": "Consumption Total energy state",
-                        "displayType": 0
+                        "displayType": 0,
+                        "namePrefix": false
                     },
                     "energyConsumptionTotalLevelSensors": [
                         {
                             "name": "Consumption Total energy level > 5000Wh",
                             "energyLevel": 5000,
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetStateSensor": {
                         "name": "Consumption Net power state",
-                        "displayType": 0
+                        "displayType": 0,
+                        "namePrefix": false
                     },
                     "powerConsumptionNetLevelSensors": [
                         {
                             "name": "Import Net >= 5500W",
                             "powerLevel": 5500,
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         },
                         {
                             "name": "Export Net >= 5500W",
                             "powerLevel": -5500,
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "energyConsumptionNetStateSensor": {
                         "name": "Consumption Net energy state",
-                        "displayType": 0
+                        "displayType": 0,
+                        "namePrefix": false
                     },
                     "energyConsumptionNetLevelSensors": [
                         {
                             "name": "Consumption Net energy level >= 5000Wh",
                             "energyLevel": 5000,
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "enpowerGridStateControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "enpowerGridStateSensor": {
+                        "name": "Sensor name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "enpowerGridModeSensors": [
                         {
-                            "name": "Enpower grid state",
-                            "gridMode": "grid-on",
-                            "displayType": 0
+                            "name": "Sensor name",
+                            "mode": "On",
+                            "displayType": 0,
+                            "namePrefix": false
+                        }
+                    ],
+                    "enchargeStateSensor": {
+                        "name": "Sensor name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "enchargeProfileControl": [
+                        {
+                            "name": "Tile name",
+                            "profile": "self-consumption",
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "enchargeGridModeSensors": [
                         {
-                            "name": "Encharge grid state",
+                            "name": "Sensor name",
                             "gridMode": "grid-on",
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "enchargeBackupLevelSensors": [
                         {
-                            "name": "Encharge backup level",
+                            "name": "Sensor name",
                             "compareMode": 0,
                             "backupLevel": 100,
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
                     "solarGridModeSensors": [
                         {
-                            "name": "Solar grid state",
+                            "name": "Sensor name",
                             "gridMode": "grid-on",
-                            "displayType": 0
+                            "displayType": 0,
+                            "namePrefix": false
                         }
                     ],
-                    "supportEnchargeProfile": false,
-                    "liveDataRefreshTime": 1.0,
+                    "enpowerDryContactsControl": false,
+                    "enpowerDryContactsSensors": false,
+                    "generatorStateControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "generatorStateSensor": {
+                        "name": "Sensor name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "generatordModeSensors": [
+                        {
+                            "name": "Sensor name",
+                            "gridMode": "grid-on",
+                            "displayType": 0,
+                            "namePrefix": false
+                        }
+                    ],
+                    "dataRefreshControl": {
+                        "name": "Control name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
+                    "dataRefreshSensor": {
+                        "name": "Sensor name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "metersDataRefreshTime": 3.0,
                     "productionDataRefreshTime": 5.0,
+                    "liveDataRefreshTime": 3.0,
                     "ensembleDataRefreshTime": 15.0,
-                    "supportProductionPowerMode": false,
-                    "supportPlcLevel": false,
-                    "enableRestFul": false,
-                    "restFulPort": 3000,
-                    "restFulDebug": false,
-                    "enableMqtt": false,
-                    "mqttHost": "192.168.1.33",
-                    "mqttPort": 1883,
-                    "mqttClientId": "",
-                    "mqttPrefix": "home/envoy",
-                    "mqttAuth": false,
-                    "mqttUser": "user",
-                    "mqttPass": "password",
-                    "mqttDebug": false
+                    "restFul": {
+                        "enable": false,
+                        "port": 3000,
+                        "debug": false
+                    },
+                    "mqtt": {
+                        "enable": false,
+                        "host": "192.168.1.33",
+                        "port": 1883,
+                        "clientId": "",
+                        "prefix": "home/envoy",
+                        "auth": false,
+                        "user": "user",
+                        "pass": "password",
+                        "debug": false
+                    }
                 }
             ]
         }
