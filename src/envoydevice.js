@@ -1404,6 +1404,7 @@ class EnvoyDevice extends EventEmitter {
                         };
                         home.wirelessConnections.push(obj);
 
+                        //update chaaracteristics
                         if (this.wirelessConnectionsKitServices) {
                             this.wirelessConnectionsKitServices[index]
                                 .updateCharacteristic(Characteristic.enphaseWirelessConnectionKitSignalStrength, obj.signalStrength)
@@ -1415,6 +1416,7 @@ class EnvoyDevice extends EventEmitter {
                 }
                 home.wirelessConnectionsInstalled = home.wirelessConnections.some(connection => connection.connected);
 
+                //update chaaracteristics
                 if (this.envoyService) {
                     this.envoyService
                         .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.pv.arfProfile.name)
@@ -1510,8 +1512,10 @@ class EnvoyDevice extends EventEmitter {
                             operating: microinverter.operating === true,
                             phase: microinverter.phase ?? 'Unknown'
                         }
+                        //add obj to envoy object
                         this.pv.microinverters.push(obj)
 
+                        //update chaaracteristics
                         if (this.microinvertersServices) {
                             this.microinvertersServices[index]
                                 .updateCharacteristic(Characteristic.enphaseMicroinverterGridProfile, this.pv.arfProfile.name)
@@ -1568,6 +1572,7 @@ class EnvoyDevice extends EventEmitter {
                         //add ac batteries to pv object
                         this.pv.acBatteries.devices.push(obj);
 
+                        //update chaaracteristics
                         if (this.acBatteriesServices) {
                             this.acBatteriesServices[index]
                                 .updateCharacteristic(Characteristic.enphaseAcBatterieStatus, obj.deviceStatus)
@@ -1626,8 +1631,10 @@ class EnvoyDevice extends EventEmitter {
                             line2Connected: qRelay['line-count'] >= 2 ? qRelay['line2-connected'] === true : false,
                             line3Connected: qRelay['line-count'] >= 3 ? qRelay['line3-connected'] === true : false
                         }
+                        //add qRelay to pv object
                         this.pv.qRelays.push(obj);
 
+                        //update chaaracteristics
                         if (this.qRelaysServices) {
                             this.qRelaysServices[index]
                                 .updateCharacteristic(Characteristic.enphaseQrelayGridProfile, this.pv.arfProfile.name)
@@ -1688,8 +1695,10 @@ class EnvoyDevice extends EventEmitter {
                             communicating: ensemble.communicating === true,
                             operating: ensemble.operating === true
                         }
+                        //add obj to ensemble object
                         this.pv.ensembles.push(obj);
 
+                        //update chaaracteristics
                         if (this.ensemblesServices) {
                             this.ensemblesServices[index]
                                 .updateCharacteristic(Characteristic.enphaseEnsembleStatus, obj.deviceStatus)
@@ -1770,7 +1779,7 @@ class EnvoyDevice extends EventEmitter {
                         this.feature.meters.storage.voltageDivide = obj.phaseMode === 'Split' ? obj.phaseCount : 1;
                     }
 
-                    //add meter to arry
+                    //add meter to pv object
                     this.pv.meters.push(obj);
 
                     //update characteristics
@@ -1836,9 +1845,10 @@ class EnvoyDevice extends EventEmitter {
                         freq: meter.freq,
                         channels: meter.channels ?? []
                     }
+                    //add meter to pv object
                     this.pv.meters[index].readings = obj;
 
-                    //meters services
+                    //update chaaracteristics
                     if (this.metersServices && this.pv.meters[index].state) {
                         this.metersServices[index]
                             .updateCharacteristic(Characteristic.enphaseMeterReadingTime, obj.timeStamp)
@@ -1903,9 +1913,10 @@ class EnvoyDevice extends EventEmitter {
                         maxReportWatts: parseInt(microinverterProduction.maxReportWatts) ?? 0,
                     }
 
-                    //add microinverters power to microinverters and pv object
+                    //add microinverters power to pv object
                     this.pv.microinverters[index].power = obj;
 
+                    //update chaaracteristics
                     if (this.microinvertersServices) {
                         this.microinvertersServices[index]
                             .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, obj.lastReportDate)
@@ -1944,13 +1955,13 @@ class EnvoyDevice extends EventEmitter {
                 }
 
                 //microinverters summary 
-                this.pv.production = {};
-                this.pv.production.microinverters = {
+                const microinverters = {
                     whToday: production.wattHoursToday / 1000,
                     whLastSevenDays: production.wattHoursSevenDays / 1000,
                     whLifeTime: (production.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000,
                     wattsNow: production.wattsNow / 1000
                 };
+                this.pv.production = microinverters;
 
                 //restFul
                 const restFul = this.restFulConnected ? this.restFul.update('production', production) : false;
@@ -2037,6 +2048,7 @@ class EnvoyDevice extends EventEmitter {
                 const debug3 = this.enableDebugMode ? this.emit('debug', `Production power peak detected: ${production.ct.powerPeakDetected}`) : false;
                 const debug4 = this.enableDebugMode ? this.emit('debug', `Production energy state: ${production.ct.energyState}`) : false;
 
+                //update chaaracteristics
                 if (this.systemService) {
                     this.systemService
                         .updateCharacteristic(Characteristic.On, production.ct.powerState)
@@ -2150,7 +2162,8 @@ class EnvoyDevice extends EventEmitter {
                             apparentPower: consumption.apprntPwr / 1000,
                             pwrFactor: consumption.pwrFactor
                         }
-                        this.pv.consumptions.push(obj);
+
+                        //store power peak in pv object
                         const addTotal = measurementType === 'Consumption Total' ? this.pv.consumptionTotalPowerPeak = obj.powerPeak : false;
                         const addNet = measurementType === 'Consumption Net' ? this.pv.consumptionNetPowerPeak = obj.powerPeak : false;
 
@@ -2158,6 +2171,10 @@ class EnvoyDevice extends EventEmitter {
                         const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;
                         const debug2 = this.enableDebugMode ? this.emit('debug', `${measurementType} energy state: ${obj.energyState}`) : false;
 
+                        //add obj to array
+                        this.pv.consumptions.push(obj);
+
+                        //update characteristics
                         if (this.consumptionsServices) {
                             this.consumptionsServices[index]
                                 .updateCharacteristic(Characteristic.enphaseReadingTime, obj.readingTime)
@@ -2308,6 +2325,14 @@ class EnvoyDevice extends EventEmitter {
                     //add  ac batterie summary to pv object
                     this.pv.acBatteries.summary = summary;
 
+
+                    //update chaaracteristics
+                    if (this.enphaseAcBatterieSummaryLevelAndStateService) {
+                        this.enphaseAcBatterieSummaryLevelAndStateService
+                            .updateCharacteristic(Characteristic.On, summary.energyState)
+                            .updateCharacteristic(Characteristic.Brightness, summary.percentFull)
+                    }
+
                     if (this.acBatterieSummaryService) {
                         this.acBatterieSummaryService
                             .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryReadingTime, summary.readingTime)
@@ -2316,12 +2341,6 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryPercentFull, summary.percentFull)
                             .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryActiveCount, summary.activeCount)
                             .updateCharacteristic(Characteristic.enphaseAcBatterieSummaryState, summary.chargeStatus);
-                    }
-
-                    if (this.enphaseAcBatterieSummaryLevelAndStateService) {
-                        this.enphaseAcBatterieSummaryLevelAndStateService
-                            .updateCharacteristic(Characteristic.On, summary.energyState)
-                            .updateCharacteristic(Characteristic.Brightness, summary.percentFull)
                     }
                 }
 
