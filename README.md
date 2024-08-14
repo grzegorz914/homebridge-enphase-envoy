@@ -71,6 +71,15 @@
       * Full Backup `Activate`.
     * Generator `State`.
 
+  * Sensors:
+    * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
+    * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
+    * Encharge: `Backup Level`
+    * Grid Mode:
+      * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
+      * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
+      * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
+
 ### Configuration
 
 * Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
