@@ -241,19 +241,19 @@
 | `disableLogInfo`| If enabled, info log will be hidden, all values and state will not be displayed in Homebridge log console. |
 | `disableLogDeviceInfo` | If enabled, the info device log will be hidden by every plugin restart. |
 | `restFul` | This is RSTful server. |
-| `enable` | If enabled, RESTful server will start automatically and respond to any path request. |
+| `enable` | This enabled, RESTful server, start automatically and respond to any path request. |
 | `port` | Here set the listening `Port` for RESTful server. |
-| `debug` | If enabled, deep log will be present in homebridge console for RESTFul server. |
+| `debug` | This enable deep log and present in homebridge console for RESTFul server. |
 | `mqtt` | This is MQTT Broker. |
-| `enable` | If enabled, MQTT Broker will start automatically and publish all awailable PV data. |
+| `enable` | This enable MQTT Broker, start automatically and publish all awailable data. |
 | `host` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
 | `port` | Here set the `Port` for MQTT Broker, default 1883. |
 | `clientId` | Here optional set the `Client Id` of MQTT Broker. |
 | `prefix` | Here set the `Prefix` for `Topic` or leave empty. |
-| `auth` | If enabled, MQTT Broker will use authorization credentials. |
+| `auth` | This enable MQTT Broker authorization credentials. |
 | `user` | Here set the MQTT Broker user. |
 | `passwd` | Here set the MQTT Broker password. |
-| `debug` | If enabled, deep log will be present in homebridge console for MQTT. |
+| `debug` | This enable deep log and present in homebridge console for MQTT. |
 
 ### RESTFul Integration
 
