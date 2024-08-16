@@ -216,9 +216,13 @@
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| `generatorModeContol` | That are `Generator Mode Control`, control and expose `Switches` in HomeKit. |
+| `name` | Here set Your own tile name. |
+| `mode` | Here select the grid mode `Off`, `On`, `Auto`. |
+| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
 | `generatorModeSensors` | That are `Generator Mode Sensors` for `Generator Mode` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
-| `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`. |
+| `mode` | Here select the grid mode `Off`, `On`, `Auto`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `dataRefreshControl` | This is `Data Refresh Tile` for `Data Refresh` control from HomeKit. |
@@ -271,4 +275,4 @@
 |     | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
 |     | `EnchargeProfile` | `selfconsumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
 |     | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
-|     | `GeneratorMode` | `0`, `1`, `2` | int | Generator mode `0 - off`,`1 - on`, `2 - auto` . |
+|     | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |

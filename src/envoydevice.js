@@ -77,6 +77,7 @@ class EnvoyDevice extends EventEmitter {
 
         this.generatorStateControl = this.envoyFirmware7xx ? device.generatorStateControl || {} : {};
         this.generatorStateSensor = this.envoyFirmware7xx ? device.generatorStateSensor || {} : {};
+        this.generatorModeContol = this.envoyFirmware7xx ? device.generatorModeContol || [] : [];
         this.generatorModeSensors = this.envoyFirmware7xx ? device.generatorModeSensors || [] : [];
 
         //data refresh
@@ -539,6 +540,22 @@ class EnvoyDevice extends EventEmitter {
         };
         this.generatorStateActiveSensorsCount = this.generatorStateActiveSensors.length || 0;
 
+        this.generatorModeActiveControls = [];
+        for (const tile of this.generatorModeSensors) {
+            const name = tile.name ?? false;
+            const displayType = tile.displayType ?? 0;
+            if (!name || displayType === 0) {
+                const log = displayType === 0 ? false : this.emit('message', `Tile Name Missing.`);
+                continue;
+            }
+
+            tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][displayType];
+            tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][displayType];
+            tile.state = false;
+            this.generatorModeActiveControls.push(tile);
+        }
+        this.generatorModeActiveControlsCount = this.generatorModeActiveControls.length || 0;
+
         this.generatorModeActiveSensors = [];
         for (const sensor of this.generatorModeSensors) {
             const name = sensor.name ?? false;
@@ -631,9 +648,6 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
             },
-            powerProductionState: {
-                supported: false
-            },
             ensembles: {
                 supported: false,
                 installed: false,
@@ -687,6 +701,9 @@ class EnvoyDevice extends EventEmitter {
             commLevel: {
                 supported: false,
                 installed: false
+            },
+            powerProductionState: {
+                supported: false
             },
             arfProfile: {
                 supported: false
@@ -1092,14 +1109,15 @@ class EnvoyDevice extends EventEmitter {
 
             //arf profile
             const arfProfile = {
-                name: (profile.name).substring(0, 64) ?? 'Unknown',
+                name: (profile.name).substring(0, 64) ?? false,
                 id: profile.id ?? 0,
                 version: profile.version ?? '',
                 itemCount: profile.item_count ?? 0
             }
-            this.pv.arfProfile = arfProfile;
-            this.ensemble.arfProfile = arfProfile;
-            this.feature.arfProfile.supported = true;
+            const arfProfileSupported = arfProfile.name !== false;
+            this.pv.arfProfile = arfProfileSupported ? arfProfile : {};
+            this.ensemble.arfProfile = arfProfileSupported ? arfProfile : {};
+            this.feature.arfProfile.supported = arfProfileSupported;
 
             //restFul
             const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profile) : false;
@@ -3435,6 +3453,21 @@ class EnvoyDevice extends EventEmitter {
             }
 
             //generator mode sensors
+            if (this.generatorModeActiveControlsCount > 0) {
+                for (let i = 0; i < this.generatorModeActiveControlsCount; i++) {
+                    const mode = this.generatorModeActiveControls[i].mode;
+                    const state = mode === generator.adminMode;
+                    this.generatorModeActiveControls[i].state = state;
+
+                    if (this.generatorModeControlsServices) {
+                        const characteristicType = this.generatorModeActiveControls[i].characteristicType;
+                        this.generatorModeControlsServices[i]
+                            .updateCharacteristic(characteristicType, state)
+                    }
+                }
+            }
+
+            //generator mode sensors
             if (this.generatorModeActiveSensorsCount > 0) {
                 for (let i = 0; i < this.generatorModeActiveSensorsCount; i++) {
                     const mode = this.generatorModeActiveSensors[i].mode;
@@ -3982,7 +4015,7 @@ class EnvoyDevice extends EventEmitter {
     }
 
     async setGeneratorMode(mode) {
-        const debug = this.enableDebugMode ? this.emit('debug', `Set generator state.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Set generator mode.`) : false;
 
         try {
             const options = {
@@ -3997,13 +4030,12 @@ class EnvoyDevice extends EventEmitter {
                 })
             }
 
-            const genMode = ['off', 'on', 'auto'][mode];
             const url = this.url + CONSTANTS.ApiUrls.GeneratorModeGetSet;
-            const generatorState = await axios.post(url, { 'gen_cmd': genMode }, options);
-            const debug = this.enableDebugMode ? this.emit('debug', `Set generator state: ${JSON.stringify(generatorState.data, null, 2)}`) : false;
+            const generatorState = await axios.post(url, { 'gen_cmd': mode }, options);
+            const debug = this.enableDebugMode ? this.emit('debug', `Set generator mode: ${JSON.stringify(generatorState.data, null, 2)}`) : false;
             return true;
         } catch (error) {
-            this.emit('error', `Set generator state error: ${error}.`);
+            this.emit('error', `Set generator mode error: ${error}.`);
         };
     };
 
@@ -4345,7 +4377,7 @@ class EnvoyDevice extends EventEmitter {
                         })
                         .onSet(async (state) => {
                             try {
-                                const genMode = state ? 1 : 0;
+                                const genMode = state ? 'on' : 'off';
                                 const tokenExpired = await this.checkJwtToken();
                                 const setState = !tokenExpired ? await this.setGeneratorMode(genMode) : false;
                                 const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set generator state to: ${setState ? `ON` : `OFF`}`);
@@ -6080,7 +6112,7 @@ class EnvoyDevice extends EventEmitter {
                                 })
                                 .onSet(async (state) => {
                                     try {
-                                        const genMode = state ? 1 : 0;
+                                        const genMode = state ? 'on' : 'off';
                                         const tokenExpired = await this.checkJwtToken();
                                         const setState = !tokenExpired ? await this.setGeneratorMode(genMode) : false;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Set Generator: ${type}, state to: ${setState ? `ON` : `OFF`}`);
@@ -6110,6 +6142,37 @@ class EnvoyDevice extends EventEmitter {
                                     return state;
                                 });
                             this.generatorStateSensorsServices.push(generatorStateSensorsService);
+                        };
+                    };
+
+                    //generator mode control services
+                    if (this.generatorModeActiveControlsCount > 0) {
+                        this.generatorModeControlsServices = [];
+                        for (let i = 0; i < this.generatorModeActiveControlsCount; i++) {
+                            const controlName = this.generatorModeActiveControls[i].namePrefix ? `${accessoryName} ${this.generatorModeActiveControls[i].name}` : this.generatorModeActiveControls[i].name;
+                            const serviceType = this.generatorModeActiveControls[i].serviceType;
+                            const characteristicType = this.generatorModeActiveControls[i].characteristicType;
+                            const debug = this.enableDebugMode ? this.emit('debug', `Prepare Generator ${type} Mode Control ${controlName} Service`) : false;
+                            const generatorModeControlsService = accessory.addService(serviceType, tileName, `generatorModeControlsService${i}`);
+                            generatorModeControlsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            generatorModeControlsService.setCharacteristic(Characteristic.ConfiguredName, controlName);
+                            generatorModeControlsService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.generatorModeActiveControls[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Generator: ${type}, mode control: ${sensorName}, state: ${state ? 'ON' : 'OFF'}`);
+                                    return state;
+                                })
+                                .onSet(async (state) => {
+                                    try {
+                                        const genMode = this.generatorModeActiveControls[i].mode;
+                                        const tokenExpired = await this.checkJwtToken();
+                                        const setState = !tokenExpired && state ? await this.setGeneratorMode(genMode) : false;
+                                        const info = this.disableLogInfo ? false : this.emit('message', `Set Generator: ${type}, mode to: ${genMode}`);
+                                    } catch (error) {
+                                        this.emit('error', `Set Generator: ${type}, state error: ${error}`);
+                                    };
+                                })
+                            this.generatorModeControlsServices.push(generatorModeControlsService);
                         };
                     };
 

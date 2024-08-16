@@ -1757,6 +1757,89 @@
               },
               "required": false
             },
+            "generatorModeControl": {
+              "title": "Mode Control",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Mode name",
+                    "description": "Here set Your own tile name.",
+                    "required": false
+                  },
+                  "mode": {
+                    "title": "Mode",
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "title": "Off",
+                        "enum": [
+                          "off"
+                        ]
+                      },
+                      {
+                        "title": "On",
+                        "enum": [
+                          "on"
+                        ]
+                      },
+                      {
+                        "title": "Auto",
+                        "enum": [
+                          "auto"
+                        ]
+                      }
+                    ],
+                    "description": "Here select the mode.",
+                    "required": true
+                  },
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Switch",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Outlet",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Lightbulb",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the tile type to be displayed in HomeKit.",
+                    "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "required": false
+                  }
+                }
+              },
+              "required": false
+            },
             "generatorModeSensors": {
               "title": "Mode Sensors",
               "type": "array",
@@ -1777,19 +1860,19 @@
                       {
                         "title": "Off",
                         "enum": [
-                          "Off"
+                          "off"
                         ]
                       },
                       {
                         "title": "On",
                         "enum": [
-                          "On"
+                          "on"
                         ]
                       },
                       {
                         "title": "Auto",
                         "enum": [
-                          "Auto"
+                          "auto"
                         ]
                       }
                     ],
@@ -2749,6 +2832,27 @@
                                     "devices[].generatorStateSensor.name",
                                     "devices[].generatorStateSensor.displayType",
                                     "devices[].generatorStateSensor.namePrefix"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Mode Controls",
+                                  "description": "In this section You can create tiles for generator mode control.",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    {
+                                      "key": "devices[].generatorModeControl",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'mode' }}",
+                                      "items": [
+                                        "devices[].generatorModeControl[].name",
+                                        "devices[].generatorModeControl[].mode",
+                                        "devices[].generatorModeControl[].displayType",
+                                        "devices[].generatorModeControl[].namePrefix"
+                                      ]
+                                    }
                                   ]
                                 },
                                 {

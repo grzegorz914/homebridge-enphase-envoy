@@ -198,10 +198,18 @@
                         "displayType": 0,
                         "namePrefix": false
                     },
+                    "generatordModeContol": [
+                        {
+                            "name": "Tile name",
+                            "mode": "auto",
+                            "displayType": 0,
+                            "namePrefix": false
+                        }
+                    ],
                     "generatordModeSensors": [
                         {
                             "name": "Sensor name",
-                            "gridMode": "grid-on",
+                            "mode": "off",
                             "displayType": 0,
                             "namePrefix": false
                         }
