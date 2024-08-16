@@ -918,7 +918,7 @@ class EnvoyDevice extends EventEmitter {
 
         try {
             //create timers array
-            this.timers = [];
+            const timers = [];
 
             //get and validate jwt token
             const getJwtToken = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 0 ? await this.getJwtToken() : true : false;
@@ -976,13 +976,13 @@ class EnvoyDevice extends EventEmitter {
             }
 
             //create timers and start impulse generator
-            const pushTimer0 = updateHome ? this.timers.push({ timerName: 'updateHome', sampling: 60000 }) : false;
-            const pushTimer1 = updateMeters ? this.timers.push({ timerName: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
-            const pushTimer3 = updateMicroinverters ? this.timers.push({ timerName: 'updateMicroinverters', sampling: 80000 }) : false;
-            const pushTimer2 = updateProduction ? this.timers.push({ timerName: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
-            const pushTimer4 = updateEnsemble ? this.timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
-            const pushTimer5 = updateLiveData ? this.timers.push({ timerName: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
-            this.impulseGenerator.start(this.timers);
+            const pushTimer0 = updateHome ? timers.push({ timerName: 'updateHome', sampling: 60000 }) : false;
+            const pushTimer1 = updateMeters ? timers.push({ timerName: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
+            const pushTimer3 = updateMicroinverters ? timers.push({ timerName: 'updateMicroinverters', sampling: 80000 }) : false;
+            const pushTimer2 = updateProduction ? timers.push({ timerName: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer4 = updateEnsemble ? timers.push({ timerName: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer5 = updateLiveData ? timers.push({ timerName: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
+            this.impulseGenerator.start(timers);
         } catch (error) {
             this.emit('error', `Start error: ${error}`);
         };
