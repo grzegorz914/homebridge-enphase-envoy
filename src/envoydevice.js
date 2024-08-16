@@ -797,7 +797,7 @@ class EnvoyDevice extends EventEmitter {
                                 const set1 = this.feature.commLevel.supported ? await this.updatePlcLevel(value) : false;
                                 break;
                             case 'EnchargeProfile':
-                                if (this.feature.encharges.installed) {
+                                if (this.feature.encharges.tariff.supported) {
                                     switch (value) {
                                         case 'selfconsumption':
                                             await this.setEnchargeProfile('self-consumption', this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid);
