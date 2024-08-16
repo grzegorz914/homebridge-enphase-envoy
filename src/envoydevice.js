@@ -790,24 +790,34 @@ class EnvoyDevice extends EventEmitter {
                 .on('subscribedMessage', async (key, value) => {
                     try {
                         switch (key) {
-                            case 'ProductionPowerMode':
+                            case 'PowerProductionState':
                                 const set = this.feature.powerProductionState.supported ? await this.setProductionPowerState(value) : false;
                                 break;
                             case 'PlcLevel':
                                 const set1 = this.feature.commLevel.supported ? await this.updatePlcLevel(value) : false;
                                 break;
                             case 'EnchargeProfile':
-                                switch (value) {
-                                    case 'selfconsumption':
-                                        await this.setEnchargeProfile('self-consumption', this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid);
-                                        break;
-                                    case 'savings':
-                                        await this.setEnchargeProfile('savings-mode', this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid);
-                                        break;
-                                    case 'fullbackup':
-                                        await this.setEnchargeProfile('backup', 100, this.ensemble.encharges.settings.chargeFromGrid);
-                                        break;
+                                if (this.feature.encharges.installed) {
+                                    switch (value) {
+                                        case 'selfconsumption':
+                                            await this.setEnchargeProfile('self-consumption', this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid);
+                                            break;
+                                        case 'savings':
+                                            await this.setEnchargeProfile('savings-mode', this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid);
+                                            break;
+                                        case 'economy':
+                                            await this.setEnchargeProfile('economy', this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid);
+                                            break;
+                                        case 'fullbackup':
+                                            await this.setEnchargeProfile('backup', 100, this.ensemble.encharges.settings.chargeFromGrid);
+                                            break;
+                                    };
                                 };
+                            case 'EnpowerGridState':
+                                const set2 = this.feature.enpowers.installed ? await this.setEnpowerGridState(value) : false;
+                                break;
+                            case 'GeneratorMode':
+                                const set3 = this.feature.generators.installed ? await this.setGeneratorMode(value) : false;
                                 break;
                             default:
                                 this.emit('message', `MQTT Received unknown key: ${key}, value: ${value}`);
@@ -947,7 +957,7 @@ class EnvoyDevice extends EventEmitter {
 
             //access with installer password
             const calculateInstallerPassword = !this.envoyFirmware7xx ? await this.calculateInstallerPassword() : false;
-            const updateProductionPowerMode = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
+            const updatePowerProductionState = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
 
             //get ensemble data only FW. >= 7.x.x.
             const updateEnsemble = validJwtToken ? await this.updateEnsembleInventory() : false;
@@ -2367,8 +2377,8 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Power mode: ${JSON.stringify(powerProductionState, null, 2)}`) : false;
 
             //production power mode
-            const productionPowerModeKeys = Object.keys(powerProductionState);
-            const powerProductionStateSupported = productionPowerModeKeys.includes('powerForcedOff');
+            const PowerProductionStateKeys = Object.keys(powerProductionState);
+            const powerProductionStateSupported = PowerProductionStateKeys.includes('powerForcedOff');
             if (!powerProductionStateSupported) {
                 return false;
             }

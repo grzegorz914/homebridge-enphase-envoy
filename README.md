@@ -267,6 +267,8 @@
 | Subscribe | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- |
 | Envoy |     |     |     |      |
-|     | `ProductionPowerMode` | `true`, `false` | boolean | Production power mode. |
+|     | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
 |     | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
-|     | `EnchargeProfile` | `selfconsumption`, `savings`, `fullbackup` | string | Set encharge profile, not implemented yet. |
+|     | `EnchargeProfile` | `selfconsumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
+|     | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
+|     | `GeneratorMode` | `0`, `1`, `2` | int | Generator mode `0 - off`,`1 - on`, `2 - auto` . |
