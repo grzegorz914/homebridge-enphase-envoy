@@ -69,7 +69,7 @@
       * Savings `Activate`, `Set Reserve`.
       * Economy `Activate`, `Set Reserve`.
       * Full Backup `Activate`.
-    * Generator `State`.
+    * Generator `State`, `Mode`.
 
   * Sensors:
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
