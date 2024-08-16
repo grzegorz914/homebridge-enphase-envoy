@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added enchrge profile cintrol over mqtt
 - added enpower state control over mqtt
 - added generator mode control over mqtt
+- cleanup
 
 ## [9.0.2] - (14.08.2024)
 
