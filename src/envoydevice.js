@@ -687,7 +687,11 @@ class EnvoyDevice extends EventEmitter {
             commLevel: {
                 supported: false,
                 installed: false
+            },
+            arfProfile: {
+                supported: false
             }
+
         }
 
         //pv object
@@ -701,12 +705,7 @@ class EnvoyDevice extends EventEmitter {
             production: {},
             consumptions: [],
             liveData: {},
-            arfProfile: {
-                name: 'Unknown',
-                id: 0,
-                version: '',
-                itemCount: 0
-            },
+            arfProfile: {},
             powerState: false,
             powerLevel: 0,
             productionPowerPeak: 0,
@@ -724,12 +723,7 @@ class EnvoyDevice extends EventEmitter {
             tariff: {},
             dryContacts: [],
             generator: {},
-            arfProfile: {
-                name: 'Unknown',
-                id: 0,
-                version: '',
-                itemCount: 0
-            },
+            arfProfile: {},
         };
 
         //url
@@ -1105,6 +1099,7 @@ class EnvoyDevice extends EventEmitter {
             }
             this.pv.arfProfile = arfProfile;
             this.ensemble.arfProfile = arfProfile;
+            this.feature.arfProfile.supported = true;
 
             //restFul
             const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profile) : false;
@@ -1438,7 +1433,6 @@ class EnvoyDevice extends EventEmitter {
             //update chaaracteristics
             if (this.envoyService) {
                 this.envoyService
-                    .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.pv.arfProfile.name)
                     .updateCharacteristic(Characteristic.enphaseEnvoyAlerts, home.alerts)
                     .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, `${home.dbSize} / ${home.dbPercentFull} %`)
                     .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, home.timeZone)
@@ -1451,6 +1445,10 @@ class EnvoyDevice extends EventEmitter {
                     .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAndLevel, `${home.comm.num} / ${home.comm.level} %`)
                     .updateCharacteristic(Characteristic.enphaseEnvoyCommNumPcuAndLevel, `${home.comm.pcuNum} / ${home.comm.pcuLevel} %`)
                     .updateCharacteristic(Characteristic.enphaseEnvoyCommNumNsrbAndLevel, `${home.comm.nsrbNum} / ${home.comm.nsrbLevel} %`);
+                if (this.feature.arfProfile.supported) {
+                    this.envoyService
+                        .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.pv.arfProfile.name);
+                }
                 if (this.feature.acBatteries.installed) {
                     this.envoyService
                         .updateCharacteristic(Characteristic.enphaseEnvoyCommNumAcbAndLevel, `${home.comm.acbNum} / ${home.comm.acbLevel} %`)
@@ -1535,7 +1533,6 @@ class EnvoyDevice extends EventEmitter {
                     //update chaaracteristics
                     if (this.microinvertersServices) {
                         this.microinvertersServices[index]
-                            .updateCharacteristic(Characteristic.enphaseMicroinverterGridProfile, this.pv.arfProfile.name)
                             .updateCharacteristic(Characteristic.enphaseMicroinverterStatus, obj.deviceStatus)
                             .updateCharacteristic(Characteristic.enphaseMicroinverterLastReportDate, obj.lastReportDate)
                             .updateCharacteristic(Characteristic.enphaseMicroinverterFirmware, obj.firmware)
@@ -1543,6 +1540,10 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.enphaseMicroinverterCommunicating, obj.communicating)
                             .updateCharacteristic(Characteristic.enphaseMicroinverterProvisioned, obj.provisioned)
                             .updateCharacteristic(Characteristic.enphaseMicroinverterOperating, obj.operating);
+                        if (this.feature.arfProfile.supported) {
+                            this.microinvertersServices[index]
+                                .updateCharacteristic(Characteristic.enphaseMicroinverterGridProfile, this.pv.arfProfile.name);
+                        }
                     }
                 });
             }
@@ -1654,7 +1655,6 @@ class EnvoyDevice extends EventEmitter {
                     //update chaaracteristics
                     if (this.qRelaysServices) {
                         this.qRelaysServices[index]
-                            .updateCharacteristic(Characteristic.enphaseQrelayGridProfile, this.pv.arfProfile.name)
                             .updateCharacteristic(Characteristic.enphaseQrelayStatus, obj.deviceStatus)
                             .updateCharacteristic(Characteristic.enphaseQrelayLastReportDate, obj.lastReportDate)
                             .updateCharacteristic(Characteristic.enphaseQrelayFirmware, obj.firmware)
@@ -1675,6 +1675,10 @@ class EnvoyDevice extends EventEmitter {
                         if (obj.linesCount >= 3) {
                             this.qRelaysServices[index]
                                 .updateCharacteristic(Characteristic.enphaseQrelayLine3Connected, obj.line3Connected);
+                        }
+                        if (this.feature.arfProfile.supported) {
+                            this.qRelaysServices[index]
+                                .updateCharacteristic(Characteristic.enphaseQrelayGridProfile, this.pv.arfProfile.name);
                         }
                     }
                 });
@@ -2493,8 +2497,11 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.enphaseEnchargeLedStatus, obj.ledStatus)
                             .updateCharacteristic(Characteristic.enphaseEnchargeDcSwitchOff, obj.dcSwitchOff)
                             .updateCharacteristic(Characteristic.enphaseEnchargeRev, obj.rev)
-                            .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, obj.capacity)
-                            .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, this.ensemble.arfProfile.name)
+                            .updateCharacteristic(Characteristic.enphaseEnchargeCapacity, obj.capacity);
+                        if (this.feature.arfProfile.supported) {
+                            this.enchargesServices[index]
+                                .updateCharacteristic(Characteristic.enphaseEnchargeGridProfile, this.pv.arfProfile.name);
+                        }
                     }
                 });
                 this.ensemble.encharges = encharges;
@@ -2575,8 +2582,11 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.enphaseEnpowerMainsAdminState, obj.mainsAdminState)
                             .updateCharacteristic(Characteristic.enphaseEnpowerMainsOperState, obj.mainsOperState)
                             .updateCharacteristic(Characteristic.enphaseEnpowerEnpwrGridMode, obj.enpwrGridModeTranslated)
-                            .updateCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode, obj.enchgGridModeTranslated)
-                            .updateCharacteristic(Characteristic.enphaseEnpowerGridProfile, this.ensemble.arfProfile.name)
+                            .updateCharacteristic(Characteristic.enphaseEnpowerEnchgGridMode, obj.enchgGridModeTranslated);
+                        if (this.feature.arfProfile.supported) {
+                            this.enpowersServices[index]
+                                .updateCharacteristic(Characteristic.enphaseEnpowerGridProfile, this.pv.arfProfile.name);
+                        }
                     }
 
                     //enpower grid control
@@ -4071,6 +4081,7 @@ class EnvoyDevice extends EventEmitter {
             const dryContactsInstalled = this.feature.dryContacts.installed;
             const generatorsInstalled = this.feature.generators.installed;
             const liveDataSupported = this.feature.liveData.supported;
+            const arfProfileSupported = this.feature.arfProfile.supported;
 
             //system
             if (envoyInstalled) {
@@ -4253,12 +4264,14 @@ class EnvoyDevice extends EventEmitter {
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, last report to enlighten: ${value}`);
                         return value;
                     });
-                this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyGridProfile)
-                    .onGet(async () => {
-                        const value = this.pv.arfProfile.name;
-                        const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, grid profile: ${value}`);
-                        return value;
-                    });
+                if (arfProfileSupported) {
+                    this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyGridProfile)
+                        .onGet(async () => {
+                            const value = this.pv.arfProfile.name;
+                            const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, grid profile: ${value}`);
+                            return value;
+                        });
+                }
                 if (plcLevelSupported) {
                     this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyCheckCommLevel)
                         .onGet(async () => {
@@ -4549,12 +4562,14 @@ class EnvoyDevice extends EventEmitter {
                             const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, last report: ${value}`);
                             return value;
                         });
-                    enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayGridProfile)
-                        .onGet(async () => {
-                            const value = this.pv.arfProfile.name;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, grid profile: ${value}`);
-                            return value;
-                        });
+                    if (arfProfileSupported) {
+                        enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayGridProfile)
+                            .onGet(async () => {
+                                const value = this.pv.arfProfile.name;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, grid profile: ${value}`);
+                                return value;
+                            });
+                    }
                     this.qRelaysServices.push(enphaseQrelayService);
                 }
             }
@@ -4629,12 +4644,14 @@ class EnvoyDevice extends EventEmitter {
                             const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${serialNumber}, last report: ${value}`);
                             return value;
                         });
-                    enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterGridProfile)
-                        .onGet(async () => {
-                            const value = this.pv.arfProfile.name;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${serialNumber}, grid profile: ${value}`);
-                            return value;
-                        });
+                    if (arfProfileSupported) {
+                        enphaseMicroinverterService.getCharacteristic(Characteristic.enphaseMicroinverterGridProfile)
+                            .onGet(async () => {
+                                const value = this.pv.arfProfile.name;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Microinverter: ${serialNumber}, grid profile: ${value}`);
+                                return value;
+                            });
+                    };
                     this.microinvertersServices.push(enphaseMicroinverterService);
                 }
             }
@@ -5802,12 +5819,14 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('message', `Encharge: ${serialNumber}, revision: ${value}`);
                                 return value;
                             });
-                        enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeGridProfile)
-                            .onGet(async () => {
-                                const value = this.ensemble.arfProfile.name;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Encharge: ${serialNumber}, grid profile: ${value}`);
-                                return value;
-                            });
+                        if (arfProfileSupported) {
+                            enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeGridProfile)
+                                .onGet(async () => {
+                                    const value = this.ensemble.arfProfile.name;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Encharge: ${serialNumber}, grid profile: ${value}`);
+                                    return value;
+                                });
+                        }
                         enphaseEnchargeService.getCharacteristic(Characteristic.enphaseEnchargeStatus)
                             .onGet(async () => {
                                 const value = encharge.deviceStatus;
@@ -6015,12 +6034,14 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('message', `Enpower: ${serialNumber}, encharge grid mode: ${value}`);
                                 return value;
                             });
-                        enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerGridProfile)
-                            .onGet(async () => {
-                                const value = this.ensemble.arfProfile.name;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Enpower: ${serialNumber}, grid profile: ${value}`);
-                                return value;
-                            });
+                        if (arfProfileSupported) {
+                            enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerGridProfile)
+                                .onGet(async () => {
+                                    const value = this.ensemble.arfProfile.name;
+                                    const info = this.disableLogInfo ? false : this.emit('message', `Enpower: ${serialNumber}, grid profile: ${value}`);
+                                    return value;
+                                });
+                        }
                         enphaseEnpowerService.getCharacteristic(Characteristic.enphaseEnpowerStatus)
                             .onGet(async () => {
                                 const value = enpower.deviceStatus;
