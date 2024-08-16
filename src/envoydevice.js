@@ -3526,7 +3526,7 @@ class EnvoyDevice extends EventEmitter {
             if (this.feature.microinverters.installed) {
                 this.pv.microinverters.forEach((microinverter, index) => {
                     const key = `${microinverter.serialNumber}`;
-                    const value = (plcLevel[key] ?? 0) * 20;
+                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
 
                     //add microinverters comm level to microinverters and pv object
                     this.pv.microinverters[index].commLevel = value;
@@ -3541,7 +3541,7 @@ class EnvoyDevice extends EventEmitter {
             if (this.feature.acBatteries.installed) {
                 this.pv.acBatteries.devices.forEach((acBatterie, index) => {
                     const key = `${acBatterie.serialNumber}`;
-                    const value = (plcLevel[key] ?? 0) * 20;
+                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
 
                     //add ac batteries comm level to ac batteries and pv object
                     this.pv.acBatteries.devices[index].commLevel = value;
@@ -3557,7 +3557,7 @@ class EnvoyDevice extends EventEmitter {
             if (this.feature.qRelays.installed) {
                 this.pv.qRelays.forEach((qRelay, index) => {
                     const key = `${qRelay.serialNumber}`;
-                    const value = (plcLevel[key] ?? 0) * 20;
+                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
 
                     //add qrelays comm level to qrelays and pv object
                     this.pv.qRelays[index].commLevel = value;
@@ -3572,7 +3572,7 @@ class EnvoyDevice extends EventEmitter {
             if (this.feature.encharges.installed) {
                 this.ensemble.encharges.devices.forEach((encharge, index) => {
                     const key = `${encharge.serialNumber}`;
-                    const value = (plcLevel[key] ?? 0) * 20;
+                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
 
                     //add encharges comm level to ensemble and encharges object
                     this.ensemble.encharges.devices[index].commLevel = value;
@@ -4359,7 +4359,7 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 //plc level control service
-                if (this.plcLevelActiveControlsCount > 0) {
+                if (this.plcLevelActiveControlsCount > 0 && plcLevelSupported) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Plc Level Control Service`) : false;
                     this.plcLevelControlsServices = [];
                     for (let i = 0; i < this.plcLevelActiveControlsCount; i++) {
@@ -4523,12 +4523,14 @@ class EnvoyDevice extends EventEmitter {
                             const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, operating: ${value ? 'Yes' : 'No'}`);
                             return value;
                         });
-                    enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
-                        .onGet(async () => {
-                            const value = qRelay.commLevel;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, plc level: ${value} %`);
-                            return value;
-                        });
+                    if (plcLevelSupported) {
+                        enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayCommLevel)
+                            .onGet(async () => {
+                                const value = qRelay.commLevel;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Q-Relay: ${serialNumber}, plc level: ${value} %`);
+                                return value;
+                            });
+                    }
                     enphaseQrelayService.getCharacteristic(Characteristic.enphaseQrelayStatus)
                         .onGet(async () => {
                             const value = qRelay.deviceStatus;
