@@ -169,7 +169,7 @@
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Net` if nedded `+/-`. |
-| `enepowerGridStateControl` | This is `Enpower Grid State Tile` for `Grid ON/OFF` control from HomeKit. |
+| `enepowerGridStateControl` | This is `Enpower Grid State Control` for `Grid ON/OFF` control from HomeKit. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
 | `namePrefix` | This enable the accessory name as a prefix for the tile name. |
@@ -186,7 +186,7 @@
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `enchargeProfileControl` | This is `Encharge Profile Tile` for `Profile` control from HomeKit. |
+| `enchargeProfileControl` | This is `Encharge Profile Control` for `Profile` control from HomeKit. |
 | `name` | Here set Your own tile name. |
 | `profile` | Here select the profile `Savings`, `Economy`, `Full Backup`, `Self Consumption`. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Lightbulb`. |
@@ -208,7 +208,7 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enpowerDryContactsControl` | This enable `Dry Contacts` control and expose `Switches` in HomeKit. |
 | `enpowerDryContactsSensors` | This enable `Dry Contacts` monitoring and expose `Sensors` in HomeKit. |
-| `generatorStateControl` | This is `Generator State Tile` for `Generator ON/OFF` control from HomeKit. |
+| `generatorStateControl` | This is `Generator State Control` for `Generator OFF/ON` control from HomeKit. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
 | `namePrefix` | This enable the accessory name as a prefix for the tile name. |
@@ -216,7 +216,7 @@
 | `name` | Here set Your own sensor name. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `generatorModeContol` | That are `Generator Mode Control`, control and expose `Switches` in HomeKit. |
+| `generatorModeContol` | That are `Generator Mode Control`, for `Generator OFF/ON/AUTO` control from HomeKit. |
 | `name` | Here set Your own tile name. |
 | `mode` | Here select the grid mode `Off`, `On`, `Auto`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
@@ -225,7 +225,7 @@
 | `mode` | Here select the grid mode `Off`, `On`, `Auto`. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `dataRefreshControl` | This is `Data Refresh Tile` for `Data Refresh` control from HomeKit. |
+| `dataRefreshControl` | This is `Data Refresh Control` for `Data Refresh` control from HomeKit. |
 | `name` | Here set Your own tile name. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
 | `namePrefix` | This enable the accessory name as a prefix for the tile name. |
