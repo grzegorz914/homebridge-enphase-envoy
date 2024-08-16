@@ -1440,7 +1440,7 @@ class EnvoyDevice extends EventEmitter {
                 this.envoyService
                     .updateCharacteristic(Characteristic.enphaseEnvoyGridProfile, this.pv.arfProfile.name)
                     .updateCharacteristic(Characteristic.enphaseEnvoyAlerts, home.alerts)
-                    .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, `${home.dbSize} MB / ${home.dbPercentFull} %`)
+                    .updateCharacteristic(Characteristic.enphaseEnvoyDbSize, `${home.dbSize} / ${home.dbPercentFull} %`)
                     .updateCharacteristic(Characteristic.enphaseEnvoyTimeZone, home.timeZone)
                     .updateCharacteristic(Characteristic.enphaseEnvoyCurrentDateTime, `${home.currentDate} ${home.currentTime}`)
                     .updateCharacteristic(Characteristic.enphaseEnvoyNetworkWebComm, home.network.webComm)
@@ -4213,7 +4213,7 @@ class EnvoyDevice extends EventEmitter {
                 }
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyDbSize)
                     .onGet(async () => {
-                        const value = `${this.pv.envoy.home.dbSize} MB / ${this.pv.envoy.home.dbPercentFull} %`;
+                        const value = `${this.pv.envoy.home.dbSize} / ${this.pv.envoy.home.dbPercentFull} %`;
                         const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, data base size: ${value}`);
                         return value;
                     });
