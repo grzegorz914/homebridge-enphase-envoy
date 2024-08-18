@@ -52,7 +52,7 @@ class EnvoyPlatform {
         const enableDebugMode = device.enableDebugMode || false;
 
         //debug config
-        const debug = enableDebugMode ? log.debug(`Device: ${host} ${deviceName}, did finish launching.`) : false;
+        const debug = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, did finish launching.`) : false;
         const config = {
           ...device,
           envoyPasswd: 'removed',
@@ -64,7 +64,7 @@ class EnvoyPlatform {
             passwd: 'removed'
           }
         };
-        const debug1 = enableDebugMode ? log.debug(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
+        const debug1 = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
 
         //check files exists, if not then create it
         const postFix = host.split('.').join('');
@@ -103,6 +103,9 @@ class EnvoyPlatform {
           .on('debug', (message, debug) => {
             debug = (debug !== null && debug !== undefined) ? `debug: ${message} ${JSON.stringify(debug, null, 2)}` : `${message}`
             log.info(`Device: ${host} ${deviceName}, ${debug}`);
+          })
+          .on('warn', (message) => {
+            log.warn(`Device: ${host} ${deviceName}, ${message}`);
           })
           .on('error', async (error) => {
             const errorData = JSON.stringify(error, null, 2);
