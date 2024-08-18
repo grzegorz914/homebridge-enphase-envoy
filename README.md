@@ -273,6 +273,6 @@
 | Envoy |     |     |     |      |
 |     | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
 |     | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
-|     | `EnchargeProfile` | `selfconsumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
+|     | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
 |     | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
 |     | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |

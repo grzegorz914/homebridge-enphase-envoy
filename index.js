@@ -52,7 +52,7 @@ class EnvoyPlatform {
         const enableDebugMode = device.enableDebugMode || false;
 
         //debug config
-        const debug = enableDebugMode ? log(`Device: ${host} ${deviceName}, did finish launching.`) : false;
+        const debug = enableDebugMode ? log.debug(`Device: ${host} ${deviceName}, did finish launching.`) : false;
         const config = {
           ...device,
           envoyPasswd: 'removed',
@@ -64,7 +64,7 @@ class EnvoyPlatform {
             passwd: 'removed'
           }
         };
-        const debug1 = enableDebugMode ? log(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
+        const debug1 = enableDebugMode ? log.debug(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
 
         //check files exists, if not then create it
         const postFix = host.split('.').join('');
@@ -92,28 +92,30 @@ class EnvoyPlatform {
         const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
         envoyDevice.on('publishAccessory', (accessory) => {
           api.publishExternalAccessories(CONSTANTS.PluginName, [accessory]);
-          const debug = enableDebugMode ? log(`Device: ${host} ${deviceName}, published as external accessory.`) : false;
+          log.success(`Device: ${host} ${deviceName}, published as external accessory.`);
         })
           .on('devInfo', (devInfo) => {
-            log(devInfo);
+            log.info(devInfo);
           })
           .on('message', (message) => {
-            log(`Device: ${host} ${deviceName}, ${message}`);
+            log.info(`Device: ${host} ${deviceName}, ${message}`);
           })
-          .on('debug', (debug) => {
-            log(`Device: ${host} ${deviceName}, debug: ${debug}`);
+          .on('debug', (message, debug) => {
+            debug = (debug !== null && debug !== undefined) ? `debug: ${message} ${JSON.stringify(debug, null, 2)}` : `${message}`
+            log.info(`Device: ${host} ${deviceName}, ${debug}`);
           })
           .on('error', async (error) => {
-            const match = error.match(STATUSCODEREGEX);
+            const errorData = JSON.stringify(error, null, 2);
+            const match = errorData.match(STATUSCODEREGEX);
             const tokenNotValid = envoyFirmware7xx && match && match[1] === '401';
-            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15s.`);
+            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${errorData}, trying again in 15s.`);
 
             envoyDevice.impulseGenerator.stop();
             await new Promise(resolve => setTimeout(resolve, 15000));
             envoyDevice.start();
           })
-          .on('tokenExpired', async (message) => {
-            log(`Device: ${host} ${deviceName}, ${message}`);
+          .on('tokenExpired', async () => {
+            log.warn(`Device: ${host} ${deviceName}, JWT token expired, refreshing in 15s.`);
 
             //start read data
             envoyDevice.impulseGenerator.stop();
