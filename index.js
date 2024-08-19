@@ -86,6 +86,7 @@ class EnvoyPlatform {
           });
         } catch (error) {
           log.error(`Device: ${host} ${deviceName}, prepare files error: ${error}`);
+          return;
         }
 
         //envoy device

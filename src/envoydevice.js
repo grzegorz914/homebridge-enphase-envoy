@@ -849,7 +849,7 @@ class EnvoyDevice extends EventEmitter {
                                 break;
                         };
                     } catch (error) {
-                        this.emit('error', `set: ${key}, over MQTT, error: ${error}`);
+                        this.emit('warn', `set: ${key}, over MQTT, error: ${error}`);
                     };
                 })
                 .on('debug', (debug) => {
@@ -965,23 +965,29 @@ class EnvoyDevice extends EventEmitter {
             //get envoy dev id
             const envoyDevIdExist = this.supportPowerProductionState ? await this.getEnvoyBackboneApp() : false;
 
-            //get envoy info and inventory data
-            await this.updateInfo();
+            //get envoy info
+            const updateInfo = await this.updateInfo();
+
+            //calculate envoy and installer passwords
+            const calculateEnvoyPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateEnvoyPassword() : false;
+            const calculateInstallerPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateInstallerPassword() : false;
+
+            //get home and inventory
             const updateHome = await this.updateHome();
             const updateInventory = updateHome ? await this.updateInventory() : false;
-            const updateMeters = updateHome && this.feature.meters.supported ? await this.updateMeters() : false;
+
+            //get meters
+            const updateMeters = this.feature.meters.supported ? await this.updateMeters() : false;
             const updateMetersReading = updateMeters ? await this.updateMetersReading() : false;
 
             //acces with envoy password
-            const calculateEnvoyPassword = !this.envoyFirmware7xx ? await this.calculateEnvoyPassword() : false;
             const updateMicroinvertersStatus = validJwtToken || calculateEnvoyPassword ? await this.updateMicroinvertersStatus() : false;
 
-            //get production and inverters data
+            //get production and production ct
             const updateProduction = await this.updateProduction();
             const updateProductionCt = updateProduction ? await this.updateProductionCt() : false;
 
             //access with installer password
-            const calculateInstallerPassword = !this.envoyFirmware7xx ? await this.calculateInstallerPassword() : false;
             const updatePowerProductionState = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
 
             //get ensemble data only FW. >= 7.x.x.
@@ -1233,7 +1239,7 @@ class EnvoyDevice extends EventEmitter {
             const envoyInfoBuildInfo = envoyInfo.build_info ?? {};
             this.pv.envoy = {
                 time: new Date(envoyInfo.time * 1000).toLocaleString(),
-                serialNumber: this.envoySerialNumber ? this.envoySerialNumber : envoyInfoDevice.sn.toString(),
+                serialNumber: envoyInfoDevice.sn.toString() ?? this.envoySerialNumber,
                 partNumber: envoyInfoDevice.pn,
                 modelName: CONSTANTS.PartNumbers[envoyInfoDevice.pn] ?? envoyInfoDevice.pn,
                 software: envoyInfoDevice.software,
@@ -1253,7 +1259,7 @@ class EnvoyDevice extends EventEmitter {
 
             //check serial number
             if (!this.pv.envoy.serialNumber) {
-                this.emit('message', `Envoy serial number missing: ${this.pv.serialNumber}.`);
+                throw new Error(`Envoy serial number missing: ${this.pv.serialNumber}.`);
             };
 
             //envoy installed and meters supported
@@ -1816,7 +1822,7 @@ class EnvoyDevice extends EventEmitter {
                     if (production) {
                         this.feature.meters.production.supported = true;
                         this.feature.meters.production.enabled = obj.state ?? false;
-                        this.feature.meters.production.voltageDivide = obj.phaseMode === 'Split' ? obj.phaseCount : 1;
+                        this.feature.meters.production.voltageDivide = obj.phaseMode !== 'Split' ? obj.phaseCount : 1;
                     }
 
                     //consumption
@@ -1824,7 +1830,7 @@ class EnvoyDevice extends EventEmitter {
                     if (consumption) {
                         this.feature.meters.consumption.supported = true;
                         this.feature.meters.consumption.enabled = obj.state ?? false;
-                        this.feature.meters.consumption.voltageDivide = obj.phaseMode === 'Split' ? obj.phaseCount : 1;
+                        this.feature.meters.consumption.voltageDivide = obj.phaseMode !== 'Split' ? obj.phaseCount : 1;
                     }
 
                     //storage
@@ -1832,7 +1838,7 @@ class EnvoyDevice extends EventEmitter {
                     if (storage) {
                         this.feature.meters.storage.supported = true;
                         this.feature.meters.storage.enabled = obj.state ?? false;
-                        this.feature.meters.storage.voltageDivide = obj.phaseMode === 'Split' ? obj.phaseCount : 1;
+                        this.feature.meters.storage.voltageDivide = obj.phaseMode !== 'Split' ? obj.phaseCount : 1;
                     }
 
                     //add meter to pv object
@@ -2061,7 +2067,8 @@ class EnvoyDevice extends EventEmitter {
                         type: CONSTANTS.ApiCodes[productionCtInverters.type] ?? 'Unknown',
                         activeCount: productionCtInverters.activeCount,
                         readingTime: new Date(productionCtInverters.readingTime * 1000).toLocaleString(),
-                        power: productionCtInverters.wNow / 1000 ?? 0,
+                        power: productionCtInverters.wNow ?? 0, //watts
+                        powerKw: productionCtInverters.wNow / 1000 ?? 0, //kW
                         energyLifeTime: (productionCtInverters.whLifetime + this.energyProductionLifetimeOffset) / 1000
                     }
                     //add to pv object
@@ -2082,12 +2089,14 @@ class EnvoyDevice extends EventEmitter {
                         activeCount: metersProductionEnabled ? productionCtProduction.activeCount : this.pv.production.ct.inverters.activeCount,
                         measurmentType: metersProductionEnabled ? CONSTANTS.ApiCodes[productionCtProduction.measurementType] : this.pv.production.ct.inverters.type,
                         readingTime: metersProductionEnabled ? new Date(productionCtProduction.readingTime * 1000).toLocaleString() : this.pv.production.ct.inverters.readingTime,
-                        power: metersProductionEnabled ? productionCtProduction.wNow / 1000 : this.pv.production.ct.inverters.power,
+                        power: metersProductionEnabled ? productionCtProduction.wNow : this.pv.production.ct.inverters.power, //watts
+                        powerKw: metersProductionEnabled ? productionCtProduction.wNow / 1000 : this.pv.production.ct.inverters.powerKw, //kW
                         powerState: metersProductionEnabled ? productionCtProduction.wNow > 0 : this.pv.production.ct.inverters.power > 0 ?? false,
                         powerLevel: metersProductionEnabled ? Math.min(100, Math.max(0, (100 / this.powerProductionSummary) * productionCtProduction.wNow)) : Math.min(100, Math.max(0, (100 / this.powerProductionSummary) * this.pv.production.ct.inverters.power)),
-                        powerPeak: metersProductionEnabled ? (productionCtProduction.wNow / 1000 > storedProductionPower ? productionCtProduction.wNow / 1000 : storedProductionPower) : (this.pv.production.ct.inverters.power > storedProductionPower ? this.pv.production.ct.inverters.power : storedProductionPower),
-                        powerPeakDetected: metersProductionEnabled ? productionCtProduction.wNow / 1000 > storedProductionPower : this.pv.production.ct.inverters.power > storedProductionPower ?? false,
-                        energyState: metersProductionEnabled ? productionCtProduction.whToday / 1000 > 0 : this.pv.production.microinverters.whToday > 0 ?? false,
+                        powerPeak: metersProductionEnabled ? (productionCtProduction.wNow > storedProductionPower ? productionCtProduction.wNow : storedProductionPower) : (this.pv.production.ct.inverters.power > storedProductionPower ? this.pv.production.ct.inverters.power : storedProductionPower),
+                        powerPeakKw: metersProductionEnabled ? (productionCtProduction.wNow > storedProductionPower ? productionCtProduction.wNow / 1000 : storedProductionPower / 1000) : (this.pv.production.ct.inverters.power > storedProductionPower ? this.pv.production.ct.inverters.powerKw : storedProductionPower / 1000),
+                        powerPeakDetected: metersProductionEnabled ? productionCtProduction.wNow > storedProductionPower : this.pv.production.ct.inverters.power > storedProductionPower ?? false,
+                        energyState: metersProductionEnabled ? productionCtProduction.whToday > 0 : this.pv.production.microinverters.whToday > 0 ?? false,
                         energyLifeTime: metersProductionEnabled ? (productionCtProduction.whLifetime + this.energyProductionLifetimeOffset) / 1000 : this.pv.production.ct.inverters.energyLifeTime ?? 0,
                         energyVarhLeadLifetime: metersProductionEnabled ? productionCtProduction.varhLeadLifetime / 1000 : 0,
                         energyVarhLagLifetime: metersProductionEnabled ? productionCtProduction.varhLagLifetime / 1000 : 0,
@@ -2124,8 +2133,8 @@ class EnvoyDevice extends EventEmitter {
                     if (this.productionsService) {
                         this.productionsService
                             .updateCharacteristic(Characteristic.enphaseReadingTime, production.readingTime)
-                            .updateCharacteristic(Characteristic.enphasePower, production.power)
-                            .updateCharacteristic(Characteristic.enphasePowerMax, production.powerPeak)
+                            .updateCharacteristic(Characteristic.enphasePower, production.powerKw)
+                            .updateCharacteristic(Characteristic.enphasePowerMax, production.powerPeakKw)
                             .updateCharacteristic(Characteristic.enphasePowerMaxDetected, production.powerPeakDetected)
                             .updateCharacteristic(Characteristic.enphaseEnergyToday, production.energyToday)
                             .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, production.energyLastSevenDays)
@@ -2215,10 +2224,12 @@ class EnvoyDevice extends EventEmitter {
                         measurmentType: measurementType,
                         activeCount: consumption.activeCount,
                         readingTime: new Date(consumption.readingTime * 1000).toLocaleString(),
-                        power: consumption.wNow / 1000,
+                        power: consumption.wNow ?? 0, //watts
+                        powerKw: consumption.wNow / 1000, //kW
                         powerState: consumption.wNow > 0 ?? false,
-                        powerPeak: consumption.wNow / 1000 > storedConsumptionPower ? consumption.wNow / 1000 : storedConsumptionPower,
-                        powerPeakDetected: consumption.wNow / 1000 > storedConsumptionPower ?? 0,
+                        powerPeak: consumption.wNow > storedConsumptionPower ? consumption.wNow : storedConsumptionPower,
+                        powerPeakKw: consumption.wNow > storedConsumptionPower ? consumption.wNow / 1000 : storedConsumptionPower / 1000,
+                        powerPeakDetected: consumption.wNow > storedConsumptionPower ?? 0,
                         energyState: consumption.whToday > 0 ?? false,
                         energyLifeTime: (consumption.whLifetime + consumptionLifetimeOffset) / 1000,
                         energyVarhLeadLifetime: consumption.varhLeadLifetime / 1000,
@@ -2242,8 +2253,8 @@ class EnvoyDevice extends EventEmitter {
                     if (this.consumptionsServices) {
                         this.consumptionsServices[index]
                             .updateCharacteristic(Characteristic.enphaseReadingTime, obj.readingTime)
-                            .updateCharacteristic(Characteristic.enphasePower, obj.power)
-                            .updateCharacteristic(Characteristic.enphasePowerMax, obj.powerPeak)
+                            .updateCharacteristic(Characteristic.enphasePower, obj.powerKw)
+                            .updateCharacteristic(Characteristic.enphasePowerMax, obj.powerPeakKw)
                             .updateCharacteristic(Characteristic.enphasePowerMaxDetected, obj.powerPeakDetected)
                             .updateCharacteristic(Characteristic.enphaseEnergyToday, obj.energyToday)
                             .updateCharacteristic(Characteristic.enphaseEnergyLastSevenDays, obj.energyLastSevenDays)
@@ -2259,7 +2270,7 @@ class EnvoyDevice extends EventEmitter {
                     //sensors total
                     if (measurementType === 'Consumption Total') {
                         //store power peak in pv object
-                        this.pv.consumptionTotalPowerPeak = obj.powerPeak;
+                        this.pv.consumptionTotalPowerPeak = obj.powerPeakKw;
 
                         //debug
                         const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state:`, obj.powerState) : false;
@@ -2323,7 +2334,7 @@ class EnvoyDevice extends EventEmitter {
                     //sensors net
                     if (measurementType === 'Consumption Net') {
                         //store power peak in pv object
-                        this.pv.consumptionNetPowerPeak = obj.powerPeak;
+                        this.pv.consumptionNetPowerPeak = obj.powerPeakKw;
 
                         //debug
                         const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state:`, obj.powerState) : false;
@@ -3931,7 +3942,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set power produstion state:`, response.data) : false;
             return true;
         } catch (error) {
-            this.emit('warn', `Set production power mode error: ${error}`);
+            throw new Error(`Set production power mode error: ${error}`);
         };
     }
 
@@ -3955,7 +3966,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable:`, response.data) : false;
             return;
         } catch (error) {
-            this.emit('warn', `Requesting live data stream enable rror: ${error}`);
+            throw new Error(`Requesting live data stream enable rror: ${error}`);
         };
     };
 
@@ -3988,7 +3999,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile:`, response.data) : false;
             return;
         } catch (error) {
-            this.emit('warn', `Set encharge profile error: ${error}`);
+            throw new Error(`Set encharge profile error: ${error}`);
         };
     };
 
@@ -4014,7 +4025,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state:`, response.data) : false;
             return true;
         } catch (error) {
-            this.emit('warn', `Set enpower grid state error: ${error}`);
+            throw new Error(`Set enpower grid state error: ${error}`);
         };
     };
 
@@ -4040,7 +4051,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact:`, response.data) : false;
             return true;
         } catch (error) {
-            this.emit('warn', `Set dry contact error: ${error}`);
+            throw new Error(`Set dry contact error: ${error}`);
         };
     }
 
@@ -4077,7 +4088,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact settings:`, response.data) : false;
             return true;
         } catch (error) {
-            this.emit('warn', `Set dry contact settings error: ${error}`);
+            throw new Error(`Set dry contact settings error: ${error}`);
         };
     }
 
@@ -4102,7 +4113,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set generator mode:`, response.data) : false;
             return true;
         } catch (error) {
-            this.emit('warn', `Set generator mode error: ${error}`);
+            throw new Error(`Set generator mode error: ${error}`);
         };
     };
 
@@ -5025,13 +5036,13 @@ class EnvoyDevice extends EventEmitter {
             this.productionsService.setCharacteristic(Characteristic.ConfiguredName, `Production Power And Energy`);
             this.productionsService.getCharacteristic(Characteristic.enphasePower)
                 .onGet(async () => {
-                    const value = this.pv.production.ct.production.power;
+                    const value = this.pv.production.ct.production.powerKw;
                     const info = this.disableLogInfo ? false : this.emit('message', `Production power: ${value} kW`);
                     return value;
                 });
             this.productionsService.getCharacteristic(Characteristic.enphasePowerMax)
                 .onGet(async () => {
-                    const value = this.pv.production.ct.production.powerPeak;
+                    const value = this.pv.production.ct.production.powerPeakKw;
                     const info = this.disableLogInfo ? false : this.emit('message', `Production power peak: ${value} kW`);
                     return value;
                 });
@@ -5207,13 +5218,13 @@ class EnvoyDevice extends EventEmitter {
                     enphaseConsumptionService.setCharacteristic(Characteristic.ConfiguredName, `${measurmentType} Power And Energy`);
                     enphaseConsumptionService.getCharacteristic(Characteristic.enphasePower)
                         .onGet(async () => {
-                            const value = consumption.power;
+                            const value = consumption.powerKw;
                             const info = this.disableLogInfo ? false : this.emit('message', `${measurmentType} power: ${value} kW`);
                             return value;
                         });
                     enphaseConsumptionService.getCharacteristic(Characteristic.enphasePowerMax)
                         .onGet(async () => {
-                            const value = consumption.powerPeak;
+                            const value = consumption.powerPeakKw;
                             const info = this.disableLogInfo ? false : this.emit('message', `${measurmentType} power peak: ${value} kW`);
                             return value;
                         });
