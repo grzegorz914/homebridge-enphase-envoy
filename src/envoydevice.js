@@ -2528,8 +2528,8 @@ class EnvoyDevice extends EventEmitter {
                 const enchargesData = enchargesSupported ? ensembleInventory[0].devices : [];
                 const enchargesCount = enchargesData.length;
                 const enchargesInstalled = enchargesCount > 0;
-                const enchargesPercentFullSummary = [];
                 if (enchargesInstalled) {
+                    const enchargesPercentFullSummary = [];
                     const type = CONSTANTS.ApiCodes[ensembleInventory[0].type];
                     enchargesData.forEach((encharge, index) => {
                         const obj = {
@@ -2592,17 +2592,14 @@ class EnvoyDevice extends EventEmitter {
                     this.ensemble.encharges = encharges;
 
                     //calculate encharges percent full summ
-                    const enchargesPercentFullSum = (enchargesPercentFullSummary.reduce((total, num) => total + num, 0) / enchargesCount) ?? 0;
-                    const enchargesEnergyState = enchargesPercentFullSum > 0;
+                    this.ensemble.encharges.percentFullSum = (enchargesPercentFullSummary.reduce((total, num) => total + num, 0) / enchargesCount) ?? 0;
+                    this.ensemble.encharges.energyState = this.ensemble.encharges.percentFullSum > 0;
 
-                    //add encharges percent full sum to ensemble object
-                    this.ensemble.encharges.percentFullSum = enchargesPercentFullSum;
-                    this.ensemble.encharges.energyState = enchargesEnergyState;
-
+                    //update services
                     if (this.enphaseEnchargesSummaryLevelAndStateService) {
                         this.enphaseEnchargesSummaryLevelAndStateService
-                            .updateCharacteristic(Characteristic.On, enchargesEnergyState)
-                            .updateCharacteristic(Characteristic.Brightness, enchargesPercentFullSum)
+                            .updateCharacteristic(Characteristic.On, this.ensemble.encharges.energyState)
+                            .updateCharacteristic(Characteristic.Brightness, this.ensemble.encharges.percentFullSum)
                     }
 
                     //feature encharges
@@ -2803,10 +2800,7 @@ class EnvoyDevice extends EventEmitter {
                     });
 
                     //sum rated power for all encharges to kW and add to encharge object
-                    const enchargesRatedPowerSum = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000);
-
-                    //add encharges and rated power summ to ensemble object
-                    this.ensemble.encharges.ratedPowerSum = enchargesRatedPowerSum;
+                    this.ensemble.encharges.ratedPowerSum = (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000);
                 }
 
                 //enpowers installed
@@ -2976,7 +2970,6 @@ class EnvoyDevice extends EventEmitter {
                 this.ensemble.secctrl = secctrl;
 
                 //ensemble status services
-                const enchargesPercentFullSum = this.ensemble.encharges.percentFullSum;
                 if (this.ensembleStatusService) {
                     this.ensembleStatusService
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusRestPower, counters.restPower)
@@ -2997,8 +2990,8 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusAggSoc, secctrl.aggSoc)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusAggMaxEnergy, secctrl.aggMaxEnergy)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggSoc, secctrl.encAggSoc)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower, enchargesRatedPowerSum)
-                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggPercentFull, enchargesPercentFullSum)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower, this.ensemble.encharges.ratedPowerSum)
+                        .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggPercentFull, this.ensemble.encharges.percentFullSum)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggBackupEnergy, secctrl.encAggBackupEnergy)
                         .updateCharacteristic(Characteristic.enphaseEnsembleStatusEncAggAvailEnergy, secctrl.encAggAvailEnergy)
                 }
@@ -3387,6 +3380,7 @@ class EnvoyDevice extends EventEmitter {
                 const dryContactsSettings = ensembleDryContactsSettings.dry_contacts;
                 const dryContactsSettingsInstalled = dryContactsSettings.length > 0;
                 if (dryContactsSettingsInstalled) {
+                    const dryContactsStates = [];
                     dryContactsSettings.forEach((setting, index) => {
                         const obj = {
                             id: setting.id, //str NC1
@@ -3403,19 +3397,20 @@ class EnvoyDevice extends EventEmitter {
                             overrideBool: setting.override === 'true' ?? false, //bool
                             manualOverride: setting.manual_override ?? 'false', //str bool
                             manualOverrideBool: setting.manual_override === 'true' ?? false, // bool
-                            loadName: setting.load_name !== '' ? setting.load_name : `Dry contact ${index}.`, //str
+                            loadName: setting.load_name !== '' ? setting.load_name : `Dry contact ${index}`, //str
                             mode: setting.mode, //str manual
                             socLow: setting.soc_low, //float
                             socHigh: setting.soc_high, //float
                             pvSerialNb: setting.pv_serial_nb, //array
                         }
                         this.ensemble.dryContacts[index].settings = obj;
+                        dryContactsStates.push(obj.gridActionBool);
                     });
 
                     //dry contacts settings supported
-                    this.feature.dryContacts.installed = dryContactsSettings.some(contact => contact.gridActionBool);
+                    this.feature.dryContacts.installed = dryContactsStates.includes(true);
                     this.feature.dryContacts.count = dryContactsSettings.length;
-                    this.feature.dryContacts.settings.installed = dryContactsSettings.some(contact => contact.gridActionBool);
+                    this.feature.dryContacts.settings.installed = dryContactsStates.includes(true);
                     this.feature.dryContacts.settings.count = dryContactsSettings.length;
                 }
             }
