@@ -109,10 +109,10 @@ class EnvoyPlatform {
             log.warn(`Device: ${host} ${deviceName}, ${message}`);
           })
           .on('error', async (error) => {
-            const errorData = JSON.stringify(error, null, 2);
+            const errorData = JSON.stringify(error);
             const match = errorData.match(STATUSCODEREGEX);
             const tokenNotValid = envoyFirmware7xx && match && match[1] === '401';
-            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${errorData}, trying again in 15s.`);
+            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15s.`);
 
             envoyDevice.impulseGenerator.stop();
             await new Promise(resolve => setTimeout(resolve, 15000));

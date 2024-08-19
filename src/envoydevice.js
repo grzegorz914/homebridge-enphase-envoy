@@ -1216,8 +1216,8 @@ class EnvoyDevice extends EventEmitter {
                 ignorePiTags: true,
                 allowBooleanAttributes: true
             };
-            const parseString = new XMLParser(options);
-            const parseInfoData = parseString.parse(info);
+            const parserXml = new XMLParser(options);
+            const parseInfoData = parserXml.parse(info);
             const updatedInfoData = {
                 ...parseInfoData,
                 envoy_info: {
@@ -1230,13 +1230,10 @@ class EnvoyDevice extends EventEmitter {
             };
             const debug1 = this.enableDebugMode ? this.emit('debug', `Parsed info:`, updatedInfoData) : false;
 
-            //envoy info
+            //envoy
             const envoyInfo = parseInfoData.envoy_info;
-            const envoyKeys = Object.keys(envoyInfo);
-
-            //device
             const envoyInfoDevice = envoyInfo.device;
-            const envoyInfoBuildInfo = envoyInfo.build_info ?? {};
+            const envoyInfoBuildInfo = envoyInfo.build_info;
             this.pv.envoy = {
                 time: new Date(envoyInfo.time * 1000).toLocaleString(),
                 serialNumber: envoyInfoDevice.sn.toString() ?? this.envoySerialNumber,
@@ -1247,11 +1244,11 @@ class EnvoyDevice extends EventEmitter {
                 seqNum: envoyInfoDevice.seqnum,
                 apiVer: envoyInfoDevice.apiver,
                 imeter: envoyInfoDevice.imeter === true ?? false,
-                webTokens: envoyKeys.includes('web-tokens') ? envoyInfo['web-tokens'] === true : false,
+                webTokens: envoyInfo['web-tokens'] === true ?? false,
                 packages: envoyInfo.package ?? [],
                 buildInfo: {
-                    buildId: envoyInfoBuildInfo.build_id,
-                    buildTimeQmt: new Date(envoyInfoBuildInfo.build_time_gmt * 1000).toLocaleString(),
+                    buildId: envoyInfoBuildInfo.build_id ?? 'Unknown',
+                    buildTimeQmt: new Date(envoyInfoBuildInfo.build_time_gmt * 1000).toLocaleString() ?? '',
                     releaseVer: envoyInfoBuildInfo.release_ver ?? 'Unknown',
                     releaseStage: envoyInfoBuildInfo.release_stage ?? 'Unknown'
                 }
@@ -1259,7 +1256,7 @@ class EnvoyDevice extends EventEmitter {
 
             //check serial number
             if (!this.pv.envoy.serialNumber) {
-                throw new Error(`Envoy serial number missing: ${this.pv.serialNumber}.`);
+                throw new Error(`Envoy serial number missing: ${this.pv.envoy.serialNumber}.`);
             };
 
             //envoy installed and meters supported
@@ -5120,7 +5117,7 @@ class EnvoyDevice extends EventEmitter {
                         const info = this.disableLogInfo ? false : this.emit('message', `Production power peak reset: On`);
                         this.productionsService.updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
                     } catch (error) {
-                        this.emit('error', `Production Power Peak reset error: ${error}`);
+                        this.emit('warn', `Production Power Peak reset error: ${error}`);
                     };
                 });
 
@@ -5300,7 +5297,7 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('message', `${measurmentType} power peak reset: On`);
                                 enphaseConsumptionService.updateCharacteristic(Characteristic.enphasePowerMaxReset, false);
                             } catch (error) {
-                                this.emit('error', `${measurmentType}, power peak reset error: ${error}`);
+                                this.emit('warn', `${measurmentType}, power peak reset error: ${error}`);
                             };
                         });
                     this.consumptionsServices.push(enphaseConsumptionService);
@@ -5749,7 +5746,7 @@ class EnvoyDevice extends EventEmitter {
                             try {
                                 this.enphaseEnchargesSummaryLevelAndStateService.updateCharacteristic(Characteristic.On, this.ensemble.encharges.energyStateSum);
                             } catch (error) {
-                                this.emit('error', `Set Encharges energy state error: ${error}`);
+                                this.emit('warn', `Set Encharges energy state error: ${error}`);
                             };
                         })
                     this.enphaseEnchargesSummaryLevelAndStateService.getCharacteristic(Characteristic.Brightness)
@@ -5762,7 +5759,7 @@ class EnvoyDevice extends EventEmitter {
                             try {
                                 this.enphaseEnchargesSummaryLevelAndStateService.updateCharacteristic(Characteristic.Brightness, this.ensemble.encharges.percentFullSum);
                             } catch (error) {
-                                this.emit('error', `Set Encharges energy level error: ${error}`);
+                                this.emit('warn', `Set Encharges energy level error: ${error}`);
                             };
                         })
 
@@ -5817,7 +5814,7 @@ class EnvoyDevice extends EventEmitter {
                                             const set = !tokenExpired ? state ? await this.setEnchargeProfile(profile, enchargeSettings.reservedSoc, enchargeSettings.chargeFromGrid) : false : false;
                                             const debug = this.enableDebugMode ? this.emit('debug', `Encharges set profile: ${profile}`) : false;
                                         } catch (error) {
-                                            this.emit('error', `Encharges set profile: ${profile}, error: ${error}`);
+                                            this.emit('warn', `Encharges set profile: ${profile}, error: ${error}`);
                                         };
                                     })
                                 enchargeProfileControlService.getCharacteristic(Characteristic.Brightness)
@@ -5836,7 +5833,7 @@ class EnvoyDevice extends EventEmitter {
                                             const set = !tokenExpired ? await this.setEnchargeProfile(profile, value, enchargeSettings.chargeFromGrid) : false;
                                             const debug = this.enableDebugMode ? this.emit('debug', `Encharges set profile: ${profile}, reserve: ${value} %`) : false;
                                         } catch (error) {
-                                            this.emit('error', `Encharges set profile: ${profile} reserve, error: ${error}`);
+                                            this.emit('warn', `Encharges set profile: ${profile} reserve, error: ${error}`);
                                         };
                                     });
                                 this.enchargeProfileControlsServices.push(enchargeProfileControlService);
@@ -5988,7 +5985,7 @@ class EnvoyDevice extends EventEmitter {
                                         const setState = !tokenExpired ? await this.setEnpowerGridState(state) : false;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Set Enpower: ${serialNumber}, grid state to: ${setState ? `Grid ON` : `Grid OFF`}`);
                                     } catch (error) {
-                                        this.emit('error', `Set Enpower: ${serialNumber}, grid state error: ${error}`);
+                                        this.emit('warn', `Set Enpower: ${serialNumber}, grid state error: ${error}`);
                                     };
                                 })
                             this.enpowerGridStateControlsServices.push(enpowerGridStateContolService);
@@ -6060,7 +6057,7 @@ class EnvoyDevice extends EventEmitter {
                                             const setState = !tokenExpired ? await this.setDryContactState(controlId, state) : false;
                                             const info = this.disableLogInfo ? false : this.emit('message', `Set Enpower: ${serialNumber}, ${controlName}, control state to: ${setState ? `Manual` : `Soc`}`);
                                         } catch (error) {
-                                            this.emit('error', `Set ${controlName}, control state error: ${error}`);
+                                            this.emit('warn', `Set ${controlName}, control state error: ${error}`);
                                         };
                                     })
                                 this.dryContactsControlsServices.push(dryContactsContolService);
@@ -6203,7 +6200,7 @@ class EnvoyDevice extends EventEmitter {
                                         const setState = !tokenExpired ? await this.setGeneratorMode(genMode) : false;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Set Generator: ${type}, state to: ${setState ? `ON` : `OFF`}`);
                                     } catch (error) {
-                                        this.emit('error', `Set Generator: ${type}, state error: ${error}`);
+                                        this.emit('warn', `Set Generator: ${type}, state error: ${error}`);
                                     };
                                 })
                             this.generatorStateControlsServices.push(generatorStateContolService);
@@ -6255,7 +6252,7 @@ class EnvoyDevice extends EventEmitter {
                                         const setState = !tokenExpired && state ? await this.setGeneratorMode(genMode) : false;
                                         const info = this.disableLogInfo ? false : this.emit('message', `Set Generator: ${type}, mode to: ${genMode}`);
                                     } catch (error) {
-                                        this.emit('error', `Set Generator: ${type}, state error: ${error}`);
+                                        this.emit('warn', `Set Generator: ${type}, state error: ${error}`);
                                     };
                                 })
                             this.generatorModeControlsServices.push(generatorModeControlsService);

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.2.5] - (19.08.2024)
+
+## Changes
+
+- fix correct display error instead empty object
+- move some error to warn and prevent to reconnect to envoy
+
 ## [9.2.4] - (19.08.2024)
 
 ## Changes
@@ -34,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changes
 
-- add generator mode Off/On/Auto control from home app as a extra tiles 
+- add generator mode Off/On/Auto control from home app as a extra tiles
 - arf profile refactor
 - cleanup
 
@@ -92,10 +99,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - renamed config properties, `supportProductionPowerMode` to `supportPowerProductionState`
 - renamed config properties, `powerProductionControl` to `powerProductionStateControl`
 
-* system data refresh
+- system data refresh
   - added native control from home app as a extra tile
   - added control direct from envoy section, 3rd party app
   - added state sensor
+
 - plc level refresh:
   - added native control from home app as a extra tile
 - power production:
