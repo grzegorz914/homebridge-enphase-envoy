@@ -2067,8 +2067,8 @@ module.exports = (api) => {
   }
   Service.enphaseEnpowerService = enphaseEnpowerService;
 
-  //Ensemble status summary
-  class enphaseEnsembleStatusRestPower extends Characteristic {
+  //Ensemble
+  class enphaseEnsembleRestPower extends Characteristic {
     constructor() {
       super('Rest power', '00000190-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2082,9 +2082,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusRestPower = enphaseEnsembleStatusRestPower;
+  Characteristic.enphaseEnsembleRestPower = enphaseEnsembleRestPower;
 
-  class enphaseEnsembleStatusFreqBiasHz extends Characteristic {
+  class enphaseEnsembleFreqBiasHz extends Characteristic {
     constructor() {
       super('Frequency bias L1', '00000191-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2098,9 +2098,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusFreqBiasHz = enphaseEnsembleStatusFreqBiasHz;
+  Characteristic.enphaseEnsembleFreqBiasHz = enphaseEnsembleFreqBiasHz;
 
-  class enphaseEnsembleStatusVoltageBiasV extends Characteristic {
+  class enphaseEnsembleVoltageBiasV extends Characteristic {
     constructor() {
       super('Voltage bias L1', '00000192-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2114,9 +2114,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusVoltageBiasV = enphaseEnsembleStatusVoltageBiasV;
+  Characteristic.enphaseEnsembleVoltageBiasV = enphaseEnsembleVoltageBiasV;
 
-  class enphaseEnsembleStatusFreqBiasHzQ8 extends Characteristic {
+  class enphaseEnsembleFreqBiasHzQ8 extends Characteristic {
     constructor() {
       super('Frequency bias Q8 L1', '00000193-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2130,9 +2130,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusFreqBiasHzQ8 = enphaseEnsembleStatusFreqBiasHzQ8;
+  Characteristic.enphaseEnsembleFreqBiasHzQ8 = enphaseEnsembleFreqBiasHzQ8;
 
-  class enphaseEnsembleStatusVoltageBiasVQ5 extends Characteristic {
+  class enphaseEnsembleVoltageBiasVQ5 extends Characteristic {
     constructor() {
       super('Voltage bias Q5 L1', '00000194-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2146,9 +2146,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusVoltageBiasVQ5 = enphaseEnsembleStatusVoltageBiasVQ5;
+  Characteristic.enphaseEnsembleVoltageBiasVQ5 = enphaseEnsembleVoltageBiasVQ5;
 
-  class enphaseEnsembleStatusFreqBiasHzPhaseB extends Characteristic {
+  class enphaseEnsembleFreqBiasHzPhaseB extends Characteristic {
     constructor() {
       super('Frequency bias L2', '00000195-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2162,9 +2162,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusFreqBiasHzPhaseB = enphaseEnsembleStatusFreqBiasHzPhaseB;
+  Characteristic.enphaseEnsembleFreqBiasHzPhaseB = enphaseEnsembleFreqBiasHzPhaseB;
 
-  class enphaseEnsembleStatusVoltageBiasVPhaseB extends Characteristic {
+  class enphaseEnsembleVoltageBiasVPhaseB extends Characteristic {
     constructor() {
       super('Voltage bias L2', '00000196-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2178,9 +2178,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseB = enphaseEnsembleStatusVoltageBiasVPhaseB;
+  Characteristic.enphaseEnsembleVoltageBiasVPhaseB = enphaseEnsembleVoltageBiasVPhaseB;
 
-  class enphaseEnsembleStatusFreqBiasHzQ8PhaseB extends Characteristic {
+  class enphaseEnsembleFreqBiasHzQ8PhaseB extends Characteristic {
     constructor() {
       super('Frequency bias Q8 L2', '00000197-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2194,9 +2194,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseB = enphaseEnsembleStatusFreqBiasHzQ8PhaseB;
+  Characteristic.enphaseEnsembleFreqBiasHzQ8PhaseB = enphaseEnsembleFreqBiasHzQ8PhaseB;
 
-  class enphaseEnsembleStatusVoltageBiasVQ5PhaseB extends Characteristic {
+  class enphaseEnsembleVoltageBiasVQ5PhaseB extends Characteristic {
     constructor() {
       super('Voltage bias Q5 L2', '00000198-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2210,9 +2210,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseB = enphaseEnsembleStatusVoltageBiasVQ5PhaseB;
+  Characteristic.enphaseEnsembleVoltageBiasVQ5PhaseB = enphaseEnsembleVoltageBiasVQ5PhaseB;
 
-  class enphaseEnsembleStatusFreqBiasHzPhaseC extends Characteristic {
+  class enphaseEnsembleFreqBiasHzPhaseC extends Characteristic {
     constructor() {
       super('Frequency bias L3', '00000199-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2226,9 +2226,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusFreqBiasHzPhaseC = enphaseEnsembleStatusFreqBiasHzPhaseC;
+  Characteristic.enphaseEnsembleFreqBiasHzPhaseC = enphaseEnsembleFreqBiasHzPhaseC;
 
-  class enphaseEnsembleStatusVoltageBiasVPhaseC extends Characteristic {
+  class enphaseEnsembleVoltageBiasVPhaseC extends Characteristic {
     constructor() {
       super('Voltage bias L3', '00000200-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2242,9 +2242,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseC = enphaseEnsembleStatusVoltageBiasVPhaseC;
+  Characteristic.enphaseEnsembleVoltageBiasVPhaseC = enphaseEnsembleVoltageBiasVPhaseC;
 
-  class enphaseEnsembleStatusFreqBiasHzQ8PhaseC extends Characteristic {
+  class enphaseEnsembleFreqBiasHzQ8PhaseC extends Characteristic {
     constructor() {
       super('Frequency bias Q8 L3', '00000201-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2258,9 +2258,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseC = enphaseEnsembleStatusFreqBiasHzQ8PhaseC;
+  Characteristic.enphaseEnsembleFreqBiasHzQ8PhaseC = enphaseEnsembleFreqBiasHzQ8PhaseC;
 
-  class enphaseEnsembleStatusVoltageBiasVQ5PhaseC extends Characteristic {
+  class enphaseEnsembleVoltageBiasVQ5PhaseC extends Characteristic {
     constructor() {
       super('Voltage bias Q5 L3', '00000202-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2274,9 +2274,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseC = enphaseEnsembleStatusVoltageBiasVQ5PhaseC;
+  Characteristic.enphaseEnsembleVoltageBiasVQ5PhaseC = enphaseEnsembleVoltageBiasVQ5PhaseC;
 
-  class enphaseEnsembleStatusConfiguredBackupSoc extends Characteristic {
+  class enphaseEnsembleConfiguredBackupSoc extends Characteristic {
     constructor() {
       super('Configured backup SoC', '00000203-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2290,9 +2290,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusConfiguredBackupSoc = enphaseEnsembleStatusConfiguredBackupSoc;
+  Characteristic.enphaseEnsembleConfiguredBackupSoc = enphaseEnsembleConfiguredBackupSoc;
 
-  class enphaseEnsembleStatusAdjustedBackupSoc extends Characteristic {
+  class enphaseEnsembleAdjustedBackupSoc extends Characteristic {
     constructor() {
       super('Adjusted backup SoC', '00000204-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2306,9 +2306,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusAdjustedBackupSoc = enphaseEnsembleStatusAdjustedBackupSoc;
+  Characteristic.enphaseEnsembleAdjustedBackupSoc = enphaseEnsembleAdjustedBackupSoc;
 
-  class enphaseEnsembleStatusAggSoc extends Characteristic {
+  class enphaseEnsembleAggSoc extends Characteristic {
     constructor() {
       super('AGG SoC', '00000205-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2322,9 +2322,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusAggSoc = enphaseEnsembleStatusAggSoc;
+  Characteristic.enphaseEnsembleAggSoc = enphaseEnsembleAggSoc;
 
-  class enphaseEnsembleStatusAggMaxEnergy extends Characteristic {
+  class enphaseEnsembleAggMaxEnergy extends Characteristic {
     constructor() {
       super('AGG max energy', '00000206-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2338,9 +2338,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusAggMaxEnergy = enphaseEnsembleStatusAggMaxEnergy;
+  Characteristic.enphaseEnsembleAggMaxEnergy = enphaseEnsembleAggMaxEnergy;
 
-  class enphaseEnsembleStatusEncAggSoc extends Characteristic {
+  class enphaseEnsembleEncAggSoc extends Characteristic {
     constructor() {
       super('ENC SoC', '00000207-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2354,9 +2354,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusEncAggSoc = enphaseEnsembleStatusEncAggSoc;
+  Characteristic.enphaseEnsembleEncAggSoc = enphaseEnsembleEncAggSoc;
 
-  class enphaseEnsembleStatusEncAggRatedPower extends Characteristic {
+  class enphaseEnsembleEncAggRatedPower extends Characteristic {
     constructor() {
       super('ENC rated power', '00000208-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2370,9 +2370,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusEncAggRatedPower = enphaseEnsembleStatusEncAggRatedPower;
+  Characteristic.enphaseEnsembleEncAggRatedPower = enphaseEnsembleEncAggRatedPower;
 
-  class enphaseEnsembleStatusEncAggPercentFull extends Characteristic {
+  class enphaseEnsembleEncAggPercentFull extends Characteristic {
     constructor() {
       super('ENC percent full', '00000211-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2386,9 +2386,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusEncAggPercentFull = enphaseEnsembleStatusEncAggPercentFull;
+  Characteristic.enphaseEnsembleEncAggPercentFull = enphaseEnsembleEncAggPercentFull;
 
-  class enphaseEnsembleStatusEncAggBackupEnergy extends Characteristic {
+  class enphaseEnsembleEncAggBackupEnergy extends Characteristic {
     constructor() {
       super('ENC backup energy', '00000209-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2402,9 +2402,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusEncAggBackupEnergy = enphaseEnsembleStatusEncAggBackupEnergy;
+  Characteristic.enphaseEnsembleEncAggBackupEnergy = enphaseEnsembleEncAggBackupEnergy;
 
-  class enphaseEnsembleStatusEncAggAvailEnergy extends Characteristic {
+  class enphaseEnsembleEncAggAvailEnergy extends Characteristic {
     constructor() {
       super('ENC available energy', '00000210-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2418,41 +2418,41 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatusEncAggAvailEnergy = enphaseEnsembleStatusEncAggAvailEnergy;
+  Characteristic.enphaseEnsembleEncAggAvailEnergy = enphaseEnsembleEncAggAvailEnergy;
 
 
   //Enpower service
-  class enphaseEnsembleStatusService extends Service {
+  class enphaseEnsembleService extends Service {
     constructor(displayName, subtype) {
       super(displayName, '00000009-000A-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
-      this.addCharacteristic(Characteristic.enphaseEnsembleStatusRestPower);
+      this.addCharacteristic(Characteristic.enphaseEnsembleRestPower);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHz);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasV);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzPhaseB);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseB);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseB);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseB);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzPhaseC);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVPhaseC);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusFreqBiasHzQ8PhaseC);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusVoltageBiasVQ5PhaseC);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusConfiguredBackupSoc);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusAdjustedBackupSoc);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusAggSoc);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusAggMaxEnergy);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggSoc);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggRatedPower);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggPercentFull);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggBackupEnergy);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatusEncAggAvailEnergy);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleFreqBiasHz);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleVoltageBiasV);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleFreqBiasHzQ8);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleVoltageBiasVQ5);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleFreqBiasHzPhaseB);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleVoltageBiasVPhaseB);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleFreqBiasHzQ8PhaseB);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleVoltageBiasVQ5PhaseB);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleFreqBiasHzPhaseC);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleVoltageBiasVPhaseC);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleFreqBiasHzQ8PhaseC);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleVoltageBiasVQ5PhaseC);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleConfiguredBackupSoc);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleAdjustedBackupSoc);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleAggSoc);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleAggMaxEnergy);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleEncAggSoc);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleEncAggRatedPower);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleEncAggPercentFull);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleEncAggBackupEnergy);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleEncAggAvailEnergy);
       this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
-  Service.enphaseEnsembleStatusService = enphaseEnsembleStatusService;
+  Service.enphaseEnsembleService = enphaseEnsembleService;
 
   //Wireless connection kit
   class enphaseWirelessConnectionKitType extends Characteristic {
@@ -2526,8 +2526,8 @@ module.exports = (api) => {
   }
   Service.enphaseWirelessConnectionKitService = enphaseWirelessConnectionKitService;
 
-  //Esub
-  class enphaseEnsembleProducing extends Characteristic {
+  //Esub inventoty
+  class enphaseEnsembleInventoryProducing extends Characteristic {
     constructor() {
       super('Producing', '00000230-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2537,9 +2537,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleProducing = enphaseEnsembleProducing;
+  Characteristic.enphaseEnsembleInventoryProducing = enphaseEnsembleInventoryProducing;
 
-  class enphaseEnsembleCommunicating extends Characteristic {
+  class enphaseEnsembleInventoryCommunicating extends Characteristic {
     constructor() {
       super('Communicating', '00000231-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2549,10 +2549,10 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleCommunicating = enphaseEnsembleCommunicating;
+  Characteristic.enphaseEnsembleInventoryCommunicating = enphaseEnsembleInventoryCommunicating;
 
 
-  class enphaseEnsembleOperating extends Characteristic {
+  class enphaseEnsembleInventoryOperating extends Characteristic {
     constructor() {
       super('Operating', '00000232-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2562,9 +2562,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleOperating = enphaseEnsembleOperating;
+  Characteristic.enphaseEnsembleInventoryOperating = enphaseEnsembleInventoryOperating;
 
-  class enphaseEnsembleCommLevel extends Characteristic {
+  class enphaseEnsembleInventoryCommLevel extends Characteristic {
     constructor() {
       super('PLC level', '00000233-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2578,9 +2578,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleCommLevel = enphaseEnsembleCommLevel;
+  Characteristic.enphaseEnsembleInventoryCommLevel = enphaseEnsembleInventoryCommLevel;
 
-  class enphaseEnsembleStatus extends Characteristic {
+  class enphaseEnsembleInventoryStatus extends Characteristic {
     constructor() {
       super('Status', '00000234-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2590,9 +2590,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleStatus = enphaseEnsembleStatus;
+  Characteristic.enphaseEnsembleInventoryStatus = enphaseEnsembleInventoryStatus;
 
-  class enphaseEnsembleFirmware extends Characteristic {
+  class enphaseEnsembleInventoryFirmware extends Characteristic {
     constructor() {
       super('Firmware', '00000235-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2602,9 +2602,9 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleFirmware = enphaseEnsembleFirmware;
+  Characteristic.enphaseEnsembleInventoryFirmware = enphaseEnsembleInventoryFirmware;
 
-  class enphaseEnsembleLastReportDate extends Characteristic {
+  class enphaseEnsembleInventoryLastReportDate extends Characteristic {
     constructor() {
       super('Last report', '00000236-000B-1000-8000-0026BB765291');
       this.setProps({
@@ -2614,25 +2614,25 @@ module.exports = (api) => {
       this.value = this.getDefaultValue();
     }
   }
-  Characteristic.enphaseEnsembleLastReportDate = enphaseEnsembleLastReportDate;
+  Characteristic.enphaseEnsembleInventoryLastReportDate = enphaseEnsembleInventoryLastReportDate;
 
   //eusb service
-  class enphaseEnsembleService extends Service {
+  class enphaseEnsembleInventoryService extends Service {
     constructor(displayName, subtype) {
       super(displayName, '00000011-000B-1000-8000-0026BB765291', subtype);
       // Mandatory Characteristics
-      this.addCharacteristic(Characteristic.enphaseEnsembleProducing);
+      this.addCharacteristic(Characteristic.enphaseEnsembleInventoryProducing);
       // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleCommunicating);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleOperating);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleCommLevel);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleStatus);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleFirmware);
-      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleLastReportDate);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleInventoryCommunicating);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleInventoryOperating);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleInventoryCommLevel);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleInventoryStatus);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleInventoryFirmware);
+      this.addOptionalCharacteristic(Characteristic.enphaseEnsembleInventoryLastReportDate);
       this.addOptionalCharacteristic(Characteristic.ConfiguredName);
     }
   }
-  Service.enphaseEnsembleService = enphaseEnsembleService;
+  Service.enphaseEnsembleInventoryService = enphaseEnsembleInventoryService;
 
   //enphase live data 
   class enphaseLiveDataActivePower extends Characteristic {
