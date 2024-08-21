@@ -290,7 +290,7 @@ class EnvoyDevice extends EventEmitter {
         this.energyProductionLevelActiveSensors = [];
         for (const sensor of this.energyProductionLevelSensors) {
             const name = sensor.name ?? false;
-            const energyLevel = sensor.energyLevel / 1000 ?? 0;
+            const energyLevel = sensor.energyLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
@@ -326,7 +326,7 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionTotalLevelActiveSensors = [];
         for (const sensor of this.energyConsumptionTotalLevelSensors) {
             const name = sensor.name ?? false;
-            const energyLevel = sensor.energyLevel / 1000 ?? 0;
+            const energyLevel = sensor.energyLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
@@ -362,7 +362,7 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionNetLevelActiveSensors = [];
         for (const sensor of this.energyConsumptionNetLevelSensors) {
             const name = sensor.name ?? false;
-            const energyLevel = sensor.energyLevel / 1000 ?? 0;
+            const energyLevel = sensor.energyLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
@@ -985,7 +985,7 @@ class EnvoyDevice extends EventEmitter {
             const updateProduction = await this.updateProduction();
             const updateProductionCt = updateProduction ? await this.updateProductionCt() : false;
 
-            //access with installer password
+            //access with installer password and envoy dev id
             const updatePowerProductionState = envoyDevIdExist && (validJwtToken || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
 
             //get ensemble data only FW. >= 7.x.x.
@@ -1009,10 +1009,6 @@ class EnvoyDevice extends EventEmitter {
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
             const publishAccessory = this.startPrepareAccessory ? this.emit('publishAccessory', accessory) : false;
             this.startPrepareAccessory = false;
-
-            if (this.startPrepareAccessory) {
-                return;
-            }
 
             //create timers and start impulse generator
             const pushTimer0 = updateHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
@@ -1143,7 +1139,7 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Grid Profile', profile) : false;
             return true;
         } catch (error) {
-            this.emit('warn', 'Arf Profile not supported, dont worry all working correct.')
+            this.emit('warn', 'Arf Profile not supported, dont worry all working correct, only the profile name will not be displayed.')
         };
     };
 
@@ -1153,7 +1149,7 @@ class EnvoyDevice extends EventEmitter {
         try {
             // Check if the envoy ID is stored
             const response = await fsPromises.readFile(this.envoyIdFile, 'utf-8');
-            let envoyDevId = response.toString() ?? '';
+            const envoyDevId = response.toString() ?? '';
             const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file:`, envoyDevId.length === 9 ? 'Correct' : 'Missing') : false;
 
             // Check if the envoy ID is correct length
@@ -1161,42 +1157,44 @@ class EnvoyDevice extends EventEmitter {
                 this.envoyDevId = envoyDevId;
                 return true;
             }
+        } catch (error) {
+            this.emit('warn', `Read envoy dev Id from file error: ${error}, trying to get direct from envoy.`)
+        };
+
+        try {
+            const response = await this.axiosInstance(CONSTANTS.ApiUrls.BackboneApplication);
+            const envoyBackboneApp = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app:`, envoyBackboneApp) : false;
+
+            //backbone data
+            const keyword = 'envoyDevId:';
+            const startIndex = envoyBackboneApp.indexOf(keyword);
+
+            //check envoy dev Id exist
+            if (startIndex === -1) {
+                this.emit('warn', `Envoy dev Id in backbone app not found, dont worry all working correct, only the power production control will not be possible.`);
+                return false;
+            }
+
+            const substringStartIndex = startIndex + keyword.length;
+            const envoyDevId = envoyBackboneApp.substr(substringStartIndex, 9);
+            if (envoyDevId.length !== 9) {
+                this.emit('warn', `Envoy dev Id: ${envoyDevId} in backbone app have wrong format, dont worry all working correct, only the power production control will not be possible.`);
+                return false;
+            }
 
             try {
-                const response = await this.axiosInstance(CONSTANTS.ApiUrls.BackboneApplication);
-                const envoyBackboneApp = response.data;
-                const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app:`, envoyBackboneApp) : false;
-
-                //backbone data
-                const keyword = 'envoyDevId:';
-                const startIndex = envoyBackboneApp.indexOf(keyword);
-
-                //check envoy dev Id exist
-                if (startIndex === -1) {
-                    const debug = this.enableDebugMode ? this.emit('warn', `Envoy dev Id not found in backbone app.`) : false;
-                    return false;
-                }
-
-                const substringStartIndex = startIndex + keyword.length;
-                envoyDevId = envoyBackboneApp.substr(substringStartIndex, 9);
-                const debug1 = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from device:`, envoyDevId.length === 9 ? 'Correct' : 'Missing') : false;
-
-                try {
-                    await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
-                    this.envoyDevId = envoyDevId;
-                    return true;
-                } catch (error) {
-                    this.emit('warn', `Save envoy dev Id error: ${error}`);
-                };
-
-                this.feature.backboneApp.supported = true;
-                return true;
+                await fsPromises.writeFile(this.envoyIdFile, envoyDevId);
             } catch (error) {
-                this.emit('warn', `Get backbone app error: ${error}`);
-                return false;
+                this.emit('warn', `Save envoy dev Id error: ${error}.`);
             };
+
+            this.envoyDevId = envoyDevId;
+            this.feature.backboneApp.supported = true;
+            return true;
         } catch (error) {
-            throw new Error(`Requesting envoy dev Id from file error: ${error}`);
+            this.emit('warn', `Get backbone app error: ${error}, dont worry all working correct, only the power production control will not be possible.`);
+            return false;
         };
     };
 
@@ -1286,13 +1284,14 @@ class EnvoyDevice extends EventEmitter {
                 user: CONSTANTS.Authorization.EnvoyUser,
                 passwd: envoyPasswd
             }).on('error', (error) => {
-                this.emit('warn', error)
+                this.emit('warn', `Digest authorization envoy error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed.`)
                 return false;
             })
 
             return true;
         } catch (error) {
-            throw new Error(`Envoy password error: ${error}`);
+            this.emit('warn', `Caalculaate envoy password error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed.`);
+            return false;
         };
     };
 
@@ -1305,8 +1304,8 @@ class EnvoyDevice extends EventEmitter {
             let installerPasswd = response.toString() ?? '0';
             const debug3 = this.enableDebugMode ? this.emit('debug', `Installer password from file:`, installerPasswd.length > 0 ? 'Correct' : 'Missing') : false;
 
-            // Check if the envoy installer password is correct
-            if (installerPasswd === '0') {
+            //check if the envoy installer password is correct
+            if (installerPasswd !== '0') {
                 try {
                     //calculate installer password
                     const passwdCalc = new PasswdCalc({
@@ -1314,10 +1313,11 @@ class EnvoyDevice extends EventEmitter {
                         realm: CONSTANTS.Authorization.Realm,
                         serialNumber: deviceSn
                     }).on('error', (error) => {
-                        this.emit('warn', error)
+                        this.emit('warn', `Calculate password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed.`)
                         return false;
                     });
 
+                    //get installer password
                     installerPasswd = await passwdCalc.getPasswd();
                     const debug3 = this.enableDebugMode ? this.emit('debug', `Calculated installer password:`, installerPasswd.length > 0 ? 'Correct' : 'Missing') : false;
 
@@ -1325,7 +1325,7 @@ class EnvoyDevice extends EventEmitter {
                     try {
                         await fsPromises.writeFile(this.envoyInstallerPasswordFile, installerPasswd);
                     } catch (error) {
-                        this.emit('warn', `Save installer password error: ${error}`);
+                        this.emit('warn', `Save installer password error: ${error}.`);
                     };
                 } catch (error) {
                     this.emit('warn', `Calculate installer password error: ${error}`);
@@ -1338,13 +1338,14 @@ class EnvoyDevice extends EventEmitter {
                 user: CONSTANTS.Authorization.InstallerUser,
                 passwd: installerPasswd
             }).on('error', (error) => {
-                this.emit('warn', error);
+                this.emit('warn', `Digest authorization installer error:  ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed.`)
                 return false;
             });
 
             return true;
         } catch (error) {
-            throw new Error(`Read installer password error: ${error}`);
+            this.emit('warn', `Installer password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed.`);
+            return false;
         };
     };
 
@@ -3828,7 +3829,7 @@ class EnvoyDevice extends EventEmitter {
             //add lived data meteres types add to array
             const activeDeviceTypes = [];
             const pushPvTypeToArray = this.feature.meters.installed && (this.feature.meters.production.enabled || this.feature.meters.consumption.enabled) ? activeDeviceTypes.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
-            const pushStorageTypeToArray = this.feature.meters.installed && this.feature.meters.acBatterie.enabled ? activeDeviceTypes.push({ type: 'Storage', meter: liveDataMeters.storage }) : false;
+            const pushStorageTypeToArray = this.feature.meters.installed && this.feature.meters.acBatterie.enabled ? activeDeviceTypes.push({ type: 'AC Batterie', meter: liveDataMeters.storage }) : false;
             const pushEnchargeTypeToArray = this.feature.meters.installed && this.feature.encharges.installed ? activeDeviceTypes.push({ type: 'Encharge', meter: liveDataMeters.storage }) : false;
             const pushGridTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? activeDeviceTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
             const pushLoadTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? activeDeviceTypes.push({ type: 'Load', meter: liveDataMeters.load }) : false;
@@ -3955,30 +3956,6 @@ class EnvoyDevice extends EventEmitter {
             throw new Error(`Set production power mode error: ${error}`);
         };
     }
-
-    async setLiveDataStream() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream enable.`) : false;
-
-        try {
-            const options = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Cookie: this.cookie
-                },
-                withCredentials: true,
-                httpsAgent: new https.Agent({
-                    keepAlive: true,
-                    rejectUnauthorized: false
-                })
-            }
-            const url = this.url + CONSTANTS.ApiUrls.LiveDataStream;
-            const response = await axios.post(url, { 'enable': 1 }, options);
-            const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable:`, response.data) : false;
-            return;
-        } catch (error) {
-            throw new Error(`Requesting live data stream enable rror: ${error}`);
-        };
-    };
 
     async setEnchargeProfile(profile, reserve, independence) {
         const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile.`) : false;
@@ -4124,6 +4101,30 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             throw new Error(`Set generator mode error: ${error}`);
+        };
+    };
+
+    async setLiveDataStream() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream enable.`) : false;
+
+        try {
+            const options = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Cookie: this.cookie
+                },
+                withCredentials: true,
+                httpsAgent: new https.Agent({
+                    keepAlive: true,
+                    rejectUnauthorized: false
+                })
+            }
+            const url = this.url + CONSTANTS.ApiUrls.LiveDataStream;
+            const response = await axios.post(url, { 'enable': 1 }, options);
+            const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable:`, response.data) : false;
+            return;
+        } catch (error) {
+            throw new Error(`Requesting live data stream enable rror: ${error}`);
         };
     };
 

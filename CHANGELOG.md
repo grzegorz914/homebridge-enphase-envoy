@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.2.9] - (21.08.2024)
+
+## Changes
+
+- fix energy level sensors
+- refactor backbone app code to get envoy dev id
+- refactor envoy password calculate code
+- refactor installer password calculate code
+- add some warn message and allow app working without some not mandatory data
+
 ## [9.2.8] - (20.08.2024)
 
 ## Changes
