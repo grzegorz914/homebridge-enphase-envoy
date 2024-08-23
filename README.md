@@ -258,7 +258,7 @@
 ### RESTFul Integration
 
 | Method | URL | Path | Type |
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- |
 |  Get | `http//ip_address:port`. | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | JSON object. |
 
 | Method | URL | Path | Key | Value | Type | Description |
