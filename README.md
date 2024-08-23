@@ -257,9 +257,9 @@
 
 ### RESTFul Integration
 
-| Method | URL | Path | Type | Description |
+| Method | URL | Path | Type |
 | --- | --- | --- | --- | --- |
-|  Get | `http//homebridge_ip_address:port`. | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | JSON object. | Return data. |
+|  Get | `http//homebridge_ip_address:port`. | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | JSON object. |
 
 | Method | URL | Path | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -272,7 +272,7 @@
 
 ### MQTT Integration
 
-| Method | Topic | Message | Payload |
+| Method | Topic | Message | Type |
 | --- | --- | --- | --- |
 |  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{"wattHoursToday": 2353, "wattsNow": 550}` | JSON object. |
 
