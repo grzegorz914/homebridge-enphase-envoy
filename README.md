@@ -277,7 +277,7 @@
 |  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{"wattHoursToday": 2353, "wattsNow": 550}` | JSON object. |
 
 | Method | Topic | Key | Value | Type | Description |
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | Subscribe | `Set` | `DataSampling` | `true`, `false` | boolean | Start/Stop data sampling. |
 |           | `Set` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
 |           | `Set` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
