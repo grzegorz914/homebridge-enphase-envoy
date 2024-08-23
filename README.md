@@ -257,20 +257,28 @@
 
 ### RESTFul Integration
 
-* Request: `http//homebridge_ip_address:port/path`.
-* Path: `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`.
-* Respone as JSON data.
+| Method | URL | Path | Key | Value | Type | Description |
+| --- | --- | --- | --- | --- | --- |
+
+|  Get | `http//homebridge_ip_address:port`. | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{"Power": true}`| JSON object. | Return data. |
+| Post | `http//homebridge_ip_address:port`. | `/` | `DataSampling` | `true`, `false` | boolean | Start/Stop data sampling. |
+| Post | `http//homebridge_ip_address:port`. | `/` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
+| Post | `http//homebridge_ip_address:port`. | `/` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
+| Post | `http//homebridge_ip_address:port`. | `/` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
+| Post | `http//homebridge_ip_address:port`. | `/` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
+| Post | `http//homebridge_ip_address:port`. | `/` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
 
 ### MQTT Integration
 
-| Direction | Topic | Message | Payload Data |
+| Direction | Topic | Message | Payload |
 | --- | --- | --- | --- |
-|  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level` | `{"wattHoursToday": 2353, "wattsNow": 550}` | JSON object. |
+|  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{"wattHoursToday": 2353, "wattsNow": 550}` | JSON object. |
 |  Subscribe   | `Set` | `{"Power": true}` | JSON object. |
 
 | Subscribe | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- |
 | Envoy |     |     |     |      |
+|     | `DataSampling` | `true`, `false` | boolean | Start/Stop data sampling. |
 |     | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
 |     | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
 |     | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |

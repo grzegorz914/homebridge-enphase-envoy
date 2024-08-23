@@ -29,7 +29,8 @@ class RestFul extends EventEmitter {
             productionCt: 'This data is not available in your system.',
             microinverters: 'This data is not available in your system.',
             powerMode: 'This data is not available in your system.',
-            plcLevel: 'This data is not available in your system.'
+            plcLevel: 'This data is not available in your system.',
+            datasampling: 'This data is not available in your system.'
         };
 
         this.connect();
@@ -39,6 +40,7 @@ class RestFul extends EventEmitter {
         try {
             const restFul = express();
             restFul.set('json spaces', 2);
+            restFul.use(express.json());
             restFul.get('/token', (req, res) => { res.json(this.restFulData.token) });
             restFul.get('/info', (req, res) => { res.json(this.restFulData.info) });
             restFul.get('/home', (req, res) => { res.json(this.restFulData.home) });
@@ -60,6 +62,21 @@ class RestFul extends EventEmitter {
             restFul.get('/microinverters', (req, res) => { res.json(this.restFulData.microinverters) });
             restFul.get('/powermode', (req, res) => { res.json(this.restFulData.powerMode) });
             restFul.get('/plclevel', (req, res) => { res.json(this.restFulData.plcLevel) });
+            restFul.get('/datasampling', (req, res) => { res.json(this.restFulData.dataSampling) });
+
+            //post data
+            restFul.post('/', (req, res) => {
+                try {
+                    const obj = req.body;
+                    const emitDebug = this.restFulDebug ? this.emit('debug', `RESTFul post data: ${JSON.stringify(obj, null, 2)}`) : false;
+                    const key = Object.keys(obj)[0];
+                    const value = Object.values(obj)[0];
+                    this.emit('set', key, value);
+                    res.send('OK');
+                } catch (error) {
+                    this.emit('error', `RESTFul Parse object error: ${error}`);
+                };
+            });
 
             restFul.listen(this.restFulPort, () => {
                 this.emit('connected', `RESTful started on port: ${this.restFulPort}`)
@@ -134,6 +151,9 @@ class RestFul extends EventEmitter {
                 break;
             case 'plclevel':
                 this.restFulData.plcLevel = data;
+                break;
+            case 'datasampling':
+                this.restFulData.dataSampling = data;
                 break;
             default:
                 this.emit('error', `RESTFul update unknown path: ${path}, data: ${data}`)

@@ -98,6 +98,9 @@ class EnvoyPlatform {
           .on('devInfo', (devInfo) => {
             log.info(devInfo);
           })
+          .on('success', (message) => {
+            log.success(message);
+          })
           .on('message', (message) => {
             log.info(`Device: ${host} ${deviceName}, ${message}`);
           })
@@ -112,18 +115,18 @@ class EnvoyPlatform {
             const errorData = JSON.stringify(error);
             const match = errorData.match(STATUSCODEREGEX);
             const tokenNotValid = envoyFirmware7xx && match && match[1] === '401';
-            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 15s.`);
+            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 20s.`);
 
             envoyDevice.impulseGenerator.stop();
-            await new Promise(resolve => setTimeout(resolve, 15000));
+            await new Promise(resolve => setTimeout(resolve, 20000));
             envoyDevice.start();
           })
           .on('tokenExpired', async () => {
-            log.warn(`Device: ${host} ${deviceName}, JWT token expired, refreshing in 15s.`);
+            log.warn(`Device: ${host} ${deviceName}, JWT token expired, refreshing in 20s.`);
 
             //start read data
             envoyDevice.impulseGenerator.stop();
-            await new Promise(resolve => setTimeout(resolve, 15000))
+            await new Promise(resolve => setTimeout(resolve, 20000))
             envoyDevice.start();
           });
       }
