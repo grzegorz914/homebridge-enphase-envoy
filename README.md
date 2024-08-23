@@ -261,10 +261,6 @@
 | --- | --- | --- | --- | --- |
 | Get | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON object. |
 
-| Method | Payload | Type |
-| --- | --- | --- | --- |
-| Post | `http//ip:port` | `{EnchargeProfile: "savings"}` | JSON Object |
-
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | Post | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
@@ -274,15 +270,16 @@
 |      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
 |      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
 
+
+| Method | URL | Payload | Type |
+| --- | --- | --- | --- |
+| Post | `http//ip:port` | `{EnchargeProfile: "savings"}` | JSON Object |
+
 ### MQTT Integration
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
 | Publish | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{wNow: 2353}` | JSON object. |
-
-| Method | Topic | Payload | Type |
-| --- | --- | --- | --- |
-| Subscribe | `Set` | `{DataSampling: true}` | JSON Object |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -292,3 +289,7 @@
 |           | `Set` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
 |           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
 |           | `Set` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
+
+| Method | Topic | Payload | Type |
+| --- | --- | --- | --- |
+| Subscribe | `Set` | `{DataSampling: true}` | JSON Object |
