@@ -260,7 +260,7 @@
 | Method | URL | Path | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 
-|  Get | `http//homebridge_ip_address:port`. | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{"Power": true}`| JSON object. | Return data. |
+|  Get | `http//homebridge_ip_address:port`. | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `N/A` | `N/A ` | JSON object. | Return data. |
 | Post | `http//homebridge_ip_address:port`. | `/` | `DataSampling` | `true`, `false` | boolean | Start/Stop data sampling. |
 | Post | `http//homebridge_ip_address:port`. | `/` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
 | Post | `http//homebridge_ip_address:port`. | `/` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
