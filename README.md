@@ -261,11 +261,11 @@
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| Get | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON object. |
+| GET | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON object. |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
-| Post | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
+| POST | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
 |      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
 |      | `http//ip:port` | `PlcLevel` | `true` | boolean | Check Plc Level On. |
 |      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
