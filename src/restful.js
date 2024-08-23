@@ -156,7 +156,7 @@ class RestFul extends EventEmitter {
                 this.restFulData.dataSampling = data;
                 break;
             default:
-                this.emit('error', `RESTFul update unknown path: ${path}, data: ${data}`)
+                this.emit('error', `RESTFul update path: ${path}, data: ${data}`)
                 break;
         };
         const emitDebug = this.restFulDebug ? this.emit('debug', `RESTFul update path: ${path}, data: ${JSON.stringify(data, null, 2)}`) : false;

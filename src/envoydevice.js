@@ -95,7 +95,9 @@ class EnvoyDevice extends EventEmitter {
 
         //externaal integrations
         const restFul = device.restFul || {};
+        this.restFulConnected = false;
         const mqtt = device.mqtt || {};
+        this.mqttConnected = false;
 
 
         //power production control
@@ -784,7 +786,6 @@ class EnvoyDevice extends EventEmitter {
         });
 
         //RESTFul server
-        this.restFulConnected = false;
         const restFulEnabled = restFul.enable || false;
         if (restFulEnabled) {
             this.restFul = new RestFul({
@@ -798,31 +799,9 @@ class EnvoyDevice extends EventEmitter {
             })
                 .on('set', async (key, value) => {
                     try {
-                        switch (key) {
-                            case 'DataSampling':
-                                const set = value !== this.feature.dataSampling ? value ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop() : false;
-                                break;
-                            case 'PowerProductionState':
-                                const set0 = this.feature.powerProductionState.supported ? await this.setDat(value) : false;
-                                break;
-                            case 'PlcLevel':
-                                const set1 = this.feature.plcLevel.supported ? await this.updateCommLevel(value) : false;
-                                break;
-                            case 'EnchargeProfile':
-                                const set2 = this.feature.encharges.tariff.supported ? await this.setEnchargeProfile(value, this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid) : false;
-                                break;
-                            case 'EnpowerGridState':
-                                const set3 = this.feature.enpowers.installed ? await this.setEnpowerGridState(value) : false;
-                                break;
-                            case 'GeneratorMode':
-                                const set4 = this.feature.generators.installed ? await this.setGeneratorMode(value) : false;
-                                break;
-                            default:
-                                this.emit('warn', `RESTFul Received key: ${key}, value: ${value}`);
-                                break;
-                        };
+                        await this.setOverExternalIntegration('RESTFul', key, value);
                     } catch (error) {
-                        this.emit('warn', `set: ${key}, over RESTFul, error: ${error}`);
+                        this.emit('warn', `RESTFul set error: ${error}`);
                     };
                 })
                 .on('debug', (debug) => {
@@ -834,7 +813,6 @@ class EnvoyDevice extends EventEmitter {
         }
 
         //mqtt client
-        this.mqttConnected = false;
         const mqttEnabled = mqtt.enable || false;
         if (mqttEnabled) {
             this.mqtt = new Mqtt({
@@ -851,35 +829,13 @@ class EnvoyDevice extends EventEmitter {
                 this.emit('success', message);
             })
                 .on('subscribed', (message) => {
-                    this.emit('message', message);
+                    this.emit('success', message);
                 })
                 .on('set', async (key, value) => {
                     try {
-                        switch (key) {
-                            case 'DataSampling':
-                                const set = value !== this.feature.dataSampling ? value ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop() : false;
-                                break;
-                            case 'PowerProductionState':
-                                const set0 = this.feature.powerProductionState.supported ? await this.setProductionPowerState(value) : false;
-                                break;
-                            case 'PlcLevel':
-                                const set1 = this.feature.plcLevel.supported ? await this.updateCommLevel(value) : false;
-                                break;
-                            case 'EnchargeProfile':
-                                const set2 = this.feature.encharges.tariff.supported ? await this.setEnchargeProfile(value, this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid) : false;
-                                break;
-                            case 'EnpowerGridState':
-                                const set3 = this.feature.enpowers.installed ? await this.setEnpowerGridState(value) : false;
-                                break;
-                            case 'GeneratorMode':
-                                const set4 = this.feature.generators.installed ? await this.setGeneratorMode(value) : false;
-                                break;
-                            default:
-                                this.emit('warn', `MQTT Received key: ${key}, value: ${value}`);
-                                break;
-                        };
+                        await this.setOverExternalIntegration('MQTT', key, value);
                     } catch (error) {
-                        this.emit('warn', `set: ${key}, over MQTT, error: ${error}`);
+                        this.emit('warn', `MQTT set, error: ${error}`);
                     };
                 })
                 .on('debug', (debug) => {
@@ -4186,6 +4142,38 @@ class EnvoyDevice extends EventEmitter {
         } catch (error) {
             throw new Error(error);
         }
+    }
+
+    async setOverExternalIntegration(integration, key, value) {
+        try {
+            let set = false
+            switch (key) {
+                case 'DataSampling':
+                    set = value !== this.feature.dataSampling ? value ? this.impulseGenerator.start(this.timers) : this.impulseGenerator.stop() : false;
+                    break;
+                case 'PowerProductionState':
+                    set = this.feature.powerProductionState.supported ? await this.setDat(value) : false;
+                    break;
+                case 'PlcLevel':
+                    set = this.feature.plcLevel.supported ? await this.updateCommLevel(value) : false;
+                    break;
+                case 'EnchargeProfile':
+                    set = this.feature.encharges.tariff.supported ? await this.setEnchargeProfile(value, this.ensemble.encharges.settings.reservedSoc, this.ensemble.encharges.settings.chargeFromGrid) : false;
+                    break;
+                case 'EnpowerGridState':
+                    set = this.feature.enpowers.installed ? await this.setEnpowerGridState(value) : false;
+                    break;
+                case 'GeneratorMode':
+                    set = this.feature.generators.installed ? await this.setGeneratorMode(value) : false;
+                    break;
+                default:
+                    this.emit('warn', `${integration}, received key: ${key}, value: ${value}`);
+                    break;
+            };
+            return set;
+        } catch (error) {
+            throw new Error(`${integration} set key: ${key}, value: ${value}, error: ${error}`);
+        };
     }
 
     getDeviceInfo() {
