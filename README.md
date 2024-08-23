@@ -259,22 +259,22 @@
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-|  Get | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{"wNow": 2353` | JSON object. |
+| Get | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353` | JSON object. |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | Post | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Start/Stop data sampling. |
-|     | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
-|     | `http//ip:port` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
-|     | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
-|     | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
-|     | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
+|      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
+|      | `http//ip:port` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
+|      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
+|      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
+|      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
 
 ### MQTT Integration
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-|  Publish   | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{"wNow": 2353` | JSON object. |
+| Publish | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{wNow: 2353` | JSON object. |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
