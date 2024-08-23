@@ -261,6 +261,7 @@
 | --- | --- | --- | --- | --- |
 | Get | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON object. |
 
+* POST data as a JSON Object `{DataSampling: true}`
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | Post | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
@@ -270,14 +271,13 @@
 |      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
 |      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
 
-* POST data must be JSON Object `{DataSampling: true}`
-
 ### MQTT Integration
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
 | Publish | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{wNow: 2353}` | JSON object. |
 
+* Subscribe data as a JSON Object `{EnchargeProfile: "savings"}`
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | Subscribe | `Set` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
@@ -286,5 +286,3 @@
 |           | `Set` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
 |           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
 |           | `Set` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
-
-* Subscribe data must be JSON Object `{EnchargeProfile: "savings"}`
