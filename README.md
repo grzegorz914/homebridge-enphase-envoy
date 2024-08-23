@@ -257,12 +257,11 @@
 
 ### RESTFul Integration
 
+* POST data as a JSON Object `{DataSampling: true}`
+
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
 | Get | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON object. |
-
-
-* POST data as a JSON Object `{DataSampling: true}`
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -275,12 +274,11 @@
 
 ### MQTT Integration
 
+* Subscribe data as a JSON Object `{EnchargeProfile: "savings"}`
+
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
 | Publish | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{wNow: 2353}` | JSON object. |
-
-
-* Subscribe data as a JSON Object `{EnchargeProfile: "savings"}`
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
