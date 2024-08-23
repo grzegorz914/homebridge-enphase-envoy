@@ -2603,7 +2603,7 @@ class EnvoyDevice extends EventEmitter {
                     this.ensemble.encharges = encharges;
 
                     //calculate encharges percent full summ
-                    this.ensemble.encharges.percentFullSum = (enchargesPercentFullSummary.reduce((total, num) => total + num, 0) / enchargesCount) ?? 0;
+                    this.ensemble.encharges.percentFullSum = (enchargesPercentFullSummary.reduce((total, num) => total + num, 0) / enchargesData.length) ?? 0;
                     this.ensemble.encharges.energyState = this.ensemble.encharges.percentFullSum > 0;
 
                     //update services
