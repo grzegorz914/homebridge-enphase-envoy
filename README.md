@@ -259,16 +259,16 @@
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-|  Get | `http//ip_address:port`. | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{"wNow": 2353` | JSON object. |
+|  Get | `http//ip:port`. | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{"wNow": 2353` | JSON object. |
 
 | Method | URL | Path | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| Post | `http//ip_address:port`. | `/` | `DataSampling` | `true`, `false` | boolean | Start/Stop data sampling. |
-| Post | `http//ip_address:port`. | `/` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
-| Post | `http//ip_address:port`. | `/` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
-| Post | `http//ip_address:port`. | `/` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
-| Post | `http//ip_address:port`. | `/` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
-| Post | `http//ip_address:port`. | `/` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
+| Post | `http//ip:port`. | `/` | `DataSampling` | `true`, `false` | boolean | Start/Stop data sampling. |
+| Post | `http//ip:port`. | `/` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
+| Post | `http//ip:port`. | `/` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
+| Post | `http//ip:port`. | `/` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
+| Post | `http//ip:port`. | `/` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
+| Post | `http//ip:port`. | `/` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
 
 ### MQTT Integration
 
