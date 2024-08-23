@@ -270,10 +270,7 @@
 |      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
 |      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
 
-
-| Method | URL | Payload | Type |
-| --- | --- | --- | --- |
-| Post | `http//ip:port` | `{EnchargeProfile: "savings"}` | JSON Object |
+* POST data must be JSON Object `{DataSampling: true}`
 
 ### MQTT Integration
 
@@ -290,6 +287,4 @@
 |           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
 |           | `Set` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
 
-| Method | Topic | Payload | Type |
-| --- | --- | --- | --- |
-| Subscribe | `Set` | `{DataSampling: true}` | JSON Object |
+* Subscribe data must be JSON Object `{EnchargeProfile: "savings"}`
