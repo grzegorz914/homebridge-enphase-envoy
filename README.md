@@ -264,11 +264,11 @@
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | Post | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Start/Stop data sampling. |
-| Post | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
-| Post | `http//ip:port` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
-| Post | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
-| Post | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
-| Post | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
+|     | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
+|     | `http//ip:port` | `PlcLevel` | `true`, `false` | boolean | Check Plc Level. |
+|     | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
+|     | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
+|     | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
 
 ### MQTT Integration
 
