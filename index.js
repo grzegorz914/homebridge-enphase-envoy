@@ -14,12 +14,6 @@ class EnvoyPlatform {
     }
     this.accessories = [];
 
-    //check if the directory exists, if not then create it
-    const prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
-    if (!fs.existsSync(prefDir)) {
-      fs.mkdirSync(prefDir);
-    };
-
     api.on('didFinishLaunching', () => {
       for (const device of config.devices) {
         const deviceName = device.name ?? false;
@@ -66,26 +60,25 @@ class EnvoyPlatform {
         };
         const debug1 = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
 
-        //check files exists, if not then create it
+        //define directory and file paths
+        const prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
         const postFix = host.split('.').join('');
-        const envoyIdFile = (`${prefDir}/envoyId_${postFix}`);
-        const envoyTokenFile = (`${prefDir}/envoyToken_${postFix}`);
-        const envoyInstallerPasswordFile = (`${prefDir}/envoyInstallerPassword_${postFix}`);
-
+        const envoyIdFile = path.join(prefDir, `envoyId_${postFix}`);
+        const envoyTokenFile = path.join(prefDir, `envoyToken_${postFix}`);
+        const envoyInstallerPasswordFile = path.join(prefDir, `envoyInstallerPassword_${postFix}`);
+        const files = [envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile];
         try {
-          const files = [
-            envoyIdFile,
-            envoyTokenFile,
-            envoyInstallerPasswordFile
-          ];
+          //create directory if it doesn't exist
+          fs.mkdirSync(prefDir, { recursive: true });
 
+          //create files if they don't exist
           files.forEach((file) => {
             if (!fs.existsSync(file)) {
               fs.writeFileSync(file, '0');
             }
           });
         } catch (error) {
-          log.error(`Device: ${host} ${deviceName}, prepare files error: ${error}`);
+          log.error(`Device: ${host} ${deviceName}, prepare directory and files error: ${error.message ?? error}`);
           return;
         }
 
@@ -112,21 +105,17 @@ class EnvoyPlatform {
             log.warn(`Device: ${host} ${deviceName}, ${message}`);
           })
           .on('error', async (error) => {
-            const errorData = JSON.stringify(error);
-            const match = errorData.match(STATUSCODEREGEX);
-            const tokenNotValid = envoyFirmware7xx && match && match[1] === '401';
-            const displayError = tokenNotValid ? log(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again in 20s.`);
-
+            //stop impulse generator
             envoyDevice.impulseGenerator.stop();
+
+            //handle error
+            const errorString = error.toString();
+            const tokenNotValid = envoyFirmware7xx && errorString.includes('status code 401');
+            const tokenExpired = envoyFirmware7xx && errorString.includes('JWT token expired');
+            const displayError = tokenNotValid ? log.warn(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : tokenExpired ? log.warn(`Device: ${host} ${deviceName}, ${error}, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
+
+            //wait and try connect again
             await new Promise(resolve => setTimeout(resolve, 20000));
-            envoyDevice.start();
-          })
-          .on('tokenExpired', async () => {
-            log.warn(`Device: ${host} ${deviceName}, JWT token expired, refreshing in 20s.`);
-
-            //start read data
-            envoyDevice.impulseGenerator.stop();
-            await new Promise(resolve => setTimeout(resolve, 20000))
             envoyDevice.start();
           });
       }

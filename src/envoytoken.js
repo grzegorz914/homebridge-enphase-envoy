@@ -102,7 +102,7 @@ class EnvoyToken extends EventEmitter {
             const parsedData = JSON.parse(data);
             return parsedData.token ? parsedData : null;
         } catch (error) {
-            this.emit('error', `Read token error: ${error}`);
+            this.emit('error', `Read token error: ${error.message ?? error}`);
         }
     }
 
@@ -112,7 +112,7 @@ class EnvoyToken extends EventEmitter {
             await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
             return true;
         } catch (error) {
-            this.emit('error', `Save token error: ${error}`);
+            this.emit('error', `Save token error: ${error.message ?? error}`);
         }
     }
 };

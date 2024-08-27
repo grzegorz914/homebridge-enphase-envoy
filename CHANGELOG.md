@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.3.4] - (27.08.2024)
+
+## Changes
+
+- fix restFul data sampling response
+- fix duplicate start run afer error occur
+- fix characteristic Rest Power warning
+- increase axios timeout to 20sec
+- cleanup
+
 ## [9.3.3] - (23.08.2024)
 
 ## Changes

@@ -30,7 +30,7 @@ class RestFul extends EventEmitter {
             microinverters: 'This data is not available in your system.',
             powerMode: 'This data is not available in your system.',
             plcLevel: 'This data is not available in your system.',
-            datasampling: 'This data is not available in your system.'
+            dataSampling: 'This data is not available in your system.'
         };
 
         this.connect();
@@ -74,7 +74,7 @@ class RestFul extends EventEmitter {
                     this.emit('set', key, value);
                     res.send('OK');
                 } catch (error) {
-                    this.emit('error', `RESTFul Parse object error: ${error}`);
+                    this.emit('error', `RESTFul Parse object error: ${error.message ?? error}`);
                 };
             });
 
@@ -83,7 +83,7 @@ class RestFul extends EventEmitter {
             });
 
         } catch (error) {
-            this.emit('error', `RESTful Connect error: ${error}`)
+            this.emit('error', `RESTful Connect error: ${error.message ?? error}`)
         }
     };
 
