@@ -781,7 +781,7 @@ class EnvoyDevice extends EventEmitter {
             headers: {
                 Accept: 'application/json'
             },
-            timeout: 20000
+            timeout: 25000
         });
 
         //RESTFul server
@@ -853,6 +853,7 @@ class EnvoyDevice extends EventEmitter {
                 const updateHome = tokenExpired ? false : await this.updateHome();
                 const updateInventory = updateHome ? await this.updateInventory() : false;
             } catch (error) {
+                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateMeters', async () => {
@@ -861,6 +862,7 @@ class EnvoyDevice extends EventEmitter {
                 const updateMeters = tokenExpired ? false : await this.updateMeters();
                 const updateMetersReading = updateMeters ? await this.updateMetersReading() : false;
             } catch (error) {
+                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateMicroinvertersStatus', async () => {
@@ -868,6 +870,7 @@ class EnvoyDevice extends EventEmitter {
                 const tokenExpired = await this.checkJwtToken();
                 const updateMicroinvertersStatus = tokenExpired ? false : await this.updateMicroinvertersStatus();
             } catch (error) {
+                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateProduction', async () => {
@@ -876,6 +879,7 @@ class EnvoyDevice extends EventEmitter {
                 const updateProduction = tokenExpired ? false : await this.updateProduction();
                 const updateProductionCt = updateProduction ? await this.updateProductionCt() : false;
             } catch (error) {
+                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateEnsemble', async () => {
@@ -890,6 +894,7 @@ class EnvoyDevice extends EventEmitter {
                 const updateGenerator = updateEnsemble ? await this.updateGenerator() : false;
                 const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
             } catch (error) {
+                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateLiveData', async () => {
@@ -897,6 +902,7 @@ class EnvoyDevice extends EventEmitter {
                 const tokenExpired = await this.checkJwtToken();
                 const updateLiveData = tokenExpired ? false : await this.updateLiveData();
             } catch (error) {
+                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('state', (state) => {
@@ -937,8 +943,6 @@ class EnvoyDevice extends EventEmitter {
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Data Sampling', { state: state }) : false;
         });
-
-        this.start();
     };
 
     async start() {
@@ -1014,8 +1018,10 @@ class EnvoyDevice extends EventEmitter {
             const pushTimer4 = updateEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
             const pushTimer5 = updateLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
             this.impulseGenerator.start(this.timers);
+            return true;
         } catch (error) {
-            this.emit('error', error);
+            this.impulseGenerator.stop();
+            throw new Error(error);
         };
     };
 
@@ -1080,7 +1086,7 @@ class EnvoyDevice extends EventEmitter {
                     keepAlive: false,
                     rejectUnauthorized: false
                 }),
-                timeout: 20000
+                timeout: 25000
             });
 
             const response = await axiosInstanceToken(CONSTANTS.ApiUrls.CheckJwt);
@@ -1100,7 +1106,7 @@ class EnvoyDevice extends EventEmitter {
                     keepAlive: false,
                     rejectUnauthorized: false
                 }),
-                timeout: 20000
+                timeout: 25000
             });
 
             this.cookie = cookie;
@@ -1732,7 +1738,7 @@ class EnvoyDevice extends EventEmitter {
             const ensemblesInventoryInstalled = ensemblesInventory.length > 0;
             if (ensemblesInventoryInstalled) {
                 const type = CONSTANTS.ApiCodes[inventory[3].type] ?? 'Unknown';
-                ensembles.forEach((ensemble, index) => {
+                ensemblesInventory.forEach((ensemble, index) => {
                     const obj = {
                         type: type,
                         partNumber: CONSTANTS.PartNumbers[ensemble.part_num] ?? ensemble.part_num,

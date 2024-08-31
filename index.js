@@ -14,7 +14,7 @@ class EnvoyPlatform {
     }
     this.accessories = [];
 
-    api.on('didFinishLaunching', () => {
+    api.on('didFinishLaunching', async () => {
       for (const device of config.devices) {
         const deviceName = device.name ?? false;
         const envoyFirmware7xx = device.envoyFirmware7xx || false;
@@ -83,41 +83,53 @@ class EnvoyPlatform {
         }
 
         //envoy device
-        const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
-        envoyDevice.on('publishAccessory', (accessory) => {
-          api.publishExternalAccessories(CONSTANTS.PluginName, [accessory]);
-          log.success(`Device: ${host} ${deviceName}, published as external accessory.`);
-        })
-          .on('devInfo', (devInfo) => {
-            log.info(devInfo);
+        try {
+          this.envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
+          this.envoyDevice.on('publishAccessory', (accessory) => {
+            api.publishExternalAccessories(CONSTANTS.PluginName, [accessory]);
+            log.success(`Device: ${host} ${deviceName}, published as external accessory.`);
           })
-          .on('success', (message) => {
-            log.success(`Device: ${host} ${deviceName}, ${message}`);
-          })
-          .on('message', (message) => {
-            log.info(`Device: ${host} ${deviceName}, ${message}`);
-          })
-          .on('debug', (message, debug) => {
-            debug = (debug !== null && debug !== undefined) ? `debug: ${message} ${JSON.stringify(debug, null, 2)}` : `${message}`
-            log.info(`Device: ${host} ${deviceName}, ${debug}`);
-          })
-          .on('warn', (message) => {
-            log.warn(`Device: ${host} ${deviceName}, ${message}`);
-          })
-          .on('error', async (error) => {
-            //stop impulse generator
-            envoyDevice.impulseGenerator.stop();
+            .on('devInfo', (devInfo) => {
+              log.info(devInfo);
+            })
+            .on('success', (message) => {
+              log.success(`Device: ${host} ${deviceName}, ${message}`);
+            })
+            .on('message', (message) => {
+              log.info(`Device: ${host} ${deviceName}, ${message}`);
+            })
+            .on('debug', (message, debug) => {
+              debug = (debug !== null && debug !== undefined) ? `debug: ${message} ${JSON.stringify(debug, null, 2)}` : `${message}`
+              log.info(`Device: ${host} ${deviceName}, ${debug}`);
+            })
+            .on('warn', (message) => {
+              log.warn(`Device: ${host} ${deviceName}, ${message}`);
+            })
+            .on('error', async (error) => {
+              //handle error
+              const errorString = error.toString();
+              const tokenNotValid = envoyFirmware7xx && errorString.includes('status code 401');
+              const tokenExpired = envoyFirmware7xx && errorString.includes('JWT token expired');
+              const displayError = tokenNotValid ? log.warn(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : tokenExpired ? log.warn(`Device: ${host} ${deviceName}, ${error}, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
 
-            //handle error
-            const errorString = error.toString();
-            const tokenNotValid = envoyFirmware7xx && errorString.includes('status code 401');
-            const tokenExpired = envoyFirmware7xx && errorString.includes('JWT token expired');
-            const displayError = tokenNotValid ? log.warn(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : tokenExpired ? log.warn(`Device: ${host} ${deviceName}, ${error}, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
+              //wait and try connect again
+              await new Promise(resolve => setTimeout(resolve, 20000));
+              await this.envoyDevice.start();
+            });
 
-            //wait and try connect again
-            await new Promise(resolve => setTimeout(resolve, 20000));
-            envoyDevice.start();
-          });
+          //start
+          await this.envoyDevice.start();
+        } catch (error) { //stop impulse generator
+          //handle error
+          const errorString = error.toString();
+          const tokenNotValid = envoyFirmware7xx && errorString.includes('status code 401');
+          const tokenExpired = envoyFirmware7xx && errorString.includes('JWT token expired');
+          const displayError = tokenNotValid ? log.warn(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : tokenExpired ? log.warn(`Device: ${host} ${deviceName}, ${error}, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
+
+          //wait and try connect again
+          await new Promise(resolve => setTimeout(resolve, 20000));
+          await this.envoyDevice.start();
+        }
       }
     });
   }
