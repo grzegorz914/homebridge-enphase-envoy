@@ -106,6 +106,8 @@ class EnvoyPlatform {
               log.warn(`Device: ${host} ${deviceName}, ${message}`);
             })
             .on('error', async (error) => {
+              this.envoyDevice.impulseGenerator.stop();
+
               //handle error
               const errorString = error.toString();
               const tokenNotValid = envoyFirmware7xx && errorString.includes('status code 401');
@@ -120,15 +122,7 @@ class EnvoyPlatform {
           //start
           await this.envoyDevice.start();
         } catch (error) { //stop impulse generator
-          //handle error
-          const errorString = error.toString();
-          const tokenNotValid = envoyFirmware7xx && errorString.includes('status code 401');
-          const tokenExpired = envoyFirmware7xx && errorString.includes('JWT token expired');
-          const displayError = tokenNotValid ? log.warn(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : tokenExpired ? log.warn(`Device: ${host} ${deviceName}, ${error}, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
-
-          //wait and try connect again
-          await new Promise(resolve => setTimeout(resolve, 20000));
-          await this.envoyDevice.start();
+          log.error(`Device: ${host} ${deviceName}, ${error}.`);
         }
       }
     });

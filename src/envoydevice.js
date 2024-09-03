@@ -583,6 +583,7 @@ class EnvoyDevice extends EventEmitter {
         this.envoyTokenFile = envoyTokenFile;
         this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
         this.startPrepareAccessory = true;
+        this.startRuning = false;
 
         //envoy dev id
         this.envoyDevId = '';
@@ -853,7 +854,6 @@ class EnvoyDevice extends EventEmitter {
                 const updateHome = tokenExpired ? false : await this.updateHome();
                 const updateInventory = updateHome ? await this.updateInventory() : false;
             } catch (error) {
-                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateMeters', async () => {
@@ -862,7 +862,6 @@ class EnvoyDevice extends EventEmitter {
                 const updateMeters = tokenExpired ? false : await this.updateMeters();
                 const updateMetersReading = updateMeters ? await this.updateMetersReading() : false;
             } catch (error) {
-                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateMicroinvertersStatus', async () => {
@@ -870,7 +869,6 @@ class EnvoyDevice extends EventEmitter {
                 const tokenExpired = await this.checkJwtToken();
                 const updateMicroinvertersStatus = tokenExpired ? false : await this.updateMicroinvertersStatus();
             } catch (error) {
-                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateProduction', async () => {
@@ -879,7 +877,6 @@ class EnvoyDevice extends EventEmitter {
                 const updateProduction = tokenExpired ? false : await this.updateProduction();
                 const updateProductionCt = updateProduction ? await this.updateProductionCt() : false;
             } catch (error) {
-                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateEnsemble', async () => {
@@ -894,7 +891,6 @@ class EnvoyDevice extends EventEmitter {
                 const updateGenerator = updateEnsemble ? await this.updateGenerator() : false;
                 const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
             } catch (error) {
-                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('updateLiveData', async () => {
@@ -902,7 +898,6 @@ class EnvoyDevice extends EventEmitter {
                 const tokenExpired = await this.checkJwtToken();
                 const updateLiveData = tokenExpired ? false : await this.updateLiveData();
             } catch (error) {
-                this.impulseGenerator.stop();
                 this.emit('error', error);
             };
         }).on('state', (state) => {
@@ -947,6 +942,11 @@ class EnvoyDevice extends EventEmitter {
 
     async start() {
         const debug = this.enableDebugMode ? this.emit('debug', `Start.`) : false;
+
+        //check envoy dev Id exist
+        if (this.startRuning) {
+            return;
+        }
 
         try {
             //set start runing
@@ -1018,10 +1018,11 @@ class EnvoyDevice extends EventEmitter {
             const pushTimer4 = updateEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
             const pushTimer5 = updateLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
             this.impulseGenerator.start(this.timers);
+            this.startRuning = false;
             return true;
         } catch (error) {
-            this.impulseGenerator.stop();
-            throw new Error(error);
+            this.startRuning = false;
+            this.emit('error', error);
         };
     };
 
@@ -6101,7 +6102,7 @@ class EnvoyDevice extends EventEmitter {
                         if (this.enpowerDryContactsControl) {
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Enpower ${serialNumber} Dry Contacts Control Services`) : false;
                             this.dryContactsControlsServices = [];
-                            this.dryContacts.forEach((contact, index) => {
+                            this.ensemble.dryContacts.forEach((contact, index) => {
                                 const controlId = contact.settings.id;
                                 const controlName = contact.settings.loadName;
                                 const dryContactsContolService = accessory.addService(Service.Switch, controlName, `dryContactsContolService${index}`);
@@ -6129,7 +6130,7 @@ class EnvoyDevice extends EventEmitter {
                         if (this.enpowerDryContactsSensors) {
                             const debug = this.enableDebugMode ? this.emit('debug', `Prepare Enpower ${serialNumber} Dry Contacts Sensors Services`) : false;
                             this.dryContactsSensorsServices = [];
-                            this.dryContacts.forEach((contact, index) => {
+                            this.ensemble.dryContacts.forEach((contact, index) => {
                                 const controlName = contact.settings.loadName;
                                 const dryContactsSensorsService = accessory.addService(Service.ContactSensor, controlName, `dryContactsSensorsService${index}`);
                                 dryContactsSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
