@@ -47,18 +47,19 @@
   * WirelessKit `Communications Kit`.
   * Generator
 * Exposed accessory in the native Home app:
-  * Sensors:
+  * Monitoring Sensors:
     * System `Data Refresh`
     * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
     * Enpower `Grid State`.
     * Encharge: `State`, `Backup Level`, `Dry Contacts`.
+    * Encharge Profile: `Self Consumption`, `Savings`, `Economy`, `Full Backup`.
     * Grid Mode:
       * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
       * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
       * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
     * Generator `State`, `Mode`.  
-  * Switches, Outlets, Lightbulbs:
+  * Control Switches, Outlets, Lightbulbs:
     * System `Data Refresh`,
     * Production `Plc Level`, `Power Mode`, `Power State`, `Power Level`.
     * AC Battery `Energy State`, `Energy Level`.
@@ -70,15 +71,6 @@
       * Economy `Activate`, `Set Reserve`.
       * Full Backup `Activate`.
     * Generator `State`, `Mode`.
-
-  * Sensors:
-    * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
-    * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
-    * Encharge: `Backup Level`
-    * Grid Mode:
-      * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-      * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-      * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
 
 ### Configuration
 
@@ -190,6 +182,11 @@
 | `name` | Here set Your own tile name. |
 | `profile` | Here select the profile `Savings`, `Economy`, `Full Backup`, `Self Consumption`. |
 | `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Lightbulb`. |
+| `enchargeProfileSensors` | That are `Encharge Profile Sensors` for `Profile` monitoring, if the `Profile` matches, the contact fired. |
+| `name` | Here set Your own sensor name. |
+| `profile` | Here select the profile `Savings`, `Economy`, `Full Backup`, `Self Consumption`. |
+| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
+| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `enchargeGridModeSensors` | That are `Encharge Grid Mode Sensors` for `Encharge Grid Mod` monitoring, if the `Mode` matches, the contact fired. |
 | `name` | Here set Your own sensor name. |
 | `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`. |
