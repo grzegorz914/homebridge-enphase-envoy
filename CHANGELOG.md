@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.4.0] - (17.09.2024)
+
+## Changes
+
+- added encharge profile sensors
+- fix battery/encharge state and backup level delay
+- fix grid state sensor
+- move some message to warn
+- use async/await for impulse generator
+- update dependencies
+- cleanup
+
 ## [9.3.5] - (31.08.2024)
 
 ## Changes

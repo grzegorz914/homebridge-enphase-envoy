@@ -1024,7 +1024,7 @@
                         ]
                       }
                     ],
-                    "description": "Here select the grid mode.",
+                    "description": "Here select the profile.",
                     "required": true
                   },
                   "displayType": {
@@ -1053,6 +1053,107 @@
                     "title": "Prefix",
                     "type": "boolean",
                     "description": "This enable the accessory name as a prefix for the tile name.",
+                    "required": false
+                  }
+                }
+              },
+              "required": false
+            },
+            "enchargeProfileSensors": {
+              "title": "Profile Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Here set Your own sensor name.",
+                    "required": false
+                  },
+                  "profile": {
+                    "title": "Profile",
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "title": "Savings",
+                        "enum": [
+                          "savings-mode"
+                        ]
+                      },
+                      {
+                        "title": "Economy",
+                        "enum": [
+                          "economy"
+                        ]
+                      },
+                      {
+                        "title": "Full Backup",
+                        "enum": [
+                          "backup"
+                        ]
+                      },
+                      {
+                        "title": "Self Consumption",
+                        "enum": [
+                          "self-consumption"
+                        ]
+                      },
+                      {
+                        "title": "Grid Tied",
+                        "enum": [
+                          "grid-tied"
+                        ]
+                      },
+                      {
+                        "title": "Grid Forming",
+                        "enum": [
+                          "grid-forming"
+                        ]
+                      }
+                    ],
+                    "description": "Here select the profile.",
+                    "required": true
+                  },
+                  "displayType": {
+                    "title": "Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "required": true
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "This enable the accessory name as a prefix for the sensor name.",
                     "required": false
                   }
                 }
@@ -2685,6 +2786,19 @@
                               "title": "{{ value.title }}",
                               "items": [
                                 {
+                                  "key": "devices[].enchargeStateSensor",
+                                  "type": "section",
+                                  "title": "State Sensor",
+                                  "description": "In this section You can enable sensor for encharges state monitoring.",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    "devices[].enchargeStateSensor.name",
+                                    "devices[].enchargeStateSensor.displayType",
+                                    "devices[].enchargeStateSensor.namePrefix"
+                                  ]
+                                },
+                                {
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Profile Control",
@@ -2706,16 +2820,24 @@
                                   ]
                                 },
                                 {
-                                  "key": "devices[].enchargeStateSensor",
+                                  "key": "devices[]",
                                   "type": "section",
-                                  "title": "State Sensor",
-                                  "description": "In this section You can enable sensor for encharges state monitoring.",
+                                  "title": "Profile Sensors",
+                                  "description": "In this section You can create encharge profile sensors.",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
-                                    "devices[].enchargeStateSensor.name",
-                                    "devices[].enchargeStateSensor.displayType",
-                                    "devices[].enchargeStateSensor.namePrefix"
+                                    {
+                                      "key": "devices[].enchargeProfileSensors",
+                                      "type": "tabarray",
+                                      "title": "{{ value.name || 'sensor' }}",
+                                      "items": [
+                                        "devices[].enchargeProfileSensors[].name",
+                                        "devices[].enchargeProfileSensors[].profile",
+                                        "devices[].enchargeProfileSensors[].displayType",
+                                        "devices[].enchargeProfileSensors[].namePrefix"
+                                      ]
+                                    }
                                   ]
                                 },
                                 {

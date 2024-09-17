@@ -161,6 +161,14 @@
                             "namePrefix": false
                         }
                     ],
+                    "enchargeProfileSensors": [
+                        {
+                            "name": "Sensor name",
+                            "profile": "self-consumption",
+                            "displayType": 0,
+                            "namePrefix": false
+                        }
+                    ],
                     "enchargeGridModeSensors": [
                         {
                             "name": "Sensor name",

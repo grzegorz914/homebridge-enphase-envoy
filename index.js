@@ -14,6 +14,16 @@ class EnvoyPlatform {
     }
     this.accessories = [];
 
+
+    //check if prefs directory exist
+    const prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
+    try {
+      fs.mkdirSync(prefDir, { recursive: true });
+    } catch (error) {
+      log.error(`Prepare directory error: ${error.message ?? error}`);
+      return;
+    }
+
     api.on('didFinishLaunching', async () => {
       for (const device of config.devices) {
         const deviceName = device.name ?? false;
@@ -60,25 +70,26 @@ class EnvoyPlatform {
         };
         const debug1 = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
 
-        //define directory and file paths
-        const prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
+        //check files exists, if not then create it
         const postFix = host.split('.').join('');
         const envoyIdFile = path.join(prefDir, `envoyId_${postFix}`);
         const envoyTokenFile = path.join(prefDir, `envoyToken_${postFix}`);
         const envoyInstallerPasswordFile = path.join(prefDir, `envoyInstallerPassword_${postFix}`);
-        const files = [envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile];
-        try {
-          //create directory if it doesn't exist
-          fs.mkdirSync(prefDir, { recursive: true });
 
-          //create files if they don't exist
+        try {
+          const files = [
+            envoyIdFile,
+            envoyTokenFile,
+            envoyInstallerPasswordFile
+          ];
+
           files.forEach((file) => {
             if (!fs.existsSync(file)) {
               fs.writeFileSync(file, '0');
             }
           });
         } catch (error) {
-          log.error(`Device: ${host} ${deviceName}, prepare directory and files error: ${error.message ?? error}`);
+          log.error(`Device: ${host} ${deviceName}, prepare files error: ${error.message ?? error}`);
           return;
         }
 
@@ -106,7 +117,7 @@ class EnvoyPlatform {
               log.warn(`Device: ${host} ${deviceName}, ${message}`);
             })
             .on('error', async (error) => {
-              this.envoyDevice.impulseGenerator.stop();
+              await this.envoyDevice.impulseGenerator.stop();
 
               //handle error
               const errorString = error.toString();
@@ -122,7 +133,7 @@ class EnvoyPlatform {
           //start
           await this.envoyDevice.start();
         } catch (error) { //stop impulse generator
-          log.error(`Device: ${host} ${deviceName}, ${error}.`);
+          log.error(`Device: ${host} ${deviceName}, did finish launching error: ${error}.`);
         }
       }
     });

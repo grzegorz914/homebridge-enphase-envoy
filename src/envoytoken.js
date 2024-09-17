@@ -16,11 +16,13 @@ class EnvoyToken extends EventEmitter {
 
     async checkToken() {
         try {
-            const savedToken = await this.readToken();
-            const tokenIsValid = savedToken && Math.floor(Date.now() / 1000) <= savedToken.expires_at;
+            const data = await this.readData(this.tokenFile);
+            const parsedData = JSON.parse(data);
+            parsedData.token ? parsedData : null;
+            const tokenIsValid = parsedData && Math.floor(Date.now() / 1000) <= parsedData.expires_at;
 
             if (tokenIsValid) {
-                return savedToken;
+                return parsedData;
             } else {
                 return await this.refreshToken();
             }
@@ -89,32 +91,31 @@ class EnvoyToken extends EventEmitter {
                 return;
             }
 
-            await this.saveToken(tokenData);
+            tokenData.expires_at = tokenData.expires_at || Math.floor(Date.now() / 1000) + 3600; // Assume 1 hour expiry if not provided
+            await this.saveData(this.tokenFile, tokenData);
             return tokenData;
         } catch (error) {
             this.emit('error', `Get token error: ${error.message ?? error}`);
         }
     }
 
-    async readToken() {
+    async readData(path) {
         try {
-            const data = await fsPromises.readFile(this.tokenFile);
-            const parsedData = JSON.parse(data);
-            return parsedData.token ? parsedData : null;
+            const data = await fsPromises.readFile(path, 'utf-8');
+            return data;
         } catch (error) {
-            this.emit('error', `Read token error: ${error.message ?? error}`);
+            throw new Error(error.message ?? error);
         }
-    }
+    };
 
-    async saveToken(token) {
+    async saveData(path, data) {
         try {
-            token.expires_at = token.expires_at || Math.floor(Date.now() / 1000) + 3600; // Assume 1 hour expiry if not provided
-            await fsPromises.writeFile(this.tokenFile, JSON.stringify(token, null, 2));
+            await fsPromises.writeFile(path, JSON.stringify(data, null, 2));
             return true;
         } catch (error) {
-            this.emit('error', `Save token error: ${error.message ?? error}`);
+            throw new Error(error.message ?? error);
         }
-    }
+    };
 };
 module.exports = EnvoyToken;
 
