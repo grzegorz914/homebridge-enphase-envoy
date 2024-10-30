@@ -2,8 +2,8 @@
 const path = require('path');
 const fs = require('fs');
 const EnvoyDevice = require('./src/envoydevice');
+const ImpulseGenerator = require('./src/impulsegenerator.js');
 const CONSTANTS = require('./src/constants.json');
-const STATUSCODEREGEX = /status code (\d+)/;
 
 class EnvoyPlatform {
   constructor(log, config, api) {
@@ -12,6 +12,7 @@ class EnvoyPlatform {
       log.warn(`No configuration found for ${CONSTANTS.PluginName}`);
       return;
     }
+    this.log = log;
     this.accessories = [];
 
 
@@ -37,17 +38,17 @@ class EnvoyPlatform {
 
         //check mandatory properties
         if (!deviceName) {
-          log.warn(`Name missing: ${deviceName}.`);
+          log.warn(`Device: ${host} ${deviceName}, Name missing: ${deviceName}.`);
           return;
         }
 
         if (envoyFirmware7xx && envoyFirmware7xxTokenGenerationMode === 0 && (!enlightenUser || !enlightenPasswd || !envoySerialNumber)) {
-          log.warn(`Envoy firmware v7.x.x enabled, enlighten user: ${enlightenUser ? 'OK' : enlightenUser}, password: ${enlightenPasswd ? 'OK' : enlightenPasswd}, envoy serial number: ${envoySerialNumber ? 'OK' : envoySerialNumber}.`);
+          log.warn(`Device: ${host} ${deviceName}, Envoy firmware v7.x.x enabled, enlighten user: ${enlightenUser ? 'OK' : enlightenUser}, password: ${enlightenPasswd ? 'OK' : enlightenPasswd}, envoy serial number: ${envoySerialNumber ? 'OK' : envoySerialNumber}.`);
           return;
         }
 
         if (envoyFirmware7xx && envoyFirmware7xxTokenGenerationMode === 1 && !envoyToken) {
-          log.warn(`Envoy firmware v7.x.x enabled but envoy token: ${envoyToken ? 'OK' : envoyToken}.`);
+          log.warn(`Device: ${host} ${deviceName}, Envoy firmware v7.x.x enabled but envoy token: ${envoyToken ? 'OK' : envoyToken}.`);
           return;
         }
 
@@ -56,7 +57,7 @@ class EnvoyPlatform {
         const enableDebugMode = device.enableDebugMode || false;
 
         //debug config
-        const debug = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, did finish launching.`) : false;
+        const debug = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, Did finish launching.`) : false;
         const config = {
           ...device,
           envoyPasswd: 'removed',
@@ -89,16 +90,16 @@ class EnvoyPlatform {
             }
           });
         } catch (error) {
-          log.error(`Device: ${host} ${deviceName}, prepare files error: ${error.message ?? error}`);
+          log.error(`Device: ${host} ${deviceName}, Prepare files error: ${error.message ?? error}`);
           return;
         }
 
         //envoy device
         try {
-          this.envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
-          this.envoyDevice.on('publishAccessory', (accessory) => {
+          const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
+          envoyDevice.on('publishAccessory', (accessory) => {
             api.publishExternalAccessories(CONSTANTS.PluginName, [accessory]);
-            log.success(`Device: ${host} ${deviceName}, published as external accessory.`);
+            log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
           })
             .on('devInfo', (devInfo) => {
               log.info(devInfo);
@@ -117,32 +118,35 @@ class EnvoyPlatform {
               log.warn(`Device: ${host} ${deviceName}, ${message}`);
             })
             .on('error', async (error) => {
-              await this.envoyDevice.impulseGenerator.stop();
-
-              //handle error
-              const errorString = error.toString();
-              const tokenNotValid = envoyFirmware7xx && errorString.includes('status code 401');
-              const tokenExpired = envoyFirmware7xx && errorString.includes('JWT token expired');
-              const displayError = tokenNotValid ? log.warn(`Device: ${host} ${deviceName}, JWT token not valid, refreshing.`) : tokenExpired ? log.warn(`Device: ${host} ${deviceName}, ${error}, refreshing.`) : log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
-
-              //wait and try connect again
-              await new Promise(resolve => setTimeout(resolve, 20000));
-              await this.envoyDevice.start();
+              log.error(`Device: ${host} ${deviceName}, ${error}`);
             });
 
-          //start
-          await this.envoyDevice.start();
-        } catch (error) { //stop impulse generator
-          log.error(`Device: ${host} ${deviceName}, did finish launching error: ${error}.`);
-        }
-      }
+          //create impulse generator
+          const impulseGenerator = new ImpulseGenerator();
+          impulseGenerator.on('start', async () => {
+            try {
+              await envoyDevice.start();
+              impulseGenerator.stop();
+            } catch (error) {
+              log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
+            };
+          }).on('state', (state) => {
+            const debug = enableDebugMode ? state ? log.info(`Device: ${host} ${deviceName}, Start impulse generator started.`) : log.info(`Device: ${host} ${deviceName}, Start impulse generator stopped.`) : false;
+          });
+
+          //start impulse generator
+          impulseGenerator.start([{ name: 'start', sampling: 45000 }]);
+        } catch (error) {
+          log.error(`Device: ${host} ${deviceName}, Did finish launch error: ${error}.`);
+        };
+      };
     });
-  }
+  };
 
   configureAccessory(accessory) {
     this.accessories.push(accessory);
-  }
-}
+  };
+};
 
 module.exports = (api) => {
   const { Service, Characteristic, Units, Formats, Perms } = api.hap;
