@@ -59,7 +59,7 @@
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               },
-              "required": true
+              "required": false
             },
             "envoyPasswd": {
               "title": "Envoy Password",
@@ -1081,7 +1081,6 @@
                   "profile": {
                     "title": "Profile",
                     "type": "string",
-                    "default": "backup",
                     "oneOf": [
                       {
                         "title": "Savings",
@@ -1121,7 +1120,7 @@
                       }
                     ],
                     "description": "Here select the profile.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
@@ -1237,7 +1236,6 @@
                   "gridMode": {
                     "title": "Mode",
                     "type": "string",
-                    "default": "on-grid",
                     "oneOf": [
                       {
                         "title": "Grid On",
@@ -1277,7 +1275,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
@@ -1342,7 +1340,6 @@
                   "compareMode": {
                     "title": "Compare Mode",
                     "type": "integer",
-                    "default": 2,
                     "oneOf": [
                       {
                         "title": ">",
@@ -1376,7 +1373,7 @@
                       }
                     ],
                     "description": "Here select the compare mode.",
-                    "required": true
+                    "required": false
                   },
                   "backupLevel": {
                     "title": "Level",
@@ -1558,7 +1555,6 @@
                   "gridMode": {
                     "title": "Mode",
                     "type": "string",
-                    "default": "on-grid",
                     "oneOf": [
                       {
                         "title": "Grid On",
@@ -1598,7 +1594,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
@@ -1674,7 +1670,6 @@
                   "gridMode": {
                     "title": "Mode",
                     "type": "string",
-                    "default": "on-grid",
                     "oneOf": [
                       {
                         "title": "Grid On",
@@ -1714,7 +1709,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
@@ -1971,7 +1966,6 @@
                   "mode": {
                     "title": "Mode",
                     "type": "string",
-                    "default": "off",
                     "oneOf": [
                       {
                         "title": "Off",
@@ -1993,7 +1987,7 @@
                       }
                     ],
                     "description": "Here select the mode.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
