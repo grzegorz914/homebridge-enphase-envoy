@@ -19,12 +19,15 @@ class EnvoyToken extends EventEmitter {
             const data = await this.readData(this.tokenFile);
             const parsedData = JSON.parse(data);
             parsedData.token ? parsedData : null;
-            const tokenIsValid = parsedData && Math.floor(Date.now() / 1000) <= parsedData.expires_at;
+            const tokenIsValid = parsedData && Math.floor(Date.now() / 1000) + 12 <= parsedData.expires_at;
 
             if (tokenIsValid) {
                 return parsedData;
             } else {
-                return await this.refreshToken();
+                this.emit('warn', `JWT Token expired, refreshing.`);
+                await new Promise(resolve => setTimeout(resolve, 15000));
+                const newToken = await this.refreshToken();
+                return newToken;
             }
         } catch (error) {
             this.emit('error', `Check token error: ${error}`);
@@ -35,6 +38,7 @@ class EnvoyToken extends EventEmitter {
         try {
             const cookie = await this.loginToEnlighten();
             const newToken = await this.getToken(cookie);
+            this.emit('success', `JWT Token refresh success.`);
             return newToken;
         } catch (error) {
             this.emit('error', `Refresh token error: ${error}`);
@@ -53,7 +57,7 @@ class EnvoyToken extends EventEmitter {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                timeout: 5000
+                timeout: 10000
             });
 
             const loginData = await axiosInstance(CONSTANTS.EnphaseUrls.Login);
@@ -81,7 +85,7 @@ class EnvoyToken extends EventEmitter {
                     Accept: 'application/json',
                     Cookie: cookie,
                 },
-                timeout: 5000
+                timeout: 10000
             });
 
             const response = await axiosInstance(CONSTANTS.EnphaseUrls.EntrezAuthToken);

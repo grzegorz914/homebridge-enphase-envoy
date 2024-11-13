@@ -3,6 +3,7 @@
   "pluginType": "platform",
   "singular": true,
   "fixArrays": true,
+  "strictValidation": true,
   "headerDisplay": "This plugin works with Enphase Photovoltaic system. Devices are exposed to HomeKit as separate accessories and each needs to be manually paired.",
   "footerDisplay": "For documentation please see [GitHub repository](https://github.com/grzegorz914/homebridge-enphase-envoy).",
   "schema": {
@@ -39,6 +40,7 @@
             "envoyFirmware7xxTokenGenerationMode": {
               "title": "Token Generation Mode",
               "type": "integer",
+              "default": 0,
               "oneOf": [
                 {
                   "title": "Enlighten Credentials",
@@ -57,7 +59,7 @@
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               },
-              "required": true
+              "required": false
             },
             "envoyPasswd": {
               "title": "Envoy Password",
@@ -136,6 +138,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -174,7 +177,8 @@
               },
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].supportPlcLevel === true"
-              }
+              },
+              "required": false
             },
             "supportPowerProductionState": {
               "title": "Power Production",
@@ -199,6 +203,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -261,6 +266,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -296,8 +302,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "powerProductionLevelSensors": {
               "title": "Sensors",
@@ -324,6 +329,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -360,8 +366,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "energyProductionStateSensor": {
               "title": "Energy State Sensor",
@@ -379,6 +384,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -414,8 +420,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "energyProductionLevelSensors": {
               "title": "Sensors",
@@ -442,6 +447,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -478,8 +484,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "energyProductionLifetimeOffset": {
               "title": "Energy Lifetime Offset",
@@ -503,6 +508,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -538,8 +544,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "powerConsumptionTotalLevelSensors": {
               "title": "Sensors",
@@ -566,6 +571,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -602,8 +608,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Energy Lifetime Offset",
@@ -627,6 +632,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -662,8 +668,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "energyConsumptionTotalLevelSensors": {
               "title": "Sensors",
@@ -690,6 +695,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -726,8 +732,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "powerConsumptionNetStateSensor": {
               "title": "Power State Sensor",
@@ -745,6 +750,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -780,8 +786,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "powerConsumptionNetLevelSensors": {
               "title": "Sensors",
@@ -807,6 +812,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -843,8 +849,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "energyConsumptionNetLifetimeOffset": {
               "title": "Energy Lifetime Offset",
@@ -868,6 +873,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -903,8 +909,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "energyConsumptionNetLevelSensors": {
               "title": "Sensors",
@@ -931,6 +936,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -967,8 +973,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "enchargeProfileControl": {
               "title": "Profile Control",
@@ -986,6 +991,7 @@
                   "profile": {
                     "title": "Profile",
                     "type": "string",
+                    "default": "backup",
                     "oneOf": [
                       {
                         "title": "Savings",
@@ -1032,6 +1038,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 1,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1056,8 +1063,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "enchargeProfileSensors": {
               "title": "Profile Sensors",
@@ -1114,13 +1120,14 @@
                       }
                     ],
                     "description": "Here select the profile.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 1,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1157,8 +1164,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "enchargeStateSensor": {
               "title": "State Sensor",
@@ -1176,6 +1182,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1211,8 +1218,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "enchargeGridModeSensors": {
               "title": "Encharge Grid Sensors",
@@ -1269,13 +1275,14 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1315,8 +1322,7 @@
               },
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              },
-              "required": false
+              }
             },
             "enchargeBackupLevelSensors": {
               "title": "Encharge Backup Level Sensors",
@@ -1367,7 +1373,7 @@
                       }
                     ],
                     "description": "Here select the compare mode.",
-                    "required": true
+                    "required": false
                   },
                   "backupLevel": {
                     "title": "Level",
@@ -1383,6 +1389,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1422,8 +1429,7 @@
               },
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              },
-              "required": false
+              }
             },
             "enpowerGridStateControl": {
               "title": "Grid State Control",
@@ -1441,6 +1447,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1494,6 +1501,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1529,8 +1537,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "enpowerGridModeSensors": {
               "title": "Enepower Grid Sensors",
@@ -1587,13 +1594,14 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1630,8 +1638,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "enpowerDryContactsControl": {
               "title": "Dry Contacts Control",
@@ -1702,13 +1709,14 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1748,8 +1756,7 @@
               },
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
-              },
-              "required": false
+              }
             },
             "generatorStateControl": {
               "title": "State Control",
@@ -1767,6 +1774,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1820,6 +1828,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1855,8 +1864,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "generatorModeControl": {
               "title": "Mode Control",
@@ -1874,6 +1882,7 @@
                   "mode": {
                     "title": "Mode",
                     "type": "string",
+                    "default": "off",
                     "oneOf": [
                       {
                         "title": "Off",
@@ -1902,6 +1911,7 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1938,8 +1948,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "generatorModeSensors": {
               "title": "Mode Sensors",
@@ -1978,13 +1987,14 @@
                       }
                     ],
                     "description": "Here select the mode.",
-                    "required": true
+                    "required": false
                   },
                   "displayType": {
                     "title": "Type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
+                    "default": 0,
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -2021,8 +2031,7 @@
                     "required": false
                   }
                 }
-              },
-              "required": false
+              }
             },
             "dataRefreshControl": {
               "title": "Data Refresh Control",
@@ -2040,6 +2049,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -2093,6 +2103,7 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
+                  "default": 0,
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -2128,8 +2139,7 @@
                   "description": "This enable the accessory name as a prefix for the sensor name.",
                   "required": false
                 }
-              },
-              "required": false
+              }
             },
             "metersDataRefreshTime": {
               "title": "Meters Refresh Time",
