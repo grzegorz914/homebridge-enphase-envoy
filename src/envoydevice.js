@@ -602,11 +602,22 @@ class EnvoyDevice extends EventEmitter {
         this.envoyTokenFile = envoyTokenFile;
         this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
         this.startPrepareAccessory = true;
-        this.getJwtTokenRunning = false;
-        this.validateToken = false;
+        this.checkJwtTokenRunning = false;
+        this.oldCookie = '';
 
         //url
         this.url = this.envoyFirmware7xx ? `https://${this.host}` : `http://${this.host}`;
+
+        //create axios instance
+        this.axiosInstance = axios.create({
+            method: 'GET',
+            baseURL: this.url,
+            withCredentials: true,
+            headers: {
+                Accept: 'application/json'
+            },
+            timeout: 25000
+        });
 
         //envoy dev id
         this.envoyDevId = '';
@@ -859,38 +870,38 @@ class EnvoyDevice extends EventEmitter {
         this.impulseGenerator = new ImpulseGenerator();
         this.impulseGenerator.on('updateHome', async () => {
             try {
-                const tokenValid = await this.getJwtToken();
+                const tokenValid = await this.checkJwtToken();
                 const updateHome = !tokenValid ? false : await this.updateHome();
                 const updateInventory = updateHome ? await this.updateInventory() : false;
             } catch (error) {
-                this.emit('error', `Impulse generator: ${error}`);
+                this.handleError(error);
             };
         }).on('updateMeters', async () => {
             try {
-                const tokenValid = await this.getJwtToken();
+                const tokenValid = await this.checkJwtToken();
                 const updateMeters = !tokenValid ? false : await this.updateMeters();
                 const updateMetersReading = updateMeters ? await this.updateMetersReading() : false;
             } catch (error) {
-                this.emit('error', `Impulse generator: ${error}`);
+                this.handleError(error);
             };
         }).on('updateMicroinvertersStatus', async () => {
             try {
-                const tokenValid = await this.getJwtToken();
+                const tokenValid = await this.checkJwtToken();
                 const updateMicroinvertersStatus = !tokenValid ? false : await this.updateMicroinvertersStatus();
             } catch (error) {
-                this.emit('error', `Impulse generator: ${error}`);
+                this.handleError(error);
             };
         }).on('updateProduction', async () => {
             try {
-                const tokenValid = await this.getJwtToken();
+                const tokenValid = await this.checkJwtToken();
                 const updateProduction = !tokenValid ? false : await this.updateProduction();
                 const updateProductionCt = updateProduction ? await this.updateProductionCt() : false;
             } catch (error) {
-                this.emit('error', `Impulse generator: ${error}`);
+                this.handleError(error);
             };
         }).on('updateEnsemble', async () => {
             try {
-                const tokenValid = await this.getJwtToken();
+                const tokenValid = await this.checkJwtToken();
                 const updateEnsemble = !tokenValid ? false : await this.updateEnsembleInventory();
                 const updateEnsembleStatus = updateEnsemble ? await this.updateEnsembleStatus() : false;
                 const updateEnchargeSettings = updateEnsemble ? await this.updateEnchargesSettings() : false;
@@ -900,14 +911,14 @@ class EnvoyDevice extends EventEmitter {
                 const updateGenerator = updateEnsemble ? await this.updateGenerator() : false;
                 const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
             } catch (error) {
-                this.emit('error', `Impulse generator: ${error}`);
+                this.handleError(error);
             };
         }).on('updateLiveData', async () => {
             try {
-                const tokenValid = await this.getJwtToken();
+                const tokenValid = await this.checkJwtToken();
                 const updateLiveData = !tokenValid ? false : await this.updateLiveData();
             } catch (error) {
-                this.emit('error', `Impulse generator: ${error}`);
+                this.handleError(error);
             };
         }).on('state', (state) => {
             const emitState = state ? this.emit('success', `Impulse generator started.`) : this.emit('warn', `Impulse generator stopped.`);
@@ -950,11 +961,17 @@ class EnvoyDevice extends EventEmitter {
         });
     };
 
+    handleError(error) {
+        const errorString = error.toString();
+        const tokenNotValid = errorString.includes('status code 401');
+        const emitError = tokenNotValid ? false : this.emit('error', `Impulse generator: ${error}`);
+        this.checkJwtTokenRunning = !tokenNotValid;
+    };
+
     async start() {
         const debug = this.enableDebugMode ? this.emit('debug', `Start.`) : false;
 
         try {
-            this.validateToken = true;
             this.refreshHome = false;
             this.refreshMeters = false;
             this.refreshMicroinverters = false;
@@ -962,23 +979,11 @@ class EnvoyDevice extends EventEmitter {
             this.refreshEnsemble = false;
             this.refreshLiveData = false;
 
-            //create axios instance
-            this.axiosInstance = axios.create({
-                method: 'GET',
-                baseURL: this.url,
-                withCredentials: true,
-                headers: {
-                    Accept: 'application/json'
-                },
-                timeout: 25000
-            });
-
             //get and validate jwt token
-            this.validateToken = true;
-            const getJwtToken = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 0 ? await this.getJwtToken() : true : false;
+            const tokenValid = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 0 ? await this.checkJwtToken() : true : false;
 
             //update grid profile
-            await this.updateGridProfile();
+            const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
 
             //get envoy dev id
             const envoyDevIdExist = this.supportPowerProductionState ? await this.getEnvoyBackboneApp() : false;
@@ -999,17 +1004,17 @@ class EnvoyDevice extends EventEmitter {
             const updateMetersReading = this.refreshMeters ? await this.updateMetersReading() : false;
 
             //acces with envoy password
-            this.refreshMicroinverters = getJwtToken || calculateEnvoyPassword ? await this.updateMicroinvertersStatus() : false;
+            this.refreshMicroinverters = tokenValid || calculateEnvoyPassword ? await this.updateMicroinvertersStatus() : false;
 
             //get production and production ct
             this.refreshProduction = await this.updateProduction();
             const updateProductionCt = this.refreshProduction ? await this.updateProductionCt() : false;
 
             //access with installer password and envoy dev id
-            const updatePowerProductionState = envoyDevIdExist && (getJwtToken || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
+            const updatePowerProductionState = envoyDevIdExist && (tokenValid || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
 
             //get ensemble data only FW. >= 7.x.x.
-            this.refreshEnsemble = getJwtToken ? await this.updateEnsembleInventory() : false;
+            this.refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
             const updateEnsembleStatus = this.refreshEnsemble ? await this.updateEnsembleStatus() : false;
             const updateEnchargeSettings = this.refreshEnsemble ? await this.updateEnchargesSettings() : false;
             const updateTariffSettings = this.refreshEnsemble ? await this.updateTariff() : false;
@@ -1019,8 +1024,8 @@ class EnvoyDevice extends EventEmitter {
             const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
 
             //get plc communication level
-            const updateCommLevel = this.supportPlcLevel && (getJwtToken || calculateInstallerPassword) ? await this.updateCommLevel() : false;
-            this.refreshLiveData = getJwtToken ? await this.updateLiveData() : false;
+            const updateCommLevel = this.supportPlcLevel && (tokenValid || calculateInstallerPassword) ? await this.updateCommLevel() : false;
+            this.refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
             //connect to deice success
             this.emit('success', `Connect Success.`)
@@ -1049,19 +1054,50 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
-    async getJwtToken() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting JWT token.`) : false;
+    async checkJwtToken() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token.`) : false;
 
         if (!this.envoyFirmware7xx || (this.envoyFirmware7xx && this.envoyFirmware7xxTokenGenerationMode === 1)) {
             return true;
         };
 
-        if (this.getJwtTokenRunning) {
+        if (this.checkJwtTokenRunning) {
             return false;
         };
 
         try {
-            this.getJwtTokenRunning = true;
+            this.checkJwtTokenRunning = true;
+
+            //read token from file
+            const data = await this.readData(this.envoyTokenFile);
+            const parsedData = JSON.parse(data);
+            parsedData.token ? parsedData : null;
+            const tokenValid = parsedData && parsedData.expires_at >= Math.floor(Date.now() / 1000) + 60;
+            const cookieValid = this.cookie === this.oldCookie;
+            const debug = this.enableDebugMode ? this.emit('warn', `JWT Token valid: ${tokenValid}, cookie valid: ${cookieValid}`) : false;
+
+            if (tokenValid && cookieValid) {
+                this.checkJwtTokenRunning = false;
+                return true;
+            }
+
+            const emit = !tokenValid ? this.emit('warn', `JWT Token expired, refreshing.`) : false;
+            const wait = !tokenValid ? await new Promise(resolve => setTimeout(resolve, 30000)) : false;
+            const getToken = await this.getJwtToken();
+            const validateToken = getToken ? await this.validateJwtToken() : false;
+
+            this.checkJwtTokenRunning = false;
+            return validateToken;
+        } catch (error) {
+            this.checkJwtTokenRunning = false;
+            throw new Error(`Chack JWT token error: ${error.message || error}`);
+        };
+    };
+
+    async getJwtToken() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting get JWT token.`) : false;
+
+        try {
             const envoyToken = new EnvoyToken({
                 user: this.enlightenUser,
                 passwd: this.enlightenPassword,
@@ -1069,14 +1105,17 @@ class EnvoyDevice extends EventEmitter {
                 tokenFile: this.envoyTokenFile
             }).on('success', (message) => {
                 this.emit('success', message);
-                this.validateToken = true;
             }).on('warn', (message) => {
                 this.emit('warn', message);
             }).on('error', (error) => {
                 throw new Error(error.message || error);
             });
 
-            const tokenData = await envoyToken.checkToken();
+            const tokenData = await envoyToken.refreshToken();
+            if (!tokenData) {
+                return false;
+            }
+
             const updatedTokenData = {
                 ...tokenData,
                 token: 'removed'
@@ -1084,28 +1123,23 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token:`, updatedTokenData) : false;
             this.jwtToken = tokenData;
 
-            //validate new token
-            const validateToken = this.validateToken ? await this.validateJwtToken() : false;
-            this.validateToken = validateToken ? false : this.validateToken;
-
             //restFul
             const restFul = this.restFulConnected ? this.restFul.update('token', tokenData) : false;
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Token', tokenData) : false;
 
-            this.getJwtTokenRunning = false;
             return true;
         } catch (error) {
-            this.getJwtTokenRunning = this.getJwtTokenRunning ? false : this.getJwtTokenRunning;
             throw new Error(`Get JWT token error: ${error.message || error}`);
         };
     };
 
     async validateJwtToken() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting validate JWT token.`) : false;
+
         try {
-            const axiosInstanceToken = axios.create({
+            const options = {
                 method: 'GET',
                 baseURL: this.url,
                 headers: {
@@ -1118,11 +1152,11 @@ class EnvoyDevice extends EventEmitter {
                     rejectUnauthorized: false
                 }),
                 timeout: 20000
-            });
+            };
 
-            const response = await axiosInstanceToken(CONSTANTS.ApiUrls.CheckJwt);
+            const response = await axios(CONSTANTS.ApiUrls.CheckJwt, options);
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token: Valid`) : false;
-            const cookie = response.headers['set-cookie'];
+            this.cookie = response.headers['set-cookie'];
 
             //create axios instance get with cookie
             this.axiosInstance = axios.create({
@@ -1130,7 +1164,7 @@ class EnvoyDevice extends EventEmitter {
                 baseURL: this.url,
                 headers: {
                     Accept: 'application/json',
-                    Cookie: cookie
+                    Cookie: this.cookie
                 },
                 withCredentials: true,
                 httpsAgent: new https.Agent({
@@ -1139,7 +1173,8 @@ class EnvoyDevice extends EventEmitter {
                 }),
                 timeout: 20000
             });
-            this.cookie = cookie;
+
+            this.oldCookie = this.cookie;
             this.emit('success', `JWT Token valid: ${new Date(this.jwtToken.expires_at * 1000).toLocaleString()}`);
 
             return true;
@@ -2772,7 +2807,7 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Inventory', ensembleInventory) : false;
-            return true;
+            return ensembleSupported;
         } catch (error) {
             throw new Error(`Update ensemble inventory error: ${error.message || error}`);
         };
@@ -3096,7 +3131,7 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Status', ensembleStatus) : false;
-            return true;
+            return ensemblesSupported;
         } catch (error) {
             throw new Error(`Update ensemble status error: ${error.message || error}`);
         };
@@ -3148,7 +3183,7 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Encharge Settings', enchargeSettings) : false;
-            return true;
+            return enchargeSettingsSupported;
         } catch (error) {
             throw new Error(`Update encharge settings. error: ${error.message || error}`);
         };
@@ -3345,7 +3380,7 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Tariff', tariffSettings) : false;
-            return true;
+            return tariffSupported;
         } catch (error) {
             throw new Error(`Update tariff. error: ${error.message || error}`);
         };
@@ -3403,7 +3438,7 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts', ensembleDryContacts) : false;
-            return true;
+            return dryContactsSupported;
         } catch (error) {
             throw new Error(`Update dry contacts error: ${error.message || error}`);
         };
@@ -3468,7 +3503,7 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts Settings', ensembleDryContactsSettings) : false;
-            return true;
+            return dryContactsSettingsSupported;
         } catch (error) {
             throw new Error(`Update dry contacts settings error: ${error.message || error}`);
         };
@@ -3597,7 +3632,7 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator', ensembleGenerator) : false;
-            return true;
+            return generatorSupported;
         } catch (error) {
             throw new Error(`Update generator error: ${error.message || error}`);
         };
@@ -3645,7 +3680,7 @@ class EnvoyDevice extends EventEmitter {
 
             //mqtt
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator Settings', generatorSettings) : false;
-            return true;
+            return generatorSettingsSupported;
         } catch (error) {
             throw new Error(`Update generator settings error: ${error.message || error}`);
         };
@@ -4491,9 +4526,9 @@ class EnvoyDevice extends EventEmitter {
                         })
                         .onSet(async (state) => {
                             try {
-                                const tokenValid = await this.getJwtToken();
+                                const tokenValid = await this.checkJwtToken();
                                 const setStatet = tokenValid && state ? await this.updateCommLevel() : false;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, check plc level: ${setStatet ? `Yes` : `No`}`);
+                                const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Envoy: ${serialNumber}, check plc level: ${setStatet ? `Yes` : `No`}`);
                             } catch (error) {
                                 this.emit('warn', `Envoy: ${serialNumber}, check plc level error: ${error}`);
                             };
@@ -4508,10 +4543,10 @@ class EnvoyDevice extends EventEmitter {
                         })
                         .onSet(async (state) => {
                             try {
-                                const tokenValid = await this.getJwtToken();
+                                const tokenValid = await this.checkJwtToken();
                                 const prductionState = await this.updateProductionPowerState();
                                 const setState = tokenValid && (state !== prductionState) ? await this.setProductionPowerState(state) : false;
-                                const debug = this.enableDebugMode ? this.emit('debug', `Envoy: ${serialNumber}, set production power mode: ${setState ? 'Enabled' : 'Disabled'}`) : false;
+                                const debug = this.enableDebugMode || !tokenValid ? this.emit('debug', `Envoy: ${serialNumber}, set production power mode: ${setState ? 'Enabled' : 'Disabled'}`) : false;
                             } catch (error) {
                                 this.emit('warn', `Envoy: ${serialNumber}, set production power mode error: ${error}`);
                             };
@@ -4532,9 +4567,9 @@ class EnvoyDevice extends EventEmitter {
                         })
                         .onSet(async (state) => {
                             try {
-                                const tokenValid = await this.getJwtToken();
+                                const tokenValid = await this.checkJwtToken();
                                 const setState = tokenValid ? await this.setEnpowerGridState(state) : false;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set enpower grid state to: ${setState ? `Grid ON` : `Grid OFF`}`);
+                                const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Envoy: ${serialNumber}, set enpower grid state to: ${setState ? `Grid ON` : `Grid OFF`}`);
                             } catch (error) {
                                 this.emit('warn', `Set enpower grid state error: ${error}`);
                             };
@@ -4556,9 +4591,9 @@ class EnvoyDevice extends EventEmitter {
                         .onSet(async (state) => {
                             try {
                                 const genMode = state ? 'on' : 'off';
-                                const tokenValid = await this.getJwtToken();
-                                const setState = tokenValidd ? await this.setGeneratorMode(genMode) : false;
-                                const info = this.disableLogInfo ? false : this.emit('message', `Envoy: ${serialNumber}, set generator state to: ${setState ? `ON` : `OFF`}`);
+                                const tokenValid = await this.checkJwtToken();
+                                const setState = tokenValid ? await this.setGeneratorMode(genMode) : false;
+                                const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Envoy: ${serialNumber}, set generator state to: ${setState ? `ON` : `OFF`}`);
                             } catch (error) {
                                 this.emit('warn', `Set generator state error: ${error}`);
                             };
@@ -4584,9 +4619,9 @@ class EnvoyDevice extends EventEmitter {
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const tokenValid = await this.getJwtToken();
+                                    const tokenValid = await this.checkJwtToken();
                                     const setState = tokenValid && state ? await this.updateCommLevel() : false;
-                                    const info = this.disableLogInfo ? false : this.emit('message', `Set plc level control state to: ${setState ? `ON` : `OFF`}`);
+                                    const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Set plc level control state to: ${setState ? `ON` : `OFF`}`);
                                 } catch (error) {
                                     this.emit('warn', `Set plc level control state error: ${error}`);
                                 };
@@ -4614,9 +4649,9 @@ class EnvoyDevice extends EventEmitter {
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const tokenValid = await this.getJwtToken();
+                                    const tokenValid = await this.checkJwtToken();
                                     const setState = tokenValid ? await this.setProductionPowerState(state) : false;
-                                    const info = this.disableLogInfo ? false : this.emit('message', `Set power production control state to: ${setState ? `ON` : `OFF`}`);
+                                    const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Set power production control state to: ${setState ? `ON` : `OFF`}`);
                                 } catch (error) {
                                     this.emit('warn', `Set power production control state error: ${error}`);
                                 };
@@ -5897,9 +5932,9 @@ class EnvoyDevice extends EventEmitter {
                                     })
                                     .onSet(async (state) => {
                                         try {
-                                            const tokenValid = await this.getJwtToken();
+                                            const tokenValid = await this.checkJwtToken();
                                             const set = tokenValid ? state ? await this.setEnchargeProfile(profile, enchargeSettings.reservedSoc, enchargeSettings.chargeFromGrid) : false : false;
-                                            const debug = this.enableDebugMode ? this.emit('debug', `Encharges set profile: ${profile}`) : false;
+                                            const debug = this.enableDebugMode || !tokenValid ? this.emit('debug', `Encharges set profile: ${profile}`) : false;
                                         } catch (error) {
                                             this.emit('warn', `Encharges set profile: ${profile}, error: ${error}`);
                                         };
@@ -5917,9 +5952,9 @@ class EnvoyDevice extends EventEmitter {
                                             }
 
                                             try {
-                                                const tokenValid = await this.getJwtToken();
+                                                const tokenValid = await this.checkJwtToken();
                                                 const set = tokenValid ? await this.setEnchargeProfile(profile, value, enchargeSettings.chargeFromGrid) : false;
-                                                const debug = this.enableDebugMode ? this.emit('debug', `Encharges set profile: ${profile}, reserve: ${value} %`) : false;
+                                                const debug = this.enableDebugMode || !tokenValid ? this.emit('debug', `Encharges set profile: ${profile}, reserve: ${value} %`) : false;
                                             } catch (error) {
                                                 this.emit('warn', `Encharges set profile: ${profile} reserve, error: ${error}`);
                                             };
@@ -6092,9 +6127,9 @@ class EnvoyDevice extends EventEmitter {
                                 })
                                 .onSet(async (state) => {
                                     try {
-                                        const tokenValid = await this.getJwtToken();
+                                        const tokenValid = await this.checkJwtToken();
                                         const setState = tokenValid ? await this.setEnpowerGridState(state) : false;
-                                        const info = this.disableLogInfo ? false : this.emit('message', `Set Enpower: ${serialNumber}, grid state to: ${setState ? `Grid ON` : `Grid OFF`}`);
+                                        const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Set Enpower: ${serialNumber}, grid state to: ${setState ? `Grid ON` : `Grid OFF`}`);
                                     } catch (error) {
                                         this.emit('warn', `Set Enpower: ${serialNumber}, grid state error: ${error}`);
                                     };
@@ -6164,9 +6199,9 @@ class EnvoyDevice extends EventEmitter {
                                     })
                                     .onSet(async (state) => {
                                         try {
-                                            const tokenValid = await this.getJwtToken();
+                                            const tokenValid = await this.checkJwtToken();
                                             const setState = tokenValid ? await this.setDryContactState(controlId, state) : false;
-                                            const info = this.disableLogInfo ? false : this.emit('message', `Set Enpower: ${serialNumber}, ${controlName}, control state to: ${setState ? `Manual` : `Soc`}`);
+                                            const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Set Enpower: ${serialNumber}, ${controlName}, control state to: ${setState ? `Manual` : `Soc`}`);
                                         } catch (error) {
                                             this.emit('warn', `Set ${controlName}, control state error: ${error}`);
                                         };
@@ -6307,9 +6342,9 @@ class EnvoyDevice extends EventEmitter {
                                 .onSet(async (state) => {
                                     try {
                                         const genMode = state ? 'on' : 'off';
-                                        const tokenValid = await this.getJwtToken();
+                                        const tokenValid = await this.checkJwtToken();
                                         const setState = tokenValid ? await this.setGeneratorMode(genMode) : false;
-                                        const info = this.disableLogInfo ? false : this.emit('message', `Set Generator: ${type}, state to: ${setState ? `ON` : `OFF`}`);
+                                        const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Set Generator: ${type}, state to: ${setState ? `ON` : `OFF`}`);
                                     } catch (error) {
                                         this.emit('warn', `Set Generator: ${type}, state error: ${error}`);
                                     };
@@ -6359,9 +6394,9 @@ class EnvoyDevice extends EventEmitter {
                                 .onSet(async (state) => {
                                     try {
                                         const genMode = this.generatorModeActiveControls[i].mode;
-                                        const tokenValid = await this.getJwtToken();
+                                        const tokenValid = await this.checkJwtToken();
                                         const setState = tokenValid && state ? await this.setGeneratorMode(genMode) : false;
-                                        const info = this.disableLogInfo ? false : this.emit('message', `Set Generator: ${type}, mode to: ${genMode}`);
+                                        const info = this.disableLogInfo || !tokenValid ? false : this.emit('message', `Set Generator: ${type}, mode to: ${genMode}`);
                                     } catch (error) {
                                         this.emit('warn', `Set Generator: ${type}, state error: ${error}`);
                                     };

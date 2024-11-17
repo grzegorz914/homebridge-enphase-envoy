@@ -14,32 +14,23 @@ class EnvoyToken extends EventEmitter {
         this.tokenFile = config.tokenFile;
     };
 
-    async checkToken() {
-        try {
-            const data = await this.readData(this.tokenFile);
-            const parsedData = JSON.parse(data);
-            parsedData.token ? parsedData : null;
-            const tokenIsValid = parsedData && Math.floor(Date.now() / 1000) + 12 <= parsedData.expires_at;
-
-            if (tokenIsValid) {
-                return parsedData;
-            } else {
-                this.emit('warn', `JWT Token expired, refreshing.`);
-                await new Promise(resolve => setTimeout(resolve, 15000));
-                const newToken = await this.refreshToken();
-                return newToken;
-            }
-        } catch (error) {
-            this.emit('error', `Check token error: ${error}`);
-        }
-    }
-
     async refreshToken() {
         try {
             const cookie = await this.loginToEnlighten();
-            const newToken = await this.getToken(cookie);
+            const tokenData = await this.getToken(cookie);
+
+            if (!tokenData.token) {
+                this.emit('warn', `Token missing in response: ${JSON.stringify(tokenData)}`);
+                return false;
+            }
+
+            //save token
+            await this.saveData(this.tokenFile, tokenData);
+
+            //emit success
             this.emit('success', `JWT Token refresh success.`);
-            return newToken;
+
+            return tokenData;
         } catch (error) {
             this.emit('error', `Refresh token error: ${error}`);
         }
@@ -47,7 +38,7 @@ class EnvoyToken extends EventEmitter {
 
     async loginToEnlighten() {
         try {
-            const axiosInstance = axios.create({
+            const options = {
                 method: 'POST',
                 baseURL: CONSTANTS.EnphaseUrls.BaseUrl,
                 params: {
@@ -58,9 +49,9 @@ class EnvoyToken extends EventEmitter {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 timeout: 10000
-            });
+            };
 
-            const loginData = await axiosInstance(CONSTANTS.EnphaseUrls.Login);
+            const loginData = await axios(CONSTANTS.EnphaseUrls.Login, options);
             if (loginData.status !== 200) {
                 this.emit('error', `Login to Enlighten failed with status code: ${loginData.status}`);
                 return;
@@ -75,7 +66,7 @@ class EnvoyToken extends EventEmitter {
 
     async getToken(cookie) {
         try {
-            const axiosInstance = axios.create({
+            const options = {
                 method: 'GET',
                 baseURL: CONSTANTS.EnphaseUrls.BaseUrl,
                 params: {
@@ -86,31 +77,15 @@ class EnvoyToken extends EventEmitter {
                     Cookie: cookie,
                 },
                 timeout: 10000
-            });
+            };
 
-            const response = await axiosInstance(CONSTANTS.EnphaseUrls.EntrezAuthToken);
+            const response = await axios(CONSTANTS.EnphaseUrls.EntrezAuthToken, options);
             const tokenData = response.data;
-            if (!tokenData.token) {
-                this.emit('error', `Token missing in response: ${JSON.stringify(tokenData)}`);
-                return;
-            }
-
-            tokenData.expires_at = tokenData.expires_at || Math.floor(Date.now() / 1000) + 3600; // Assume 1 hour expiry if not provided
-            await this.saveData(this.tokenFile, tokenData);
             return tokenData;
         } catch (error) {
             this.emit('error', `Get token error: ${error.message ?? error}`);
         }
     }
-
-    async readData(path) {
-        try {
-            const data = await fsPromises.readFile(path, 'utf-8');
-            return data;
-        } catch (error) {
-            throw new Error(error.message ?? error);
-        }
-    };
 
     async saveData(path, data) {
         try {

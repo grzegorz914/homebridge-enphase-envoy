@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.4.3] - (17.11.2024)
+
+## Changes
+
+- fix [#163](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/163)
+- added node 23 support
+- jwt token get and check refactor
+- correct some logs wording
+- cleanup
+
 ## [9.4.2] - (11.11.2024)
 
 ## Changes
