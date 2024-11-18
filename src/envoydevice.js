@@ -964,8 +964,7 @@ class EnvoyDevice extends EventEmitter {
     handleError(error) {
         const errorString = error.toString();
         const tokenNotValid = errorString.includes('status code 401');
-        const emitError = tokenNotValid ? false : this.emit('error', `Impulse generator: ${error}`);
-        this.checkJwtTokenRunning = !tokenNotValid;
+        const emitError = tokenNotValid ? this.checkJwtTokenRunning = false : this.emit('error', `Impulse generator: ${error}`);
     };
 
     async start() {
@@ -980,7 +979,7 @@ class EnvoyDevice extends EventEmitter {
             this.refreshLiveData = false;
 
             //get and validate jwt token
-            const tokenValid = this.envoyFirmware7xx ? this.envoyFirmware7xxTokenGenerationMode === 0 ? await this.checkJwtToken() : true : false;
+            const tokenValid = this.envoyFirmware7xx ? await this.checkJwtToken() : false;
 
             //update grid profile
             const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
@@ -1057,8 +1056,17 @@ class EnvoyDevice extends EventEmitter {
     async checkJwtToken() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token.`) : false;
 
-        if (!this.envoyFirmware7xx || (this.envoyFirmware7xx && this.envoyFirmware7xxTokenGenerationMode === 1)) {
+        if (!this.envoyFirmware7xx) {
             return true;
+        };
+
+        if (this.envoyFirmware7xxTokenGenerationMode === 1) {
+            try {
+                await this.validateJwtToken();
+                return true;
+            } catch (error) {
+                throw new Error(`Check own JWT token error: ${error.message || error}`);
+            };
         };
 
         if (this.checkJwtTokenRunning) {
@@ -1090,7 +1098,7 @@ class EnvoyDevice extends EventEmitter {
             return validateToken;
         } catch (error) {
             this.checkJwtTokenRunning = false;
-            throw new Error(`Chack JWT token error: ${error.message || error}`);
+            throw new Error(`Check JWT token error: ${error.message || error}`);
         };
     };
 
