@@ -317,11 +317,49 @@
                     "description": "Here set Your own sensor name.",
                     "required": false
                   },
+                  "compareMode": {
+                    "title": "Compare Mode",
+                    "type": "integer",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Here select the compare mode.",
+                    "required": false
+                  },
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set power level in (W) at which the sensor fired.",
+                    "description": "Here set power level in (W) to compare at which the sensor fired.",
                     "required": false
                   },
                   "displayType": {
@@ -435,11 +473,49 @@
                     "description": "Here set Your own sensor name.",
                     "required": false
                   },
+                  "compareMode": {
+                    "title": "Compare Mode",
+                    "type": "integer",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Here select the compare mode.",
+                    "required": false
+                  },
                   "energyLevel": {
                     "title": "Enargy Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set enargy level in (Wh) at which the sensor fired.",
+                    "description": "Here set enargy level in (Wh) to compare at which the sensor fired.",
                     "required": false
                   },
                   "displayType": {
@@ -559,11 +635,49 @@
                     "description": "Here set Your own sensor name.",
                     "required": false
                   },
+                  "compareMode": {
+                    "title": "Compare Mode",
+                    "type": "integer",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Here select the compare mode.",
+                    "required": false
+                  },
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set power level in (W) at which the sensor fired.",
+                    "description": "Here set power level in (W) to compare at which the sensor fired.",
                     "required": false
                   },
                   "displayType": {
@@ -683,11 +797,49 @@
                     "description": "Here set Your own sensor name.",
                     "required": false
                   },
+                  "compareMode": {
+                    "title": "Compare Mode",
+                    "type": "integer",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Here select the compare mode.",
+                    "required": false
+                  },
                   "energyLevel": {
                     "title": "Enargy Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set enargy level in (Wh) at which the sensor fired.",
+                    "description": "Here set enargy level in (Wh) to compare at which the sensor fired.",
                     "required": false
                   },
                   "displayType": {
@@ -801,10 +953,48 @@
                     "description": "Here set Your own sensor name.",
                     "required": false
                   },
+                  "compareMode": {
+                    "title": "Compare Mode",
+                    "type": "integer",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Here select the compare mode.",
+                    "required": false
+                  },
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
-                    "description": "Here set power level in (W) at which the sensor fired, negative value (-) mean exporting energy to the grid.",
+                    "description": "Here set power level in (W) to compare at which the sensor fired, negative value (-) mean exporting energy to the grid.",
                     "required": false
                   },
                   "displayType": {
@@ -924,11 +1114,49 @@
                     "description": "Here set Your own sensor name.",
                     "required": false
                   },
+                  "compareMode": {
+                    "title": "Compare Mode",
+                    "type": "integer",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Here select the compare mode.",
+                    "required": false
+                  },
                   "energyLevel": {
                     "title": "Energy Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set energy level in (Wh) at which the sensor fired.",
+                    "description": "Here set energy level in (Wh) to compare at which the sensor fired.",
                     "required": false
                   },
                   "displayType": {
@@ -2460,6 +2688,7 @@
                                   "title": "{{ value.name || 'sensor' }}",
                                   "items": [
                                     "devices[].powerProductionLevelSensors[].name",
+                                    "devices[].powerProductionLevelSensors[].compareMode",
                                     "devices[].powerProductionLevelSensors[].powerLevel",
                                     "devices[].powerProductionLevelSensors[].displayType",
                                     "devices[].powerProductionLevelSensors[].namePrefix"
@@ -2501,6 +2730,7 @@
                                   "title": "{{ value.name || 'sensor' }}",
                                   "items": [
                                     "devices[].energyProductionLevelSensors[].name",
+                                    "devices[].energyProductionLevelSensors[].compareMode",
                                     "devices[].energyProductionLevelSensors[].energyLevel",
                                     "devices[].energyProductionLevelSensors[].displayType",
                                     "devices[].energyProductionLevelSensors[].namePrefix"
@@ -2563,6 +2793,7 @@
                                           "title": "{{ value.name || 'sensor' }}",
                                           "items": [
                                             "devices[].powerConsumptionTotalLevelSensors[].name",
+                                            "devices[].powerConsumptionTotalLevelSensors[].compareMode",
                                             "devices[].powerConsumptionTotalLevelSensors[].powerLevel",
                                             "devices[].powerConsumptionTotalLevelSensors[].displayType",
                                             "devices[].powerConsumptionTotalLevelSensors[].namePrefix"
@@ -2604,6 +2835,7 @@
                                           "title": "{{ value.name || 'sensor' }}",
                                           "items": [
                                             "devices[].energyConsumptionTotalLevelSensors[].name",
+                                            "devices[].energyConsumptionTotalLevelSensors[].compareMode",
                                             "devices[].energyConsumptionTotalLevelSensors[].energyLevel",
                                             "devices[].energyConsumptionTotalLevelSensors[].displayType",
                                             "devices[].energyConsumptionTotalLevelSensors[].namePrefix"
@@ -2657,6 +2889,7 @@
                                           "title": "{{ value.name || 'sensor' }}",
                                           "items": [
                                             "devices[].powerConsumptionNetLevelSensors[].name",
+                                            "devices[].powerConsumptionNetLevelSensors[].compareMode",
                                             "devices[].powerConsumptionNetLevelSensors[].powerLevel",
                                             "devices[].powerConsumptionNetLevelSensors[].displayType",
                                             "devices[].powerConsumptionNetLevelSensors[].namePrefix"
@@ -2698,6 +2931,7 @@
                                           "title": "{{ value.name || 'sensor' }}",
                                           "items": [
                                             "devices[].energyConsumptionNetLevelSensors[].name",
+                                            "devices[].energyConsumptionNetLevelSensors[].compareMode",
                                             "devices[].energyConsumptionNetLevelSensors[].energyLevel",
                                             "devices[].energyConsumptionNetLevelSensors[].displayType",
                                             "devices[].energyConsumptionNetLevelSensors[].namePrefix"

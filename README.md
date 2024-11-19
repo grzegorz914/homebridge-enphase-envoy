@@ -110,7 +110,8 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `powerProductionLevelSensors` | This is `Power Level Sensor` for production monitoring. |
 | `name` | Here set Your own sensor name. |
-| `powerLevel` | Here set power level in `W` at which the sensor fired. |
+| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
+| `powerLevel` | Here set power level in `W` to compare at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyProductionStateSensor` | This is `Energy State Sensor` for production monitoring. |
@@ -119,7 +120,8 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyProductionLevelSensors` | This is `Energy Level Sensor` for production monitoring. |
 | `name` | Here set Your own sensor name. |
-| `energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
+| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
+| `energyLevel` | Here set energy level in `Wh` to compare at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded `+/-`. |
@@ -129,7 +131,8 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `powerConsumptionTotalLevelSensors` | This is `Power Level Sensor` for consumption `Total` monitoring. |
 | `name` | Here set Your own sensor name. |
-| `powerLevel` | Here set power level in `W` at which the sensor fired. |
+| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
+| `powerLevel` | Here set power level in `W` to compare at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionTotalStateSensor` | This is `Energy State Sensor` for consumption `Total` monitoring. |
@@ -138,7 +141,8 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionTotalLevelSensors` | This is `Energy Level Sensor` for consumption `Total` monitoring. |
 | `name` | Here set Your own sensor name. |
-| `energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
+| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
+| `energyLevel` | Here set energy level in `Wh` to compare at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Total` if nedded `+/-`. |
@@ -148,7 +152,8 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `powerConsumptionNetLevelSensors` | This is `Power Level Sensor` for consumption `Net` monitoring. |
 | `name` | Here set Your own sensor name. |
-| `powerLevel` | Here set power level in `W` at which the sensor fired. |
+| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
+| `powerLevel` | Here set power level in `W` to compare at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionNetStateSensor` | This is `Energy State Sensor` for consumption `Net` monitoring. |
@@ -157,7 +162,8 @@
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionNetLevelSensors` | This is `Energy Level Sensor` for consumption `Net` monitoring. |
 | `name` | Here set Your own sensor name. |
-| `energyLevel` | Here set energy level in `Wh` at which the sensor fired. |
+| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
+| `energyLevel` | Here set energy level in `Wh` to compare at which the sensor fired. |
 | `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Net` if nedded `+/-`. |

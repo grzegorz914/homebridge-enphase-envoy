@@ -172,14 +172,14 @@ class EnvoyDevice extends EventEmitter {
         this.powerProductionLevelActiveSensors = [];
         for (const sensor of this.powerProductionLevelSensors) {
             const name = sensor.name ?? false;
-            const powerLevel = sensor.powerLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
                 continue;
             }
 
-            sensor.powerLevel = powerLevel;
+            sensor.compareMode = sensor.compareMode ?? 0;
+            sensor.powerLevel = sensor.powerLevel ?? 0;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
             sensor.state = false;
@@ -224,14 +224,14 @@ class EnvoyDevice extends EventEmitter {
         this.energyProductionLevelActiveSensors = [];
         for (const sensor of this.energyProductionLevelSensors) {
             const name = sensor.name ?? false;
-            const energyLevel = sensor.energyLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
                 continue;
             }
 
-            sensor.energyLevel = energyLevel;
+            sensor.compareMode = sensor.compareMode ?? 0;
+            sensor.energyLevel = sensor.energyLevel ?? 0;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
             sensor.state = false;
@@ -259,14 +259,14 @@ class EnvoyDevice extends EventEmitter {
         this.powerConsumptionTotalLevelActiveSensors = [];
         for (const sensor of this.powerConsumptionTotalLevelSensors) {
             const name = sensor.name ?? false;
-            const powerLevel = sensor.powerLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
                 continue;
             }
 
-            sensor.powerLevel = powerLevel;
+            sensor.compareMode = sensor.compareMode ?? 0;
+            sensor.powerLevel = sensor.powerLevel ?? 0;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
             sensor.state = false;
@@ -294,14 +294,14 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionTotalLevelActiveSensors = [];
         for (const sensor of this.energyConsumptionTotalLevelSensors) {
             const name = sensor.name ?? false;
-            const energyLevel = sensor.energyLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
                 continue;
             }
 
-            sensor.energyLevel = energyLevel;
+            sensor.compareMode = sensor.compareMode ?? 0;
+            sensor.energyLevel = sensor.energyLevel ?? 0;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
             sensor.state = false;
@@ -329,14 +329,14 @@ class EnvoyDevice extends EventEmitter {
         this.powerConsumptionNetLevelActiveSensors = [];
         for (const sensor of this.powerConsumptionNetLevelSensors) {
             const name = sensor.name ?? false;
-            const powerLevel = sensor.powerLevel;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
                 continue;
             }
 
-            sensor.powerLevel = powerLevel;
+            sensor.compareMode = sensor.compareMode ?? 0;
+            sensor.powerLevel = sensor.powerLevel ?? 0;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
             sensor.state = false;
@@ -364,14 +364,14 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionNetLevelActiveSensors = [];
         for (const sensor of this.energyConsumptionNetLevelSensors) {
             const name = sensor.name ?? false;
-            const energyLevel = sensor.energyLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
                 continue;
             }
 
-            sensor.energyLevel = energyLevel;
+            sensor.compareMode = sensor.compareMode ?? 0;
+            sensor.energyLevel = sensor.energyLevel ?? 0;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
             sensor.state = false;
@@ -498,15 +498,14 @@ class EnvoyDevice extends EventEmitter {
         for (const sensor of this.enchargeBackupLevelSensors) {
             const name = sensor.name ?? false;
             const backupLevel = sensor.backupLevel ?? 0;
-            const compareMode = sensor.compareMode ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
                 const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
                 continue;
             }
 
+            sensor.compareMode = sensor.compareMode ?? 0;
             sensor.backupLevel = backupLevel;
-            sensor.compareMode = compareMode;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
             sensor.state = false;
@@ -2234,7 +2233,25 @@ class EnvoyDevice extends EventEmitter {
                     if (this.powerProductionLevelActiveSensorsCount > 0) {
                         for (let i = 0; i < this.powerProductionLevelActiveSensorsCount; i++) {
                             const powerLevel = this.powerProductionLevelActiveSensors[i].powerLevel;
-                            const state = production.power >= powerLevel;
+                            const compareMode = this.powerProductionLevelActiveSensors[i].compareMode;
+                            let state = false;
+                            switch (compareMode) {
+                                case 0:
+                                    state = production.power > powerLevel;
+                                    break;
+                                case 1:
+                                    state = production.power >= powerLevel;
+                                    break;
+                                case 2:
+                                    state = production.power === powerLevel;
+                                    break;
+                                case 3:
+                                    state = production.power < powerLevel;
+                                    break;
+                                case 4:
+                                    state = production.power <= powerLevel;
+                                    break;
+                            }
                             this.powerProductionLevelActiveSensors[i].state = state;
 
                             if (this.powerProductionLevelSensorsServices) {
@@ -2261,7 +2278,25 @@ class EnvoyDevice extends EventEmitter {
                     if (this.energyProductionLevelActiveSensorsCount > 0) {
                         for (let i = 0; i < this.energyProductionLevelActiveSensorsCount; i++) {
                             const energyLevel = this.energyProductionLevelActiveSensors[i].energyLevel;
-                            const state = production.energyToday >= energyLevel;
+                            const compareMode = this.energyProductionLevelActiveSensors[i].compareMode;
+                            let state = false;
+                            switch (compareMode) {
+                                case 0:
+                                    state = production.energyToday > energyLevel;
+                                    break;
+                                case 1:
+                                    state = production.energyToday >= energyLevel;
+                                    break;
+                                case 2:
+                                    state = production.energyToday === energyLevel;
+                                    break;
+                                case 3:
+                                    state = production.energyToday < energyLevel;
+                                    break;
+                                case 4:
+                                    state = production.energyToday <= energyLevel;
+                                    break;
+                            }
                             this.energyProductionLevelActiveSensors[i].state = state;
 
                             if (this.energyProductionLevelSensorsServices) {
@@ -2362,7 +2397,25 @@ class EnvoyDevice extends EventEmitter {
                         if (this.powerConsumptionTotalLevelActiveSensorsCount > 0) {
                             for (let i = 0; i < this.powerConsumptionTotalLevelActiveSensorsCount; i++) {
                                 const powerLevel = this.powerConsumptionTotalLevelActiveSensors[i].powerLevel;
-                                const state = obj.power >= powerLevel;
+                                const compareMode = this.powerConsumptionTotalLevelActiveSensors[i].compareMode;
+                                let state = false;
+                                switch (compareMode) {
+                                    case 0:
+                                        state = obj.power > powerLevel;
+                                        break;
+                                    case 1:
+                                        state = obj.power >= powerLevel;
+                                        break;
+                                    case 2:
+                                        state = obj.power === powerLevel;
+                                        break;
+                                    case 3:
+                                        state = obj.power < powerLevel;
+                                        break;
+                                    case 4:
+                                        state = obj.power <= powerLevel;
+                                        break;
+                                }
                                 this.powerConsumptionTotalLevelActiveSensors[i].state = state;
 
                                 if (this.powerConsumptionTotalLevelSensorsServices) {
@@ -2389,7 +2442,25 @@ class EnvoyDevice extends EventEmitter {
                         if (this.energyConsumptionTotalLevelActiveSensorsCount > 0) {
                             for (let i = 0; i < this.energyConsumptionTotalLevelActiveSensorsCount; i++) {
                                 const energyLevel = this.energyConsumptionTotalLevelActiveSensors[i].energyLevel;
-                                const state = obj.energyToday >= energyLevel;
+                                const compareMode = this.energyConsumptionTotalLevelActiveSensors[i].compareMode;
+                                let state = false;
+                                switch (compareMode) {
+                                    case 0:
+                                        state = obj.energyToday > energyLevel;
+                                        break;
+                                    case 1:
+                                        state = obj.energyToday >= energyLevel;
+                                        break;
+                                    case 2:
+                                        state = obj.energyToday === energyLevel;
+                                        break;
+                                    case 3:
+                                        state = obj.energyToday < energyLevel;
+                                        break;
+                                    case 4:
+                                        state = obj.energyToday <= energyLevel;
+                                        break;
+                                }
                                 this.energyConsumptionTotalLevelActiveSensors[i].state = state;
 
                                 if (this.energyConsumptionTotalLevelSensorsServices) {
@@ -2426,8 +2497,25 @@ class EnvoyDevice extends EventEmitter {
                         if (this.powerConsumptionNetLevelActiveSensorsCount > 0) {
                             for (let i = 0; i < this.powerConsumptionNetLevelActiveSensorsCount; i++) {
                                 const powerLevel = this.powerConsumptionNetLevelActiveSensors[i].powerLevel;
-                                const importing = powerLevel >= 0;
-                                const state = importing ? obj.power >= powerLevel : obj.power <= powerLevel;
+                                const compareMode = this.powerConsumptionNetLevelActiveSensors[i].compareMode;
+                                let state = false;
+                                switch (compareMode) {
+                                    case 0:
+                                        state = obj.power > powerLevel;
+                                        break;
+                                    case 1:
+                                        state = obj.power >= powerLevel;
+                                        break;
+                                    case 2:
+                                        state = obj.power === powerLevel;
+                                        break;
+                                    case 3:
+                                        state = obj.power < powerLevel;
+                                        break;
+                                    case 4:
+                                        state = obj.power <= powerLevel;
+                                        break;
+                                }
                                 this.powerConsumptionNetLevelActiveSensors[i].state = state;
 
                                 if (this.powerConsumptionNetLevelSensorsServices) {
@@ -2454,7 +2542,25 @@ class EnvoyDevice extends EventEmitter {
                         if (this.energyConsumptionNetLevelActiveSensorsCount > 0) {
                             for (let i = 0; i < this.energyConsumptionNetLevelActiveSensorsCount; i++) {
                                 const energyLevel = this.energyConsumptionNetLevelActiveSensors[i].energyLevel;
-                                const state = obj.energyToday >= energyLevel;
+                                const compareMode = this.energyConsumptionNetLevelActiveSensors[i].compareMode;
+                                let state = false;
+                                switch (compareMode) {
+                                    case 0:
+                                        state = obj.energyToday > energyLevel;
+                                        break;
+                                    case 1:
+                                        state = obj.energyToday >= energyLevel;
+                                        break;
+                                    case 2:
+                                        state = obj.energyToday === energyLevel;
+                                        break;
+                                    case 3:
+                                        state = obj.energyToday < energyLevel;
+                                        break;
+                                    case 4:
+                                        state = obj.energyToday <= energyLevel;
+                                        break;
+                                }
                                 this.energyConsumptionNetLevelActiveSensors[i].state = state;
 
                                 if (this.energyConsumptionNetLevelSensorsServices) {

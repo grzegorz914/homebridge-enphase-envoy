@@ -51,7 +51,8 @@
                     },
                     "powerProductionLevelSensors": [
                         {
-                            "name": "Production >= 7500W",
+                            "name": "Production > 7500W",
+                            "compareMode": 0,
                             "powerLevel": 7500,
                             "displayType": 0,
                             "namePrefix": false
@@ -64,7 +65,8 @@
                     },
                     "energyProductionLevelSensors": [
                         {
-                            "name": "Production energy level >= 5000Wh",
+                            "name": "Production energy level > 5000Wh",
+                            "compareMode": 0,
                             "energyLevel": 5000,
                             "displayType": 0,
                             "namePrefix": false
@@ -77,7 +79,8 @@
                     },
                     "powerConsumptionTotalLevelSensors": [
                         {
-                            "name": "Consumption Total >= 5500W",
+                            "name": "Consumption Total > 5500W",
+                            "compareMode": 0,
                             "powerLevel": 5500,
                             "displayType": 0,
                             "namePrefix": false
@@ -91,6 +94,7 @@
                     "energyConsumptionTotalLevelSensors": [
                         {
                             "name": "Consumption Total energy level > 5000Wh",
+                            "compareMode": 0,
                             "energyLevel": 5000,
                             "displayType": 0,
                             "namePrefix": false
@@ -104,13 +108,15 @@
                     },
                     "powerConsumptionNetLevelSensors": [
                         {
-                            "name": "Import Net >= 5500W",
+                            "name": "Import from Net > 5500W",
+                            "compareMode": 0,
                             "powerLevel": 5500,
                             "displayType": 0,
                             "namePrefix": false
                         },
                         {
-                            "name": "Export Net >= 5500W",
+                            "name": "Export to Net = 5500W",
+                            "compareMode": 2,
                             "powerLevel": -5500,
                             "displayType": 0,
                             "namePrefix": false
@@ -124,6 +130,7 @@
                     "energyConsumptionNetLevelSensors": [
                         {
                             "name": "Consumption Net energy level >= 5000Wh",
+                            "compareMode": 0,
                             "energyLevel": 5000,
                             "displayType": 0,
                             "namePrefix": false
@@ -179,7 +186,7 @@
                     ],
                     "enchargeBackupLevelSensors": [
                         {
-                            "name": "Sensor name",
+                            "name": "Backup > 50%",
                             "compareMode": 0,
                             "backupLevel": 100,
                             "displayType": 0,
