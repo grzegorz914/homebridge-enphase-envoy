@@ -28,6 +28,7 @@ class EnvoyPlatform {
     api.on('didFinishLaunching', async () => {
       for (const device of config.devices) {
         const deviceName = device.name ?? false;
+        const host = device.host || 'envoy.local';
         const envoyFirmware7xx = device.envoyFirmware7xx || false;
         const envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode || 0; //0 - enlighten credentials, 1 - own token
         const envoyPasswd = device.envoyPasswd ?? false;
@@ -35,6 +36,7 @@ class EnvoyPlatform {
         const enlightenUser = device.enlightenUser ?? false;
         const enlightenPasswd = device.enlightenPasswd ?? false;
         const envoySerialNumber = device.envoySerialNumber ?? false;
+        const enableDebugMode = device.enableDebugMode || false;
 
         //check mandatory properties
         if (!deviceName) {
@@ -51,10 +53,6 @@ class EnvoyPlatform {
           log.warn(`Device: ${host} ${deviceName}, Envoy firmware v7.x.x enabled but envoy token: ${envoyToken ? 'OK' : envoyToken}.`);
           return;
         }
-
-        //config
-        const host = device.host || 'envoy.local';
-        const enableDebugMode = device.enableDebugMode || false;
 
         //debug config
         const debug = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, Did finish launching.`) : false;
