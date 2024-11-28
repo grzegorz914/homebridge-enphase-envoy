@@ -27,7 +27,7 @@
               "type": "string",
               "placeholder": "IP Address or Hostname",
               "format": "hostname",
-              "description": "Here set the envoy ip address/hostname or leave empty, will use default path envoy.local.",
+              "description": "Here set the envoy IP Address or Hostname, if not set default path envoy.local will be used. For firmware v7.x.x please set IP Address",
               "required": false
             },
             "envoyFirmware7xx": {
@@ -40,7 +40,6 @@
             "envoyFirmware7xxTokenGenerationMode": {
               "title": "Token Generation Mode",
               "type": "integer",
-              "default": 0,
               "oneOf": [
                 {
                   "title": "Enlighten Credentials",

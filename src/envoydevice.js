@@ -1059,28 +1059,41 @@ class EnvoyDevice extends EventEmitter {
             return true;
         };
 
+        if (this.checkJwtTokenRunning) {
+            return false;
+        };
+        this.checkJwtTokenRunning = true;
+
+        //check cookie are valid
+        const cookieValid = this.cookie === this.oldCookie;
+
+        //validate own token
         if (this.envoyFirmware7xxTokenGenerationMode === 1) {
+            if (cookieValid) {
+                return true;
+            };
+
+            //validate own JWT token
             try {
+                this.emit('warn', `Cookie not valid, validating.`);
                 await this.validateJwtToken();
+
+                this.checkJwtTokenRunning = false;
                 return true;
             } catch (error) {
+                this.checkJwtTokenRunning = false;
                 throw new Error(`Check own JWT token error: ${error.message || error}`);
             };
         };
 
-        if (this.checkJwtTokenRunning) {
-            return false;
-        };
 
+        //use token from enlighten
         try {
-            this.checkJwtTokenRunning = true;
-
             //read token from file
             const data = await this.readData(this.envoyTokenFile);
             const parsedData = JSON.parse(data);
             parsedData.token ? parsedData : null;
             const tokenValid = parsedData && parsedData.expires_at >= Math.floor(Date.now() / 1000) + 60;
-            const cookieValid = this.cookie === this.oldCookie;
             const debug = this.enableDebugMode ? this.emit('warn', `JWT Token: ${tokenValid ? 'Valid' : 'Not valid'}, cookie: ${cookieValid ? 'Valid' : 'Not valid'}`) : false;
 
             if (tokenValid && cookieValid) {
@@ -1088,14 +1101,14 @@ class EnvoyDevice extends EventEmitter {
                 return true;
             }
 
-            //JWT token
+            //get new JWT token
             const emit = !tokenValid ? this.emit('warn', `JWT Token expired, refreshing.`) : false;
             const wait = !tokenValid ? await new Promise(resolve => setTimeout(resolve, 30000)) : false;
             const getToken = await this.getJwtToken();
 
-            //Cookie
+            //validate JWT tokken
             const wait1 = !cookieValid ? await new Promise(resolve => setTimeout(resolve, 2000)) : false;
-            const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, refreshing.`) : false;
+            const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, validating.`) : false;
             const validateToken = getToken || !cookieValid ? await this.validateJwtToken() : false;
 
             this.checkJwtTokenRunning = false;
@@ -1187,7 +1200,7 @@ class EnvoyDevice extends EventEmitter {
             });
 
             this.oldCookie = this.cookie;
-            this.emit('success', `Cookie refresh success.`);
+            this.emit('success', `Cookie validate success.`);
 
             return true;
         } catch (error) {
