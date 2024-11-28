@@ -2626,11 +2626,11 @@
                       "items": [
                         "devices[].envoyFirmware7xxTokenGenerationMode",
                         {
-                          "key": "devices[].enlightenPasswd",
+                          "key": "devices[].envoyPasswd",
                           "type": "password"
                         },
                         {
-                          "key": "devices[].envoyPasswd",
+                          "key": "devices[].envoyToken",
                           "type": "password"
                         },
                         {

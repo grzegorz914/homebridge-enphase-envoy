@@ -1081,17 +1081,22 @@ class EnvoyDevice extends EventEmitter {
             parsedData.token ? parsedData : null;
             const tokenValid = parsedData && parsedData.expires_at >= Math.floor(Date.now() / 1000) + 60;
             const cookieValid = this.cookie === this.oldCookie;
-            const debug = this.enableDebugMode ? this.emit('warn', `JWT Token valid: ${tokenValid}, cookie valid: ${cookieValid}`) : false;
+            const debug = this.enableDebugMode ? this.emit('warn', `JWT Token: ${tokenValid ? 'Valid' : 'Not valid'}, cookie: ${cookieValid ? 'Valid' : 'Not valid'}`) : false;
 
             if (tokenValid && cookieValid) {
                 this.checkJwtTokenRunning = false;
                 return true;
             }
 
+            //JWT token
             const emit = !tokenValid ? this.emit('warn', `JWT Token expired, refreshing.`) : false;
             const wait = !tokenValid ? await new Promise(resolve => setTimeout(resolve, 30000)) : false;
             const getToken = await this.getJwtToken();
-            const validateToken = getToken ? await this.validateJwtToken() : false;
+
+            //Cookie
+            const wait1 = !cookieValid ? await new Promise(resolve => setTimeout(resolve, 2000)) : false;
+            const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, refreshing.`) : false;
+            const validateToken = getToken || !cookieValid ? await this.validateJwtToken() : false;
 
             this.checkJwtTokenRunning = false;
             return validateToken;
@@ -1158,7 +1163,7 @@ class EnvoyDevice extends EventEmitter {
                     keepAlive: false,
                     rejectUnauthorized: false
                 }),
-                timeout: 20000
+                timeout: 25000
             };
 
             const response = await axios(CONSTANTS.ApiUrls.CheckJwt, options);
@@ -1178,11 +1183,11 @@ class EnvoyDevice extends EventEmitter {
                     keepAlive: false,
                     rejectUnauthorized: false
                 }),
-                timeout: 20000
+                timeout: 25000
             });
 
             this.oldCookie = this.cookie;
-            this.emit('success', `JWT Token valid: ${new Date(this.jwtToken.expires_at * 1000).toLocaleString()}`);
+            this.emit('success', `Cookie refresh success.`);
 
             return true;
         } catch (error) {

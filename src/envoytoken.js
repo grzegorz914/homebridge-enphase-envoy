@@ -29,6 +29,7 @@ class EnvoyToken extends EventEmitter {
 
             //emit success
             this.emit('success', `JWT Token refresh success.`);
+            this.emit('success', `JWT Token valid: ${new Date(tokenData.expires_at * 1000).toLocaleString()}`);
 
             return tokenData;
         } catch (error) {
