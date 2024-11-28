@@ -85,7 +85,7 @@
 | Key | Description |
 | --- | --- |
 | `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
-| `host` | Here set the envoy `IP Address` or `Hostname` or leave empty (will be used default path `envoy.local`) |
+| `host` | Here set the envoy `IP Address` or `Hostname`, if not set default path `envoy.local` will be used. For firmware v7.x.x please set `IP Address`. |
 | `envoyFirmware7xx` | This enable support for Envoy Fw. v7.x.x and newer. |
 | `envoyFirmware7xxTokenGenerationMode` | Here select how You wuld to obtain the token, `0 - Enlighten Credentials`, `1 - Your Own Generated Token`. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
