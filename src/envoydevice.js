@@ -1,17 +1,17 @@
 "use strict";
-const fs = require('fs');
-const fsPromises = fs.promises;
-const https = require('https');
-const axios = require('axios');
-const { XMLParser, XMLBuilder, XMLValidator } = require('fast-xml-parser');
-const EventEmitter = require('events');
-const RestFul = require('./restful.js');
-const Mqtt = require('./mqtt.js');
-const EnvoyToken = require('./envoytoken.js');
-const DigestAuth = require('./digestauth.js');
-const PasswdCalc = require('./passwdcalc.js');
-const ImpulseGenerator = require('./impulsegenerator.js');
-const CONSTANTS = require('./constants.json');
+import { promises } from 'fs';
+const fsPromises = promises;
+import axios from 'axios';
+import { Agent } from 'https';
+import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
+import EventEmitter from 'events';
+import RestFul from './restful.js';
+import Mqtt from './mqtt.js';
+import EnvoyToken from './envoytoken.js';
+import DigestAuth from './digestauth.js';
+import PasswdCalc from './passwdcalc.js';
+import ImpulseGenerator from './impulsegenerator.js';
+import { ApiUrls, PartNumbers, Authorization, ApiCodes, LedStatus } from './constants.js';
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
@@ -1172,14 +1172,14 @@ class EnvoyDevice extends EventEmitter {
                     Authorization: `Bearer ${this.jwtToken.token}`
                 },
                 withCredentials: true,
-                httpsAgent: new https.Agent({
+                httpsAgent: new Agent({
                     keepAlive: false,
                     rejectUnauthorized: false
                 }),
                 timeout: 25000
             };
 
-            const response = await axios(CONSTANTS.ApiUrls.CheckJwt, options);
+            const response = await axios(ApiUrls.CheckJwt, options);
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token: Valid`) : false;
             this.cookie = response.headers['set-cookie'];
 
@@ -1192,7 +1192,7 @@ class EnvoyDevice extends EventEmitter {
                     Cookie: this.cookie
                 },
                 withCredentials: true,
-                httpsAgent: new https.Agent({
+                httpsAgent: new Agent({
                     keepAlive: false,
                     rejectUnauthorized: false
                 }),
@@ -1211,7 +1211,7 @@ class EnvoyDevice extends EventEmitter {
     async updateGridProfile() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.Profile);
+            const response = await this.axiosInstance(ApiUrls.Profile);
             const profile = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Grid profile:`, profile) : false;
 
@@ -1256,7 +1256,7 @@ class EnvoyDevice extends EventEmitter {
         };
 
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.BackboneApplication);
+            const response = await this.axiosInstance(ApiUrls.BackboneApplication);
             const envoyBackboneApp = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app:`, envoyBackboneApp) : false;
 
@@ -1295,7 +1295,7 @@ class EnvoyDevice extends EventEmitter {
     async updateInfo() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting info.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.GetInfo);
+            const response = await this.axiosInstance(ApiUrls.GetInfo);
             const info = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Info:`, info) : false;
 
@@ -1327,7 +1327,7 @@ class EnvoyDevice extends EventEmitter {
                 time: new Date(envoyInfo.time * 1000).toLocaleString(),
                 serialNumber: envoyInfoDevice.sn.toString() ?? this.envoySerialNumber,
                 partNumber: envoyInfoDevice.pn,
-                modelName: CONSTANTS.PartNumbers[envoyInfoDevice.pn] ?? envoyInfoDevice.pn,
+                modelName: PartNumbers[envoyInfoDevice.pn] ?? envoyInfoDevice.pn,
                 software: envoyInfoDevice.software,
                 euaid: envoyInfoDevice.euaid,
                 seqNum: envoyInfoDevice.seqnum,
@@ -1373,7 +1373,7 @@ class EnvoyDevice extends EventEmitter {
 
             //digest authorization envoy
             this.digestAuthEnvoy = new DigestAuth({
-                user: CONSTANTS.Authorization.EnvoyUser,
+                user: Authorization.EnvoyUser,
                 passwd: envoyPasswd
             }).on('error', (error) => {
                 this.emit('warn', `Digest authorization envoy error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed.`)
@@ -1400,8 +1400,8 @@ class EnvoyDevice extends EventEmitter {
                 try {
                     //calculate installer password
                     const passwdCalc = new PasswdCalc({
-                        user: CONSTANTS.Authorization.InstallerUser,
-                        realm: CONSTANTS.Authorization.Realm,
+                        user: Authorization.InstallerUser,
+                        realm: Authorization.Realm,
                         serialNumber: deviceSn
                     }).on('error', (error) => {
                         this.emit('warn', `Calculate password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed.`)
@@ -1426,7 +1426,7 @@ class EnvoyDevice extends EventEmitter {
 
             //digest authorization installer
             this.digestAuthInstaller = new DigestAuth({
-                user: CONSTANTS.Authorization.InstallerUser,
+                user: Authorization.InstallerUser,
                 passwd: installerPasswd
             }).on('error', (error) => {
                 this.emit('warn', `Digest authorization installer error:  ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed.`)
@@ -1443,7 +1443,7 @@ class EnvoyDevice extends EventEmitter {
     async updateHome() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting home.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.Home);
+            const response = await this.axiosInstance(ApiUrls.Home);
             const envoy = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Home:`, envoy) : false;
 
@@ -1468,7 +1468,7 @@ class EnvoyDevice extends EventEmitter {
             home.timeZone = envoy.timezone ?? 'Unknown';
             home.currentDate = new Date(envoy.current_date).toLocaleString().slice(0, 11) ?? 'Unknown';
             home.currentTime = envoy.current_time ?? 'Unknown';
-            home.tariff = CONSTANTS.ApiCodes[envoy.tariff] ?? 'Unknown';
+            home.tariff = ApiCodes[envoy.tariff] ?? 'Unknown';
 
             //network
             const envoyNework = envoy.network;
@@ -1478,11 +1478,11 @@ class EnvoyDevice extends EventEmitter {
                 webComm: envoyNework.web_comm === true,
                 everReportedToEnlighten: envoyNework.ever_reported_to_enlighten === true,
                 lastEnlightenReporDate: new Date(envoyNework.last_enlighten_report_time * 1000).toLocaleString(),
-                primaryInterface: CONSTANTS.ApiCodes[envoyNework.primary_interface] ?? 'Unknown',
+                primaryInterface: ApiCodes[envoyNework.primary_interface] ?? 'Unknown',
                 networkInterfaces: networkInterfaces.map(data => {
                     const type = data.type;
                     return {
-                        type: CONSTANTS.ApiCodes[type] ?? 'Unknown',
+                        type: ApiCodes[type] ?? 'Unknown',
                         interface: data.interface,
                         mac: type !== 'cellular' ? data.mac : null,
                         dhcp: data.dhcp,
@@ -1493,7 +1493,7 @@ class EnvoyDevice extends EventEmitter {
                         supported: type === 'wifi' ? data.supported : null,
                         present: type === 'wifi' ? data.present : null,
                         configured: type === 'wifi' ? data.configured : null,
-                        status: type === 'wifi' ? CONSTANTS.ApiCodes[data.status] : null
+                        status: type === 'wifi' ? ApiCodes[data.status] : null
                     };
                 }),
             };
@@ -1524,8 +1524,8 @@ class EnvoyDevice extends EventEmitter {
                 }),
             };
 
-            home.alerts = (Array.isArray(envoy.alerts) && (envoy.alerts).length > 0) ? ((envoy.alerts).map(a => CONSTANTS.ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
-            home.updateStatus = CONSTANTS.ApiCodes[envoy.update_status] ?? 'Unknown';
+            home.alerts = (Array.isArray(envoy.alerts) && (envoy.alerts).length > 0) ? ((envoy.alerts).map(a => ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
+            home.updateStatus = ApiCodes[envoy.update_status] ?? 'Unknown';
 
             //wireless connection kit
             const wirelessConnectionsData = wirelessConnectionsSupported ? envoy.wireless_connection : [];
@@ -1537,7 +1537,7 @@ class EnvoyDevice extends EventEmitter {
                     const obj = {
                         signalStrength: wirelessConnection.signal_strength * 20,
                         signalStrengthMax: wirelessConnection.signal_strength_max * 20,
-                        type: CONSTANTS.ApiCodes[wirelessConnection.type] ?? 'Unknown',
+                        type: ApiCodes[wirelessConnection.type] ?? 'Unknown',
                         connected: wirelessConnection.connected ?? false,
                     };
                     home.wirelessConnections.push(obj);
@@ -1613,7 +1613,7 @@ class EnvoyDevice extends EventEmitter {
     async updateInventory() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting inventory.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.Inventory);
+            const response = await this.axiosInstance(ApiUrls.Inventory);
             const inventory = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Inventory:`, inventory) : false;
 
@@ -1626,14 +1626,14 @@ class EnvoyDevice extends EventEmitter {
             const microinverters = microinvertersSupported ? inventory[0].devices : [];
             const microinvertersInstalled = microinverters.length > 0;
             if (microinvertersInstalled) {
-                const type = CONSTANTS.ApiCodes[inventory[0].type] ?? 'Unknown';
+                const type = ApiCodes[inventory[0].type] ?? 'Unknown';
                 microinverters.forEach((microinverter, index) => {
                     const obj = {
                         type: type,
-                        partNum: CONSTANTS.PartNumbers[microinverter.part_num] ?? 'Microinverter',
+                        partNum: PartNumbers[microinverter.part_num] ?? 'Microinverter',
                         installed: new Date(microinverter.installed * 1000).toLocaleString(),
                         serialNumber: microinverter.serial_num,
-                        deviceStatus: (Array.isArray(microinverter.device_status) && (microinverter.device_status).length > 0) ? ((microinverter.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                        deviceStatus: (Array.isArray(microinverter.device_status) && (microinverter.device_status).length > 0) ? ((microinverter.device_status).map(a => ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
                         lastReportDate: new Date(microinverter.last_rpt_date * 1000).toLocaleString(),
                         adminState: microinverter.admin_state,
                         devType: microinverter.dev_type,
@@ -1683,14 +1683,14 @@ class EnvoyDevice extends EventEmitter {
             const acBatteries = acBatteriesSupported ? inventory[1].devices : [];
             const acBatteriesInstalled = acBatteries.length > 0;
             if (acBatteriesInstalled) {
-                const type = CONSTANTS.ApiCodes[inventory[1].type] ?? 'Unknown';
+                const type = ApiCodes[inventory[1].type] ?? 'Unknown';
                 acBatteries.forEach((acBatterie, index) => {
                     const obj = {
                         type: type,
-                        partNumber: CONSTANTS.PartNumbers[acBatterie.part_num] ?? acBatterie.part_num,
+                        partNumber: PartNumbers[acBatterie.part_num] ?? acBatterie.part_num,
                         installed: new Date(acBatterie.installed * 1000).toLocaleString(),
                         serialNumber: acBatterie.serial_num,
-                        deviceStatus: (Array.isArray(acBatterie.device_status) && (acBatterie.device_status).length > 0) ? ((acBatterie.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                        deviceStatus: (Array.isArray(acBatterie.device_status) && (acBatterie.device_status).length > 0) ? ((acBatterie.device_status).map(a => ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
                         lastReportDate: new Date(acBatterie.last_rpt_date * 1000).toLocaleString(),
                         adminState: acBatterie.admin_state,
                         devType: acBatterie.dev_type,
@@ -1709,7 +1709,7 @@ class EnvoyDevice extends EventEmitter {
                         maxCellTemp: acBatterie.maxCellTemp,
                         sleepMinSoc: acBatterie.sleep_min_soc,
                         sleepMaxSoc: acBatterie.sleep_max_soc,
-                        chargeStatus: CONSTANTS.ApiCodes[acBatterie.charge_status] ?? 'Unknown'
+                        chargeStatus: ApiCodes[acBatterie.charge_status] ?? 'Unknown'
                     }
                     //add ac batteries to pv object
                     this.pv.acBatteries.devices.push(obj);
@@ -1746,14 +1746,14 @@ class EnvoyDevice extends EventEmitter {
             const qRelays = qRelaysSupported ? inventory[2].devices : [];
             const qRelaysInstalled = qRelays.length > 0;
             if (qRelaysInstalled) {
-                const type = CONSTANTS.ApiCodes[inventory[2].type] ?? 'Unknown';
+                const type = ApiCodes[inventory[2].type] ?? 'Unknown';
                 qRelays.forEach((qRelay, index) => {
                     const obj = {
                         type: type,
-                        partNumber: CONSTANTS.PartNumbers[qRelay.part_num] ?? qRelay.part_num,
+                        partNumber: PartNumbers[qRelay.part_num] ?? qRelay.part_num,
                         installed: new Date(qRelay.installed * 1000).toLocaleString(),
                         serialNumber: qRelay.serial_num,
-                        deviceStatus: (Array.isArray(qRelay.device_status) && (qRelay.device_status).length > 0) ? ((qRelay.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                        deviceStatus: (Array.isArray(qRelay.device_status) && (qRelay.device_status).length > 0) ? ((qRelay.device_status).map(a => ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
                         lastReportDate: new Date(qRelay.last_rpt_date * 1000).toLocaleString(),
                         adminState: qRelay.admin_state,
                         devType: qRelay.dev_type,
@@ -1767,7 +1767,7 @@ class EnvoyDevice extends EventEmitter {
                         communicating: qRelay.communicating === true,
                         provisioned: qRelay.provisioned === true,
                         operating: qRelay.operating === true,
-                        relay: CONSTANTS.ApiCodes[qRelay.relay] ?? 'Unknown',
+                        relay: ApiCodes[qRelay.relay] ?? 'Unknown',
                         reasonCode: qRelay.reason_code,
                         reason: qRelay.reason,
                         linesCount: qRelay['line-count'],
@@ -1822,14 +1822,14 @@ class EnvoyDevice extends EventEmitter {
             const ensemblesInventory = ensemblesInventorySupported ? inventory[3].devices : [];
             const ensemblesInventoryInstalled = ensemblesInventory.length > 0;
             if (ensemblesInventoryInstalled) {
-                const type = CONSTANTS.ApiCodes[inventory[3].type] ?? 'Unknown';
+                const type = ApiCodes[inventory[3].type] ?? 'Unknown';
                 ensemblesInventory.forEach((ensemble, index) => {
                     const obj = {
                         type: type,
-                        partNumber: CONSTANTS.PartNumbers[ensemble.part_num] ?? ensemble.part_num,
+                        partNumber: PartNumbers[ensemble.part_num] ?? ensemble.part_num,
                         installed: new Date(ensemble.installed * 1000).toLocaleString(),
                         serialNumber: ensemble.serial_num,
-                        deviceStatus: (Array.isArray(ensemble.device_status) && (ensemble.device_status).length > 0) ? ((ensemble.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                        deviceStatus: (Array.isArray(ensemble.device_status) && (ensemble.device_status).length > 0) ? ((ensemble.device_status).map(a => ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
                         lastReportDate: new Date(ensemble.last_rpt_date * 1000).toLocaleString(),
                         adminState: ensemble.admin_state,
                         devType: ensemble.dev_type,
@@ -1879,7 +1879,7 @@ class EnvoyDevice extends EventEmitter {
     async updateMeters() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters info.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.InternalMeterInfo);
+            const response = await this.axiosInstance(ApiUrls.InternalMeterInfo);
             const meters = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Meters:`, meters) : false;
 
@@ -1893,11 +1893,11 @@ class EnvoyDevice extends EventEmitter {
                     const obj = {
                         eid: meter.eid,
                         state: meter.state === 'enabled' ?? false,
-                        measurementType: CONSTANTS.ApiCodes[meter.measurementType] ?? 'Unknown',
-                        phaseMode: CONSTANTS.ApiCodes[meter.phaseMode] ?? 'Unknown',
+                        measurementType: ApiCodes[meter.measurementType] ?? 'Unknown',
+                        phaseMode: ApiCodes[meter.phaseMode] ?? 'Unknown',
                         phaseCount: meter.phaseCount ?? 1,
-                        meteringStatus: CONSTANTS.ApiCodes[meter.meteringStatus] ?? 'Unknown',
-                        statusFlags: (Array.isArray(meter.statusFlags) && (meter.statusFlags).length > 0) ? ((meter.statusFlags).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status'
+                        meteringStatus: ApiCodes[meter.meteringStatus] ?? 'Unknown',
+                        statusFlags: (Array.isArray(meter.statusFlags) && (meter.statusFlags).length > 0) ? ((meter.statusFlags).map(a => ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status'
                     }
 
                     //production
@@ -1960,7 +1960,7 @@ class EnvoyDevice extends EventEmitter {
     async updateMetersReading() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters reading.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.InternalMeterReadings);
+            const response = await this.axiosInstance(ApiUrls.InternalMeterReadings);
             const metersReading = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Meters reading:`, metersReading) : false;
 
@@ -2035,7 +2035,7 @@ class EnvoyDevice extends EventEmitter {
                 }
             }
 
-            const response = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANTS.ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(CONSTANTS.ApiUrls.InverterProduction, options);
+            const response = this.envoyFirmware7xx ? await this.axiosInstance(ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(ApiUrls.InverterProduction, options);
             const microinverters = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Microinverters status:`, microinverters) : false;
 
@@ -2084,7 +2084,7 @@ class EnvoyDevice extends EventEmitter {
     async updateProduction() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting production.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.InverterProductionSumm);
+            const response = await this.axiosInstance(ApiUrls.InverterProductionSumm);
             const production = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Production:`, production) : false;
 
@@ -2124,7 +2124,7 @@ class EnvoyDevice extends EventEmitter {
     async updateProductionCt() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting production ct.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.SystemReadingStats);
+            const response = await this.axiosInstance(ApiUrls.SystemReadingStats);
             const productionCtData = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Production ct:`, productionCtData) : false;
 
@@ -2146,7 +2146,7 @@ class EnvoyDevice extends EventEmitter {
                 const productionCtInvertersSupported = productionCtInvertersKeys.length > 0;
                 if (productionCtInvertersSupported) {
                     const inverters = {
-                        type: CONSTANTS.ApiCodes[productionCtInverters.type] ?? 'Unknown',
+                        type: ApiCodes[productionCtInverters.type] ?? 'Unknown',
                         activeCount: productionCtInverters.activeCount,
                         readingTime: new Date(productionCtInverters.readingTime * 1000).toLocaleString(),
                         power: productionCtInverters.wNow ?? 0, //watts
@@ -2167,9 +2167,9 @@ class EnvoyDevice extends EventEmitter {
                 if (productionCtProductionSupported) {
                     const storedProductionPower = this.pv.productionPowerPeak;
                     const production = {
-                        type: metersProductionEnabled ? CONSTANTS.ApiCodes[productionCtProduction.type] : this.pv.production.ct.inverters.type,
+                        type: metersProductionEnabled ? ApiCodes[productionCtProduction.type] : this.pv.production.ct.inverters.type,
                         activeCount: metersProductionEnabled ? productionCtProduction.activeCount : this.pv.production.ct.inverters.activeCount,
-                        measurmentType: metersProductionEnabled ? CONSTANTS.ApiCodes[productionCtProduction.measurementType] : this.pv.production.ct.inverters.type,
+                        measurmentType: metersProductionEnabled ? ApiCodes[productionCtProduction.measurementType] : this.pv.production.ct.inverters.type,
                         readingTime: metersProductionEnabled ? new Date(productionCtProduction.readingTime * 1000).toLocaleString() : this.pv.production.ct.inverters.readingTime,
                         power: metersProductionEnabled ? productionCtProduction.wNow : this.pv.production.ct.inverters.power, //watts
                         powerKw: metersProductionEnabled ? productionCtProduction.wNow / 1000 : this.pv.production.ct.inverters.powerKw, //kW
@@ -2336,11 +2336,11 @@ class EnvoyDevice extends EventEmitter {
             if (productionCtConsumptionSupported && metersConsumptionEnabled) {
                 const consumptions = productionCtData.consumption ?? [];
                 consumptions.forEach((consumption, index) => {
-                    const measurementType = CONSTANTS.ApiCodes[consumption.measurementType];
+                    const measurementType = ApiCodes[consumption.measurementType];
                     const storedConsumptionPower = measurementType === 'Consumption Total' ? this.pv.consumptionTotalPowerPeak : measurementType === 'Consumption Net' ? this.pv.consumptionNetPowerPeak : 0;
                     const consumptionLifetimeOffset = [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][index];
                     const obj = {
-                        type: CONSTANTS.ApiCodes[consumption.type],
+                        type: ApiCodes[consumption.type],
                         measurmentType: measurementType,
                         activeCount: consumption.activeCount,
                         readingTime: new Date(consumption.readingTime * 1000).toLocaleString(),
@@ -2601,14 +2601,14 @@ class EnvoyDevice extends EventEmitter {
             if (productionCtAcBatterieSupported && acBatteriesInstalled) {
                 const acBatteries = productionCtData.storage[0] ?? {};
                 const acBatterie = {
-                    type: CONSTANTS.ApiCodes[acBatteries.type] ?? 'AC Batterie',
+                    type: ApiCodes[acBatteries.type] ?? 'AC Batterie',
                     activeCount: acBatteries.activeCount ?? 0,
                     readingTime: new Date(acBatteries.readingTime * 1000).toLocaleString() ?? '',
                     power: acBatteries.wNow ?? 0,
                     powerKw: acBatteries.wNow / 1000 ?? 0,
                     energy: (acBatteries.whNow + this.acBatterieStorageOffset) ?? 0,
                     energyKw: (acBatteries.whNow + this.acBatterieStorageOffset) / 1000 ?? 0,
-                    chargeStatus: CONSTANTS.ApiCodes[acBatteries.state] ?? 'Unknown',
+                    chargeStatus: ApiCodes[acBatteries.state] ?? 'Unknown',
                     energyStateSum: acBatteries.whNow > 0 ?? false,
                     percentFullSum: 0
                 };
@@ -2663,7 +2663,7 @@ class EnvoyDevice extends EventEmitter {
                 }
             }
 
-            const url = CONSTANTS.ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
+            const url = ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
             const response = this.envoyFirmware7xx ? await this.axiosInstance(url) : await this.digestAuthInstaller.request(url, options);
             const powerProductionState = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Power mode:`, powerProductionState) : false;
@@ -2713,7 +2713,7 @@ class EnvoyDevice extends EventEmitter {
     async updateEnsembleInventory() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble inventory.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleInventory);
+            const response = await this.axiosInstance(ApiUrls.EnsembleInventory);
             const ensembleInventory = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Ensemble inventory:`, ensembleInventory) : false;
 
@@ -2730,17 +2730,17 @@ class EnvoyDevice extends EventEmitter {
                 const enchargesInstalled = enchargesData.length > 0;
                 if (enchargesInstalled) {
                     const enchargesPercentFullSummary = [];
-                    const type = CONSTANTS.ApiCodes[ensembleInventory[0].type];
+                    const type = ApiCodes[ensembleInventory[0].type];
                     enchargesData.forEach((encharge, index) => {
                         const obj = {
                             type: type,
-                            partNumber: CONSTANTS.PartNumbers[encharge.part_num] ?? encharge.part_num,
+                            partNumber: PartNumbers[encharge.part_num] ?? encharge.part_num,
                             serialNumber: encharge.serial_num,
                             installed: new Date(encharge.installed * 1000).toLocaleString(),
-                            deviceStatus: (Array.isArray(encharge.device_status) && (encharge.device_status).length > 0) ? ((encharge.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                            deviceStatus: (Array.isArray(encharge.device_status) && (encharge.device_status).length > 0) ? ((encharge.device_status).map(a => ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
                             lastReportDate: new Date(encharge.last_rpt_date * 1000).toLocaleString(),
                             adminState: encharge.admin_state,
-                            adminStateStr: CONSTANTS.ApiCodes[encharge.admin_state_str] ?? 'Unknown',
+                            adminStateStr: ApiCodes[encharge.admin_state_str] ?? 'Unknown',
                             createdDate: new Date(encharge.created_date * 1000).toLocaleString(),
                             imgLoadDate: new Date(encharge.img_load_date * 1000).toLocaleString(),
                             imgPnumRunning: encharge.img_pnum_running,
@@ -2751,10 +2751,10 @@ class EnvoyDevice extends EventEmitter {
                             percentFull: encharge.percentFull ?? 0,
                             temperature: encharge.temperature ?? 0,
                             maxCellTemp: encharge.maxCellTemp ?? 0,
-                            reportedEncGridState: CONSTANTS.ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown',
+                            reportedEncGridState: ApiCodes[encharge.reported_enc_grid_state] ?? 'Unknown',
                             commLevelSubGhz: encharge.comm_level_sub_ghz * 20 ?? 0,
                             commLevel24Ghz: encharge.comm_level_2_4_ghz * 20 ?? 0,
-                            ledStatus: CONSTANTS.LedStatus[encharge.led_status] ?? encharge.led_status,
+                            ledStatus: LedStatus[encharge.led_status] ?? encharge.led_status,
                             dcSwitchOff: encharge.dc_switch_off,
                             rev: encharge.encharge_rev,
                             capacity: encharge.encharge_capacity / 1000, //in kWh
@@ -2818,17 +2818,17 @@ class EnvoyDevice extends EventEmitter {
                 const enpowersData = enpowersSupported ? ensembleInventory[1].devices : [];
                 const enpowersInstalled = enpowersData.length > 0;
                 if (enpowersInstalled) {
-                    const type = CONSTANTS.ApiCodes[ensembleInventory[1].type];
+                    const type = ApiCodes[ensembleInventory[1].type];
                     enpowersData.forEach((enpower, index) => {
                         const obj = {
                             type: type,
-                            partNumber: CONSTANTS.PartNumbers[enpower.part_num] ?? enpower.part_num,
+                            partNumber: PartNumbers[enpower.part_num] ?? enpower.part_num,
                             serialNumber: enpower.serial_num,
                             installed: new Date(enpower.installed * 1000).toLocaleString(),
-                            deviceStatus: (Array.isArray(enpower.device_status) && (enpower.device_status).length > 0) ? ((enpower.device_status).map(a => CONSTANTS.ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
+                            deviceStatus: (Array.isArray(enpower.device_status) && (enpower.device_status).length > 0) ? ((enpower.device_status).map(a => ApiCodes[a] || a).join(', ')).substring(0, 64) : 'No status',
                             lastReportDate: new Date(enpower.last_rpt_date * 1000).toLocaleString(),
                             adminState: enpower.admin_state,
-                            adminStateStr: CONSTANTS.ApiCodes[enpower.admin_state_str] ?? 'Unknown',
+                            adminStateStr: ApiCodes[enpower.admin_state_str] ?? 'Unknown',
                             createdDate: new Date(enpower.created_date * 1000).toLocaleString(),
                             imgLoadDate: new Date(enpower.img_load_date * 1000).toLocaleString(),
                             imgPnumRunning: enpower.img_pnum_running,
@@ -2836,14 +2836,14 @@ class EnvoyDevice extends EventEmitter {
                             temperature: enpower.temperature ?? 0,
                             commLevelSubGhz: enpower.comm_level_sub_ghz * 20 ?? 0,
                             commLevel24Ghz: enpower.comm_level_2_4_ghz * 20 ?? 0,
-                            mainsAdminState: CONSTANTS.ApiCodes[enpower.mains_admin_state] ?? 'Unknown',
+                            mainsAdminState: ApiCodes[enpower.mains_admin_state] ?? 'Unknown',
                             mainsAdminStateBool: enpower.mains_admin_state === 'closed' ?? false,
-                            mainsOperState: CONSTANTS.ApiCodes[enpower.mains_oper_state] ?? 'Unknown',
+                            mainsOperState: ApiCodes[enpower.mains_oper_state] ?? 'Unknown',
                             mainsOperStateBool: enpower.mains_oper_state === 'closed' ?? false,
                             enpwrGridMode: enpower.Enpwr_grid_mode ?? 'Unknown',
-                            enpwrGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enpwr_grid_mode] ?? enpower.Enpwr_grid_mode,
+                            enpwrGridModeTranslated: ApiCodes[enpower.Enpwr_grid_mode] ?? enpower.Enpwr_grid_mode,
                             enchgGridMode: enpower.Enchg_grid_mode ?? 'Unknown',
-                            enchgGridModeTranslated: CONSTANTS.ApiCodes[enpower.Enchg_grid_mode] ?? enpower.Enchg_grid_mode,
+                            enchgGridModeTranslated: ApiCodes[enpower.Enchg_grid_mode] ?? enpower.Enchg_grid_mode,
                             enpwrRelayStateBm: enpower.Enpwr_relay_state_bm ?? 0,
                             enpwrCurrStateId: enpower.Enpwr_curr_state_id ?? 0
                         }
@@ -2948,7 +2948,7 @@ class EnvoyDevice extends EventEmitter {
     async updateEnsembleStatus() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble status.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.EnsembleStatus);
+            const response = await this.axiosInstance(ApiUrls.EnsembleStatus);
             const ensembleStatus = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Ensemble status:`, ensembleStatus) : false;
 
@@ -2971,14 +2971,14 @@ class EnvoyDevice extends EventEmitter {
                             comInterfacStr: enchargeStatus.com_interface_str ?? 'Unknown',
                             deviceId: enchargeStatus.device_id ?? 'Unknown',
                             adminState: enchargeStatus.admin_state,
-                            adminStateStr: CONSTANTS.ApiCodes[enchargeStatus.admin_state_str] ?? 'Unknown',
-                            reportedGridMode: CONSTANTS.ApiCodes[enchargeStatus.reported_grid_mode] ?? 'Unknown',
+                            adminStateStr: ApiCodes[enchargeStatus.admin_state_str] ?? 'Unknown',
+                            reportedGridMode: ApiCodes[enchargeStatus.reported_grid_mode] ?? 'Unknown',
                             phase: enchargeStatus.phase ?? 'Unknown',
                             derIndex: enchargeStatus.der_index ?? 0,
                             revision: enchargeStatus.encharge_revision ?? 0,
                             capacity: enchargeStatus.encharge_capacity ?? 0,
                             ratedPower: enchargeStatus.encharge_rated_power ?? 0,
-                            reportedGridState: CONSTANTS.ApiCodes[enchargeStatus.reported_enc_grid_state] ?? 'Unknown',
+                            reportedGridState: ApiCodes[enchargeStatus.reported_enc_grid_state] ?? 'Unknown',
                             msgRetryCount: enchargeStatus.msg_retry_count ?? 0,
                             partNumber: enchargeStatus.part_number,
                             assemblyNumber: enchargeStatus.assembly_number,
@@ -3012,7 +3012,7 @@ class EnvoyDevice extends EventEmitter {
                             comInterfacStr: enpowerStatus.com_interface_str ?? 'Unknown',
                             deviceId: enpowerStatus.device_id ?? 'Unknown',
                             adminState: enpowerStatus.admin_state,
-                            adminStateStr: CONSTANTS.ApiCodes[enpowerStatus.admin_state_str] ?? 'Unknown',
+                            adminStateStr: ApiCodes[enpowerStatus.admin_state_str] ?? 'Unknown',
                             msgRetryCount: enpowerStatus.msg_retry_count ?? 0,
                             partNumber: enpowerStatus.part_number,
                             assemblyNumber: enpowerStatus.assembly_number,
@@ -3173,17 +3173,17 @@ class EnvoyDevice extends EventEmitter {
                 const relaySupported = ensembleStatusKeys.includes('relay');
                 const relayData = relaySupported ? ensembleStatus.relay : {};
                 const relay = {
-                    mainsAdminState: CONSTANTS.ApiCodes[relayData.mains_admin_state] ?? 'Unknown',
+                    mainsAdminState: ApiCodes[relayData.mains_admin_state] ?? 'Unknown',
                     mainsAdminStateBool: relayData.mains_admin_state === 'closed' ?? false,
-                    mainsOperState: CONSTANTS.ApiCodes[relayData.mains_oper_state] ?? 'Unknown',
+                    mainsOperState: ApiCodes[relayData.mains_oper_state] ?? 'Unknown',
                     mainsOperStateBool: relayData.mains_oper_state === 'closed' ?? false,
                     der1State: relayData.der1_state ?? 0,
                     der2State: relayData.der2_state ?? 0,
                     der3State: relayData.der3_state ?? 0,
                     enchgGridMode: relayData.Enchg_grid_mode ?? 'Unknown',
-                    enchgGridModeTranslated: CONSTANTS.ApiCodes[relayData.Enchg_grid_mode] ?? relayData.Enchg_grid_mode,
+                    enchgGridModeTranslated: ApiCodes[relayData.Enchg_grid_mode] ?? relayData.Enchg_grid_mode,
                     solarGridMode: relayData.Solar_grid_mode ?? 'Unknown',
-                    solarGridModeTranslated: CONSTANTS.ApiCodes[relayData.Solar_grid_mode] ?? relayData.Solar_grid_mode
+                    solarGridModeTranslated: ApiCodes[relayData.Solar_grid_mode] ?? relayData.Solar_grid_mode
                 }
 
                 //add relay to ensemble object
@@ -3272,7 +3272,7 @@ class EnvoyDevice extends EventEmitter {
     async updateEnchargesSettings() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting encharge settings.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.EnchargeSettings);
+            const response = await this.axiosInstance(ApiUrls.EnchargeSettings);
             const enchargeSettings = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Encharge settings:`, enchargeSettings) : false;
 
@@ -3324,7 +3324,7 @@ class EnvoyDevice extends EventEmitter {
     async updateTariff() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting tariff.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.TariffSettingsGetPut);
+            const response = await this.axiosInstance(ApiUrls.TariffSettingsGetPut);
             const tariffSettings = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Tariff:`, tariffSettings) : false;
 
@@ -3521,7 +3521,7 @@ class EnvoyDevice extends EventEmitter {
     async updateDryContacts() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.DryContacts);
+            const response = await this.axiosInstance(ApiUrls.DryContacts);
             const ensembleDryContacts = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Dry contacts:`, ensembleDryContacts) : false;
 
@@ -3579,7 +3579,7 @@ class EnvoyDevice extends EventEmitter {
     async updateDryContactsSettings() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts settings.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.DryContactsSettings);
+            const response = await this.axiosInstance(ApiUrls.DryContactsSettings);
             const ensembleDryContactsSettings = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Dry contacts settings:`, ensembleDryContactsSettings) : false;
 
@@ -3644,7 +3644,7 @@ class EnvoyDevice extends EventEmitter {
     async updateGenerator() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting generator.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.Generator);
+            const response = await this.axiosInstance(ApiUrls.Generator);
             const ensembleGenerator = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Generator:`, ensembleGenerator) : false;
 
@@ -3655,9 +3655,9 @@ class EnvoyDevice extends EventEmitter {
             //ensemble generator not exist
             if (generatorSupported) {
                 const generator = {
-                    adminState: CONSTANTS.ApiCodes[ensembleGenerator.admin_state] ?? 'Unknown',
+                    adminState: ApiCodes[ensembleGenerator.admin_state] ?? 'Unknown',
                     installed: ensembleGenerator.admin_state !== 'unknown',
-                    operState: CONSTANTS.ApiCodes[ensembleGenerator.oper_state] ?? 'Unknown',
+                    operState: ApiCodes[ensembleGenerator.oper_state] ?? 'Unknown',
                     adminMode: ['Off', 'On', 'Auto'][ensembleGenerator.admin_mode] ?? ensembleGenerator.admin_mode.toString(),
                     adminModeOffBool: ensembleGenerator.admin_mode === 'Off',
                     adminModeOnBool: ensembleGenerator.admin_mode === 'On',
@@ -3773,7 +3773,7 @@ class EnvoyDevice extends EventEmitter {
     async updateGeneratorSettings() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting generator settings`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.GeneratorSettingsGetSet);
+            const response = await this.axiosInstance(ApiUrls.GeneratorSettingsGetSet);
             const generatorSettings = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Generator settings:`, generatorSettings) : false;
 
@@ -3829,7 +3829,7 @@ class EnvoyDevice extends EventEmitter {
                 }
             }
 
-            const response = this.envoyFirmware7xx ? await this.axiosInstance(CONSTANTS.ApiUrls.InverterComm) : await this.digestAuthInstaller.request(CONSTANTS.ApiUrls.InverterComm, options);
+            const response = this.envoyFirmware7xx ? await this.axiosInstance(ApiUrls.InverterComm) : await this.digestAuthInstaller.request(ApiUrls.InverterComm, options);
             const plcLevel = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Plc level:`, plcLevel) : false;
 
@@ -3930,7 +3930,7 @@ class EnvoyDevice extends EventEmitter {
     async updateLiveData() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data.`) : false;
         try {
-            const response = await this.axiosInstance(CONSTANTS.ApiUrls.LiveDataStatus);
+            const response = await this.axiosInstance(ApiUrls.LiveDataStatus);
             const live = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Live data:`, live) : false;
 
@@ -4142,7 +4142,7 @@ class EnvoyDevice extends EventEmitter {
                 })
             }
 
-            const url = this.url + CONSTANTS.ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
+            const url = this.url + ApiUrls.PowerForcedModeGetPut.replace("EID", this.envoyDevId);
             const response = this.envoyFirmware7xx ? await axios.put(url, options) : await this.digestAuthInstaller.request(url, options1);
             const debug = this.enableDebugMode ? this.emit('debug', `Set power produstion state:`, response.data) : false;
             return true;
@@ -4160,13 +4160,13 @@ class EnvoyDevice extends EventEmitter {
                     Cookie: this.cookie
                 },
                 withCredentials: true,
-                httpsAgent: new https.Agent({
+                httpsAgent: new Agent({
                     keepAlive: true,
                     rejectUnauthorized: false
                 })
             }
 
-            const url = this.url + CONSTANTS.ApiUrls.TariffSettingsGetPut;
+            const url = this.url + ApiUrls.TariffSettingsGetPut;
             const response = await axios.put(url, {
                 tariff: {
                     mode: profile, //str economy/savings-mode, backup, self-consumption
@@ -4199,7 +4199,7 @@ class EnvoyDevice extends EventEmitter {
             }
 
             const gridState = state ? 'closed' : 'open';
-            const url = this.url + CONSTANTS.ApiUrls.EnchargeRelay;
+            const url = this.url + ApiUrls.EnchargeRelay;
             const response = await axios.post(url, { 'mains_admin_state': gridState }, options);
             const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state:`, response.data) : false;
             return true;
@@ -4217,14 +4217,14 @@ class EnvoyDevice extends EventEmitter {
                     Cookie: this.cookie
                 },
                 withCredentials: true,
-                httpsAgent: new https.Agent({
+                httpsAgent: new Agent({
                     keepAlive: true,
                     rejectUnauthorized: false
                 })
             }
 
             const dryState = state ? 'closed' : 'open';
-            const url = this.url + CONSTANTS.ApiUrls.DryContacts;
+            const url = this.url + ApiUrls.DryContacts;
             const response = await axios.post(url, { dry_contacts: { id: id, status: dryState } }, options);
             const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact:`, response.data) : false;
             return true;
@@ -4242,12 +4242,12 @@ class EnvoyDevice extends EventEmitter {
                     Cookie: this.cookie
                 },
                 withCredentials: true,
-                httpsAgent: new https.Agent({
+                httpsAgent: new Agent({
                     keepAlive: true,
                     rejectUnauthorized: false
                 })
             }
-            const url = this.url + CONSTANTS.ApiUrls.DryContactsSettings;
+            const url = this.url + ApiUrls.DryContactsSettings;
             const response = await axios.post(url, {
                 id: id,
                 gen_action: self.generator_action,
@@ -4278,13 +4278,13 @@ class EnvoyDevice extends EventEmitter {
                     Cookie: this.cookie
                 },
                 withCredentials: true,
-                httpsAgent: new https.Agent({
+                httpsAgent: new Agent({
                     keepAlive: true,
                     rejectUnauthorized: false
                 })
             }
 
-            const url = this.url + CONSTANTS.ApiUrls.GeneratorModeGetSet;
+            const url = this.url + ApiUrls.GeneratorModeGetSet;
             const response = await axios.post(url, { 'gen_cmd': mode }, options);
             const debug = this.enableDebugMode ? this.emit('debug', `Set generator mode:`, response.data) : false;
             return true;
@@ -4302,12 +4302,12 @@ class EnvoyDevice extends EventEmitter {
                     Cookie: this.cookie
                 },
                 withCredentials: true,
-                httpsAgent: new https.Agent({
+                httpsAgent: new Agent({
                     keepAlive: true,
                     rejectUnauthorized: false
                 })
             }
-            const url = this.url + CONSTANTS.ApiUrls.LiveDataStream;
+            const url = this.url + ApiUrls.LiveDataStream;
             const response = await axios.post(url, { 'enable': 1 }, options);
             const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable:`, response.data) : false;
             return;
@@ -6685,4 +6685,4 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 }
-module.exports = EnvoyDevice;
+export default EnvoyDevice;

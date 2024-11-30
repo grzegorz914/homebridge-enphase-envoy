@@ -1,9 +1,9 @@
 "use strict";
-const axios = require('axios');
-const fs = require('fs');
-const fsPromises = fs.promises;
-const EventEmitter = require('events');
-const CONSTANTS = require('./constants.json');
+import { promises } from 'fs';
+const fsPromises = promises;
+import axios from 'axios';
+import EventEmitter from 'events';
+import { EnphaseUrls } from './constants.js';
 
 class EnvoyToken extends EventEmitter {
     constructor(config) {
@@ -41,7 +41,7 @@ class EnvoyToken extends EventEmitter {
         try {
             const options = {
                 method: 'POST',
-                baseURL: CONSTANTS.EnphaseUrls.BaseUrl,
+                baseURL: EnphaseUrls.BaseUrl,
                 params: {
                     'user[email]': this.user,
                     'user[password]': this.passwd,
@@ -52,7 +52,7 @@ class EnvoyToken extends EventEmitter {
                 timeout: 10000
             };
 
-            const loginData = await axios(CONSTANTS.EnphaseUrls.Login, options);
+            const loginData = await axios(EnphaseUrls.Login, options);
             if (loginData.status !== 200) {
                 this.emit('error', `Login to Enlighten failed with status code: ${loginData.status}`);
                 return;
@@ -69,7 +69,7 @@ class EnvoyToken extends EventEmitter {
         try {
             const options = {
                 method: 'GET',
-                baseURL: CONSTANTS.EnphaseUrls.BaseUrl,
+                baseURL: EnphaseUrls.BaseUrl,
                 params: {
                     'serial_num': this.serialNumber,
                 },
@@ -80,7 +80,7 @@ class EnvoyToken extends EventEmitter {
                 timeout: 10000
             };
 
-            const response = await axios(CONSTANTS.EnphaseUrls.EntrezAuthToken, options);
+            const response = await axios(EnphaseUrls.EntrezAuthToken, options);
             const tokenData = response.data;
             return tokenData;
         } catch (error) {
@@ -97,5 +97,5 @@ class EnvoyToken extends EventEmitter {
         }
     };
 };
-module.exports = EnvoyToken;
+export default EnvoyToken;
 

@@ -1,15 +1,16 @@
 'use strict';
-const path = require('path');
-const fs = require('fs');
-const EnvoyDevice = require('./src/envoydevice');
-const ImpulseGenerator = require('./src/impulsegenerator.js');
-const CONSTANTS = require('./src/constants.json');
+import fs from 'fs';
+import { join } from 'path';
+import { mkdirSync } from 'fs';
+import EnvoyDevice from './src/envoydevice.js';
+import ImpulseGenerator from './src/impulsegenerator.js';
+import { PluginName, PlatformName } from './src/constants.js';
 
 class EnvoyPlatform {
   constructor(log, config, api) {
     // only load if configured
     if (!config || !Array.isArray(config.devices)) {
-      log.warn(`No configuration found for ${CONSTANTS.PluginName}`);
+      log.warn(`No configuration found for ${PluginName}`);
       return;
     }
     this.log = log;
@@ -17,9 +18,9 @@ class EnvoyPlatform {
 
 
     //check if prefs directory exist
-    const prefDir = path.join(api.user.storagePath(), 'enphaseEnvoy');
+    const prefDir = join(api.user.storagePath(), 'enphaseEnvoy');
     try {
-      fs.mkdirSync(prefDir, { recursive: true });
+      mkdirSync(prefDir, { recursive: true });
     } catch (error) {
       log.error(`Prepare directory error: ${error.message ?? error}`);
       return;
@@ -71,9 +72,9 @@ class EnvoyPlatform {
 
         //check files exists, if not then create it
         const postFix = host.split('.').join('');
-        const envoyIdFile = path.join(prefDir, `envoyId_${postFix}`);
-        const envoyTokenFile = path.join(prefDir, `envoyToken_${postFix}`);
-        const envoyInstallerPasswordFile = path.join(prefDir, `envoyInstallerPassword_${postFix}`);
+        const envoyIdFile = join(prefDir, `envoyId_${postFix}`);
+        const envoyTokenFile = join(prefDir, `envoyToken_${postFix}`);
+        const envoyInstallerPasswordFile = join(prefDir, `envoyInstallerPassword_${postFix}`);
 
         try {
           const files = [
@@ -96,7 +97,7 @@ class EnvoyPlatform {
         try {
           const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
           envoyDevice.on('publishAccessory', (accessory) => {
-            api.publishExternalAccessories(CONSTANTS.PluginName, [accessory]);
+            api.publishExternalAccessories(PluginName, [accessory]);
             log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
           })
             .on('devInfo', (devInfo) => {
@@ -146,7 +147,7 @@ class EnvoyPlatform {
   };
 };
 
-module.exports = (api) => {
+export default (api) => {
   const { Service, Characteristic, Units, Formats, Perms } = api.hap;
 
   //Envoy
@@ -2926,5 +2927,5 @@ module.exports = (api) => {
   }
   Service.enphaseGerneratorService = enphaseGerneratorService;
 
-  api.registerPlatform(CONSTANTS.PluginName, CONSTANTS.PlatformName, EnvoyPlatform, true);
+  api.registerPlatform(PluginName, PlatformName, EnvoyPlatform, true);
 }

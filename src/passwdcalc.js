@@ -1,6 +1,6 @@
 "use strict";
-const crypto = require('crypto');
-const EventEmitter = require('events');
+import crypto from 'crypto';
+import EventEmitter from 'events';
 
 class PasswdCalc extends EventEmitter {
     constructor(config) {
@@ -84,4 +84,4 @@ class PasswdCalc extends EventEmitter {
         return iterationCount;
     };
 };
-module.exports = PasswdCalc;
+export default PasswdCalc;

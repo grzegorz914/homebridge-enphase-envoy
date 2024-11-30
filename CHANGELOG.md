@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.6.0] - (30.11.2024)
+
+## Changes
+
+- move from commonJS to esm module
+- moved constants.json to constants.js
+- cleanup
+
 ## [9.5.3] - (28.11.2024)
 
 ## Changes

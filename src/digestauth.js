@@ -1,7 +1,7 @@
 "use strict";
-const crypto = require('crypto');
-const axios = require('axios');
-const EventEmitter = require('events');
+import crypto from 'crypto';
+import axios from 'axios';
+import EventEmitter from 'events';
 
 class DigestAuth extends EventEmitter {
     constructor(config) {
@@ -53,4 +53,4 @@ class DigestAuth extends EventEmitter {
         };
     };
 };
-module.exports = DigestAuth;
+export default DigestAuth;
