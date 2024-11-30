@@ -1393,12 +1393,13 @@ class EnvoyDevice extends EventEmitter {
             // Check if the envoy installer password is stored
             const response = await this.readData(this.envoyInstallerPasswordFile);
             let installerPasswd = response.toString() ?? '0';
-            const debug3 = this.enableDebugMode ? this.emit('debug', `Installer password from file:`, installerPasswd.length > 0 ? 'Correct' : 'Missing') : false;
+            const debug3 = this.enableDebugMode ? this.emit('debug', `Installer password from file:`, installerPasswd.length > 1 ? 'Correct' : 'Missing') : false;
 
             //check if the envoy installer password is correct
             if (installerPasswd === '0') {
                 try {
                     //calculate installer password
+                    const deviceSn = this.pv.envoy.serialNumber;
                     const passwdCalc = new PasswdCalc({
                         user: Authorization.InstallerUser,
                         realm: Authorization.Realm,
