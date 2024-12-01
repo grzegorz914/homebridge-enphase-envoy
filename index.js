@@ -1,7 +1,6 @@
 'use strict';
-import fs from 'fs';
 import { join } from 'path';
-import { mkdirSync } from 'fs';
+import { mkdirSync, existsSync, writeFileSync } from 'fs';
 import EnvoyDevice from './src/envoydevice.js';
 import ImpulseGenerator from './src/impulsegenerator.js';
 import { PluginName, PlatformName } from './src/constants.js';
@@ -84,8 +83,8 @@ class EnvoyPlatform {
           ];
 
           files.forEach((file) => {
-            if (!fs.existsSync(file)) {
-              fs.writeFileSync(file, '0');
+            if (!existsSync(file)) {
+              writeFileSync(file, '0');
             }
           });
         } catch (error) {
