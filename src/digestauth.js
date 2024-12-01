@@ -1,4 +1,3 @@
-"use strict";
 import crypto from 'crypto';
 import axios from 'axios';
 import EventEmitter from 'events';
