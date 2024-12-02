@@ -2705,6 +2705,13 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Power Mode', powerProductionState) : false;
             return true;
         } catch (error) {
+            const errorString = error.toString();
+            const tokenNotValid = errorString.includes('status code 401');
+            if (tokenNotValid) {
+                this.emit('warn', 'Power production control will not work, you need installer credentials data.')
+                return false;
+            }
+
             throw new Error(`Update power production state error: ${error.message || error}`);
         };
     };
