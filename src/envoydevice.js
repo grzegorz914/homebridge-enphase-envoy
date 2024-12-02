@@ -3929,6 +3929,13 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'PLC Level', plcLevel) : false;
             return true;
         } catch (error) {
+            const errorString = error.toString();
+            const tokenNotValid = errorString.includes('status code 401');
+            if (tokenNotValid) {
+                this.emit('warn', 'PLC level will not work, you need installer credentials data.')
+                return false;
+            }
+
             throw new Error(`Update plc level error: ${error.message || error}`);
         };
     };
