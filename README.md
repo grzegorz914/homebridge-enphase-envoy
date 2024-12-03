@@ -90,6 +90,7 @@
 | `envoyFirmware7xxTokenGenerationMode` | Here select how You wuld to obtain the token, `0 - Enlighten Credentials`, `1 - Your Own Generated Token`. |
 | `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
 | `envoyToken` | Here set Your own Token only if You select `1 - Your Own Generated Token`. |
+| `envoyTokenInstaller` | If You use Installer token then enable this option. |
 | `envoySerialNumber` | Here set the envoy serial number. |
 | `enlightenUser` | Here set the enlighten user name. |
 | `enlightenPasswd` | Here set the enlighten password. |

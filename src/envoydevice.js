@@ -13,7 +13,7 @@ import { ApiUrls, PartNumbers, Authorization, ApiCodes, LedStatus } from './cons
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device) {
+    constructor(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device) {
         super();
 
         Accessory = api.platformAccessory;
@@ -29,6 +29,7 @@ class EnvoyDevice extends EventEmitter {
         this.envoyFirmware7xxTokenGenerationMode = envoyFirmware7xxTokenGenerationMode;
         this.envoyPasswd = envoyPasswd;
         this.envoyToken = envoyToken;
+        this.envoyTokenInstaller = envoyTokenInstaller;
         this.envoySerialNumber = envoySerialNumber;
         this.enlightenUser = enlightenUser;
         this.enlightenPassword = enlightenPasswd;
@@ -624,6 +625,7 @@ class EnvoyDevice extends EventEmitter {
             generation_time: 0,
             token: envoyToken,
             expires_at: 0,
+            installer: this.envoyFirmware7xxTokenGenerationMode == 1 ? this.envoyTokenInstaller : false
         };
 
         //supported functions
@@ -1007,7 +1009,7 @@ class EnvoyDevice extends EventEmitter {
             const updateProductionCt = this.refreshProduction ? await this.updateProductionCt() : false;
 
             //access with installer password and envoy dev id
-            const updatePowerProductionState = envoyDevIdExist && (tokenValid || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
+            const updatePowerProductionState = envoyDevIdExist && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
 
             //get ensemble data only FW. >= 7.x.x.
             this.refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
@@ -1020,7 +1022,7 @@ class EnvoyDevice extends EventEmitter {
             const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
 
             //get plc communication level
-            const updateCommLevel = this.supportPlcLevel && (tokenValid || calculateInstallerPassword) ? await this.updateCommLevel() : false;
+            const updateCommLevel = this.supportPlcLevel && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateCommLevel() : false;
             this.refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
             //connect to deice success
@@ -2705,13 +2707,6 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Power Mode', powerProductionState) : false;
             return true;
         } catch (error) {
-            const errorString = error.toString();
-            const tokenNotValid = errorString.includes('status code 401');
-            if (tokenNotValid) {
-                this.emit('warn', 'Power production control will not work, you need installer credentials data.')
-                return false;
-            }
-
             throw new Error(`Update power production state error: ${error.message || error}`);
         };
     };
@@ -3929,13 +3924,6 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'PLC Level', plcLevel) : false;
             return true;
         } catch (error) {
-            const errorString = error.toString();
-            const tokenNotValid = errorString.includes('status code 401');
-            if (tokenNotValid) {
-                this.emit('warn', 'PLC level will not work, you need installer credentials data.')
-                return false;
-            }
-
             throw new Error(`Update plc level error: ${error.message || error}`);
         };
     };
@@ -4393,7 +4381,6 @@ class EnvoyDevice extends EventEmitter {
         this.emit('devInfo', `Firmware: ${this.pv.envoy.software}`);
         this.emit('devInfo', `SerialNr: ${this.pv.envoy.serialNumber}`);
         this.emit('devInfo', `Time: ${this.pv.envoy.time}`);
-        const displayLog = this.envoyFirmware7xx && this.envoyFirmware7xxTokenGenerationMode === 0 ? this.emit('devInfo', `Token Valid: ${new Date(this.jwtToken.expires_at * 1000).toLocaleString()}`) : false;
         this.emit('devInfo', `------------------------------`);
         const displayLog12 = this.feature.qRelays.installed ? this.emit('devInfo', `Q-Relays: ${this.feature.qRelays.count}`) : false;
         this.emit('devInfo', `Inverters: ${this.feature.microinverters.count}`);

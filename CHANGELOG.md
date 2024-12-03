@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.6.5] - (03.12.2024)
+
+## Changes
+
+- check JWT toke is installer or user
+- add JWT Token installer option if use own generated token
+- config.schema updated
+- redme updated
+- cleanup
+
 ## [9.6.4] - (02.12.2024)
 
 ## Changes

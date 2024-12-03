@@ -32,6 +32,7 @@ class EnvoyPlatform {
         const envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode || 0; //0 - enlighten credentials, 1 - own token
         const envoyPasswd = device.envoyPasswd ?? false;
         const envoyToken = device.envoyToken ?? false;
+        const envoyTokenInstaller = device.envoyTokenInstaller ?? false;
         const enlightenUser = device.enlightenUser ?? false;
         const enlightenPasswd = device.enlightenPasswd ?? false;
         const envoySerialNumber = device.envoySerialNumber ?? false;
@@ -93,7 +94,7 @@ class EnvoyPlatform {
 
         //envoy device
         try {
-          const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
+          const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
           envoyDevice.on('publishAccessory', (accessory) => {
             api.publishExternalAccessories(PluginName, [accessory]);
             log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);

@@ -82,6 +82,16 @@
               },
               "required": false
             },
+            "envoyTokenInstaller": {
+              "title": "Installer",
+              "type": "boolean",
+              "default": false,
+              "description": "If You use Installer token then enable this option.",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
+              },
+              "required": true
+            },
             "envoySerialNumber": {
               "title": "Envoy Serial Number",
               "type": "string",
@@ -2632,6 +2642,7 @@
                           "key": "devices[].envoyToken",
                           "type": "password"
                         },
+                        "devices[].envoyTokenInstaller",
                         {
                           "key": "devices[].envoySerialNumber",
                           "type": "password"
@@ -2643,8 +2654,7 @@
                         }
                       ]
                     }
-                  ],
-                  "description": "Here You can configure envoy gateway."
+                  ]
                 },
                 {
                   "key": "devices[]",

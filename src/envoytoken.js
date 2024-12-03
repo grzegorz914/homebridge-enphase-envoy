@@ -22,12 +22,16 @@ class EnvoyToken extends EventEmitter {
                 return false;
             }
 
+            //check if token is instslloer or user
+            const installerToken = tokenData.expires_at - tokenData.generation_time == 43200 ?? false;
+            tokenData.installer = installerToken;
+
             //save token
             await this.saveData(this.tokenFile, tokenData);
 
             //emit success
             this.emit('success', `JWT Token refresh success.`);
-            this.emit('success', `JWT Token valid: ${new Date(tokenData.expires_at * 1000).toLocaleString()}`);
+            this.emit('success', `JWT Token ${installerToken ? 'installer,' : 'user,'} valid: ${new Date(tokenData.expires_at * 1000).toLocaleString()}`);
 
             return tokenData;
         } catch (error) {
