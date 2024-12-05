@@ -2600,57 +2600,64 @@
                     "devices[].supportPlcLevel",
                     "devices[].supportPowerProductionState",
                     {
-                      "key": "devices[].plcLevelControl",
-                      "type": "section",
-                      "title": "Plc Level Refresh Control",
-                      "description": "In this section You can enable extra tile for plc level refresh control.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].plcLevelControl.name",
-                        "devices[].plcLevelControl.displayType",
-                        "devices[].plcLevelControl.namePrefix"
-                      ]
-                    },
-                    {
-                      "key": "devices[].powerProductionStateControl",
-                      "type": "section",
-                      "title": "Power Production Control",
-                      "description": "In this section You can enable extra tile for power production control.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].powerProductionStateControl.name",
-                        "devices[].powerProductionStateControl.displayType",
-                        "devices[].powerProductionStateControl.namePrefix"
-                      ]
-                    },
-                    {
                       "key": "devices[]",
-                      "type": "section",
-                      "title": "Credentials Data",
-                      "description": "In this section You can set envoy and enphase credentils data.",
-                      "expandable": true,
-                      "expanded": false,
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
                       "items": [
-                        "devices[].envoyFirmware7xxTokenGenerationMode",
                         {
-                          "key": "devices[].envoyPasswd",
-                          "type": "password"
+                          "key": "devices[].plcLevelControl",
+                          "type": "section",
+                          "title": "Plc Level Refresh Control",
+                          "description": "In this section You can enable extra tile for plc level refresh control.",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].plcLevelControl.name",
+                            "devices[].plcLevelControl.displayType",
+                            "devices[].plcLevelControl.namePrefix"
+                          ]
                         },
                         {
-                          "key": "devices[].envoyToken",
-                          "type": "password"
+                          "key": "devices[].powerProductionStateControl",
+                          "type": "section",
+                          "title": "Power Production Control",
+                          "description": "In this section You can enable extra tile for power production control.",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].powerProductionStateControl.name",
+                            "devices[].powerProductionStateControl.displayType",
+                            "devices[].powerProductionStateControl.namePrefix"
+                          ]
                         },
-                        "devices[].envoyTokenInstaller",
                         {
-                          "key": "devices[].envoySerialNumber",
-                          "type": "password"
-                        },
-                        "devices[].enlightenUser",
-                        {
-                          "key": "devices[].enlightenPasswd",
-                          "type": "password"
+                          "key": "devices[]",
+                          "type": "section",
+                          "title": "Credentials Data",
+                          "description": "In this section You can set envoy and enphase credentils data.",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].envoyFirmware7xxTokenGenerationMode",
+                            {
+                              "key": "devices[].envoyPasswd",
+                              "type": "password"
+                            },
+                            {
+                              "key": "devices[].envoyToken",
+                              "type": "password"
+                            },
+                            "devices[].envoyTokenInstaller",
+                            {
+                              "key": "devices[].envoySerialNumber",
+                              "type": "password"
+                            },
+                            "devices[].enlightenUser",
+                            {
+                              "key": "devices[].enlightenPasswd",
+                              "type": "password"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -3262,7 +3269,6 @@
                 {
                   "key": "devices[]",
                   "title": "System",
-                  "description": "Here You can configure system settings.",
                   "items": [
                     "devices[].enableDebugMode",
                     "devices[].disableLogInfo",

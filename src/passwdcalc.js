@@ -11,8 +11,8 @@ class PasswdCalc extends EventEmitter {
 
     async getPasswd() {
         try {
-            const hashstring = `[e]${this.user}@${this.realm}#${this.serialNumber} EnPhAsE eNeRgY `;
-            const inputString = crypto.createHash('md5').update(hashstring).digest("hex");
+            const hashString = `[e]${this.user}@${this.realm}#${this.serialNumber} EnPhAsE eNeRgY `;
+            const inputString = crypto.createHash('md5').update(hashString).digest('hex');
             const digestIterator = this.digestSnippet(inputString);
 
             const counters = inputString

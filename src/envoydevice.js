@@ -601,7 +601,7 @@ class EnvoyDevice extends EventEmitter {
         this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
         this.startPrepareAccessory = true;
         this.checkJwtTokenRunning = false;
-        this.oldCookie = '';
+        this.cookie = false;
 
         //url
         this.url = this.envoyFirmware7xx ? `https://${this.host}` : `http://${this.host}`;
@@ -963,20 +963,15 @@ class EnvoyDevice extends EventEmitter {
     handleError(error) {
         const errorString = error.toString();
         const tokenNotValid = errorString.includes('status code 401');
-        const emitError = tokenNotValid ? this.checkJwtTokenRunning = false : this.emit('error', `Impulse generator: ${error}`);
+        this.checkJwtTokenRunning = tokenNotValid ? false : this.checkJwtTokenRunning;
+        this.cookie = tokenNotValid ? false : this.cookie;
+        const emitError = tokenNotValid ? false : this.emit('error', `Impulse generator: ${error}`);
     };
 
     async start() {
         const debug = this.enableDebugMode ? this.emit('debug', `Start.`) : false;
 
         try {
-            this.refreshHome = false;
-            this.refreshMeters = false;
-            this.refreshMicroinverters = false;
-            this.refreshProduction = false;
-            this.refreshEnsemble = false;
-            this.refreshLiveData = false;
-
             //get and validate jwt token
             const tokenValid = this.envoyFirmware7xx ? await this.checkJwtToken() : false;
 
@@ -994,36 +989,36 @@ class EnvoyDevice extends EventEmitter {
             const calculateInstallerPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateInstallerPassword() : false;
 
             //get home and inventory
-            this.refreshHome = updateInfo ? await this.updateHome() : false;
-            const updateInventory = this.refreshHome ? await this.updateInventory() : false;
+            const refreshHome = updateInfo ? await this.updateHome() : false;
+            const updateInventory = refreshHome ? await this.updateInventory() : false;
 
             //get meters
-            this.refreshMeters = this.feature.meters.supported ? await this.updateMeters() : false;
-            const updateMetersReading = this.refreshMeters ? await this.updateMetersReading() : false;
+            const refreshMeters = this.feature.meters.supported ? await this.updateMeters() : false;
+            const updateMetersReading = refreshMeters ? await this.updateMetersReading() : false;
 
             //acces with envoy password
-            this.refreshMicroinverters = tokenValid || calculateEnvoyPassword ? await this.updateMicroinvertersStatus() : false;
+            const refreshMicroinverters = tokenValid || calculateEnvoyPassword ? await this.updateMicroinvertersStatus() : false;
 
             //get production and production ct
-            this.refreshProduction = await this.updateProduction();
-            const updateProductionCt = this.refreshProduction ? await this.updateProductionCt() : false;
+            const refreshProduction = await this.updateProduction();
+            const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
 
             //access with installer password and envoy dev id
             const updatePowerProductionState = envoyDevIdExist && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
 
             //get ensemble data only FW. >= 7.x.x.
-            this.refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
-            const updateEnsembleStatus = this.refreshEnsemble ? await this.updateEnsembleStatus() : false;
-            const updateEnchargeSettings = this.refreshEnsemble ? await this.updateEnchargesSettings() : false;
-            const updateTariffSettings = this.refreshEnsemble ? await this.updateTariff() : false;
-            const updateDryContacts = this.refreshEnsemble ? await this.updateDryContacts() : false;
+            const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
+            const updateEnsembleStatus = refreshEnsemble ? await this.updateEnsembleStatus() : false;
+            const updateEnchargeSettings = refreshEnsemble ? await this.updateEnchargesSettings() : false;
+            const updateTariffSettings = refreshEnsemble ? await this.updateTariff() : false;
+            const updateDryContacts = refreshEnsemble ? await this.updateDryContacts() : false;
             const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettings() : false;
-            const updateGenerator = this.refreshEnsemble ? await this.updateGenerator() : false;
+            const updateGenerator = refreshEnsemble ? await this.updateGenerator() : false;
             const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
 
             //get plc communication level
             const updateCommLevel = this.supportPlcLevel && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateCommLevel() : false;
-            this.refreshLiveData = tokenValid ? await this.updateLiveData() : false;
+            const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
             //connect to deice success
             this.emit('success', `Connect Success.`)
@@ -1038,12 +1033,12 @@ class EnvoyDevice extends EventEmitter {
 
             //create timers and start impulse generator
             this.timers = [];
-            const pushTimer0 = this.refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
-            const pushTimer1 = this.refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
-            const pushTimer3 = this.refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
-            const pushTimer2 = this.refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
-            const pushTimer4 = this.refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
-            const pushTimer5 = this.refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
+            const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
+            const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
+            const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
+            const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
             await this.impulseGenerator.start(this.timers);
 
             return true;
@@ -1065,7 +1060,7 @@ class EnvoyDevice extends EventEmitter {
         this.checkJwtTokenRunning = true;
 
         //check cookie are valid
-        const cookieValid = this.cookie === this.oldCookie;
+        const cookieValid = this.cookie;
 
         //validate own token
         if (this.envoyFirmware7xxTokenGenerationMode === 1) {
@@ -1181,7 +1176,7 @@ class EnvoyDevice extends EventEmitter {
 
             const response = await axios(ApiUrls.CheckJwt, options);
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token: Valid`) : false;
-            this.cookie = response.headers['set-cookie'];
+            const cookie = response.headers['set-cookie'] ?? false;
 
             //create axios instance get with cookie
             this.axiosInstance = axios.create({
@@ -1189,7 +1184,7 @@ class EnvoyDevice extends EventEmitter {
                 baseURL: this.url,
                 headers: {
                     Accept: 'application/json',
-                    Cookie: this.cookie
+                    Cookie: cookie
                 },
                 withCredentials: true,
                 httpsAgent: new Agent({
@@ -1199,9 +1194,8 @@ class EnvoyDevice extends EventEmitter {
                 timeout: 25000
             });
 
-            this.oldCookie = this.cookie;
+            this.cookie = cookie;
             this.emit('success', `Cookie validate success.`);
-
             return true;
         } catch (error) {
             throw new Error(`Validate JWT token error: ${error.message || error}`);
@@ -2159,7 +2153,7 @@ class EnvoyDevice extends EventEmitter {
                     this.pv.production.ct.inverters = inverters;
                 }
                 //production inverters supported
-                this.feature.production.ct.inverters.supported = productionCtInvertersSupported
+                this.feature.production.ct.inverters.supported = productionCtInvertersSupported;
 
                 //production data 1
                 const productionCtProduction = productionCtData.production[1] ?? {};
