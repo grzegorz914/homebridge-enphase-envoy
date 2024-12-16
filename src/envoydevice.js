@@ -83,9 +83,9 @@ class EnvoyDevice extends EventEmitter {
         //data refresh
         this.dataRefreshControl = device.dataRefreshControl || {};
         this.dataRefreshSensor = device.dataRefreshSensor || {};
-        this.metersDataRefreshTime = device.metersDataRefreshTime * 1000 || 2000;
-        this.productionDataRefreshTime = device.productionDataRefreshTime * 1000 || 5000;
-        this.liveDataRefreshTime = device.liveDataRefreshTime * 1000 || 2000;
+        this.metersDataRefreshTime = device.metersDataRefreshTime * 1000 || 5000;
+        this.productionDataRefreshTime = device.productionDataRefreshTime * 1000 || 10000;
+        this.liveDataRefreshTime = device.liveDataRefreshTime * 1000 || 3000;
         this.ensembleDataRefreshTime = device.ensembleDataRefreshTime * 1000 || 15000;
 
         //log
