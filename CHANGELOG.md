@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [9.6.8] - (06.12.2024)
+## [9.6.9] - (17.12.2024)
+
+## Changes
+
+- fix livedData characteristics warning [#173](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/173)
+- cleanup
+
+## [9.6.8] - (16.12.2024)
 
 ## Changes
 

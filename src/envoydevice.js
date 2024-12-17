@@ -2145,7 +2145,7 @@ class EnvoyDevice extends EventEmitter {
                         activeCount: productionCtInverters.activeCount,
                         readingTime: new Date(productionCtInverters.readingTime * 1000).toLocaleString(),
                         power: productionCtInverters.wNow ?? 0, //watts
-                        powerKw: productionCtInverters.wNow / 1000 ?? 0, //kW
+                        powerKw: (productionCtInverters.wNow ?? 0) / 1000, //kW
                         energyLifeTime: (productionCtInverters.whLifetime + this.energyProductionLifetimeOffset),
                         energyLifeTimeKw: (productionCtInverters.whLifetime + this.energyProductionLifetimeOffset) / 1000,
                     }
@@ -2600,9 +2600,9 @@ class EnvoyDevice extends EventEmitter {
                     activeCount: acBatteries.activeCount ?? 0,
                     readingTime: new Date(acBatteries.readingTime * 1000).toLocaleString() ?? '',
                     power: acBatteries.wNow ?? 0,
-                    powerKw: acBatteries.wNow / 1000 ?? 0,
+                    powerKw: (acBatteries.wNow ?? 0) / 1000,
                     energy: (acBatteries.whNow + this.acBatterieStorageOffset) ?? 0,
-                    energyKw: (acBatteries.whNow + this.acBatterieStorageOffset) / 1000 ?? 0,
+                    energyKw: ((acBatteries.whNow + this.acBatterieStorageOffset) ?? 0) / 1000,
                     chargeStatus: ApiCodes[acBatteries.state] ?? 'Unknown',
                     energyStateSum: acBatteries.whNow > 0 ?? false,
                     percentFullSum: 0
@@ -3959,7 +3959,7 @@ class EnvoyDevice extends EventEmitter {
                 mainRelayState: liveDataMeters.main_relay_state,
                 genRelayState: liveDataMeters.gen_relay_state,
                 backupBatMode: liveDataMeters.backup_bat_mode,
-                backupSoc: liveDataMeters.backup_soc,
+                backupSoc: liveDataMeters.backup_soc ?? 0,
                 isSplitPhase: liveDataMeters.is_split_phase,
                 phaseCount: liveDataMeters.phase_count,
                 encAggSoc: liveDataMeters.enc_agg_soc,
@@ -4031,35 +4031,51 @@ class EnvoyDevice extends EventEmitter {
                 return false;
             }
 
-            //iterate over active meters
+            // Iterate over active meters
             activeDeviceTypes.forEach((type, index) => {
+                if (!type.meter) return;
+
+                const {
+                    agg_p_mw, agg_s_mva, agg_p_ph_a_mw, agg_p_ph_b_mw, agg_p_ph_c_mw,
+                    agg_s_ph_a_mva, agg_s_ph_b_mva, agg_s_ph_c_mva
+                } = type.meter;
+
                 const obj = {
                     type: type.type,
-                    activePower: type.meter.agg_p_mw / 1000000 ?? 0,
-                    apparentPower: type.meter.agg_s_mva / 1000000 ?? 0,
-                    activePowerL1: type.meter.agg_p_ph_a_mw / 1000000 ?? 0,
-                    activePowerL2: type.meter.agg_p_ph_b_mw / 1000000 ?? 0,
-                    activePowerL3: type.meter.agg_p_ph_c_mw / 1000000 ?? 0,
-                    apparentPowerL1: type.meter.agg_s_ph_a_mva / 1000000 ?? 0,
-                    apparentPowerL2: type.meter.agg_s_ph_b_mva / 1000000 ?? 0,
-                    apparentPowerL3: type.meter.agg_s_ph_c_mva / 1000000 ?? 0
-                }
-                //add device to pv object devices
+                    activePower: agg_p_mw === null ? 'notSupported' : agg_p_mw / 1000000,
+                    apparentPower: agg_s_mva === null ? 'notSupported' : agg_s_mva / 1000000,
+                    activePowerL1: agg_p_ph_a_mw === null ? 'notSupported' : agg_p_ph_a_mw / 1000000,
+                    activePowerL2: agg_p_ph_b_mw === null ? 'notSupported' : agg_p_ph_b_mw / 1000000,
+                    activePowerL3: agg_p_ph_c_mw === null ? 'notSupported' : agg_p_ph_c_mw / 1000000,
+                    apparentPowerL1: agg_s_ph_a_mva === null ? 'notSupported' : agg_s_ph_a_mva / 1000000,
+                    apparentPowerL2: agg_s_ph_b_mva === null ? 'notSupported' : agg_s_ph_b_mva / 1000000,
+                    apparentPowerL3: agg_s_ph_c_mva === null ? 'notSupported' : agg_s_ph_c_mva / 1000000
+                };
+
+                // Add device to pv object devices
                 this.pv.liveData.devices.push(obj);
 
-                //update characteristics
+                // Update characteristics
                 if (this.liveDataServices) {
-                    this.liveDataServices[index]
-                        .updateCharacteristic(Characteristic.enphaseLiveDataActivePower, obj.activePower)
-                        .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL1, obj.activePowerL1)
-                        .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL2, obj.activePowerL2)
-                        .updateCharacteristic(Characteristic.enphaseLiveDataActivePowerL3, obj.activePowerL3)
-                        .updateCharacteristic(Characteristic.enphaseLiveDataApparentPower, obj.apparentPower)
-                        .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1, obj.apparentPowerL1)
-                        .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2, obj.apparentPowerL2)
-                        .updateCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3, obj.apparentPowerL3)
+                    const characteristics = [
+                        { key: 'activePower', characteristic: Characteristic.enphaseLiveDataActivePower },
+                        { key: 'activePowerL1', characteristic: Characteristic.enphaseLiveDataActivePowerL1 },
+                        { key: 'activePowerL2', characteristic: Characteristic.enphaseLiveDataActivePowerL2 },
+                        { key: 'activePowerL3', characteristic: Characteristic.enphaseLiveDataActivePowerL3 },
+                        { key: 'apparentPower', characteristic: Characteristic.enphaseLiveDataApparentPower },
+                        { key: 'apparentPowerL1', characteristic: Characteristic.enphaseLiveDataApparentPowerL1 },
+                        { key: 'apparentPowerL2', characteristic: Characteristic.enphaseLiveDataApparentPowerL2 },
+                        { key: 'apparentPowerL3', characteristic: Characteristic.enphaseLiveDataApparentPowerL3 }
+                    ];
+
+                    characteristics.forEach(({ key, characteristic }) => {
+                        if (obj[key] !== 'notSupported') {
+                            this.liveDataServices[index].updateCharacteristic(characteristic, obj[key]);
+                        }
+                    });
                 }
             });
+
 
             //encharge backup level sensors
             if (this.enchargeBackupLevelActiveSensorsCount > 0) {
@@ -6621,54 +6637,70 @@ class EnvoyDevice extends EventEmitter {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Live Data ${liveDataType} Service`) : false;
                     const liveDataService = accessory.addService(Service.enphaseLiveDataService, `Live Data ${liveDataType}`, liveDataType);
                     liveDataService.setCharacteristic(Characteristic.ConfiguredName, `Live Data ${liveDataType}`);
-                    liveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePower)
-                        .onGet(async () => {
-                            const value = liveData.activePower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, active power: ${value} kW`);
-                            return value;
-                        });
-                    liveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL1)
-                        .onGet(async () => {
-                            const value = liveData.activePowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, active power: ${value} kW`);
-                            return value;
-                        });
-                    liveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL2)
-                        .onGet(async () => {
-                            const value = liveData.activePowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, active power: ${value} kW`);
-                            return value;
-                        });
-                    liveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL3)
-                        .onGet(async () => {
-                            const value = liveData.activePowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, active power: ${value} kW`);
-                            return value;
-                        });
-                    liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPower)
-                        .onGet(async () => {
-                            const value = liveData.apparentPower;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1)
-                        .onGet(async () => {
-                            const value = liveData.apparentPowerL1;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2)
-                        .onGet(async () => {
-                            const value = liveData.apparentPowerL2;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, apparent power: ${value} kVA`);
-                            return value;
-                        });
-                    liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3)
-                        .onGet(async () => {
-                            const value = liveData.apparentPowerL3;
-                            const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, apparent power: ${value} kVA`);
-                            return value;
-                        });
+                    if (liveData.activePower !== 'notSupported') {
+                        liveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePower)
+                            .onGet(async () => {
+                                const value = liveData.activePower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, active power: ${value} kW`);
+                                return value;
+                            });
+                    };
+                    if (liveData.activePowerL1 !== 'notSupported') {
+                        liveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL1)
+                            .onGet(async () => {
+                                const value = liveData.activePowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, active power: ${value} kW`);
+                                return value;
+                            });
+                    }
+                    if (liveData.activePowerL2 !== 'notSupported') {
+                        liveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL2)
+                            .onGet(async () => {
+                                const value = liveData.activePowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, active power: ${value} kW`);
+                                return value;
+                            });
+                    }
+                    if (liveData.activePowerL3 !== 'notSupported') {
+                        liveDataService.getCharacteristic(Characteristic.enphaseLiveDataActivePowerL3)
+                            .onGet(async () => {
+                                const value = liveData.activePowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, active power: ${value} kW`);
+                                return value;
+                            });
+                    }
+                    if (liveData.activePower !== 'notSupported') {
+                        liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPower)
+                            .onGet(async () => {
+                                const value = liveData.apparentPower;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType}, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                    }
+                    if (liveData.apparentPowerL1 !== 'notSupported') {
+                        liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL1)
+                            .onGet(async () => {
+                                const value = liveData.apparentPowerL1;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L1, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                    }
+                    if (liveData.apparentPowerL2 !== 'notSupported') {
+                        liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL2)
+                            .onGet(async () => {
+                                const value = liveData.apparentPowerL2;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L2, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                    }
+                    if (liveData.apparentPowerL3 !== 'notSupported') {
+                        liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPowerL3)
+                            .onGet(async () => {
+                                const value = liveData.apparentPowerL3;
+                                const info = this.disableLogInfo ? false : this.emit('message', `Live Data ${liveDataType} L3, apparent power: ${value} kVA`);
+                                return value;
+                            });
+                    }
                     this.liveDataServices.push(liveDataService);
                 }
             };
