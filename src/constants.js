@@ -342,24 +342,24 @@ export const ApiCodes = {
 };
 
 export const LedStatus = {
-    "0": "0",
-    "1": "1",
-    "2": "2",
-    "3": "3",
-    "4": "4",
-    "5": "5",
-    "7": "7",
-    "8": "8",
-    "9": "9",
-    "10": "10",
-    "11": "11",
+    "0": "Off",
+    "1": "Standby",
+    "2": "Booting",
+    "3": "Initializing",
+    "4": "Connected",
+    "5": "Firmware Update",
+    "7": "Warning",
+    "8": "Error",
+    "9": "Critical Error",
+    "10": "Maintenance",
+    "11": "Testing",
     "12": "Charging",
     "13": "Discharging",
     "14": "Idle",
-    "15": "15",
-    "16": "16",
-    "17": "17",
-    "18": "18",
-    "19": "19",
-    "20": "20"
-}
+    "15": "Reserved",
+    "16": "Reserved",
+    "17": "Reserved",
+    "18": "Unknown",
+    "19": "Unknown",
+    "20": "Unknown"
+};

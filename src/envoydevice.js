@@ -4007,14 +4007,14 @@ class EnvoyDevice extends EventEmitter {
                 status: dryContactsData.dry_contact_status ?? 0
             };
 
+            //enable live data stream if not enabled
+            const enableLiveDataStream = !liveData.connection.scStream ? await this.setLiveDataStream() : false;
+
             //add devices array to live data object
             liveData.devices = [];
 
             //add live data to pv object
             this.pv.liveData = liveData;
-
-            //enable live data stream if not enabled
-            const enableLiveDataStream = !liveData.connection.scStream ? await this.setLiveDataStream() : false;
 
             //add lived data meteres types add to array
             const activeDeviceTypes = [];
@@ -4031,7 +4031,7 @@ class EnvoyDevice extends EventEmitter {
                 return false;
             }
 
-            // Iterate over active meters
+            //iterate over active meters
             activeDeviceTypes.forEach((type, index) => {
                 if (!type.meter) return;
 
@@ -4052,10 +4052,10 @@ class EnvoyDevice extends EventEmitter {
                     apparentPowerL3: agg_s_ph_c_mva === null ? 'notSupported' : agg_s_ph_c_mva / 1000000
                 };
 
-                // Add device to pv object devices
+                //add device to pv object devices
                 this.pv.liveData.devices.push(obj);
 
-                // Update characteristics
+                //update characteristics
                 if (this.liveDataServices) {
                     const characteristics = [
                         { key: 'activePower', characteristic: Characteristic.enphaseLiveDataActivePower },
@@ -6669,7 +6669,7 @@ class EnvoyDevice extends EventEmitter {
                                 return value;
                             });
                     }
-                    if (liveData.activePower !== 'notSupported') {
+                    if (liveData.apparentPower !== 'notSupported') {
                         liveDataService.getCharacteristic(Characteristic.enphaseLiveDataApparentPower)
                             .onGet(async () => {
                                 const value = liveData.apparentPower;
