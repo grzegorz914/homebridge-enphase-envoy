@@ -112,7 +112,7 @@ class EnvoyDevice extends EventEmitter {
             tile.state = false;
             this.powerProductionStateActiveControls.push(tile);
         } else {
-            const log = powerProductionStateControlDisplayType === 0 ? false : this.emit('warn', `Tile Name Missing.`);
+            const log = powerProductionStateControlDisplayType === 0 ? false : this.emit('warn', `Tile Name Missing`);
         };
         this.powerProductionStateActiveControlsCount = this.powerProductionStateActiveControls.length || 0;
 
@@ -129,7 +129,7 @@ class EnvoyDevice extends EventEmitter {
             tile.state = false;
             this.plcLevelActiveControls.push(tile);
         } else {
-            const log = plcLevelControlDisplayType === 0 ? false : this.emit('warn', `Tile Name Missing.`);
+            const log = plcLevelControlDisplayType === 0 ? false : this.emit('warn', `Tile Name Missing`);
         };
         this.plcLevelActiveControlsCount = this.plcLevelActiveControls.length || 0;
 
@@ -146,7 +146,7 @@ class EnvoyDevice extends EventEmitter {
             tile.state = false;
             this.dataRefreshActiveControls.push(tile);
         } else {
-            const log = dataRefreshControlDisplayType === 0 ? false : this.emit('warn', `Tile Name Missing.`);
+            const log = dataRefreshControlDisplayType === 0 ? false : this.emit('warn', `Tile Name Missing`);
         };
         this.dataRefreshActiveControlsCount = this.dataRefreshActiveControls.length || 0;
 
@@ -163,7 +163,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.dataRefreshActiveSensors.push(sensor);
         } else {
-            const log = dataRefreshSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = dataRefreshSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.dataRefreshActiveSensorsCount = this.dataRefreshActiveSensors.length || 0;
 
@@ -173,7 +173,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -199,7 +199,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.powerProductionStateActiveSensors.push(sensor);
         } else {
-            const log = powerProductionStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = powerProductionStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.powerProductionStateActiveSensorsCount = this.powerProductionStateActiveSensors.length || 0;
 
@@ -216,7 +216,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.energyProductionStateActiveSensors.push(sensor);
         } else {
-            const log = energyProductionStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = energyProductionStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.energyProductionStateActiveSensorsCount = this.energyProductionStateActiveSensors.length || 0
 
@@ -225,7 +225,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('message', `Sensor Name Missing`);
                 continue;
             }
 
@@ -251,7 +251,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.powerConsumptionTotalStateActiveSensors.push(sensor);
         } else {
-            const log = powerConsumptionTotalStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = powerConsumptionTotalStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.powerConsumptionTotalStateActiveSensorsCount = this.powerConsumptionTotalStateActiveSensors.length || 0;
 
@@ -260,7 +260,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -286,7 +286,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.energyConsumptionTotalStateActiveSensors.push(sensor);
         } else {
-            const log = energyConsumptionTotalStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = energyConsumptionTotalStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.energyConsumptionTotalStateActiveSensorsCount = this.energyConsumptionTotalStateActiveSensors.length || 0
 
@@ -295,7 +295,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -321,7 +321,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.powerConsumptionNetStateActiveSensors.push(sensor);
         } else {
-            const log = powerConsumptionNetStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = powerConsumptionNetStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.powerConsumptionNetStateActiveSensorsCount = this.powerConsumptionNetStateActiveSensors.length || 0;
 
@@ -330,7 +330,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -356,7 +356,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.energyConsumptionNetStateActiveSensors.push(sensor);
         } else {
-            const log = energyConsumptionNetStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = energyConsumptionNetStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.energyConsumptionNetStateActiveSensorsCount = this.energyConsumptionNetStateActiveSensors.length || 0
 
@@ -365,7 +365,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -391,7 +391,7 @@ class EnvoyDevice extends EventEmitter {
             tile.state = false;
             this.enpowerGridStateActiveControls.push(tile);
         } else {
-            const log = enpowerGridStateControlDisplaqyType === 0 ? false : this.emit('warn', `Tile Name Missing.`);
+            const log = enpowerGridStateControlDisplaqyType === 0 ? false : this.emit('warn', `Tile Name Missing`);
         };
         this.enpowerGridStateActiveControlsCount = this.enpowerGridStateActiveControls.length || 0;
 
@@ -407,7 +407,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.enpowerGridStateActiveSensors.push(sensor);
         } else {
-            const log = enpowerGridStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = enpowerGridStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.enpowerGridStateActiveSensorsCount = this.enpowerGridStateActiveSensors.length || 0;
 
@@ -416,7 +416,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -440,7 +440,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.enchargeStateActiveSensors.push(sensor);
         } else {
-            const log = enchargeStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = enchargeStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.enchargeStateActiveSensorsCount = this.enchargeStateActiveSensors.length || 0;
 
@@ -449,7 +449,7 @@ class EnvoyDevice extends EventEmitter {
             const name = tile.name ?? false;
             const displayType = tile.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Tile Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Tile Name Missing`);
                 continue;
             }
 
@@ -466,7 +466,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -482,7 +482,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -499,7 +499,7 @@ class EnvoyDevice extends EventEmitter {
             const backupLevel = sensor.backupLevel ?? 0;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -518,7 +518,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -542,7 +542,7 @@ class EnvoyDevice extends EventEmitter {
             tile.state = false;
             this.generatorStateActiveControls.push(tile);
         } else {
-            const log = generatorStateControlDisplaqyType === 0 ? false : this.emit('warn', `Tile Name Missing.`);
+            const log = generatorStateControlDisplaqyType === 0 ? false : this.emit('warn', `Tile Name Missing`);
         };
         this.generatorStateActiveControlsCount = this.generatorStateActiveControls.length || 0;
 
@@ -558,7 +558,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
             this.generatorStateActiveSensors.push(sensor);
         } else {
-            const log = generatorStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+            const log = generatorStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
         };
         this.generatorStateActiveSensorsCount = this.generatorStateActiveSensors.length || 0;
 
@@ -567,7 +567,7 @@ class EnvoyDevice extends EventEmitter {
             const name = tile.name ?? false;
             const displayType = tile.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Tile Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Tile Name Missing`);
                 continue;
             }
 
@@ -584,7 +584,7 @@ class EnvoyDevice extends EventEmitter {
             const name = sensor.name ?? false;
             const displayType = sensor.displayType ?? 0;
             if (!name || displayType === 0) {
-                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing.`);
+                const log = displayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
                 continue;
             }
 
@@ -920,7 +920,7 @@ class EnvoyDevice extends EventEmitter {
                 this.handleError(error);
             };
         }).on('state', (state) => {
-            const emitState = state ? this.emit('success', `Impulse generator started.`) : this.emit('warn', `Impulse generator stopped.`);
+            const emitState = state ? this.emit('success', `Impulse generator started`) : this.emit('warn', `Impulse generator stopped`);
 
             if (this.dataRefreshActiveControlsCount > 0) {
                 for (let i = 0; i < this.dataRefreshActiveControlsCount; i++) {
@@ -969,7 +969,7 @@ class EnvoyDevice extends EventEmitter {
     };
 
     async start() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Start.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Start`) : false;
 
         try {
             //get and validate jwt token
@@ -1021,7 +1021,7 @@ class EnvoyDevice extends EventEmitter {
             const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
             //connect to deice success
-            this.emit('success', `Connect Success.`)
+            this.emit('success', `Connect Success`)
 
             //get device info
             const logDeviceInfo = !this.disableLogDeviceInfo ? this.getDeviceInfo() : false;
@@ -1048,7 +1048,7 @@ class EnvoyDevice extends EventEmitter {
     };
 
     async checkJwtToken() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token`) : false;
 
         if (!this.envoyFirmware7xx) {
             return true;
@@ -1070,14 +1070,14 @@ class EnvoyDevice extends EventEmitter {
 
             //validate own JWT token
             try {
-                this.emit('warn', `Cookie not valid, validating.`);
+                this.emit('warn', `Cookie not valid, validating`);
                 await this.validateJwtToken();
 
                 this.checkJwtTokenRunning = false;
                 return true;
             } catch (error) {
                 this.checkJwtTokenRunning = false;
-                throw new Error(`Check own JWT token error: ${error.message || error}`);
+                throw new Error(`Check own JWT token error: ${error}`);
             };
         };
 
@@ -1097,25 +1097,25 @@ class EnvoyDevice extends EventEmitter {
             }
 
             //get new JWT token
-            const emit = !tokenValid ? this.emit('warn', `JWT Token expired, refreshing.`) : false;
+            const emit = !tokenValid ? this.emit('warn', `JWT Token expired, refreshing`) : false;
             const wait = !tokenValid ? await new Promise(resolve => setTimeout(resolve, 30000)) : false;
             const getToken = await this.getJwtToken();
 
             //validate JWT tokken
             const wait1 = !cookieValid ? await new Promise(resolve => setTimeout(resolve, 2000)) : false;
-            const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, validating.`) : false;
+            const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, validating`) : false;
             const validateToken = getToken || !cookieValid ? await this.validateJwtToken() : false;
 
             this.checkJwtTokenRunning = false;
             return validateToken;
         } catch (error) {
             this.checkJwtTokenRunning = false;
-            throw new Error(`Check JWT token error: ${error.message || error}`);
+            throw new Error(`Check JWT token error: ${error}`);
         };
     };
 
     async getJwtToken() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting get JWT token.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting get JWT token`) : false;
 
         try {
             const envoyToken = new EnvoyToken({
@@ -1128,7 +1128,7 @@ class EnvoyDevice extends EventEmitter {
             }).on('warn', (message) => {
                 this.emit('warn', message);
             }).on('error', (error) => {
-                throw new Error(error.message || error);
+                throw new Error(error);
             });
 
             const tokenData = await envoyToken.refreshToken();
@@ -1151,12 +1151,12 @@ class EnvoyDevice extends EventEmitter {
 
             return true;
         } catch (error) {
-            throw new Error(`Get JWT token error: ${error.message || error}`);
+            throw new Error(`Get JWT token error: ${error}`);
         };
     };
 
     async validateJwtToken() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting validate JWT token.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting validate JWT token`) : false;
 
         try {
             const options = {
@@ -1195,15 +1195,15 @@ class EnvoyDevice extends EventEmitter {
             });
 
             this.cookie = cookie;
-            this.emit('success', `Cookie validate success.`);
+            this.emit('success', `Cookie validate success`);
             return true;
         } catch (error) {
-            throw new Error(`Validate JWT token error: ${error.message || error}`);
+            throw new Error(`Validate JWT token error: ${error}`);
         };
     };
 
     async updateGridProfile() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.Profile);
             const profile = response.data;
@@ -1228,12 +1228,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Grid Profile', profile) : false;
             return true;
         } catch (error) {
-            this.emit('warn', 'Arf Profile not supported, dont worry all working correct, only the profile name will not be displayed.')
+            this.emit('warn', 'Arf Profile not supported, dont worry all working correct, only the profile name will not be displayed')
         };
     };
 
     async getEnvoyBackboneApp() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting envoy backbone app.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting envoy backbone app`) : false;
         try {
             // Check if the envoy ID is stored
             const response = await this.readData(this.envoyIdFile);
@@ -1246,7 +1246,7 @@ class EnvoyDevice extends EventEmitter {
                 return true;
             }
         } catch (error) {
-            this.emit('warn', `Read envoy dev Id from file error: ${error.message || error}, trying to get direct from envoy.`)
+            this.emit('warn', `Read envoy dev Id from file error: ${error}, trying to get direct from envoy`)
         };
 
         try {
@@ -1260,34 +1260,34 @@ class EnvoyDevice extends EventEmitter {
 
             //check envoy dev Id exist
             if (startIndex === -1) {
-                this.emit('warn', `Envoy dev Id in backbone app not found, dont worry all working correct, only the power production control will not be possible.`);
+                this.emit('warn', `Envoy dev Id in backbone app not found, dont worry all working correct, only the power production control will not be possible`);
                 return false;
             }
 
             const substringStartIndex = startIndex + keyword.length;
             const envoyDevId = envoyBackboneApp.substr(substringStartIndex, 9);
             if (envoyDevId.length !== 9) {
-                this.emit('warn', `Envoy dev Id: ${envoyDevId} in backbone app have wrong format, dont worry all working correct, only the power production control will not be possible.`);
+                this.emit('warn', `Envoy dev Id: ${envoyDevId} in backbone app have wrong format, dont worry all working correct, only the power production control will not be possible`);
                 return false;
             }
 
             try {
                 await this.saveData(this.envoyIdFile, envoyDevId);
             } catch (error) {
-                this.emit('warn', `Save envoy dev Id error: ${error}.`);
+                this.emit('warn', `Save envoy dev Id error: ${error}`);
             };
 
             this.envoyDevId = envoyDevId;
             this.feature.backboneApp.supported = true;
             return true;
         } catch (error) {
-            this.emit('warn', `Get backbone app error: ${error.message || error}, dont worry all working correct, only the power production control will not be possible.`);
+            this.emit('warn', `Get backbone app error: ${error}, dont worry all working correct, only the power production control will not be possible`);
             return false;
         };
     };
 
     async updateInfo() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting info.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting info`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.GetInfo);
             const info = response.data;
@@ -1339,7 +1339,7 @@ class EnvoyDevice extends EventEmitter {
 
             //check serial number
             if (!this.pv.envoy.serialNumber) {
-                throw new Error(`Envoy serial number missing: ${this.pv.envoy.serialNumber}.`);
+                throw new Error(`Envoy serial number missing: ${this.pv.envoy.serialNumber}`);
             };
 
             //envoy installed and meters supported
@@ -1353,12 +1353,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Info', parseInfoData) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update info error: ${error.message || error}`);
+            throw new Error(`Update info error: ${error}`);
         };
     };
 
     async calculateEnvoyPassword() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting calculate envoy passwords.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting calculate envoy passwords`) : false;
         try {
             //envoy password
             const deviceSn = this.pv.envoy.serialNumber;
@@ -1370,19 +1370,19 @@ class EnvoyDevice extends EventEmitter {
                 user: Authorization.EnvoyUser,
                 passwd: envoyPasswd
             }).on('error', (error) => {
-                this.emit('warn', `Digest authorization envoy error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed.`)
+                this.emit('warn', `Digest authorization envoy error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed`)
                 return false;
             });
 
             return true;
         } catch (error) {
-            this.emit('warn', `Calculaate envoy password error: ${error.message || error}, dont worry all working correct, only the power and power max of microinverters will not be displayed.`);
+            this.emit('warn', `Calculaate envoy password error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed`);
             return false;
         };
     };
 
     async calculateInstallerPassword() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting installer passwords.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting installer passwords`) : false;
         try {
             // Check if the envoy installer password is stored
             const response = await this.readData(this.envoyInstallerPasswordFile);
@@ -1399,7 +1399,7 @@ class EnvoyDevice extends EventEmitter {
                         realm: Authorization.Realm,
                         serialNumber: deviceSn
                     }).on('error', (error) => {
-                        this.emit('warn', `Calculate password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed.`)
+                        this.emit('warn', `Calculate password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
                         return false;
                     });
 
@@ -1411,7 +1411,7 @@ class EnvoyDevice extends EventEmitter {
                     try {
                         await this.saveData(this.envoyInstallerPasswordFile, installerPasswd);
                     } catch (error) {
-                        this.emit('warn', `Save installer password error: ${error}.`);
+                        this.emit('warn', `Save installer password error: ${error}`);
                     };
                 } catch (error) {
                     this.emit('warn', `Calculate installer password error: ${error}`);
@@ -1424,19 +1424,19 @@ class EnvoyDevice extends EventEmitter {
                 user: Authorization.InstallerUser,
                 passwd: installerPasswd
             }).on('error', (error) => {
-                this.emit('warn', `Digest authorization installer error:  ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed.`)
+                this.emit('warn', `Digest authorization installer error:  ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
                 return false;
             });
 
             return true;
         } catch (error) {
-            this.emit('warn', `Calculate installer password error: ${error.message || error}, dont worry all working correct, only the power production state/control and plc level will not be displayed.`);
+            this.emit('warn', `Calculate installer password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`);
             return false;
         };
     };
 
     async updateHome() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting home.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting home`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.Home);
             const envoy = response.data;
@@ -1601,12 +1601,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Home', envoy) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update home error: ${error.message || error}`);
+            throw new Error(`Update home error: ${error}`);
         };
     };
 
     async updateInventory() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting inventory.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting inventory`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.Inventory);
             const inventory = response.data;
@@ -1867,12 +1867,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Inventory', inventory) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update inventory error: ${error.message || error}`);
+            throw new Error(`Update inventory error: ${error}`);
         };
     };
 
     async updateMeters() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters info.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters info`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.InternalMeterInfo);
             const meters = response.data;
@@ -1948,12 +1948,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Meters', meters) : false;
             return metersEnabled;
         } catch (error) {
-            throw new Error(`Update meters error: ${error.message || error}`);
+            throw new Error(`Update meters error: ${error}`);
         };
     };
 
     async updateMetersReading() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters reading.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting meters reading`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.InternalMeterReadings);
             const metersReading = response.data;
@@ -2015,12 +2015,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Meters Reading', metersReading) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update meters reading error: ${error.message || error}`);
+            throw new Error(`Update meters reading error: ${error}`);
         };
     };
 
     async updateMicroinvertersStatus() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting microinverters status.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting microinverters status`) : false;
         try {
             const options = {
                 method: 'GET',
@@ -2072,12 +2072,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Microinverters', microinverters) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update microinverters status error: ${error.message || error}`);
+            throw new Error(`Update microinverters status error: ${error}`);
         };
     };
 
     async updateProduction() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.InverterProductionSumm);
             const production = response.data;
@@ -2112,12 +2112,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Production', production) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update production error: ${error.message || error}`);
+            throw new Error(`Update production error: ${error}`);
         };
     };
 
     async updateProductionCt() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production ct.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production ct`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.SystemReadingStats);
             const productionCtData = response.data;
@@ -2643,12 +2643,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Production CT', productionCtData) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update production ct error: ${error.message || error}`);
+            throw new Error(`Update production ct error: ${error}`);
         };
     };
 
     async updateProductionPowerState() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting power production state.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting power production state`) : false;
         try {
             const options = {
                 method: 'GET',
@@ -2701,12 +2701,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Power Mode', powerProductionState) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update power production state error: ${error.message || error}`);
+            throw new Error(`Update power production state error: ${error}`);
         };
     };
 
     async updateEnsembleInventory() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble inventory.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble inventory`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.EnsembleInventory);
             const ensembleInventory = response.data;
@@ -2936,12 +2936,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Inventory', ensembleInventory) : false;
             return ensembleSupported;
         } catch (error) {
-            throw new Error(`Update ensemble inventory error: ${error.message || error}`);
+            throw new Error(`Update ensemble inventory error: ${error}`);
         };
     };
 
     async updateEnsembleStatus() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble status.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting ensemble status`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.EnsembleStatus);
             const ensembleStatus = response.data;
@@ -3260,12 +3260,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Status', ensembleStatus) : false;
             return ensemblesSupported;
         } catch (error) {
-            throw new Error(`Update ensemble status error: ${error.message || error}`);
+            throw new Error(`Update ensemble status error: ${error}`);
         };
     };
 
     async updateEnchargesSettings() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting encharge settings.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting encharge settings`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.EnchargeSettings);
             const enchargeSettings = response.data;
@@ -3312,12 +3312,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Encharge Settings', enchargeSettings) : false;
             return enchargeSettingsSupported;
         } catch (error) {
-            throw new Error(`Update encharge settings. error: ${error.message || error}`);
+            throw new Error(`Update encharge settings. error: ${error}`);
         };
     };
 
     async updateTariff() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting tariff.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting tariff`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.TariffSettingsGetPut);
             const tariffSettings = response.data;
@@ -3509,12 +3509,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Tariff', tariffSettings) : false;
             return tariffSupported;
         } catch (error) {
-            throw new Error(`Update tariff. error: ${error.message || error}`);
+            throw new Error(`Update tariff. error: ${error}`);
         };
     };
 
     async updateDryContacts() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.DryContacts);
             const ensembleDryContacts = response.data;
@@ -3567,12 +3567,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts', ensembleDryContacts) : false;
             return dryContactsSupported;
         } catch (error) {
-            throw new Error(`Update dry contacts error: ${error.message || error}`);
+            throw new Error(`Update dry contacts error: ${error}`);
         };
     };
 
     async updateDryContactsSettings() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts settings.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting dry contacts settings`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.DryContactsSettings);
             const ensembleDryContactsSettings = response.data;
@@ -3632,12 +3632,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts Settings', ensembleDryContactsSettings) : false;
             return dryContactsSettingsSupported;
         } catch (error) {
-            throw new Error(`Update dry contacts settings error: ${error.message || error}`);
+            throw new Error(`Update dry contacts settings error: ${error}`);
         };
     };
 
     async updateGenerator() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting generator.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting generator`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.Generator);
             const ensembleGenerator = response.data;
@@ -3761,7 +3761,7 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator', ensembleGenerator) : false;
             return generatorSupported;
         } catch (error) {
-            throw new Error(`Update generator error: ${error.message || error}`);
+            throw new Error(`Update generator error: ${error}`);
         };
     };
 
@@ -3809,12 +3809,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator Settings', generatorSettings) : false;
             return generatorSettingsSupported;
         } catch (error) {
-            throw new Error(`Update generator settings error: ${error.message || error}`);
+            throw new Error(`Update generator settings error: ${error}`);
         };
     };
 
     async updateCommLevel() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level`) : false;
         try {
             const options = {
                 method: 'GET',
@@ -3918,12 +3918,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'PLC Level', plcLevel) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update plc level error: ${error.message || error}`);
+            throw new Error(`Update plc level error: ${error}`);
         };
     };
 
     async updateLiveData() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.LiveDataStatus);
             const live = response.data;
@@ -4120,12 +4120,12 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Live Data', live) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update live data error: ${error.message || error}`);
+            throw new Error(`Update live data error: ${error}`);
         };
     };
 
     async setProductionPowerState(state) {
-        const debug = this.enableDebugMode ? this.emit('debug', `Set production power mode.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Set production power mode`) : false;
         try {
             const data = JSON.stringify({
                 length: 1,
@@ -4158,12 +4158,12 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set power produstion state:`, response.data) : false;
             return true;
         } catch (error) {
-            throw new Error(`Set production power mode error: ${error.message || error}`);
+            throw new Error(`Set production power mode error: ${error}`);
         };
     }
 
     async setEnchargeProfile(profile, reserve, independence) {
-        const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile`) : false;
         try {
             const options = {
                 headers: {
@@ -4190,12 +4190,12 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile:`, response.data) : false;
             return;
         } catch (error) {
-            throw new Error(`Set encharge profile error: ${error.message || error}`);
+            throw new Error(`Set encharge profile error: ${error}`);
         };
     };
 
     async setEnpowerGridState(state) {
-        const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state`) : false;
         try {
             const options = {
                 headers: {
@@ -4215,12 +4215,12 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set enpower grid state:`, response.data) : false;
             return true;
         } catch (error) {
-            throw new Error(`Set enpower grid state error: ${error.message || error}`);
+            throw new Error(`Set enpower grid state error: ${error}`);
         };
     };
 
     async setDryContactState(id, state) {
-        const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact`) : false;
         try {
             const options = {
                 headers: {
@@ -4240,12 +4240,12 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact:`, response.data) : false;
             return true;
         } catch (error) {
-            throw new Error(`Set dry contact error: ${error.message || error}`);
+            throw new Error(`Set dry contact error: ${error}`);
         };
     };
 
     async setDryContactSettings(id, index, state) {
-        const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact settings.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact settings`) : false;
         try {
             const options = {
                 headers: {
@@ -4276,12 +4276,12 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set dry contact settings:`, response.data) : false;
             return true;
         } catch (error) {
-            throw new Error(`Set dry contact settings error: ${error.message || error}`);
+            throw new Error(`Set dry contact settings error: ${error}`);
         };
     };
 
     async setGeneratorMode(mode) {
-        const debug = this.enableDebugMode ? this.emit('debug', `Set generator mode.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Set generator mode`) : false;
         try {
             const options = {
                 headers: {
@@ -4300,12 +4300,12 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Set generator mode:`, response.data) : false;
             return true;
         } catch (error) {
-            throw new Error(`Set generator mode error: ${error.message || error}`);
+            throw new Error(`Set generator mode error: ${error}`);
         };
     };
 
     async setLiveDataStream() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream enable.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data stream enable`) : false;
         try {
             const options = {
                 headers: {
@@ -4323,7 +4323,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Live data stream enable:`, response.data) : false;
             return;
         } catch (error) {
-            throw new Error(`Set live data stream enable error: ${error.message || error}`);
+            throw new Error(`Set live data stream enable error: ${error}`);
         };
     };
 
@@ -4332,7 +4332,7 @@ class EnvoyDevice extends EventEmitter {
             const data = await fsPromises.readFile(path, 'utf-8');
             return data;
         } catch (error) {
-            throw new Error(`Read data error: ${error.message || error}`);
+            throw new Error(`Read data error: ${error}`);
         }
     };
 
@@ -4341,7 +4341,7 @@ class EnvoyDevice extends EventEmitter {
             await fsPromises.writeFile(path, JSON.stringify(data, null, 2));
             return true;
         } catch (error) {
-            throw new Error(`Save data error: ${error.message || error}`);
+            throw new Error(`Save data error: ${error}`);
         }
     };
 
@@ -4373,12 +4373,12 @@ class EnvoyDevice extends EventEmitter {
             };
             return set;
         } catch (error) {
-            throw new Error(`${integration} set key: ${key}, value: ${value}, error: ${error.message || error}`);
+            throw new Error(`${integration} set key: ${key}, value: ${value}, error: ${error}`);
         };
     };
 
     getDeviceInfo() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info.`) : false;
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info`) : false;
 
         //debug objects
         const debug20 = this.enableDebugMode && this.feature.envoy.installed ? this.emit('debug', `Pv object:`, this.pv) : false;
@@ -6707,7 +6707,7 @@ class EnvoyDevice extends EventEmitter {
 
             return accessory;
         } catch (error) {
-            throw new Error(`Prepare accessory error: ${error.message || error}`)
+            throw new Error(`Prepare accessory error: ${error}`)
         };
     };
 }

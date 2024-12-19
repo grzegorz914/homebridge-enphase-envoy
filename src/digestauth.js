@@ -47,7 +47,7 @@ class DigestAuth extends EventEmitter {
 
                 return data;
             } catch (error) {
-                this.emit('error', `Digest authentication error: ${error.message ?? error}`);
+                this.emit('error', `Digest authentication error: ${error}`);
             };
         };
     };

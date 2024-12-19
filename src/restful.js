@@ -73,7 +73,7 @@ class RestFul extends EventEmitter {
                     this.emit('set', key, value);
                     res.send('OK');
                 } catch (error) {
-                    this.emit('error', `RESTFul Parse object error: ${error.message ?? error}`);
+                    this.emit('error', `RESTFul Parse object error: ${error}`);
                 };
             });
 
@@ -82,7 +82,7 @@ class RestFul extends EventEmitter {
             });
 
         } catch (error) {
-            this.emit('error', `RESTful Connect error: ${error.message ?? error}`)
+            this.emit('error', `RESTful Connect error: ${error}`)
         }
     };
 

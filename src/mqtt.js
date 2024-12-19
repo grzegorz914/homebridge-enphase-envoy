@@ -17,11 +17,11 @@ class Mqtt extends EventEmitter {
             try {
                 //connect
                 this.mqttClient = await connectAsync(url, options);
-                this.emit('connected', 'MQTT Connected.');
+                this.emit('connected', 'MQTT Connected');
 
                 //subscribe
                 await this.mqttClient.subscribe(subscribeTopic);
-                this.emit('subscribed', `MQTT Subscribe topic: ${subscribeTopic}.`);
+                this.emit('subscribed', `MQTT Subscribe topic: ${subscribeTopic}`);
 
                 //subscribed message
                 this.mqttClient.on('message', (topic, message) => {
@@ -32,7 +32,7 @@ class Mqtt extends EventEmitter {
                         const value = Object.values(obj)[0];
                         this.emit('set', key, value);
                     } catch (error) {
-                        this.emit('error', `MQTT Parse object error: ${error.message ?? error}`);
+                        this.emit('error', `MQTT Parse object error: ${error}`);
                     };
                 });
             } catch (error) {
@@ -45,7 +45,7 @@ class Mqtt extends EventEmitter {
                 await this.mqttClient.publish(fullTopic, publishMessage);
                 const emitDebug = config.debug ? this.emit('debug', `MQTT Publish topic: ${fullTopic}, message: ${publishMessage}`) : false;
             } catch (error) {
-                this.emit('error', `MQTT Publish error: ${error.message ?? error}`);
+                this.emit('error', `MQTT Publish error: ${error}`);
             };
         });
 

@@ -30,7 +30,7 @@ class EnvoyToken extends EventEmitter {
             await this.saveData(this.tokenFile, tokenData);
 
             //emit success
-            this.emit('success', `JWT Token refresh success.`);
+            this.emit('success', `JWT Token refresh success`);
             this.emit('success', `JWT Token ${installerToken ? 'installer,' : 'user,'} valid: ${new Date(tokenData.expires_at * 1000).toLocaleString()}`);
 
             return tokenData;
@@ -63,7 +63,7 @@ class EnvoyToken extends EventEmitter {
             const cookie = loginData.headers['set-cookie'];
             return cookie;
         } catch (error) {
-            this.emit('error', `Login to Enlighten error: ${error.message ?? error}`);
+            this.emit('error', `Login to Enlighten error: ${error}`);
         }
     }
 
@@ -86,7 +86,7 @@ class EnvoyToken extends EventEmitter {
             const tokenData = response.data;
             return tokenData;
         } catch (error) {
-            this.emit('error', `Get token error: ${error.message ?? error}`);
+            this.emit('error', `Get token error: ${error}`);
         }
     }
 
@@ -95,7 +95,7 @@ class EnvoyToken extends EventEmitter {
             await fsPromises.writeFile(path, JSON.stringify(data, null, 2));
             return true;
         } catch (error) {
-            throw new Error(error.message ?? error);
+            throw new Error(`Save data error: ${error}`);
         }
     };
 };

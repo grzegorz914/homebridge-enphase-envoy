@@ -8,7 +8,7 @@ class EnvoyPlatform {
   constructor(log, config, api) {
     // only load if configured
     if (!config || !Array.isArray(config.devices)) {
-      log.warn(`No configuration found for ${PluginName}`);
+      log.warn(`No configuration found for ${PluginName}.`);
       return;
     }
     this.log = log;
@@ -20,7 +20,7 @@ class EnvoyPlatform {
     try {
       mkdirSync(prefDir, { recursive: true });
     } catch (error) {
-      log.error(`Prepare directory error: ${error.message ?? error}`);
+      log.error(`Prepare directory error: ${error}.`);
       return;
     }
 
@@ -88,7 +88,7 @@ class EnvoyPlatform {
             }
           });
         } catch (error) {
-          log.error(`Device: ${host} ${deviceName}, Prepare files error: ${error.message ?? error}`);
+          log.error(`Device: ${host} ${deviceName}, Prepare files error: ${error}.`);
           return;
         }
 
@@ -103,20 +103,20 @@ class EnvoyPlatform {
               log.info(devInfo);
             })
             .on('success', (message) => {
-              log.success(`Device: ${host} ${deviceName}, ${message}`);
+              log.success(`Device: ${host} ${deviceName}, ${message}.`);
             })
             .on('message', (message) => {
-              log.info(`Device: ${host} ${deviceName}, ${message}`);
+              log.info(`Device: ${host} ${deviceName}, ${message}.`);
             })
             .on('debug', (message, debug) => {
-              debug = (debug !== null && debug !== undefined) ? `debug: ${message} ${JSON.stringify(debug, null, 2)}` : `${message}`
-              log.info(`Device: ${host} ${deviceName}, ${debug}`);
+              debug = (debug !== null && debug !== undefined) ? `debug: ${message} ${JSON.stringify(debug, null, 2)}.` : `${message}.`
+              log.info(`Device: ${host} ${deviceName}, ${debug}.`);
             })
             .on('warn', (message) => {
-              log.warn(`Device: ${host} ${deviceName}, ${message}`);
+              log.warn(`Device: ${host} ${deviceName}, ${message}.`);
             })
             .on('error', async (error) => {
-              log.error(`Device: ${host} ${deviceName}, ${error}`);
+              log.error(`Device: ${host} ${deviceName}, ${error}.`);
             });
 
           //create impulse generator
