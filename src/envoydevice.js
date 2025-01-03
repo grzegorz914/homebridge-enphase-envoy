@@ -40,7 +40,7 @@ class EnvoyDevice extends EventEmitter {
         this.supportPlcLevel = device.supportPlcLevel || false;
         this.plcLevelControl = this.supportPlcLevel ? device.plcLevelControl || {} : {};
 
-        this.powerProductionSummary = device.powerProductionSummary || 0;
+        this.powerProductionSummary = device.powerProductionSummary || 1;
         this.powerProductionStateSensor = device.powerProductionStateSensor || {};
         this.powerProductionLevelSensors = device.powerProductionLevelSensors || [];
         this.energyProductionStateSensor = device.energyProductionStateSensor || {};
@@ -1618,7 +1618,7 @@ class EnvoyDevice extends EventEmitter {
             //microinverters inventory
             this.pv.microinverters = [];
             const microinvertersSupported = inventoryKeys.includes('PCU');
-            const microinverters = microinvertersSupported ? inventory[0].devices : [];
+            const microinverters = microinvertersSupported ? inventory[0].devices.slice(0, 70) : []; // Limit to 70 microinverters
             const microinvertersInstalled = microinverters.length > 0;
             if (microinvertersInstalled) {
                 const type = ApiCodes[inventory[0].type] ?? 'Unknown';
@@ -1900,6 +1900,7 @@ class EnvoyDevice extends EventEmitter {
                     if (production) {
                         this.feature.meters.production.supported = true;
                         this.feature.meters.production.enabled = obj.state ?? false;
+                        this.feature.meters.production.phaseCount = obj.phaseCount;
                         this.feature.meters.production.voltageDivide = obj.phaseMode !== 'Split' ? obj.phaseCount : 1;
                     }
 
@@ -1908,6 +1909,7 @@ class EnvoyDevice extends EventEmitter {
                     if (consumption) {
                         this.feature.meters.consumption.supported = true;
                         this.feature.meters.consumption.enabled = obj.state ?? false;
+                        this.feature.meters.consumption.phaseCount = obj.phaseCount;
                         this.feature.meters.consumption.voltageDivide = obj.phaseMode !== 'Split' ? obj.phaseCount : 1;
                     }
 
@@ -2169,7 +2171,7 @@ class EnvoyDevice extends EventEmitter {
                         power: metersProductionEnabled ? productionCtProduction.wNow : this.pv.production.ct.inverters.power, //watts
                         powerKw: metersProductionEnabled ? productionCtProduction.wNow / 1000 : this.pv.production.ct.inverters.powerKw, //kW
                         powerState: metersProductionEnabled ? productionCtProduction.wNow > 0 : this.pv.production.ct.inverters.power > 0 ?? false,
-                        powerLevel: metersProductionEnabled ? Math.min(100, Math.max(0, (100 / this.powerProductionSummary) * productionCtProduction.wNow)) : Math.min(100, Math.max(0, (100 / this.powerProductionSummary) * this.pv.production.ct.inverters.power)),
+                        powerLevel: this.powerProductionSummary > 1 ? metersProductionEnabled ? Math.min(100, Math.max(0, (100 / this.powerProductionSummary) * productionCtProduction.wNow)) : Math.min(100, Math.max(0, (100 / this.powerProductionSummary) * this.pv.production.ct.inverters.power)) : 0,
                         powerPeak: metersProductionEnabled ? (productionCtProduction.wNow > storedProductionPower ? productionCtProduction.wNow : storedProductionPower) : (this.pv.production.ct.inverters.power > storedProductionPower ? this.pv.production.ct.inverters.power : storedProductionPower),
                         powerPeakKw: metersProductionEnabled ? (productionCtProduction.wNow > storedProductionPower ? productionCtProduction.wNow / 1000 : storedProductionPower / 1000) : (this.pv.production.ct.inverters.power > storedProductionPower ? this.pv.production.ct.inverters.powerKw : storedProductionPower / 1000),
                         powerPeakDetected: metersProductionEnabled ? productionCtProduction.wNow > storedProductionPower : this.pv.production.ct.inverters.power > storedProductionPower ?? false,
@@ -4018,7 +4020,7 @@ class EnvoyDevice extends EventEmitter {
 
             //add lived data meteres types add to array
             const activeDeviceTypes = [];
-            const pushPvTypeToArray = this.feature.meters.installed && (this.feature.meters.production.enabled || this.feature.meters.consumption.enabled) ? activeDeviceTypes.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
+            const pushPvTypeToArray = this.feature.meters.installed && this.feature.meters.production.enabled ? activeDeviceTypes.push({ type: 'PV', meter: liveDataMeters.pv }) : false;
             const pushStorageTypeToArray = this.feature.meters.installed && this.feature.meters.acBatterie.enabled ? activeDeviceTypes.push({ type: 'AC Batterie', meter: liveDataMeters.storage }) : false;
             const pushEnchargeTypeToArray = this.feature.meters.installed && this.feature.encharges.installed ? activeDeviceTypes.push({ type: 'Encharge', meter: liveDataMeters.storage }) : false;
             const pushGridTypeToArray = this.feature.meters.installed && this.feature.meters.consumption.enabled ? activeDeviceTypes.push({ type: 'Grid', meter: liveDataMeters.grid }) : false;
@@ -4045,11 +4047,11 @@ class EnvoyDevice extends EventEmitter {
                     activePower: agg_p_mw === null ? 'notSupported' : agg_p_mw / 1000000,
                     apparentPower: agg_s_mva === null ? 'notSupported' : agg_s_mva / 1000000,
                     activePowerL1: agg_p_ph_a_mw === null ? 'notSupported' : agg_p_ph_a_mw / 1000000,
-                    activePowerL2: agg_p_ph_b_mw === null ? 'notSupported' : agg_p_ph_b_mw / 1000000,
-                    activePowerL3: agg_p_ph_c_mw === null ? 'notSupported' : agg_p_ph_c_mw / 1000000,
+                    activePowerL2: agg_p_ph_b_mw === null || liveData.meters.phaseCount === 1 ? 'notSupported' : agg_p_ph_b_mw / 1000000,
+                    activePowerL3: agg_p_ph_c_mw === null || liveData.meters.phaseCount === 2 ? 'notSupported' : agg_p_ph_c_mw / 1000000,
                     apparentPowerL1: agg_s_ph_a_mva === null ? 'notSupported' : agg_s_ph_a_mva / 1000000,
-                    apparentPowerL2: agg_s_ph_b_mva === null ? 'notSupported' : agg_s_ph_b_mva / 1000000,
-                    apparentPowerL3: agg_s_ph_c_mva === null ? 'notSupported' : agg_s_ph_c_mva / 1000000
+                    apparentPowerL2: agg_s_ph_b_mva === null || liveData.meters.phaseCount === 1 ? 'notSupported' : agg_s_ph_b_mva / 1000000,
+                    apparentPowerL3: agg_s_ph_c_mva === null || liveData.meters.phaseCount === 2 ? 'notSupported' : agg_s_ph_c_mva / 1000000
                 };
 
                 //add device to pv object devices

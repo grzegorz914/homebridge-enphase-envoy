@@ -256,6 +256,8 @@
             "powerProductionSummary": {
               "title": "Power Summary",
               "type": "integer",
+              "minimum": 1,
+              "default": 1,
               "description": "Here set the power summary in (W) of all microinverters, based on this value the power production level will be calculated and displayed as (%) in HomeKit.",
               "required": false
             },
