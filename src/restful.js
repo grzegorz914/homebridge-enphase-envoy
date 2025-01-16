@@ -73,7 +73,7 @@ class RestFul extends EventEmitter {
                     this.emit('set', key, value);
                     res.send('OK');
                 } catch (error) {
-                    this.emit('error', `RESTFul Parse object error: ${error}`);
+                    this.emit('warn', `RESTFul Parse object error: ${error}`);
                 };
             });
 
@@ -82,7 +82,7 @@ class RestFul extends EventEmitter {
             });
 
         } catch (error) {
-            this.emit('error', `RESTful Connect error: ${error}`)
+            this.emit('warn', `RESTful Connect error: ${error}`)
         }
     };
 
@@ -155,7 +155,7 @@ class RestFul extends EventEmitter {
                 this.restFulData.dataSampling = data;
                 break;
             default:
-                this.emit('error', `RESTFul update path: ${path}, data: ${data}`)
+                this.emit('warn', `RESTFul update path: ${path}, data: ${data}`)
                 break;
         };
         const emitDebug = this.restFulDebug ? this.emit('debug', `RESTFul update path: ${path}, data: ${JSON.stringify(data, null, 2)}`) : false;

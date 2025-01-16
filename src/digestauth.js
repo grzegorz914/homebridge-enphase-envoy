@@ -19,13 +19,13 @@ class DigestAuth extends EventEmitter {
         } catch (error) {
             const resError = error.response;
             if (!resError || resError.status !== 401) {
-                this.emit('error', `Digest authentication response error: ${resError ? resError.status : 'Unknown error'}`);
+                this.emit('warn', `Digest authentication response error: ${resError ? resError.status : 'Unknown error'}`);
                 return;
             };
 
             const resHeaders = resError.headers["www-authenticate"];
             if (!(resHeaders || !resHeaders.includes('nonce'))) {
-                this.emit('error', `Digest authentication headers error: ${resHeaders ? resHeaders : 'Header not found'}`);
+                this.emit('warn', `Digest authentication headers error: ${resHeaders ? resHeaders : 'Header not found'}`);
                 return;
             };
 
@@ -47,7 +47,7 @@ class DigestAuth extends EventEmitter {
 
                 return data;
             } catch (error) {
-                this.emit('error', `Digest authentication error: ${error}`);
+                this.emit('warn', `Digest authentication error: ${error}`);
             };
         };
     };

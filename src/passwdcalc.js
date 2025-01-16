@@ -70,7 +70,7 @@ class PasswdCalc extends EventEmitter {
 
             return password;
         } catch (error) {
-            this.emit('error', `Generate password error: ${error}`);
+            this.emit('warn', `Generate password error: ${error}`);
         };
     };
 

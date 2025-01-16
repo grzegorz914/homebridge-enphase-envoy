@@ -241,9 +241,12 @@
 | `productionDataRefreshTime` | Here set `Production Data` rfresh time in (sec). |
 | `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
 | `ensembleDataRefreshTime` | Here set `Ensemble Data` rfresh time in (sec). |
+| `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
+| `disableLogInfo` | If enabled, disable log info, all values and state will not be displayed in Homebridge log console. |
+| `disableLogSuccess` | If enabled, disable logging device success. |
+| `disableLogWarn` | If enabled, disable logging device warnings. |
+| `disableLogError` | If enabled, disable logging device error. |
 | `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
-| `disableLogInfo`| If enabled, info log will be hidden, all values and state will not be displayed in Homebridge log console. |
-| `disableLogDeviceInfo` | If enabled, the info device log will be hidden by every plugin restart. |
 | `restFul` | This is RSTful server. |
 | `enable` | This enabled, RESTful server, start automatically and respond to any path request. |
 | `port` | Here set the listening `Port` for RESTful server. |

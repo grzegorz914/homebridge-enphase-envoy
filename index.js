@@ -36,7 +36,6 @@ class EnvoyPlatform {
         const enlightenUser = device.enlightenUser ?? false;
         const enlightenPasswd = device.enlightenPasswd ?? false;
         const envoySerialNumber = device.envoySerialNumber ?? false;
-        const enableDebugMode = device.enableDebugMode || false;
 
         //check mandatory properties
         if (!deviceName) {
@@ -54,8 +53,14 @@ class EnvoyPlatform {
           return;
         }
 
-        //debug config
-        const debug = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, Did finish launching.`) : false;
+        //log config
+        const enableDebugMode = device.enableDebugMode || false;
+        const disableLogDeviceInfo = device.disableLogDeviceInfo || false;
+        const disableLogInfo = device.disableLogInfo || false;
+        const disableLogSuccess = device.disableLogSuccess || false;
+        const disableLogWarn = device.disableLogWarn || false;
+        const disableLogError = device.disableLogError || false;
+        const debug = !enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, did finish launching.`);
         const config = {
           ...device,
           envoyPasswd: 'removed',
@@ -67,7 +72,7 @@ class EnvoyPlatform {
             passwd: 'removed'
           }
         };
-        const debug1 = enableDebugMode ? log.info(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}`) : false;
+        const debug1 = !enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}.`);
 
         //check files exists, if not then create it
         const postFix = host.split('.').join('');
@@ -88,7 +93,7 @@ class EnvoyPlatform {
             }
           });
         } catch (error) {
-          log.error(`Device: ${host} ${deviceName}, Prepare files error: ${error}.`);
+          const emitLog = disableLogError ? false : log.error(`Device: ${host} ${deviceName}, Prepare files error: ${error}.`);
           return;
         }
 
@@ -97,45 +102,44 @@ class EnvoyPlatform {
           const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
           envoyDevice.on('publishAccessory', (accessory) => {
             api.publishExternalAccessories(PluginName, [accessory]);
-            log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
+            const emitLog = disableLogSuccess ? false : log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
           })
             .on('devInfo', (devInfo) => {
-              log.info(devInfo);
+              const emitLog = disableLogDeviceInfo ? false : log.info(devInfo);
             })
-            .on('success', (message) => {
-              log.success(`Device: ${host} ${deviceName}, ${message}.`);
+            .on('success', (success) => {
+              const emitLog = disableLogSuccess ? false : log.success(`Device: ${host} ${deviceName}, ${success}.`);
             })
-            .on('message', (message) => {
-              log.info(`Device: ${host} ${deviceName}, ${message}.`);
+            .on('info', (info) => {
+              const emitLog = disableLogInfo ? false : log.info(`Device: ${host} ${deviceName}, ${info}.`);
             })
-            .on('debug', (message, debug) => {
-              debug = (debug !== null && debug !== undefined) ? `debug: ${message} ${JSON.stringify(debug, null, 2)}.` : `${message}.`
-              log.info(`Device: ${host} ${deviceName}, ${debug}.`);
+            .on('debug', (debug) => {
+              const emitLog = !enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, debug: ${debug}.`);
             })
-            .on('warn', (message) => {
-              log.warn(`Device: ${host} ${deviceName}, ${message}.`);
+            .on('warn', (warn) => {
+              const lemitLogog = disableLogWarn ? false : log.warn(`Device: ${host} ${deviceName}, ${warn}.`);
             })
-            .on('error', async (error) => {
-              log.error(`Device: ${host} ${deviceName}, ${error}.`);
+            .on('error', (error) => {
+              const emitLog = disableLogError ? false : log.error(`Device: ${host} ${deviceName}, ${error}.`);
             });
 
           //create impulse generator
           const impulseGenerator = new ImpulseGenerator();
           impulseGenerator.on('start', async () => {
             try {
-              await envoyDevice.start();
-              impulseGenerator.stop();
+              const startDone = await envoyDevice.start();
+              const stopImpulseGenerator = startDone ? impulseGenerator.stop() : false;
             } catch (error) {
-              log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
+              const emitLog = disableLogError ? false : log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
             };
           }).on('state', (state) => {
-            const debug = enableDebugMode ? state ? log.info(`Device: ${host} ${deviceName}, Start impulse generator started.`) : log.info(`Device: ${host} ${deviceName}, Start impulse generator stopped.`) : false;
+            const emitLog = !enableDebugMode ? false : state ? log.info(`Device: ${host} ${deviceName}, Start impulse generator started.`) : log.info(`Device: ${host} ${deviceName}, Start impulse generator stopped.`);
           });
 
           //start impulse generator
           impulseGenerator.start([{ name: 'start', sampling: 45000 }]);
         } catch (error) {
-          log.error(`Device: ${host} ${deviceName}, Did finish launch error: ${error}.`);
+          throw new Error(`Device: ${host} ${deviceName}, Did finish launching error: ${error}.`);
         };
       };
     });

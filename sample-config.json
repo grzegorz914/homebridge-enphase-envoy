@@ -21,9 +21,6 @@
                 {
                     "name": "Envoy",
                     "host": "192.168.1.35",
-                    "enableDebugMode": false,
-                    "disableLogInfo": false,
-                    "disableLogDeviceInfo": false,
                     "envoyFirmware7xx": false,
                     "envoyFirmware7xxTokenGenerationMode": 0,
                     "envoyPasswd": "",
@@ -244,6 +241,12 @@
                     "productionDataRefreshTime": 5.0,
                     "liveDataRefreshTime": 3.0,
                     "ensembleDataRefreshTime": 15.0,
+                    "disableLogDeviceInfo": false,
+                    "disableLogInfo": false,
+                    "disableLogSuccess": false,
+                    "disableLogWarn": false,
+                    "disableLogError": false,
+                    "enableDebugMode": false,
                     "restFul": {
                         "enable": false,
                         "port": 3000,

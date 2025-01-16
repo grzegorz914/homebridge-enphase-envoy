@@ -3,12 +3,13 @@ import EventEmitter from 'events';
 class ImpulseGenerator extends EventEmitter {
     constructor() {
         super();
-        this.genState = false;
+        this.timersState = false;
     }
 
     async start(timers) {
-        if (this.genState) {
-            await this.stop();
+        if (this.timersState) {
+            this.state(true);
+            return true;
         }
 
         this.timers = [];
@@ -22,24 +23,26 @@ class ImpulseGenerator extends EventEmitter {
         };
 
         //update state
-        this.genState = true;
-        this.state();
+        this.state(true);
+        return true;
     }
 
     async stop() {
-        if (this.genState) {
-            this.timers.forEach(timer => clearInterval(timer));
+        if (!this.timersState) {
+            this.state(false);
+            return true;
         }
 
         //update state
+        this.timers.forEach(timer => clearInterval(timer));
         this.timers = [];
-        this.genState = false;
-        this.state();
+        this.state(false);
+        return true
     }
 
-    state() {
-        this.emit('state', this.genState);
-        return this.genState;
+    state(state) {
+        this.timersState = state;
+        this.emit('state', state);
     }
 }
 export default ImpulseGenerator;
