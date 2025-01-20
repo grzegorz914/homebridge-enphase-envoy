@@ -974,85 +974,6 @@ class EnvoyDevice extends EventEmitter {
         const emitError = tokenNotValid ? false : this.emit('error', `Impulse generator: ${error}`);
     };
 
-    async start() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Start`) : false;
-
-        try {
-            //get and validate jwt token
-            const tokenValid = this.envoyFirmware7xx ? await this.checkJwtToken() : false;
-
-            //update grid profile
-            const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
-
-            //get envoy dev id
-            const envoyDevIdExist = this.supportPowerProductionState ? await this.getEnvoyBackboneApp() : false;
-
-            //get envoy info
-            const updateInfo = await this.updateInfo();
-
-            //calculate envoy and installer passwords
-            const calculateEnvoyPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateEnvoyPassword() : false;
-            const calculateInstallerPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateInstallerPassword() : false;
-
-            //get home and inventory
-            const refreshHome = updateInfo ? await this.updateHome() : false;
-            const updateInventory = refreshHome ? await this.updateInventory() : false;
-
-            //get meters
-            const refreshMeters = this.feature.meters.supported ? await this.updateMeters() : false;
-            const updateMetersReading = refreshMeters ? await this.updateMetersReading() : false;
-
-            //acces with envoy password
-            const refreshMicroinverters = tokenValid || calculateEnvoyPassword ? await this.updateMicroinvertersStatus() : false;
-
-            //get production and production ct
-            const refreshProduction = await this.updateProduction();
-            const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
-
-            //access with installer password and envoy dev id
-            const updatePowerProductionState = envoyDevIdExist && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
-
-            //get ensemble data only FW. >= 7.x.x.
-            const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
-            const updateEnsembleStatus = refreshEnsemble ? await this.updateEnsembleStatus() : false;
-            const updateEnchargeSettings = refreshEnsemble ? await this.updateEnchargesSettings() : false;
-            const updateTariffSettings = refreshEnsemble ? await this.updateTariff() : false;
-            const updateDryContacts = refreshEnsemble ? await this.updateDryContacts() : false;
-            const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettings() : false;
-            const updateGenerator = refreshEnsemble ? await this.updateGenerator() : false;
-            const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
-
-            //get plc communication level
-            const updateCommLevel = this.supportPlcLevel && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateCommLevel() : false;
-            const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
-
-            //connect to deice success
-            this.emit('success', `Connect Success`)
-
-            //get device info
-            const logDeviceInfo = !this.disableLogDeviceInfo ? this.getDeviceInfo() : false;
-
-            //prepare accessory
-            const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
-            const publishAccessory = this.startPrepareAccessory ? this.emit('publishAccessory', accessory) : false;
-            this.startPrepareAccessory = false;
-
-            //create timers and start impulse generator
-            this.timers = [];
-            const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
-            const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
-            const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
-            const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
-            const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
-            const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
-            await this.impulseGenerator.start(this.timers);
-
-            return true;
-        } catch (error) {
-            throw new Error(`Start error: ${error}`);
-        };
-    };
-
     async checkJwtToken() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token`) : false;
 
@@ -4424,7 +4345,7 @@ class EnvoyDevice extends EventEmitter {
         const displayLog11 = this.feature.ensembles.installed || this.feature.enpowers.installed || this.feature.encharges.installed || this.feature.dryContacts.installed || this.feature.wirelessConnections.installed || this.feature.generators.installed ? this.emit('devInfo', `--------------------------------`) : false;
     };
 
-    //Prepare accessory
+    //prepare accessory
     async prepareAccessory() {
         try {
             //suppored feature
@@ -6722,6 +6643,86 @@ class EnvoyDevice extends EventEmitter {
             return accessory;
         } catch (error) {
             throw new Error(`Prepare accessory error: ${error}`)
+        };
+    };
+
+    //start
+    async start() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Start`) : false;
+
+        try {
+            //get and validate jwt token
+            const tokenValid = this.envoyFirmware7xx ? await this.checkJwtToken() : false;
+
+            //update grid profile
+            const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
+
+            //get envoy dev id
+            const envoyDevIdExist = this.supportPowerProductionState ? await this.getEnvoyBackboneApp() : false;
+
+            //get envoy info
+            const updateInfo = await this.updateInfo();
+
+            //calculate envoy and installer passwords
+            const calculateEnvoyPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateEnvoyPassword() : false;
+            const calculateInstallerPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateInstallerPassword() : false;
+
+            //get home and inventory
+            const refreshHome = updateInfo ? await this.updateHome() : false;
+            const updateInventory = refreshHome ? await this.updateInventory() : false;
+
+            //get meters
+            const refreshMeters = this.feature.meters.supported ? await this.updateMeters() : false;
+            const updateMetersReading = refreshMeters ? await this.updateMetersReading() : false;
+
+            //acces with envoy password
+            const refreshMicroinverters = tokenValid || calculateEnvoyPassword ? await this.updateMicroinvertersStatus() : false;
+
+            //get production and production ct
+            const refreshProduction = await this.updateProduction();
+            const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
+
+            //access with installer password and envoy dev id
+            const updatePowerProductionState = envoyDevIdExist && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
+
+            //get ensemble data only FW. >= 7.x.x.
+            const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
+            const updateEnsembleStatus = refreshEnsemble ? await this.updateEnsembleStatus() : false;
+            const updateEnchargeSettings = refreshEnsemble ? await this.updateEnchargesSettings() : false;
+            const updateTariffSettings = refreshEnsemble ? await this.updateTariff() : false;
+            const updateDryContacts = refreshEnsemble ? await this.updateDryContacts() : false;
+            const updateDryContactsSettings = updateDryContacts ? await this.updateDryContactsSettings() : false;
+            const updateGenerator = refreshEnsemble ? await this.updateGenerator() : false;
+            const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
+
+            //get plc communication level
+            const updateCommLevel = this.supportPlcLevel && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateCommLevel() : false;
+            const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
+
+            //connect to deice success
+            this.emit('success', `Connect Success`)
+
+            //get device info
+            const logDeviceInfo = !this.disableLogDeviceInfo ? this.getDeviceInfo() : false;
+
+            //prepare accessory
+            const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
+            const publishAccessory = this.startPrepareAccessory ? this.emit('publishAccessory', accessory) : false;
+            this.startPrepareAccessory = false;
+
+            //create timers and start impulse generator
+            this.timers = [];
+            const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
+            const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
+            const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
+            const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
+            await this.impulseGenerator.start(this.timers);
+
+            return true;
+        } catch (error) {
+            throw new Error(`Start error: ${error}`);
         };
     };
 }
