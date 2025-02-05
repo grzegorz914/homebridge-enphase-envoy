@@ -264,7 +264,7 @@
 
 ### RESTFul Integration
 
-* POST data as a JSON Object `{DataSampling: true}`
+* POST data as a JSON Object `{DataSampling: true}`, content type must be `application/json`
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
