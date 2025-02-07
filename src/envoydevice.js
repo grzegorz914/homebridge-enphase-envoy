@@ -4312,6 +4312,16 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
+    async startImpulseGenerator() {
+        try {
+            //start impulse generator 
+            await this.impulseGenerator.start(this.timers);
+            return true;
+        } catch (error) {
+            throw new Error(`Impulse generator start error: ${error}`);
+        };
+    }
+
     getDeviceInfo() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info`) : false;
 
@@ -6699,6 +6709,15 @@ class EnvoyDevice extends EventEmitter {
             const updateCommLevel = this.supportPlcLevel && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateCommLevel() : false;
             const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
+            //create timers
+            this.timers = [];
+            const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
+            const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
+            const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
+            const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
+
             //connect to deice success
             this.emit('success', `Connect Success`)
 
@@ -6709,16 +6728,6 @@ class EnvoyDevice extends EventEmitter {
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
             const publishAccessory = this.startPrepareAccessory ? this.emit('publishAccessory', accessory) : false;
             this.startPrepareAccessory = false;
-
-            //create timers and start impulse generator
-            this.timers = [];
-            const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
-            const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
-            const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
-            const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
-            const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
-            const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
-            await this.impulseGenerator.start(this.timers);
 
             return true;
         } catch (error) {
