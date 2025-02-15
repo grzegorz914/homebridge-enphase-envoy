@@ -998,10 +998,10 @@ class EnvoyDevice extends EventEmitter {
             //validate own JWT token
             try {
                 this.emit('warn', `Cookie not valid, validating`);
-                await this.validateJwtToken();
+                const validateToken = await this.validateJwtToken();
 
                 this.checkJwtTokenRunning = false;
-                return true;
+                return validateToken;
             } catch (error) {
                 this.checkJwtTokenRunning = false;
                 throw new Error(`Check own JWT token error: ${error}`);
@@ -1027,11 +1027,19 @@ class EnvoyDevice extends EventEmitter {
             const emit = !tokenValid ? this.emit('warn', `JWT Token expired, refreshing`) : false;
             const wait = !tokenValid ? await new Promise(resolve => setTimeout(resolve, 30000)) : false;
             const getToken = await this.getJwtToken();
+            if (!getToken) {
+                this.checkJwtTokenRunning = false;
+                return false;
+            }
 
             //validate JWT tokken
             const wait1 = !cookieValid ? await new Promise(resolve => setTimeout(resolve, 2000)) : false;
             const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, validating`) : false;
-            const validateToken = getToken || !cookieValid ? await this.validateJwtToken() : false;
+            const validateToken = !cookieValid ? await this.validateJwtToken() : false;
+            if (!validateToken) {
+                this.checkJwtTokenRunning = false;
+                return false;
+            }
 
             this.checkJwtTokenRunning = false;
             return validateToken;
@@ -1104,6 +1112,9 @@ class EnvoyDevice extends EventEmitter {
             const response = await axios(ApiUrls.CheckJwt, options);
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token: Valid`) : false;
             const cookie = response.headers['set-cookie'] ?? false;
+            if (!cookie) {
+                return false;
+            }
 
             //create axios instance get with cookie
             this.axiosInstance = axios.create({
@@ -3275,16 +3286,17 @@ class EnvoyDevice extends EventEmitter {
                 const storageSettingsSupported = tariffSettingsKeys.includes('storage_settings');
                 const storageSettingsData = tariffSettings.storage_settings ?? {};
                 tariff.storageSettings = {
-                    mode: storageSettingsData.mode,
+                    mode: storageSettingsData.mode ?? '',
                     selfConsumptionModeBool: storageSettingsData.mode === 'self-consumption',
                     fullBackupModeBool: storageSettingsData.mode === 'backup',
                     savingsModeBool: (storageSettingsData.mode === 'savings-mode'),
                     economyModeBool: (storageSettingsData.mode === 'economy'),
-                    operationModeSubType: storageSettingsData.operation_mode_sub_type,
+                    operationModeSubType: storageSettingsData.operation_mode_sub_type ?? '',
                     reservedSoc: storageSettingsData.reserved_soc,
                     veryLowSoc: storageSettingsData.very_low_soc,
                     chargeFromGrid: storageSettingsData.charge_from_grid,
-                    date: new Date(storageSettingsData.date * 1000).toLocaleString() ?? ''
+                    date: new Date(storageSettingsData.date * 1000).toLocaleString() ?? '',
+                    optSchedules: storageSettingsData.opt_schedules
                 }
 
                 const singleRateSupported = tariffSettingsKeys.includes('single_rate');
@@ -4112,8 +4124,7 @@ class EnvoyDevice extends EventEmitter {
                 })
             }
 
-            const url = this.url + ApiUrls.TariffSettingsGetPut;
-            const response = await axios.put(url, {
+            const data = {
                 tariff: {
                     mode: profile, //str economy/savings-mode, backup, self-consumption
                     operation_mode_sub_type: '', //str
@@ -4121,7 +4132,14 @@ class EnvoyDevice extends EventEmitter {
                     very_low_soc: this.ensemble.tariff.storageSettings.veryLowSoc, //int
                     charge_from_grid: independence //bool
                 }
-            }, options);
+            }
+
+            if (this.ensemble.tariff.storageSettings.optSchedules) {
+                data.tariff.opt_schedules = this.ensemble.tariff.storageSettings.optSchedules //bool
+            }
+
+            const url = this.url + ApiUrls.TariffSettingsGetPut;
+            const response = await axios.put(url, data, options);
             const debug = this.enableDebugMode ? this.emit('debug', `Set encharge profile:`, response.data) : false;
             return;
         } catch (error) {
@@ -6663,6 +6681,9 @@ class EnvoyDevice extends EventEmitter {
         try {
             //get and validate jwt token
             const tokenValid = this.envoyFirmware7xx ? await this.checkJwtToken() : false;
+            if (this.envoyFirmware7xx && !tokenValid) {
+                return false;
+            }
 
             //update grid profile
             const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
@@ -6709,15 +6730,6 @@ class EnvoyDevice extends EventEmitter {
             const updateCommLevel = this.supportPlcLevel && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateCommLevel() : false;
             const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
-            //create timers
-            this.timers = [];
-            const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
-            const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
-            const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
-            const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
-            const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
-            const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
-
             //connect to deice success
             this.emit('success', `Connect Success`)
 
@@ -6728,6 +6740,15 @@ class EnvoyDevice extends EventEmitter {
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
             const publishAccessory = this.startPrepareAccessory ? this.emit('publishAccessory', accessory) : false;
             this.startPrepareAccessory = false;
+
+            //create timers
+            this.timers = [];
+            const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
+            const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
+            const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
+            const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
+            const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
 
             return true;
         } catch (error) {
