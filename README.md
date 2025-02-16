@@ -86,21 +86,22 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/ustawienia.png" width="840"></a>
 </p>
 
-| Key | Description |
-| --- | --- |
-| `name` | Envoy Enphase Gateway accessory name to be displayed in Home app. |
-| `host` | The Envoy Enphase Gateway `IP Address` or `Hostname`. If not supplied, defaults to `envoy.local`. For firmware v7.0+, please set the `IP Address`. |
-| `envoyFirmware7xx` | Enables support for Envoy firmware v7.0+. |
-| `envoyFirmware7xxTokenGenerationMode` | How you will obtain the token, `0 - Enlighten Credentials`, `1 - Your Own Generated Token`. |
-| `envoyPasswd` | Envoy Enphase password (only if U already changed the default password) |
-| `envoyToken` | Token if you selected `1 - Your Own Generated Token`. |
-| `envoyTokenInstaller` | Enable if you are using the installer token. |
-| `envoySerialNumber` | The Envoy Gateway serial number. |
-| `enlightenUser` | Enlighten username. |
-| `enlightenPasswd` | Enlighten password. |
-| `supportPowerProductionState` | Enables support for checking [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) (requires firmware v7.0+ and installer credentials). |
-| `powerProductionStateControl` | `Power Production Control` for production state control (requires firmware v7.0+ and installer credentials). |
-| `name` | Power production control accessory name for Home app. |
+| Key | Subkey | Type | Description |
+| --- | --- | --- |
+| `name` | | string | Envoy Enphase Gateway accessory name to be displayed in Home app. |
+| `host` | | string | The Envoy Enphase Gateway `IP Address` or `Hostname`. If not supplied, defaults to `envoy.local`. For firmware v7.0+, please set the `IP Address`. |
+| `envoyFirmware7xx` |  | boolean | Enables support for Envoy firmware v7.0+. |
+| `envoyFirmware7xxTokenGenerationMode` | | string | How you will obtain the token (`0 - Enlighten Credentials` or `1 - Your Own Generated Token`). |
+| `envoyPasswd` | | string | Envoy Enphase password (only if U already changed the default password) |
+| `envoyToken` | | string | Token if you selected `1 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode. |
+| `envoyTokenInstaller` | | boolean | Enable if you are using the installer token. |
+| `envoySerialNumber` | | string | The Envoy Gateway serial number. |
+| `enlightenUser` | | string | Enlighten username. |
+| `enlightenPasswd` | | string | Enlighten password. |
+| `supportPowerProductionState` | | boolean | Enables support for checking [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) (requires firmware v7.0+ and installer credentials). |
+| `powerProductionStateControl` | | key | `Power Production Control` for production state control (requires firmware v7.0+ and installer credentials). |
+| | `name` | string | Power production control accessory name for Home app. |
+
 | `displayType` | Power production control accessory type for Home app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
 | `namePrefix` | Accessory prefix for power production control. |
 | `supportPlcLevel` | Enables support for `PLC Level Check` for all devices (requires firmware v7.0+ and installer credentials). |
