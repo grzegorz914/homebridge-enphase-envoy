@@ -285,7 +285,7 @@ REST POST calls must include a content-type header of `application/json`.
 
 ### MQTT Integration
 
-* Subscribe using JSON `{EnchargeProfile: "savings"}`
+Subscribe using JSON `{ "EnchargeProfile": "savings" }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
