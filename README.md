@@ -116,152 +116,151 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `powerProductionLevelSensors` | | key | `Power Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Power production level comparison mode: `<`, `<=`, `==`, `>`, `>=` |
-| | `powerLevel` | number | Power production level in `W` to compare to sensor that was triggered. |
+| | `powerLevel` | number | Power production level in `W` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `energyProductionStateSensor` | | key | `Energy State Sensor` for production monitoring. |
+| `energyProductionStateSensor` | | key | `Energy State Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyProductionLevelSensors` | | key | `Energy Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Energy production level comparison mode: `<`, `<=`, `==`, `>`, `>=` |
-| | `energyLevel` | number | Energy production level in `Wh` to compare to sensor that was triggered. |
-| | `displayType` | number | Energy production level sensor accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| `namePrefix` | Accessory prefix for the energy production level sensor. |
-| `energyProductionLifetimeOffset` | `Energy Offset` in `Wh` for production (if needed) `+/-`. |
-| `powerConsumptionTotalStateSensor` | `Power State Sensor` for total consumption monitoring. |
-| `name` | Total power consumption state sensor accessory name for Home app. |
-| `displayType` | Total power consumption state sensor accessory type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | Accessory prefix for the total power consumption state sensor. |
-| `powerConsumptionTotalLevelSensors` | `Power Level Sensor` for total consumption monitoring. |
-| `name` | Total power consumption level sensor accessory name for Home app. |
-| `compareMode` | Total power consumption level sensor comparison mode `<`, `<=`, `==`, `>`, `>=`. |
-| `powerLevel` | Total power consumption level in `W` to compare to power level sensor that was triggered. |
-| `displayType` | Total power consumption level sensor accessory type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | Accessory prefix for the total power consumption level sensor. |
-
-| `energyConsumptionTotalStateSensor` | `Energy State Sensor` for total consumption monitoring. |
-| `name` | Total energy consumption state sensor name in Home app. |
-| `displayType` | Total energy consumption state sensor accessory type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | Accessory prefix for the total energy consumption state sensor. |
+| | `energyLevel` | number | Energy production level in `Wh` to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyProductionLifetimeOffset` | | number | `Energy Offset` in `Wh` for production (if needed) `+/-` |
+| `powerConsumptionTotalStateSensor` | | key | `Power State Sensor` for total consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `powerConsumptionTotalLevelSensors` | | key | `Power Level Sensor` for total consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Total power consumption level sensor comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `powerLevel` | number | Total power consumption level in `W` to compare to power level sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionTotalStateSensor` | | key | `Energy State Sensor` for total consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `energyConsumptionTotalLevelSensors` | `Energy Level Sensor` for total consumption monitoring. |
-| `name` | Total energy consumption level sensor name for Home app. |
+| | `name` | string | Accessory name for Home app |
 | `compareMode` | Total energy consumption level sensor comparison mode `<`, `<=`, `==`, `>`, `>=`. |
 | `energyLevel` | Energy level total in `Wh` to compare to sensor that was triggered. |
-| `displayType` | Total energy consumption level sensor accessory type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | Accessory prefix for the total energy consumption level sensor. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `energyConsumptionTotalLifetimeOffset` | `Energy Offset` in `Wh` for total consumption (if needed) `+/-`. |
 | `powerConsumptionNetStateSensor` | `Power State Sensor` for net consumption monitoring. |
-| `name` | Net power consumption state sensor accessory name for Home app. |
-| `displayType` | Net power consumption state sensor accessory type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | Accessory prefix for the net power consumption state sensor name. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `powerConsumptionNetLevelSensors` | `Power Level Sensor` for net power consumption level monitoring. |
-| `name` | Net power consumption level sensor name for Home app. |
+| | `name` | string | Accessory name for Home app |
 | `compareMode` | Net power consumption level sensor comparison mode `<`, `<=`, `==`, `>`, `>=`. |
 | `powerLevel` | Net power consumption power level in `W` to compare for the sensor that was triggered. |
-| `displayType` | Net power consumption power level accessory type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | Accessory prefix for the net power consumption power level sensor. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `energyConsumptionNetStateSensor` | `Energy State Sensor` for net consumption monitoring. |
-| `name` | Net energy comsumption state sensor name for Home app. |
-| `displayType` | Net energy comsumption state sensor accessory type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | Accessory prefix for the net energy comsumption state sensor. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `energyConsumptionNetLevelSensors` | `Energy Level Sensor` for net consumption monitoring. |
-| `name` | Net energy comsumption level sensor name for Home app. |
+| | `name` | string | Accessory name for Home app |
 | `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
 | `energyLevel` |  Net energy comsumption level in `Wh` to compare to sensor that was triggered. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Net` (if needed) `+/-`. |
 
 | `enpowerGridStateControl` | `Enpower Grid State Control` for `Grid ON/OFF` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in Home app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
+| | `name` | string | Accessory name for Home app |
+| `displayType` | Here select the tile type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `enepowerGridStateSensor` | `Enpower Grid State Sensor` for monitoring. If `Grid ON`, the contact was opened. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `enepowerGridModeSensors` | `Enpower Grid Mode Sensors` for monitoring, if the `Mode` matches, the contact was opened. |
-| `name` | Here set Your own sensor name. |
+| | `name` | string | Accessory name for Home app |
 | `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `enchargeStateSensor` | `Encharge State Sensor` for monitoring. If `State ON`, the contact was opened. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `enchargeProfileControl` | `Encharge Profile Control` for `Profile` control from HomeKit. |
-| `name` | Here set Your own tile name. |
+| | `name` | string | Accessory name for Home app |
 | `profile` | Here select the profile `Savings`, `Economy`, `Full Backup`, `Self Consumption`. |
-| `displayType` | Here select the tile type to be displayed in Home app, `0 - None/Disabled`, `1 - Lightbulb`. |
+| `displayType` | Here select the tile type to be displayed in Home app: `0` - None/Disabled, `1` - Lightbulb |
 
 | `enchargeProfileSensors` | `Encharge Profile Sensors` for monitoring. If the `Profile` matches, the contact was opened. |
-| `name` | Here set Your own sensor name. |
+| | `name` | string | Accessory name for Home app |
 | `profile` | Here select the profile `Savings`, `Economy`, `Full Backup`, `Self Consumption`. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `enchargeGridModeSensors` | `Encharge Grid Mode Sensors` for monitoring. If the `Mode` matches, the contact was opened. |
-| `name` | Here set Your own sensor name. |
+| | `name` | string | Accessory name for Home app |
 | `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `enchargeBackupLevelSensors` | `Encharge Backup Level Sensors` for monitoring. If the `Level` matches, the contact was opened. |
-| `name` | Here set Your own sensor name. |
+| | `name` | string | Accessory name for Home app |
 | `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
 | `backupLevel` | Here set backup level in `%` to compare at which the sensor fired. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `solarGridModeSensors` | `Solar Grid Mode Sensors` for monitoring, if the `Mode` matches, the contact was opened. |
-| `name` | Here set Your own sensor name. |
+| | `name` | string | Accessory name for Home app |
 | `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 | `enpowerDryContactsControl` | This enable `Dry Contacts` control and expose `Switches` in HomeKit. |
 | `enpowerDryContactsSensors` | This enable `Dry Contacts` monitoring and expose `Sensors` in HomeKit. |
 
 | `generatorStateControl` | `Generator State Control` for `Generator OFF/ON` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in Home app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
+| | `name` | string | Accessory name for Home app |
+| `displayType` | Here select the tile type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `generatorStateSensor` | `Generator State Sensor` for `State` monitoring. If `State not Off`, the contact was opened. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `generatorModeContol` |`Generator Mode Control`, for `Generator OFF/ON/AUTO` control from HomeKit. |
-| `name` | Here set Your own tile name. |
+| | `name` | string | Accessory name for Home app |
 | `mode` | Here select the grid mode `Off`, `On`, `Auto`. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
+| `displayType` | Here select the sensor type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
 
 | `generatorModeSensors` | `Generator Mode Sensors` for monitoring, if the `Mode` matches, the contact was opened. |
-| `name` | Here set Your own sensor name. |
+| | `name` | string | Accessory name for Home app |
 | `mode` | Here select the grid mode `Off`, `On`, `Auto`. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `dataRefreshControl` | `Data Refresh Control` from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in Home app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
+| | `name` | string | Accessory name for Home app |
+| `displayType` | Here select the tile type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 | `dataRefreshSensor` | `Data Refresh Sensor` for monitoring. If operating, the contact was opened. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | Accessory prefix for the sensor name. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 
 
 
