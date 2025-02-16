@@ -87,7 +87,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 </p>
 
 | Key | Subkey | Type | Description |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `name` | | string | Envoy Enphase Gateway accessory name to be displayed in Home app. |
 | `host` | | string | The Envoy Enphase Gateway `IP Address` or `Hostname`. If not supplied, defaults to `envoy.local`. For firmware v7.0+, please set the `IP Address`. |
 | `envoyFirmware7xx` |  | boolean | Enables support for Envoy firmware v7.0+. |
