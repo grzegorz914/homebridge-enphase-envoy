@@ -91,29 +91,28 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `name` | | string | Envoy Enphase Gateway accessory name to be displayed in Home app |
 | `host` | | string | The Envoy Enphase Gateway `IP Address` or `Hostname`. If not supplied, defaults to `envoy.local`. For firmware v7.0+, please set the `IP Address`. |
 | `envoyFirmware7xx` |  | boolean | Enables support for Envoy firmware v7.0+ |
-| `envoyFirmware7xxTokenGenerationMode` | | string | How you will obtain the token (`0 - Enlighten Credentials`, `1 - Your Own Generated Token`) |
+| `envoyFirmware7xxTokenGenerationMode` | | number | How you will obtain the token (`0` - Enlighten Credentials, `1` - Your Own Generated Token) |
 | `envoyPasswd` | | string | Envoy Enphase password (only if U already changed the default password) |
 | `envoyToken` | | string | Token if you selected `1 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
 | `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
 | `envoySerialNumber` | | string | The Envoy Gateway serial number |
 | `enlightenUser` | | string | Enlighten username |
 | `enlightenPasswd` | | string | Enlighten password |
-| `supportPowerProductionState` | | boolean | Enables support for checking [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) (requires firmware v7.0+ and installer credentials) |
-| `powerProductionStateControl` | | key | `Power Production Control` for production state control (requires firmware v7.0+ and installer credentials). |
-| | `name` | string | Accessory name for Home app. |
-| | `displayType` | string | Accessory type for Home app (`0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`) |
-| | `namePrefix` | boolean | Use accessory name for prefix |
 | `supportPlcLevel` | | boolean | Enables support for `PLC Level Check` for all devices (requires firmware v7.0+ and installer credentials) |
 | `plcLevelControl` | | key | `PLC Level Control` for PLC level check (requires firmware v7.0+ and installer credentials) |
 | | `name` | string | Accessory name for Home app |
-| | `displayType` | string | Accessory type for Home app (`0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`) |
+| | `displayType` | number | Accessory type for Home app (`0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb) |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| `supportPowerProductionState` | | boolean | Enables support for checking [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) (requires firmware v7.0+ and installer credentials) |
+| `powerProductionStateControl` | | key | `Power Production Control` for production state control (requires firmware v7.0+ and installer credentials). |
+| | `name` | string | Accessory name for Home app. |
+| | `displayType` | number | Accessory type for Home app (`0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb) |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `powerProductionSummary` | | number | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %` |
+| `powerProductionStateSensor` | | key | `Power State Sensor` for production monitoring |
+| | `name` | string | Production state sensor accessory name for Home app |
+| | `displayType` | number | Production state sensor accessory type displayed in Home app, `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 
-
-| `powerProductionSummary` | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %`. |
-| `powerProductionStateSensor` | `Power State Sensor` for production monitoring. |
-| `name` | Production state sensor accessory name for Home app. |
-| `displayType` | Production state sensor accessory type displayed in Home app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `namePrefix` | Accessory prefix for the the production state sensor. |
 | `powerProductionLevelSensors` | `Power Level Sensor` for production monitoring. |
 | `name` | Power production level sensor accessory name for Home app. |
