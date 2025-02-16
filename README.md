@@ -17,7 +17,7 @@
 
 ## About The Plugin
 
-The homebridge-enphase-envoy plugin integrates Enphase Envoy solar energy monitoring systems with Homebridge, allowing HomeKit users to track solar production, consumption, and battery status directly in the Apple Home app. With real-time energy insights, automation possibilities, and Siri voice control, this plugin enhances smart home energy management by seamlessly connecting your Enphase Envoy system to the HomeKit ecosystem.
+The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy monitoring systems with Homebridge, allowing HomeKit users to track solar production, consumption, and battery status directly in the Apple Home app. With real-time energy insights, automation possibilities, and Siri voice control, this plugin enhances smart home energy management by seamlessly connecting your Enphase Envoy system to the HomeKit ecosystem.
 
 ## Requirements
 
@@ -28,44 +28,44 @@ The homebridge-enphase-envoy plugin integrates Enphase Envoy solar energy monito
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ## Supported hardware
-* Firmware `v5.x.x`, `6.x.x`, `v7.x.x`, `v8.x.x`.
-* Envoy `Envoy S`, `IQ Envoy`, `IQ Load Controller`, `IQ Combiner`.
-* Q-Relays `Q-RELAY-1P` `Q-RELAY-3P`.
-* AC Batteries `AC Battery Storage`.
-* Meters `Production`, `Consumption`, `Storage`.
-* Microinverters `M215`, `M250`, `IQ6`, `IQ7`, `IQ8`.
-* Encharges `IQ Battery 3`, `IQ Battery 10`, `IQ Battery 5P`, `IQ Battery 3T`, `IQ Battery 10T`,
-* Ensemble/Enpower `IQ System Controller`, `IQ System Controller 2`.
-* WirelessKit `Communications Kit`.
+* Firmware v5 through v8
+* System `Envoy S`, `IQ Gateway`, `IQ Load Controller`, `IQ Combiner`
+* Q-Relays `Q-RELAY-1P` `Q-RELAY-3P`
+* AC Batteries `AC Battery Storage`
+* Meters `Production`, `Consumption`, `Storage`
+* Microinverters `M215`, `M250`, `IQ6`, `IQ7`, `IQ8`
+* Encharges `IQ Battery 3`, `IQ Battery 10`, `IQ Battery 5P`, `IQ Battery 3T`, `IQ Battery 10T`
+* Ensemble/Enpower `IQ System Controller`, `IQ System Controller 2`
+* WirelessKit `Communications Kit`
 * Generator
 
 ## Exposed accessories in the Apple Home app
 
 ### Monitoring Sensors
 * System `Data Refresh`
-* Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
-* Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
-* Enpower `Grid State`.
-* Encharge: `State`, `Backup Level`, `Dry Contacts`.
-* Encharge Profile: `Self Consumption`, `Savings`, `Economy`, `Full Backup`.
-* Grid Mode:
-  * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-  * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-  * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
+* Production `Power State`, `Power Level`, `Energy State`, `Energy Level`
+* Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`
+* Enpower `Grid State`
+* Encharge: `State`, `Backup Level`, `Dry Contacts`
+* Encharge Profile: `Self Consumption`, `Savings`, `Economy`, `Full Backup`
+* Grid Mode
+  * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+  * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+  * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
 * Generator `State`, `Mode`.
 
 ### Control Switches, Outlets, Lightbulbs
-* System `Data Refresh`,
-* Production `PLC Level`, `Power Mode`, `Power State`, `Power Level`.
-* AC Battery `Energy State`, `Energy Level`.
-* Enpower `Grid State`, `Dry Contacts`.
-* Encharge `Energy State`, `Energy Level`.
-* Encharge Profile:
-  * Self Consumption `Activate`, `Set Reserve`.
-  * Savings `Activate`, `Set Reserve`.
-  * Economy `Activate`, `Set Reserve`.
-  * Full Backup `Activate`.
-* Generator `State`, `Mode`.
+* System `Data Refresh`
+* Production `PLC Level`, `Power Mode`, `Power State`, `Power Level`
+* AC Battery `Energy State`, `Energy Level`
+* Enpower `Grid State`, `Dry Contacts`
+* Encharge `Energy State`, `Energy Level`
+* Encharge Profile
+  * Self Consumption `Activate`, `Set Reserve`
+  * Savings `Activate`, `Set Reserve`
+  * Economy `Activate`, `Set Reserve`
+  * Full Backup `Activate`
+* Generator `State`, `Mode`
 
 ## Notes
 * Token authentication (6.0+) - Tokens can be generated automatically with the Enlighten username (email address) and password or external tools. Tokens generated with Enlighten credentials are automatically refreshed while those generated with external tools are not.
