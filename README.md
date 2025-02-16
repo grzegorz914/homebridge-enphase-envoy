@@ -52,7 +52,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
   * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
   * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
   * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
-* Generator `State`, `Mode`.
+* Generator `State`, `Mode`
 
 ### Control Switches, Outlets, Lightbulbs
 * System `Data Refresh`
@@ -192,7 +192,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `enchargeProfileControl` | | key | `Encharge Profile Control` for `Profile` control from HomeKit |
 | | `name` | string | Accessory name for Home app |
 | | `profile` | string | Profile: `Savings`, `Economy`, `Full Backup`, `Self Consumption` |
-| | `displayType` | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Lightbulb |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Lightbulb |
 | `enchargeProfileSensors` | | key | `Encharge Profile Sensors` for monitoring. If the `Profile` matches, the contact was opened. |
 | | `name` | string | Accessory name for Home app |
 | | `profile` | string | Profile: `Savings`, `Economy`, `Full Backup`, `Self Consumption` |
@@ -230,7 +230,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
 | `generatorModeSensors` | | key | `Generator Mode Sensors` for monitoring, if the `Mode` matches, the contact was opened. |
 | | `name` | string | Accessory name for Home app |
-| | `mode` | Grid mode: `Off`, `On`, `Auto` |
+| | `mode` | string | Grid mode: `Off`, `On`, `Auto` |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `dataRefreshControl` | | key | `Data Refresh Control` from HomeKit. |
@@ -252,23 +252,23 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `disableLogError` | | boolean | Disables logging of device errors |
 | `enableDebugMode` | | boolean | Verbose logging to the Homebridge console |
 | `restFul` | | key | REST service |
-| `enable` | | boolean | Enables REST service to start automatically and respond to any request |
-| `port` | | number | `Port` for REST service |
-| `debug` | | boolean | Enables verbose logging to the Homebridge console for REST service |
+| | `enable` | boolean | Enables REST service to start automatically and respond to any request |
+| | `port` | number | `Port` for REST service |
+| | `debug` | boolean | Enables verbose logging to the Homebridge console for REST service |
 | `mqtt` | | key | MQTT broker |
-| `enable` | | boolean | Enables MQTT broker to start automatically and publish available data |
-| `host` | | string | `IP Address` or `Hostname` for MQTT Broker |
-| `port` | | number | `Port` for MQTT broker (default to 1883) |
-| `clientId` | | string | `Client Id` of MQTT broker (optional) |
-| `prefix` | | string | `Prefix` for `Topic` (optional) |
-| `auth` | | boolean | Enables MQTT broker authorization credentials |
-| `user` | | string | MQTT broker user |
-| `passwd` | | string | MQTT Broker password |
-| `debug` | | boolean | Enables verbose logging to the Homebridge console for the MQTT broker |
+| | `enable` | boolean | Enables MQTT broker to start automatically and publish available data |
+| | `host` | string | `IP Address` or `Hostname` for MQTT Broker |
+| | `port` | number | `Port` for MQTT broker (default to 1883) |
+| | `clientId` | string | `Client Id` of MQTT broker (optional) |
+| | `prefix` | string | `Prefix` for `Topic` (optional) |
+| | `auth` | boolean | Enables MQTT broker authorization credentials |
+| | `user` | string | MQTT broker user |
+| | `passwd` | string | MQTT Broker password |
+| | `debug` | boolean | Enables verbose logging to the Homebridge console for the MQTT broker |
 
 ### REST Integration
 
-* POST via JSON `{DataSampling: true}` (content-type header must be `application/json`)
+REST POST calls must include a content-type header of `application/json`.
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
@@ -276,12 +276,12 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
-| POST | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
-|      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
-|      | `http//ip:port` | `PlcLevel` | `true` | boolean | Check Plc Level On. |
-|      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
-|      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
-|      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
+| POST | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop |
+|      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off |
+|      | `http//ip:port` | `PlcLevel` | `true` | boolean | Check Plc Level On |
+|      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile |
+|      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
+|      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto |
 
 ### MQTT Integration
 
@@ -293,9 +293,9 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
-| Subscribe | `Set` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
-|           | `Set` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
-|           | `Set` | `PlcLevel` | `true` | boolean | Check Plc Level On. |
-|           | `Set` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
-|           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
-|           | `Set` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
+| Subscribe | `Set` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop |
+|           | `Set` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off |
+|           | `Set` | `PlcLevel` | `true` | boolean | Check Plc Level On |
+|           | `Set` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile |
+|           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
+|           | `Set` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto |
