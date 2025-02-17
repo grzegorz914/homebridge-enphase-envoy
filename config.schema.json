@@ -4,7 +4,7 @@
   "singular": true,
   "fixArrays": true,
   "strictValidation": true,
-  "headerDisplay": "This plugin works with Enphase Photovoltaic system. Devices are exposed to HomeKit as separate accessories and each needs to be manually added.",
+  "headerDisplay": "This plugin works with Enphase Photovoltaic system. Devices are exposed to HomeKit as accessories. Each needs to be added manually.",
   "footerDisplay": "For documentation, please see [GitHub repository](https://github.com/grzegorz914/homebridge-enphase-envoy).",
   "schema": {
     "type": "object",
@@ -3006,7 +3006,7 @@
                                   "key": "devices[].enpowerGridStateControl",
                                   "type": "section",
                                   "title": "Grid State Control",
-                                  "description": "Section for enabling extra accessory for grid state control",
+                                  "description": "Section for enabling additional accessory for grid state control",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3211,7 +3211,7 @@
                                   "key": "devices[].generatorStateControl",
                                   "type": "section",
                                   "title": "State Control",
-                                  "description": "Section for enabling extra accessory for state control",
+                                  "description": "Section for enabling additional accessory for state control",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3326,7 +3326,7 @@
                           "key": "devices[].dataRefreshControl",
                           "type": "section",
                           "title": "Data Refresh Control",
-                          "description": "Section for enabling extra accessory for data refresh control",
+                          "description": "Section for enabling additional accessory for data refresh control",
                           "expandable": true,
                           "expanded": false,
                           "items": [
