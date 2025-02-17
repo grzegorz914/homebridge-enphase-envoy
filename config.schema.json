@@ -2650,7 +2650,7 @@
                         {
                           "key": "devices[]",
                           "type": "section",
-                          "title": "Credentials Data",
+                          "title": "Credentials",
                           "description": "Section for setting Enphase Envoy credentials",
                           "expandable": true,
                           "expanded": false,
