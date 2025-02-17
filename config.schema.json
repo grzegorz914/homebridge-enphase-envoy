@@ -16,7 +16,7 @@
           "type": "object",
           "properties": {
             "name": {
-              "title": "Name",
+              "title": "Accessory name",
               "type": "string",
               "placeholder": "Accessory name",
               "description": "Accessory name to be displayed in Home app",
@@ -31,10 +31,10 @@
               "required": false
             },
             "envoyFirmware7xx": {
-              "title": "Firmware v7+",
+              "title": "Modern firmware",
               "type": "boolean",
               "default": false,
-              "description": "Enable support for Enphase Envoy with newer firmware",
+              "description": "Enables support for features of firmware v7+",
               "required": true
             },
             "envoyFirmware7xxTokenGenerationMode": {
@@ -64,7 +64,7 @@
               "title": "Envoy password",
               "type": "string",
               "placeholder": "Envoy password",
-              "description": "Enphase envoy password (if you altered the default password)",
+              "description": "Enphase Envoy password (if you altered the default password)",
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
@@ -136,14 +136,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name for Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -201,14 +201,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -265,14 +265,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -321,7 +321,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -373,7 +373,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -421,14 +421,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -477,7 +477,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -529,7 +529,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -583,14 +583,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -639,7 +639,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -691,7 +691,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -745,14 +745,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -801,7 +801,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -853,7 +853,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -901,14 +901,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -957,7 +957,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -1008,7 +1008,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1062,14 +1062,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -1118,7 +1118,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -1170,7 +1170,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1220,7 +1220,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Accessory name",
                     "description": "Accessory name for Home app",
@@ -1272,7 +1272,7 @@
                     "required": true
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 1,
@@ -1310,7 +1310,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -1361,7 +1361,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 1,
@@ -1409,14 +1409,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -1465,7 +1465,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -1516,7 +1516,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1569,7 +1569,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -1623,7 +1623,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1674,14 +1674,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name for Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -1728,14 +1728,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -1784,7 +1784,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -1835,7 +1835,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1899,7 +1899,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -1950,7 +1950,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -2001,14 +2001,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name for Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -2055,14 +2055,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -2111,7 +2111,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Mode name",
                     "description": "Accessory name for Home app",
@@ -2145,7 +2145,7 @@
                     "required": true
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -2195,7 +2195,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
@@ -2228,7 +2228,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -2276,14 +2276,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name for Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -2330,14 +2330,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -2479,7 +2479,7 @@
                   "required": false
                 },
                 "port": {
-                  "title": "Port",
+                  "title": "TCP port",
                   "type": "integer",
                   "placeholder": 3000,
                   "description": "TCP listening port for REST service",
@@ -2511,7 +2511,7 @@
                   "required": false
                 },
                 "host": {
-                  "title": "IP/Hostname",
+                  "title": "IP/hostname",
                   "type": "string",
                   "placeholder": "IP or hostname",
                   "format": "hostname",
@@ -2522,7 +2522,7 @@
                   "required": false
                 },
                 "port": {
-                  "title": "Port",
+                  "title": "TCP port",
                   "type": "integer",
                   "placeholder": 1883,
                   "description": "TCP port forf MQTT broker",
@@ -2534,7 +2534,7 @@
                 "clientId": {
                   "title": "Client ID",
                   "type": "string",
-                  "placeholder": "client id",
+                  "placeholder": "Client ID",
                   "description": "Optional Client ID for MQTT broker",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true"
