@@ -4,8 +4,8 @@
   "singular": true,
   "fixArrays": true,
   "strictValidation": true,
-  "headerDisplay": "This plugin works with Enphase Photovoltaic system. Devices are exposed to HomeKit as separate accessories and each needs to be manually paired.",
-  "footerDisplay": "For documentation please see [GitHub repository](https://github.com/grzegorz914/homebridge-enphase-envoy).",
+  "headerDisplay": "This plugin works with Enphase Photovoltaic system. Devices are exposed to HomeKit as accessories. Each needs to be added manually.",
+  "footerDisplay": "For documentation, please see [GitHub repository](https://github.com/grzegorz914/homebridge-enphase-envoy).",
   "schema": {
     "type": "object",
     "properties": {
@@ -16,25 +16,25 @@
           "type": "object",
           "properties": {
             "name": {
-              "title": "Name",
+              "title": "Accessory name",
               "type": "string",
               "placeholder": "Accessory name",
-              "description": "Here set the accessory name to be displayed in HomeKit.",
+              "description": "Accessory name to be displayed in Home app",
               "required": true
             },
             "host": {
               "title": "IP/Hostname",
               "type": "string",
-              "placeholder": "IP Address or Hostname",
+              "placeholder": "IP address or hostname",
               "format": "hostname",
-              "description": "Here set the envoy IP Address or Hostname, if not set default path envoy.local will be used. For firmware v7.x.x please set IP Address",
+              "description": "IP Address or hostname of the Enphase Envoy gateway (defaults to envoy.local). For firmware v7+, please set the IP address.",
               "required": false
             },
             "envoyFirmware7xx": {
-              "title": "Firmware 7.x.x",
+              "title": "Modern firmware",
               "type": "boolean",
               "default": false,
-              "description": "This enable support for Envoy with firmware v7.x.x / v8.x.x and newer.",
+              "description": "Enables support for features of firmware v7+",
               "required": true
             },
             "envoyFirmware7xxTokenGenerationMode": {
@@ -42,29 +42,29 @@
               "type": "integer",
               "oneOf": [
                 {
-                  "title": "Enlighten Credentials",
+                  "title": "Enlighten credentials",
                   "enum": [
                     0
                   ]
                 },
                 {
-                  "title": "Your Own Generated Token",
+                  "title": "Self-generated token",
                   "enum": [
                     1
                   ]
                 }
               ],
-              "description": "Here select how You wuld to obtain the Token.",
+              "description": "Method used to obtain token",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
               },
               "required": false
             },
             "envoyPasswd": {
-              "title": "Envoy Password",
+              "title": "Envoy password",
               "type": "string",
               "placeholder": "Envoy password",
-              "description": "Here set the envoy password, only if You already changed the default password.",
+              "description": "Enphase Envoy password (if you altered the default password)",
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
@@ -72,10 +72,10 @@
               "required": false
             },
             "envoyToken": {
-              "title": "Envoy Token",
+              "title": "Envoy token",
               "type": "string",
               "placeholder": "Token",
-              "description": "Here paste Your own Token.",
+              "description": "Provide self-generated token (if relevant)",
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
@@ -86,17 +86,17 @@
               "title": "Installer",
               "type": "boolean",
               "default": false,
-              "description": "If You use Installer token then enable this option.",
+              "description": "Enable for installer-provided token",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
               },
               "required": true
             },
             "envoySerialNumber": {
-              "title": "Envoy Serial Number",
+              "title": "Envoy serial number",
               "type": "string",
               "placeholder": "Serial number",
-              "description": "Here set the envoy serial number.",
+              "description": "Serial number for the Enphase Envoy gateway",
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
@@ -104,20 +104,20 @@
               "required": false
             },
             "enlightenUser": {
-              "title": "Enlighten User",
+              "title": "Enlighten username/email address",
               "type": "string",
-              "placeholder": "user@enlighten.com",
-              "description": "Here set the enlighten user name.",
+              "placeholder": "user@example.com",
+              "description": "Enphase Enlighten username.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
               },
               "required": false
             },
             "enlightenPasswd": {
-              "title": "Enlighten Password",
+              "title": "Enlighten password",
               "type": "string",
               "placeholder": "password",
-              "description": "Here set the enlighten password.",
+              "description": "Enlighten password",
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
@@ -128,22 +128,22 @@
               "title": "PLC Level",
               "type": "boolean",
               "default": false,
-              "description": "This enable support to check plc level, firmware 7.x.x and newer require installer credentials data.",
+              "description": "Enables support for checking PLC level (requires firmware 7+ and installer credentials)",
               "required": false
             },
             "plcLevelControl": {
-              "title": "Plc Level Control",
+              "title": "PLC Level Control",
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
-                  "placeholder": "Tile name",
-                  "description": "Here set Your own tile name.",
+                  "placeholder": "Accessory name",
+                  "description": "Accessory name for Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -174,13 +174,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the tile name.",
+                  "description": "Use accessory name as a prefix",
                   "required": false
                 }
               },
@@ -193,7 +193,7 @@
               "title": "Power Production",
               "type": "boolean",
               "default": false,
-              "description": "This enable support to check/control power production, firmware 7.x.x and newer require installer credentials data.",
+              "description": "Enables monitoring and control of power production (requires firmware 7+ and installer credentials)",
               "required": false
             },
             "powerProductionStateControl": {
@@ -201,14 +201,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
-                  "placeholder": "Tile name",
-                  "description": "Here set Your own tile name.",
+                  "placeholder": "Accessory name",
+                  "description": "Accessory name",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -239,13 +239,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "description": "Accessory type in Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the tile name.",
+                  "description": "Use accessory name as a prefix",
                   "required": false
                 }
               },
@@ -257,7 +257,7 @@
               "title": "Power Summary",
               "type": "integer",
               "minimum": 1,
-              "description": "Here set the power summary in (W) of all microinverters, based on this value the power production level will be calculated and displayed as (%) in HomeKit.",
+              "description": "Using the Enphase app, provide the total (W) of all microinverters (used to calculate percentage)",
               "required": true
             },
             "powerProductionStateSensor": {
@@ -265,14 +265,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -303,13 +303,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -321,14 +321,14 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "compareMode": {
-                    "title": "Compare Mode",
+                    "title": "Comparison mode",
                     "type": "integer",
                     "oneOf": [
                       {
@@ -362,18 +362,18 @@
                         ]
                       }
                     ],
-                    "description": "Here select the compare mode.",
+                    "description": "Comparison mode",
                     "required": false
                   },
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set power level in (W) to compare at which the sensor fired.",
+                    "description": "Power level in (W) for comparison to sensor that was triggered",
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -404,13 +404,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -421,14 +421,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -459,13 +459,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -477,14 +477,14 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "compareMode": {
-                    "title": "Compare Mode",
+                    "title": "Comparison mode",
                     "type": "integer",
                     "oneOf": [
                       {
@@ -518,18 +518,18 @@
                         ]
                       }
                     ],
-                    "description": "Here select the compare mode.",
+                    "description": "Comparison mode",
                     "required": false
                   },
                   "energyLevel": {
                     "title": "Enargy Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set enargy level in (Wh) to compare at which the sensor fired.",
+                    "description": "Energy level in (Wh) to compare to sensor that was triggered",
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -560,13 +560,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -575,7 +575,7 @@
             "energyProductionLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "description": "Here set offset in (Wh) for energy production, if nedded.",
+              "description": "Here set offset in (Wh) for energy production (if needed)",
               "required": false
             },
             "powerConsumptionTotalStateSensor": {
@@ -583,14 +583,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -621,13 +621,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -639,14 +639,14 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "compareMode": {
-                    "title": "Compare Mode",
+                    "title": "Comparison mode",
                     "type": "integer",
                     "oneOf": [
                       {
@@ -680,18 +680,18 @@
                         ]
                       }
                     ],
-                    "description": "Here select the compare mode.",
+                    "description": "Comparison mode",
                     "required": false
                   },
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set power level in (W) to compare at which the sensor fired.",
+                    "description": "Power level in (W) for comparison to sensor that was triggered",
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -722,13 +722,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -737,7 +737,7 @@
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "description": "Here set offset in (Wh) for energy consumption total, if nedded.",
+              "description": "Offset in (Wh) for energy consumption total (if needed)",
               "required": false
             },
             "energyConsumptionTotalStateSensor": {
@@ -745,14 +745,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -783,13 +783,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -801,14 +801,14 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "compareMode": {
-                    "title": "Compare Mode",
+                    "title": "Comparison mode",
                     "type": "integer",
                     "oneOf": [
                       {
@@ -842,18 +842,18 @@
                         ]
                       }
                     ],
-                    "description": "Here select the compare mode.",
+                    "description": "Comparison mode",
                     "required": false
                   },
                   "energyLevel": {
                     "title": "Enargy Level",
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Here set enargy level in (Wh) to compare at which the sensor fired.",
+                    "description": "Energy level in (Wh) to compare to sensor that was triggered",
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -884,13 +884,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -901,14 +901,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -939,13 +939,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -957,14 +957,14 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "compareMode": {
-                    "title": "Compare Mode",
+                    "title": "Comparison mode",
                     "type": "integer",
                     "oneOf": [
                       {
@@ -998,7 +998,7 @@
                         ]
                       }
                     ],
-                    "description": "Here select the compare mode.",
+                    "description": "Comparison mode",
                     "required": false
                   },
                   "powerLevel": {
@@ -1008,7 +1008,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1039,13 +1039,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -1054,7 +1054,7 @@
             "energyConsumptionNetLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "description": "Here set offset in (Wh) for energy consumption net, if nedded.",
+              "description": "Offset in (Wh) for net energy consumption (if needed)",
               "required": false
             },
             "energyConsumptionNetStateSensor": {
@@ -1062,14 +1062,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -1100,13 +1100,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -1118,14 +1118,14 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "compareMode": {
-                    "title": "Compare Mode",
+                    "title": "Comparison mode",
                     "type": "integer",
                     "oneOf": [
                       {
@@ -1159,7 +1159,7 @@
                         ]
                       }
                     ],
-                    "description": "Here select the compare mode.",
+                    "description": "Comparison mode",
                     "required": false
                   },
                   "energyLevel": {
@@ -1170,7 +1170,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1201,13 +1201,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -1220,10 +1220,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
-                    "placeholder": "Tile name",
-                    "description": "Here set Your own tile name.",
+                    "placeholder": "Accessory name",
+                    "description": "Accessory name for Home app",
                     "required": false
                   },
                   "profile": {
@@ -1272,7 +1272,7 @@
                     "required": true
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 1,
@@ -1291,13 +1291,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the tile type to be displayed in HomeKit.",
+                    "description": "Accessory type in Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the tile name.",
+                    "description": "Use accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -1310,10 +1310,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "profile": {
@@ -1361,7 +1361,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 1,
@@ -1392,13 +1392,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -1409,14 +1409,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -1447,13 +1447,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -1465,10 +1465,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "gridMode": {
@@ -1516,7 +1516,7 @@
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1547,13 +1547,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -1569,14 +1569,14 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "compareMode": {
-                    "title": "Compare Mode",
+                    "title": "Comparison mode",
                     "type": "integer",
                     "oneOf": [
                       {
@@ -1610,7 +1610,7 @@
                         ]
                       }
                     ],
-                    "description": "Here select the compare mode.",
+                    "description": "Comparison mode",
                     "required": false
                   },
                   "backupLevel": {
@@ -1619,11 +1619,11 @@
                     "minimum": 0,
                     "maximum": 100,
                     "multipleOf": 1,
-                    "description": "Here set backup level in (%) to compare at which the sensor fired.",
+                    "description": "Backup level in (%) to compare to sensor that was triggered",
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1654,13 +1654,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -1674,14 +1674,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
-                  "placeholder": "Tile name",
-                  "description": "Here set Your own tile name.",
+                  "placeholder": "Accessory name",
+                  "description": "Accessory name for Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -1712,13 +1712,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "description": "Accessory type in Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the tile name.",
+                  "description": "Use accessory name as a prefix",
                   "required": false
                 }
               }
@@ -1728,14 +1728,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -1766,13 +1766,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -1784,10 +1784,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "gridMode": {
@@ -1831,11 +1831,11 @@
                         ]
                       }
                     ],
-                    "description": "Here select the grid mode.",
+                    "description": "Grid mode",
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1866,13 +1866,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -1882,14 +1882,14 @@
               "title": "Dry Contacts Control",
               "type": "boolean",
               "default": false,
-              "description": "This enable control of dry contacts state.",
+              "description": "Enables control over dry contacts state",
               "required": false
             },
             "enpowerDryContactsSensors": {
               "title": "Dry Contacts Sensors",
               "type": "boolean",
               "default": false,
-              "description": "This enable monitoring of dry contacts state.",
+              "description": "Enables monitoring of dry contacts state",
               "required": false
             },
             "solarGridModeSensors": {
@@ -1899,10 +1899,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "gridMode": {
@@ -1946,11 +1946,11 @@
                         ]
                       }
                     ],
-                    "description": "Here select the grid mode.",
+                    "description": "Grid mode",
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -1981,13 +1981,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -2001,14 +2001,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
-                  "placeholder": "Tile name",
-                  "description": "Here set Your own tile name.",
+                  "placeholder": "Accessory name",
+                  "description": "Accessory name for Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -2039,13 +2039,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "description": "Accessory type in Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the tile name.",
+                  "description": "Use accessory name as a prefix",
                   "required": false
                 }
               }
@@ -2055,14 +2055,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -2093,13 +2093,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -2111,10 +2111,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Mode name",
-                    "description": "Here set Your own tile name.",
+                    "description": "Accessory name for Home app",
                     "required": false
                   },
                   "mode": {
@@ -2141,11 +2141,11 @@
                         ]
                       }
                     ],
-                    "description": "Here select the mode.",
+                    "description": "Mode",
                     "required": true
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -2176,13 +2176,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the tile type to be displayed in HomeKit.",
+                    "description": "Accessory type in Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -2195,10 +2195,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "title": "Name",
+                    "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
-                    "description": "Here set Your own sensor name.",
+                    "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
                   "mode": {
@@ -2224,11 +2224,11 @@
                         ]
                       }
                     ],
-                    "description": "Here select the mode.",
+                    "description": "Mode",
                     "required": false
                   },
                   "displayType": {
-                    "title": "Type",
+                    "title": "Accessory type",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 3,
@@ -2259,13 +2259,13 @@
                         ]
                       }
                     ],
-                    "description": "Select the sensor type to be displayed in HomeKit.",
+                    "description": "Accessory type for Home app",
                     "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
-                    "description": "This enable the accessory name as a prefix for the sensor name.",
+                    "description": "Use the accessory name as a prefix",
                     "required": false
                   }
                 }
@@ -2276,14 +2276,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
-                  "placeholder": "Tile name",
-                  "description": "Here set Your own tile name.",
+                  "placeholder": "Accessory name",
+                  "description": "Accessory name for Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -2314,13 +2314,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the tile type to be displayed in HomeKit.",
+                  "description": "Accessory type in Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the tile name.",
+                  "description": "Use accessory name as a prefix",
                   "required": false
                 }
               }
@@ -2330,14 +2330,14 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "title": "Name",
+                  "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
-                  "description": "Here set Your own sensor name.",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false
                 },
                 "displayType": {
-                  "title": "Type",
+                  "title": "Accessory type",
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 3,
@@ -2368,13 +2368,13 @@
                       ]
                     }
                   ],
-                  "description": "Select the sensor type to be displayed in HomeKit.",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "This enable the accessory name as a prefix for the sensor name.",
+                  "description": "Use the accessory name as a prefix",
                   "required": false
                 }
               }
@@ -2385,7 +2385,7 @@
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
-              "description": "Here set meters data refresh time in (sec).",
+              "description": "Meters data refresh time (seconds)",
               "required": false
             },
             "productionDataRefreshTime": {
@@ -2394,7 +2394,7 @@
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
-              "description": "Here set production data rfresh time in (sec).",
+              "description": "Production data refresh time (seconds)",
               "required": false
             },
             "liveDataRefreshTime": {
@@ -2403,7 +2403,7 @@
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
-              "description": "Here set live data refresh time in (sec).",
+              "description": "Live data refresh time (seconds)",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               },
@@ -2415,7 +2415,7 @@
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
-              "description": "Here set ensemble data refresh time in (sec).",
+              "description": "Ensemble data refresh time (seconds)",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true"
               },
@@ -2425,7 +2425,7 @@
               "title": "Disable Log Device Info",
               "type": "boolean",
               "default": false,
-              "description": "This disable logging device info by every connections device to the network.",
+              "description": "Disable logging device info for every connected device to the network",
               "required": false
             },
             "disableLogInfo": {
@@ -2466,23 +2466,23 @@
                   "title": "Enable",
                   "type": "boolean",
                   "default": false,
-                  "description": "This enable RESTful server."
+                  "description": "Enable REST service"
                 },
                 "debug": {
                   "title": "Debug",
                   "type": "boolean",
                   "default": false,
-                  "description": "This enable debug mode for RESTFul.",
+                  "description": "Enable debug mode for REST service",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].restFul.enable === true;"
                   },
                   "required": false
                 },
                 "port": {
-                  "title": "Port",
+                  "title": "TCP port",
                   "type": "integer",
                   "placeholder": 3000,
-                  "description": "Here set the listening Port for RESTful server.",
+                  "description": "TCP listening port for REST service",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].restFul.enable === true;"
                   },
@@ -2498,34 +2498,34 @@
                   "title": "Enable",
                   "type": "boolean",
                   "default": false,
-                  "description": "This enable MQTT client."
+                  "description": "Enable MQTT broker"
                 },
                 "debug": {
                   "title": "Debug",
                   "type": "boolean",
                   "default": false,
-                  "description": "This enable debug mode for MQTT.",
+                  "description": "Enable debug mode for MQTT broker",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
                   },
                   "required": false
                 },
                 "host": {
-                  "title": "IP/Hostname",
+                  "title": "IP/hostname",
                   "type": "string",
-                  "placeholder": "ip or hostname",
+                  "placeholder": "IP or hostname",
                   "format": "hostname",
-                  "description": "Here set the IP/Hostname of MQTT Broker.",
+                  "description": "IP or hostname of MQTT broker",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
                   },
                   "required": false
                 },
                 "port": {
-                  "title": "Port",
+                  "title": "TCP port",
                   "type": "integer",
                   "placeholder": 1883,
-                  "description": "Here set the port of MQTT Broker.",
+                  "description": "TCP port forf MQTT broker",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
                   },
@@ -2534,8 +2534,8 @@
                 "clientId": {
                   "title": "Client ID",
                   "type": "string",
-                  "placeholder": "client id",
-                  "description": "Here optional set the Client ID of MQTT Broker.",
+                  "placeholder": "Client ID",
+                  "description": "Optional Client ID for MQTT broker",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true"
                   },
@@ -2545,7 +2545,7 @@
                   "title": "Prefix",
                   "type": "string",
                   "placeholder": "home/envoy",
-                  "description": "Here set the prefix.",
+                  "description": "Prefix",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
                   },
@@ -2555,7 +2555,7 @@
                   "title": "Authorization",
                   "type": "boolean",
                   "default": false,
-                  "description": "This enable authorization for MQTT Broker.",
+                  "description": "Enable authorization for MQTT broker",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
                   },
@@ -2565,7 +2565,7 @@
                   "title": "User",
                   "type": "string",
                   "placeholder": "user",
-                  "description": "Here set the user of MQTT Broker.",
+                  "description": "User for MQTT broker",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true && model.devices[arrayIndices].mqtt.auth === true;"
                   },
@@ -2575,7 +2575,7 @@
                   "title": "Password",
                   "type": "string",
                   "placeholder": "password",
-                  "description": "Here set the password of MQTT Broker.",
+                  "description": "Password for MQTT broker",
                   "format": "password",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true && model.devices[arrayIndices].mqtt.auth === true;"
@@ -2624,8 +2624,8 @@
                         {
                           "key": "devices[].plcLevelControl",
                           "type": "section",
-                          "title": "Plc Level Refresh Control",
-                          "description": "In this section You can enable extra tile for plc level refresh control.",
+                          "title": "PLC Level Refresh Control",
+                          "description": "Section for enabling accessory for PLC level refresh control",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -2638,7 +2638,7 @@
                           "key": "devices[].powerProductionStateControl",
                           "type": "section",
                           "title": "Power Production Control",
-                          "description": "In this section You can enable extra tile for power production control.",
+                          "description": "Section for enabling accessory for power production control",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -2650,8 +2650,8 @@
                         {
                           "key": "devices[]",
                           "type": "section",
-                          "title": "Credentials Data",
-                          "description": "In this section You can set envoy and enphase credentils data.",
+                          "title": "Credentials",
+                          "description": "Section for setting Enphase Envoy credentials",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -2698,7 +2698,7 @@
                               "key": "devices[].powerProductionStateSensor",
                               "type": "section",
                               "title": "Power State Sensor",
-                              "description": "In this section You can enable sensor for power state monitoring.",
+                              "description": "Section for enabling sensor for power state monitoring",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2711,7 +2711,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Power Level Sensors",
-                              "description": "In this section You can create sensors for power level monitoring.",
+                              "description": "Section for creating sensors for power level monitoring",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2740,7 +2740,7 @@
                               "key": "devices[].energyProductionStateSensor",
                               "type": "section",
                               "title": "Energy State Sensor",
-                              "description": "In this section You can enable sensor for energy state monitoring.",
+                              "description": "Section for enabling sensor for energy state monitoring",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2753,7 +2753,7 @@
                               "key": "devices[]",
                               "type": "section",
                               "title": "Energy Level Sensors",
-                              "description": "In this section You can create sensors for energy level monitoring.",
+                              "description": "Section for creating sensors for energy level monitoring",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -2803,7 +2803,7 @@
                                       "key": "devices[].powerConsumptionTotalStateSensor",
                                       "type": "section",
                                       "title": "Power State Sensor",
-                                      "description": "In this section You can enable sensor for power state monitoring.",
+                                      "description": "Section for enabling sensor for power state monitoring",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -2816,7 +2816,7 @@
                                       "key": "devices[]",
                                       "type": "section",
                                       "title": "Power Level Sensors",
-                                      "description": "In this section You can create sensors for power level monitoring.",
+                                      "description": "Section for creating sensors for power level monitoring",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -2845,7 +2845,7 @@
                                       "key": "devices[].energyConsumptionTotalStateSensor",
                                       "type": "section",
                                       "title": "Energy State Sensor",
-                                      "description": "In this section You can enable sensor for energy state monitoring.",
+                                      "description": "Section for enabling sensor for energy state monitoring",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -2858,7 +2858,7 @@
                                       "key": "devices[]",
                                       "type": "section",
                                       "title": "Energy Level Sensors",
-                                      "description": "In this section You can create sensors for energy level monitoring.",
+                                      "description": "Section for creating sensors for energy level monitoring",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -2899,7 +2899,7 @@
                                       "key": "devices[].powerConsumptionNetStateSensor",
                                       "type": "section",
                                       "title": "Power State Sensor",
-                                      "description": "In this section You can enable sensor for power state monitoring.",
+                                      "description": "Section for enabling sensor for power state monitoring",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -2912,7 +2912,7 @@
                                       "key": "devices[]",
                                       "type": "section",
                                       "title": "Power Level Sensors",
-                                      "description": "In this section You can create sensors for power level monitoring.",
+                                      "description": "Section for creating sensors for power level monitoring",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -2941,7 +2941,7 @@
                                       "key": "devices[].energyConsumptionNetStateSensor",
                                       "type": "section",
                                       "title": "Energy State Sensor",
-                                      "description": "In this section You can enable sensor for energy state monitoring.",
+                                      "description": "Section for enabling sensor for energy state monitoring",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -2954,7 +2954,7 @@
                                       "key": "devices[]",
                                       "type": "section",
                                       "title": "Energy Level Sensors",
-                                      "description": "In this section You can create sensors for energy level monitoring.",
+                                      "description": "Section for creating sensors for energy level monitoring",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -3006,7 +3006,7 @@
                                   "key": "devices[].enpowerGridStateControl",
                                   "type": "section",
                                   "title": "Grid State Control",
-                                  "description": "In this section You can enable extra tile for grid state control.",
+                                  "description": "Section for enabling additional accessory for grid state control",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3019,7 +3019,7 @@
                                   "key": "devices[].enpowerGridStateSensor",
                                   "type": "section",
                                   "title": "Grid State Sensor",
-                                  "description": "In this section You can enable sensor for grid state monitoring.",
+                                  "description": "Section for enabling sensor for grid state monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3032,7 +3032,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Grid Mode Sensors",
-                                  "description": "In this section You can create sensors for grid mode monitoring.",
+                                  "description": "Section for creating sensors for grid mode monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3066,7 +3066,7 @@
                                   "key": "devices[].enchargeStateSensor",
                                   "type": "section",
                                   "title": "State Sensor",
-                                  "description": "In this section You can enable sensor for encharges state monitoring.",
+                                  "description": "Section for enabling sensor for encharges state monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3079,7 +3079,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Profile Control",
-                                  "description": "In this section You can create encharge profile control.",
+                                  "description": "Section for creating encharge profile control",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3100,7 +3100,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Profile Sensors",
-                                  "description": "In this section You can create encharge profile sensors.",
+                                  "description": "Section for creating encharge profile sensors",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3121,7 +3121,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Grid Mode Sensors",
-                                  "description": "In this section You can enable sensor for grid mode monitoring.",
+                                  "description": "Section for enabling sensor for grid mode monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3142,7 +3142,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Backup Level Sensors",
-                                  "description": "In this section You can enable sensor for backup level monitoring.",
+                                  "description": "Section for enabling sensor for backup level monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3177,7 +3177,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Grid Mode Sensors",
-                                  "description": "In this section You can enable sensor for grid mode monitoring.",
+                                  "description": "Section for enabling sensor for grid mode monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3211,7 +3211,7 @@
                                   "key": "devices[].generatorStateControl",
                                   "type": "section",
                                   "title": "State Control",
-                                  "description": "In this section You can enable extra tile for state control.",
+                                  "description": "Section for enabling additional accessory for state control",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3224,7 +3224,7 @@
                                   "key": "devices[].generatorStateSensor",
                                   "type": "section",
                                   "title": "State Sensor",
-                                  "description": "In this section You can enable sensor state monitoring.",
+                                  "description": "Section for enabling sensor state monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3237,7 +3237,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Mode Controls",
-                                  "description": "In this section You can create tiles for generator mode control.",
+                                  "description": "Section for creating accessories for generator mode control",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3258,7 +3258,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Mode Sensors",
-                                  "description": "In this section You can create sensors mode monitoring.",
+                                  "description": "Section for creating sensors mode monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3296,7 +3296,7 @@
                           "key": "devices[]",
                           "type": "section",
                           "title": "Log",
-                          "description": "In this section You can enable/disable indyvidual log.",
+                          "description": "Section for enabling/disable indyvidual log.",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3312,7 +3312,7 @@
                           "key": "devices[]",
                           "type": "section",
                           "title": "Data Refresh",
-                          "description": "In this section You can set indyvidual data refesh time for devices.",
+                          "description": "Section for setting individual data refesh time for devices",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3326,7 +3326,7 @@
                           "key": "devices[].dataRefreshControl",
                           "type": "section",
                           "title": "Data Refresh Control",
-                          "description": "In this section You can enable extra tile for data refresh control.",
+                          "description": "Section for enabling additional accessory for data refresh control",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3339,7 +3339,7 @@
                           "key": "devices[].dataRefreshSensor",
                           "type": "section",
                           "title": "Data Refresh Sensor",
-                          "description": "In this section You can enable sensor for data refresh monitoring.",
+                          "description": "Section for enabling sensor for data refresh monitoring",
                           "expandable": true,
                           "expanded": false,
                           "items": [
