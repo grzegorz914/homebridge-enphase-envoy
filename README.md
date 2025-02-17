@@ -15,7 +15,11 @@
 
 </span>
 
-## Package Requirements
+## About The Plugin
+
+The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy monitoring systems with Homebridge, allowing HomeKit users to track solar production, consumption, and battery status directly in the Apple Home app. With real-time energy insights, automation possibilities, and Siri voice control, this plugin enhances smart home energy management by seamlessly connecting your Enphase Envoy system to the HomeKit ecosystem.
+
+## Requirements
 
 | Package | Installation | Role | Required |
 | --- | --- | --- | --- |
@@ -23,275 +27,275 @@
 | [Config UI X](https://github.com/homebridge/homebridge-config-ui-x) | [Config UI X Wiki](https://github.com/homebridge/homebridge-config-ui-x/wiki) | Homebridge Web User Interface | Recommended |
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
-### About The Plugin
+## Supported hardware
+* Firmware v5 through v8
+* System `Envoy S`, `IQ Gateway`, `IQ Load Controller`, `IQ Combiner`
+* Q-Relays `Q-RELAY-1P` `Q-RELAY-3P`
+* AC Batteries `AC Battery Storage`
+* Meters `Production`, `Consumption`, `Storage`
+* Microinverters `M215`, `M250`, `IQ6`, `IQ7`, `IQ8`
+* Encharges `IQ Battery 3`, `IQ Battery 10`, `IQ Battery 5P`, `IQ Battery 3T`, `IQ Battery 10T`
+* Ensemble/Enpower `IQ System Controller`, `IQ System Controller 2`
+* WirelessKit `Communications Kit`
+* Generator
 
-* Support Token authorization from plugin v6.0.0.
-  * Token can be generated automatically with enlighten user and password or with externall tools.
-    * Token generated with enlighten credentials data will be automatically refreshed if expire.
-    * Token generated with externall tools cannot be refreshed automatically if expire.
-* Envoy `password` is detected automatically or can be added in config if was already chenged by user.
-* Installer `password` is generated automatically, only Fw. <= v5.x.x.
+## Exposed accessories in the Apple Home app
+
+### Monitoring Sensors
+* System `Data Refresh`
+* Production `Power State`, `Power Level`, `Energy State`, `Energy Level`
+* Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`
+* Enpower `Grid State`
+* Encharge: `State`, `Backup Level`, `Dry Contacts`
+* Encharge Profile: `Self Consumption`, `Savings`, `Economy`, `Full Backup`
+* Grid Mode
+  * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+  * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+  * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+* Generator `State`, `Mode`
+
+### Control Switches, Outlets, Lightbulbs
+* System `Data Refresh`
+* Production `PLC Level`, `Power Mode`, `Power State`, `Power Level`
+* AC Battery `Energy State`, `Energy Level`
+* Enpower `Grid State`, `Dry Contacts`
+* Encharge `Energy State`, `Energy Level`
+* Encharge Profile
+  * Self Consumption `Activate`, `Set Reserve`
+  * Savings `Activate`, `Set Reserve`
+  * Economy `Activate`, `Set Reserve`
+  * Full Backup `Activate`
+* Generator `State`, `Mode`
+
+## Notes
+* Token authentication (6.0+) - Tokens can be generated automatically with the Enlighten username (email address) and password or external tools. Tokens generated with Enlighten credentials are automatically refreshed while those generated with external tools are not.
+* Envoy `password` is detected automatically or can be added in the configuration if already changed by user.
+* Installer `password` is generated automatically (firmware <= v5.x).
 * Envoy `device ID` is detected automatically.
-* Support [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) and `PLC Level`, Fw. v7.x.x and newer require installer credentials data.
-* For best experiences and display all data please use `Controller` or `EVE` app.
-* Support external integrations, [RESTFul](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration), [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
-* Supported devices:
-  * Firmware `v5.x.x`, `6.x.x`, `v7.x.x`, `v8.x.x`.
-  * Envoy `Envoy S`, `IQ Envoy`, `IQ Load Controller`, `IQ Combiner`.
-  * Q-Relays `Q-RELAY-1P` `Q-RELAY-3P`.
-  * AC Batteries `AC Battery Storage`.
-  * Meters `Production`, `Consumption`, `Storage`.
-  * Microinverters `M215`, `M250`, `IQ6`, `IQ7`, `IQ8`.
-  * Encharges `IQ Battery 3`, `IQ Battery 10`, `IQ Battery 5P`, `IQ Battery 3T`, `IQ Battery 10T`,
-  * Ensemble/Enpower `IQ System Controller`, `IQ System Controller 2`.
-  * WirelessKit `Communications Kit`.
-  * Generator
-* Exposed accessory in the native Home app:
-  * Monitoring Sensors:
-    * System `Data Refresh`
-    * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`.
-    * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`.
-    * Enpower `Grid State`.
-    * Encharge: `State`, `Backup Level`, `Dry Contacts`.
-    * Encharge Profile: `Self Consumption`, `Savings`, `Economy`, `Full Backup`.
-    * Grid Mode:
-      * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-      * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-      * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`.
-    * Generator `State`, `Mode`.  
-  * Control Switches, Outlets, Lightbulbs:
-    * System `Data Refresh`,
-    * Production `Plc Level`, `Power Mode`, `Power State`, `Power Level`.
-    * AC Battery `Energy State`, `Energy Level`.
-    * Enpower `Grid State`, `Dry Contacts`.
-    * Encharge `Energy State`, `Energy Level`.
-    * Encharge Profile:
-      * Self Consumption `Activate`, `Set Reserve`.
-      * Savings `Activate`, `Set Reserve`.
-      * Economy `Activate`, `Set Reserve`.
-      * Full Backup `Activate`.
-    * Generator `State`, `Mode`.
+* Supports [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) and `PLC Level` (requires firmware v7.0+ and installer credentials).
+* For the best experience and to display all data, please use the `Controller` or `Eve` apps.
+* External integrations include: [REST](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration) and [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
 
 ### Configuration
 
-* Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
-* Install and use [Homebridge Config UI X](https://github.com/homebridge/homebridge-config-ui-x) to configure this plugin (Highly Recommended).
+* Running this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) is **highly recommended**. This prevents Homebridge from crashing if the plugin crashes.
+* Installation and use of [Homebridge Config UI X](https://github.com/homebridge/homebridge-config-ui-x) to configure this plugin is **highly recommended**.
 * The `sample-config.json` can be edited and used as an alternative for advanced users.
 
 <p align="center">
   <a href="https://github.com/grzegorz914/homebridge-enphase-envoy"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-enphase-envoy/main/graphics/ustawienia.png" width="840"></a>
 </p>
 
-| Key | Description |
-| --- | --- |
-| `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
-| `host` | Here set the envoy `IP Address` or `Hostname`, if not set default path `envoy.local` will be used. For firmware v7.x.x please set `IP Address`. |
-| `envoyFirmware7xx` | This enable support for Envoy Fw. v7.x.x and newer. |
-| `envoyFirmware7xxTokenGenerationMode` | Here select how You wuld to obtain the token, `0 - Enlighten Credentials`, `1 - Your Own Generated Token`. |
-| `envoyPasswd` | Here set the envoy password (only if U already changed the default password) |
-| `envoyToken` | Here set Your own Token only if You select `1 - Your Own Generated Token`. |
-| `envoyTokenInstaller` | If You use Installer token then enable this option. |
-| `envoySerialNumber` | Here set the envoy serial number. |
-| `enlightenUser` | Here set the enlighten user name. |
-| `enlightenPasswd` | Here set the enlighten password. |
-| `supportPowerProductionState` | This enable support for [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) check, Fw. v7.x.x and newer require installer credentials data. |
-| `powerProductionStateControl` | This is `Power Production Control Tile` for production state control, Fw. v7.x.x and newer require installer credentials data. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
-| `supportPlcLevel` | This enable support for `PLC Level Check` for all devices, Fw. v7.x.x and newer require installer credentials data. |
-| `plcLevelControl` | This is `Plc Level Control Tile` for plc level check, Fw. v7.x.x and newer require installer credentials data |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
-| `powerProductionSummary` | Here set the `Power Summary` in `W` of all microinverters, based on this value HomeKit app will display power level `0-100 %`. |
-| `powerProductionStateSensor` | This is `Power State Sensor` for production monitoring. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `powerProductionLevelSensors` | This is `Power Level Sensor` for production monitoring. |
-| `name` | Here set Your own sensor name. |
-| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
-| `powerLevel` | Here set power level in `W` to compare at which the sensor fired. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyProductionStateSensor` | This is `Energy State Sensor` for production monitoring. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyProductionLevelSensors` | This is `Energy Level Sensor` for production monitoring. |
-| `name` | Here set Your own sensor name. |
-| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
-| `energyLevel` | Here set energy level in `Wh` to compare at which the sensor fired. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyProductionLifetimeOffset` | Here set the `Energy Offset` in `Wh` for production if nedded `+/-`. |
-| `powerConsumptionTotalStateSensor` | This is `Power State Sensor` for consumption `Total` monitoring. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `powerConsumptionTotalLevelSensors` | This is `Power Level Sensor` for consumption `Total` monitoring. |
-| `name` | Here set Your own sensor name. |
-| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
-| `powerLevel` | Here set power level in `W` to compare at which the sensor fired. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyConsumptionTotalStateSensor` | This is `Energy State Sensor` for consumption `Total` monitoring. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyConsumptionTotalLevelSensors` | This is `Energy Level Sensor` for consumption `Total` monitoring. |
-| `name` | Here set Your own sensor name. |
-| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
-| `energyLevel` | Here set energy level in `Wh` to compare at which the sensor fired. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyConsumptionTotalLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Total` if nedded `+/-`. |
-| `powerConsumptionNetStateSensor` | This is `Power State Sensor` for consumption `Net` monitoring. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `powerConsumptionNetLevelSensors` | This is `Power Level Sensor` for consumption `Net` monitoring. |
-| `name` | Here set Your own sensor name. |
-| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
-| `powerLevel` | Here set power level in `W` to compare at which the sensor fired. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyConsumptionNetStateSensor` | This is `Energy State Sensor` for consumption `Net` monitoring. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyConsumptionNetLevelSensors` | This is `Energy Level Sensor` for consumption `Net` monitoring. |
-| `name` | Here set Your own sensor name. |
-| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
-| `energyLevel` | Here set energy level in `Wh` to compare at which the sensor fired. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `energyConsumptionNetLifetimeOffset` | Here set the `Energy Offset` in `Wh` for consumption `Net` if nedded `+/-`. |
-| `enepowerGridStateControl` | This is `Enpower Grid State Control` for `Grid ON/OFF` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
-| `enepowerGridStateSensor` | This is `Enpower Grid State Sensor` for `Grid` monitoring, if `Grid ON`, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `enepowerGridModeSensors` | That are `Enpower Grid Mode Sensors` for `Enpower Grid Mode` monitoring, if the `Mode` matches, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `enchargeStateSensor` | This is `Encharge State Sensor` for `State` monitoring, if `State ON`, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `enchargeProfileControl` | This is `Encharge Profile Control` for `Profile` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `profile` | Here select the profile `Savings`, `Economy`, `Full Backup`, `Self Consumption`. |
-| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Lightbulb`. |
-| `enchargeProfileSensors` | That are `Encharge Profile Sensors` for `Profile` monitoring, if the `Profile` matches, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `profile` | Here select the profile `Savings`, `Economy`, `Full Backup`, `Self Consumption`. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `enchargeGridModeSensors` | That are `Encharge Grid Mode Sensors` for `Encharge Grid Mod` monitoring, if the `Mode` matches, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `gridMode` | Here select the grid mode `Multimode Grid On`, `Multimode Grid Off`. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `enchargeBackupLevelSensors` | That are `Encharge Backup Level Sensors` for `Encharge Backup Level` monitoring, if the `Level` matches, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `compareMode` | Here select the compare mode `<`, `<=`, `==`, `>`, `>=`. |
-| `backupLevel` | Here set backup level in `%` to compare at which the sensor fired. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `solarGridModeSensors` | That are `Solar Grid Mode Sensors` for `Solar Grid Mode` monitoring, if the `Mode` matches, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `gridMode` | Here select the grid mode `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `enpowerDryContactsControl` | This enable `Dry Contacts` control and expose `Switches` in HomeKit. |
-| `enpowerDryContactsSensors` | This enable `Dry Contacts` monitoring and expose `Sensors` in HomeKit. |
-| `generatorStateControl` | This is `Generator State Control` for `Generator OFF/ON` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
-| `generatorStateSensor` | This is `Generator State Sensor` for `State` monitoring, if `State not Off`, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `generatorModeContol` | That are `Generator Mode Control`, for `Generator OFF/ON/AUTO` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `mode` | Here select the grid mode `Off`, `On`, `Auto`. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `generatorModeSensors` | That are `Generator Mode Sensors` for `Generator Mode` monitoring, if the `Mode` matches, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `mode` | Here select the grid mode `Off`, `On`, `Auto`. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `dataRefreshControl` | This is `Data Refresh Control` for `Data Refresh` control from HomeKit. |
-| `name` | Here set Your own tile name. |
-| `displayType` | Here select the tile type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`. |
-| `namePrefix` | This enable the accessory name as a prefix for the tile name. |
-| `dataRefreshSensor` | This is `Data Refresh Sensor` for `Data Refresh` monitoring, if working, the contact fired. |
-| `name` | Here set Your own sensor name. |
-| `displayType` | Here select the sensor type to be displayed in HomeKit app, `0 - None/Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
-| `namePrefix` | This enable the accessory name as a prefix for the sensor name. |
-| `metersDataRefreshTime` | Here set `Meters Data` rfresh time in (sec). |
-| `productionDataRefreshTime` | Here set `Production Data` rfresh time in (sec). |
-| `liveDataRefreshTime` | Here set `Live Data` rfresh time in (sec). |
-| `ensembleDataRefreshTime` | Here set `Ensemble Data` rfresh time in (sec). |
-| `disableLogDeviceInfo` | If enabled, add ability to disable log device info by every connections device to the network. |
-| `disableLogInfo` | If enabled, disable log info, all values and state will not be displayed in Homebridge log console. |
-| `disableLogSuccess` | If enabled, disable logging device success. |
-| `disableLogWarn` | If enabled, disable logging device warnings. |
-| `disableLogError` | If enabled, disable logging device error. |
-| `enableDebugMode` | If enabled, deep log will be present in homebridge console. |
-| `restFul` | This is RSTful server. |
-| `enable` | This enabled, RESTful server, start automatically and respond to any path request. |
-| `port` | Here set the listening `Port` for RESTful server. |
-| `debug` | This enable deep log and present in homebridge console for RESTFul server. |
-| `mqtt` | This is MQTT Broker. |
-| `enable` | This enable MQTT Broker, start automatically and publish all awailable data. |
-| `host` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
-| `port` | Here set the `Port` for MQTT Broker, default 1883. |
-| `clientId` | Here optional set the `Client Id` of MQTT Broker. |
-| `prefix` | Here set the `Prefix` for `Topic` or leave empty. |
-| `auth` | This enable MQTT Broker authorization credentials. |
-| `user` | Here set the MQTT Broker user. |
-| `passwd` | Here set the MQTT Broker password. |
-| `debug` | This enable deep log and present in homebridge console for MQTT. |
+| Key | Subkey | Type | Description |
+| --- | --- | --- | --- |
+| `name` | | string | Envoy Enphase Gateway accessory name to be displayed in Home app |
+| `host` | | string | The Envoy Enphase Gateway `IP Address` or `Hostname`. If not supplied, defaults to `envoy.local`. For firmware v7.0+, please set the `IP Address`. |
+| `envoyFirmware7xx` |  | boolean | Enables support for Envoy firmware v7.0+ |
+| `envoyFirmware7xxTokenGenerationMode` | | number | How you will obtain the token: `0` - Enlighten Credentials, `1` - Your Own Generated Token |
+| `envoyPasswd` | | string | Envoy Enphase password (only if U already changed the default password) |
+| `envoyToken` | | string | Token if you selected `1 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
+| `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
+| `envoySerialNumber` | | string | The Envoy Gateway serial number |
+| `enlightenUser` | | string | Enlighten username |
+| `enlightenPasswd` | | string | Enlighten password |
+| `supportPlcLevel` | | boolean | Enables support for `PLC Level Check` for all devices (requires firmware v7.0+ and installer credentials) |
+| `plcLevelControl` | | key | `PLC Level Control` for PLC level check (requires firmware v7.0+ and installer credentials) |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `supportPowerProductionState` | | boolean | Enables support for checking [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) (requires firmware v7.0+ and installer credentials) |
+| `powerProductionStateControl` | | key | `Power Production Control` for production state control (requires firmware v7.0+ and installer credentials). |
+| | `name` | string | Accessory name for Home app. |
+| | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `powerProductionSummary` | | number | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %` |
+| `powerProductionStateSensor` | | key | `Power State Sensor` for production monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `powerProductionLevelSensors` | | key | `Power Level Sensor` for production monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `powerLevel` | number | Power production level in `W` to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyProductionStateSensor` | | key | `Energy State Sensor` for production monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyProductionLevelSensors` | | key | `Energy Level Sensor` for production monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `energyLevel` | number | Energy production level in `Wh` to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyProductionLifetimeOffset` | | number | `Energy Offset` in `Wh` for production (if needed) `+/-` |
+| `powerConsumptionTotalStateSensor` | | key | `Power State Sensor` for total consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `powerConsumptionTotalLevelSensors` | | key | `Power Level Sensor` for total consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `powerLevel` | number | Total power consumption level in `W` to compare to power level sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionTotalStateSensor` | | key | `Energy State Sensor` for total consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionTotalLevelSensors` | | key | `Energy Level Sensor` for total consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `energyLevel` | number | Energy level total in `Wh` to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionTotalLifetimeOffset` | | number | `Energy Offset` in `Wh` for total consumption (if needed) `+/-` |
+| `powerConsumptionNetStateSensor` | | key | `Power State Sensor` for net consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `powerConsumptionNetLevelSensors` | | key | `Power Level Sensor` for net power consumption level monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `powerLevel` | number | Net power consumption power level in `W` to compare for the sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionNetStateSensor` | | key | `Energy State Sensor` for net consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionNetLevelSensors` | | key | `Energy Level Sensor` for net consumption monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `energyLevel` | number | Net energy comsumption level in `Wh` to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionNetLifetimeOffset` | | number | `Energy Offset` in `Wh` for consumption `Net` (if needed) `+/-` |
+| `enpowerGridStateControl` | | key | `Enpower Grid State Control` for `Grid ON/OFF` control from HomeKit |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `enepowerGridStateSensor` | | key | `Enpower Grid State Sensor` for monitoring. If `Grid ON`, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `enpowerGridModeSensors` | | key | `Enpower Grid Mode Sensors` for monitoring. If the `Mode` matches, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `gridMode` | string | Grid mode: `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming` |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `enchargeStateSensor` | | key | `Encharge State Sensor` for monitoring. If `State ON`, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `enchargeProfileControl` | | key | `Encharge Profile Control` for `Profile` control from HomeKit |
+| | `name` | string | Accessory name for Home app |
+| | `profile` | string | Profile: `Savings`, `Economy`, `Full Backup`, `Self Consumption` |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Lightbulb |
+| `enchargeProfileSensors` | | key | `Encharge Profile Sensors` for monitoring. If the `Profile` matches, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `profile` | string | Profile: `Savings`, `Economy`, `Full Backup`, `Self Consumption` |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `enchargeGridModeSensors` | | key | `Encharge Grid Mode Sensors` for monitoring. If the `Mode` matches, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `gridMode` | string | Grid mode: `Multimode Grid On`, `Multimode Grid Off` |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `enchargeBackupLevelSensors` | | key | `Encharge Backup Level Sensors` for monitoring. If the `Level` matches, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `backupLevel` | number | Backup level in `%` to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `solarGridModeSensors` | | key | `Solar Grid Mode Sensors` for monitoring. If the `Mode` matches, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `gridMode` | string | Grid mode: `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming` |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `enpowerDryContactsControl` | | boolean | Enables `Dry Contacts` control and exposes `Switches` in Home app |
+| `enpowerDryContactsSensors` | | boolean | Enables `Dry Contacts` monitoring and exposes `Sensors` in Home app |
+| `generatorStateControl` | | key | `Generator State Control` for `Generator OFF/ON` control in Home app |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `generatorStateSensor` | | key | `Generator State Sensor` for `State` monitoring. If `State not Off`, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `generatorModeContol` | | key | `Generator Mode Control`, for `Generator OFF/ON/AUTO` control in Home app |
+| | `name` | string | Accessory name for Home app |
+| | `mode` | string | Grid mode: `Off`, `On`, `Auto` |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| `generatorModeSensors` | | key | `Generator Mode Sensors` for monitoring, if the `Mode` matches, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `mode` | string | Grid mode: `Off`, `On`, `Auto` |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `dataRefreshControl` | | key | `Data Refresh Control` from HomeKit. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Here select the tile type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `dataRefreshSensor` | | key | `Data Refresh Sensor` for monitoring. If operating, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `metersDataRefreshTime` | | number | `Meters Data` refresh time (seconds) |
+| `productionDataRefreshTime` | | number | `Production Data` refresh time (seconds) |
+| `liveDataRefreshTime` | | number | `Live Data` refresh time (seconds) |
+| `ensembleDataRefreshTime` | | number | `Ensemble Data` refresh time (seconds) |
+| `disableLogDeviceInfo` | | boolean | Disables log device info for every connected device to the network |
+| `disableLogInfo` | | boolean | Disables to the Homebridge log console |
+| `disableLogSuccess` | | boolean | Disables logging of device success |
+| `disableLogWarn` | | boolean | Disables logging of device warnings |
+| `disableLogError` | | boolean | Disables logging of device errors |
+| `enableDebugMode` | | boolean | Verbose logging to the Homebridge console |
+| `restFul` | | key | REST service |
+| | `enable` | boolean | Enables REST service to start automatically and respond to any request |
+| | `port` | number | `Port` for REST service |
+| | `debug` | boolean | Enables verbose logging to the Homebridge console for REST service |
+| `mqtt` | | key | MQTT broker |
+| | `enable` | boolean | Enables MQTT broker to start automatically and publish available data |
+| | `host` | string | `IP Address` or `Hostname` for MQTT Broker |
+| | `port` | number | `Port` for MQTT broker (default to 1883) |
+| | `clientId` | string | `Client Id` of MQTT broker (optional) |
+| | `prefix` | string | `Prefix` for `Topic` (optional) |
+| | `auth` | boolean | Enables MQTT broker authorization credentials |
+| | `user` | string | MQTT broker user |
+| | `passwd` | string | MQTT Broker password |
+| | `debug` | boolean | Enables verbose logging to the Homebridge console for the MQTT broker |
 
-### RESTFul Integration
+### REST Integration
 
-* POST data as a JSON Object `{DataSampling: true}`, content type must be `application/json`
+REST POST calls must include a content-type header of `application/json`.
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON object. |
+| GET | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
-| POST | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
-|      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
-|      | `http//ip:port` | `PlcLevel` | `true` | boolean | Check Plc Level On. |
-|      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
-|      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
-|      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
+| POST | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop |
+|      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off |
+|      | `http//ip:port` | `PlcLevel` | `true` | boolean | Check Plc Level On |
+|      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile |
+|      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
+|      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto |
 
 ### MQTT Integration
 
-* Subscribe data as a JSON Object `{EnchargeProfile: "savings"}`
+Subscribe using JSON `{ "EnchargeProfile": "savings" }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-| Publish | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{wNow: 2353}` | JSON object. |
+| Publish | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
-| Subscribe | `Set` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop. |
-|           | `Set` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off. |
-|           | `Set` | `PlcLevel` | `true` | boolean | Check Plc Level On. |
-|           | `Set` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile. |
-|           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off. |
-|           | `Set` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto. |
+| Subscribe | `Set` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop |
+|           | `Set` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off |
+|           | `Set` | `PlcLevel` | `true` | boolean | Check Plc Level On |
+|           | `Set` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile |
+|           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
+|           | `Set` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto |
