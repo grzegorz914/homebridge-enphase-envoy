@@ -15,10 +15,12 @@ class EnvoyToken extends EventEmitter {
     async refreshToken() {
         try {
             const cookie = await this.loginToEnlighten();
-            const tokenData = await this.getToken(cookie);
+            if (!cookie) {
+                return false;
+            }
 
-            if (!tokenData.token) {
-                this.emit('warn', `Token missing in response: ${JSON.stringify(tokenData)}`);
+            const tokenData = await this.getToken(cookie);
+            if (!tokenData) {
                 return false;
             }
 
@@ -57,7 +59,7 @@ class EnvoyToken extends EventEmitter {
             const loginData = await axios(EnphaseUrls.Login, options);
             if (loginData.status !== 200) {
                 this.emit('error', `Login to Enlighten failed with status code: ${loginData.status}`);
-                return;
+                return false;
             }
 
             const cookie = loginData.headers['set-cookie'];
@@ -84,6 +86,11 @@ class EnvoyToken extends EventEmitter {
 
             const response = await axios(EnphaseUrls.EntrezAuthToken, options);
             const tokenData = response.data;
+            if (!tokenData.token) {
+                this.emit('warn', `Token missing in response: ${JSON.stringify(tokenData)}`);
+                return false;
+            }
+
             return tokenData;
         } catch (error) {
             this.emit('error', `Get token error: ${error}`);
