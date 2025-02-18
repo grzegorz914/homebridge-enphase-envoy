@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changes
 
-- moved custom characteristics and services to seperate file
 - stability and improvements
 - chore(config): tweak wording, thanks @nstuyvesant
 - Updates to the read me (spelling, punctuation, clarification), thanks @nstuyvesant
