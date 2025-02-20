@@ -67,9 +67,11 @@ class EnvoyDevice extends EventEmitter {
         this.enchargeStateSensor = this.envoyFirmware7xx ? device.enchargeStateSensor || {} : {};
         this.enchargeProfileControl = this.envoyFirmware7xx ? device.enchargeProfileControl || [] : [];
         this.enchargeProfileSensors = this.envoyFirmware7xx ? device.enchargeProfileSensors || [] : [];
+        this.enchargeGridStateSensor = this.envoyFirmware7xx ? device.enchargeGridStateSensor || {} : {};
         this.enchargeGridModeSensors = this.envoyFirmware7xx ? device.enchargeGridModeSensors || [] : [];
         this.enchargeBackupLevelSensors = this.envoyFirmware7xx ? device.enchargeBackupLevelSensors || [] : [];
 
+        this.solarGridStateSensor = this.envoyFirmware7xx ? device.solarGridStateSensor || {} : {};
         this.solarGridModeSensors = this.envoyFirmware7xx ? device.solarGridModeSensors || [] : [];
 
         this.enpowerDryContactsControl = this.envoyFirmware7xx ? device.enpowerDryContactsControl || false : false;
@@ -477,6 +479,22 @@ class EnvoyDevice extends EventEmitter {
         }
         this.enchargeProfileActiveSensorsCount = this.enchargeProfileActiveSensors.length || 0;
 
+        const enchargeGridStateSensorName = this.enchargeGridStateSensor.name || false;
+        const enchargeGridStateSensorDisplayType = this.enchargeGridStateSensor.displayType ?? 0;
+        this.enchargeGridStateActiveSensors = [];
+        if (enchargeGridStateSensorName && enchargeGridStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = enchargeGridStateSensorName;
+            sensor.namePrefix = this.enchargeGridStateSensor.namePrefix;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][enchargeGridStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][enchargeGridStateSensorDisplayType];
+            sensor.state = false;
+            this.enchargeGridStateActiveSensors.push(sensor);
+        } else {
+            const log = enchargeGridStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
+        };
+        this.enchargeGridStateActiveSensorsCount = this.enchargeGridStateActiveSensors.length || 0;
+
         this.enchargeGridModeActiveSensors = [];
         for (const sensor of this.enchargeGridModeSensors) {
             const name = sensor.name ?? false;
@@ -513,6 +531,22 @@ class EnvoyDevice extends EventEmitter {
         this.enchargeBackupLevelActiveSensorsCount = this.enchargeBackupLevelActiveSensors.length || 0;
 
         //solar
+        const solarGridStateSensorName = this.solarGridStateSensor.name || false;
+        const solarGridStateSensorDisplayType = this.solarGridStateSensor.displayType ?? 0;
+        this.solarGridStateActiveSensors = [];
+        if (solarGridStateSensorName && solarGridStateSensorDisplayType > 0) {
+            const sensor = {};
+            sensor.name = solarGridStateSensorName;
+            sensor.namePrefix = this.solarGridStateSensor.namePrefix;
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][solarGridStateSensorDisplayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][solarGridStateSensorDisplayType];
+            sensor.state = false;
+            this.solarGridStateActiveSensors.push(sensor);
+        } else {
+            const log = solarGridStateSensorDisplayType === 0 ? false : this.emit('warn', `Sensor Name Missing`);
+        };
+        this.solarGridStateActiveSensorsCount = this.solarGridStateActiveSensors.length || 0;
+
         this.solarGridModeActiveSensors = [];
         for (const sensor of this.solarGridModeSensors) {
             const name = sensor.name ?? false;
@@ -2782,8 +2816,10 @@ class EnvoyDevice extends EventEmitter {
                             mainsOperState: ApiCodes[enpower.mains_oper_state] ?? 'Unknown',
                             mainsOperStateBool: enpower.mains_oper_state === 'closed' ?? false,
                             enpwrGridMode: enpower.Enpwr_grid_mode ?? 'Unknown',
+                            enpwrGridStateBool: (enpower.Enpwr_grid_mode === 'on-grid' || enpower.Enpwr_grid_mode === 'multimode-ongrid') ?? false,
                             enpwrGridModeTranslated: ApiCodes[enpower.Enpwr_grid_mode] ?? enpower.Enpwr_grid_mode,
                             enchgGridMode: enpower.Enchg_grid_mode ?? 'Unknown',
+                            enchgGridStateBool: (enpower.Enchg_grid_mode === 'on-grid' || enpower.Enchg_grid_mode === 'multimode-ongrid') ?? false,
                             enchgGridModeTranslated: ApiCodes[enpower.Enchg_grid_mode] ?? enpower.Enchg_grid_mode,
                             enpwrRelayStateBm: enpower.Enpwr_relay_state_bm ?? 0,
                             enpwrCurrStateId: enpower.Enpwr_curr_state_id ?? 0
@@ -2820,7 +2856,7 @@ class EnvoyDevice extends EventEmitter {
                         //enpower grid control
                         if (this.enpowerGridStateActiveControlsCount > 0) {
                             for (let i = 0; i < this.enpowerGridStateActiveControlsCount; i++) {
-                                const state = obj.mainsAdminStateBool;
+                                const state = obj.mainsAdminStateBool || obj.enp;
                                 this.enpowerGridStateActiveControls[i].state = state;
 
                                 if (this.enpowerGridStateControlsServices) {
@@ -2834,7 +2870,7 @@ class EnvoyDevice extends EventEmitter {
                         //enpower grid state sensor
                         if (this.enpowerGridStateActiveSensorsCount > 0) {
                             for (let i = 0; i < this.enpowerGridStateActiveSensorsCount; i++) {
-                                const state = obj.mainsAdminStateBool;
+                                const state = obj.mainsAdminStateBool || obj.enpwrGridStateBool;
                                 this.enpowerGridStateActiveSensors[i].state = state;
 
                                 if (this.enpowerGridStateSensorsServices) {
@@ -3122,8 +3158,10 @@ class EnvoyDevice extends EventEmitter {
                     der2State: relayData.der2_state ?? 0,
                     der3State: relayData.der3_state ?? 0,
                     enchgGridMode: relayData.Enchg_grid_mode ?? 'Unknown',
+                    enchgGridStateBool: (relayData.Enchg_grid_mode === 'on-grid' || relayData.Enchg_grid_mode === 'multimode-ongrid') ?? false,
                     enchgGridModeTranslated: ApiCodes[relayData.Enchg_grid_mode] ?? relayData.Enchg_grid_mode,
                     solarGridMode: relayData.Solar_grid_mode ?? 'Unknown',
+                    solarGridStateBool: (relayData.Solar_grid_mode === 'on-grid' || relayData.Solar_grid_mode === 'multimode-ongrid') ?? false,
                     solarGridModeTranslated: ApiCodes[relayData.Solar_grid_mode] ?? relayData.Solar_grid_mode
                 }
 
@@ -3157,7 +3195,22 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.enphaseEnsembleEncAggAvailEnergy, secctrl.encAggAvailEnergy)
                 }
 
-                //encharge grid state sensors
+                //encharge grid state sensor
+                if (this.enchargeGridStateActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.enchargeGridStateActiveSensorsCount; i++) {
+                        const state = relay.enchgGridStateBool;
+                        this.enchargeGridStateActiveSensors[i].state = state;
+
+                        if (this.enchargeGridStateSensorsServices) {
+                            const characteristicType = this.enchargeGridStateActiveSensors[i].characteristicType;
+                            this.enchargeGridStateSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+
+
+                //encharge grid mode sensors
                 if (this.enchargeGridModeActiveSensorsCount > 0) {
                     for (let i = 0; i < this.enchargeGridModeActiveSensorsCount; i++) {
                         const gridMode = this.enchargeGridModeActiveSensors[i].gridMode;
@@ -3172,7 +3225,21 @@ class EnvoyDevice extends EventEmitter {
                     }
                 }
 
-                //solar grid state sensors
+                //solar grid state sensor
+                if (this.solarGridStateActiveSensorsCount > 0) {
+                    for (let i = 0; i < this.solarGridStateActiveSensorsCount; i++) {
+                        const state = relay.solarGridStateBool;
+                        this.solarGridStateActiveSensors[i].state = state;
+
+                        if (this.solarGridStateSensorsServices) {
+                            const characteristicType = this.solarGridStateActiveSensors[i].characteristicType;
+                            this.solarGridStateSensorsServices[i]
+                                .updateCharacteristic(characteristicType, state)
+                        }
+                    }
+                }
+
+                //solar grid mode sensors
                 if (this.solarGridModeActiveSensorsCount > 0) {
                     for (let i = 0; i < this.solarGridModeActiveSensorsCount; i++) {
                         const gridMode = this.solarGridModeActiveSensors[i].gridMode;
@@ -5892,6 +5959,27 @@ class EnvoyDevice extends EventEmitter {
                             return value;
                         });
 
+                    //enchargegrid state sensor
+                    if (this.enchargeGridStateActiveSensorsCount > 0) {
+                        this.enchargeGridStateSensorsServices = [];
+                        for (let i = 0; i < this.enchargeGridStateActiveSensorsCount; i++) {
+                            const name = this.enchargeGridStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.enchargeGridStateActiveSensors[i].name}` : this.enchargeGridStateActiveSensors[i].name;
+                            const serviceType = this.enchargeGridStateActiveSensors[i].serviceType;
+                            const characteristicType = this.enchargeGridStateActiveSensors[i].characteristicType;
+                            const debug = this.enableDebugMode ? this.emit('debug', `Prepare encharge ${serialNumber} Grid State Sensor ${name} Service`) : false;
+                            const enchargeGridStateSensorsService = accessory.addService(serviceType, name, `enchargeGridStateSensorService${i}`);
+                            enchargeGridStateSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            enchargeGridStateSensorsService.setCharacteristic(Characteristic.ConfiguredName, name);
+                            enchargeGridStateSensorsService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.enchargeGridStateActiveSensors[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('info', `encharge: ${serialNumber}, grid state sensor: ${name}, state: ${state ? 'Grid ON' : 'Grid Off'}`);
+                                    return state;
+                                });
+                            this.enchargeGridStateSensorsServices.push(enchargeGridStateSensorsService);
+                        };
+                    };
+
                     //encharge grid mode sensor services
                     if (this.enchargeGridModeActiveSensorsCount > 0) {
                         this.enchargeGridModeSensorsServices = [];
@@ -5931,6 +6019,27 @@ class EnvoyDevice extends EventEmitter {
                                     return state;
                                 });
                             this.enchargeBackupLevelSensorsServices.push(enchargeBackupLevelSensorsService);
+                        };
+                    };
+
+                    //solar grid state sensor
+                    if (this.solarGridStateActiveSensorsCount > 0) {
+                        this.solarGridStateSensorsServices = [];
+                        for (let i = 0; i < this.solarGridStateActiveSensorsCount; i++) {
+                            const name = this.solarGridStateActiveSensors[i].namePrefix ? `${accessoryName} ${this.solarGridStateActiveSensors[i].name}` : this.solarGridStateActiveSensors[i].name;
+                            const serviceType = this.solarGridStateActiveSensors[i].serviceType;
+                            const characteristicType = this.solarGridStateActiveSensors[i].characteristicType;
+                            const debug = this.enableDebugMode ? this.emit('debug', `Prepare solar ${serialNumber} Grid State Sensor ${name} Service`) : false;
+                            const solarGridStateSensorsService = accessory.addService(serviceType, name, `solarGridStateSensorService${i}`);
+                            solarGridStateSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            solarGridStateSensorsService.setCharacteristic(Characteristic.ConfiguredName, name);
+                            solarGridStateSensorsService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.solarGridStateActiveSensors[i].state;
+                                    const info = this.disableLogInfo ? false : this.emit('info', `solar: ${serialNumber}, grid state sensor: ${name}, state: ${state ? 'Grid ON' : 'Grid Off'}`);
+                                    return state;
+                                });
+                            this.solarGridStateSensorsServices.push(solarGridStateSensorsService);
                         };
                     };
 

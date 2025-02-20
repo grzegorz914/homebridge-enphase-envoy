@@ -1458,6 +1458,60 @@
                 }
               }
             },
+            "enchargeGridStateSensor": {
+              "title": "Grid State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Accessory name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Name for the sensor accessory in the Home app",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type for Home app",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "Use the accessory name as a prefix",
+                  "required": false
+                }
+              }
+            },
             "enchargeGridModeSensors": {
               "title": "Encharge Grid Sensors",
               "type": "array",
@@ -1891,6 +1945,60 @@
               "default": false,
               "description": "Enables monitoring of dry contacts state",
               "required": false
+            },
+            "solarGridStateSensor": {
+              "title": "Grid State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Accessory name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Name for the sensor accessory in the Home app",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type for Home app",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "Use the accessory name as a prefix",
+                  "required": false
+                }
+              }
             },
             "solarGridModeSensors": {
               "title": "Solar Grid Sensors",
@@ -3118,6 +3226,19 @@
                                   ]
                                 },
                                 {
+                                  "key": "devices[].enchargeGridStateSensor",
+                                  "type": "section",
+                                  "title": "Grid State Sensor",
+                                  "description": "Section for enabling sensor for grid state monitoring",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    "devices[].enchargeGridStateSensor.name",
+                                    "devices[].enchargeGridStateSensor.displayType",
+                                    "devices[].enchargeGridStateSensor.namePrefix"
+                                  ]
+                                },
+                                {
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Grid Mode Sensors",
@@ -3173,6 +3294,19 @@
                               "type": "tabarray",
                               "title": "{{ value.title }}",
                               "items": [
+                                {
+                                  "key": "devices[].solarGridStateSensor",
+                                  "type": "section",
+                                  "title": "Grid State Sensor",
+                                  "description": "Section for enabling sensor for grid state monitoring",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    "devices[].solarGridStateSensor.name",
+                                    "devices[].solarGridStateSensor.displayType",
+                                    "devices[].solarGridStateSensor.namePrefix"
+                                  ]
+                                },
                                 {
                                   "key": "devices[]",
                                   "type": "section",

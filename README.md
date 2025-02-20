@@ -28,6 +28,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
 
 ## Supported hardware
+
 * Firmware v5 through v8
 * System `Envoy S`, `IQ Gateway`, `IQ Load Controller`, `IQ Combiner`
 * Q-Relays `Q-RELAY-1P` `Q-RELAY-3P`
@@ -42,11 +43,13 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 ## Exposed accessories in the Apple Home app
 
 ### Monitoring Sensors
+
 * System `Data Refresh`
 * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`
 * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`
 * Enpower `Grid State`
-* Encharge: `State`, `Backup Level`, `Dry Contacts`
+* Encharge: `State`, `Grid State`, `Backup Level`, `Dry Contacts`
+* Solar `Grid State`
 * Encharge Profile: `Self Consumption`, `Savings`, `Economy`, `Full Backup`
 * Grid Mode
   * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
@@ -55,6 +58,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 * Generator `State`, `Mode`
 
 ### Control Switches, Outlets, Lightbulbs
+
 * System `Data Refresh`
 * Production `PLC Level`, `Power Mode`, `Power State`, `Power Level`
 * AC Battery `Energy State`, `Energy Level`
@@ -68,6 +72,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 * Generator `State`, `Mode`
 
 ## Notes
+
 * Token authentication (6.0+) - Tokens can be generated automatically with the Enlighten username (email address) and password or external tools. Tokens generated with Enlighten credentials are automatically refreshed while those generated with external tools are not.
 * Envoy `password` is detected automatically or can be added in the configuration if already changed by user.
 * Installer `password` is generated automatically (firmware <= v5.x).
@@ -198,6 +203,10 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `profile` | string | Profile: `Savings`, `Economy`, `Full Backup`, `Self Consumption` |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| `enechargeGridStateSensor` | | key | `Encharge Grid State Sensor` for monitoring. If `Grid ON`, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 | `enchargeGridModeSensors` | | key | `Encharge Grid Mode Sensors` for monitoring. If the `Mode` matches, the contact was opened. |
 | | `name` | string | Accessory name for Home app |
 | | `gridMode` | string | Grid mode: `Multimode Grid On`, `Multimode Grid Off` |
@@ -207,6 +216,10 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
 | | `backupLevel` | number | Backup level in `%` to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `solarGridStateSensor` | | key | `Solar Grid State Sensor` for monitoring. If `Grid ON`, the contact was opened. |
+| | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `solarGridModeSensors` | | key | `Solar Grid Mode Sensors` for monitoring. If the `Mode` matches, the contact was opened. |
