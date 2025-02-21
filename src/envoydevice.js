@@ -2816,11 +2816,11 @@ class EnvoyDevice extends EventEmitter {
                             mainsOperState: ApiCodes[enpower.mains_oper_state] ?? 'Unknown',
                             mainsOperStateBool: enpower.mains_oper_state === 'closed' ?? false,
                             enpwrGridMode: enpower.Enpwr_grid_mode ?? 'Unknown',
-                            enpwrGridStateBool: (enpower.Enpwr_grid_mode === 'on-grid' || enpower.Enpwr_grid_mode === 'multimode-ongrid') ?? false,
                             enpwrGridModeTranslated: ApiCodes[enpower.Enpwr_grid_mode] ?? enpower.Enpwr_grid_mode,
+                            enpwrGridStateBool: enpower.mains_admin_state === 'closed' ?? false,
                             enchgGridMode: enpower.Enchg_grid_mode ?? 'Unknown',
-                            enchgGridStateBool: (enpower.Enchg_grid_mode === 'on-grid' || enpower.Enchg_grid_mode === 'multimode-ongrid') ?? false,
                             enchgGridModeTranslated: ApiCodes[enpower.Enchg_grid_mode] ?? enpower.Enchg_grid_mode,
+                            enchgGridStateBool: enpower.mains_admin_state === 'closed' ?? false,
                             enpwrRelayStateBm: enpower.Enpwr_relay_state_bm ?? 0,
                             enpwrCurrStateId: enpower.Enpwr_curr_state_id ?? 0
                         }
@@ -2856,7 +2856,7 @@ class EnvoyDevice extends EventEmitter {
                         //enpower grid control
                         if (this.enpowerGridStateActiveControlsCount > 0) {
                             for (let i = 0; i < this.enpowerGridStateActiveControlsCount; i++) {
-                                const state = obj.mainsAdminStateBool || obj.enp;
+                                const state = obj.mainsAdminStateBool;
                                 this.enpowerGridStateActiveControls[i].state = state;
 
                                 if (this.enpowerGridStateControlsServices) {
@@ -2870,7 +2870,7 @@ class EnvoyDevice extends EventEmitter {
                         //enpower grid state sensor
                         if (this.enpowerGridStateActiveSensorsCount > 0) {
                             for (let i = 0; i < this.enpowerGridStateActiveSensorsCount; i++) {
-                                const state = obj.mainsAdminStateBool || obj.enpwrGridStateBool;
+                                const state = obj.enpwrGridStateBool;
                                 this.enpowerGridStateActiveSensors[i].state = state;
 
                                 if (this.enpowerGridStateSensorsServices) {
@@ -3158,11 +3158,11 @@ class EnvoyDevice extends EventEmitter {
                     der2State: relayData.der2_state ?? 0,
                     der3State: relayData.der3_state ?? 0,
                     enchgGridMode: relayData.Enchg_grid_mode ?? 'Unknown',
-                    enchgGridStateBool: (relayData.Enchg_grid_mode === 'on-grid' || relayData.Enchg_grid_mode === 'multimode-ongrid') ?? false,
                     enchgGridModeTranslated: ApiCodes[relayData.Enchg_grid_mode] ?? relayData.Enchg_grid_mode,
+                    enchgGridStateBool: relayData.mains_admin_state === 'closed' ?? false,
                     solarGridMode: relayData.Solar_grid_mode ?? 'Unknown',
-                    solarGridStateBool: (relayData.Solar_grid_mode === 'on-grid' || relayData.Solar_grid_mode === 'multimode-ongrid') ?? false,
-                    solarGridModeTranslated: ApiCodes[relayData.Solar_grid_mode] ?? relayData.Solar_grid_mode
+                    solarGridModeTranslated: ApiCodes[relayData.Solar_grid_mode] ?? relayData.Solar_grid_mode,
+                    solarGridStateBool: relayData.mains_admin_state === 'closed' ?? false,
                 }
 
                 //add relay to ensemble object
