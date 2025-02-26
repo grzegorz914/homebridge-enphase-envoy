@@ -95,10 +95,10 @@ class EnvoyDevice extends EventEmitter {
         this.disableLogInfo = device.disableLogInfo || false;
         this.disableLogDeviceInfo = device.disableLogDeviceInfo || false;
 
-        //externaal integrations
-        const restFul = device.restFul || {};
+        //external integrations
+        this.restFul = device.restFul ?? {};
         this.restFulConnected = false;
-        const mqtt = device.mqtt || {};
+        this.mqtt = device.mqtt ?? {};
         this.mqttConnected = false;
 
         //power production control
@@ -838,73 +838,6 @@ class EnvoyDevice extends EventEmitter {
             arfProfile: {}
         };
 
-        //RESTFul server
-        const restFulEnabled = restFul.enable || false;
-        if (restFulEnabled) {
-            this.restFul = new RestFul({
-                port: restFul.port || 3000,
-                debug: restFul.debug || false
-            });
-
-            this.restFul.on('connected', (success) => {
-                this.restFulConnected = true;
-                this.emit('success', success);
-            })
-                .on('set', async (key, value) => {
-                    try {
-                        await this.setOverExternalIntegration('RESTFul', key, value);
-                    } catch (error) {
-                        this.emit('warn', `RESTFul set error: ${error}`);
-                    };
-                })
-                .on('debug', (debug) => {
-                    this.emit('debug', debug);
-                })
-                .on('warn', (warn) => {
-                    this.emit('warn', warn);
-                })
-                .on('error', (error) => {
-                    this.emit('error', error);
-                });
-        }
-
-        //mqtt client
-        const mqttEnabled = mqtt.enable || false;
-        if (mqttEnabled) {
-            this.mqtt = new Mqtt({
-                host: mqtt.host,
-                port: mqtt.port || 1883,
-                clientId: mqtt.clientId || `envoy_${Math.random().toString(16).slice(3)}`,
-                prefix: `${mqtt.prefix}/${device.name}`,
-                user: mqtt.user,
-                passwd: mqtt.passwd,
-                debug: mqtt.debug || false
-            });
-            this.mqtt.on('connected', (success) => {
-                this.mqttConnected = true;
-                this.emit('success', success);
-            })
-                .on('subscribed', (success) => {
-                    this.emit('success', success);
-                })
-                .on('set', async (key, value) => {
-                    try {
-                        await this.setOverExternalIntegration('MQTT', key, value);
-                    } catch (error) {
-                        this.emit('warn', `MQTT set, error: ${error}`);
-                    };
-                })
-                .on('debug', (debug) => {
-                    this.emit('debug', debug);
-                })
-                .on('warn', (warn) => {
-                    this.emit('warn', warn);
-                })
-                .on('error', (error) => {
-                    this.emit('error', error);
-                });
-        };
-
         //create impulse generator
         this.impulseGenerator = new ImpulseGenerator();
         this.impulseGenerator.on('updateHome', async () => {
@@ -993,10 +926,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.dataSampling = state ?? false;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('datasampling', { state: state ?? false }) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('datasampling', { state: state ?? false }) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Data Sampling', { state: state ?? false }) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Data Sampling', { state: state ?? false }) : false;
         });
     };
 
@@ -1011,14 +944,14 @@ class EnvoyDevice extends EventEmitter {
     async checkJwtToken() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token`) : false;
 
-        if (!this.envoyFirmware7xx) {
-            return true;
-        };
-
         if (this.checkJwtTokenRunning) {
             return false;
         };
         this.checkJwtTokenRunning = true;
+
+        if (!this.envoyFirmware7xx) {
+            return true;
+        };
 
         //check cookie are valid
         const cookieValid = this.cookie;
@@ -1113,10 +1046,10 @@ class EnvoyDevice extends EventEmitter {
             this.jwtToken = tokenData;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('token', tokenData) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('token', tokenData) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Token', tokenData) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Token', tokenData) : false;
 
             return true;
         } catch (error) {
@@ -1194,10 +1127,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.arfProfile.supported = arfProfileSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('gridprofile', profile) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('gridprofile', profile) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Grid Profile', profile) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Grid Profile', profile) : false;
             return true;
         } catch (error) {
             this.emit('warn', 'Arf Profile not supported, dont worry all working correct, only the profile name will not be displayed')
@@ -1319,10 +1252,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.meters.supported = this.pv.envoy.imeter;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('info', parseInfoData) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('info', parseInfoData) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Info', parseInfoData) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Info', parseInfoData) : false;
             return true;
         } catch (error) {
             throw new Error(`Update info error: ${error}`);
@@ -1573,10 +1506,10 @@ class EnvoyDevice extends EventEmitter {
             this.pv.envoy.home = home;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('home', envoy) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('home', envoy) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Home', envoy) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Home', envoy) : false;
             return true;
         } catch (error) {
             throw new Error(`Update home error: ${error}`);
@@ -1839,10 +1772,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.ensembles.inventory.supported = ensemblesInventorySupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('inventory', inventory) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('inventory', inventory) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Inventory', inventory) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Inventory', inventory) : false;
             return true;
         } catch (error) {
             throw new Error(`Update inventory error: ${error}`);
@@ -1922,10 +1855,10 @@ class EnvoyDevice extends EventEmitter {
             const metersEnabled = this.pv.meters.some(meter => meter.state);
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('meters', meters) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('meters', meters) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Meters', meters) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Meters', meters) : false;
             return metersEnabled;
         } catch (error) {
             throw new Error(`Update meters error: ${error}`);
@@ -1989,10 +1922,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.meters.reading.supported = metersReadingSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('metersreading', metersReading) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('metersreading', metersReading) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Meters Reading', metersReading) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Meters Reading', metersReading) : false;
             return true;
         } catch (error) {
             throw new Error(`Update meters reading error: ${error}`);
@@ -2046,10 +1979,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.microinverters.status.supported = microinvertersStatusSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('microinverters', microinverters) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('microinverters', microinverters) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Microinverters', microinverters) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Microinverters', microinverters) : false;
             return true;
         } catch (error) {
             throw new Error(`Update microinverters status error: ${error}`);
@@ -2086,10 +2019,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.production.microinverters.supported = productionSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('production', production) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('production', production) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Production', production) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Production', production) : false;
             return true;
         } catch (error) {
             throw new Error(`Update production error: ${error}`);
@@ -2617,10 +2550,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.production.ct.acBatterie.supported = productionCtAcBatterieSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('productionct', productionCtData) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('productionct', productionCtData) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Production CT', productionCtData) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Production CT', productionCtData) : false;
             return true;
         } catch (error) {
             throw new Error(`Update production ct error: ${error}`);
@@ -2675,10 +2608,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.powerProductionState.supported = powerProductionStateSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('powermode', powerProductionState) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('powermode', powerProductionState) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Power Mode', powerProductionState) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Power Mode', powerProductionState) : false;
             return true;
         } catch (error) {
             throw new Error(`Update power production state error: ${error}`);
@@ -2912,10 +2845,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.ensembles.installed = this.feature.enpowers.installed;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('ensembleinventory', ensembleInventory) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('ensembleinventory', ensembleInventory) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Inventory', ensembleInventory) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Ensemble Inventory', ensembleInventory) : false;
             return ensembleSupported;
         } catch (error) {
             throw new Error(`Update ensemble inventory error: ${error}`);
@@ -3267,10 +3200,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.ensembles.supported = ensemblesSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('ensemblestatus', ensembleStatus) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('ensemblestatus', ensembleStatus) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Ensemble Status', ensembleStatus) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Ensemble Status', ensembleStatus) : false;
             return ensemblesSupported;
         } catch (error) {
             throw new Error(`Update ensemble status error: ${error}`);
@@ -3319,10 +3252,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.encharges.settings.supported = enchargeSettingsSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('enchargesettings', enchargeSettings) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('enchargesettings', enchargeSettings) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Encharge Settings', enchargeSettings) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Encharge Settings', enchargeSettings) : false;
             return enchargeSettingsSupported;
         } catch (error) {
             throw new Error(`Update encharge settings. error: ${error}`);
@@ -3517,10 +3450,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.encharges.tariff.supported = tariffSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('tariff', tariffSettings) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('tariff', tariffSettings) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Tariff', tariffSettings) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Tariff', tariffSettings) : false;
             return tariffSupported;
         } catch (error) {
             throw new Error(`Update tariff. error: ${error}`);
@@ -3575,10 +3508,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.dryContacts.supported = dryContactsSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('drycontacts', ensembleDryContacts) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('drycontacts', ensembleDryContacts) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts', ensembleDryContacts) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Dry Contacts', ensembleDryContacts) : false;
             return dryContactsSupported;
         } catch (error) {
             throw new Error(`Update dry contacts error: ${error}`);
@@ -3640,10 +3573,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.dryContacts.settings.supported = dryContactsSettingsSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('drycontactssettings', ensembleDryContactsSettings) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('drycontactssettings', ensembleDryContactsSettings) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Dry Contacts Settings', ensembleDryContactsSettings) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Dry Contacts Settings', ensembleDryContactsSettings) : false;
             return dryContactsSettingsSupported;
         } catch (error) {
             throw new Error(`Update dry contacts settings error: ${error}`);
@@ -3769,10 +3702,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.generators.supported = generatorSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('generator', ensembleGenerator) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('generator', ensembleGenerator) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator', ensembleGenerator) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Generator', ensembleGenerator) : false;
             return generatorSupported;
         } catch (error) {
             throw new Error(`Update generator error: ${error}`);
@@ -3817,10 +3750,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.generators.settings.supported = generatorSettingsSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('generatorsettings', generatorSettings) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('generatorsettings', generatorSettings) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Generator Settings', generatorSettings) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Generator Settings', generatorSettings) : false;
             return generatorSettingsSupported;
         } catch (error) {
             throw new Error(`Update generator settings error: ${error}`);
@@ -3926,10 +3859,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.plcLevel.supported = true;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('plclevel', plcLevel) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('plclevel', plcLevel) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'PLC Level', plcLevel) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'PLC Level', plcLevel) : false;
             return true;
         } catch (error) {
             throw new Error(`Update plc level error: ${error}`);
@@ -4128,10 +4061,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.liveData.supported = liveDataSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul.update('livedata', live) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('livedata', live) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt.emit('publish', 'Live Data', live) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Live Data', live) : false;
             return true;
         } catch (error) {
             throw new Error(`Update live data error: ${error}`);
@@ -4365,6 +4298,114 @@ class EnvoyDevice extends EventEmitter {
         }
     };
 
+    getDeviceInfo() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info`) : false;
+
+        //debug objects
+        const debug20 = this.enableDebugMode && this.feature.envoy.installed ? this.emit('debug', `Pv object:`, this.pv) : false;
+        const debug21 = this.enableDebugMode && this.feature.ensembles.installed ? this.emit('debug', `Ensemble object:`, this.ensemble) : false;
+
+        //display info
+        this.emit('devInfo', `-------- ${this.name} --------`);
+        this.emit('devInfo', `Manufacturer: Enphase`);
+        this.emit('devInfo', `Model: ${this.pv.envoy.modelName}`);
+        this.emit('devInfo', `Firmware: ${this.pv.envoy.software}`);
+        this.emit('devInfo', `SerialNr: ${this.pv.envoy.serialNumber}`);
+        this.emit('devInfo', `Time: ${this.pv.envoy.time}`);
+        this.emit('devInfo', `------------------------------`);
+        const displayLog12 = this.feature.qRelays.installed ? this.emit('devInfo', `Q-Relays: ${this.feature.qRelays.count}`) : false;
+        this.emit('devInfo', `Inverters: ${this.feature.microinverters.count}`);
+        const displayLog13 = this.feature.acBatteries.installed ? this.emit('devInfo', `AC Batteries: ${this.feature.acBatteries.count}`) : false;
+        const displayLog14 = this.feature.qRelays.installed || this.feature.acBatteries.installed ? this.emit('devInfo', `--------------------------------`) : false;
+        const displayLog0 = this.feature.meters.installed ? this.emit('devInfo', `Meters: Yes`) : false;
+        const displayLog1 = this.feature.meters.installed && this.feature.meters.production.supported ? this.emit('devInfo', `Production: ${this.feature.meters.production.enabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog2 = this.feature.meters.installed && this.feature.meters.consumption.supported ? this.emit('devInfo', `Consumption: ${this.feature.meters.consumption.enabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog3 = this.feature.meters.installed && this.feature.meters.acBatterie.supported ? this.emit('devInfo', `Storage: ${this.feature.meters.acBatterie.enabled ? `Enabled` : `Disabled`}`) : false;
+        const displayLog4 = this.feature.meters.installed ? this.emit('devInfo', `--------------------------------`) : false;
+        const displayLog5 = this.feature.ensembles.installed ? this.emit('devInfo', `Ensemble: Yes`) : false;
+        const displayLog6 = this.feature.enpowers.installed ? this.emit('devInfo', `Enpowers: ${this.feature.enpowers.count}`) : false;
+        const displayLog7 = this.feature.encharges.installed ? this.emit('devInfo', `Encharges: ${this.feature.encharges.count}`) : false;
+        const displayLog8 = this.feature.dryContacts.installed ? this.emit('devInfo', `Dry Contacts: ${this.feature.dryContacts.count}`) : false;
+        const displayLog9 = this.feature.generators.installed ? this.emit('devInfo', `Generator: Yes`) : false;
+        const displayLog10 = this.feature.wirelessConnections.installed ? this.emit('devInfo', `Wireless Kit: ${this.feature.wirelessConnections.count}`) : false;
+        const displayLog11 = this.feature.ensembles.installed || this.feature.enpowers.installed || this.feature.encharges.installed || this.feature.dryContacts.installed || this.feature.wirelessConnections.installed || this.feature.generators.installed ? this.emit('devInfo', `--------------------------------`) : false;
+    };
+
+    async externalIntegrations() {
+        try {
+            //RESTFul server
+            const restFulEnabled = this.restFul.enable || false;
+            if (restFulEnabled) {
+                this.restFul1 = new RestFul({
+                    port: this.restFul.port || 3000,
+                    debug: this.restFul.debug || false
+                });
+
+                this.restFul1.on('connected', (success) => {
+                    this.restFulConnected = true;
+                    this.emit('success', success);
+                })
+                    .on('set', async (key, value) => {
+                        try {
+                            await this.setOverExternalIntegration('RESTFul', key, value);
+                        } catch (error) {
+                            this.emit('warn', `RESTFul set error: ${error}`);
+                        };
+                    })
+                    .on('debug', (debug) => {
+                        this.emit('debug', debug);
+                    })
+                    .on('warn', (warn) => {
+                        this.emit('warn', warn);
+                    })
+                    .on('error', (error) => {
+                        this.emit('error', error);
+                    });
+            }
+
+            //mqtt client
+            const mqttEnabled = this.mqtt.enable || false;
+            if (mqttEnabled) {
+                this.mqtt1 = new Mqtt({
+                    host: this.mqtt.host,
+                    port: this.mqtt.port || 1883,
+                    clientId: this.mqtt.clientId || `envoy_${Math.random().toString(16).slice(3)}`,
+                    prefix: `${this.mqtt.prefix}/${this.name}`,
+                    user: this.mqtt.user,
+                    passwd: this.mqtt.passwd,
+                    debug: this.mqtt.debug || false
+                });
+                this.mqtt1.on('connected', (success) => {
+                    this.mqttConnected = true;
+                    this.emit('success', success);
+                })
+                    .on('subscribed', (success) => {
+                        this.emit('success', success);
+                    })
+                    .on('set', async (key, value) => {
+                        try {
+                            await this.setOverExternalIntegration('MQTT', key, value);
+                        } catch (error) {
+                            this.emit('warn', `MQTT set, error: ${error}`);
+                        };
+                    })
+                    .on('debug', (debug) => {
+                        this.emit('debug', debug);
+                    })
+                    .on('warn', (warn) => {
+                        this.emit('warn', warn);
+                    })
+                    .on('error', (error) => {
+                        this.emit('error', error);
+                    });
+            };
+
+            return true;
+        } catch (error) {
+            this.emit('warn', `External integration start error: ${error}`);
+        };
+    }
+
     async setOverExternalIntegration(integration, key, value) {
         try {
             let set = false
@@ -4406,39 +4447,6 @@ class EnvoyDevice extends EventEmitter {
             throw new Error(`Impulse generator start error: ${error}`);
         };
     }
-
-    getDeviceInfo() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info`) : false;
-
-        //debug objects
-        const debug20 = this.enableDebugMode && this.feature.envoy.installed ? this.emit('debug', `Pv object:`, this.pv) : false;
-        const debug21 = this.enableDebugMode && this.feature.ensembles.installed ? this.emit('debug', `Ensemble object:`, this.ensemble) : false;
-
-        //display info
-        this.emit('devInfo', `-------- ${this.name} --------`);
-        this.emit('devInfo', `Manufacturer: Enphase`);
-        this.emit('devInfo', `Model: ${this.pv.envoy.modelName}`);
-        this.emit('devInfo', `Firmware: ${this.pv.envoy.software}`);
-        this.emit('devInfo', `SerialNr: ${this.pv.envoy.serialNumber}`);
-        this.emit('devInfo', `Time: ${this.pv.envoy.time}`);
-        this.emit('devInfo', `------------------------------`);
-        const displayLog12 = this.feature.qRelays.installed ? this.emit('devInfo', `Q-Relays: ${this.feature.qRelays.count}`) : false;
-        this.emit('devInfo', `Inverters: ${this.feature.microinverters.count}`);
-        const displayLog13 = this.feature.acBatteries.installed ? this.emit('devInfo', `AC Batteries: ${this.feature.acBatteries.count}`) : false;
-        const displayLog14 = this.feature.qRelays.installed || this.feature.acBatteries.installed ? this.emit('devInfo', `--------------------------------`) : false;
-        const displayLog0 = this.feature.meters.installed ? this.emit('devInfo', `Meters: Yes`) : false;
-        const displayLog1 = this.feature.meters.installed && this.feature.meters.production.supported ? this.emit('devInfo', `Production: ${this.feature.meters.production.enabled ? `Enabled` : `Disabled`}`) : false;
-        const displayLog2 = this.feature.meters.installed && this.feature.meters.consumption.supported ? this.emit('devInfo', `Consumption: ${this.feature.meters.consumption.enabled ? `Enabled` : `Disabled`}`) : false;
-        const displayLog3 = this.feature.meters.installed && this.feature.meters.acBatterie.supported ? this.emit('devInfo', `Storage: ${this.feature.meters.acBatterie.enabled ? `Enabled` : `Disabled`}`) : false;
-        const displayLog4 = this.feature.meters.installed ? this.emit('devInfo', `--------------------------------`) : false;
-        const displayLog5 = this.feature.ensembles.installed ? this.emit('devInfo', `Ensemble: Yes`) : false;
-        const displayLog6 = this.feature.enpowers.installed ? this.emit('devInfo', `Enpowers: ${this.feature.enpowers.count}`) : false;
-        const displayLog7 = this.feature.encharges.installed ? this.emit('devInfo', `Encharges: ${this.feature.encharges.count}`) : false;
-        const displayLog8 = this.feature.dryContacts.installed ? this.emit('devInfo', `Dry Contacts: ${this.feature.dryContacts.count}`) : false;
-        const displayLog9 = this.feature.generators.installed ? this.emit('devInfo', `Generator: Yes`) : false;
-        const displayLog10 = this.feature.wirelessConnections.installed ? this.emit('devInfo', `Wireless Kit: ${this.feature.wirelessConnections.count}`) : false;
-        const displayLog11 = this.feature.ensembles.installed || this.feature.enpowers.installed || this.feature.encharges.installed || this.feature.dryContacts.installed || this.feature.wirelessConnections.installed || this.feature.generators.installed ? this.emit('devInfo', `--------------------------------`) : false;
-    };
 
     //prepare accessory
     async prepareAccessory() {
@@ -6844,6 +6852,9 @@ class EnvoyDevice extends EventEmitter {
 
             //get device info
             const logDeviceInfo = !this.disableLogDeviceInfo ? this.getDeviceInfo() : false;
+
+            //start external integrations
+            const startExternalIntegrations = this.restFul.enable || this.mqtt.enable ? await this.externalIntegrations() : false;
 
             //prepare accessory
             const accessory = this.startPrepareAccessory ? await this.prepareAccessory() : false;
