@@ -944,14 +944,14 @@ class EnvoyDevice extends EventEmitter {
     async checkJwtToken() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token`) : false;
 
-        if (this.checkJwtTokenRunning) {
-            return false;
-        };
-        this.checkJwtTokenRunning = true;
-
         if (!this.envoyFirmware7xx) {
             return true;
         };
+
+        if (this.checkJwtTokenRunning) {
+            return null;
+        };
+        this.checkJwtTokenRunning = true;
 
         //check cookie are valid
         const cookieValid = this.cookie;
@@ -975,14 +975,10 @@ class EnvoyDevice extends EventEmitter {
             };
         };
 
-
         //use token from enlighten
         try {
-            //read token from file
-            const data = await this.readData(this.envoyTokenFile);
-            const parsedData = JSON.parse(data);
-            parsedData.token ? parsedData : null;
-            const tokenValid = parsedData && parsedData.expires_at >= Math.floor(Date.now() / 1000) + 60;
+            //check token is valid
+            const tokenValid = this.jwtToken.token && this.jwtToken.expires_at >= Math.floor(Date.now() / 1000) + 60;
             const debug = this.enableDebugMode ? this.emit('warn', `JWT Token: ${tokenValid ? 'Valid' : 'Not valid'}, cookie: ${cookieValid ? 'Valid' : 'Not valid'}`) : false;
 
             if (tokenValid && cookieValid) {
@@ -993,19 +989,19 @@ class EnvoyDevice extends EventEmitter {
             //get new JWT token
             const emit = !tokenValid ? this.emit('warn', `JWT Token expired, refreshing`) : false;
             const wait = !tokenValid ? await new Promise(resolve => setTimeout(resolve, 30000)) : false;
-            const getToken = await this.getJwtToken();
+            const getToken = !tokenValid ? await this.getJwtToken() : true;
             if (!getToken) {
                 this.checkJwtTokenRunning = false;
-                return false;
+                return null;
             }
 
             //validate JWT tokken
             const wait1 = !cookieValid ? await new Promise(resolve => setTimeout(resolve, 2000)) : false;
             const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, validating`) : false;
-            const validateToken = !cookieValid ? await this.validateJwtToken() : false;
+            const validateToken = !cookieValid ? await this.validateJwtToken() : true;
             if (!validateToken) {
                 this.checkJwtTokenRunning = false;
-                return false;
+                return null;
             }
 
             this.checkJwtTokenRunning = false;
@@ -1035,7 +1031,7 @@ class EnvoyDevice extends EventEmitter {
 
             const tokenData = await envoyToken.refreshToken();
             if (!tokenData) {
-                return false;
+                return null;
             }
 
             const updatedTokenData = {
@@ -1044,6 +1040,13 @@ class EnvoyDevice extends EventEmitter {
             };
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token:`, updatedTokenData) : false;
             this.jwtToken = tokenData;
+
+            //save token
+            try {
+                await this.saveData(this.tokenFile, tokenData);
+            } catch (error) {
+                this.emit('error', `Save token error: ${error}`);
+            };
 
             //restFul
             const restFul = this.restFulConnected ? this.restFul1.update('token', tokenData) : false;
@@ -1080,7 +1083,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token: Valid`) : false;
             const cookie = response.headers['set-cookie'] ?? false;
             if (!cookie) {
-                return false;
+                return null;
             }
 
             //create axios instance get with cookie
@@ -1166,14 +1169,14 @@ class EnvoyDevice extends EventEmitter {
             //check envoy dev Id exist
             if (startIndex === -1) {
                 this.emit('warn', `Envoy dev Id in backbone app not found, dont worry all working correct, only the power production control will not be possible`);
-                return false;
+                return null;
             }
 
             const substringStartIndex = startIndex + keyword.length;
             const envoyDevId = envoyBackboneApp.substr(substringStartIndex, 9);
             if (envoyDevId.length !== 9) {
                 this.emit('warn', `Envoy dev Id: ${envoyDevId} in backbone app have wrong format, dont worry all working correct, only the power production control will not be possible`);
-                return false;
+                return null;
             }
 
             try {
@@ -1187,7 +1190,7 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             this.emit('warn', `Get backbone app error: ${error}, dont worry all working correct, only the power production control will not be possible`);
-            return false;
+            return null;
         };
     };
 
@@ -1276,16 +1279,16 @@ class EnvoyDevice extends EventEmitter {
                 passwd: envoyPasswd
             }).on('warn', (warn) => {
                 this.emit('warn', `Digest authorization envoy warning: ${warn}, dont worry all working correct, only the power and power max of microinverters will not be displayed`)
-                return false;
+                return null;
             }).on('error', (error) => {
                 this.emit('error', `Digest authorization envoy error: ${error}`)
-                return false;
+                return null;
             });
 
             return true;
         } catch (error) {
             this.emit('warn', `Calculaate envoy password error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed`);
-            return false;
+            return null;
         };
     };
 
@@ -1308,10 +1311,10 @@ class EnvoyDevice extends EventEmitter {
                         serialNumber: deviceSn
                     }).on('warn', (warn) => {
                         this.emit('warn', `Calculate password warning: ${warn}, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
-                        return false;
+                        return null;
                     }).on('error', (error) => {
                         this.emit('error', `Calculate password error: ${error}`)
-                        return false;
+                        return null;
                     });
 
                     //caalculate installer password
@@ -1326,7 +1329,7 @@ class EnvoyDevice extends EventEmitter {
                     };
                 } catch (error) {
                     this.emit('warn', `Calculate installer password error: ${error}`);
-                    return false;
+                    return null;
                 };
             }
 
@@ -1336,13 +1339,13 @@ class EnvoyDevice extends EventEmitter {
                 passwd: installerPasswd
             }).on('error', (error) => {
                 this.emit('warn', `Digest authorization installer error:  ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
-                return false;
+                return null;
             });
 
             return true;
         } catch (error) {
             this.emit('warn', `Calculate installer password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`);
-            return false;
+            return null;
         };
     };
 
@@ -3882,7 +3885,7 @@ class EnvoyDevice extends EventEmitter {
 
             //live data supported
             if (!liveDataSupported) {
-                return false;
+                return null;
             }
 
             //connection
@@ -3975,7 +3978,7 @@ class EnvoyDevice extends EventEmitter {
             //live data exist
             const liveDataMetersExist = activeDeviceTypes.length > 0;
             if (!liveDataMetersExist) {
-                return false;
+                return null;
             }
 
             //iterate over active meters
@@ -6796,10 +6799,17 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Start`) : false;
 
         try {
+            //read token from file
+            if (this.envoyFirmware7xx && this.envoyFirmware7xxTokenGenerationMode === 0) {
+                const data = await this.readData(this.envoyTokenFile);
+                const parsedData = JSON.parse(data);
+                this.jwtToken = parsedData.token ? parsedData : this.jwtToken;
+            };
+
             //get and validate jwt token
             const tokenValid = this.envoyFirmware7xx ? await this.checkJwtToken() : false;
             if (this.envoyFirmware7xx && !tokenValid) {
-                return false;
+                return null;
             }
 
             //update grid profile

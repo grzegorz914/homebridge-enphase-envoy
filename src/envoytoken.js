@@ -1,4 +1,3 @@
-import { promises as fsPromises } from 'fs';
 import axios from 'axios';
 import EventEmitter from 'events';
 import { EnphaseUrls } from './constants.js';
@@ -9,27 +8,23 @@ class EnvoyToken extends EventEmitter {
         this.user = config.user;
         this.passwd = config.passwd;
         this.serialNumber = config.serialNumber;
-        this.tokenFile = config.tokenFile;
     };
 
     async refreshToken() {
         try {
             const cookie = await this.loginToEnlighten();
             if (!cookie) {
-                return false;
+                return null;
             }
 
             const tokenData = await this.getToken(cookie);
             if (!tokenData) {
-                return false;
+                return null;
             }
 
             //check if token is instslloer or user
-            const installerToken = tokenData.expires_at - tokenData.generation_time == 43200 ?? false;
+            const installerToken = (tokenData.expires_at - tokenData.generation_time) === 43200;
             tokenData.installer = installerToken;
-
-            //save token
-            await this.saveData(this.tokenFile, tokenData);
 
             //emit success
             this.emit('success', `JWT Token refresh success`);
@@ -48,10 +43,10 @@ class EnvoyToken extends EventEmitter {
                 baseURL: EnphaseUrls.BaseUrl,
                 params: {
                     'user[email]': this.user,
-                    'user[password]': this.passwd,
+                    'user[password]': this.passwd
                 },
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 timeout: 10000
             };
@@ -59,10 +54,15 @@ class EnvoyToken extends EventEmitter {
             const loginData = await axios(EnphaseUrls.Login, options);
             if (loginData.status !== 200) {
                 this.emit('error', `Login to Enlighten failed with status code: ${loginData.status}`);
-                return false;
+                return null;
             }
 
-            const cookie = loginData.headers['set-cookie'];
+            const cookie = loginData.headers['set-cookie'] ?? false;
+            if (!cookie) {
+                this.emit('warn', `Cookie data is incomplete: ${JSON.stringify(loginData)}`);
+                return null;
+            }
+
             return cookie;
         } catch (error) {
             this.emit('error', `Login to Enlighten error: ${error}`);
@@ -75,20 +75,20 @@ class EnvoyToken extends EventEmitter {
                 method: 'GET',
                 baseURL: EnphaseUrls.BaseUrl,
                 params: {
-                    'serial_num': this.serialNumber,
+                    'serial_num': this.serialNumber
                 },
                 headers: {
                     Accept: 'application/json',
-                    Cookie: cookie,
+                    Cookie: cookie
                 },
                 timeout: 10000
             };
 
             const response = await axios(EnphaseUrls.EntrezAuthToken, options);
             const tokenData = response.data;
-            if (!tokenData.token) {
-                this.emit('warn', `Token missing in response: ${JSON.stringify(tokenData)}`);
-                return false;
+            if (!tokenData.token || !tokenData.expires_at || !tokenData.generation_time) {
+                this.emit('warn', `Token data is incomplete: ${JSON.stringify(tokenData)}`);
+                return null;
             }
 
             return tokenData;
@@ -96,15 +96,6 @@ class EnvoyToken extends EventEmitter {
             this.emit('error', `Get token error: ${error}`);
         }
     }
-
-    async saveData(path, data) {
-        try {
-            await fsPromises.writeFile(path, JSON.stringify(data, null, 2));
-            return true;
-        } catch (error) {
-            throw new Error(`Save data error: ${error}`);
-        }
-    };
 };
 export default EnvoyToken;
 
