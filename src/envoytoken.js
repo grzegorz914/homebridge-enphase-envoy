@@ -32,7 +32,7 @@ class EnvoyToken extends EventEmitter {
 
             return tokenData;
         } catch (error) {
-            this.emit('error', `Refresh token error: ${error}`);
+            throw new Error(`Refresh token error: ${error}`);
         }
     }
 
@@ -65,7 +65,7 @@ class EnvoyToken extends EventEmitter {
 
             return cookie;
         } catch (error) {
-            this.emit('error', `Login to Enlighten error: ${error}`);
+            throw new Error(`Login to Enlighten error: ${error}`);
         }
     }
 
@@ -93,7 +93,7 @@ class EnvoyToken extends EventEmitter {
 
             return tokenData;
         } catch (error) {
-            this.emit('error', `Get token error: ${error}`);
+            throw new Error(`Get token error: ${error}`);
         }
     }
 };

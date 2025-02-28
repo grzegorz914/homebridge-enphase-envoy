@@ -1,10 +1,8 @@
 import crypto from 'crypto';
 import axios from 'axios';
-import EventEmitter from 'events';
 
-class DigestAuth extends EventEmitter {
+class DigestAuth {
     constructor(config) {
-        super();
         this.user = config.user;
         this.passwd = config.passwd;
         this.count = 0;
@@ -19,14 +17,12 @@ class DigestAuth extends EventEmitter {
         } catch (error) {
             const resError = error.response;
             if (!resError || resError.status !== 401) {
-                this.emit('warn', `Digest authentication response error: ${resError ? resError.status : 'Unknown error'}`);
-                return;
+                throw new Error(`Digest authentication response error: ${resError ? resError.status : 'Unknown error'}`);
             };
 
             const resHeaders = resError.headers["www-authenticate"];
             if (!(resHeaders || !resHeaders.includes('nonce'))) {
-                this.emit('warn', `Digest authentication headers error: ${resHeaders ? resHeaders : 'Header not found'}`);
-                return;
+                throw new Error(`Digest authentication headers error: ${resHeaders ? resHeaders : 'Header not found'}`);
             };
 
             try {
@@ -47,7 +43,7 @@ class DigestAuth extends EventEmitter {
 
                 return data;
             } catch (error) {
-                this.emit('warn', `Digest authentication error: ${error}`);
+                throw new Error(`Digest authentication error: ${error}`);
             };
         };
     };

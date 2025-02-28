@@ -655,7 +655,7 @@ class EnvoyDevice extends EventEmitter {
         this.envoyDevId = '';
 
         //jwt token
-        this.jwtToken = {
+        this.envoyJwtToken = {
             generation_time: 0,
             token: envoyToken,
             expires_at: 0,
@@ -953,32 +953,12 @@ class EnvoyDevice extends EventEmitter {
         };
         this.checkJwtTokenRunning = true;
 
-        //check cookie are valid
-        const cookieValid = this.cookie;
-
-        //validate own token
-        if (this.envoyFirmware7xxTokenGenerationMode === 1) {
-            if (cookieValid) {
-                return true;
-            };
-
-            //validate own JWT token
-            try {
-                this.emit('warn', `Cookie not valid, validating`);
-                const validateToken = await this.validateJwtToken();
-
-                this.checkJwtTokenRunning = false;
-                return validateToken;
-            } catch (error) {
-                this.checkJwtTokenRunning = false;
-                throw new Error(`Check own JWT token error: ${error}`);
-            };
-        };
-
-        //use token from enlighten
         try {
+            //check cookie are valid
+            const cookieValid = this.cookie;
+
             //check token is valid
-            const tokenValid = this.jwtToken.token && this.jwtToken.expires_at >= Math.floor(Date.now() / 1000) + 60;
+            const tokenValid = this.envoyFirmware7xxTokenGenerationMode === 1 && this.envoyJwtToken.token ? true : this.envoyJwtToken.token && this.envoyJwtToken.expires_at >= Math.floor(Date.now() / 1000) + 60;
             const debug = this.enableDebugMode ? this.emit('warn', `JWT Token: ${tokenValid ? 'Valid' : 'Not valid'}, cookie: ${cookieValid ? 'Valid' : 'Not valid'}`) : false;
 
             if (tokenValid && cookieValid) {
@@ -987,8 +967,8 @@ class EnvoyDevice extends EventEmitter {
             }
 
             //get new JWT token
-            const emit = !tokenValid ? this.emit('warn', `JWT Token expired, refreshing`) : false;
             const wait = !tokenValid ? await new Promise(resolve => setTimeout(resolve, 30000)) : false;
+            const emit = !tokenValid ? this.emit('warn', `JWT Token not valid, refreshing`) : false;
             const getToken = !tokenValid ? await this.getJwtToken() : true;
             if (!getToken) {
                 this.checkJwtTokenRunning = false;
@@ -996,7 +976,7 @@ class EnvoyDevice extends EventEmitter {
             }
 
             //validate JWT tokken
-            const wait1 = !cookieValid ? await new Promise(resolve => setTimeout(resolve, 2000)) : false;
+            const wait1 = !cookieValid ? await new Promise(resolve => setTimeout(resolve, 1000)) : false;
             const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, validating`) : false;
             const validateToken = !cookieValid ? await this.validateJwtToken() : true;
             if (!validateToken) {
@@ -1019,14 +999,13 @@ class EnvoyDevice extends EventEmitter {
             const envoyToken = new EnvoyToken({
                 user: this.enlightenUser,
                 passwd: this.enlightenPassword,
-                serialNumber: this.envoySerialNumber,
-                tokenFile: this.envoyTokenFile
+                serialNumber: this.envoySerialNumber
             }).on('success', (message) => {
                 this.emit('success', message);
             }).on('warn', (warn) => {
                 this.emit('warn', warn);
             }).on('error', (error) => {
-                throw new Error(error);
+                this.emit('error', error);
             });
 
             const tokenData = await envoyToken.refreshToken();
@@ -1039,11 +1018,11 @@ class EnvoyDevice extends EventEmitter {
                 token: 'removed'
             };
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token:`, updatedTokenData) : false;
-            this.jwtToken = tokenData;
+            this.envoyJwtToken = tokenData;
 
             //save token
             try {
-                await this.saveData(this.tokenFile, tokenData);
+                await this.saveData(this.envoyTokenFile, tokenData);
             } catch (error) {
                 this.emit('error', `Save token error: ${error}`);
             };
@@ -1069,7 +1048,7 @@ class EnvoyDevice extends EventEmitter {
                 baseURL: this.url,
                 headers: {
                     Accept: 'application/json',
-                    Authorization: `Bearer ${this.jwtToken.token}`
+                    Authorization: `Bearer ${this.envoyJwtToken.token}`
                 },
                 withCredentials: true,
                 httpsAgent: new Agent({
@@ -1179,10 +1158,11 @@ class EnvoyDevice extends EventEmitter {
                 return null;
             }
 
+            //save dev id
             try {
                 await this.saveData(this.envoyIdFile, envoyDevId);
             } catch (error) {
-                this.emit('warn', `Save envoy dev Id error: ${error}`);
+                this.emit('error', `Save envoy dev Id error: ${error}`);
             };
 
             this.envoyDevId = envoyDevId;
@@ -1265,86 +1245,83 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
-    async calculateEnvoyPassword() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting calculate envoy passwords`) : false;
+    async digestAuthorizationEnvoy() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting digest authorization error`) : false;
         try {
             //envoy password
             const deviceSn = this.pv.envoy.serialNumber;
             const envoyPasswd = this.envoyPasswd ? this.envoyPasswd : deviceSn.substring(6);
             const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password:`, envoyPasswd.length === 6 ? 'Correct' : 'Missing') : false;
+            if (envoyPasswd.length !== 6) {
+                this.emit('warn', `Envoy password is not correct, dont worry all working correct, only the power and power max of microinverters will not be displayed`)
+                return null;
+            }
 
             //digest authorization envoy
             this.digestAuthEnvoy = new DigestAuth({
                 user: Authorization.EnvoyUser,
                 passwd: envoyPasswd
-            }).on('warn', (warn) => {
-                this.emit('warn', `Digest authorization envoy warning: ${warn}, dont worry all working correct, only the power and power max of microinverters will not be displayed`)
-                return null;
-            }).on('error', (error) => {
-                this.emit('error', `Digest authorization envoy error: ${error}`)
-                return null;
             });
 
             return true;
         } catch (error) {
-            this.emit('warn', `Calculaate envoy password error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed`);
+            this.emit('warn', `Digest authorization error: ${error}, dont worry all working correct, only the power and power max of microinverters will not be displayed`);
             return null;
         };
     };
 
-    async calculateInstallerPassword() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting installer passwords`) : false;
+    async digestAuthorizationInstaller() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting digest authorization installer`) : false;
         try {
-            // Check if the envoy installer password is stored
+            //check if the envoy installer password is stored and valid
             const response = await this.readData(this.envoyInstallerPasswordFile);
             let installerPasswd = response.toString() ?? '0';
-            const debug3 = this.enableDebugMode ? this.emit('debug', `Installer password from file:`, installerPasswd.length > 1 ? 'Correct' : 'Missing') : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Stored installer password:`, installerPasswd.length > 1 ? 'Correct' : 'Not Correct') : false;
+            if (installerPasswd.length > 1) {
+                this.digestAuthInstaller = new DigestAuth({
+                    user: Authorization.InstallerUser,
+                    passwd: installerPasswd
+                });
+                return true;
+            };
 
-            //check if the envoy installer password is correct
-            if (installerPasswd === '0') {
-                try {
-                    //calculate installer password
-                    const deviceSn = this.pv.envoy.serialNumber;
-                    const passwdCalc = new PasswdCalc({
-                        user: Authorization.InstallerUser,
-                        realm: Authorization.Realm,
-                        serialNumber: deviceSn
-                    }).on('warn', (warn) => {
-                        this.emit('warn', `Calculate password warning: ${warn}, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
-                        return null;
-                    }).on('error', (error) => {
-                        this.emit('error', `Calculate password error: ${error}`)
-                        return null;
-                    });
+            //calculate new installer password
+            try {
+                const deviceSn = this.pv.envoy.serialNumber;
+                const passwdCalc = new PasswdCalc({
+                    user: Authorization.InstallerUser,
+                    realm: Authorization.Realm,
+                    serialNumber: deviceSn
+                });
 
-                    //caalculate installer password
-                    installerPasswd = await passwdCalc.getPasswd();
-                    const debug3 = this.enableDebugMode ? this.emit('debug', `Calculated installer password:`, installerPasswd.length > 0 ? 'Correct' : 'Missing') : false;
-
-                    //save installer password
-                    try {
-                        await this.saveData(this.envoyInstallerPasswordFile, installerPasswd);
-                    } catch (error) {
-                        this.emit('warn', `Save installer password error: ${error}`);
-                    };
-                } catch (error) {
-                    this.emit('warn', `Calculate installer password error: ${error}`);
+                //caalculate installer password
+                installerPasswd = await passwdCalc.getPasswd();
+                const debug = this.enableDebugMode ? this.emit('debug', `Calculated new installer password:`, installerPasswd.length > 1 ? 'Correct' : 'Not Correct') : false;
+                if (installerPasswd.length <= 1) {
+                    this.emit('warn', `Calculated instaaller password: ${installerPasswd}, is not correct, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
                     return null;
+                }
+
+                this.digestAuthInstaller = new DigestAuth({
+                    user: Authorization.InstallerUser,
+                    passwd: installerPasswd
+                });
+
+                //save installer password
+                try {
+                    await this.saveData(this.envoyInstallerPasswordFile, installerPasswd);
+                } catch (error) {
+                    this.emit('error', `Save installer password error: ${error}`);
                 };
-            }
 
-            //digest authorization installer
-            this.digestAuthInstaller = new DigestAuth({
-                user: Authorization.InstallerUser,
-                passwd: installerPasswd
-            }).on('error', (error) => {
-                this.emit('warn', `Digest authorization installer error:  ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
+                return true;
+            } catch (error) {
+                this.emit('warn', `Calculate new installer password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
                 return null;
-            });
+            };
 
-            return true;
         } catch (error) {
-            this.emit('warn', `Calculate installer password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`);
+            this.emit('warn', `Digest authorization installer error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`);
             return null;
         };
     };
@@ -6803,7 +6780,7 @@ class EnvoyDevice extends EventEmitter {
             if (this.envoyFirmware7xx && this.envoyFirmware7xxTokenGenerationMode === 0) {
                 const data = await this.readData(this.envoyTokenFile);
                 const parsedData = JSON.parse(data);
-                this.jwtToken = parsedData.token ? parsedData : this.jwtToken;
+                this.envoyJwtToken = parsedData.token ? parsedData : this.envoyJwtToken;
             };
 
             //get and validate jwt token
@@ -6822,8 +6799,8 @@ class EnvoyDevice extends EventEmitter {
             const updateInfo = await this.updateInfo();
 
             //calculate envoy and installer passwords
-            const calculateEnvoyPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateEnvoyPassword() : false;
-            const calculateInstallerPassword = !this.envoyFirmware7xx && updateInfo ? await this.calculateInstallerPassword() : false;
+            const digestAuthorizationEnvoy = !this.envoyFirmware7xx && updateInfo ? await this.digestAuthorizationEnvoy() : false;
+            const digestAuthorizationInstaller = !this.envoyFirmware7xx && updateInfo ? await this.digestAuthorizationInstaller() : false;
 
             //get home and inventory
             const refreshHome = updateInfo ? await this.updateHome() : false;
@@ -6834,14 +6811,14 @@ class EnvoyDevice extends EventEmitter {
             const updateMetersReading = refreshMeters ? await this.updateMetersReading() : false;
 
             //acces with envoy password
-            const refreshMicroinverters = tokenValid || calculateEnvoyPassword ? await this.updateMicroinvertersStatus() : false;
+            const refreshMicroinverters = tokenValid || digestAuthorizationEnvoy ? await this.updateMicroinvertersStatus() : false;
 
             //get production and production ct
             const refreshProduction = await this.updateProduction();
             const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
 
             //access with installer password and envoy dev id
-            const updatePowerProductionState = envoyDevIdExist && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateProductionPowerState() : false;
+            const updatePowerProductionState = envoyDevIdExist && ((this.envoyJwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionPowerState() : false;
 
             //get ensemble data only FW. >= 7.x.x.
             const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
@@ -6854,7 +6831,7 @@ class EnvoyDevice extends EventEmitter {
             const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
 
             //get plc communication level
-            const updateCommLevel = this.supportPlcLevel && ((this.jwtToken.installer && tokenValid) || calculateInstallerPassword) ? await this.updateCommLevel() : false;
+            const updateCommLevel = this.supportPlcLevel && ((this.envoyJwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateCommLevel() : false;
             const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
             //connect to deice success

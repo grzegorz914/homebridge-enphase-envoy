@@ -1,9 +1,7 @@
 import crypto from 'crypto';
-import EventEmitter from 'events';
 
-class PasswdCalc extends EventEmitter {
+class PasswdCalc {
     constructor(config) {
-        super();
         this.user = config.user;
         this.realm = config.realm;
         this.serialNumber = config.serialNumber;
@@ -70,7 +68,7 @@ class PasswdCalc extends EventEmitter {
 
             return password;
         } catch (error) {
-            this.emit('warn', `Generate password error: ${error}`);
+            throw new Error(`Generate password error: ${error}`);
         };
     };
 
