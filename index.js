@@ -12,7 +12,6 @@ class EnvoyPlatform {
       log.warn(`No configuration found for ${PluginName}.`);
       return;
     }
-    this.log = log;
     this.accessories = [];
 
 
