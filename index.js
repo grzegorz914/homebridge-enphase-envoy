@@ -78,13 +78,11 @@ class EnvoyPlatform {
         const postFix = host.split('.').join('');
         const envoyIdFile = join(prefDir, `envoyId_${postFix}`);
         const envoyTokenFile = join(prefDir, `envoyToken_${postFix}`);
-        const envoyInstallerPasswordFile = join(prefDir, `envoyInstallerPassword_${postFix}`);
 
         try {
           const files = [
             envoyIdFile,
             envoyTokenFile,
-            envoyInstallerPasswordFile
           ];
 
           files.forEach((file) => {
@@ -99,7 +97,7 @@ class EnvoyPlatform {
 
         //envoy device
         try {
-          const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device);
+          const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device);
           envoyDevice.on('publishAccessory', (accessory) => {
             api.publishExternalAccessories(PluginName, [accessory]);
             const emitLog = disableLogSuccess ? false : log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);

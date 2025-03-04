@@ -13,7 +13,7 @@ import { ApiUrls, PartNumbers, Authorization, ApiCodes, LedStatus } from './cons
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, envoyInstallerPasswordFile, device) {
+    constructor(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device) {
         super();
 
         Accessory = api.platformAccessory;
@@ -632,7 +632,6 @@ class EnvoyDevice extends EventEmitter {
         //setup variables
         this.envoyIdFile = envoyIdFile;
         this.envoyTokenFile = envoyTokenFile;
-        this.envoyInstallerPasswordFile = envoyInstallerPasswordFile;
         this.startPrepareAccessory = true;
         this.checkJwtTokenRunning = false;
         this.cookie = false;
@@ -798,7 +797,17 @@ class EnvoyDevice extends EventEmitter {
 
         //pv object
         this.pv = {
-            envoy: {},
+            envoy: {
+                devId: '',
+                passwd: '',
+                installerPasswd: '',
+                jwtToken: {
+                    generation_time: 0,
+                    token: envoyToken,
+                    expires_at: 0,
+                    installer: this.envoyFirmware7xxTokenGenerationMode == 1 ? this.envoyTokenInstaller : false
+                },
+            },
             microinverters: [],
             qRelays: [],
             acBatteries: {},
@@ -807,13 +816,6 @@ class EnvoyDevice extends EventEmitter {
             production: {},
             liveData: {},
             arfProfile: {},
-            envoyJwtToken: {
-                generation_time: 0,
-                token: envoyToken,
-                expires_at: 0,
-                installer: this.envoyFirmware7xxTokenGenerationMode == 1 ? this.envoyTokenInstaller : false
-            },
-            envoyDevId: '',
             powerState: false,
             powerLevel: 0,
             productionPowerPeak: 0,
@@ -932,9 +934,14 @@ class EnvoyDevice extends EventEmitter {
     handleError(error) {
         const errorString = error.toString();
         const tokenNotValid = errorString.includes('status code 401');
-        this.checkJwtTokenRunning = tokenNotValid ? false : this.checkJwtTokenRunning;
-        this.cookie = tokenNotValid ? false : this.cookie;
-        const emitError = tokenNotValid ? false : this.emit('error', `Impulse generator: ${error}`);
+        if (tokenNotValid) {
+            if (this.checkJwtTokenRunning) {
+                return;
+            };
+            this.cookie = false;
+            return;
+        };
+        this.emit('error', `Impulse generator: ${error}`);
     };
 
     async checkJwtToken() {
@@ -944,14 +951,14 @@ class EnvoyDevice extends EventEmitter {
             return true;
         };
 
-        if (this.checkJwtTokenRunning) {
-            return null;
-        };
-        this.checkJwtTokenRunning = true;
-
         try {
+            if (this.checkJwtTokenRunning) {
+                return null;
+            };
+            this.checkJwtTokenRunning = true;
+
             //check token is valid
-            const tokenValid = this.envoyFirmware7xxTokenGenerationMode === 1 && this.pv.envoyJwtToken.token ? true : this.pv.envoyJwtToken.token && this.pv.envoyJwtToken.expires_at >= Math.floor(Date.now() / 1000) + 60;
+            const tokenValid = this.envoyFirmware7xxTokenGenerationMode === 1 && this.pv.envoy.jwtToken.token ? true : this.pv.envoy.jwtToken.token && this.pv.envoy.jwtToken.expires_at >= Math.floor(Date.now() / 1000) + 60;
             const debug = this.enableDebugMode ? this.emit('debug', `JWT Token: ${tokenValid ? 'Valid' : 'Not valid'}`) : false;
 
             //check cookie are valid
@@ -972,19 +979,17 @@ class EnvoyDevice extends EventEmitter {
                 return null;
             }
 
-            //validate JWT tokken
-            const wait1 = !cookieValid ? await new Promise(resolve => setTimeout(resolve, 1000)) : false;
-            const emit1 = !cookieValid ? this.emit('warn', `Cookie not valid, refreshing`) : false;
-            const validateToken = !cookieValid ? await this.getCookie() : true;
-            if (!validateToken) {
+            //always get new cookie
+            this.emit('warn', `Cookie not valid, refreshing`);
+            const getCookie = await this.getCookie();
+            if (!getCookie) {
                 this.checkJwtTokenRunning = false;
                 return null;
             }
 
             this.checkJwtTokenRunning = false;
-            return validateToken;
+            return true;
         } catch (error) {
-            this.checkJwtTokenRunning = false;
             throw new Error(`Check JWT token error: ${error}`);
         };
     };
@@ -1015,7 +1020,7 @@ class EnvoyDevice extends EventEmitter {
                 token: 'removed'
             };
             const debug = this.enableDebugMode ? this.emit('debug', `JWT token:`, updatedTokenData) : false;
-            this.pv.envoyJwtToken = tokenData;
+            this.pv.envoy.jwtToken = tokenData;
 
             //save token
             try {
@@ -1045,7 +1050,7 @@ class EnvoyDevice extends EventEmitter {
                 baseURL: this.url,
                 headers: {
                     Accept: 'application/json',
-                    Authorization: `Bearer ${this.pv.envoyJwtToken.token}`
+                    Authorization: `Bearer ${this.pv.envoy.jwtToken.token}`
                 },
                 withCredentials: true,
                 httpsAgent: new Agent({
@@ -1116,7 +1121,7 @@ class EnvoyDevice extends EventEmitter {
                 this.emit('error', `Save envoy dev Id error: ${error}`);
             };
 
-            this.pv.envoyDevId = envoyDevId;
+            this.pv.envoy.devId = envoyDevId;
             this.feature.backboneApp.supported = true;
             return true;
         } catch (error) {
@@ -1159,8 +1164,8 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting info`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.GetInfo);
-            const info = response.data;
-            const debug = this.enableDebugMode ? this.emit('debug', `Info:`, info) : false;
+            const infoData = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Info:`, infoData) : false;
 
             //parse info
             const options = {
@@ -1169,7 +1174,7 @@ class EnvoyDevice extends EventEmitter {
                 allowBooleanAttributes: true
             };
             const parserXml = new XMLParser(options);
-            const parseInfoData = parserXml.parse(info);
+            const parseInfoData = parserXml.parse(infoData);
             const updatedInfoData = {
                 ...parseInfoData,
                 envoy_info: {
@@ -1186,7 +1191,7 @@ class EnvoyDevice extends EventEmitter {
             const envoyInfo = parseInfoData.envoy_info;
             const envoyInfoDevice = envoyInfo.device;
             const envoyInfoBuildInfo = envoyInfo.build_info;
-            this.pv.envoy = {
+            const info = {
                 time: new Date(envoyInfo.time * 1000).toLocaleString(),
                 serialNumber: envoyInfoDevice.sn.toString() ?? this.envoySerialNumber,
                 partNumber: envoyInfoDevice.pn,
@@ -1207,13 +1212,14 @@ class EnvoyDevice extends EventEmitter {
             };
 
             //check serial number
-            if (!this.pv.envoy.serialNumber) {
-                throw new Error(`Envoy serial number missing: ${this.pv.envoy.serialNumber}`);
+            if (!info.serialNumber) {
+                throw new Error(`Envoy serial number missing: ${info.serialNumber}`);
             };
+            this.pv.envoy.info = info;
 
             //envoy installed and meters supported
             this.feature.envoy.installed = true;
-            this.feature.meters.supported = this.pv.envoy.imeter;
+            this.feature.meters.supported = info.imeter;
 
             //restFul
             const restFul = this.restFulConnected ? this.restFul1.update('info', parseInfoData) : false;
@@ -1230,9 +1236,9 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting digest authorization error`) : false;
         try {
             //envoy password
-            const deviceSn = this.pv.envoy.serialNumber;
+            const deviceSn = this.pv.envoy.info.serialNumber;
             const envoyPasswd = this.envoyPasswd ? this.envoyPasswd : deviceSn.substring(6);
-            const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password:`, envoyPasswd.length === 6 ? 'Correct' : 'Missing') : false;
+            const debug2 = this.enableDebugMode ? this.emit('debug', `Envoy password:`, envoyPasswd.length === 6 ? 'Exist' : 'Missing') : false;
             if (envoyPasswd.length !== 6) {
                 this.emit('warn', `Envoy password is not correct, dont worry all working correct, only the power and power max of microinverters will not be displayed`)
                 return null;
@@ -1243,6 +1249,7 @@ class EnvoyDevice extends EventEmitter {
                 user: Authorization.EnvoyUser,
                 passwd: envoyPasswd
             });
+            this.pv.envoyPasswd = envoyPasswd;
 
             return true;
         } catch (error) {
@@ -1254,53 +1261,29 @@ class EnvoyDevice extends EventEmitter {
     async digestAuthorizationInstaller() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting digest authorization installer`) : false;
         try {
-            //check if the envoy installer password is stored and valid
-            const response = await this.readData(this.envoyInstallerPasswordFile);
-            let installerPasswd = response.toString() ?? '0';
-            const debug = this.enableDebugMode ? this.emit('debug', `Stored installer password:`, installerPasswd.length > 1 ? 'Correct' : 'Not Correct') : false;
-            if (installerPasswd.length > 1) {
-                this.digestAuthInstaller = new DigestAuth({
-                    user: Authorization.InstallerUser,
-                    passwd: installerPasswd
-                });
-                return true;
-            };
+            //calculate installer password
+            const deviceSn = this.pv.envoy.info.serialNumber;
+            const passwdCalc = new PasswdCalc({
+                user: Authorization.InstallerUser,
+                realm: Authorization.Realm,
+                serialNumber: deviceSn
+            });
 
-            //calculate new installer password
-            try {
-                const deviceSn = this.pv.envoy.serialNumber;
-                const passwdCalc = new PasswdCalc({
-                    user: Authorization.InstallerUser,
-                    realm: Authorization.Realm,
-                    serialNumber: deviceSn
-                });
-
-                //caalculate installer password
-                installerPasswd = await passwdCalc.getPasswd();
-                const debug = this.enableDebugMode ? this.emit('debug', `Calculated new installer password:`, installerPasswd.length > 1 ? 'Correct' : 'Not Correct') : false;
-                if (installerPasswd.length <= 1) {
-                    this.emit('warn', `Calculated instaaller password: ${installerPasswd}, is not correct, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
-                    return null;
-                }
-
-                this.digestAuthInstaller = new DigestAuth({
-                    user: Authorization.InstallerUser,
-                    passwd: installerPasswd
-                });
-
-                //save installer password
-                try {
-                    await this.saveData(this.envoyInstallerPasswordFile, installerPasswd);
-                } catch (error) {
-                    this.emit('error', `Save installer password error: ${error}`);
-                };
-
-                return true;
-            } catch (error) {
-                this.emit('warn', `Calculate new installer password error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
+            //caalculate installer password
+            const installerPasswd = await passwdCalc.getPasswd();
+            const debug = this.enableDebugMode ? this.emit('debug', `Calculated installer password:`, installerPasswd.length > 1 ? 'Exist' : 'Missing') : false;
+            if (installerPasswd.length <= 1) {
+                this.emit('warn', `Calculated instaaller password: ${installerPasswd}, is not correct, dont worry all working correct, only the power production state/control and plc level will not be displayed`)
                 return null;
-            };
+            }
 
+            this.digestAuthInstaller = new DigestAuth({
+                user: Authorization.InstallerUser,
+                passwd: installerPasswd
+            });
+            this.pv.envoy.installerPasswd = installerPasswd;
+
+            return true;
         } catch (error) {
             this.emit('warn', `Digest authorization installer error: ${error}, dont worry all working correct, only the power production state/control and plc level will not be displayed`);
             return null;
@@ -2532,7 +2515,7 @@ class EnvoyDevice extends EventEmitter {
                 }
             }
 
-            const url = ApiUrls.PowerForcedModeGetPut.replace("EID", this.pv.envoyDevId);
+            const url = ApiUrls.PowerForcedModeGetPut.replace("EID", this.pv.envoy.devId);
             const response = this.envoyFirmware7xx ? await this.axiosInstance(url) : await this.digestAuthInstaller.request(url, options);
             const powerProductionState = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Power mode:`, powerProductionState) : false;
@@ -4061,7 +4044,7 @@ class EnvoyDevice extends EventEmitter {
                 })
             }
 
-            const url = this.url + ApiUrls.PowerForcedModeGetPut.replace("EID", this.pv.envoyDevId);
+            const url = this.url + ApiUrls.PowerForcedModeGetPut.replace("EID", this.pv.envoy.devId);
             const response = this.envoyFirmware7xx ? await axios.put(url, options) : await this.digestAuthInstaller.request(url, options1);
             const debug = this.enableDebugMode ? this.emit('debug', `Set power produstion state:`, response.data) : false;
             return true;
@@ -4263,16 +4246,26 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting device info`) : false;
 
         //debug objects
-        const debug20 = this.enableDebugMode && this.feature.envoy.installed ? this.emit('debug', `Pv object:`, this.pv) : false;
+        const pv = {
+            ...this.pv,
+            devId: 'removed',
+            passwd: 'removed',
+            installerPasswd: 'removed',
+            jwtToken: {
+                ...this.pv.jwtToken,
+                token: 'removed'
+            }
+        };
+        const debug20 = this.enableDebugMode && this.feature.envoy.installed ? this.emit('debug', `Pv object:`, pv) : false;
         const debug21 = this.enableDebugMode && this.feature.ensembles.installed ? this.emit('debug', `Ensemble object:`, this.ensemble) : false;
 
         //display info
         this.emit('devInfo', `-------- ${this.name} --------`);
         this.emit('devInfo', `Manufacturer: Enphase`);
-        this.emit('devInfo', `Model: ${this.pv.envoy.modelName}`);
-        this.emit('devInfo', `Firmware: ${this.pv.envoy.software}`);
-        this.emit('devInfo', `SerialNr: ${this.pv.envoy.serialNumber}`);
-        this.emit('devInfo', `Time: ${this.pv.envoy.time}`);
+        this.emit('devInfo', `Model: ${this.pv.envoy.info.modelName}`);
+        this.emit('devInfo', `Firmware: ${this.pv.envoy.info.software}`);
+        this.emit('devInfo', `SerialNr: ${this.pv.envoy.info.serialNumber}`);
+        this.emit('devInfo', `Time: ${this.pv.envoy.info.time}`);
         this.emit('devInfo', `------------------------------`);
         const displayLog12 = this.feature.qRelays.installed ? this.emit('devInfo', `Q-Relays: ${this.feature.qRelays.count}`) : false;
         this.emit('devInfo', `Inverters: ${this.feature.microinverters.count}`);
@@ -4442,7 +4435,7 @@ class EnvoyDevice extends EventEmitter {
             //accessory
             const debug = this.enableDebugMode ? this.emit('debug', `Prepare accessory`) : false;
             const accessoryName = this.name;
-            const accessoryUUID = AccessoryUUID.generate(this.pv.envoy.serialNumber);
+            const accessoryUUID = AccessoryUUID.generate(this.pv.envoy.info.serialNumber);
             const accessoryCategory = Categories.OTHER;
             const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
 
@@ -4450,14 +4443,14 @@ class EnvoyDevice extends EventEmitter {
             const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Information Service`) : false;
             accessory.getService(Service.AccessoryInformation)
                 .setCharacteristic(Characteristic.Manufacturer, 'Enphase')
-                .setCharacteristic(Characteristic.Model, this.pv.envoy.modelName ?? 'Model Name')
-                .setCharacteristic(Characteristic.SerialNumber, this.pv.envoy.serialNumber ?? 'Serial Number')
-                .setCharacteristic(Characteristic.FirmwareRevision, this.pv.envoy.software.replace(/[a-zA-Z]/g, '') ?? '0')
+                .setCharacteristic(Characteristic.Model, this.pv.envoy.info.modelName ?? 'Model Name')
+                .setCharacteristic(Characteristic.SerialNumber, this.pv.envoy.info.serialNumber ?? 'Serial Number')
+                .setCharacteristic(Characteristic.FirmwareRevision, this.pv.envoy.info.software.replace(/[a-zA-Z]/g, '') ?? '0')
                 .setCharacteristic(Characteristic.ConfiguredName, accessoryName);
 
             //system and envoy
             if (envoyInstalled) {
-                const serialNumber = this.pv.envoy.serialNumber;
+                const serialNumber = this.pv.envoy.info.serialNumber;
                 const debug = this.enableDebugMode ? this.emit('debug', `Prepare System Service`) : false;
                 this.systemService = accessory.addService(Service.Lightbulb, accessoryName, `systemPvService`);
                 this.systemService.addOptionalCharacteristic(Characteristic.ConfiguredName);
@@ -4628,7 +4621,7 @@ class EnvoyDevice extends EventEmitter {
                     });
                 this.envoyService.getCharacteristic(Characteristic.enphaseEnvoyFirmware)
                     .onGet(async () => {
-                        const value = this.pv.envoy.software;
+                        const value = this.pv.envoy.info.software;
                         const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${serialNumber}, firmware: ${value}`);
                         return value;
                     });
@@ -6762,7 +6755,7 @@ class EnvoyDevice extends EventEmitter {
                     const data = await this.readData(this.envoyTokenFile);
                     const parsedData = JSON.parse(data);
                     const debug = this.enableDebugMode ? this.emit('debug', `Envoy JWT Token from file: ${parsedData.token ? 'Exist' : 'Missing'}`) : false;
-                    this.pv.envoyJwtToken = parsedData.token ? parsedData : this.pv.envoyJwtToken;
+                    this.pv.envoy.jwtToken = parsedData.token ? parsedData : this.pv.envoy.jwtToken;
                 } catch (error) {
                     this.emit('warn', `Read JWT Token from file error: ${error}`)
                 };
@@ -6780,14 +6773,14 @@ class EnvoyDevice extends EventEmitter {
                     //check if the envoy ID is stored
                     const response = await this.readData(this.envoyIdFile);
                     const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${response.toString().length === 9 ? 'Exist' : 'Missing'}`) : false;
-                    this.pv.envoyDevId = response.toString().length === 9 ? response.toString() : this.pv.envoyDevId;
+                    this.pv.envoy.devId = response.toString().length === 9 ? response.toString() : this.pv.envoy.devId;
                 } catch (error) {
                     this.emit('warn', `Read envoy dev Id from file error: ${error}`)
                 };
             };
 
             //get new envoy dev id
-            const envoyDevIdValid = this.supportPowerProductionState ? this.pv.envoyDevId === '' ? await this.getEnvoyBackboneApp() : true : false;
+            const envoyDevIdValid = this.supportPowerProductionState ? this.pv.envoy.devId === '' ? await this.getEnvoyBackboneApp() : true : false;
 
             //update grid profile
             const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
@@ -6815,7 +6808,7 @@ class EnvoyDevice extends EventEmitter {
             const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
 
             //access with installer password and envoy dev id
-            const updatePowerProductionState = envoyDevIdValid && ((this.pv.envoyJwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionPowerState() : false;
+            const updatePowerProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionPowerState() : false;
             //get ensemble data only FW. >= 7.x.x.
             const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
             const updateEnsembleStatus = refreshEnsemble ? await this.updateEnsembleStatus() : false;
@@ -6827,7 +6820,7 @@ class EnvoyDevice extends EventEmitter {
             const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
 
             //get plc communication level
-            const updateCommLevel = this.supportPlcLevel && ((this.pv.envoyJwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateCommLevel() : false;
+            const updateCommLevel = this.supportPlcLevel && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateCommLevel() : false;
             const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
             //connect to deice success
