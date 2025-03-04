@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - token handling improvements
 - digest installer and envoy handling improvements
+- error handling improvements
 - cleanup
 
 ## [9.8.6] - (02.03.2025)
