@@ -30,6 +30,13 @@
               "description": "IP Address or hostname of the Enphase Envoy gateway (defaults to envoy.local). For firmware v7+, please set the IP address.",
               "required": false
             },
+            "disableAccessory": {
+              "title": "Disable Accessory",
+              "type": "boolean",
+              "default": false,
+              "description": "Disables the accessory.",
+              "required": false
+            },
             "envoyFirmware7xx": {
               "title": "Modern firmware",
               "type": "boolean",
@@ -2705,6 +2712,7 @@
       "items": [
         "devices[].name",
         "devices[].host",
+        "devices[].disableAccessory",
         {
           "key": "devices[]",
           "type": "section",
@@ -3528,7 +3536,10 @@
                 }
               ]
             }
-          ]
+          ],
+          "condition": {
+            "functionBody": "return model.devices[arrayIndices].disableAccessory === false;"
+          }
         }
       ]
     }

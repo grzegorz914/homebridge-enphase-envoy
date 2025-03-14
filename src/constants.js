@@ -26,6 +26,7 @@ export const ApiUrls = {
     "AgfProfileDetails": "/installer/agf/details.json",
     "AgfProfileInverterStatus": "/installer/agf/inverters_status.json",
     "AgfProfileSetProfile": "/installer/agf/set_profile.json",
+    "AllProductions": "/ivp/pdm/energy",
     "BackboneApplication": "/backbone/application.js",
     "CellularConfig": "/admin/lib/network_display.json?cellular=1",
     "CheckJwt": "/auth/check_jwt",

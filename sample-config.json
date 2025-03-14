@@ -21,6 +21,7 @@
                 {
                     "name": "Envoy",
                     "host": "192.168.1.35",
+                    "disableAccessory": false,
                     "envoyFirmware7xx": false,
                     "envoyFirmware7xxTokenGenerationMode": 0,
                     "envoyPasswd": "",

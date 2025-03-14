@@ -733,6 +733,14 @@ class EnvoyDevice extends EventEmitter {
                     acBatterie: {
                         supported: false
                     }
+                },
+                all: {
+                    production: {
+                        supported: false
+                    },
+                    consumption: {
+                        supported: false
+                    }
                 }
             },
             ensembles: {
@@ -813,7 +821,12 @@ class EnvoyDevice extends EventEmitter {
             acBatteries: {},
             ensembles: [],
             meters: [],
-            production: {},
+            production: {
+                all: {
+                    production: {},
+                    consumption: {}
+                }
+            },
             liveData: {},
             arfProfile: {},
             powerState: false,
@@ -864,8 +877,9 @@ class EnvoyDevice extends EventEmitter {
         }).on('updateProduction', async () => {
             try {
                 const tokenValid = await this.checkJwtToken();
-                const updateProduction = !tokenValid ? false : await this.updateProduction();
-                const updateProductionCt = updateProduction ? await this.updateProductionCt() : false;
+                const updateProductionInverters = !tokenValid ? false : await this.updateProductionInverters();
+                const updateProductionCt = updateProductionInverters ? await this.updateProductionCt() : false;
+                const updateProductionAll = updateProductionInverters ? false : await this.updateProductionAll();
             } catch (error) {
                 this.handleError(error);
             };
@@ -1933,12 +1947,12 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
-    async updateProduction() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production`) : false;
+    async updateProductionInverters() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production inverters`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.InverterProductionSumm);
             const production = response.data;
-            const debug = this.enableDebugMode ? this.emit('debug', `Production:`, production) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Production inverters:`, production) : false;
 
             //microinverters summary 
             const productionKeys = Object.keys(production);
@@ -1969,7 +1983,7 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Production', production) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update production error: ${error}`);
+            throw new Error(`Update production inverters error: ${error}`);
         };
     };
 
@@ -2055,10 +2069,10 @@ class EnvoyDevice extends EventEmitter {
                     this.pv.productionPowerPeak = production.powerPeak;
 
                     //debug
-                    const debug1 = this.enableDebugMode ? this.emit('debug', `Production power state:`, production.powerState) : false;
-                    const debug2 = this.enableDebugMode ? this.emit('debug', `Production power level:`, production.powerLevel) : false;
-                    const debug3 = this.enableDebugMode ? this.emit('debug', `Production power peak detected:`, production.powerPeakDetected) : false;
-                    const debug4 = this.enableDebugMode ? this.emit('debug', `Production energy state:`, production.energyState) : false;
+                    const debug1 = this.enableDebugMode ? this.emit('debug', `Production power state: ${production.powerState}`) : false;
+                    const debug2 = this.enableDebugMode ? this.emit('debug', `Production power level: ${production.powerLevel} %`) : false;
+                    const debug3 = this.enableDebugMode ? this.emit('debug', `Production power peak detected: ${production.powerPeakDetected}`) : false;
+                    const debug4 = this.enableDebugMode ? this.emit('debug', `Production energy state: ${production.energyState}`) : false;
 
                     //update chaaracteristics
                     if (this.systemService) {
@@ -2248,8 +2262,8 @@ class EnvoyDevice extends EventEmitter {
                         this.pv.consumptionTotalPowerPeak = obj.powerPeakKw;
 
                         //debug
-                        const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state:`, obj.powerState) : false;
-                        const debug2 = this.enableDebugMode ? this.emit('debug', `${measurementType} energy state:`, obj.energyState) : false;
+                        const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;
+                        const debug2 = this.enableDebugMode ? this.emit('debug', `${measurementType} energy state: ${obj.energyState}`) : false;
 
                         //power
                         if (this.powerConsumptionTotalStateActiveSensorsCount > 0) {
@@ -2348,8 +2362,8 @@ class EnvoyDevice extends EventEmitter {
                         this.pv.consumptionNetPowerPeak = obj.powerPeakKw;
 
                         //debug
-                        const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state:`, obj.powerState) : false;
-                        const debug2 = this.enableDebugMode ? this.emit('debug', `${measurementType} energy state:`, obj.energyState) : false;
+                        const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;
+                        const debug2 = this.enableDebugMode ? this.emit('debug', `${measurementType} energy state: ${obj.energyState}`) : false;
 
                         //power
                         if (this.powerConsumptionNetStateActiveSensorsCount > 0) {
@@ -2501,6 +2515,78 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             throw new Error(`Update production ct error: ${error}`);
+        };
+    };
+
+    async updateProductionAll() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production all`) : false;
+        try {
+            const response = await this.axiosInstance(ApiUrls.AllProductions);
+            const productionAll = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Production all: `, productionAll) : false;
+
+            //production all summary 
+            const productionAllKeys = Object.keys(productionAll);
+            const productionSupported = productionAllKeys.includes('production')
+            const consumptionSupported = productionAllKeys.includes('consumption')
+
+            //process production data if available
+            if (productionSupported) {
+                const productionsKeys = Object.keys(productionAll.production)
+                productionsKeys.forEach((type) => {
+                    const productionData = productionAll.production[type];
+                    if (productionData) {
+                        const obj = {
+                            energyToday: productionData.wattHoursToday,
+                            energyTodayKw: productionData.wattHoursToday / 1000,
+                            energyLastSevenDays: productionData.wattHoursSevenDays,
+                            energyLastSevenDaysKw: productionData.wattHoursSevenDays / 1000,
+                            energyLifeTime: (productionData.wattHoursLifetime + this.energyProductionLifetimeOffset),
+                            energyLifeTimeKw: (productionData.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000,
+                            energyState: productionData.wattHoursToday > 0,
+                            power: productionData.wattsNow,
+                            powerKw: productionData.wattsNow / 1000,
+                            powerState: productionData.wattsNow > 0
+                        };
+                        this.pv.production.all.production[type] = obj;
+                    }
+                });
+            }
+
+            //set production support flag
+            this.feature.production.all.production.supported = productionSupported;
+
+            //process consumption data if available
+            if (consumptionSupported) {
+                const consumptionData = productionAll.consumption.eim;
+                if (consumptionData) {
+                    const obj = {
+                        energyToday: consumptionData.wattHoursToday,
+                        energyTodayKw: consumptionData.wattHoursToday / 1000,
+                        energyLastSevenDays: consumptionData.wattHoursSevenDays,
+                        energyLastSevenDaysKw: consumptionData.wattHoursSevenDays / 1000,
+                        energyLifeTime: (consumptionData.wattHoursLifetime + this.energyConsumptionNetLifetimeOffset),
+                        energyLifeTimeKw: (consumptionData.wattHoursLifetime + this.energyConsumptionNetLifetimeOffset) / 1000,
+                        energyState: consumptionData.wattHoursToday > 0,
+                        power: consumptionData.wattsNow,
+                        powerKw: consumptionData.wattsNow / 1000,
+                        powerState: consumptionData.wattsNow > 0
+                    };
+                    this.pv.production.all.consumption.eim = obj;
+                }
+            }
+
+            //set consumption support flag
+            this.feature.production.all.consumption.supported = consumptionSupported;
+
+            //restFul
+            const restFul = this.restFulConnected ? this.restFul1.update('productionall', production) : false;
+
+            //mqtt
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Production All', production) : false;
+            return true;
+        } catch (error) {
+            throw new Error(`Update production all error: ${error}`);
         };
     };
 
@@ -6804,8 +6890,9 @@ class EnvoyDevice extends EventEmitter {
             const refreshMicroinverters = tokenValid || digestAuthorizationEnvoy ? await this.updateMicroinvertersStatus() : false;
 
             //get production and production ct
-            const refreshProduction = await this.updateProduction();
+            const refreshProduction = await this.updateProductionInverters();
             const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
+            const updateProductionAll = refreshProduction ? await this.updateProductionAll() : false;
 
             //access with installer password and envoy dev id
             const updatePowerProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionPowerState() : false;

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.9.0] - (xx.03.2025)
+
+## Changes
+
+- added possibility to disable indyvidual accessory
+- added read production all (pcm, rgm, eim) and consumption (eim)
+- fix debug log
+- bump dependencies
+- config schema updated
+- redme updated
+- cleanup
+
 ## [9.8.7] - (04.03.2025)
 
 ## Changes

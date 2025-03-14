@@ -25,7 +25,8 @@ class RestFul extends EventEmitter {
             gridProfile: 'This data is not available in your system.',
             liveData: 'This data is not available in your system.',
             production: 'This data is not available in your system.',
-            productionCt: 'This data is not available in your system.',
+            productionct: 'This data is not available in your system.',
+            productionall: 'This data is not available in your system.',
             microinverters: 'This data is not available in your system.',
             powerMode: 'This data is not available in your system.',
             plcLevel: 'This data is not available in your system.',
@@ -59,7 +60,8 @@ class RestFul extends EventEmitter {
             restFul.get('/gridprofile', (req, res) => { res.json(this.restFulData.gridProfile) });
             restFul.get('/livedata', (req, res) => { res.json(this.restFulData.liveData) });
             restFul.get('/production', (req, res) => { res.json(this.restFulData.production) });
-            restFul.get('/productionct', (req, res) => { res.json(this.restFulData.productionCt) });
+            restFul.get('/productionct', (req, res) => { res.json(this.restFulData.productionct) });
+            restFul.get('/productionall', (req, res) => { res.json(this.restFulData.productionall) });
             restFul.get('/microinverters', (req, res) => { res.json(this.restFulData.microinverters) });
             restFul.get('/powermode', (req, res) => { res.json(this.restFulData.powerMode) });
             restFul.get('/plclevel', (req, res) => { res.json(this.restFulData.plcLevel) });
@@ -148,7 +150,10 @@ class RestFul extends EventEmitter {
                 this.restFulData.production = data;
                 break;
             case 'productionct':
-                this.restFulData.productionCt = data;
+                this.restFulData.productionct = data;
+                break;
+            case 'productionall':
+                this.restFulData.productionall = data;
                 break;
             case 'microinverters':
                 this.restFulData.microinverters = data;

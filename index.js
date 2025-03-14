@@ -26,16 +26,23 @@ class EnvoyPlatform {
 
     api.on('didFinishLaunching', async () => {
       for (const device of config.devices) {
-        const deviceName = device.name ?? false;
+
+        //check accessory is enabled
+        const disableAccessory = device.disableAccessory || false;
+        if (disableAccessory) {
+          continue;
+        }
+
+        const deviceName = device.name;
         const host = device.host || 'envoy.local';
         const envoyFirmware7xx = device.envoyFirmware7xx || false;
         const envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode || 0; //0 - enlighten credentials, 1 - own token
-        const envoyPasswd = device.envoyPasswd ?? false;
-        const envoyToken = device.envoyToken ?? false;
-        const envoyTokenInstaller = device.envoyTokenInstaller ?? false;
-        const enlightenUser = device.enlightenUser ?? false;
-        const enlightenPasswd = device.enlightenPasswd ?? false;
-        const envoySerialNumber = device.envoySerialNumber ?? false;
+        const envoyPasswd = device.envoyPasswd;
+        const envoyToken = device.envoyToken;
+        const envoyTokenInstaller = device.envoyTokenInstaller || false;
+        const enlightenUser = device.enlightenUser;
+        const enlightenPasswd = device.enlightenPasswd;
+        const envoySerialNumber = device.envoySerialNumber;
 
         //check mandatory properties
         if (!deviceName) {
@@ -111,8 +118,8 @@ class EnvoyPlatform {
             .on('info', (info) => {
               const emitLog = disableLogInfo ? false : log.info(`Device: ${host} ${deviceName}, ${info}.`);
             })
-            .on('debug', (debug) => {
-              const emitLog = !enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, debug: ${debug}.`);
+            .on('debug', (debug, data) => {
+              const emitLog = !enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, debug: ${data ? `${debug} ${JSON.stringify(data, null, 2)}` : `${debug}.`}`);
             })
             .on('warn', (warn) => {
               const emitLog = disableLogWarn ? false : log.warn(`Device: ${host} ${deviceName}, ${warn}.`);
