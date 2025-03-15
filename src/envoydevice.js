@@ -6899,12 +6899,14 @@ class EnvoyDevice extends EventEmitter {
             const refreshProduction = await this.updateProductionInverters();
             const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
 
-             //get production all
-            const refreshProductionAll = tokenValid ? await this.updateProductionAll() : false;
+            //get production all
+            const match = this.pv.envoy.info.software.match(/\d+/);
+            const envoyFirmware = match ? match[0] : 5;
+            const refreshProductionAll = tokenValid && envoyFirmware >= 8 ? await this.updateProductionAll() : false;
 
             //access with installer password and envoy dev id
             const updatePowerProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionPowerState() : false;
-            
+
             //get ensemble data only FW. >= 7.x.x.
             const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
             const updateEnsembleStatus = refreshEnsemble ? await this.updateEnsembleStatus() : false;
