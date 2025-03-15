@@ -879,7 +879,13 @@ class EnvoyDevice extends EventEmitter {
                 const tokenValid = await this.checkJwtToken();
                 const updateProductionInverters = !tokenValid ? false : await this.updateProductionInverters();
                 const updateProductionCt = updateProductionInverters ? await this.updateProductionCt() : false;
-                const updateProductionAll = updateProductionInverters ? false : await this.updateProductionAll();
+            } catch (error) {
+                this.handleError(error);
+            };
+        }).on('updateProductionAll', async () => {
+            try {
+                const tokenValid = await this.checkJwtToken();
+                const updateProductionAll = !tokenValid ? false : await this.updateProductionAll();
             } catch (error) {
                 this.handleError(error);
             };
@@ -6889,13 +6895,16 @@ class EnvoyDevice extends EventEmitter {
             //acces with envoy password
             const refreshMicroinverters = tokenValid || digestAuthorizationEnvoy ? await this.updateMicroinvertersStatus() : false;
 
-            //get production and production ct
+            //get production inverters and production ct
             const refreshProduction = await this.updateProductionInverters();
             const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
-            const updateProductionAll = refreshProduction ? await this.updateProductionAll() : false;
+
+             //get production all
+            const refreshProductionAll = tokenValid ? await this.updateProductionAll() : false;
 
             //access with installer password and envoy dev id
             const updatePowerProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionPowerState() : false;
+            
             //get ensemble data only FW. >= 7.x.x.
             const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
             const updateEnsembleStatus = refreshEnsemble ? await this.updateEnsembleStatus() : false;
@@ -6930,6 +6939,7 @@ class EnvoyDevice extends EventEmitter {
             const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
             const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
             const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer6 = refreshProductionAll ? this.timers.push({ name: 'updateProductionAll', sampling: this.productionDataRefreshTime }) : false;
             const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
             const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
 
