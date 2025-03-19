@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.9.4] - (19.03.2025)
+
+## Changes
+
+- fix backup level sensor update [#186](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/186)
+- config UI improvements [#185](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/185)
+- config schema updated
+- cleanup
+
 ## [9.9.3] - (18.03.2025)
 
 ## Changes

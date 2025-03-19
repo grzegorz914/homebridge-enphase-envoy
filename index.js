@@ -25,6 +25,7 @@ class EnvoyPlatform {
     }
 
     api.on('didFinishLaunching', async () => {
+      let i = 1;
       for (const device of config.devices) {
 
         //check accessory is enabled
@@ -34,7 +35,7 @@ class EnvoyPlatform {
         }
 
         const deviceName = device.name;
-        const host = device.host || 'envoy.local';
+        const host = device.host || i === 1 ? 'envoy.local' : `envoy-${i}.local`;
         const envoyFirmware7xx = device.envoyFirmware7xx || false;
         const envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode || 0; //0 - enlighten credentials, 1 - own token
         const envoyPasswd = device.envoyPasswd;
@@ -149,6 +150,8 @@ class EnvoyPlatform {
         } catch (error) {
           throw new Error(`Device: ${host} ${deviceName}, Did finish launching error: ${error}.`);
         };
+
+        i++;
       };
     });
   };

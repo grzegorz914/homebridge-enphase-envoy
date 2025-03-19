@@ -72,7 +72,7 @@
               "title": "Envoy password",
               "type": "string",
               "placeholder": "Envoy password",
-              "description": "Enphase Envoy password (if you altered the default password)",
+              "description": "Envoy password (only if you altered the default password)",
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
@@ -136,7 +136,7 @@
               "title": "PLC Level",
               "type": "boolean",
               "default": false,
-              "description": "Enables support for checking PLC level (requires firmware 7+ and installer credentials)",
+              "description": "Enables monitoring and control of PLC level (firmware 7+ requires installer credentials)",
               "required": false
             },
             "plcLevelControl": {
@@ -193,16 +193,13 @@
                   "required": false
                 }
               },
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].supportPlcLevel === true"
-              },
               "required": false
             },
             "supportPowerProductionState": {
               "title": "Power Production",
               "type": "boolean",
               "default": false,
-              "description": "Enables monitoring and control of power production (requires firmware 7+ and installer credentials)",
+              "description": "Enables monitoring and control of power production (firmware 7+ requires installer credentials)",
               "required": false
             },
             "powerProductionStateControl": {
@@ -258,9 +255,6 @@
                   "description": "Use accessory name as a prefix",
                   "required": false
                 }
-              },
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].supportPowerProductionState === true"
               }
             },
             "powerProductionSummary": {
@@ -376,7 +370,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": false
+                    "required": true
                   },
                   "powerLevel": {
                     "title": "Power Level",
@@ -535,7 +529,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": false
+                    "required": true
                   },
                   "energyLevel": {
                     "title": "Enargy Level",
@@ -702,7 +696,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": false
+                    "required": true
                   },
                   "powerLevel": {
                     "title": "Power Level",
@@ -869,7 +863,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": false
+                    "required": true
                   },
                   "energyLevel": {
                     "title": "Enargy Level",
@@ -1029,7 +1023,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": false
+                    "required": true
                   },
                   "powerLevel": {
                     "title": "Power Level",
@@ -1195,7 +1189,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": false
+                    "required": true
                   },
                   "energyLevel": {
                     "title": "Energy Level",
@@ -1397,7 +1391,7 @@
                       }
                     ],
                     "description": "Here select the profile.",
-                    "required": false
+                    "required": true
                   },
                   "displayType": {
                     "title": "Accessory type",
@@ -1610,7 +1604,7 @@
                       }
                     ],
                     "description": "Here select the grid mode.",
-                    "required": false
+                    "required": true
                   },
                   "displayType": {
                     "title": "Accessory type",
@@ -1710,7 +1704,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": false
+                    "required": true
                   },
                   "backupLevel": {
                     "title": "Level",
@@ -1936,7 +1930,7 @@
                       }
                     ],
                     "description": "Grid mode",
-                    "required": false
+                    "required": true
                   },
                   "displayType": {
                     "title": "Accessory type",
@@ -2108,7 +2102,7 @@
                       }
                     ],
                     "description": "Grid mode",
-                    "required": false
+                    "required": true
                   },
                   "displayType": {
                     "title": "Accessory type",
@@ -2368,7 +2362,7 @@
                   },
                   "mode": {
                     "title": "Mode",
-                    "type": "off",
+                    "type": "string",
                     "default": "off",
                     "oneOf": [
                       {
@@ -2391,7 +2385,7 @@
                       }
                     ],
                     "description": "Mode",
-                    "required": false
+                    "required": true
                   },
                   "displayType": {
                     "title": "Accessory type",
@@ -2792,65 +2786,64 @@
                     "devices[].supportPowerProductionState",
                     {
                       "key": "devices[]",
-                      "type": "tabarray",
-                      "title": "{{ value.title }}",
+                      "type": "section",
+                      "title": "Credentials",
+                      "description": "Section for setting Enphase Envoy credentials",
+                      "expandable": true,
+                      "expanded": false,
                       "items": [
+                        "devices[].envoyFirmware7xxTokenGenerationMode",
                         {
-                          "key": "devices[].plcLevelControl",
-                          "type": "section",
-                          "title": "PLC Level Refresh Control",
-                          "description": "Section for enabling accessory for PLC level refresh control",
-                          "expandable": true,
-                          "expanded": false,
-                          "items": [
-                            "devices[].plcLevelControl.name",
-                            "devices[].plcLevelControl.displayType",
-                            "devices[].plcLevelControl.namePrefix"
-                          ]
+                          "key": "devices[].envoyPasswd",
+                          "type": "password"
                         },
                         {
-                          "key": "devices[].powerProductionStateControl",
-                          "type": "section",
-                          "title": "Power Production Control",
-                          "description": "Section for enabling accessory for power production control",
-                          "expandable": true,
-                          "expanded": false,
-                          "items": [
-                            "devices[].powerProductionStateControl.name",
-                            "devices[].powerProductionStateControl.displayType",
-                            "devices[].powerProductionStateControl.namePrefix"
-                          ]
+                          "key": "devices[].envoyToken",
+                          "type": "password"
                         },
+                        "devices[].envoyTokenInstaller",
                         {
-                          "key": "devices[]",
-                          "type": "section",
-                          "title": "Credentials",
-                          "description": "Section for setting Enphase Envoy credentials",
-                          "expandable": true,
-                          "expanded": false,
-                          "items": [
-                            "devices[].envoyFirmware7xxTokenGenerationMode",
-                            {
-                              "key": "devices[].envoyPasswd",
-                              "type": "password"
-                            },
-                            {
-                              "key": "devices[].envoyToken",
-                              "type": "password"
-                            },
-                            "devices[].envoyTokenInstaller",
-                            {
-                              "key": "devices[].envoySerialNumber",
-                              "type": "password"
-                            },
-                            "devices[].enlightenUser",
-                            {
-                              "key": "devices[].enlightenPasswd",
-                              "type": "password"
-                            }
-                          ]
+                          "key": "devices[].envoySerialNumber",
+                          "type": "password"
+                        },
+                        "devices[].enlightenUser",
+                        {
+                          "key": "devices[].enlightenPasswd",
+                          "type": "password"
                         }
                       ]
+                    },
+                    {
+                      "key": "devices[].plcLevelControl",
+                      "type": "section",
+                      "title": "PLC Level Refresh Control",
+                      "description": "Section for enabling accessory for PLC level refresh control",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].plcLevelControl.name",
+                        "devices[].plcLevelControl.displayType",
+                        "devices[].plcLevelControl.namePrefix"
+                      ],
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].supportPlcLevel === true"
+                      }
+                    },
+                    {
+                      "key": "devices[].powerProductionStateControl",
+                      "type": "section",
+                      "title": "Power Production Control",
+                      "description": "Section for enabling accessory for power production control",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].powerProductionStateControl.name",
+                        "devices[].powerProductionStateControl.displayType",
+                        "devices[].powerProductionStateControl.namePrefix"
+                      ],
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].supportPowerProductionState === true"
+                      }
                     }
                   ]
                 },
