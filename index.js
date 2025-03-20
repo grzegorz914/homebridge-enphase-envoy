@@ -35,7 +35,7 @@ class EnvoyPlatform {
         }
 
         const deviceName = device.name;
-        const host = device.host || i === 1 ? 'envoy.local' : `envoy-${i}.local`;
+        const host = device.host || (i === 1 ? 'envoy.local' : `envoy-${i}.local`);
         const envoyFirmware7xx = device.envoyFirmware7xx || false;
         const envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode || 0; //0 - enlighten credentials, 1 - own token
         const envoyPasswd = device.envoyPasswd;
