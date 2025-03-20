@@ -256,7 +256,7 @@ class EnvoyDevice extends EventEmitter {
         const energyConsumptionTotalStateSensorDisplayType = this.energyConsumptionTotalStateSensor.displayType ?? 0;
         if (energyConsumptionTotalStateSensorDisplayType > 0) {
             const sensor = {};
-            sensor.name = this.this.energyConsumptionTotalStateSensor.name || 'Energy Consumption Total State Sensor';
+            sensor.name = this.energyConsumptionTotalStateSensor.name || 'Energy Consumption Total State Sensor';
             sensor.namePrefix = this.energyConsumptionTotalStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyConsumptionTotalStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyConsumptionTotalStateSensorDisplayType];
@@ -287,7 +287,7 @@ class EnvoyDevice extends EventEmitter {
         const powerConsumptionNetStateSensorDisplayType = this.powerConsumptionNetStateSensor.displayType ?? 0;
         if (powerConsumptionNetStateSensorDisplayType > 0) {
             const sensor = {};
-            sensor.name = this.this.powerConsumptionNetStateSensor.name || 'Power Consumption Net State Sensor';
+            sensor.name = this.powerConsumptionNetStateSensor.name || 'Power Consumption Net State Sensor';
             sensor.namePrefix = this.powerConsumptionNetStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerConsumptionNetStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerConsumptionNetStateSensorDisplayType];
@@ -318,7 +318,7 @@ class EnvoyDevice extends EventEmitter {
         const energyConsumptionNetStateSensorDisplayType = this.energyConsumptionNetStateSensor.displayType ?? 0;
         if (energyConsumptionNetStateSensorDisplayType > 0) {
             const sensor = {};
-            sensor.name = this.this.energyConsumptionNetStateSensor.name || 'Energy Consumption Net State Sensor';
+            sensor.name = this.energyConsumptionNetStateSensor.name || 'Energy Consumption Net State Sensor';
             sensor.namePrefix = this.energyConsumptionNetStateSensor.namePrefix;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyConsumptionNetStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyConsumptionNetStateSensorDisplayType];
