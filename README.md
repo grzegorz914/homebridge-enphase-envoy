@@ -191,6 +191,8 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `gridMode` | string | Grid mode: `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming` |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| `enchargeName` | | string | Encharge Accessory name for Home app, if not set will use default name |
+| `enchargeBackupLevelSummaryAccessory` |  | boolean | Enables encharges backup level summary as a light bulb accessory, if present. |
 | `enchargeStateSensor` | | key | `Encharge State Sensor` for monitoring. If `State ON`, the contact was opened. |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |

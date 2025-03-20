@@ -154,6 +154,8 @@
                             "namePrefix": false
                         }
                     ],
+                    "enchargeName": "Encharge name",
+                    "enchargeBackupLevelSummaryAccessory": false,
                     "enchargeStateSensor": {
                         "name": "Sensor name",
                         "displayType": 0,

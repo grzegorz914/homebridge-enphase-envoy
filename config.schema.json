@@ -1244,6 +1244,20 @@
                 }
               }
             },
+            "enchargeName": {
+              "title": "Accessory name",
+              "type": "string",
+              "placeholder": "Accessory name",
+              "description": "Accessory name for Home app, if not set will use default name",
+              "required": false
+            },
+            "enchargeBackupLevelSummaryAccessory": {
+              "title": "Backup Summary Accessory",
+              "type": "boolean",
+              "default": false,
+              "description": "Enables encharges backup level summary as a light bulb accessory, if present.",
+              "required": false
+            },
             "enchargeProfileControl": {
               "title": "Profile Control",
               "type": "array",
@@ -3224,6 +3238,8 @@
                           "key": "devices[]",
                           "title": "Encharge",
                           "items": [
+                            "devices[].enchargeName",
+                            "devices[].enchargeBackupLevelSummaryAccessory",
                             {
                               "key": "devices[]",
                               "type": "tabarray",
