@@ -4,7 +4,7 @@
   "singular": true,
   "fixArrays": true,
   "strictValidation": true,
-  "headerDisplay": "This plugin works with Enphase Photovoltaic system. Devices are exposed to HomeKit as accessories. Each needs to be added manually.",
+  "headerDisplay": "This plugin works with Enphase Photovoltaic system. Devices exposed to the HomeKit needs to be added manually.",
   "footerDisplay": "For documentation, please see [GitHub repository](https://github.com/grzegorz914/homebridge-enphase-envoy).",
   "schema": {
     "type": "object",
@@ -42,7 +42,10 @@
               "type": "boolean",
               "default": false,
               "description": "Enables support for features of firmware v7+",
-              "required": true
+              "required": true,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].disableAccessory === false;"
+              }
             },
             "envoyFirmware7xxTokenGenerationMode": {
               "title": "Token Generation Mode",
@@ -2779,6 +2782,38 @@
         "devices[].name",
         "devices[].host",
         "devices[].disableAccessory",
+        "devices[].envoyFirmware7xx",
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "Credentials",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].envoyFirmware7xxTokenGenerationMode",
+            {
+              "key": "devices[].envoyPasswd",
+              "type": "password"
+            },
+            {
+              "key": "devices[].envoyToken",
+              "type": "password"
+            },
+            "devices[].envoyTokenInstaller",
+            {
+              "key": "devices[].envoySerialNumber",
+              "type": "password"
+            },
+            "devices[].enlightenUser",
+            {
+              "key": "devices[].enlightenPasswd",
+              "type": "password"
+            }
+          ],
+          "condition": {
+            "functionBody": "return model.devices[arrayIndices].disableAccessory === false;"
+          }
+        },
         {
           "key": "devices[]",
           "type": "section",
@@ -2795,38 +2830,8 @@
                   "key": "devices[]",
                   "title": "Envoy",
                   "items": [
-                    "devices[].envoyFirmware7xx",
                     "devices[].supportPlcLevel",
                     "devices[].supportPowerProductionState",
-                    {
-                      "key": "devices[]",
-                      "type": "section",
-                      "title": "Credentials",
-                      "description": "Section for setting Enphase Envoy credentials",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].envoyFirmware7xxTokenGenerationMode",
-                        {
-                          "key": "devices[].envoyPasswd",
-                          "type": "password"
-                        },
-                        {
-                          "key": "devices[].envoyToken",
-                          "type": "password"
-                        },
-                        "devices[].envoyTokenInstaller",
-                        {
-                          "key": "devices[].envoySerialNumber",
-                          "type": "password"
-                        },
-                        "devices[].enlightenUser",
-                        {
-                          "key": "devices[].enlightenPasswd",
-                          "type": "password"
-                        }
-                      ]
-                    },
                     {
                       "key": "devices[].plcLevelControl",
                       "type": "section",
