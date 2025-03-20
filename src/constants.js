@@ -125,6 +125,7 @@ export const PartNumbers = {
     "880-00209-r03": "ENV-IQ-AM3-3P",
     "880-00557-r02": "ENV-IQ-AM3-3P",
     "860-00152-r02": "Q-RELAY-1P-INT",
+    "800-00598-r04": "Q-RELAY-1P-INT",
     "800-00597-r02": "Q-RELAY-3P-INT",
     "800-00630-r02": "IQ7-60-2-INT",
     "800-00637-r02": "IQ7-60-2-US",
@@ -141,14 +142,17 @@ export const PartNumbers = {
     "800-00640-r02": "IQ7PLUS-72-B-US",
     "883-00852-r09": "IQ7PLUS-72-2-US",
     "800-01131-r02": "IQ8",
+    "800-01395-r03": "IQ8AC-72-M-INT",
     "860-00276-r48": "EP200G101-M240US00",
     "830-00703-r75": "B03-A01-US00-1-3",
     "830-00703-r84": "B03-A01-US00-1-3",
+    "836-01890-r24": "ENCHARGE-IQ-5P",
     "836-00750-r27": "ENCHARGE-10-1P-NA",
     "860-00376-r38": "ENPOWER",
     "860-00276-r59": "ENPOWER",
     "800-01612-r04": "ENSEMBLE",
-    "xxx-xxxxx-xx3": "COMMS-KIT-01"
+    "xxx-xxxxx-xx3": "COMMS-KIT-01",
+    "834-01927-r03": "COMMS-KIT-02"
 };
 
 export const ApiCodes = {
