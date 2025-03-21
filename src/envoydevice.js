@@ -2621,7 +2621,7 @@ class EnvoyDevice extends EventEmitter {
                 const enchargesData = enchargesSupported ? ensembleInventory[0].devices : [];
                 const enchargesInstalled = enchargesData.length > 0;
                 if (enchargesInstalled) {
-                    const enchargesObj = [];
+                    const enchargesArr = [];
                     const enchargesPercentFullSummary = [];
                     const type = ApiCodes[ensembleInventory[0].type];
                     enchargesData.forEach((encharge, index) => {
@@ -2655,7 +2655,7 @@ class EnvoyDevice extends EventEmitter {
                             derIndex: encharge.der_index ?? 0
                         }
                         //push to array
-                        enchargesObj.push(obj);
+                        enchargesArr.push(obj);
 
                         //encharges percent full summary
                         enchargesPercentFullSummary.push(obj.percentFull);
@@ -2697,7 +2697,7 @@ class EnvoyDevice extends EventEmitter {
                     }
 
                     //add obj to array
-                    this.ensemble.encharges.devices = enchargesObj;
+                    this.ensemble.encharges.devices = enchargesArr;
 
                     //feature encharges
                     this.feature.encharges.installed = true;
@@ -2712,7 +2712,7 @@ class EnvoyDevice extends EventEmitter {
                 const enpowersData = enpowersSupported ? ensembleInventory[1].devices : [];
                 const enpowersInstalled = enpowersData.length > 0;
                 if (enpowersInstalled) {
-                    const enpowersObj = [];
+                    const enpowesrArr = [];
                     const type = ApiCodes[ensembleInventory[1].type];
                     enpowersData.forEach((enpower, index) => {
                         const obj = {
@@ -2745,7 +2745,7 @@ class EnvoyDevice extends EventEmitter {
                             enpwrCurrStateId: enpower.Enpwr_curr_state_id ?? 0
                         }
                         //push to array
-                        enpowersObj.push(obj);
+                        enpowesrArr.push(obj);
 
                         //update chaaracteristics
                         if (this.envoyService) {
@@ -2818,7 +2818,7 @@ class EnvoyDevice extends EventEmitter {
                         }
                     });
                     //add obj to array
-                    this.ensemble.enpowers.devices = enpowersObj;
+                    this.ensemble.enpowers.devices = enpowesrArr;
 
                     //feature enpowers
                     this.feature.enpowers.installed = true;
