@@ -2536,10 +2536,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.production.all.consumption.supported = consumptionSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul1.update('productionall', production) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('productionall', productionAll) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Production All', production) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Production All', productionAll) : false;
             return true;
         } catch (error) {
             throw new Error(`Update production all error: ${error}`);
