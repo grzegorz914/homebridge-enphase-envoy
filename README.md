@@ -95,7 +95,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | --- | --- | --- | --- |
 | `name` | | string | Envoy Enphase Gateway accessory name to be displayed in Home app |
 | `host` | | string | The Envoy Enphase Gateway `IP Address` or `Hostname`. If not supplied, defaults to `envoy.local`. For firmware v7.0+, please set the `IP Address`. |
-| `disableAccessory` |  | boolean | Disables the accessory. |
+| `displayType` | | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Light Bulb, `2` - Fan, `3` - Humidity Sensor, `4` - Carbon Monoxide Sensor |
 | `envoyFirmware7xx` |  | boolean | Enables support for Envoy firmware v7.0+ |
 | `envoyFirmware7xxTokenGenerationMode` | | number | How you will obtain the token: `0` - Enlighten Credentials, `1` - Your Own Generated Token |
 | `envoyPasswd` | | string | Envoy Enphase password (only if U already changed the default password) |
@@ -178,6 +178,10 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyConsumptionNetLifetimeOffset` | | number | `Energy Offset` in `Wh` for consumption `Net` (if needed) `+/-` |
+| `acBatterieName` | | string | Encharge Accessory name for Home app, if not set will use default name |
+| `acBatterieBackupLevelSummaryAccessory` | | key | `AV Batteries Backup Level Summary Accessory` in Home app, if present |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Light Bulb, `2` - Fan, `3` - Humidity Sensor, `4` - Carbon Monoxide Sensor, `5` - Battery |
+| | `minSoc` | boolean | Minimum SoC level in (%) for ac batteries backup level summary |
 | `enpowerGridStateControl` | | key | `Enpower Grid State Control` for `Grid ON/OFF` control from HomeKit |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
@@ -192,7 +196,12 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `enchargeName` | | string | Encharge Accessory name for Home app, if not set will use default name |
-| `enchargeBackupLevelSummaryAccessory` |  | boolean | Enables encharges backup level summary as a light bulb accessory, if present. |
+| `enchargeBackupLevelSummaryAccessory` | | key | `Encharge Backup Level Summary Accessory` in Home app, if present |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Light Bulb, `2` - Fan, `3` - Humidity Sensor, `4` - Carbon Monoxide Sensor, `5` - Battery |
+| | `minSoc` | boolean | Minimum SoC level in (%) for encharges backup level summary |
+| `enchargeBackupLevelAccessory` | | key | `Encharge Backup Level Accessory` in Home app, if present |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, , `1` - Battery |
+| | `minSoc` | boolean | Minimum SoC level in (%) for encharges backup level summary |
 | `enchargeStateSensor` | | key | `Encharge State Sensor` for monitoring. If `State ON`, the contact was opened. |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -249,6 +258,9 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `mode` | string | Grid mode: `Off`, `On`, `Auto` |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| `acBatterieBackupLevelAccessory` | | key | `AC Battery Backup Level Accessory` in Home app, if present |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, , `1` - Battery |
+| | `minSoc` | boolean | Minimum SoC level in (%) for ac battery backup level summary |
 | `dataRefreshControl` | | key | `Data Refresh Control` from HomeKit. |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Here select the tile type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |

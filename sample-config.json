@@ -21,7 +21,7 @@
                 {
                     "name": "Envoy",
                     "host": "192.168.1.35",
-                    "disableAccessory": false,
+                    "displayType": 1,
                     "envoyFirmware7xx": false,
                     "envoyFirmware7xxTokenGenerationMode": 0,
                     "envoyPasswd": "",
@@ -136,6 +136,15 @@
                         }
                     ],
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "acBatterieName": "AC batterie name",
+                    "acBatterieBackupLevelSummaryAccessory": {
+                        "displayType": 0,
+                        "minSoc": 0
+                    },
+                    "acBatterieBackupLevelAccessory": {
+                        "displayType": 0,
+                        "minSoc": 0
+                    },
                     "enpowerGridStateControl": {
                         "name": "Control name",
                         "displayType": 0,
@@ -155,7 +164,14 @@
                         }
                     ],
                     "enchargeName": "Encharge name",
-                    "enchargeBackupLevelSummaryAccessory": false,
+                    "enchargeBackupLevelSummaryAccessory": {
+                        "displayType": 0,
+                        "minSoc": 0
+                    },
+                    "enchargeBackupLevelAccessory": {
+                        "displayType": 0,
+                        "minSoc": 0
+                    },
                     "enchargeStateSensor": {
                         "name": "Sensor name",
                         "displayType": 0,

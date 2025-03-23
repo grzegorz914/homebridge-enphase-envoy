@@ -30,12 +30,46 @@
               "description": "IP Address or hostname of the Enphase Envoy gateway (defaults to envoy.local). For firmware v7+, please set the IP address.",
               "required": false
             },
-            "disableAccessory": {
-              "title": "Disable Accessory",
-              "type": "boolean",
-              "default": false,
-              "description": "Disables the accessory.",
-              "required": false
+            "displayType": {
+              "title": "Accessory type",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4,
+              "default": 1,
+              "oneOf": [
+                {
+                  "title": "None/Disabled",
+                  "enum": [
+                    0
+                  ]
+                },
+                {
+                  "title": "Light Bulb",
+                  "enum": [
+                    1
+                  ]
+                },
+                {
+                  "title": "Fan",
+                  "enum": [
+                    2
+                  ]
+                },
+                {
+                  "title": "Humidity Sensor",
+                  "enum": [
+                    3
+                  ]
+                },
+                {
+                  "title": "Carbon Monoxide Sensor",
+                  "enum": [
+                    4
+                  ]
+                }
+              ],
+              "description": "Accessory type for Home app",
+              "required": true
             },
             "envoyFirmware7xx": {
               "title": "Modern firmware",
@@ -1247,6 +1281,121 @@
                 }
               }
             },
+            "acBatterieName": {
+              "title": "Accessory name",
+              "type": "string",
+              "placeholder": "Accessory name",
+              "description": "Accessory name for Home app, if not set will use default name",
+              "required": false
+            },
+            "acBatterieBackupLevelSummaryAccessory": {
+              "title": "AC Baterry Summary Accessory",
+              "type": "object",
+              "properties": {
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 5,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Light Bulb",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Fan",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Humidity Sensor",
+                      "enum": [
+                        3
+                      ]
+                    },
+                    {
+                      "title": "Carbon Monoxide Sensor",
+                      "enum": [
+                        4
+                      ]
+                    },
+                    {
+                      "title": "Battery",
+                      "enum": [
+                        5
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type for Home app",
+                  "required": true
+                },
+                "minSoc": {
+                  "title": "Minimum SoC",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "multipleOf": 1,
+                  "default": 0,
+                  "description": "Minimum SoC level in (%) for ac baterry backup level summary.",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelSummaryAccessory.displayType > 0"
+                  }
+                }
+              }
+            },
+            "acBatterieBackupLevelAccessory": {
+              "title": "AC Battery Accessory",
+              "type": "object",
+              "properties": {
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Battery",
+                      "enum": [
+                        1
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type for Home app",
+                  "required": true
+                },
+                "minSoc": {
+                  "title": "Minimum SoC",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "multipleOf": 1,
+                  "default": 0,
+                  "description": "Minimum SoC level in (%) for ac battery backup level.",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelAccessory.displayType > 0"
+                  }
+                }
+              }
+            },
             "enchargeName": {
               "title": "Accessory name",
               "type": "string",
@@ -1255,11 +1404,112 @@
               "required": false
             },
             "enchargeBackupLevelSummaryAccessory": {
-              "title": "Backup Summary Accessory",
-              "type": "boolean",
-              "default": false,
-              "description": "Enables encharges backup level summary as a light bulb accessory, if present.",
-              "required": false
+              "title": "Encharge Summary Accessory",
+              "type": "object",
+              "properties": {
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 5,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Light Bulb",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Fan",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Humidity Sensor",
+                      "enum": [
+                        3
+                      ]
+                    },
+                    {
+                      "title": "Carbon Monoxide Sensor",
+                      "enum": [
+                        4
+                      ]
+                    },
+                    {
+                      "title": "Battery",
+                      "enum": [
+                        5
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type for Home app",
+                  "required": true
+                },
+                "minSoc": {
+                  "title": "Minimum SoC",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "multipleOf": 1,
+                  "default": 0,
+                  "description": "Minimum SoC level in (%) for encharges backup level summary.",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelSummaryAccessory.displayType > 0"
+                  }
+                }
+              }
+            },
+            "enchargeBackupLevelAccessory": {
+              "title": "Encharge Accessory",
+              "type": "object",
+              "properties": {
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Battery",
+                      "enum": [
+                        1
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type for Home app",
+                  "required": true
+                },
+                "minSoc": {
+                  "title": "Minimum SoC",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "multipleOf": 1,
+                  "default": 0,
+                  "description": "Minimum SoC level in (%) for encharge backup level.",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelAccessory.displayType > 0"
+                  }
+                }
+              }
             },
             "enchargeProfileControl": {
               "title": "Profile Control",
@@ -2781,7 +3031,7 @@
       "items": [
         "devices[].name",
         "devices[].host",
-        "devices[].disableAccessory",
+        "devices[].displayType",
         "devices[].envoyFirmware7xx",
         {
           "key": "devices[]",
@@ -2811,7 +3061,7 @@
             }
           ],
           "condition": {
-            "functionBody": "return model.devices[arrayIndices].disableAccessory === false;"
+            "functionBody": "return model.devices[arrayIndices].displayType > 0;"
           }
         },
         {
@@ -3241,15 +3491,48 @@
                         },
                         {
                           "key": "devices[]",
-                          "title": "Encharge",
+                          "title": "Encharges",
                           "items": [
-                            "devices[].enchargeName",
-                            "devices[].enchargeBackupLevelSummaryAccessory",
                             {
                               "key": "devices[]",
                               "type": "tabarray",
                               "title": "{{ value.title }}",
                               "items": [
+                                {
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Accessory",
+                                  "description": "Section for enabling encharges backup level accessory.",
+                                  "expandable": true,
+                                  "expanded": false,
+                                  "items": [
+                                    "devices[].enchargeName",
+                                    {
+                                      "key": "devices[].enchargeBackupLevelSummaryAccessory",
+                                      "type": "section",
+                                      "title": "Summary Accessory",
+                                      "description": "Section for enabling encharges summary backup level accessory, if present.",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        "devices[].enchargeBackupLevelSummaryAccessory.displayType",
+                                        "devices[].enchargeBackupLevelSummaryAccessory.minSoc"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[].enchargeBackupLevelAccessory",
+                                      "type": "section",
+                                      "title": "Indyvidual Accessory",
+                                      "description": "Section for enabling encharge backup level accessory, if present.",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        "devices[].enchargeBackupLevelAccessory.displayType",
+                                        "devices[].enchargeBackupLevelAccessory.minSoc"
+                                      ]
+                                    }
+                                  ]
+                                },
                                 {
                                   "key": "devices[].enchargeStateSensor",
                                   "type": "section",
@@ -3499,6 +3782,41 @@
                 },
                 {
                   "key": "devices[]",
+                  "type": "section",
+                  "title": "AC Batteries",
+                  "description": "Section for enabling ac batteries backup level accessory.",
+                  "expandable": true,
+                  "expanded": false,
+                  "items": [
+                    "devices[].acBatterieName",
+                    {
+                      "key": "devices[].acBatterieBackupLevelSummaryAccessory",
+                      "type": "section",
+                      "title": "Summary Accessory",
+                      "description": "Section for enabling ac batteries summary backup level accessory, if present.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].acBatterieBackupLevelSummaryAccessory.displayType",
+                        "devices[].acBatterieBackupLevelSummaryAccessory.minSoc"
+                      ]
+                    },
+                    {
+                      "key": "devices[].acBatterieBackupLevelAccessory",
+                      "type": "section",
+                      "title": "Indyvidual Accessory",
+                      "description": "Section for enabling ac battery backup level accessory, if present.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].acBatterieBackupLevelAccessory.displayType",
+                        "devices[].acBatterieBackupLevelAccessory.minSoc"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "key": "devices[]",
                   "title": "System",
                   "items": [
                     {
@@ -3610,7 +3928,7 @@
             }
           ],
           "condition": {
-            "functionBody": "return model.devices[arrayIndices].disableAccessory === false;"
+            "functionBody": "return model.devices[arrayIndices].displayType > 0;"
           }
         }
       ]

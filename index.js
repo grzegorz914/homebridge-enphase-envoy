@@ -29,8 +29,8 @@ class EnvoyPlatform {
       for (const device of config.devices) {
 
         //check accessory is enabled
-        const disableAccessory = device.disableAccessory || false;
-        if (disableAccessory) {
+        const displayType = device.displayType || 0;
+        if (displayType === 0) {
           continue;
         }
 
@@ -105,7 +105,7 @@ class EnvoyPlatform {
 
         //envoy device
         try {
-          const envoyDevice = new EnvoyDevice(api, deviceName, host, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device);
+          const envoyDevice = new EnvoyDevice(api, deviceName, host, displayType, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device);
           envoyDevice.on('publishAccessory', (accessory) => {
             api.publishExternalAccessories(PluginName, [accessory]);
             const emitLog = disableLogSuccess ? false : log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
