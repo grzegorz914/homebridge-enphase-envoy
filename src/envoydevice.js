@@ -4587,7 +4587,7 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Prepare accessory`) : false;
             const accessoryName = this.name;
             const accessoryUUID = AccessoryUUID.generate(this.pv.envoy.info.serialNumber);
-            const accessoryCategory = Categories.OTHER;
+            const accessoryCategory = [Categories.OTHER, Categories.LIGHTBULB, Categories.FAN, Categories.SENSOR, Categories.SENSOR];
             const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
 
             //information service
