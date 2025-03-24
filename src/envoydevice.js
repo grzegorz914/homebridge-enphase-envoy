@@ -6070,7 +6070,7 @@ class EnvoyDevice extends EventEmitter {
                         enchargeGridStateSensorsService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.enchargeGridStateActiveSensor.state;
-                                const info = this.disableLogInfo ? false : this.emit('info', `encharge: ${serialNumber}, grid state sensor: ${serviceName}, state: ${state ? 'Grid ON' : 'Grid Off'}`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${enchargeName}, grid state sensor: ${serviceName}, state: ${state ? 'Grid ON' : 'Grid Off'}`);
                                 return state;
                             });
                         this.enchargeGridStateSensorService = enchargeGridStateSensorsService;
@@ -6124,7 +6124,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceName = this.solarGridStateActiveSensor.namePrefix ? `${accessoryName} ${this.solarGridStateActiveSensor.name}` : this.solarGridStateActiveSensor.name;
                         const serviceType = this.solarGridStateActiveSensor.serviceType;
                         const characteristicType = this.solarGridStateActiveSensor.characteristicType;
-                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare solar Grid State Sensor ${serviceName} Service`) : false;
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare Solar Grid State Sensor ${serviceName} Service`) : false;
                         const solarGridStateSensorsService = accessory.addService(serviceType, serviceName, `solarGridStateSensorService`);
                         solarGridStateSensorsService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                         solarGridStateSensorsService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
