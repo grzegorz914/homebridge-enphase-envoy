@@ -1351,6 +1351,16 @@
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelSummaryAccessory.displayType > 0"
                   }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Use accessory name as a prefix",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelSummaryAccessory.displayType > 0"
+                  }
                 }
               }
             },
@@ -1389,6 +1399,16 @@
                   "multipleOf": 1,
                   "default": 0,
                   "description": "Minimum SoC level in (%) for ac battery backup level.",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelAccessory.displayType > 0"
+                  }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Use accessory name as a prefix",
                   "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelAccessory.displayType > 0"
@@ -1466,6 +1486,16 @@
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelSummaryAccessory.displayType > 0"
                   }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Use accessory name as a prefix",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelSummaryAccessory.displayType > 0"
+                  }
                 }
               }
             },
@@ -1504,6 +1534,16 @@
                   "multipleOf": 1,
                   "default": 0,
                   "description": "Minimum SoC level in (%) for encharge backup level.",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelAccessory.displayType > 0"
+                  }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Use accessory name as a prefix",
                   "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelAccessory.displayType > 0"
@@ -3516,7 +3556,8 @@
                                       "expanded": false,
                                       "items": [
                                         "devices[].enchargeBackupLevelSummaryAccessory.displayType",
-                                        "devices[].enchargeBackupLevelSummaryAccessory.minSoc"
+                                        "devices[].enchargeBackupLevelSummaryAccessory.minSoc",
+                                        "devices[].enchargeBackupLevelSummaryAccessory.namePrefix"
                                       ]
                                     },
                                     {
@@ -3528,7 +3569,8 @@
                                       "expanded": false,
                                       "items": [
                                         "devices[].enchargeBackupLevelAccessory.displayType",
-                                        "devices[].enchargeBackupLevelAccessory.minSoc"
+                                        "devices[].enchargeBackupLevelAccessory.minSoc",
+                                        "devices[].enchargeBackupLevelAccessory.namePrefix"
                                       ]
                                     }
                                   ]
@@ -3798,7 +3840,8 @@
                       "expanded": false,
                       "items": [
                         "devices[].acBatterieBackupLevelSummaryAccessory.displayType",
-                        "devices[].acBatterieBackupLevelSummaryAccessory.minSoc"
+                        "devices[].acBatterieBackupLevelSummaryAccessory.minSoc",
+                        "devices[].acBatterieBackupLevelSummaryAccessory.namePrefix"
                       ]
                     },
                     {
@@ -3810,7 +3853,8 @@
                       "expanded": false,
                       "items": [
                         "devices[].acBatterieBackupLevelAccessory.displayType",
-                        "devices[].acBatterieBackupLevelAccessory.minSoc"
+                        "devices[].acBatterieBackupLevelAccessory.minSoc",
+                        "devices[].acBatterieBackupLevelAccessory.namePrefix"
                       ]
                     }
                   ]
