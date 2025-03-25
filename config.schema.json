@@ -1281,6 +1281,61 @@
                 }
               }
             },
+            "qRelayStateSensor": {
+              "title": "State Sensor",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Accessory name",
+                  "type": "string",
+                  "placeholder": "Sensor name",
+                  "description": "Name for the sensor accessory in the Home app",
+                  "required": false
+                },
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type for Home app",
+                  "required": true
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Use the accessory name as a prefix",
+                  "required": false
+                }
+              }
+            },
             "acBatterieName": {
               "title": "Accessory name",
               "type": "string",
@@ -3460,6 +3515,62 @@
                 },
                 {
                   "key": "devices[]",
+                  "type": "section",
+                  "title": "Q-Relay",
+                  "description": "Section for enabling qrelay state monitoring",
+                  "items": [
+                    {
+                      "key": "devices[].qRelayStateSensor",
+                      "type": "section",
+                      "title": "State Sensor",
+                      "description": "Section for enabling qrelay state sensor, if present.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].qRelayStateSensor.name",
+                        "devices[].qRelayStateSensor.displayType",
+                        "devices[].qRelayStateSensor.namePrefix"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "type": "section",
+                  "title": "AC Batteries",
+                  "description": "Section for enabling ac batteries backup level accessory.",
+                  "items": [
+                    "devices[].acBatterieName",
+                    {
+                      "key": "devices[].acBatterieBackupLevelSummaryAccessory",
+                      "type": "section",
+                      "title": "Summary Accessory",
+                      "description": "Section for enabling ac batteries summary backup level accessory, if present.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].acBatterieBackupLevelSummaryAccessory.displayType",
+                        "devices[].acBatterieBackupLevelSummaryAccessory.minSoc",
+                        "devices[].acBatterieBackupLevelSummaryAccessory.namePrefix"
+                      ]
+                    },
+                    {
+                      "key": "devices[].acBatterieBackupLevelAccessory",
+                      "type": "section",
+                      "title": "Indyvidual Accessory",
+                      "description": "Section for enabling ac battery backup level accessory, if present.",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        "devices[].acBatterieBackupLevelAccessory.displayType",
+                        "devices[].acBatterieBackupLevelAccessory.minSoc",
+                        "devices[].acBatterieBackupLevelAccessory.namePrefix"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "key": "devices[]",
                   "title": "Ensemble",
                   "items": [
                     {
@@ -3818,43 +3929,6 @@
                             }
                           ]
                         }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "key": "devices[]",
-                  "type": "section",
-                  "title": "AC Batteries",
-                  "description": "Section for enabling ac batteries backup level accessory.",
-                  "expandable": true,
-                  "expanded": false,
-                  "items": [
-                    "devices[].acBatterieName",
-                    {
-                      "key": "devices[].acBatterieBackupLevelSummaryAccessory",
-                      "type": "section",
-                      "title": "Summary Accessory",
-                      "description": "Section for enabling ac batteries summary backup level accessory, if present.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].acBatterieBackupLevelSummaryAccessory.displayType",
-                        "devices[].acBatterieBackupLevelSummaryAccessory.minSoc",
-                        "devices[].acBatterieBackupLevelSummaryAccessory.namePrefix"
-                      ]
-                    },
-                    {
-                      "key": "devices[].acBatterieBackupLevelAccessory",
-                      "type": "section",
-                      "title": "Indyvidual Accessory",
-                      "description": "Section for enabling ac battery backup level accessory, if present.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].acBatterieBackupLevelAccessory.displayType",
-                        "devices[].acBatterieBackupLevelAccessory.minSoc",
-                        "devices[].acBatterieBackupLevelAccessory.namePrefix"
                       ]
                     }
                   ]

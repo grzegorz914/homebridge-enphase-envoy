@@ -136,6 +136,11 @@
                         }
                     ],
                     "energyConsumptionNetLifetimeOffset": 0,
+                    "qRelayStateSensor": {
+                        "name": "Sensor name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "acBatterieName": "AC batterie name",
                     "acBatterieBackupLevelSummaryAccessory": {
                         "displayType": 0,
