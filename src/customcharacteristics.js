@@ -322,7 +322,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseEnvoyCheckCommLevel);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnvoyProductionPowerMode);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnvoyDataRefresh);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseEnvoyService = EnphaseEnvoyService;
@@ -520,7 +520,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseQrelayFirmware);
             this.addOptionalCharacteristic(Characteristic.EnphaseQrelayLastReportDate);
             this.addOptionalCharacteristic(Characteristic.EnphaseQrelayGridProfile);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseQrelayService = EnphaseQrelayService;
@@ -742,7 +742,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseMeterCurrent);
             this.addOptionalCharacteristic(Characteristic.EnphaseMeterFreq);
             this.addOptionalCharacteristic(Characteristic.EnphaseMeterReadingTime);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseMeterService = EnphaseMeterService;
@@ -963,7 +963,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphasePwrFactor);
             this.addOptionalCharacteristic(Characteristic.EnphaseReadingTime);
             this.addOptionalCharacteristic(Characteristic.EnphasePowerMaxReset);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphasePowerAndEnergyService = EnphasePowerAndEnergyService;
@@ -1069,7 +1069,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseAcBatterieSummaryActiveCount);
             this.addOptionalCharacteristic(Characteristic.EnphaseAcBatterieSummaryState);
             this.addOptionalCharacteristic(Characteristic.EnphaseAcBatterieSummaryReadingTime);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseAcBatterieSummaryService = EnphaseAcBatterieSummaryService;
@@ -1283,7 +1283,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseAcBatterieStatus);
             this.addOptionalCharacteristic(Characteristic.EnphaseAcBatterieFirmware);
             this.addOptionalCharacteristic(Characteristic.EnphaseAcBatterieLastReportDate);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseAcBatterieService = EnphaseAcBatterieService;
@@ -1450,7 +1450,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseMicroinverterFirmware);
             this.addOptionalCharacteristic(Characteristic.EnphaseMicroinverterLastReportDate);
             this.addOptionalCharacteristic(Characteristic.EnphaseMicroinverterGridProfile);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseMicroinverterService = EnphaseMicroinverterService;
@@ -1732,7 +1732,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseEnchargeStatus);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnchargeLastReportDate);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnchargeCommLevel);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseEnchargeService = EnphaseEnchargeService;
@@ -1925,7 +1925,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseEnpowerGridProfile);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnpowerStatus);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnpowerLastReportDate);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseEnpowerService = EnphaseEnpowerService;
@@ -2312,7 +2312,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleEncAggPercentFull);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleEncAggBackupEnergy);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleEncAggAvailEnergy);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseEnsembleService = EnphaseEnsembleService;
@@ -2384,7 +2384,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseWirelessConnectionKitConnected);
             this.addOptionalCharacteristic(Characteristic.EnphaseWirelessConnectionKitSignalStrength);
             this.addOptionalCharacteristic(Characteristic.EnphaseWirelessConnectionKitSignalStrengthMax);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseWirelessConnectionKitService = EnphaseWirelessConnectionKitService;
@@ -2492,7 +2492,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleInventoryStatus);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleInventoryFirmware);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleInventoryLastReportDate);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseEnsembleInventoryService = EnphaseEnsembleInventoryService;
@@ -2643,7 +2643,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseLiveDataApparentPowerL1);
             this.addOptionalCharacteristic(Characteristic.EnphaseLiveDataApparentPowerL2);
             this.addOptionalCharacteristic(Characteristic.EnphaseLiveDataApparentPowerL3);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseLiveDataService = EnphaseLiveDataService;
@@ -2773,7 +2773,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleGeneratorExexOn);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleGeneratorShedule);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnsembleGeneratorPresent);
-            this.addOptionalCharacteristic(Characteristic.Name);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.EnphaseGerneratorService = EnphaseGerneratorService;

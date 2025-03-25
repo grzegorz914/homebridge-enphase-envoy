@@ -4556,7 +4556,7 @@ class EnvoyDevice extends EventEmitter {
                     const characteristicType = this.systemAccessoryActive.characteristicType;
                     const characteristicType1 = this.systemAccessoryActive.characteristicType1;
                     const systemService = accessory.addService(serviceType, accessoryName, `systemService`);
-                    systemService.setCharacteristic(Characteristic.Name, accessoryName);
+                    systemService.setCharacteristic(Characteristic.ConfiguredName, accessoryName);
                     systemService.getCharacteristic(characteristicType)
                         .onGet(async () => {
                             const state = this.systemAccessoryActive.state;
@@ -4585,7 +4585,7 @@ class EnvoyDevice extends EventEmitter {
                     const serviceType = this.dataRefreshActiveControl.serviceType;
                     const characteristicType = this.dataRefreshActiveControl.characteristicType;
                     const dataRefreshControlService = accessory.addService(serviceType, serviceName, `dataRefreshControlService`);
-                    dataRefreshControlService.setCharacteristic(Characteristic.Name, serviceName);
+                    dataRefreshControlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     dataRefreshControlService.getCharacteristic(characteristicType)
                         .onGet(async () => {
                             const state = this.dataRefreshActiveControl.state;
@@ -4610,7 +4610,7 @@ class EnvoyDevice extends EventEmitter {
                     const serviceType = this.dataRefreshActiveSensor.serviceType;
                     const characteristicType = this.dataRefreshActiveSensor.characteristicType;
                     const dataRefreshSensorService = accessory.addService(serviceType, serviceName, `dataRefreshSensorService`);
-                    dataRefreshSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                    dataRefreshSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     dataRefreshSensorService.getCharacteristic(characteristicType)
                         .onGet(async () => {
                             const state = this.dataRefreshActiveSensor.state;
@@ -4623,7 +4623,7 @@ class EnvoyDevice extends EventEmitter {
                 //envoy
                 const debug1 = this.enableDebugMode ? this.emit('debug', `Prepare Envoy ${serialNumber} Service`) : false;
                 const envoyService = accessory.addService(Service.EnphaseEnvoyService, `Envoy ${serialNumber}`, `envoyService`);
-                envoyService.setCharacteristic(Characteristic.Name, `Envoy ${serialNumber}`);
+                envoyService.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${serialNumber}`);
                 envoyService.getCharacteristic(Characteristic.EnphaseEnvoyDataRefresh)
                     .onGet(async () => {
                         const state = this.feature.dataSampling;
@@ -4837,7 +4837,7 @@ class EnvoyDevice extends EventEmitter {
                     const serviceType = this.powerProductionStateActiveControl.serviceType;
                     const characteristicType = this.powerProductionStateActiveControl.characteristicType;
                     const powerProductionStateContolService = accessory.addService(serviceType, serviceName, `powerProductionStateContolService`);
-                    powerProductionStateContolService.setCharacteristic(Characteristic.Name, serviceName);
+                    powerProductionStateContolService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     powerProductionStateContolService.getCharacteristic(characteristicType)
                         .onGet(async () => {
                             const state = this.powerProductionStateActiveControl.state;
@@ -4863,7 +4863,7 @@ class EnvoyDevice extends EventEmitter {
                     const serviceType = this.plcLevelActiveControl.serviceType;
                     const characteristicType = this.plcLevelActiveControl.characteristicType;
                     const plcLevelContolService = accessory.addService(serviceType, serviceName, `plcLevelContolService`);
-                    plcLevelContolService.setCharacteristic(Characteristic.Name, serviceName);
+                    plcLevelContolService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     plcLevelContolService.getCharacteristic(characteristicType)
                         .onGet(async () => {
                             const state = this.plcLevelActiveControl.state;
@@ -4889,7 +4889,7 @@ class EnvoyDevice extends EventEmitter {
                         const connectionType = wirelessConnection.type;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Wireless Connection ${connectionType} Service`) : false;
                         const wirelessConnectionKitService = accessory.addService(Service.EnphaseWirelessConnectionKitService, `Wireless connection ${connectionType}`, `wirelessConnectionKitService${connectionType}`);
-                        wirelessConnectionKitService.setCharacteristic(Characteristic.Name, `Wireless connection ${connectionType}`);
+                        wirelessConnectionKitService.setCharacteristic(Characteristic.ConfiguredName, `Wireless connection ${connectionType}`);
                         wirelessConnectionKitService.getCharacteristic(Characteristic.EnphaseWirelessConnectionKitType)
                             .onGet(async () => {
                                 const value = wirelessConnection.type;
@@ -4926,7 +4926,7 @@ class EnvoyDevice extends EventEmitter {
                     const serialNumber = microinverter.serialNumber;
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Microinverter ${serialNumber} Service`) : false;
                     const microinverterService = accessory.addService(Service.EnphaseMicroinverterService, `Microinverter ${serialNumber}`, `microinverterService${serialNumber}`);
-                    microinverterService.setCharacteristic(Characteristic.Name, `Microinverter ${serialNumber}`);
+                    microinverterService.setCharacteristic(Characteristic.ConfiguredName, `Microinverter ${serialNumber}`);
                     if (microinvertersStatusSupported) {
                         microinverterService.getCharacteristic(Characteristic.EnphaseMicroinverterPower)
                             .onGet(async () => {
@@ -5010,7 +5010,7 @@ class EnvoyDevice extends EventEmitter {
                     const serialNumber = qRelay.serialNumber;
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Q-Relay ${serialNumber} Service`) : false;
                     const qrelayService = accessory.addService(Service.EnphaseQrelayService, `QRelay ${serialNumber}`, `qrelayService${serialNumber}`);
-                    qrelayService.setCharacteristic(Characteristic.Name, `qRelay ${serialNumber}`);
+                    qrelayService.setCharacteristic(Characteristic.ConfiguredName, `qRelay ${serialNumber}`);
                     qrelayService.getCharacteristic(Characteristic.EnphaseQrelayState)
                         .onGet(async () => {
                             const value = qRelay.relay;
@@ -5121,7 +5121,7 @@ class EnvoyDevice extends EventEmitter {
                         const characteristicType = this.acBatterieBackupLevelSummaryActiveAccessory.characteristicType;
                         const characteristicType1 = this.acBatterieBackupLevelSummaryActiveAccessory.characteristicType1;
                         const acBatteriesSummaryLevelAndStateService = accessory.addService(serviceType, serviceName, `acBatteriesSummaryLevelAndStateService`);
-                        acBatteriesSummaryLevelAndStateService.setCharacteristic(Characteristic.Name, serviceName);
+                        acBatteriesSummaryLevelAndStateService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         acBatteriesSummaryLevelAndStateService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.acBatterieBackupLevelSummaryActiveAccessory.state;
@@ -5145,8 +5145,8 @@ class EnvoyDevice extends EventEmitter {
 
                     //ac batteries summary service
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${acBatterieName} Summary Service`) : false;
-                    const acBatterieSummaryService = accessory.addService(Service.EnphaseAcBatterieSummaryService, `${acBatterieName} Summary`, 'enphaseAcBatterieSummaryService');
-                    acBatterieSummaryService.setCharacteristic(Characteristic.Name, `${acBatterieName} Summary`);
+                    const acBatterieSummaryService = accessory.addService(Service.EnphaseAcBatterieSummaryService, `${acBatterieName} Summary`, 'acBatterieSummaryService');
+                    acBatterieSummaryService.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} Summary`);
                     acBatterieSummaryService.getCharacteristic(Characteristic.EnphaseAcBatterieSummaryPower)
                         .onGet(async () => {
                             const value = this.pv.production.ct.acBatterie.powerKw;
@@ -5201,7 +5201,7 @@ class EnvoyDevice extends EventEmitter {
                         const characteristicType1 = this.acBatterieBackupLevelActiveAccessory.characteristicType1;
                         const characteristicType2 = this.acBatterieBackupLevelActiveAccessory.characteristicType2;
                         const acBatterieLevelAndStateService = accessory.addService(serviceType, serviceName, `acBatterieLevelAndStateServices${serialNumber}`);
-                        acBatterieLevelAndStateService.setCharacteristic(Characteristic.Name, serviceName);
+                        acBatterieLevelAndStateService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         acBatterieLevelAndStateService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = acBatterie.percentFull < this.enchargeBackupLevelActiveAccessory.minSoc
@@ -5230,95 +5230,95 @@ class EnvoyDevice extends EventEmitter {
                     };
 
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${acBatterieName} ${serialNumber} Service`) : false;
-                    const enphaseAcBatterieService = accessory.addService(Service.EnphaseAcBatterieService, `${acBatterieName} ${serialNumber}`, `enphaseAcBatterieService${serialNumber}`);
-                    enphaseAcBatterieService.setCharacteristic(Characteristic.Name, `${acBatterieName} ${serialNumber}`);
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieChargeStatus)
+                    const acBatterieService = accessory.addService(Service.EnphaseAcBatterieService, `${acBatterieName} ${serialNumber}`, `acBatterieService${serialNumber}`);
+                    acBatterieService.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} ${serialNumber}`);
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieChargeStatus)
                         .onGet(async () => {
                             const value = acBatterie.chargeStatus;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} charge status ${value}`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieProducing)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieProducing)
                         .onGet(async () => {
                             const value = acBatterie.producing;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} producing: ${value ? 'Yes' : 'No'}`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieCommunicating)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieCommunicating)
                         .onGet(async () => {
                             const value = acBatterie.communicating;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} communicating: ${value ? 'Yes' : 'No'}`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieProvisioned)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieProvisioned)
                         .onGet(async () => {
                             const value = acBatterie.provisioned;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} provisioned: ${value ? 'Yes' : 'No'}`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieOperating)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieOperating)
                         .onGet(async () => {
                             const value = acBatterie.operating;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} operating: ${value ? 'Yes' : 'No'}`);
                             return value;
                         });
                     if (plcLevelSupported) {
-                        enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieCommLevel)
+                        acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieCommLevel)
                             .onGet(async () => {
                                 const value = acBatterie.commLevel;
                                 const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} plc level: ${value} %`);
                                 return value;
                             });
                     }
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieSleepEnabled)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieSleepEnabled)
                         .onGet(async () => {
                             const value = acBatterie.sleepEnabled;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} sleep: ${value ? 'Yes' : 'No'}`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatteriePercentFull)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatteriePercentFull)
                         .onGet(async () => {
                             const value = acBatterie.percentFull;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} percent full: ${value} %`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieMaxCellTemp)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieMaxCellTemp)
                         .onGet(async () => {
                             const value = acBatterie.maxCellTemp;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} max cell temp: ${value} °C`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieSleepMinSoc)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieSleepMinSoc)
                         .onGet(async () => {
                             const value = acBatterie.sleepMinSoc;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} sleep min soc: ${value} min`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieSleepMaxSoc)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieSleepMaxSoc)
                         .onGet(async () => {
                             const value = acBatterie.sleepMaxSoc;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} sleep max soc: ${value} min`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieStatus)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieStatus)
                         .onGet(async () => {
                             const value = acBatterie.deviceStatus;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} status: ${value}`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieFirmware)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieFirmware)
                         .onGet(async () => {
                             const value = acBatterie.firmware;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} firmware: ${value}`);
                             return value;
                         });
-                    enphaseAcBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieLastReportDate)
+                    acBatterieService.getCharacteristic(Characteristic.EnphaseAcBatterieLastReportDate)
                         .onGet(async () => {
                             const value = acBatterie.lastReportDate;
                             const info = this.disableLogInfo ? false : this.emit('info', `${acBatterieName}: ${serialNumber} last report: ${value}`);
                             return value;
                         });
-                    this.acBatteriesServices.push(enphaseAcBatterieService);
+                    this.acBatteriesServices.push(acBatterieService);
                 }
             };
 
@@ -5329,7 +5329,7 @@ class EnvoyDevice extends EventEmitter {
                     const measurementType = meter.measurementType;
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Meter ${measurementType} Service`) : false;
                     const meterService = accessory.addService(Service.EnphaseMeterService, `Meter ${measurementType}`, `meterService${measurementType}`);
-                    meterService.setCharacteristic(Characteristic.Name, `Meter ${measurementType}`);
+                    meterService.setCharacteristic(Characteristic.ConfiguredName, `Meter ${measurementType}`);
                     meterService.getCharacteristic(Characteristic.EnphaseMeterState)
                         .onGet(async () => {
                             const value = meter.state;
@@ -5417,8 +5417,8 @@ class EnvoyDevice extends EventEmitter {
             //production
             if (productionCtProductionSupported) {
                 const debug4 = this.enableDebugMode ? this.emit('debug', `Prepare Production Power And Energy Service`) : false;
-                const productionsService = accessory.addService(Service.EnphasePowerAndEnergyService, `Production Power And Energy`, 'enphaseProductionService');
-                productionsService.setCharacteristic(Characteristic.Name, `Production Power And Energy`);
+                const productionsService = accessory.addService(Service.EnphasePowerAndEnergyService, `Production Power And Energy`, 'productionsService');
+                productionsService.setCharacteristic(Characteristic.ConfiguredName, `Production Power And Energy`);
                 productionsService.getCharacteristic(Characteristic.EnphasePower)
                     .onGet(async () => {
                         const value = this.pv.production.ct.production.powerKw;
@@ -5517,7 +5517,7 @@ class EnvoyDevice extends EventEmitter {
                     const serviceType = this.powerProductionStateActiveSensor.serviceType;
                     const characteristicType = this.powerProductionStateActiveSensor.characteristicType;
                     const powerProductionStateSensorService = accessory.addService(serviceType, serviceName, `powerProductionStateSensorService`);
-                    powerProductionStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                    powerProductionStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     powerProductionStateSensorService.getCharacteristic(characteristicType)
                         .onGet(async () => {
                             const state = this.powerProductionStateActiveSensor.state;
@@ -5536,7 +5536,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceType = this.powerProductionLevelActiveSensors[i].serviceType;
                         const characteristicType = this.powerProductionLevelActiveSensors[i].characteristicType;
                         const powerProductionLevelSensorService = accessory.addService(serviceType, serviceName, `powerProductionLevelSensorService${i}`);
-                        powerProductionLevelSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                        powerProductionLevelSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         powerProductionLevelSensorService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.powerProductionLevelActiveSensors[i].state;
@@ -5554,7 +5554,7 @@ class EnvoyDevice extends EventEmitter {
                     const serviceType = this.energyProductionStateActiveSensor.serviceType;
                     const characteristicType = this.energyProductionStateActiveSensor.characteristicType;
                     const energyProductionStateSensorService = accessory.addService(serviceType, serviceName, `energyProductionStateSensorService`);
-                    energyProductionStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                    energyProductionStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     energyProductionStateSensorService.getCharacteristic(characteristicType)
                         .onGet(async () => {
                             const state = this.energyProductionStateActiveSensor.state;
@@ -5573,7 +5573,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceType = this.energyProductionLevelActiveSensors[i].serviceType;
                         const characteristicType = this.energyProductionLevelActiveSensors[i].characteristicType;
                         const energyProductionLevelSensorService = accessory.addService(serviceType, serviceName, `energyProductionLevelSensorService${i}`);
-                        energyProductionLevelSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                        energyProductionLevelSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         energyProductionLevelSensorService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.energyProductionLevelActiveSensors[i].state;
@@ -5592,7 +5592,7 @@ class EnvoyDevice extends EventEmitter {
                     const measurmentType = consumption.measurmentType;
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power And Energy Service`) : false;
                     const consumptionService = accessory.addService(Service.EnphasePowerAndEnergyService, `${measurmentType} Power And Energy`, `consumptionService${measurmentType}`);
-                    consumptionService.setCharacteristic(Characteristic.Name, `${measurmentType} Power And Energy`);
+                    consumptionService.setCharacteristic(Characteristic.ConfiguredName, `${measurmentType} Power And Energy`);
                     consumptionService.getCharacteristic(Characteristic.EnphasePower)
                         .onGet(async () => {
                             const value = consumption.powerKw;
@@ -5691,7 +5691,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.powerConsumptionTotalStateActiveSensor.serviceType;
                             const characteristicType = this.powerConsumptionTotalStateActiveSensor.characteristicType;
                             const powerConsumptionTotalStateSensorService = accessory.addService(serviceType, serviceName, `powerConsumptionTotalStateSensorService`);
-                            powerConsumptionTotalStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            powerConsumptionTotalStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             powerConsumptionTotalStateSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.powerConsumptionTotalStateActiveSensor.state;
@@ -5710,7 +5710,7 @@ class EnvoyDevice extends EventEmitter {
                                 const serviceType = this.powerConsumptionTotalLevelActiveSensors[i].serviceType;
                                 const characteristicType = this.powerConsumptionTotalLevelActiveSensors[i].characteristicType;
                                 const powerConsumptionTotalLevelSensorService = accessory.addService(serviceType, serviceName, `powerConsumptionTotalLevelSensorService${i}`);
-                                powerConsumptionTotalLevelSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                                powerConsumptionTotalLevelSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                                 powerConsumptionTotalLevelSensorService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.powerConsumptionTotalLevelActiveSensors[i].state;
@@ -5728,7 +5728,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.energyConsumptionTotalStateActiveSensor.serviceType;
                             const characteristicType = this.energyConsumptionTotalStateActiveSensor.characteristicType;
                             const energyConsumptionTotalStateSensorService = accessory.addService(serviceType, serviceName, `energyConsumptionTotalStateSensorService`);
-                            energyConsumptionTotalStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            energyConsumptionTotalStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             energyConsumptionTotalStateSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.energyConsumptionTotalStateActiveSensor.state;
@@ -5747,7 +5747,7 @@ class EnvoyDevice extends EventEmitter {
                                 const serviceType = this.energyConsumptionTotalLevelActiveSensors[i].serviceType;
                                 const characteristicType = this.energyConsumptionTotalLevelActiveSensors[i].characteristicType;
                                 const energyConsumptionTotalLevelSensorService = accessory.addService(serviceType, serviceName, `energyConsumptionTotalLevelSensorService${i}`);
-                                energyConsumptionTotalLevelSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                                energyConsumptionTotalLevelSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                                 energyConsumptionTotalLevelSensorService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.energyConsumptionTotalLevelActiveSensors[i].state;
@@ -5768,7 +5768,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.powerConsumptionNetStateActiveSensor.serviceType;
                             const characteristicType = this.powerConsumptionNetStateActiveSensor.characteristicType;
                             const powerConsumptionNetStateSensorService = accessory.addService(serviceType, serviceName, `powerConsumptionNetStateSensorService`);
-                            powerConsumptionNetStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            powerConsumptionNetStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             powerConsumptionNetStateSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.powerConsumptionNetStateActiveSensor.state;
@@ -5787,7 +5787,7 @@ class EnvoyDevice extends EventEmitter {
                                 const serviceType = this.powerConsumptionNetLevelActiveSensors[i].serviceType;
                                 const characteristicType = this.powerConsumptionNetLevelActiveSensors[i].characteristicType;
                                 const powerConsumptionNetLevelSensorService = accessory.addService(serviceType, serviceName, `powerConsumptionNetLevelSensorService${i}`);
-                                powerConsumptionNetLevelSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                                powerConsumptionNetLevelSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                                 powerConsumptionNetLevelSensorService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.powerConsumptionNetLevelActiveSensors[i].state;
@@ -5805,7 +5805,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.energyConsumptionNetStateActiveSensor.serviceType;
                             const characteristicType = this.energyConsumptionNetStateActiveSensor.characteristicType;
                             const energyConsumptionNetStateSensorService = accessory.addService(serviceType, serviceName, `energyConsumptionNetStateSensorService`);
-                            energyConsumptionNetStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            energyConsumptionNetStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             energyConsumptionNetStateSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.energyConsumptionNetStateActiveSensor.state;
@@ -5823,7 +5823,7 @@ class EnvoyDevice extends EventEmitter {
                                 const serviceType = this.energyConsumptionNetLevelActiveSensors[i].serviceType;
                                 const characteristicType = this.energyConsumptionNetLevelActiveSensors[i].characteristicType;
                                 const energyConsumptionNetLevelSensorService = accessory.addService(serviceType, serviceName, `energyConsumptionNetLevelSensorService${i}`);
-                                energyConsumptionNetLevelSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                                energyConsumptionNetLevelSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                                 energyConsumptionNetLevelSensorService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.energyConsumptionNetLevelActiveSensors[i].state;
@@ -5846,7 +5846,7 @@ class EnvoyDevice extends EventEmitter {
                         const serialNumber = ensemble.serialNumber;
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Ensemble ${serialNumber} Inventory Service`) : false;
                         const ensembleInventoryService = accessory.addService(Service.EnphaseEnsembleInventoryService, `Ensemble Inventory`, `ensembleInventoryService${serialNumber}`);
-                        ensembleInventoryService.setCharacteristic(Characteristic.Name, `Ensemble Inventory`);
+                        ensembleInventoryService.setCharacteristic(Characteristic.ConfiguredName, `Ensemble Inventory`);
                         ensembleInventoryService.getCharacteristic(Characteristic.EnphaseEnsembleInventoryProducing)
                             .onGet(async () => {
                                 const value = ensemble.producing;
@@ -5892,7 +5892,7 @@ class EnvoyDevice extends EventEmitter {
                 if (ensemblesStatusSupported) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Ensemble Status Service`) : false;
                     const ensembleStatusService = accessory.addService(Service.EnphaseEnsembleService, `Ensemble`, 'ensembleService');
-                    ensembleStatusService.setCharacteristic(Characteristic.Name, `Ensemble`);
+                    ensembleStatusService.setCharacteristic(Characteristic.ConfiguredName, `Ensemble`);
                     ensembleStatusService.getCharacteristic(Characteristic.EnphaseEnsembleRestPower)
                         .onGet(async () => {
                             const value = this.ensemble.counters.restPowerKw;
@@ -6035,7 +6035,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceType = this.enchargeGridStateActiveSensor.serviceType;
                         const characteristicType = this.enchargeGridStateActiveSensor.characteristicType;
                         const enchargeGridStateSensorService = accessory.addService(serviceType, serviceName, `enchargeGridStateSensorService`);
-                        enchargeGridStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                        enchargeGridStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         enchargeGridStateSensorService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.enchargeGridStateActiveSensor.state;
@@ -6054,7 +6054,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.enchargeGridModeActiveSensors[i].serviceType;
                             const characteristicType = this.enchargeGridModeActiveSensors[i].characteristicType;
                             const enchargeGridModeSensorService = accessory.addService(serviceType, serviceName, `enchargeGridModeSensorService${i}`);
-                            enchargeGridModeSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            enchargeGridModeSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             enchargeGridModeSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.enchargeGridModeActiveSensors[i].state;
@@ -6074,7 +6074,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.enchargeBackupLevelActiveSensors[i].serviceType;
                             const characteristicType = this.enchargeBackupLevelActiveSensors[i].characteristicType;
                             const enchargeBackupLevelSensorService = accessory.addService(serviceType, serviceName, `enchargeBackupLevelSensorService${i}`);
-                            enchargeBackupLevelSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            enchargeBackupLevelSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             enchargeBackupLevelSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.enchargeBackupLevelActiveSensors[i].state;
@@ -6093,7 +6093,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceType = this.solarGridStateActiveSensor.serviceType;
                         const characteristicType = this.solarGridStateActiveSensor.characteristicType;
                         const solarGridStateSensorService = accessory.addService(serviceType, serviceName, `solarGridStateSensorService`);
-                        solarGridStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                        solarGridStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         solarGridStateSensorService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.solarGridStateActiveSensor.state;
@@ -6112,7 +6112,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.solarGridModeActiveSensors[i].serviceType;
                             const characteristicType = this.solarGridModeActiveSensors[i].characteristicType;
                             const solarGridModeSensorService = accessory.addService(serviceType, serviceName, `solarGridModeSensorService${i}`);
-                            solarGridModeSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            solarGridModeSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             solarGridModeSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.solarGridModeActiveSensors[i].state;
@@ -6134,7 +6134,7 @@ class EnvoyDevice extends EventEmitter {
                         const characteristicType = this.enchargeBackupLevelSummaryActiveAccessory.characteristicType;
                         const characteristicType1 = this.enchargeBackupLevelSummaryActiveAccessory.characteristicType1;
                         const enchargeSummaryLevelAndStateService = accessory.addService(serviceType, serviceName, `enchargeSummaryLevelAndStateService`);
-                        enchargeSummaryLevelAndStateService.setCharacteristic(Characteristic.Name, serviceName);
+                        enchargeSummaryLevelAndStateService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         enchargeSummaryLevelAndStateService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.enchargeBackupLevelSummaryActiveAccessory.state;
@@ -6164,7 +6164,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.enchargeStateActiveSensor.serviceType;
                             const characteristicType = this.enchargeStateActiveSensor.characteristicType;
                             const enchargeStateSensorService = accessory.addService(serviceType, serviceName, `enchargeStateSensorService`);
-                            enchargeStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            enchargeStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             enchargeStateSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.enchargeStateActiveSensor.state;
@@ -6189,7 +6189,7 @@ class EnvoyDevice extends EventEmitter {
                                 const serviceType = this.enchargeProfileActiveControls[i].serviceType;
                                 const characteristicType = this.enchargeProfileActiveControls[i].characteristicType;
                                 const enchargeProfileControlService = accessory.addService(serviceType, serviceName, `enchargeProfileControlService${i}`);
-                                enchargeProfileControlService.setCharacteristic(Characteristic.Name, serviceName);
+                                enchargeProfileControlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                                 enchargeProfileControlService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.enchargeProfileActiveControls[i].state;
@@ -6241,7 +6241,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.enchargeProfileActiveSensors[i].serviceType;
                             const characteristicType = this.enchargeProfileActiveSensors[i].characteristicType;
                             const enchargeProfileSensorService = accessory.addService(serviceType, serviceName, `enchargeProfileSensorService${i}`);
-                            enchargeProfileSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            enchargeProfileSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             enchargeProfileSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.enchargeProfileActiveSensors[i].state;
@@ -6267,7 +6267,7 @@ class EnvoyDevice extends EventEmitter {
                             const characteristicType1 = this.enchargeBackupLevelActiveAccessory.characteristicType1;
                             const characteristicType2 = this.enchargeBackupLevelActiveAccessory.characteristicType2;
                             const enchargeLevelAndStateService = accessory.addService(serviceType, serviceName, `enchargeLevelAndStateService${serialNumber}`);
-                            enchargeLevelAndStateService.setCharacteristic(Characteristic.Name, serviceName);
+                            enchargeLevelAndStateService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             enchargeLevelAndStateService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = encharge.percentFull < this.enchargeBackupLevelActiveAccessory.minSoc
@@ -6297,7 +6297,7 @@ class EnvoyDevice extends EventEmitter {
 
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${enchargeName} ${serialNumber} Service`) : false;
                         const enchargeService = accessory.addService(Service.EnphaseEnchargeService, `${enchargeName} ${serialNumber}`, `enchargeService${serialNumber}`);
-                        enchargeService.setCharacteristic(Characteristic.Name, `${enchargeName} ${serialNumber}`);
+                        enchargeService.setCharacteristic(Characteristic.ConfiguredName, `${enchargeName} ${serialNumber}`);
                         enchargeService.getCharacteristic(Characteristic.EnphaseEnchargeAdminStateStr)
                             .onGet(async () => {
                                 const value = encharge.adminStateStr;
@@ -6419,7 +6419,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceType = this.enpowerGridStateActiveControl.serviceType;
                         const characteristicType = this.enpowerGridStateActiveControl.characteristicType;
                         const enpowerGridStateControlService = accessory.addService(serviceType, serviceName, `enpowerGridStateControlService`);
-                        enpowerGridStateControlService.setCharacteristic(Characteristic.Name, serviceName);
+                        enpowerGridStateControlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         enpowerGridStateControlService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.enpowerGridStateActiveControl.state;
@@ -6445,7 +6445,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceType = this.enpowerGridStateActiveSensor.serviceType;
                         const characteristicType = this.enpowerGridStateActiveSensor.characteristicType;
                         const enpowerGridStateSensorService = accessory.addService(serviceType, serviceName, `enpowerGridStateSensorService`);
-                        enpowerGridStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                        enpowerGridStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         enpowerGridStateSensorService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.enpowerGridStateActiveSensor.state;
@@ -6464,7 +6464,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.enpowerGridModeActiveSensors[i].serviceType;
                             const characteristicType = this.enpowerGridModeActiveSensors[i].characteristicType;
                             const enpowerGridModeSensorService = accessory.addService(serviceType, serviceName, `enpowerGridModeSensorService${i}`);
-                            enpowerGridModeSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            enpowerGridModeSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             enpowerGridModeSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.enpowerGridModeActiveSensors[i].state;
@@ -6484,7 +6484,7 @@ class EnvoyDevice extends EventEmitter {
                                 const controlId = contact.settings.id;
                                 const serviceName = contact.settings.loadName;
                                 const dryContactContolService = accessory.addService(Service.Switch, serviceName, `dryContactContolService${index}`);
-                                dryContactContolService.setCharacteristic(Characteristic.Name, serviceName);
+                                dryContactContolService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                                 dryContactContolService.getCharacteristic(Characteristic.On)
                                     .onGet(async () => {
                                         const state = contact.stateBool;
@@ -6510,7 +6510,7 @@ class EnvoyDevice extends EventEmitter {
                             this.ensemble.dryContacts.forEach((contact, index) => {
                                 const serviceName = contact.settings.loadName;
                                 const dryContactSensorService = accessory.addService(Service.ContactSensor, serviceName, `dryContactSensorService${index}`);
-                                dryContactSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                                dryContactSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                                 dryContactSensorService.getCharacteristic(Characteristic.ContactSensorState)
                                     .onGet(async () => {
                                         const state = contact.stateBool;
@@ -6527,7 +6527,7 @@ class EnvoyDevice extends EventEmitter {
                     for (const enpower of this.ensemble.enpowers.devices) {
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Enpower ${serialNumber} Service`) : false;
                         const enpowerService = accessory.addService(Service.EnphaseEnpowerService, `Enpower ${serialNumber}`, `enpowerService${serialNumber}`);
-                        enpowerService.setCharacteristic(Characteristic.Name, `Enpower ${serialNumber}`);
+                        enpowerService.setCharacteristic(Characteristic.ConfiguredName, `Enpower ${serialNumber}`);
                         enpowerService.getCharacteristic(Characteristic.EnphaseEnpowerAdminStateStr)
                             .onGet(async () => {
                                 const value = enpower.adminStateStr;
@@ -6622,7 +6622,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceType = this.generatorStateActiveControl.serviceType;
                         const characteristicType = this.generatorStateActiveControl.characteristicType;
                         const generatorStateControlService = accessory.addService(serviceType, serviceName, `generatorStateControlService`);
-                        generatorStateControlService.setCharacteristic(Characteristic.Name, serviceName);
+                        generatorStateControlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         generatorStateControlService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.generatorStateActiveControl.state;
@@ -6649,7 +6649,7 @@ class EnvoyDevice extends EventEmitter {
                         const serviceType = this.generatorStateActiveSensor.serviceType;
                         const characteristicType = this.generatorStateActiveSensor.characteristicType;
                         const generatorStateSensorService = accessory.addService(serviceType, serviceName, `generatorStateSensorService`);
-                        generatorStateSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                        generatorStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                         generatorStateSensorService.getCharacteristic(characteristicType)
                             .onGet(async () => {
                                 const state = this.generatorStateActiveSensor.state;
@@ -6668,7 +6668,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.generatorModeActiveControls[i].serviceType;
                             const characteristicType = this.generatorModeActiveControls[i].characteristicType;
                             const generatorModeControlService = accessory.addService(serviceType, serviceName, `generatorModeControlService${i}`);
-                            generatorModeControlService.setCharacteristic(Characteristic.Name, serviceName);
+                            generatorModeControlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             generatorModeControlService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.generatorModeActiveControls[i].state;
@@ -6698,7 +6698,7 @@ class EnvoyDevice extends EventEmitter {
                             const serviceType = this.generatorModeActiveSensors[i].serviceType;
                             const characteristicType = this.generatorModeActiveSensors[i].characteristicType;
                             const generatorModeSensorService = accessory.addService(serviceType, serviceName, `generatorModeSensorService${i}`);
-                            generatorModeSensorService.setCharacteristic(Characteristic.Name, serviceName);
+                            generatorModeSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             generatorModeSensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const state = this.generatorModeActiveSensors[i].state;
@@ -6712,7 +6712,7 @@ class EnvoyDevice extends EventEmitter {
                     //indyvidual generator state
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Generator ${type} Service`) : false;
                     const generatorService = accessory.addService(Service.EnphaseGerneratorService, `Generator ${type}`, `generatorService`);
-                    generatorService.setCharacteristic(Characteristic.Name, `Generator ${type}`);
+                    generatorService.setCharacteristic(Characteristic.ConfiguredName, `Generator ${type}`);
                     generatorService.getCharacteristic(Characteristic.EnphaseEnsembleGeneratorType)
                         .onGet(async () => {
                             const value = this.ensemble.generator.type;
@@ -6778,7 +6778,7 @@ class EnvoyDevice extends EventEmitter {
                     const liveDataType = liveData.type;
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Live Data ${liveDataType} Service`) : false;
                     const liveDataService = accessory.addService(Service.EnphaseLiveDataService, `Live Data ${liveDataType}`, `liveDataService${liveDataType}`);
-                    liveDataService.setCharacteristic(Characteristic.Name, `Live Data ${liveDataType}`);
+                    liveDataService.setCharacteristic(Characteristic.ConfiguredName, `Live Data ${liveDataType}`);
                     if (liveData.activePower !== 'notSupported') {
                         liveDataService.getCharacteristic(Characteristic.EnphaseLiveDataActivePower)
                             .onGet(async () => {
