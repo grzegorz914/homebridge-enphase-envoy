@@ -62,12 +62,12 @@ class EnvoyDevice extends EventEmitter {
         this.energyConsumptionNetLifetimeOffset = device.energyConsumptionNetLifetimeOffset || 0;
 
         //qRelay
-        this.qRelayStateSensor = this.envoyFirmware7xx ? device.qRelayStateSensor || {} : {};
+        this.qRelayStateSensor = device.qRelayStateSensor || {};
 
         //ac battery
         this.acBatterieName = device.acBatterieName || 'AC Batterie';
         this.acBatterieBackupLevelSummaryAccessory = device.acBatterieBackupLevelSummaryAccessory || {};
-        this.acBatterieBackupLevelAccessory = device.acBatterieBackupLevelAccessory || {}
+        this.acBatterieBackupLevelAccessory = device.acBatterieBackupLevelAccessory || {};
 
         //ensemble
         this.enpowerGridStateControl = this.envoyFirmware7xx ? device.enpowerGridStateControl || {} : {};
@@ -93,7 +93,7 @@ class EnvoyDevice extends EventEmitter {
         this.generatorStateControl = this.envoyFirmware7xx ? device.generatorStateControl || {} : {};
         this.generatorStateSensor = this.envoyFirmware7xx ? device.generatorStateSensor || {} : {};
         this.generatorModeContol = this.envoyFirmware7xx ? device.generatorModeContol || [] : [];
-        this.generatorModeSensors = this.envoyFirmware7xx ? device.generatorModeSensors || [] : [];;
+        this.generatorModeSensors = this.envoyFirmware7xx ? device.generatorModeSensors || [] : [];
 
         //data refresh
         this.dataRefreshControl = device.dataRefreshControl || {};
