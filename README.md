@@ -48,9 +48,8 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 * Production `Power State`, `Power Level`, `Energy State`, `Energy Level`
 * Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`
 * Q-Relay `State`
-* AC Battery: `Backup Summary Level`, `Backup Level`
 * Enpower `Grid State`
-* Encharge: `State`, `Grid State`, `Backup Summary Level`, `Backup Level`, `Dry Contacts`
+* Encharge: `State`, `Grid State`, `Backup Level Summary`, `Backup Level`, `Dry Contacts`
 * Solar `Grid State`
 * Encharge Profile: `Self Consumption`, `Savings`, `Economy`, `Full Backup`
 * Grid Mode
@@ -63,9 +62,9 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 
 * System `Data Refresh`
 * Production `PLC Level`, `Power Mode`, `Power State`, `Power Level`
-* AC Battery `Energy State`, `Energy Level`
+* AC Battery `Energy State`, `Backup Level Summary`, `Backup Level`
 * Enpower `Grid State`, `Dry Contacts`
-* Encharge `Energy State`, `Energy Level`
+* Encharge `Energy State`, `Backup Level Summary`, `Backup Level`
 * Encharge Profile
   * Self Consumption `Activate`, `Set Reserve`
   * Savings `Activate`, `Set Reserve`
