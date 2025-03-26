@@ -6999,8 +6999,8 @@ class EnvoyDevice extends EventEmitter {
 
             //get production all D8.2.4391
             const cleanedString = this.pv.envoy.info.software.replace(/\D/g, '')
-            const envoyFirmware = cleanedString ? parseInt(cleanedString.slice(0, 3)) : 50;
-            const refreshProductionAll = tokenValid && envoyFirmware >= 80 ? await this.updateProductionAll() : false;
+            const envoyFirmware = cleanedString ? parseInt(cleanedString.slice(0, 3)) : 500;
+            const refreshProductionAll = tokenValid && envoyFirmware >= 824 ? await this.updateProductionAll() : false;
 
             //access with installer password and envoy dev id
             const updatePowerProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionPowerState() : false;
