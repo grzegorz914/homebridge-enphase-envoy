@@ -183,10 +183,13 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `acBatterieName` | | string | Encharge Accessory name for Home app, if not set will use default name |
-| `acBatterieBackupLevelSummaryAccessory` | | key | `AV Batteries Backup Level Summary Accessory` in Home app, if present |
+| `acBatterieName` | | string | AC Bettery Accessory name for Home app, if not set will use default name |
+| `acBatterieBackupLevelSummaryAccessory` | | key | `AC Batteries Backup Level Summary Accessory` in Home app, if present |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Light Bulb, `2` - Fan, `3` - Humidity Sensor, `4` - Carbon Monoxide Sensor, `5` - Battery |
 | | `minSoc` | boolean | Minimum SoC level in (%) for ac batteries backup level summary |
+| `acBatterieBackupLevelAccessory` | | key | `AC Battery Backup Level Accessory` in Home app, if present |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Light Bulb, `2` - Fan, `3` - Humidity Sensor, `4` - Carbon Monoxide Sensor, `5` - Battery |
+| | `minSoc` | boolean | Minimum SoC level in (%) for ac battery backup level |
 | `enpowerGridStateControl` | | key | `Enpower Grid State Control` for `Grid ON/OFF` control from HomeKit |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
