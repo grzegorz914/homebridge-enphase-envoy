@@ -1649,7 +1649,7 @@ class EnvoyDevice extends EventEmitter {
 
                     //update chaaracteristics
                     if (this.qRelayStateActiveSensor) {
-                        const state = obj.relay;
+                        const state = obj.relay === 'Closed';
                         this.qRelayStateActiveSensor.state = state;
 
                         if (this.qRelayStateSensorServices) {
