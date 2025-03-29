@@ -357,14 +357,20 @@
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].powerProductionStateSensor.displayType > 0;"
+                  }
                 },
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].powerProductionStateSensor.displayType > 0;"
+                  }
                 }
               }
             },
