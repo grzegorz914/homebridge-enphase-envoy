@@ -1166,42 +1166,42 @@
               "title": "Energy State Sensor",
               "type": "object",
               "properties": {
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type for Home app",
+                  "required": true
+                },
                 "name": {
-                  "displayType": {
-                    "title": "Accessory type",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 3,
-                    "default": 0,
-                    "oneOf": [
-                      {
-                        "title": "None/Disabled",
-                        "enum": [
-                          0
-                        ]
-                      },
-                      {
-                        "title": "Motion Sensor",
-                        "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "Occupancy Sensor",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "Contact Sensor",
-                        "enum": [
-                          3
-                        ]
-                      }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
-                  },
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
