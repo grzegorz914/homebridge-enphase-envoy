@@ -110,8 +110,8 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `supportPowerProductionState` | | boolean | Enables support for checking [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) (requires firmware v7.0+ and installer credentials) |
-| `powerProductionStateControl` | | key | `Power Production Control` for production state control (requires firmware v7.0+ and installer credentials). |
+| `supportPowerProductionState` | | boolean | Enables support for checking Power Production (firmware v7.0+ require installer credentials) |
+| `powerProductionStateControl` | | key | `Power Production Control` for [Power Production](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control)  (firmware v7.0+ require installer credentials). |
 | | `name` | string | Accessory name for Home app. |
 | | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
 | | `namePrefix` | boolean | Use accessory name for prefix |
