@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.11.0] - (03.04.2025)
+
+## Changes
+
+- after update the credentials method need to be configued again
+- after update the dry contact sensor and control need to be configued again
+- config UI improvements
+- config schema updated
+- bump dependencies
+- redme update
+- cleanup
+
 ## [9.10.9] - (30.03.2025)
 
 ## Changes

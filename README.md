@@ -97,10 +97,9 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `name` | | string | Envoy Enphase Gateway accessory name to be displayed in Home app |
 | `host` | | string | The Envoy Enphase Gateway `IP Address` or `Hostname`. If not supplied, defaults to `envoy.local`. For firmware v7.0+, please set the `IP Address`. |
 | `displayType` | | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Light Bulb, `2` - Fan, `3` - Humidity Sensor, `4` - Carbon Monoxide Sensor |
-| `envoyFirmware7xx` |  | boolean | Enables support for Envoy firmware v7.0+ |
-| `envoyFirmware7xxTokenGenerationMode` | | number | How you will obtain the token: `0` - Enlighten Credentials, `1` - Your Own Generated Token |
+| `envoyFirmware7xxTokenGenerationMode` | | number | How you will obtain the token: `0` - Envoy Password (firmware < v7.0), `1` - Enlighten Credentials, `2` - Your Own Generated Token |
 | `envoyPasswd` | | string | Envoy Enphase password (only if U already changed the default password) |
-| `envoyToken` | | string | Token if you selected `1 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
+| `envoyToken` | | string | Token if you selected `2 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
 | `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
 | `envoySerialNumber` | | string | The Envoy Gateway serial number |
 | `enlightenUser` | | string | Enlighten username |
@@ -214,7 +213,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `enchargeProfileControl` | | key | `Encharge Profile Control` for `Profile` control from HomeKit |
+| `enchargeProfileControls` | | key | `Encharge Profile Controls` for `Profile` control from HomeKit |
 | | `name` | string | Accessory name for Home app |
 | | `profile` | string | Profile: `Savings`, `Economy`, `Full Backup`, `Self Consumption` |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Lightbulb |
@@ -248,7 +247,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `enpowerDryContactsControl` | | boolean | Enables `Dry Contacts` control and exposes `Switches` in Home app |
-| `enpowerDryContactsSensors` | | boolean | Enables `Dry Contacts` monitoring and exposes `Sensors` in Home app |
+| `enpowerDryContactsSensor` | | boolean | Enables `Dry Contacts` monitoring and exposes `Sensors` in Home app |
 | `generatorStateControl` | | key | `Generator State Control` for `Generator OFF/ON` control in Home app |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |

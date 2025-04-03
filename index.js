@@ -36,14 +36,12 @@ class EnvoyPlatform {
 
         const deviceName = device.name;
         const host = device.host || (i === 1 ? 'envoy.local' : `envoy-${i}.local`);
-        const envoyFirmware7xx = device.envoyFirmware7xx || false;
-        const envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode || 0; //0 - enlighten credentials, 1 - own token
+        const envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode || 0; //0 - envoy password, 1 - enlighten credentials, 2 - own token
         const envoyPasswd = device.envoyPasswd;
         const envoyToken = device.envoyToken;
         const envoyTokenInstaller = device.envoyTokenInstaller || false;
         const enlightenUser = device.enlightenUser;
         const enlightenPasswd = device.enlightenPasswd;
-        const envoySerialNumber = device.envoySerialNumber;
 
         //check mandatory properties
         if (!deviceName) {
@@ -51,12 +49,12 @@ class EnvoyPlatform {
           return;
         }
 
-        if (envoyFirmware7xx && envoyFirmware7xxTokenGenerationMode === 0 && (!enlightenUser || !enlightenPasswd || !envoySerialNumber)) {
-          log.warn(`Device: ${host} ${deviceName}, Envoy firmware v7.x.x enabled, enlighten user: ${enlightenUser ? 'OK' : enlightenUser}, password: ${enlightenPasswd ? 'OK' : enlightenPasswd}, envoy serial number: ${envoySerialNumber ? 'OK' : envoySerialNumber}.`);
+        if (envoyFirmware7xxTokenGenerationMode === 1 && (!enlightenUser || !enlightenPasswd)) {
+          log.warn(`Device: ${host} ${deviceName}, Envoy firmware v7.x.x enabled, enlighten user: ${enlightenUser ? 'OK' : enlightenUser}, password: ${enlightenPasswd ? 'OK' : enlightenPasswd}.`);
           return;
         }
 
-        if (envoyFirmware7xx && envoyFirmware7xxTokenGenerationMode === 1 && !envoyToken) {
+        if (envoyFirmware7xxTokenGenerationMode === 2 && !envoyToken) {
           log.warn(`Device: ${host} ${deviceName}, Envoy firmware v7.x.x enabled but envoy token: ${envoyToken ? 'OK' : envoyToken}.`);
           return;
         }
@@ -73,7 +71,6 @@ class EnvoyPlatform {
           ...device,
           envoyPasswd: 'removed',
           envoyToken: 'removed',
-          envoySerialNumber: 'removed',
           enlightenPasswd: 'removed',
           mqtt: {
             ...device.mqtt,
@@ -105,7 +102,7 @@ class EnvoyPlatform {
 
         //envoy device
         try {
-          const envoyDevice = new EnvoyDevice(api, deviceName, host, displayType, envoyFirmware7xx, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, envoySerialNumber, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device);
+          const envoyDevice = new EnvoyDevice(api, deviceName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device);
           envoyDevice.on('publishAccessory', (accessory) => {
             api.publishExternalAccessories(PluginName, [accessory]);
             const emitLog = disableLogSuccess ? false : log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);

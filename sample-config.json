@@ -22,7 +22,6 @@
                     "name": "Envoy",
                     "host": "192.168.1.35",
                     "displayType": 1,
-                    "envoyFirmware7xx": false,
                     "envoyFirmware7xxTokenGenerationMode": 0,
                     "envoyPasswd": "",
                     "envoyToken": "",
@@ -182,7 +181,7 @@
                         "displayType": 0,
                         "namePrefix": false
                     },
-                    "enchargeProfileControl": [
+                    "enchargeProfileControls": [
                         {
                             "name": "Tile name",
                             "profile": "self-consumption",
@@ -234,7 +233,7 @@
                         }
                     ],
                     "enpowerDryContactsControl": false,
-                    "enpowerDryContactsSensors": false,
+                    "enpowerDryContactsSensor": false,
                     "generatorStateControl": {
                         "name": "Control name",
                         "displayType": 0,

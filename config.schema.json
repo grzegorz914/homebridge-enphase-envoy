@@ -71,39 +71,34 @@
               "description": "Accessory type for Home app",
               "required": true
             },
-            "envoyFirmware7xx": {
-              "title": "Modern firmware",
-              "type": "boolean",
-              "default": false,
-              "description": "Enables support for features of firmware v7+",
-              "required": true,
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].displayType > 0;"
-              }
-            },
             "envoyFirmware7xxTokenGenerationMode": {
-              "title": "Token Generation Mode",
+              "title": "Envoy Credentials Mode",
               "type": "integer",
+              "minimum": 0,
+              "maximum": 2,
               "default": 0,
               "oneOf": [
                 {
-                  "title": "Enlighten credentials",
+                  "title": "Envoy password",
                   "enum": [
                     0
                   ]
                 },
                 {
-                  "title": "Self-generated token",
+                  "title": "Enlighten credentials",
                   "enum": [
                     1
                   ]
+                },
+                {
+                  "title": "Self-generated token",
+                  "enum": [
+                    2
+                  ]
                 }
               ],
-              "description": "Method used to obtain token",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-              },
-              "required": false
+              "description": "Method used login to Envoy api",
+              "required": true
             },
             "envoyPasswd": {
               "title": "Envoy password",
@@ -112,39 +107,7 @@
               "description": "Envoy password (only if you altered the default password)",
               "format": "password",
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
-              },
-              "required": false
-            },
-            "envoyToken": {
-              "title": "Envoy token",
-              "type": "string",
-              "placeholder": "Token",
-              "description": "Provide self-generated token (if relevant)",
-              "format": "password",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
-              },
-              "required": false
-            },
-            "envoyTokenInstaller": {
-              "title": "Installer",
-              "type": "boolean",
-              "default": false,
-              "description": "Enable for installer-provided token",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
-              },
-              "required": true
-            },
-            "envoySerialNumber": {
-              "title": "Envoy serial number",
-              "type": "string",
-              "placeholder": "Serial number",
-              "description": "Serial number for the Enphase Envoy gateway",
-              "format": "password",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
               },
               "required": false
             },
@@ -154,7 +117,7 @@
               "placeholder": "user@example.com",
               "description": "Enphase Enlighten username.",
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
               },
               "required": false
             },
@@ -165,9 +128,30 @@
               "description": "Enlighten password",
               "format": "password",
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true && model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
               },
               "required": false
+            },
+            "envoyToken": {
+              "title": "Envoy token",
+              "type": "string",
+              "placeholder": "Token",
+              "description": "Provide self-generated token (if relevant)",
+              "format": "password",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 2;"
+              },
+              "required": false
+            },
+            "envoyTokenInstaller": {
+              "title": "Installer",
+              "type": "boolean",
+              "default": false,
+              "description": "Enable for installer-provided token",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 2;"
+              },
+              "required": true
             },
             "supportPlcLevel": {
               "title": "PLC Level",
@@ -1531,8 +1515,8 @@
               "description": "Enables control over dry contacts state",
               "required": false
             },
-            "enpowerDryContactsSensors": {
-              "title": "Dry Contacts Sensors",
+            "enpowerDryContactsSensor": {
+              "title": "Dry Contacts Sensor",
               "type": "boolean",
               "default": false,
               "description": "Enables monitoring of dry contacts state",
@@ -1898,7 +1882,7 @@
                 }
               }
             },
-            "enchargeProfileControl": {
+            "enchargeProfileControls": {
               "title": "Profile Control",
               "type": "array",
               "items": {
@@ -1925,20 +1909,14 @@
                       }
                     ],
                     "description": "Accessory type in Home app",
-                    "required": true,
-                    "condition": {
-                      "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-                    }
+                    "required": true
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Accessory name",
                     "description": "Accessory name for Home app",
-                    "required": false,
-                    "condition": {
-                      "functionBody": "return model.devices[arrayIndices].enchargeProfileControl[arrayIndices].displayType > 0;"
-                    }
+                    "required": false
                   },
                   "profile": {
                     "title": "Profile",
@@ -1983,20 +1961,14 @@
                       }
                     ],
                     "description": "Here select the profile.",
-                    "required": true,
-                    "condition": {
-                      "functionBody": "return model.devices[arrayIndices].enchargeProfileControl[arrayIndices].displayType > 0;"
-                    }
+                    "required": true
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use accessory name as a prefix",
-                    "required": false,
-                    "condition": {
-                      "functionBody": "return model.devices[arrayIndices].enchargeProfileControl[arrayIndices].displayType > 0;"
-                    }
+                    "required": false
                   }
                 }
               }
@@ -2473,10 +2445,7 @@
                     }
                   ],
                   "description": "Accessory type for Home app",
-                  "required": true,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-                  }
+                  "required": true
                 },
                 "name": {
                   "title": "Accessory name",
@@ -2640,10 +2609,7 @@
                     }
                   ],
                   "description": "Accessory type in Home app",
-                  "required": true,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-                  }
+                  "required": true
                 },
                 "name": {
                   "title": "Accessory name",
@@ -2704,10 +2670,7 @@
                     }
                   ],
                   "description": "Accessory type for Home app",
-                  "required": true,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
-                  }
+                  "required": true
                 },
                 "name": {
                   "title": "Accessory name",
@@ -3053,7 +3016,7 @@
               "description": "Live data refresh time (seconds)",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode > 0;"
               }
             },
             "ensembleDataRefreshTime": {
@@ -3066,7 +3029,7 @@
               "description": "Ensemble data refresh time (seconds)",
               "required": false,
               "condition": {
-                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+                "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode > 0;"
               }
             },
             "disableLogDeviceInfo": {
@@ -3246,7 +3209,6 @@
         "devices[].name",
         "devices[].host",
         "devices[].displayType",
-        "devices[].envoyFirmware7xx",
         {
           "key": "devices[]",
           "type": "section",
@@ -3259,20 +3221,16 @@
               "key": "devices[].envoyPasswd",
               "type": "password"
             },
-            {
-              "key": "devices[].envoyToken",
-              "type": "password"
-            },
-            "devices[].envoyTokenInstaller",
-            {
-              "key": "devices[].envoySerialNumber",
-              "type": "password"
-            },
             "devices[].enlightenUser",
             {
               "key": "devices[].enlightenPasswd",
               "type": "password"
-            }
+            },
+            {
+              "key": "devices[].envoyToken",
+              "type": "password"
+            },
+            "devices[].envoyTokenInstaller"
           ],
           "condition": {
             "functionBody": "return model.devices[arrayIndices].displayType > 0;"
@@ -3635,19 +3593,25 @@
                 {
                   "key": "devices[]",
                   "title": "Q-Relay",
-                  "description": "Section for enabling qrelay state monitoring",
                   "items": [
                     {
-                      "key": "devices[].qRelayStateSensor",
-                      "type": "section",
-                      "title": "State Sensor",
-                      "description": "Section for enabling qrelay state sensor, if present.",
-                      "expandable": true,
-                      "expanded": false,
+                      "key": "devices[]",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
                       "items": [
-                        "devices[].qRelayStateSensor.displayType",
-                        "devices[].qRelayStateSensor.name",
-                        "devices[].qRelayStateSensor.namePrefix"
+                        {
+                          "key": "devices[].qRelayStateSensor",
+                          "type": "section",
+                          "title": "State Sensor",
+                          "description": "Section for enabling qrelay state sensor, if present.",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].qRelayStateSensor.displayType",
+                            "devices[].qRelayStateSensor.name",
+                            "devices[].qRelayStateSensor.namePrefix"
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -3655,33 +3619,46 @@
                 {
                   "key": "devices[]",
                   "title": "AC Batteries",
-                  "description": "Section for enabling ac batteries backup level accessory.",
                   "items": [
-                    "devices[].acBatterieName",
                     {
-                      "key": "devices[].acBatterieBackupLevelSummaryAccessory",
-                      "type": "section",
-                      "title": "Summary Accessory",
-                      "description": "Section for enabling ac batteries summary backup level accessory, if present.",
-                      "expandable": true,
-                      "expanded": false,
+                      "key": "devices[]",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
                       "items": [
-                        "devices[].acBatterieBackupLevelSummaryAccessory.displayType",
-                        "devices[].acBatterieBackupLevelSummaryAccessory.minSoc",
-                        "devices[].acBatterieBackupLevelSummaryAccessory.namePrefix"
-                      ]
-                    },
-                    {
-                      "key": "devices[].acBatterieBackupLevelAccessory",
-                      "type": "section",
-                      "title": "Indyvidual Accessory",
-                      "description": "Section for enabling ac battery backup level accessory, if present.",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].acBatterieBackupLevelAccessory.displayType",
-                        "devices[].acBatterieBackupLevelAccessory.minSoc",
-                        "devices[].acBatterieBackupLevelAccessory.namePrefix"
+                        {
+                          "key": "devices[]",
+                          "type": "section",
+                          "title": "Accessory",
+                          "items": [
+                            "devices[].acBatterieName",
+                            {
+                              "key": "devices[].acBatterieBackupLevelSummaryAccessory",
+                              "type": "section",
+                              "title": "Summary Accessory",
+                              "description": "Section for enabling ac batteries summary backup level accessory, if present.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].acBatterieBackupLevelSummaryAccessory.displayType",
+                                "devices[].acBatterieBackupLevelSummaryAccessory.minSoc",
+                                "devices[].acBatterieBackupLevelSummaryAccessory.namePrefix"
+                              ]
+                            },
+                            {
+                              "key": "devices[].acBatterieBackupLevelAccessory",
+                              "type": "section",
+                              "title": "Individual Accessory",
+                              "description": "Section for enabling ac battery backup level accessory, if present.",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].acBatterieBackupLevelAccessory.displayType",
+                                "devices[].acBatterieBackupLevelAccessory.minSoc",
+                                "devices[].acBatterieBackupLevelAccessory.namePrefix"
+                              ]
+                            }
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -3700,7 +3677,7 @@
                           "title": "Enpower",
                           "items": [
                             "devices[].enpowerDryContactsControl",
-                            "devices[].enpowerDryContactsSensors",
+                            "devices[].enpowerDryContactsSensor",
                             {
                               "key": "devices[]",
                               "type": "tabarray",
@@ -3770,9 +3747,6 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Accessory",
-                                  "description": "Section for enabling encharges backup level accessory.",
-                                  "expandable": true,
-                                  "expanded": false,
                                   "items": [
                                     "devices[].enchargeName",
                                     {
@@ -3791,7 +3765,7 @@
                                     {
                                       "key": "devices[].enchargeBackupLevelAccessory",
                                       "type": "section",
-                                      "title": "Indyvidual Accessory",
+                                      "title": "Individual Accessory",
                                       "description": "Section for enabling encharge backup level accessory, if present.",
                                       "expandable": true,
                                       "expanded": false,
@@ -3896,7 +3870,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Backup Level Sensors",
-                                  "description": "Section for enabling sensor for backup level monitoring",
+                                  "description": "Section for creating conditional sensors to monitor encharges SoC",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -4048,7 +4022,7 @@
                         }
                       ],
                       "condition": {
-                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === true;"
+                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode > 0;"
                       }
                     },
                     {
@@ -4057,7 +4031,7 @@
                       "title": "{{ value.title }}",
                       "items": [],
                       "condition": {
-                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xx === false;"
+                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
                       }
                     }
                   ]
