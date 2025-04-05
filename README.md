@@ -100,8 +100,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `envoyFirmware7xxTokenGenerationMode` | | number | How you will obtain the token: `0` - Envoy Password (firmware < v7.0), `1` - Enlighten Credentials, `2` - Your Own Generated Token |
 | `envoyPasswd` | | string | Envoy Enphase password (only if U already changed the default password) |
 | `envoyToken` | | string | Token if you selected `2 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
-| `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
-| `envoySerialNumber` | | string | The Envoy Gateway serial number |
+| `envoyTokenInstaller` | | boolean | Enable if you are using the installer token ||
 | `enlightenUser` | | string | Enlighten username |
 | `enlightenPasswd` | | string | Enlighten password |
 | `supportPlcLevel` | | boolean | Enables support for `PLC Level Check` for all devices (firmware v7.0+ require installer credentials) |
