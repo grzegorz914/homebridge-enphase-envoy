@@ -102,7 +102,8 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `enlightenUser` | | string | Enlighten username |
 | `enlightenPasswd` | | string | Enlighten password |
 | `envoyToken` | | string | Token if you selected `2 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
-| `envoyTokenInstaller` | | boolean | Enable if you are using the installer token 
+| `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
+| `powerProductionSummary` | | number | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %` |
 | `supportPlcLevel` | | boolean | Enables support for `PLC Level Check` for all devices (firmware v7.0+ require installer credentials) |
 | `plcLevelControl` | | key | `PLC Level Control` for PLC level check (firmware v7.0+ require installer credentials) |
 | | `name` | string | Accessory name for Home app |
@@ -113,7 +114,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app. |
 | | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `powerProductionSummary` | | number | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %` |
 | `powerProductionStateSensor` | | key | `Power State Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
