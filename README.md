@@ -125,6 +125,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyProductionStateSensor` | | key | `Energy State Sensor` for production monitoring |
+| `energyProductionLifetimeOffset` | | number | `Energy Offset` in `Wh` for production (if needed) `+/-` 
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
@@ -133,8 +134,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
 | | `energyLevel` | number | Energy production level in `Wh` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| | `namePrefix` | boolean | Use accessory name for prefix |
-| `energyProductionLifetimeOffset` | | number | `Energy Offset` in `Wh` for production (if needed) `+/-` |
+| | `namePrefix` | boolean | Use accessory name for prefix ||
 | `powerConsumptionTotalStateSensor` | | key | `Power State Sensor` for total consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -145,6 +145,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `powerLevel` | number | Total power consumption level in `W` to compare to power level sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionTotalLifetimeOffset` | | number | `Energy Offset` in `Wh` for total consumption (if needed) `+/-` |
 | `energyConsumptionTotalStateSensor` | | key | `Energy State Sensor` for total consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -155,7 +156,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `energyLevel` | number | Energy level total in `Wh` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `energyConsumptionTotalLifetimeOffset` | | number | `Energy Offset` in `Wh` for total consumption (if needed) `+/-` |
 | `powerConsumptionNetStateSensor` | | key | `Power State Sensor` for net consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -166,6 +166,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `powerLevel` | number | Net power consumption power level in `W` to compare for the sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyConsumptionNetLifetimeOffset` | | number | `Energy Offset` in `Wh` for consumption `Net` (if needed) `+/-` |
 | `energyConsumptionNetStateSensor` | | key | `Energy State Sensor` for net consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -176,7 +177,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `energyLevel` | number | Net energy comsumption level in `Wh` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `energyConsumptionNetLifetimeOffset` | | number | `Energy Offset` in `Wh` for consumption `Net` (if needed) `+/-` |
 | `qRelayStateSensor` | | key | `Q-Relay State Sensor` for monitoring. If `State ON`, the contact was opened. |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
