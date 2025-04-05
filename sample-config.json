@@ -24,11 +24,10 @@
                     "displayType": 1,
                     "envoyFirmware7xxTokenGenerationMode": 0,
                     "envoyPasswd": "",
-                    "envoyToken": "",
-                    "envoyTokenInstaller": false,
-                    "envoySerialNumber": "",
                     "enlightenUser": "",
                     "enlightenPasswd": "",
+                    "envoyToken": "",
+                    "envoyTokenInstaller": false,
                     "supportPowerProductionState": false,
                     "powerProductionStateControl": {
                         "name": "Control name",
