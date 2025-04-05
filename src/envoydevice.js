@@ -4889,7 +4889,7 @@ class EnvoyDevice extends EventEmitter {
                             };
                         });
                 }
-                if (productionStateSupported) {
+                if (this.productionStateActiveControl && productionStateSupported) {
                     envoyService.getCharacteristic(Characteristic.EnphaseEnvoyProductionPowerMode)
                         .onGet(async () => {
                             const state = this.pv.productionState;

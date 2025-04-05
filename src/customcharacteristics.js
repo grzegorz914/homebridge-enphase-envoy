@@ -258,7 +258,7 @@ export default (api) => {
 
     class EnphaseEnvoyCheckCommLevel extends Characteristic {
         constructor() {
-            super('Check plc level', '00000029-000B-1000-8000-0026BB765291');
+            super('Plc level check', '00000029-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.BOOL,
                 perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
@@ -270,7 +270,7 @@ export default (api) => {
 
     class EnphaseEnvoyProductionPowerMode extends Characteristic {
         constructor() {
-            super('Power production', '00000030-000B-1000-8000-0026BB765291');
+            super('Production state', '00000030-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.BOOL,
                 perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
