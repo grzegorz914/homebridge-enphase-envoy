@@ -57,7 +57,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
   * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
   * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
 * Generator `State`, `Mode`
-* PLC Level `State`
 
 ### Control Switches, Outlets, Lightbulbs
 
