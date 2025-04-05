@@ -233,7 +233,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `enchargeBackupLevelSensors` | | key | `Encharge Backup Level Sensors` for monitoring. If the `Level` matches, the contact was opened. |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
 | | `backupLevel` | number | Backup level in `%` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
