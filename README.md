@@ -103,17 +103,19 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `enlightenPasswd` | | string | Enlighten password |
 | `envoyToken` | | string | Token if you selected `2 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
 | `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
-| `powerProductionSummary` | | number | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %` |
-| `supportPlcLevel` | | boolean | Enables support for `PLC Level Check` for all devices (firmware v7.0+ require installer credentials) |
+| `productionStateControl` | | key | `Production State Control` for [Power Production](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control)  (firmware v7.0+ require installer credentials). |
+| | `name` | string | Accessory name for Home app. |
+| | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `productionStateSensor` | | key | `Production State Sensor` for production state monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 | `plcLevelControl` | | key | `PLC Level Control` for PLC level check (firmware v7.0+ require installer credentials) |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `supportPowerProductionState` | | boolean | Enables support for checking `Power Production` (firmware v7.0+ require installer credentials) |
-| `powerProductionStateControl` | | key | `Power Production Control` for [Power Production](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control)  (firmware v7.0+ require installer credentials). |
-| | `name` | string | Accessory name for Home app. |
-| | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
-| | `namePrefix` | boolean | Use accessory name for prefix |
+| `powerProductionSummary` | | number | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %` |
 | `powerProductionStateSensor` | | key | `Power State Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -124,8 +126,8 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `powerLevel` | number | Power production level in `W` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| `energyProductionLifetimeOffset` | | number | `Energy Offset` in `Wh` for production (if needed) `+/-` |
 | `energyProductionStateSensor` | | key | `Energy State Sensor` for production monitoring |
-| `energyProductionLifetimeOffset` | | number | `Energy Offset` in `Wh` for production (if needed) `+/-` 
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |

@@ -28,13 +28,16 @@
                     "enlightenPasswd": "",
                     "envoyToken": "",
                     "envoyTokenInstaller": false,
-                    "supportPowerProductionState": false,
-                    "powerProductionStateControl": {
+                    "productionStateControl": {
                         "name": "Control name",
                         "displayType": 0,
                         "namePrefix": false
                     },
-                    "supportPlcLevel": false,
+                    "productionStateSensor": {
+                        "name": "Sensor name",
+                        "displayType": 0,
+                        "namePrefix": false
+                    },
                     "plcLevelControl": {
                         "name": "Control name",
                         "displayType": 0,

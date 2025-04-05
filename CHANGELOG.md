@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.12.0] - (05.04.2025)
+
+## Changes
+
+- after update the plc level refresh control need to be configued again
+- after update the production state control and  sensor need to be configued again
+- added production state sensor
+- config UI improvements in section Envoy
+- config schema updated
+- bump dependencies
+- redme update
+- cleanup
+
 ## [9.11.0] - (03.04.2025)
 
 ## Changes

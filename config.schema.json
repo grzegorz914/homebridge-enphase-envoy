@@ -153,15 +153,130 @@
               },
               "required": true
             },
-            "supportPlcLevel": {
-              "title": "PLC Level",
-              "type": "boolean",
-              "default": false,
-              "description": "Enables monitoring and control of PLC level (firmware 7+ requires installer credentials)",
-              "required": false
+            "productionStateControl": {
+              "title": "Production State Control",
+              "type": "object",
+              "properties": {
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Switch",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Outlet",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Lightbulb",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type in Home app",
+                  "required": true
+                },
+                "name": {
+                  "title": "Accessory name",
+                  "type": "string",
+                  "placeholder": "Accessory name",
+                  "description": "Accessory name",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].productionStateControl.displayType > 0;"
+                  }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Use accessory name as a prefix",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].productionStateControl.displayType > 0;"
+                  }
+                }
+              }
+            },
+            "productionStateSensor": {
+              "title": "Production State Sensor",
+              "type": "object",
+              "properties": {
+                "displayType": {
+                  "title": "Accessory type",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3,
+                  "default": 0,
+                  "oneOf": [
+                    {
+                      "title": "None/Disabled",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    {
+                      "title": "Motion Sensor",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "Occupancy Sensor",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "Contact Sensor",
+                      "enum": [
+                        3
+                      ]
+                    }
+                  ],
+                  "description": "Accessory type in Home app",
+                  "required": true
+                },
+                "name": {
+                  "title": "Accessory name",
+                  "type": "string",
+                  "placeholder": "Accessory name",
+                  "description": "Accessory name",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].productionStateSensor.displayType > 0;"
+                  }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Use accessory name as a prefix",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].productionStateSensor.displayType > 0;"
+                  }
+                }
+              }
             },
             "plcLevelControl": {
-              "title": "PLC Level Control",
+              "title": "PLC Level Refresh Control",
               "type": "object",
               "properties": {
                 "displayType": {
@@ -217,74 +332,6 @@
                   "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].plcLevelControl.displayType > 0;"
-                  }
-                }
-              }
-            },
-            "supportPowerProductionState": {
-              "title": "Power Production",
-              "type": "boolean",
-              "default": false,
-              "description": "Enables monitoring and control of power production (firmware 7+ requires installer credentials)",
-              "required": false
-            },
-            "powerProductionStateControl": {
-              "title": "Power Production Control",
-              "type": "object",
-              "properties": {
-                "displayType": {
-                  "title": "Accessory type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "default": 0,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Switch",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Outlet",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Lightbulb",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Accessory type in Home app",
-                  "required": true
-                },
-                "name": {
-                  "title": "Accessory name",
-                  "type": "string",
-                  "placeholder": "Accessory name",
-                  "description": "Accessory name",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].powerProductionStateControl.displayType > 0;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Use accessory name as a prefix",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].powerProductionStateControl.displayType > 0;"
                   }
                 }
               }
@@ -3252,39 +3299,51 @@
                   "key": "devices[]",
                   "title": "Envoy",
                   "items": [
-                    "devices[].supportPlcLevel",
-                    "devices[].supportPowerProductionState",
                     {
-                      "key": "devices[].plcLevelControl",
-                      "type": "section",
-                      "title": "PLC Level Refresh Control",
-                      "description": "Section for enabling accessory for PLC level refresh control",
-                      "expandable": true,
-                      "expanded": false,
+                      "key": "devices[]",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
                       "items": [
-                        "devices[].plcLevelControl.displayType",
-                        "devices[].plcLevelControl.name",
-                        "devices[].plcLevelControl.namePrefix"
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].supportPlcLevel === true"
-                      }
-                    },
-                    {
-                      "key": "devices[].powerProductionStateControl",
-                      "type": "section",
-                      "title": "Power Production Control",
-                      "description": "Section for enabling accessory for power production control",
-                      "expandable": true,
-                      "expanded": false,
-                      "items": [
-                        "devices[].powerProductionStateControl.displayType",
-                        "devices[].powerProductionStateControl.name",
-                        "devices[].powerProductionStateControl.namePrefix"
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].supportPowerProductionState === true"
-                      }
+                        {
+                          "key": "devices[].productionStateControl",
+                          "type": "section",
+                          "title": "Production State Control",
+                          "description": "Section enabling additional accessory for power production state control (firmware 7+ requires installer credentials)",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].productionStateControl.displayType",
+                            "devices[].productionStateControl.name",
+                            "devices[].productionStateControl.namePrefix"
+                          ]
+                        },
+                        {
+                          "key": "devices[].productionStateSensor",
+                          "type": "section",
+                          "title": "Production State Sensor",
+                          "description": "Section enabling additional accessory for power production state monitoring (firmware 7+ requires installer credentials)",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].productionStateSensor.displayType",
+                            "devices[].productionStateSensor.name",
+                            "devices[].productionStateSensor.namePrefix"
+                          ]
+                        },
+                        {
+                          "key": "devices[].plcLevelControl",
+                          "type": "section",
+                          "title": "PLC Level Refresh Control",
+                          "description": "Section for enabling additional accessory for PLC level refresh control (firmware 7+ requires installer credentials)",
+                          "expandable": true,
+                          "expanded": false,
+                          "items": [
+                            "devices[].plcLevelControl.displayType",
+                            "devices[].plcLevelControl.name",
+                            "devices[].plcLevelControl.namePrefix"
+                          ]
+                        }
+                      ]
                     }
                   ]
                 },
