@@ -98,11 +98,11 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `host` | | string | The Envoy Enphase Gateway `IP Address` or `Hostname`. If not supplied, defaults to `envoy.local`. For firmware v7.0+, please set the `IP Address`. |
 | `displayType` | | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Light Bulb, `2` - Fan, `3` - Humidity Sensor, `4` - Carbon Monoxide Sensor |
 | `envoyFirmware7xxTokenGenerationMode` | | number | How you will obtain the token: `0` - Envoy Password (firmware < v7.0), `1` - Enlighten Credentials, `2` - Your Own Generated Token |
-| `envoyPasswd` | | string | Envoy password (only if U already changed the default password) |
-| `envoyTokenInstaller` | | boolean | Enable if you are using the installer token ||
+| `envoyPasswd` | | string | Envoy password (only if U already changed the default password) ||
 | `enlightenUser` | | string | Enlighten username |
 | `enlightenPasswd` | | string | Enlighten password |
 | `envoyToken` | | string | Token if you selected `2 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
+| `envoyTokenInstaller` | | boolean | Enable if you are using the installer token 
 | `supportPlcLevel` | | boolean | Enables support for `PLC Level Check` for all devices (firmware v7.0+ require installer credentials) |
 | `plcLevelControl` | | key | `PLC Level Control` for PLC level check (firmware v7.0+ require installer credentials) |
 | | `name` | string | Accessory name for Home app |
