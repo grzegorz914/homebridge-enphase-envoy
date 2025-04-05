@@ -824,9 +824,9 @@ class EnvoyDevice extends EventEmitter {
                     consumption: {}
                 }
             },
-            productionState: false,
             liveData: {},
             arfProfile: {},
+            productionState: false,
             powerState: false,
             powerLevel: 0,
             productionPowerPeak: 0,
@@ -888,6 +888,13 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const tokenValid = await this.checkJwtToken();
                 const updateProductionAll = !tokenValid ? false : await this.updateProductionAll();
+            } catch (error) {
+                this.handleError(error);
+            };
+        }).on('updateProductionState', async () => {
+            try {
+                const tokenValid = await this.checkJwtToken();
+                const updateProductionState = !tokenValid ? false : await this.updateProductionState();
             } catch (error) {
                 this.handleError(error);
             };
@@ -4720,7 +4727,7 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 //plc level control service
-                if (this.plcLevelActiveControl && plcLevelSupported) {
+                if (plcLevelSupported) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Plc Level Control Service`) : false;
                     const serviceName = this.plcLevelActiveControl.namePrefix ? `${accessoryName} ${this.plcLevelActiveControl.name}` : this.plcLevelActiveControl.name;
                     const serviceType = this.plcLevelActiveControl.serviceType;
@@ -4872,23 +4879,6 @@ class EnvoyDevice extends EventEmitter {
                             return value;
                         });
                 }
-                if (plcLevelSupported) {
-                    envoyService.getCharacteristic(Characteristic.EnphaseEnvoyCheckCommLevel)
-                        .onGet(async () => {
-                            const state = false;
-                            const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, checking plc level: ${state ? `Yes` : `No`}`);
-                            return state;
-                        })
-                        .onSet(async (state) => {
-                            try {
-                                const tokenValid = await this.checkJwtToken();
-                                const setStatet = tokenValid && state ? await this.updateCommLevel() : false;
-                                const info = this.disableLogInfo || !tokenValid ? false : this.emit('info', `Envoy: ${envoySerialNumber}, check plc level: ${setStatet ? `Yes` : `No`}`);
-                            } catch (error) {
-                                this.emit('warn', `Envoy: ${envoySerialNumber}, check plc level error: ${error}`);
-                            };
-                        });
-                }
                 if (this.productionStateActiveControl && productionStateSupported) {
                     envoyService.getCharacteristic(Characteristic.EnphaseEnvoyProductionPowerMode)
                         .onGet(async () => {
@@ -4904,6 +4894,23 @@ class EnvoyDevice extends EventEmitter {
                                 const debug = this.enableDebugMode || !tokenValid ? this.emit('debug', `Envoy: ${envoySerialNumber}, set production power mode: ${setState ? 'Enabled' : 'Disabled'}`) : false;
                             } catch (error) {
                                 this.emit('warn', `Envoy: ${envoySerialNumber}, set production power mode error: ${error}`);
+                            };
+                        });
+                }
+                if (plcLevelSupported) {
+                    envoyService.getCharacteristic(Characteristic.EnphaseEnvoyCheckCommLevel)
+                        .onGet(async () => {
+                            const state = false;
+                            const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, checking plc level: ${state ? `Yes` : `No`}`);
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            try {
+                                const tokenValid = await this.checkJwtToken();
+                                const setStatet = tokenValid && state ? await this.updateCommLevel() : false;
+                                const info = this.disableLogInfo || !tokenValid ? false : this.emit('info', `Envoy: ${envoySerialNumber}, check plc level: ${setStatet ? `Yes` : `No`}`);
+                            } catch (error) {
+                                this.emit('warn', `Envoy: ${envoySerialNumber}, check plc level error: ${error}`);
                             };
                         });
                 }
@@ -6977,6 +6984,9 @@ class EnvoyDevice extends EventEmitter {
     async start() {
         const debug = this.enableDebugMode ? this.emit('debug', `Start`) : false;
         try {
+            //create array for timmers
+            this.timers = [];
+
             //get envoy info
             const updateInfo = await this.updateInfo();
 
@@ -7035,12 +7045,9 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 //read envoy dev id from app
-                try {
-                    const envoyDevIdValid = this.pv.envoy.devId.length === 9 && updateInfo ? true : await this.getEnvoyBackboneApp();
-                    const updatePowerProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionState() : false;
-                } catch (error) {
-                    this.emit('warn', `Read envoy dev Id or update production state error: ${error}`)
-                };
+                const envoyDevIdValid = this.pv.envoy.devId.length === 9 && updateInfo ? true : await this.getEnvoyBackboneApp();
+                const refreshProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionState() : false;
+                const pushTimer = refreshProductionState ? this.timers.push({ name: 'updateProductionState', sampling: 10000 }) : false;
             };
 
             //get ensemble data only FW. >= 7.x.x.
@@ -7072,7 +7079,6 @@ class EnvoyDevice extends EventEmitter {
             this.startPrepareAccessory = false;
 
             //create timers
-            this.timers = [];
             const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
             const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
             const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
