@@ -55,6 +55,7 @@
                             "namePrefix": false
                         }
                     ],
+                    "energyProductionLifetimeOffset": 0,
                     "energyProductionStateSensor": {
                         "name": "Production energy state",
                         "displayType": 0,
@@ -69,7 +70,6 @@
                             "namePrefix": false
                         }
                     ],
-                    "energyProductionLifetimeOffset": 0,
                     "powerConsumptionTotalStateSensor": {
                         "name": "Consumption Total power state",
                         "displayType": 0
@@ -83,6 +83,7 @@
                             "namePrefix": false
                         }
                     ],
+                    "energyConsumptionTotalLifetimeOffset": 0,
                     "energyConsumptionTotalStateSensor": {
                         "name": "Consumption Total energy state",
                         "displayType": 0,
@@ -97,7 +98,6 @@
                             "namePrefix": false
                         }
                     ],
-                    "energyConsumptionTotalLifetimeOffset": 0,
                     "powerConsumptionNetStateSensor": {
                         "name": "Consumption Net power state",
                         "displayType": 0,
@@ -119,6 +119,7 @@
                             "namePrefix": false
                         }
                     ],
+                    "energyConsumptionNetLifetimeOffset": 0,
                     "energyConsumptionNetStateSensor": {
                         "name": "Consumption Net energy state",
                         "displayType": 0,
@@ -133,7 +134,6 @@
                             "namePrefix": false
                         }
                     ],
-                    "energyConsumptionNetLifetimeOffset": 0,
                     "qRelayStateSensor": {
                         "name": "Sensor name",
                         "displayType": 0,
