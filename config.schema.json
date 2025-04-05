@@ -3308,7 +3308,7 @@
                           "key": "devices[].productionStateControl",
                           "type": "section",
                           "title": "Production State Control",
-                          "description": "Section enabling additional accessory for power production state control (firmware 7+ requires installer credentials)",
+                          "description": "Section enabling additional accessory for production state control (firmware 7+ requires installer credentials)",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3321,7 +3321,7 @@
                           "key": "devices[].productionStateSensor",
                           "type": "section",
                           "title": "Production State Sensor",
-                          "description": "Section enabling additional accessory for power production state monitoring (firmware 7+ requires installer credentials)",
+                          "description": "Section enabling additional accessory for production state monitoring (firmware 7+ requires installer credentials)",
                           "expandable": true,
                           "expanded": false,
                           "items": [

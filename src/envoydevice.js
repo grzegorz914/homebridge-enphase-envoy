@@ -776,13 +776,13 @@ class EnvoyDevice extends EventEmitter {
             liveData: {
                 supported: false
             },
-            plcLevel: {
+            arfProfile: {
                 supported: false
             },
             productionState: {
                 supported: false
             },
-            arfProfile: {
+            plcLevel: {
                 supported: false
             },
             dataSampling: false
@@ -827,6 +827,7 @@ class EnvoyDevice extends EventEmitter {
             liveData: {},
             arfProfile: {},
             productionState: false,
+            plcLevelState: false,
             powerState: false,
             powerLevel: 0,
             productionPowerPeak: 0,
@@ -921,6 +922,7 @@ class EnvoyDevice extends EventEmitter {
             };
         }).on('state', (state) => {
             const emitState = state ? this.emit('success', `Impulse generator started`) : this.emit('warn', `Impulse generator stopped`);
+            this.feature.dataSampling = state;
 
             if (this.dataRefreshActiveControl) {
                 this.dataRefreshActiveControl.state = state;
@@ -946,7 +948,6 @@ class EnvoyDevice extends EventEmitter {
                 this.envoyService
                     .updateCharacteristic(Characteristic.EnphaseEnvoyDataRefresh, state)
             }
-            this.feature.dataSampling = state;
 
             //restFul
             const restFul = this.restFulConnected ? this.restFul1.update('datasampling', { state: state }) : false;
@@ -3897,114 +3898,6 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
-    async updateCommLevel() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level`) : false;
-        try {
-            const options = {
-                method: 'GET',
-                baseURL: this.url,
-                headers: {
-                    Accept: 'application/json'
-                }
-            }
-
-            const response = this.pv.envoy.firmware7xx ? await this.axiosInstance(ApiUrls.InverterComm) : await this.digestAuthInstaller.request(ApiUrls.InverterComm, options);
-            const plcLevel = response.data;
-            const debug = this.enableDebugMode ? this.emit('debug', `Plc level:`, plcLevel) : false;
-
-            // get comm level data
-            if (this.feature.microinverters.installed) {
-                this.pv.microinverters.forEach((microinverter, index) => {
-                    const key = `${microinverter.serialNumber}`;
-                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
-
-                    //add microinverters comm level to microinverters and pv object
-                    this.pv.microinverters[index].commLevel = value;
-
-                    if (this.microinvertersServices) {
-                        this.microinvertersServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseMicroinverterCommLevel, value)
-                    };
-                });
-            }
-
-            if (this.feature.acBatteries.installed) {
-                this.pv.acBatteries.devices.forEach((acBatterie, index) => {
-                    const key = `${acBatterie.serialNumber}`;
-                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
-
-                    //add ac batteries comm level to ac batteries and pv object
-                    this.pv.acBatteries.devices[index].commLevel = value;
-
-                    if (this.acBatteriesServices) {
-                        this.acBatteriesServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseAcBatterieCommLevel, value)
-                    };
-                });
-            }
-
-
-            if (this.feature.qRelays.installed) {
-                this.pv.qRelays.forEach((qRelay, index) => {
-                    const key = `${qRelay.serialNumber}`;
-                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
-
-                    //add qrelays comm level to qrelays and pv object
-                    this.pv.qRelays[index].commLevel = value;
-
-                    if (this.qRelaysServices) {
-                        this.qRelaysServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseQrelayCommLevel, value)
-                    };
-                });
-            }
-
-            if (this.feature.encharges.installed) {
-                this.ensemble.encharges.devices.forEach((encharge, index) => {
-                    const key = `${encharge.serialNumber}`;
-                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
-
-                    //add encharges comm level to ensemble and encharges object
-                    this.ensemble.encharges.devices[index].commLevel = value;
-
-                    if (this.enchargesServices) {
-                        this.enchargesServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseEnchargeCommLevel, value)
-                    }
-                });
-            }
-
-            //update plc level control state
-            if (this.envoyService) {
-                this.envoyService
-                    .updateCharacteristic(Characteristic.EnphaseEnvoyCheckCommLevel, false);
-            }
-
-            if (this.plcLevelActiveControl) {
-                this.plcLevelActiveControl.state = false;
-
-                if (this.plcLevelControlService) {
-                    const characteristicType = this.plcLevelActiveControl.characteristicType;
-                    this.plcLevelControlService
-                        .updateCharacteristic(characteristicType, false)
-                }
-            }
-
-            //comm level supported
-            this.feature.plcLevel.supported = true;
-
-            //restFul
-            const restFul = this.restFulConnected ? this.restFul1.update('plclevel', plcLevel) : false;
-
-            //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'PLC Level', plcLevel) : false;
-            return true;
-        } catch (error) {
-            throw new Error(`Update plc level error: ${error}`);
-            this.emit('warn', `Update plc level error: ${error}, dont worry all working correct, only the plc level control will not be displayed`);
-        };
-    };
-
     async updateLiveData() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting live data`) : false;
         try {
@@ -4164,6 +4057,117 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             throw new Error(`Update live data error: ${error}`);
+        };
+    };
+
+    async updatePlcLevel() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level`) : false;
+        try {
+            const options = {
+                method: 'GET',
+                baseURL: this.url,
+                headers: {
+                    Accept: 'application/json'
+                }
+            }
+
+            const response = this.pv.envoy.firmware7xx ? await this.axiosInstance(ApiUrls.InverterComm) : await this.digestAuthInstaller.request(ApiUrls.InverterComm, options);
+            const plcLevel = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Plc level:`, plcLevel) : false;
+
+            // get comm level data
+            if (this.feature.microinverters.installed) {
+                this.pv.microinverters.forEach((microinverter, index) => {
+                    const key = `${microinverter.serialNumber}`;
+                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
+
+                    //add microinverters comm level to microinverters and pv object
+                    this.pv.microinverters[index].commLevel = value;
+
+                    if (this.microinvertersServices) {
+                        this.microinvertersServices[index]
+                            .updateCharacteristic(Characteristic.EnphaseMicroinverterCommLevel, value)
+                    };
+                });
+            }
+
+            if (this.feature.acBatteries.installed) {
+                this.pv.acBatteries.devices.forEach((acBatterie, index) => {
+                    const key = `${acBatterie.serialNumber}`;
+                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
+
+                    //add ac batteries comm level to ac batteries and pv object
+                    this.pv.acBatteries.devices[index].commLevel = value;
+
+                    if (this.acBatteriesServices) {
+                        this.acBatteriesServices[index]
+                            .updateCharacteristic(Characteristic.EnphaseAcBatterieCommLevel, value)
+                    };
+                });
+            }
+
+
+            if (this.feature.qRelays.installed) {
+                this.pv.qRelays.forEach((qRelay, index) => {
+                    const key = `${qRelay.serialNumber}`;
+                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
+
+                    //add qrelays comm level to qrelays and pv object
+                    this.pv.qRelays[index].commLevel = value;
+
+                    if (this.qRelaysServices) {
+                        this.qRelaysServices[index]
+                            .updateCharacteristic(Characteristic.EnphaseQrelayCommLevel, value)
+                    };
+                });
+            }
+
+            if (this.feature.encharges.installed) {
+                this.ensemble.encharges.devices.forEach((encharge, index) => {
+                    const key = `${encharge.serialNumber}`;
+                    const value = (plcLevel[key] ?? 0) * 20 ?? 0;
+
+                    //add encharges comm level to ensemble and encharges object
+                    this.ensemble.encharges.devices[index].commLevel = value;
+
+                    if (this.enchargesServices) {
+                        this.enchargesServices[index]
+                            .updateCharacteristic(Characteristic.EnphaseEnchargeCommLevel, value)
+                    }
+                });
+            }
+
+            //update plc level control state
+            if (this.envoyService) {
+                this.envoyService
+                    .updateCharacteristic(Characteristic.EnphaseEnvoyCheckCommLevel, false);
+            }
+
+            if (this.plcLevelActiveControl) {
+                this.plcLevelActiveControl.state = false;
+
+                if (this.plcLevelControlService) {
+                    const characteristicType = this.plcLevelActiveControl.characteristicType;
+                    this.plcLevelControlService
+                        .updateCharacteristic(characteristicType, false)
+                }
+            }
+
+            //update plc level state
+            this.pv.plcLevelState = false;
+
+            //comm level supported
+            this.feature.plcLevel.supported = true;
+
+            //restFul
+            const restFul = this.restFulConnected ? this.restFul1.update('plclevel', plcLevel) : false;
+
+            //mqtt
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'PLC Level', plcLevel) : false;
+            return true;
+        } catch (error) {
+            throw new Error(`Update plc level error: ${error}`);
+            this.emit('warn', `Update plc level error: ${error}, dont worry all working correct, only the plc level control will not be displayed`);
         };
     };
 
@@ -4523,7 +4527,7 @@ class EnvoyDevice extends EventEmitter {
                     set = this.feature.productionState.supported ? await this.setDat(value) : false;
                     break;
                 case 'PlcLevel':
-                    set = this.feature.plcLevel.supported ? await this.updateCommLevel(value) : false;
+                    set = this.feature.plcLevel.supported ? await this.updatePlcLevel(value) : false;
                     break;
                 case 'EnchargeProfile':
                     set = this.feature.encharges.tariff.supported ? await this.setEnchargeProfile(value, this.ensemble.tariff.storageSettings.reservedSoc, this.ensemble.tariff.storageSettings.chargeFromGrid) : false;
@@ -4727,7 +4731,7 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 //plc level control service
-                if (plcLevelSupported) {
+                if (this.plcLevelActiveControl && plcLevelSupported) {
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Plc Level Control Service`) : false;
                     const serviceName = this.plcLevelActiveControl.namePrefix ? `${accessoryName} ${this.plcLevelActiveControl.name}` : this.plcLevelActiveControl.name;
                     const serviceType = this.plcLevelActiveControl.serviceType;
@@ -4744,7 +4748,7 @@ class EnvoyDevice extends EventEmitter {
                         .onSet(async (state) => {
                             try {
                                 const tokenValid = await this.checkJwtToken();
-                                const setState = tokenValid && state ? await this.updateCommLevel() : false;
+                                const setState = tokenValid && state ? await this.updatePlcLevel() : false;
                                 const info = this.disableLogInfo || !tokenValid ? false : this.emit('info', `Set plc level control state to: ${setState ? `ON` : `OFF`}`);
                             } catch (error) {
                                 this.emit('warn', `Set plc level control state error: ${error}`);
@@ -4871,15 +4875,7 @@ class EnvoyDevice extends EventEmitter {
                         const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, last report to enlighten: ${value}`);
                         return value;
                     });
-                if (arfProfileSupported) {
-                    envoyService.getCharacteristic(Characteristic.EnphaseEnvoyGridProfile)
-                        .onGet(async () => {
-                            const value = this.pv.arfProfile.name;
-                            const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, grid profile: ${value}`);
-                            return value;
-                        });
-                }
-                if (this.productionStateActiveControl && productionStateSupported) {
+                if (productionStateSupported) {
                     envoyService.getCharacteristic(Characteristic.EnphaseEnvoyProductionPowerMode)
                         .onGet(async () => {
                             const state = this.pv.productionState;
@@ -4900,18 +4896,26 @@ class EnvoyDevice extends EventEmitter {
                 if (plcLevelSupported) {
                     envoyService.getCharacteristic(Characteristic.EnphaseEnvoyCheckCommLevel)
                         .onGet(async () => {
-                            const state = false;
+                            const state = this.pv.plcLevelState;
                             const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, checking plc level: ${state ? `Yes` : `No`}`);
                             return state;
                         })
                         .onSet(async (state) => {
                             try {
                                 const tokenValid = await this.checkJwtToken();
-                                const setStatet = tokenValid && state ? await this.updateCommLevel() : false;
+                                const setStatet = tokenValid && state ? await this.updatePlcLevel() : false;
                                 const info = this.disableLogInfo || !tokenValid ? false : this.emit('info', `Envoy: ${envoySerialNumber}, check plc level: ${setStatet ? `Yes` : `No`}`);
                             } catch (error) {
                                 this.emit('warn', `Envoy: ${envoySerialNumber}, check plc level error: ${error}`);
                             };
+                        });
+                }
+                if (arfProfileSupported) {
+                    envoyService.getCharacteristic(Characteristic.EnphaseEnvoyGridProfile)
+                        .onGet(async () => {
+                            const value = this.pv.arfProfile.name;
+                            const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, grid profile: ${value}`);
+                            return value;
                         });
                 }
                 if (enpowersInstalled) {
@@ -6987,15 +6991,17 @@ class EnvoyDevice extends EventEmitter {
             //create array for timmers
             this.timers = [];
 
-            //get envoy info
-            const updateInfo = await this.updateInfo();
-
-            //calculate envoy and installer passwords
-            const digestAuthorizationEnvoy = this.pv.envoy.firmware < 700 && updateInfo ? await this.digestAuthorizationEnvoy() : false;
-            const digestAuthorizationInstaller = this.pv.envoy.firmware < 700 && updateInfo ? await this.digestAuthorizationInstaller() : false;
+            //read envoy dev from file
+            try {
+                const response = await this.readData(this.envoyIdFile);
+                const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${response.toString().length === 9 ? 'Exist' : 'Missing'}`) : false;
+                this.pv.envoy.devId = response.toString().length === 9 ? response.toString() : this.pv.envoy.devId;
+            } catch (error) {
+                this.emit('warn', `Read envoy dev Id from file error: ${error}`)
+            };
 
             //read JWT token from file
-            if (this.pv.envoy.firmware >= 700 && this.envoyFirmware7xxTokenGenerationMode === 1) {
+            if (this.envoyFirmware7xxTokenGenerationMode === 1) {
                 try {
                     const data = await this.readData(this.envoyTokenFile);
                     const parsedData = JSON.parse(data);
@@ -7006,11 +7012,21 @@ class EnvoyDevice extends EventEmitter {
                 };
             };
 
+            //get envoy info
+            const updateInfo = await this.updateInfo();
+
+            //calculate envoy and installer passwords
+            const digestAuthorizationEnvoy = this.pv.envoy.firmware < 700 && updateInfo ? await this.digestAuthorizationEnvoy() : false;
+            const digestAuthorizationInstaller = this.pv.envoy.firmware < 700 && updateInfo ? await this.digestAuthorizationInstaller() : false;
+
             //get and validate jwt token
             const tokenValid = this.pv.envoy.firmware >= 700 ? await this.checkJwtToken() : false;
             if (this.pv.envoy.firmware >= 700 && !tokenValid) {
                 return null;
             };
+
+            //read envoy dev id from app
+            const envoyDevIdValid = this.pv.envoy.devId.length === 9 && updateInfo ? true : await this.getEnvoyBackboneApp();
 
             //update grid profile
             const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
@@ -7033,22 +7049,9 @@ class EnvoyDevice extends EventEmitter {
             //get production all ab D8.2.4391
             const refreshProductionAll = tokenValid && this.pv.envoy.firmware >= 824 ? await this.updateProductionAll() : false;
 
-            //access with installer password and envoy dev id
-            if (this.productionStateActiveControl || this.productionStateActiveSensor) {
-                try {
-                    //check if the envoy ID is stored
-                    const response = await this.readData(this.envoyIdFile);
-                    const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${response.toString().length === 9 ? 'Exist' : 'Missing'}`) : false;
-                    this.pv.envoy.devId = response.toString().length === 9 ? response.toString() : this.pv.envoy.devId;
-                } catch (error) {
-                    this.emit('warn', `Read envoy dev Id from file error: ${error}`)
-                };
-
-                //read envoy dev id from app
-                const envoyDevIdValid = this.pv.envoy.devId.length === 9 && updateInfo ? true : await this.getEnvoyBackboneApp();
-                const refreshProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionState() : false;
-                const pushTimer = refreshProductionState ? this.timers.push({ name: 'updateProductionState', sampling: 10000 }) : false;
-            };
+            //get production state
+            const refreshProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionState() : false;
+            const pushTimer = refreshProductionState ? this.timers.push({ name: 'updateProductionState', sampling: 10000 }) : false;
 
             //get ensemble data only FW. >= 7.x.x.
             const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
@@ -7060,9 +7063,11 @@ class EnvoyDevice extends EventEmitter {
             const updateGenerator = refreshEnsemble ? await this.updateGenerator() : false;
             const updateGeneratorSettings = updateGenerator ? await this.updateGeneratorSettings() : false;
 
-            //get plc communication level
-            const updateCommLevel = this.plcLevelActiveControl && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateCommLevel() : false;
+            //get live data
             const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
+
+            //get plc communication level
+            const updatePlcLevel = (this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller ? await this.updatePlcLevel() : false;
 
             //connect to deice success
             this.emit('success', `Connect Success`)
