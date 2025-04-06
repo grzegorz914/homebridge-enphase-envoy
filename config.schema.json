@@ -3308,7 +3308,7 @@
                           "key": "devices[].productionStateControl",
                           "type": "section",
                           "title": "Production State Control",
-                          "description": "Section enabling additional accessory for production state control (firmware 7+ requires installer credentials)",
+                          "description": "Section for enabling additional accessory for production state control (firmware v7.0+ requires installer credentials)",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3321,7 +3321,7 @@
                           "key": "devices[].productionStateSensor",
                           "type": "section",
                           "title": "Production State Sensor",
-                          "description": "Section enabling additional accessory for production state monitoring (firmware 7+ requires installer credentials)",
+                          "description": "Section for enabling sensor for production state monitoring (firmware v7.0+ requires installer credentials)",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3334,7 +3334,7 @@
                           "key": "devices[].plcLevelControl",
                           "type": "section",
                           "title": "PLC Level Refresh Control",
-                          "description": "Section for enabling additional accessory for PLC level refresh control (firmware 7+ requires installer credentials)",
+                          "description": "Section for enabling additional accessory for PLC level refresh control (firmware v7.0+ requires installer credentials)",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3662,7 +3662,7 @@
                           "key": "devices[].qRelayStateSensor",
                           "type": "section",
                           "title": "State Sensor",
-                          "description": "Section for enabling qrelay state sensor, if present.",
+                          "description": "Section for enabling sensor for q-relay state monitoring, if present.",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3693,8 +3693,8 @@
                             {
                               "key": "devices[].acBatterieBackupLevelSummaryAccessory",
                               "type": "section",
-                              "title": "Summary Accessory",
-                              "description": "Section for enabling ac batteries summary backup level accessory, if present.",
+                              "title": "Backup Level Summary",
+                              "description": "Section for enabling additional accessory for ac batteries backup level summary, if present.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -3706,8 +3706,8 @@
                             {
                               "key": "devices[].acBatterieBackupLevelAccessory",
                               "type": "section",
-                              "title": "Individual Accessory",
-                              "description": "Section for enabling ac battery backup level accessory, if present.",
+                              "title": "Backup Level Individual",
+                              "description": "Section for enabling additional accessory for ac battery backup level, if present.",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -3811,8 +3811,8 @@
                                     {
                                       "key": "devices[].enchargeBackupLevelSummaryAccessory",
                                       "type": "section",
-                                      "title": "Summary Accessory",
-                                      "description": "Section for enabling encharges summary backup level accessory, if present.",
+                                      "title": "Backup Level Summary",
+                                      "description": "Section for enabling additional accessory for encharges backup level summary, if present.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -3824,8 +3824,8 @@
                                     {
                                       "key": "devices[].enchargeBackupLevelAccessory",
                                       "type": "section",
-                                      "title": "Individual Accessory",
-                                      "description": "Section for enabling encharge backup level accessory, if present.",
+                                      "title": "Backup Level Individual",
+                                      "description": "Section for enabling additional accessory for encharge backup level, if present.",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -3853,7 +3853,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Profile Controls",
-                                  "description": "Section for creating encharge profile control",
+                                  "description": "Section for creating additional accessory for encharge profile control",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -3874,7 +3874,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Profile Sensors",
-                                  "description": "Section for creating encharge profile sensors",
+                                  "description": "Section for creating sensors for encharge profile monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -4024,7 +4024,7 @@
                                   "key": "devices[].generatorStateSensor",
                                   "type": "section",
                                   "title": "State Sensor",
-                                  "description": "Section for enabling sensor state monitoring",
+                                  "description": "Section for enabling sensor for generator state monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -4037,7 +4037,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Mode Controls",
-                                  "description": "Section for creating accessories for generator mode control",
+                                  "description": "Section for creating additional accessories for generator mode control",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -4058,7 +4058,7 @@
                                   "key": "devices[]",
                                   "type": "section",
                                   "title": "Mode Sensors",
-                                  "description": "Section for creating sensors mode monitoring",
+                                  "description": "Section for creating sensors for generator mode monitoring",
                                   "expandable": true,
                                   "expanded": false,
                                   "items": [
@@ -4108,7 +4108,7 @@
                           "key": "devices[]",
                           "type": "section",
                           "title": "Log",
-                          "description": "Section for enabling/disable indyvidual log.",
+                          "description": "Section for enable/disable individual log.",
                           "expandable": true,
                           "expanded": false,
                           "items": [
