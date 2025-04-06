@@ -79,7 +79,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 * Envoy `password` is detected automatically or can be added in the configuration if already changed by user.
 * Installer `password` is generated automatically (firmware < v7.0+).
 * Envoy `device ID` is detected automatically.
-* Supports [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) and `PLC Level` (firmware v7.0+ requires installer credentials).
+* Supports [Production State Conrol](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) and `PLC Level Check` (firmware v7.0+ requires installer credentials).
 * For the best experience and to display all data, please use the `Controller` or `Eve` apps.
 * External integrations include: [REST](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#restful-integration) and [MQTT](https://github.com/grzegorz914/homebridge-enphase-envoy?tab=readme-ov-file#mqtt-integration).
 
