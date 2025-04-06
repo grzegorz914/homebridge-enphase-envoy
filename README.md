@@ -75,9 +75,9 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 
 ## Notes
 
-* Token authentication (6.0+) - Tokens can be generated automatically with the Enlighten username (email address) and password or external tools. Tokens generated with Enlighten credentials are automatically refreshed while those generated with external tools are not.
+* Token authentication (v7.0+) - Tokens can be generated automatically with the Enlighten username (email address) and password or external tools. Tokens generated with Enlighten credentials are automatically refreshed while those generated with external tools are not.
 * Envoy `password` is detected automatically or can be added in the configuration if already changed by user.
-* Installer `password` is generated automatically (firmware <= v5.x).
+* Installer `password` is generated automatically (firmware < v7.0+).
 * Envoy `device ID` is detected automatically.
 * Supports [Power Production State](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control) and `PLC Level` (firmware v7.0+ requires installer credentials).
 * For the best experience and to display all data, please use the `Controller` or `Eve` apps.
@@ -314,7 +314,7 @@ REST POST calls must include a content-type header of `application/json`.
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | POST | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop |
-|      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off |
+|      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Production state On/Off |
 |      | `http//ip:port` | `PlcLevel` | `true` | boolean | Check Plc Level On |
 |      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile |
 |      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
@@ -331,7 +331,7 @@ Subscribe using JSON `{ "EnchargeProfile": "savings" }`
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | Subscribe | `Set` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop |
-|           | `Set` | `PowerProductionState` | `true`, `false` | boolean | Power production state On/Off |
+|           | `Set` | `PowerProductionState` | `true`, `false` | boolean | Production state On/Off |
 |           | `Set` | `PlcLevel` | `true` | boolean | Check Plc Level On |
 |           | `Set` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile |
 |           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
