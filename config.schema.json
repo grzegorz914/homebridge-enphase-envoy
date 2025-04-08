@@ -3662,7 +3662,7 @@
                           "key": "devices[].qRelayStateSensor",
                           "type": "section",
                           "title": "State Sensor",
-                          "description": "Section for enabling sensor for q-relay state monitoring, if present.",
+                          "description": "Section for enabling sensor for q-relay state monitoring",
                           "expandable": true,
                           "expanded": false,
                           "items": [
@@ -3694,7 +3694,7 @@
                               "key": "devices[].acBatterieBackupLevelSummaryAccessory",
                               "type": "section",
                               "title": "Backup Level Summary",
-                              "description": "Section for enabling additional accessory for ac batteries backup level summary, if present.",
+                              "description": "Section for enabling additional accessory for ac batteries backup level summary",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -3707,7 +3707,7 @@
                               "key": "devices[].acBatterieBackupLevelAccessory",
                               "type": "section",
                               "title": "Backup Level Individual",
-                              "description": "Section for enabling additional accessory for ac battery backup level, if present.",
+                              "description": "Section for enabling additional accessory for ac battery backup level",
                               "expandable": true,
                               "expanded": false,
                               "items": [
@@ -3812,7 +3812,7 @@
                                       "key": "devices[].enchargeBackupLevelSummaryAccessory",
                                       "type": "section",
                                       "title": "Backup Level Summary",
-                                      "description": "Section for enabling additional accessory for encharges backup level summary, if present.",
+                                      "description": "Section for enabling additional accessory for encharges backup level summary",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [
@@ -3825,7 +3825,7 @@
                                       "key": "devices[].enchargeBackupLevelAccessory",
                                       "type": "section",
                                       "title": "Backup Level Individual",
-                                      "description": "Section for enabling additional accessory for encharge backup level, if present.",
+                                      "description": "Section for enabling additional accessory for encharge backup level",
                                       "expandable": true,
                                       "expanded": false,
                                       "items": [

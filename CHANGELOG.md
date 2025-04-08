@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.12.6] - (08.04.2025)
+
+## Changes
+
+- fix stop data sampling if error occured durig cookie refresh
+- fix set correct accessory category
+- added production state data refresh timer
+- config UI improvements in section Envoy
+- config schema updated
+- redme update
+- cleanup
+
 ## [9.12.0] - (05.04.2025)
 
 ## Changes

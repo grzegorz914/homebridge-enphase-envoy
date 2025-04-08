@@ -612,8 +612,6 @@ class EnvoyDevice extends EventEmitter {
         this.envoyIdFile = envoyIdFile;
         this.envoyTokenFile = envoyTokenFile;
         this.startPrepareAccessory = true;
-        this.checkJwtTokenRunning = false;
-        this.cookie = false;
 
         //url
         this.url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${this.host}` : `http://${this.host}`;
@@ -826,6 +824,8 @@ class EnvoyDevice extends EventEmitter {
             },
             liveData: {},
             arfProfile: {},
+            checkJwtTokenRunning: false,
+            cookie: false,
             productionState: false,
             plcLevelState: false,
             powerState: false,
@@ -961,10 +961,10 @@ class EnvoyDevice extends EventEmitter {
         const errorString = error.toString();
         const tokenNotValid = errorString.includes('status code 401');
         if (tokenNotValid) {
-            if (this.checkJwtTokenRunning) {
+            if (this.pv.checkJwtTokenRunning) {
                 return;
             };
-            this.cookie = false;
+            this.pv.cookie = false;
             return;
         };
         this.emit('error', `Impulse generator: ${error}`);
@@ -1112,22 +1112,23 @@ class EnvoyDevice extends EventEmitter {
             return true;
         };
 
+        if (this.pv.checkJwtTokenRunning) {
+            return null;
+        };
+
         try {
-            if (this.checkJwtTokenRunning) {
-                return null;
-            };
-            this.checkJwtTokenRunning = true;
+            this.pv.checkJwtTokenRunning = true;
 
             //check token is valid
             const tokenValid = this.envoyFirmware7xxTokenGenerationMode === 2 && this.pv.envoy.jwtToken.token ? true : this.pv.envoy.jwtToken.token && this.pv.envoy.jwtToken.expires_at >= Math.floor(Date.now() / 1000) + 60;
             const debug = this.enableDebugMode ? this.emit('debug', `JWT Token: ${tokenValid ? 'Valid' : 'Not valid'}`) : false;
 
             //check cookie are valid
-            const cookieValid = this.cookie;
+            const cookieValid = this.pv.cookie;
             const debug1 = this.enableDebugMode ? this.emit('debug', `Cookie: ${cookieValid ? 'Valid' : 'Not valid'}`) : false;
 
             if (tokenValid && cookieValid) {
-                this.checkJwtTokenRunning = false;
+                this.pv.checkJwtTokenRunning = false;
                 return true;
             }
 
@@ -1136,7 +1137,7 @@ class EnvoyDevice extends EventEmitter {
             const emit = !tokenValid ? this.emit('warn', `JWT Token not valid, refreshing`) : false;
             const getToken = !tokenValid ? await this.getJwtToken() : true;
             if (!getToken) {
-                this.checkJwtTokenRunning = false;
+                this.pv.checkJwtTokenRunning = false;
                 return null;
             }
 
@@ -1144,13 +1145,14 @@ class EnvoyDevice extends EventEmitter {
             this.emit('warn', `Cookie not valid, refreshing`);
             const getCookie = await this.getCookie();
             if (!getCookie) {
-                this.checkJwtTokenRunning = false;
+                this.pv.checkJwtTokenRunning = false;
                 return null;
             }
 
-            this.checkJwtTokenRunning = false;
+            this.pv.checkJwtTokenRunning = false;
             return true;
         } catch (error) {
+            this.pv.checkJwtTokenRunning = false;
             throw new Error(`Check JWT token error: ${error}`);
         };
     };
@@ -1206,6 +1208,8 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting cookie`) : false;
 
         try {
+            this.pv.envoy.cookie = false;
+
             const options = {
                 method: 'GET',
                 baseURL: this.url,
@@ -1243,10 +1247,11 @@ class EnvoyDevice extends EventEmitter {
                 timeout: 25000
             });
 
-            this.cookie = cookie;
+            this.pv.cookie = cookie;
             this.emit('success', `Cookie refresh success`);
             return true;
         } catch (error) {
+            this.pv.envoy.cookie = false;
             throw new Error(`Get cookie error: ${error}`);
         };
     };
@@ -4191,7 +4196,7 @@ class EnvoyDevice extends EventEmitter {
                 data: data,
                 headers: {
                     'Content-Type': 'application/json',
-                    Cookie: this.cookie
+                    Cookie: this.pv.cookie
                 },
                 withCredentials: true,
                 httpsAgent: new https.Agent({
@@ -4215,7 +4220,7 @@ class EnvoyDevice extends EventEmitter {
             const options = {
                 headers: {
                     'Content-Type': 'application/json',
-                    Cookie: this.cookie
+                    Cookie: this.pv.cookie
                 },
                 withCredentials: true,
                 httpsAgent: new Agent({
@@ -4253,7 +4258,7 @@ class EnvoyDevice extends EventEmitter {
             const options = {
                 headers: {
                     'Content-Type': 'application/json',
-                    Cookie: this.cookie
+                    Cookie: this.pv.cookie
                 },
                 withCredentials: true,
                 httpsAgent: new https.Agent({
@@ -4278,7 +4283,7 @@ class EnvoyDevice extends EventEmitter {
             const options = {
                 headers: {
                     'Content-Type': 'application/json',
-                    Cookie: this.cookie
+                    Cookie: this.pv.cookie
                 },
                 withCredentials: true,
                 httpsAgent: new Agent({
@@ -4303,7 +4308,7 @@ class EnvoyDevice extends EventEmitter {
             const options = {
                 headers: {
                     'Content-Type': 'application/json',
-                    Cookie: this.cookie
+                    Cookie: this.pv.cookie
                 },
                 withCredentials: true,
                 httpsAgent: new Agent({
@@ -4339,7 +4344,7 @@ class EnvoyDevice extends EventEmitter {
             const options = {
                 headers: {
                     'Content-Type': 'application/json',
-                    Cookie: this.cookie
+                    Cookie: this.pv.cookie
                 },
                 withCredentials: true,
                 httpsAgent: new Agent({
@@ -4363,7 +4368,7 @@ class EnvoyDevice extends EventEmitter {
             const options = {
                 headers: {
                     'Content-Type': 'application/json',
-                    Cookie: this.cookie
+                    Cookie: this.pv.cookie
                 },
                 withCredentials: true,
                 httpsAgent: new Agent({
