@@ -715,13 +715,18 @@ class EnvoyDevice extends EventEmitter {
                         supported: false
                     }
                 },
-                all: {
+                pdm: {
+                    energy: {
+                        production: {
+                            supported: false
+                        },
+                        consumption: {
+                            supported: false
+                        }
+                    },
                     production: {
                         supported: false
                     },
-                    consumption: {
-                        supported: false
-                    }
                 }
             },
             ensembles: {
@@ -817,9 +822,12 @@ class EnvoyDevice extends EventEmitter {
                     consumption: [],
                     acBatterie: {}
                 },
-                all: {
-                    production: {},
-                    consumption: {}
+                pdm: {
+                    energy: {
+                        production: {},
+                        consumption: {}
+                    },
+                    production: {}
                 }
             },
             liveData: {},
@@ -892,10 +900,11 @@ class EnvoyDevice extends EventEmitter {
             } catch (error) {
                 this.handleError(error);
             };
-        }).on('updateProductionAll', async () => {
+        }).on('updatePdm', async () => {
             try {
                 const tokenValid = await this.checkJwtToken();
-                const updateProductionAll = !tokenValid ? false : await this.updateProductionAll();
+                const updatePdmProduction = !tokenValid ? false : await this.updatePdmProduction();
+                const updatePdmEnergy = updatePdmProduction ? await this.updatePdmEnergy() : false;
             } catch (error) {
                 this.handleError(error);
             };
@@ -2646,47 +2655,108 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
-    async updateProductionAll() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production all`) : false;
+    async updatePdmProduction() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting pdm production`) : false;
         try {
-            const response = await this.axiosInstance(ApiUrls.AllProductions);
-            const productionAll = response.data;
-            const debug = this.enableDebugMode ? this.emit('debug', `Production all: `, productionAll) : false;
+            const response = await this.axiosInstance(ApiUrls.PdmProduction);
+            const pdmProduction = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Pdm production: `, pdmProduction) : false;
 
-            //production all summary 
-            const productionAllKeys = Object.keys(productionAll);
+            const obj = {
+                reportTime: pdmProduction.report_time,  //,
+                wattsNowPcu: pdmProduction.watts_now_pcu,  // 1498,
+                joulesTodayPcu: pdmProduction.joules_today_pcu, // 6080400,
+                pcuJoulesSevenDays: pdmProduction.pcu_joules_seven_days,  // 902023200,
+                joulesLifetimePcu: pdmProduction.joules_lifetime_pcu,  // 24868684800,
+                thereIsAnActiveEim: pdmProduction.there_is_an_active_eim,  // true,
+                wattsNowEim: pdmProduction.watts_now_eim,  // 1662,
+                wattHoursTodayEimAggregate: pdmProduction.watt_hours_today_eim.aggregate,  // 1848,
+                wattHoursTodayEimChannel: pdmProduction.watt_hours_today_eim.channel,  // []
+                eimWattHoursSevenDaysAggregate: pdmProduction.eim_watt_hours_seven_days.aggregate,  // 255001,
+                eimWattHoursSevenDaysChannel: pdmProduction.eim_watt_hours_seven_days.channel,  // []
+                wattHoursLifetimeEimAggregate: pdmProduction.watt_hours_lifetime_eim.aggregate,  // 7054052,
+                wattHoursLifetimeEimChannel: pdmProduction.watt_hours_lifetime_eim.channel,  // []
+                vahTodayEimAggregate: pdmProduction.vah_today_eim.aggregate, // 4637,
+                vahTodayEimChannel: pdmProduction.vah_today_eim.aggregate, // []
+                vahLifetimeEimAggregate: pdmProduction.vah_lifetime_eim.aggregate,  // 8951318,
+                vahLifetimeEimChannel: pdmProduction.vah_lifetime_eim.channel,  // []
+                varhLeadTodayEimAggregate: pdmProduction.varh_lead_today_eim.aggregate,  // 0,
+                varhLeadTodayEimChannel: pdmProduction.varh_lead_today_eim.channel, // []
+                varhLagTodayEimAggregate: pdmProduction.varh_lag_today_eim.aggregate,  // 3223,
+                varhLagTodayEimChannel: pdmProduction.varh_lag_today_eim.channel,  // [ ]
+                varhLeadLifetimeEimAggregate: pdmProduction.varh_lead_lifetime_eim.aggregate,  // 5,
+                varhLeadLifetimeEimChannel: pdmProduction.varh_lead_lifetime_eim.channel,  // []
+                varhLagLifetimeEimAggregate: pdmProduction.varh_lag_lifetime_eim.aggregate, // 2680011,
+                varhLagLifetimeEimChannel: pdmProduction.varh_lag_lifetime_eim.channel,  // []
+                thereIsAnActiveRgm: pdmProduction.there_is_an_active_rgm,  // false,
+                wattsNowRgm: pdmProduction.watts_now_rgm,  // 0,
+                wattHoursTodayRgm: pdmProduction.watt_hours_today_rgm,  // 0,
+                rgmWattHoursSevenDays: pdmProduction.rgm_watt_hours_seven_days,  // 0,
+                wattHoursLifetimeRgm: pdmProduction.watt_hours_lifetime_rgm,  // 0,
+                thereIsAnActivePmu: pdmProduction.watt_hours_lifetime_rgm,  // false,
+                wattsNowPmu: pdmProduction.watts_now_pmu,  // 0,
+                wattHoursTodayPmu: pdmProduction.watt_hours_today_pmu,  // 0,
+                pmuWattHoursSevenDays: pdmProduction.pmu_watt_hours_seven_days,  // 0,
+                wattHoursLifetimePmu: pdmProduction.watt_hours_lifetime_pmu  // 0
+            }
+            this.pv.production.pdm.production = obj;
+
+            //set pdm production support flag
+            this.feature.production.pdm.production.supported = true;
+
+            //restFul
+            const restFul = this.restFulConnected ? this.restFul1.update('pdmproduction', pdmProduction) : false;
+
+            //mqtt
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Pdm Production', pdmProduction) : false;
+
+            return true;
+        } catch (error) {
+            throw new Error(`Update pdm production error: ${error}`);
+        };
+    };
+
+    async updatePdmEnergy() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting pdm energy`) : false;
+        try {
+            const response = await this.axiosInstance(ApiUrls.PdmEnergy);
+            const pdmEnergy = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Pdm energy: `, pdmEnergy) : false;
+
+            //pdm energy summary 
+            const productionAllKeys = Object.keys(pdmEnergy);
             const productionSupported = productionAllKeys.includes('production')
             const consumptionSupported = productionAllKeys.includes('consumption')
 
             //process production data if available
             if (productionSupported) {
-                const productionsKeys = Object.keys(productionAll.production)
+                const productionsKeys = Object.keys(pdmEnergy.production)
                 productionsKeys.forEach((type) => {
-                    const productionData = productionAll.production[type];
-                    if (productionData) {
+                    const productionDataType = pdmEnergy.production[type];
+                    if (productionDataType) {
                         const obj = {
-                            energyToday: productionData.wattHoursToday,
-                            energyTodayKw: productionData.wattHoursToday / 1000,
-                            energyLastSevenDays: productionData.wattHoursSevenDays,
-                            energyLastSevenDaysKw: productionData.wattHoursSevenDays / 1000,
-                            energyLifeTime: (productionData.wattHoursLifetime + this.energyProductionLifetimeOffset),
-                            energyLifeTimeKw: (productionData.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000,
-                            energyState: productionData.wattHoursToday > 0,
-                            power: productionData.wattsNow,
-                            powerKw: productionData.wattsNow / 1000,
-                            powerState: productionData.wattsNow > 0
+                            energyToday: productionDataType.wattHoursToday,
+                            energyTodayKw: productionDataType.wattHoursToday / 1000,
+                            energyLastSevenDays: productionDataType.wattHoursSevenDays,
+                            energyLastSevenDaysKw: productionDataType.wattHoursSevenDays / 1000,
+                            energyLifeTime: (productionDataType.wattHoursLifetime + this.energyProductionLifetimeOffset),
+                            energyLifeTimeKw: (productionDataType.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000,
+                            energyState: productionDataType.wattHoursToday > 0,
+                            power: productionDataType.wattsNow,
+                            powerKw: productionDataType.wattsNow / 1000,
+                            powerState: productionDataType.wattsNow > 0
                         };
-                        this.pv.production.all.production[type] = obj;
+                        this.pv.production.pdm.energy.production[type] = obj;
                     }
                 });
             }
 
             //set production support flag
-            this.feature.production.all.production.supported = productionSupported;
+            this.feature.production.pdm.energy.production.supported = productionSupported;
 
             //process consumption data if available
             if (consumptionSupported) {
-                const consumptionData = productionAll.consumption.eim;
+                const consumptionData = pdmEnergy.consumption.eim;
                 if (consumptionData) {
                     const obj = {
                         energyToday: consumptionData.wattHoursToday,
@@ -2700,21 +2770,21 @@ class EnvoyDevice extends EventEmitter {
                         powerKw: consumptionData.wattsNow / 1000,
                         powerState: consumptionData.wattsNow > 0
                     };
-                    this.pv.production.all.consumption.eim = obj;
+                    this.pv.production.pdm.energy.consumption.eim = obj;
                 }
             }
 
             //set consumption support flag
-            this.feature.production.all.consumption.supported = consumptionSupported;
+            this.feature.production.pdm.energy.consumption.supported = consumptionSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul1.update('productionall', productionAll) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('pdmenergy', pdmEnergy) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Production All', productionAll) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Pdm Energy', pdmEnergy) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update production all error: ${error}`);
+            throw new Error(`Update pdm energy error: ${error}`);
         };
     };
 
@@ -7051,8 +7121,9 @@ class EnvoyDevice extends EventEmitter {
             const refreshProduction = await this.updateProductionInverters();
             const updateProductionCt = refreshProduction ? await this.updateProductionCt() : false;
 
-            //get production all ab D8.2.4391
-            const refreshProductionAll = tokenValid && this.pv.envoy.firmware >= 824 ? await this.updateProductionAll() : false;
+            //get pdm energy and production ab D8.2.4391
+            const refreshPdmProduction = tokenValid && this.pv.envoy.firmware >= 824 ? await this.updatePdmProduction() : false;
+            const updatePdmEnergy = refreshPdmProduction ? await this.updatePdmEnergy() : false;
 
             //get ensemble data only FW. >= 7.x.x.
             const refreshEnsemble = tokenValid ? await this.updateEnsembleInventory() : false;
@@ -7091,7 +7162,7 @@ class EnvoyDevice extends EventEmitter {
             const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
             const pushTimer3 = refreshMicroinverters ? this.timers.push({ name: 'updateMicroinvertersStatus', sampling: 80000 }) : false;
             const pushTimer2 = refreshProduction ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
-            const pushTimer6 = refreshProductionAll ? this.timers.push({ name: 'updateProductionAll', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer6 = refreshPdmProduction ? this.timers.push({ name: 'updatePdm', sampling: this.productionDataRefreshTime }) : false;
             const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
             const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
 
