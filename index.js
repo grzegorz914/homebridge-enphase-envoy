@@ -117,7 +117,7 @@ class EnvoyPlatform {
               const emitLog = disableLogInfo ? false : log.info(`Device: ${host} ${deviceName}, ${info}.`);
             })
             .on('debug', (debug, data) => {
-              const emitLog = enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, debug: ${data ? `${debug} ${JSON.stringify(data, null, 2)}` : `${debug}.`}`);
+              const emitLog = !enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, debug: ${data ? `${debug} ${JSON.stringify(data, null, 2)}` : `${debug}.`}`);
             })
             .on('warn', (warn) => {
               const emitLog = disableLogWarn ? false : log.warn(`Device: ${host} ${deviceName}, ${warn}.`);

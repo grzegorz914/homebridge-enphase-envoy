@@ -309,7 +309,7 @@ REST POST calls must include a content-type header of `application/json`.
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionct`, `pdmenergy`, `pdmproduction`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
+| GET | `http//ip:port` | `token`, `info`, `home`, `inventory`, `meters`, `metersreading`, `ensembleinventory`, `ensemblestatus`, `enchargeettings`, `tariff`, `drycontacts`, `drycontactssettinge`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `production`, `productionpdm`, `energypdm`, `productionct`, `microinverters`, `powermode`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -326,7 +326,7 @@ Subscribe using JSON `{ "EnchargeProfile": "savings" }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-| Publish | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production CT`, `Pdm Energy`, `Pdm Production`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
+| Publish | `Token`, `Info`, `Home`, `Inventory`, `Meters`, `Meters Reading`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production`, `Production Pdm`, `Energy Pdm`, `Production CT`, `Microinverters`, `Power Mode`, `PCU Comm Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |

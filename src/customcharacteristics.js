@@ -824,7 +824,7 @@ export default (api) => {
     }
     Characteristic.EnphaseEnergyLastSevenDays = EnphaseEnergyLastSevenDays;
 
-    class EnphaseEnergyLifeTime extends Characteristic {
+    class EnphaseEnergyLifetime extends Characteristic {
         constructor() {
             super('Energy lifetime', '00000076-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -838,7 +838,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.EnphaseEnergyLifeTime = EnphaseEnergyLifeTime;
+    Characteristic.EnphaseEnergyLifetime = EnphaseEnergyLifetime;
 
     class EnphaseRmsCurrent extends Characteristic {
         constructor() {
@@ -955,7 +955,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphasePowerMaxDetected);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnergyToday);
             this.addOptionalCharacteristic(Characteristic.EnphaseEnergyLastSevenDays);
-            this.addOptionalCharacteristic(Characteristic.EnphaseEnergyLifeTime);
+            this.addOptionalCharacteristic(Characteristic.EnphaseEnergyLifetime);
             this.addOptionalCharacteristic(Characteristic.EnphaseRmsCurrent);
             this.addOptionalCharacteristic(Characteristic.EnphaseRmsVoltage);
             this.addOptionalCharacteristic(Characteristic.EnphaseReactivePower);
