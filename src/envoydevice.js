@@ -1802,7 +1802,7 @@ class EnvoyDevice extends EventEmitter {
 
             const response = this.pv.envoy.firmware7xx ? await this.axiosInstance(ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(ApiUrls.InverterProduction, options);
             const pcus = response.data;
-            const debug = this.enableDebugMode ? this.emit('debug', `Pcu status:`, pcu) : false;
+            const debug = this.enableDebugMode ? this.emit('debug', `Pcu status:`, pcus) : false;
 
             //pcu devices count
             const pcuStatusSupported = pcus.length > 0;
@@ -1834,10 +1834,10 @@ class EnvoyDevice extends EventEmitter {
             this.feature.pcu.status.supported = pcuStatusSupported;
 
             //restFul
-            const restFul = this.restFulConnected ? this.restFul1.update('microinverters', pcu) : false;
+            const restFul = this.restFulConnected ? this.restFul1.update('microinverters', pcus) : false;
 
             //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Microinverters', pcu) : false;
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Microinverters', pcus) : false;
             return true;
         } catch (error) {
             throw new Error(`Update pcu status error: ${error}`);
