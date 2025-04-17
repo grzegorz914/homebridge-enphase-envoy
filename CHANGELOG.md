@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.13.2] - (17.04.2025)
+
+## Changes
+
+- fix microinverters publish in v9.13.0 and v9.13.1
+- refresh grid profile and update status in runtime
+- display in envoy db size and percent full of db only if supported
+- display update status in envoy only if supported
+- stability and performance optimizations
+- cleanup
+
 ## [9.13.1] - (16.04.2025)
 
 ## Changes

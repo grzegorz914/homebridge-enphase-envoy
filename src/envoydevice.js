@@ -785,7 +785,7 @@ class EnvoyDevice extends EventEmitter {
             liveData: {
                 supported: false
             },
-            arfProfile: {
+            gridProfile: {
                 supported: false
             },
             productionState: {
@@ -813,7 +813,7 @@ class EnvoyDevice extends EventEmitter {
                 }
             },
             inventory: {
-                pcu: [],
+                pcus: [],
                 qRelays: [],
                 acBatteries: {
                     devices: []
@@ -850,7 +850,7 @@ class EnvoyDevice extends EventEmitter {
                 generator: {}
             },
             liveData: {},
-            arfProfile: {},
+            gridProfile: {},
             checkJwtTokenRunning: false,
             cookie: false,
             productionState: false,
@@ -864,18 +864,18 @@ class EnvoyDevice extends EventEmitter {
 
         //create impulse generator
         this.impulseGenerator = new ImpulseGenerator();
-        this.impulseGenerator.on('updateProductionState', async () => {
-            try {
-                const tokenValid = await this.checkJwtToken();
-                const updateProductionState = !tokenValid ? false : await this.updateProductionState();
-            } catch (error) {
-                this.handleError(error);
-            };
-        }).on('updateHome', async () => {
+        this.impulseGenerator.on('updateHomeAndInventory', async () => {
             try {
                 const tokenValid = await this.checkJwtToken();
                 const updateHome = !tokenValid ? false : await this.updateHome();
                 const updateInventory = updateHome ? await this.updateInventory() : false;
+            } catch (error) {
+                this.handleError(error);
+            };
+        }).on('updatePcuStatus', async () => {
+            try {
+                const tokenValid = await this.checkJwtToken();
+                const updatePcuStatus = !tokenValid ? false : await this.updatePcuStatus();
             } catch (error) {
                 this.handleError(error);
             };
@@ -887,18 +887,11 @@ class EnvoyDevice extends EventEmitter {
             } catch (error) {
                 this.handleError(error);
             };
-        }).on('updatePcu', async () => {
-            try {
-                const tokenValid = await this.checkJwtToken();
-                const updatePcuStatus = !tokenValid ? false : await this.updatePcuStatus();
-            } catch (error) {
-                this.handleError(error);
-            };
         }).on('updateProduction', async () => {
             try {
                 const tokenValid = await this.checkJwtToken();
-                const updateProduction = tokenValid && this.feature.production.supported ? await this.updateProduction() : false;
-                const updateProductionPdm = tokenValid && this.feature.productionPdm.supported ? await this.updateProductionPdm() : false;
+                const updateProduction = !tokenValid || !this.feature.production.supported ? false : await this.updateProduction();
+                const updateProductionPdm = !tokenValid || !this.feature.productionPdm.supported ? false : await this.updateProductionPdm();
                 const updateEnergyPdm = updateProductionPdm ? await this.updateEnergyPdm() : false;
                 const updateProductionCt = updateProduction || updateProductionPdm ? await this.updateProductionCt() : false;
             } catch (error) {
@@ -922,6 +915,15 @@ class EnvoyDevice extends EventEmitter {
             try {
                 const tokenValid = await this.checkJwtToken();
                 const updateLiveData = !tokenValid ? false : await this.updateLiveData();
+            } catch (error) {
+                this.handleError(error);
+            };
+        }).on('updateGridPlcAndProductionState', async () => {
+            try {
+                const tokenValid = await this.checkJwtToken();
+                const updateGridprofile = !tokenValid || !this.feature.gridProfile.supported ? false : await this.updateGridProfile();
+                const updatePlcLevel = !tokenValid || !this.feature.plcLevel.supported ? false : await this.updatePlcLevel();
+                const updateProductionState = !tokenValid ? false : await this.updateProductionState();
             } catch (error) {
                 this.handleError(error);
             };
@@ -1008,7 +1010,7 @@ class EnvoyDevice extends EventEmitter {
             const envoyInfoBuildInfo = envoyInfo.build_info;
             const info = {
                 time: new Date(envoyInfo.time * 1000).toLocaleString(),
-                serialNumber: envoyInfoDevice.sn.toString(),
+                serialNumber: envoyInfoDevice.sn ? envoyInfoDevice.sn.toString() : false,
                 partNumber: envoyInfoDevice.pn,
                 modelName: PartNumbers[envoyInfoDevice.pn] ?? envoyInfoDevice.pn,
                 software: envoyInfoDevice.software,
@@ -1028,7 +1030,8 @@ class EnvoyDevice extends EventEmitter {
 
             //check serial number
             if (!info.serialNumber) {
-                throw new Error(`Envoy serial number missing: ${info.serialNumber}`);
+                this.emit('warn', `Envoy serial number missing!`);
+                return null;
             };
             this.pv.envoy.info = info;
 
@@ -1113,12 +1116,12 @@ class EnvoyDevice extends EventEmitter {
     async checkJwtToken() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting check JWT token`) : false;
 
-        if (this.pv.envoy.firmware < 700) {
-            return true;
-        };
-
         if (this.pv.checkJwtTokenRunning) {
             return null;
+        };
+
+        if (this.pv.envoy.firmware < 700) {
+            return true;
         };
 
         try {
@@ -1261,9 +1264,23 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
-    async getEnvoyBackboneApp() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting envoy backbone app`) : false;
+    async getEnvoyDevId() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting envoy dev Id`) : false;
         try {
+            //read envoy dev id from file
+            try {
+                const response = await this.readData(this.envoyIdFile);
+                const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${response.toString().length === 9 ? 'Exist' : 'Missing'}`) : false;
+                const envoyDevId = response.toString() ?? '';
+                if (envoyDevId.length === 9) {
+                    this.pv.envoy.devId = envoyDevId;
+                    return true;
+                }
+            } catch (error) {
+                this.emit('warn', `Read envoy dev Id from file error, trying from device: ${error}`)
+            };
+
+            //read envoy dev id from device
             const response = await this.axiosInstance(ApiUrls.BackboneApplication);
             const envoyBackboneApp = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Envoy backbone app:`, envoyBackboneApp) : false;
@@ -1274,14 +1291,14 @@ class EnvoyDevice extends EventEmitter {
 
             //check envoy dev Id exist
             if (startIndex === -1) {
-                this.emit('warn', `Envoy dev Id in backbone app not found, dont worry all working correct, only the power production control will not be possible`);
+                this.emit('warn', `Envoy dev Id in device not found, dont worry all working correct, only the power production control will not be possible`);
                 return null;
             }
 
             const substringStartIndex = startIndex + keyword.length;
             const envoyDevId = envoyBackboneApp.substr(substringStartIndex, 9);
             if (envoyDevId.length !== 9) {
-                this.emit('warn', `Envoy dev Id: ${envoyDevId} in backbone app have wrong format, dont worry all working correct, only the power production control will not be possible`);
+                this.emit('warn', `Envoy dev Id: ${envoyDevId} indevice have wrong format, dont worry all working correct, only the power production control will not be possible`);
                 return null;
             }
 
@@ -1296,103 +1313,8 @@ class EnvoyDevice extends EventEmitter {
             this.feature.backboneApp.supported = true;
             return true;
         } catch (error) {
-            this.emit('warn', `Get backbone app error: ${error}, dont worry all working correct, only the power production control will not be possible`);
+            this.emit('warn', `Get envoy dev Id from device error: ${error}, dont worry all working correct, only the power production control will not be possible`);
             return null;
-        };
-    };
-
-    async updateProductionState() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production state`) : false;
-        try {
-            const options = {
-                method: 'GET',
-                baseURL: this.url,
-                headers: {
-                    Accept: 'application/json'
-                }
-            }
-
-            const url = ApiUrls.PowerForcedModeGetPut.replace("EID", this.pv.envoy.devId);
-            const response = this.pv.envoy.firmware7xx ? await this.axiosInstance(url) : await this.digestAuthInstaller.request(url, options);
-            const productionState = response.data;
-            const debug = this.enableDebugMode ? this.emit('debug', `Power mode:`, productionState) : false;
-
-            //power production state
-            const productionStateKeys = Object.keys(productionState);
-            const productionStateSupported = productionStateKeys.includes('powerForcedOff');
-            if (productionStateSupported) {
-
-                //update power production control state
-                const state = productionState.powerForcedOff === false;
-                this.pv.productionState = state;
-
-                //update chaaracteristics
-                if (this.envoyService) {
-                    this.envoyService
-                        .updateCharacteristic(Characteristic.EnphaseEnvoyProductionPowerMode, state)
-                }
-
-                if (this.productionStateActiveControl) {
-                    this.productionStateActiveControl.state = state;
-
-                    if (this.productionStateControlService) {
-                        const characteristicType = this.productionStateActiveControl.characteristicType;
-                        this.productionStateControlService
-                            .updateCharacteristic(characteristicType, state)
-                    }
-                }
-
-                if (this.productionStateActiveSensor) {
-                    this.productionStateActiveSensor.state = state;
-
-                    if (this.productionStateSensorService) {
-                        const characteristicType = this.productionStateActiveSensor.characteristicType;
-                        this.productionStateSensorService
-                            .updateCharacteristic(characteristicType, state)
-                    }
-                }
-            }
-
-            //power production state supported
-            this.feature.productionState.supported = productionStateSupported;
-
-            //restFul
-            const restFul = this.restFulConnected ? this.restFul1.update('powermode', productionState) : false;
-
-            //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Power Mode', productionState) : false;
-            return true;
-        } catch (error) {
-            this.emit('warn', `Update production state error: ${error}, dont worry all working correct, only the production state monitoring sensor and comtrol will not be displayed`);
-        };
-    };
-
-    async updateGridProfile() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile`) : false;
-        try {
-            const response = await this.axiosInstance(ApiUrls.Profile);
-            const profile = response.data;
-            const debug = this.enableDebugMode ? this.emit('debug', `Grid profile:`, profile) : false;
-
-            //arf profile
-            const arfProfile = {
-                name: (profile.name).substring(0, 64) ?? false,
-                id: profile.id ?? 0,
-                version: profile.version ?? '',
-                itemCount: profile.item_count ?? 0
-            }
-            const arfProfileSupported = arfProfile.name !== false;
-            this.pv.arfProfile = arfProfileSupported ? arfProfile : {};
-            this.feature.arfProfile.supported = arfProfileSupported;
-
-            //restFul
-            const restFul = this.restFulConnected ? this.restFul1.update('gridprofile', profile) : false;
-
-            //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Grid Profile', profile) : false;
-            return true;
-        } catch (error) {
-            this.emit('warn', 'Arf Profile not supported, dont worry all working correct, only the profile name will not be displayed')
         };
     };
 
@@ -1419,8 +1341,8 @@ class EnvoyDevice extends EventEmitter {
             const home = {};
             home.softwareBuildEpoch = new Date(envoy.software_build_epoch * 1000).toLocaleString();
             home.isEnvoy = envoy.is_nonvoy === false ?? true;
-            home.dbSize = envoy.db_size ?? 0;
-            home.dbPercentFull = envoy.db_percent_full ?? 0;
+            home.dbSize = envoy.db_size ?? -1;
+            home.dbPercentFull = envoy.db_percent_full ?? -1;
             home.timeZone = envoy.timezone ?? 'Unknown';
             home.currentDate = new Date(envoy.current_date).toLocaleString().slice(0, 11) ?? 'Unknown';
             home.currentTime = envoy.current_time ?? 'Unknown';
@@ -1481,7 +1403,7 @@ class EnvoyDevice extends EventEmitter {
             };
 
             home.alerts = (Array.isArray(envoy.alerts) && (envoy.alerts).length > 0) ? ((envoy.alerts).map(a => ApiCodes[a.msg_key] || a.msg_key).join(', ')).substring(0, 64) : 'No alerts';
-            home.updateStatus = ApiCodes[envoy.update_status] ?? 'Unknown';
+            home.updateStatus = ApiCodes[envoy.update_status];
 
             //wireless connection kit
             const wirelessConnectionsData = wirelessConnectionsSupported ? envoy.wireless_connection : [];
@@ -1514,7 +1436,6 @@ class EnvoyDevice extends EventEmitter {
             if (this.envoyService) {
                 this.envoyService
                     .updateCharacteristic(Characteristic.EnphaseEnvoyAlerts, home.alerts)
-                    .updateCharacteristic(Characteristic.EnphaseEnvoyDbSize, `${home.dbSize} / ${home.dbPercentFull} %`)
                     .updateCharacteristic(Characteristic.EnphaseEnvoyTimeZone, home.timeZone)
                     .updateCharacteristic(Characteristic.EnphaseEnvoyCurrentDateTime, `${home.currentDate} ${home.currentTime}`)
                     .updateCharacteristic(Characteristic.EnphaseEnvoyNetworkWebComm, home.network.webComm)
@@ -1525,9 +1446,12 @@ class EnvoyDevice extends EventEmitter {
                     .updateCharacteristic(Characteristic.EnphaseEnvoyCommNumAndLevel, `${home.comm.num} / ${home.comm.level} %`)
                     .updateCharacteristic(Characteristic.EnphaseEnvoyCommNumPcuAndLevel, `${home.comm.pcuNum} / ${home.comm.pcuLevel} %`)
                     .updateCharacteristic(Characteristic.EnphaseEnvoyCommNumNsrbAndLevel, `${home.comm.nsrbNum} / ${home.comm.nsrbLevel} %`);
-                if (this.feature.arfProfile.supported) {
+                if (home.dbSize !== -1 && home.dbPercentFull !== -1) {
+                    this.envoyService.updateCharacteristic(Characteristic.EnphaseEnvoyDbSize, `${home.dbSize} / ${home.dbPercentFull} %`)
+                }
+                if (this.feature.gridProfile.supported) {
                     this.envoyService
-                        .updateCharacteristic(Characteristic.EnphaseEnvoyGridProfile, this.pv.arfProfile.name);
+                        .updateCharacteristic(Characteristic.EnphaseEnvoyGridProfile, this.pv.gridProfile.name);
                 }
                 if (this.feature.acBatteries.installed) {
                     this.envoyService
@@ -1536,6 +1460,9 @@ class EnvoyDevice extends EventEmitter {
                 if (this.feature.encharges.installed) {
                     this.envoyService
                         .updateCharacteristic(Characteristic.EnphaseEnvoyCommNumEnchgAndLevel, `${home.comm.encharges[0].num} / ${home.comm.encharges[0].level} %`)
+                }
+                if (home.updateStatus) {
+                    this.envoyService.updateCharacteristic(Characteristic.EnphaseEnvoyUpdateStatus, home.updateStatus)
                 }
             }
 
@@ -1578,12 +1505,12 @@ class EnvoyDevice extends EventEmitter {
 
             //pcu inventory
             const pcuSupported = inventoryKeys.includes('PCU');
-            const pcu = pcuSupported ? inventory[0].devices.slice(0, 70) : []; // Limit to 70 pcu
-            const pcuInstalled = pcu.length > 0;
+            const pcus = pcuSupported ? inventory[0].devices.slice(0, 70) : []; // Limit to 70 pcu
+            const pcuInstalled = pcus.length > 0;
             if (pcuInstalled) {
-                const pcu = [];
+                const pcusArr = [];
                 const type = ApiCodes[inventory[0].type] ?? 'Unknown';
-                pcu.forEach((pcu, index) => {
+                pcus.forEach((pcu, index) => {
                     const obj = {
                         type: type,
                         partNum: PartNumbers[pcu.part_num] ?? 'Microinverter',
@@ -1606,7 +1533,7 @@ class EnvoyDevice extends EventEmitter {
                         phase: pcu.phase ?? 'Unknown'
                     }
                     //add obj to pcu array
-                    pcu.push(obj);
+                    pcusArr.push(obj);
 
                     //update chaaracteristics
                     if (this.pcuServices) {
@@ -1618,20 +1545,20 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.EnphaseMicroinverterCommunicating, obj.communicating)
                             .updateCharacteristic(Characteristic.EnphaseMicroinverterProvisioned, obj.provisioned)
                             .updateCharacteristic(Characteristic.EnphaseMicroinverterOperating, obj.operating);
-                        if (this.feature.arfProfile.supported) {
+                        if (this.feature.gridProfile.supported) {
                             this.pcuServices[index]
-                                .updateCharacteristic(Characteristic.EnphaseMicroinverterGridProfile, this.pv.arfProfile.name);
+                                .updateCharacteristic(Characteristic.EnphaseMicroinverterGridProfile, this.pv.gridProfile.name);
                         }
                     }
                 });
 
                 //add array to pv pcu
-                this.pv.inventory.pcu = pcu;
+                this.pv.inventory.pcus = pcusArr;
             }
             //pcu
             this.feature.pcu.supported = pcuSupported;
             this.feature.pcu.installed = pcuInstalled;
-            this.feature.pcu.count = pcu.length;
+            this.feature.pcu.count = pcus.length;
 
             //ac batteries inventory
             const acBatteriesSupported = inventoryKeys.includes('ACB');
@@ -1786,9 +1713,9 @@ class EnvoyDevice extends EventEmitter {
                             this.qRelaysServices[index]
                                 .updateCharacteristic(Characteristic.EnphaseQrelayLine3Connected, obj.line3Connected);
                         }
-                        if (this.feature.arfProfile.supported) {
+                        if (this.feature.gridProfile.supported) {
                             this.qRelaysServices[index]
-                                .updateCharacteristic(Characteristic.EnphaseQrelayGridProfile, this.pv.arfProfile.name);
+                                .updateCharacteristic(Characteristic.EnphaseQrelayGridProfile, this.pv.gridProfile.name);
                         }
                     }
                 });
@@ -1859,6 +1786,61 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             throw new Error(`Update inventory error: ${error}`);
+        };
+    };
+
+    async updatePcuStatus() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting pcu status`) : false;
+        try {
+            const options = {
+                method: 'GET',
+                baseURL: this.url,
+                headers: {
+                    Accept: 'application/json'
+                }
+            }
+
+            const response = this.pv.envoy.firmware7xx ? await this.axiosInstance(ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(ApiUrls.InverterProduction, options);
+            const pcus = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Pcu status:`, pcu) : false;
+
+            //pcu devices count
+            const pcuStatusSupported = pcus.length > 0;
+            if (pcuStatusSupported) {
+                this.pv.inventory.pcus.forEach((pcu, index) => {
+                    const index1 = pcus.findIndex(device => device.serialNumber == pcu.serialNumber);
+                    const pcuProduction = pcus[index1];
+                    const obj = {
+                        type: pcuProduction.devType ?? 'Microinverter',
+                        lastReportDate: new Date(pcuProduction.lastReportDate * 1000).toLocaleString(),
+                        lastReportWatts: parseInt(pcuProduction.lastReportWatts) ?? 0,
+                        maxReportWatts: parseInt(pcuProduction.maxReportWatts) ?? 0,
+                    }
+
+                    //add pcu power to pv object
+                    this.pv.inventory.pcus[index].status = obj;
+
+                    //update chaaracteristics
+                    if (this.pcuServices) {
+                        this.pcuServices[index]
+                            .updateCharacteristic(Characteristic.EnphaseMicroinverterLastReportDate, obj.lastReportDate)
+                            .updateCharacteristic(Characteristic.EnphaseMicroinverterPower, obj.lastReportWatts)
+                            .updateCharacteristic(Characteristic.EnphaseMicroinverterPowerMax, obj.maxReportWatts)
+                    }
+                });
+            }
+
+            //pcu supported
+            this.feature.pcu.status.supported = pcuStatusSupported;
+
+            //restFul
+            const restFul = this.restFulConnected ? this.restFul1.update('microinverters', pcu) : false;
+
+            //mqtt
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Microinverters', pcu) : false;
+            return true;
+        } catch (error) {
+            throw new Error(`Update pcu status error: ${error}`);
         };
     };
 
@@ -2011,63 +1993,6 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             throw new Error(`Update meters reading error: ${error}`);
-        };
-    };
-
-    async updatePcuStatus() {
-        const debug = this.enableDebugMode ? this.emit('debug', `Requesting pcu status`) : false;
-        try {
-            const options = {
-                method: 'GET',
-                baseURL: this.url,
-                headers: {
-                    Accept: 'application/json'
-                }
-            }
-
-            const response = this.pv.envoy.firmware7xx ? await this.axiosInstance(ApiUrls.InverterProduction) : await this.digestAuthEnvoy.request(ApiUrls.InverterProduction, options);
-            const pcu = response.data;
-            const debug = this.enableDebugMode ? this.emit('debug', `Pcu status:`, pcu) : false;
-
-            //pcu devices count
-            const pcuStatusSupported = pcu.length > 0;
-            if (pcuStatusSupported) {
-
-                //pcu power
-                this.pv.inventory.pcu.forEach((pcu, index) => {
-                    const index1 = pcu.findIndex(device => device.serialNumber == pcu.serialNumber);
-                    const pcuProduction = pcu[index1];
-                    const obj = {
-                        type: pcuProduction.devType ?? 'Microinverter',
-                        lastReportDate: new Date(pcuProduction.lastReportDate * 1000).toLocaleString(),
-                        lastReportWatts: parseInt(pcuProduction.lastReportWatts) ?? 0,
-                        maxReportWatts: parseInt(pcuProduction.maxReportWatts) ?? 0,
-                    }
-
-                    //add pcu power to pv object
-                    this.pv.inventory.pcu[index].status = obj;
-
-                    //update chaaracteristics
-                    if (this.pcuServices) {
-                        this.pcuServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseMicroinverterLastReportDate, obj.lastReportDate)
-                            .updateCharacteristic(Characteristic.EnphaseMicroinverterPower, obj.lastReportWatts)
-                            .updateCharacteristic(Characteristic.EnphaseMicroinverterPowerMax, obj.maxReportWatts)
-                    }
-                });
-            }
-
-            //pcu supported
-            this.feature.pcu.status.supported = pcuStatusSupported;
-
-            //restFul
-            const restFul = this.restFulConnected ? this.restFul1.update('microinverters', pcu) : false;
-
-            //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Microinverters', pcu) : false;
-            return true;
-        } catch (error) {
-            throw new Error(`Update pcu status error: ${error}`);
         };
     };
 
@@ -2934,9 +2859,9 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.EnphaseEnchargeDcSwitchOff, obj.dcSwitchOff)
                                 .updateCharacteristic(Characteristic.EnphaseEnchargeRev, obj.rev)
                                 .updateCharacteristic(Characteristic.EnphaseEnchargeCapacity, obj.capacity);
-                            if (this.feature.arfProfile.supported) {
+                            if (this.feature.gridProfile.supported) {
                                 this.enchargesServices[index]
-                                    .updateCharacteristic(Characteristic.EnphaseEnchargeGridProfile, this.pv.arfProfile.name);
+                                    .updateCharacteristic(Characteristic.EnphaseEnchargeGridProfile, this.pv.gridProfile.name);
                             }
                         }
                     });
@@ -3032,9 +2957,9 @@ class EnvoyDevice extends EventEmitter {
                                 .updateCharacteristic(Characteristic.EnphaseEnpowerMainsOperState, obj.mainsOperState)
                                 .updateCharacteristic(Characteristic.EnphaseEnpowerEnpwrGridMode, obj.enpwrGridModeTranslated)
                                 .updateCharacteristic(Characteristic.EnphaseEnpowerEnchgGridMode, obj.enchgGridModeTranslated);
-                            if (this.feature.arfProfile.supported) {
+                            if (this.feature.gridProfile.supported) {
                                 this.enpowersServices[index]
-                                    .updateCharacteristic(Characteristic.EnphaseEnpowerGridProfile, this.pv.arfProfile.name);
+                                    .updateCharacteristic(Characteristic.EnphaseEnpowerGridProfile, this.pv.gridProfile.name);
                             }
                         }
 
@@ -4190,6 +4115,36 @@ class EnvoyDevice extends EventEmitter {
         };
     };
 
+    async updateGridProfile() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting grid profile`) : false;
+        try {
+            const response = await this.axiosInstance(ApiUrls.Profile);
+            const profile = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Grid profile:`, profile) : false;
+
+            //arf profile
+            const gridProfile = {
+                name: profile.name ? profile.name.substring(0, 64) : false,
+                id: profile.id ?? 0,
+                version: profile.version ?? '',
+                itemCount: profile.item_count ?? 0
+            }
+
+            const gridProfileSupported = gridProfile.name !== false;
+            this.pv.gridProfile = gridProfileSupported ? gridProfile : {};
+            this.feature.gridProfile.supported = gridProfileSupported;
+
+            //restFul
+            const restFul = this.restFulConnected ? this.restFul1.update('gridprofile', profile) : false;
+
+            //mqtt
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Grid Profile', profile) : false;
+            return true;
+        } catch (error) {
+            this.emit('warn', 'Arf Profile not supported, dont worry all working correct, only the profile name will not be displayed')
+        };
+    };
+
     async updatePlcLevel() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting plc level`) : false;
         try {
@@ -4207,12 +4162,12 @@ class EnvoyDevice extends EventEmitter {
 
             // get comm level data
             if (this.feature.pcu.installed) {
-                this.pv.inventory.pcu.forEach((pcu, index) => {
+                this.pv.inventory.pcus.forEach((pcu, index) => {
                     const key = `${pcu.serialNumber}`;
                     const value = (plcLevel[key] ?? 0) * 20 ?? 0;
 
                     //add pcu comm level to pcu and pv object
-                    this.pv.inventory.pcu[index].commLevel = value;
+                    this.pv.inventory.pcus[index].commLevel = value;
 
                     if (this.pcuServices) {
                         this.pcuServices[index]
@@ -4296,8 +4251,73 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'PLC Level', plcLevel) : false;
             return true;
         } catch (error) {
-            throw new Error(`Update plc level error: ${error}`);
             this.emit('warn', `Update plc level error: ${error}, dont worry all working correct, only the plc level control will not be displayed`);
+        };
+    };
+
+    async updateProductionState() {
+        const debug = this.enableDebugMode ? this.emit('debug', `Requesting production state`) : false;
+        try {
+            const options = {
+                method: 'GET',
+                baseURL: this.url,
+                headers: {
+                    Accept: 'application/json'
+                }
+            }
+
+            const url = ApiUrls.PowerForcedModeGetPut.replace("EID", this.pv.envoy.devId);
+            const response = this.pv.envoy.firmware7xx ? await this.axiosInstance(url) : await this.digestAuthInstaller.request(url, options);
+            const productionState = response.data;
+            const debug = this.enableDebugMode ? this.emit('debug', `Power mode:`, productionState) : false;
+
+            //power production state
+            const productionStateKeys = Object.keys(productionState);
+            const productionStateSupported = productionStateKeys.includes('powerForcedOff');
+            if (productionStateSupported) {
+
+                //update power production control state
+                const state = productionState.powerForcedOff === false;
+                this.pv.productionState = state;
+
+                //update chaaracteristics
+                if (this.envoyService) {
+                    this.envoyService
+                        .updateCharacteristic(Characteristic.EnphaseEnvoyProductionPowerMode, state)
+                }
+
+                if (this.productionStateActiveControl) {
+                    this.productionStateActiveControl.state = state;
+
+                    if (this.productionStateControlService) {
+                        const characteristicType = this.productionStateActiveControl.characteristicType;
+                        this.productionStateControlService
+                            .updateCharacteristic(characteristicType, state)
+                    }
+                }
+
+                if (this.productionStateActiveSensor) {
+                    this.productionStateActiveSensor.state = state;
+
+                    if (this.productionStateSensorService) {
+                        const characteristicType = this.productionStateActiveSensor.characteristicType;
+                        this.productionStateSensorService
+                            .updateCharacteristic(characteristicType, state)
+                    }
+                }
+            }
+
+            //power production state supported
+            this.feature.productionState.supported = productionStateSupported;
+
+            //restFul
+            const restFul = this.restFulConnected ? this.restFul1.update('powermode', productionState) : false;
+
+            //mqtt
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Power Mode', productionState) : false;
+            return true;
+        } catch (error) {
+            this.emit('warn', `Update production state error: ${error}, dont worry all working correct, only the production state monitoring sensor and comtrol will not be displayed`);
         };
     };
 
@@ -4704,7 +4724,7 @@ class EnvoyDevice extends EventEmitter {
             const envoySerialNumber = this.pv.envoy.info.serialNumber;
             const productionStateSupported = this.feature.productionState.supported;
             const plcLevelSupported = this.feature.plcLevel.supported;
-            const arfProfileSupported = this.feature.arfProfile.supported;
+            const gridProfileSupported = this.feature.gridProfile.supported;
             const wirelessConnectionsInstalled = this.feature.wirelessConnections.installed;
             const pcuInstalled = this.feature.pcu.installed;
             const pcuStatusSupported = this.feature.pcu.status.supported;
@@ -4966,24 +4986,28 @@ class EnvoyDevice extends EventEmitter {
                             return value;
                         });
                 }
-                envoyService.getCharacteristic(Characteristic.EnphaseEnvoyDbSize)
-                    .onGet(async () => {
-                        const value = `${this.pv.envoy.home.dbSize} / ${this.pv.envoy.home.dbPercentFull} %`;
-                        const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, data base size: ${value}`);
-                        return value;
-                    });
+                if (this.pv.envoy.home.dbSize !== -1 && this.pv.envoy.home.dbPercentFull !== -1) {
+                    envoyService.getCharacteristic(Characteristic.EnphaseEnvoyDbSize)
+                        .onGet(async () => {
+                            const value = `${this.pv.envoy.home.dbSize} / ${this.pv.envoy.home.dbPercentFull} %`;
+                            const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, data base size: ${value}`);
+                            return value;
+                        });
+                }
                 envoyService.getCharacteristic(Characteristic.EnphaseEnvoyTariff)
                     .onGet(async () => {
                         const value = this.pv.envoy.home.tariff;
                         const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, tariff: ${value}`);
                         return value;
                     });
-                envoyService.getCharacteristic(Characteristic.EnphaseEnvoyUpdateStatus)
-                    .onGet(async () => {
-                        const value = this.pv.envoy.home.updateStatus;
-                        const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, update status: ${value}`);
-                        return value;
-                    });
+                if (this.pv.envoy.home.updateStatus) {
+                    envoyService.getCharacteristic(Characteristic.EnphaseEnvoyUpdateStatus)
+                        .onGet(async () => {
+                            const value = this.pv.envoy.home.updateStatus;
+                            const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, update status: ${value}`);
+                            return value;
+                        });
+                }
                 envoyService.getCharacteristic(Characteristic.EnphaseEnvoyFirmware)
                     .onGet(async () => {
                         const value = this.pv.envoy.info.software;
@@ -5042,10 +5066,10 @@ class EnvoyDevice extends EventEmitter {
                             };
                         });
                 }
-                if (arfProfileSupported) {
+                if (gridProfileSupported) {
                     envoyService.getCharacteristic(Characteristic.EnphaseEnvoyGridProfile)
                         .onGet(async () => {
-                            const value = this.pv.arfProfile.name;
+                            const value = this.pv.gridProfile.name;
                             const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, grid profile: ${value}`);
                             return value;
                         });
@@ -5139,7 +5163,7 @@ class EnvoyDevice extends EventEmitter {
             //pcu
             if (pcuInstalled) {
                 this.pcuServices = [];
-                for (const pcu of this.pv.inventory.pcu) {
+                for (const pcu of this.pv.inventory.pcus) {
                     const serialNumber = pcu.serialNumber;
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Microinverter ${serialNumber} Service`) : false;
                     const pcuService = accessory.addService(Service.EnphaseMicroinverterService, `Microinverter ${serialNumber}`, `pcuService${serialNumber}`);
@@ -5208,10 +5232,10 @@ class EnvoyDevice extends EventEmitter {
                             const info = this.disableLogInfo ? false : this.emit('info', `Microinverter: ${serialNumber}, last report: ${value}`);
                             return value;
                         });
-                    if (arfProfileSupported) {
+                    if (gridProfileSupported) {
                         pcuService.getCharacteristic(Characteristic.EnphaseMicroinverterGridProfile)
                             .onGet(async () => {
-                                const value = this.pv.arfProfile.name;
+                                const value = this.pv.gridProfile.name;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Microinverter: ${serialNumber}, grid profile: ${value}`);
                                 return value;
                             });
@@ -5333,10 +5357,10 @@ class EnvoyDevice extends EventEmitter {
                             const info = this.disableLogInfo ? false : this.emit('info', `Q-Relay: ${serialNumber}, last report: ${value}`);
                             return value;
                         });
-                    if (arfProfileSupported) {
+                    if (gridProfileSupported) {
                         qrelayService.getCharacteristic(Characteristic.EnphaseQrelayGridProfile)
                             .onGet(async () => {
-                                const value = this.pv.arfProfile.name;
+                                const value = this.pv.gridProfile.name;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Q-Relay: ${serialNumber}, grid profile: ${value}`);
                                 return value;
                             });
@@ -6637,10 +6661,10 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('info', `${enchargeName}: ${serialNumber}, revision: ${value}`);
                                 return value;
                             });
-                        if (arfProfileSupported) {
+                        if (gridProfileSupported) {
                             enchargeService.getCharacteristic(Characteristic.EnphaseEnchargeGridProfile)
                                 .onGet(async () => {
-                                    const value = this.pv.arfProfile.name;
+                                    const value = this.pv.gridProfile.name;
                                     const info = this.disableLogInfo ? false : this.emit('info', `${enchargeName}: ${serialNumber}, grid profile: ${value}`);
                                     return value;
                                 });
@@ -6846,10 +6870,10 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('info', `Enpower: ${serialNumber}, ${enchargeName} grid mode: ${value}`);
                                 return value;
                             });
-                        if (arfProfileSupported) {
+                        if (gridProfileSupported) {
                             enpowerService.getCharacteristic(Characteristic.EnphaseEnpowerGridProfile)
                                 .onGet(async () => {
-                                    const value = this.pv.arfProfile.name;
+                                    const value = this.pv.gridProfile.name;
                                     const info = this.disableLogInfo ? false : this.emit('info', `Enpower: ${serialNumber}, grid profile: ${value}`);
                                     return value;
                                 });
@@ -7120,17 +7144,19 @@ class EnvoyDevice extends EventEmitter {
     async start() {
         const debug = this.enableDebugMode ? this.emit('debug', `Start`) : false;
         try {
-            //read envoy dev id from file
-            try {
-                const response = await this.readData(this.envoyIdFile);
-                const debug = this.enableDebugMode ? this.emit('debug', `Envoy dev Id from file: ${response.toString().length === 9 ? 'Exist' : 'Missing'}`) : false;
-                this.pv.envoy.devId = response.toString().length === 9 ? response.toString() : this.pv.envoy.devId;
-            } catch (error) {
-                this.emit('warn', `Read envoy dev Id from file error: ${error}`)
+            //get pv info
+            const updateInfo = await this.updateInfo();
+            if (!updateInfo) {
+                return null;
             };
+            const firmware7xx = this.pv.envoy.firmware >= 700;
+
+            //calculate envoy and installer passwords for FW < 7.0.0
+            const digestAuthorizationEnvoy = !firmware7xx ? await this.digestAuthorizationEnvoy() : false;
+            const digestAuthorizationInstaller = !firmware7xx ? await this.digestAuthorizationInstaller() : false;
 
             //read JWT token from file
-            if (this.envoyFirmware7xxTokenGenerationMode === 1) {
+            if (firmware7xx && this.envoyFirmware7xxTokenGenerationMode === 1) {
                 try {
                     const data = await this.readData(this.envoyTokenFile);
                     const parsedData = JSON.parse(data);
@@ -7141,41 +7167,25 @@ class EnvoyDevice extends EventEmitter {
                 };
             };
 
-            //get envoy info
-            const updateInfo = await this.updateInfo();
-
-            //calculate envoy and installer passwords
-            const digestAuthorizationEnvoy = this.pv.envoy.firmware < 700 && updateInfo ? await this.digestAuthorizationEnvoy() : false;
-            const digestAuthorizationInstaller = this.pv.envoy.firmware < 700 && updateInfo ? await this.digestAuthorizationInstaller() : false;
-
-            //get and validate jwt token
-            const tokenValid = this.pv.envoy.firmware >= 700 ? await this.checkJwtToken() : false;
-            if (this.pv.envoy.firmware >= 700 && !tokenValid) {
+            //get and validate JWT token
+            const tokenValid = await this.checkJwtToken();
+            if (!tokenValid) {
                 return null;
             };
 
-            //read envoy dev id from app
-            const envoyDevIdValid = this.pv.envoy.devId.length === 9 && updateInfo ? true : await this.getEnvoyBackboneApp();
-
-            //get production state
-            const refreshProductionState = envoyDevIdValid && ((this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller) ? await this.updateProductionState() : false;
-
-            //update grid profile
-            const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
-
             //get home and inventory
-            const refreshHome = updateInfo ? await this.updateHome() : false;
+            const refreshHome = await this.updateHome();
             const updateInventory = refreshHome ? await this.updateInventory() : false;
+
+            //get pcu status
+            const refreshPcuStatus = tokenValid || digestAuthorizationEnvoy ? await this.updatePcuStatus() : false;
 
             //get meters
             const refreshMeters = this.feature.meters.supported ? await this.updateMeters() : false;
             const updateMetersReading = refreshMeters ? await this.updateMetersReading() : false;
 
-            //acces with envoy password
-            const refreshPcu = tokenValid || digestAuthorizationEnvoy ? await this.updatePcuStatus() : false;
-
             //get production
-            const refreshProduction = this.pv.envoy.firmware < 824 ? await this.updateProduction() : false;
+            const refreshProduction = tokenValid && this.pv.envoy.firmware < 824 ? await this.updateProduction() : false;
 
             //get production and energy pdm ab FW. 8.2.4xx
             const refreshProductionPdm = tokenValid && this.pv.envoy.firmware >= 824 ? await this.updateProductionPdm() : false;
@@ -7197,8 +7207,17 @@ class EnvoyDevice extends EventEmitter {
             //get live data
             const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
+            //get grid profile ab FW. >= 7.x.x.
+            const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
+
             //get plc communication level
-            const updatePlcLevel = (this.pv.envoy.jwtToken.installer && tokenValid) || digestAuthorizationInstaller ? await this.updatePlcLevel() : false;
+            const updatePlcLevel = (tokenValid && this.pv.envoy.jwtToken.installer) || digestAuthorizationInstaller ? await this.updatePlcLevel() : false;
+
+            //get envoy dev id
+            const envoyDevIdValid = (tokenValid && this.pv.envoy.jwtToken.installer) || digestAuthorizationInstaller ? await this.getEnvoyDevId() : false;
+
+            //get production state
+            const refreshProductionState = envoyDevIdValid ? await this.updateProductionState() : false;
 
             //connect to deice success
             this.emit('success', `Connect Success`)
@@ -7216,13 +7235,13 @@ class EnvoyDevice extends EventEmitter {
 
             //create timers
             this.timers = [];
-            const pushTimer = refreshProductionState ? this.timers.push({ name: 'updateProductionState', sampling: 10000 }) : false;
-            const pushTimer0 = refreshHome ? this.timers.push({ name: 'updateHome', sampling: 60000 }) : false;
-            const pushTimer1 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
-            const pushTimer3 = refreshPcu ? this.timers.push({ name: 'updatePcu', sampling: 80000 }) : false;
-            const pushTimer2 = refreshProduction || refreshProductionPdm ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
+            const pushTimer = refreshHome ? this.timers.push({ name: 'updateHomeAndInventory', sampling: 90000 }) : false;
+            const pushTimer1 = refreshPcuStatus ? this.timers.push({ name: 'updatePcuStatus', sampling: 120000 }) : false;
+            const pushTimer2 = refreshMeters ? this.timers.push({ name: 'updateMeters', sampling: this.metersDataRefreshTime }) : false;
+            const pushTimer3 = refreshProduction || refreshProductionPdm ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
             const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
             const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
+            const pushTimer6 = updateGridProfile || updatePlcLevel || refreshProductionState ? this.timers.push({ name: 'updateGridPlcAndProductionState', sampling: 25000 }) : false;
 
             return true;
         } catch (error) {
