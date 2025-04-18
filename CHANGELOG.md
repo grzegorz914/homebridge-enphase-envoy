@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.13.4] - (18.04.2025)
+
+## Changes
+
+- fix power peak level display and detected in consumption total and net
+- cleanup
+
+## [9.13.3] - (18.04.2025)
+
+## Changes
+
+- fix reference error in debug mode
+- cleanup
+
 ## [9.13.2] - (17.04.2025)
 
 ## Changes

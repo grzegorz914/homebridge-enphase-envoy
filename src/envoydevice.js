@@ -858,8 +858,11 @@ class EnvoyDevice extends EventEmitter {
             powerState: false,
             powerLevel: 0,
             productionPowerPeak: 0,
+            productionPowerPeakKw: 0,
             consumptionTotalPowerPeak: 0,
-            consumptionNetPowerPeak: 0
+            consumptionTotalPowerPeakKw: 0,
+            consumptionNetPowerPeak: 0,
+            consumptionNetPowerPeakKw: 0
         };
 
         //create impulse generator
@@ -1071,7 +1074,7 @@ class EnvoyDevice extends EventEmitter {
                 user: Authorization.EnvoyUser,
                 passwd: envoyPasswd
             });
-            this.pv.envoyPasswd = envoyPasswd;
+            this.pv.envoy.passwd = envoyPasswd;
 
             return true;
         } catch (error) {
@@ -1290,14 +1293,14 @@ class EnvoyDevice extends EventEmitter {
 
             //check envoy dev Id exist
             if (startIndex === -1) {
-                this.emit('warn', `Envoy dev Id in device not found, dont worry all working correct, only the power production control will not be possible`);
+                this.emit('warn', `Envoy dev Id not found, dont worry all working correct, only the power production control will not be possible`);
                 return null;
             }
 
             const substringStartIndex = startIndex + keyword.length;
             const envoyDevId = envoyBackboneApp.substr(substringStartIndex, 9);
             if (envoyDevId.length !== 9) {
-                this.emit('warn', `Envoy dev Id: ${envoyDevId} indevice have wrong format, dont worry all working correct, only the power production control will not be possible`);
+                this.emit('warn', `Envoy dev Id: ${envoyDevId} have wrong format, dont worry all working correct, only the power production control will not be possible`);
                 return null;
             }
 
@@ -2465,7 +2468,7 @@ class EnvoyDevice extends EventEmitter {
                         powerState: consumption.wNow > 0 ?? false,
                         powerPeak: consumption.wNow > storedConsumptionPower ? consumption.wNow : storedConsumptionPower,
                         powerPeakKw: consumption.wNow > storedConsumptionPower ? consumption.wNow / 1000 : storedConsumptionPower / 1000,
-                        powerPeakDetected: consumption.wNow > storedConsumptionPower ?? 0,
+                        powerPeakDetected: consumption.wNow > storedConsumptionPower ?? false,
                         energyState: consumption.whToday > 0 ?? false,
                         energyLifetime: (consumption.whLifetime + consumptionLifetimeOffset),
                         energyLifetimeKw: (consumption.whLifetime + consumptionLifetimeOffset) / 1000,
@@ -2509,7 +2512,7 @@ class EnvoyDevice extends EventEmitter {
                     //sensors total
                     if (measurementType === 'Consumption Total') {
                         //store power peak in pv object
-                        this.pv.consumptionTotalPowerPeak = obj.powerPeakKw;
+                        this.pv.consumptionTotalPowerPeak = obj.powerPeak;
 
                         //debug
                         const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;
@@ -2605,7 +2608,7 @@ class EnvoyDevice extends EventEmitter {
                     //sensors net
                     if (measurementType === 'Consumption Net') {
                         //store power peak in pv object
-                        this.pv.consumptionNetPowerPeak = obj.powerPeakKw;
+                        this.pv.consumptionNetPowerPeak = obj.powerPeak;
 
                         //debug
                         const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;
