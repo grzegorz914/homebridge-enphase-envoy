@@ -129,6 +129,7 @@ class EnvoyDevice extends EventEmitter {
         if (productionStateControlDisplayType > 0) {
             const tile = {};
             tile.name = this.productionStateControl.name || 'Production State Control';
+            tile.namePrefix = this.productionStateControl.namePrefix || false;
             tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][productionStateControlDisplayType];
             tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][productionStateControlDisplayType];
             tile.state = false;
@@ -140,6 +141,7 @@ class EnvoyDevice extends EventEmitter {
         if (productionStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.productionStateSensor.name || 'Production State Sensor';
+            sensor.namePrefix = this.productionStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][productionStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][productionStateSensorDisplayType];
             sensor.state = false;
@@ -151,6 +153,7 @@ class EnvoyDevice extends EventEmitter {
         if (plcLevelControlDisplayType > 0) {
             const tile = {};
             tile.name = this.plcLevelControl.name || 'PLC Level Refresh Control';
+            tile.namePrefix = this.plcLevelControl.namePrefix || false;
             tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][plcLevelControlDisplayType];
             tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][plcLevelControlDisplayType];
             tile.state = false;
@@ -162,6 +165,7 @@ class EnvoyDevice extends EventEmitter {
         if (dataRefreshControlDisplayType > 0) {
             const tile = {};
             tile.name = this.dataRefreshControl.name || 'Data Refresh Control';
+            tile.namePrefix = this.dataRefreshControl.namePrefix || false;
             tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][dataRefreshControlDisplayType];
             tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][dataRefreshControlDisplayType];
             tile.state = false;
@@ -173,6 +177,7 @@ class EnvoyDevice extends EventEmitter {
         if (dataRefreshSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.dataRefreshSensor.name || 'Data Refresh Sensor';
+            sensor.namePrefix = this.dataRefreshSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][dataRefreshSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][dataRefreshSensorDisplayType];
             sensor.state = false;
@@ -202,6 +207,7 @@ class EnvoyDevice extends EventEmitter {
         if (powerProductionStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.powerProductionStateSensor.name || 'Power Production State Sensor';
+            sensor.namePrefix = this.powerProductionStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerProductionStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerProductionStateSensorDisplayType];
             sensor.state = false;
@@ -213,6 +219,7 @@ class EnvoyDevice extends EventEmitter {
         if (energyProductionStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.energyProductionStateSensor.name || 'Energy Production State Sensor';
+            sensor.namePrefix = this.energyProductionStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyProductionStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyProductionStateSensorDisplayType];
             sensor.state = false;
@@ -241,6 +248,7 @@ class EnvoyDevice extends EventEmitter {
         if (powerConsumptionTotalStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.powerConsumptionTotalStateSensor.name || 'Power Consumption Total State Sensor';
+            sensor.namePrefix = this.powerConsumptionTotalStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerConsumptionTotalStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerConsumptionTotalStateSensorDisplayType];
             sensor.state = false;
@@ -269,6 +277,7 @@ class EnvoyDevice extends EventEmitter {
         if (energyConsumptionTotalStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.energyConsumptionTotalStateSensor.name || 'Energy Consumption Total State Sensor';
+            sensor.namePrefix = this.energyConsumptionTotalStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyConsumptionTotalStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyConsumptionTotalStateSensorDisplayType];
             sensor.state = false;
@@ -297,6 +306,7 @@ class EnvoyDevice extends EventEmitter {
         if (powerConsumptionNetStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.powerConsumptionNetStateSensor.name || 'Power Consumption Net State Sensor';
+            sensor.namePrefix = this.powerConsumptionNetStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][powerConsumptionNetStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][powerConsumptionNetStateSensorDisplayType];
             sensor.state = false;
@@ -325,6 +335,7 @@ class EnvoyDevice extends EventEmitter {
         if (energyConsumptionNetStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.energyConsumptionNetStateSensor.name || 'Energy Consumption Net State Sensor';
+            sensor.namePrefix = this.energyConsumptionNetStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][energyConsumptionNetStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][energyConsumptionNetStateSensorDisplayType];
             sensor.state = false;
@@ -353,6 +364,7 @@ class EnvoyDevice extends EventEmitter {
         if (qRelayStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.qRelayStateSensor.name || 'State Sensor';
+            sensor.namePrefix = this.qRelayStateSensor.namePrefix || false;
             sensor.multiphase = this.qRelayStateSensor.multiphase || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][qRelayStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][qRelayStateSensorDisplayType];
@@ -367,6 +379,7 @@ class EnvoyDevice extends EventEmitter {
         const acBatterieBackupLevelSummaryAccessoryDisplayType = this.acBatterieBackupLevelSummaryAccessory.displayType ?? 0;
         if (acBatterieBackupLevelSummaryAccessoryDisplayType > 0) {
             const tile = {};
+            tile.namePrefix = this.acBatterieBackupLevelSummaryAccessory.namePrefix || false;
             tile.serviceType = ['', Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor, Service.Battery][acBatterieBackupLevelSummaryAccessoryDisplayType];
             tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected, Characteristic.StatusLowBattery][acBatterieBackupLevelSummaryAccessoryDisplayType];
             tile.characteristicType1 = ['', Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel, Characteristic.BatteryLevel][acBatterieBackupLevelSummaryAccessoryDisplayType];
@@ -380,6 +393,7 @@ class EnvoyDevice extends EventEmitter {
         const acBatterieBackupLevelAccessoryDisplayType = this.acBatterieBackupLevelAccessory.displayType ?? 0;
         if (acBatterieBackupLevelAccessoryDisplayType > 0) {
             const tile = {};
+            tile.namePrefix = this.acBatterieBackupLevelAccessory.namePrefix || false;
             tile.serviceType = ['', Service.Battery][acBatterieBackupLevelAccessoryDisplayType];
             tile.characteristicType = ['', Characteristic.StatusLowBattery][acBatterieBackupLevelAccessoryDisplayType];
             tile.characteristicType1 = ['', Characteristic.BatteryLevel][acBatterieBackupLevelAccessoryDisplayType];
@@ -394,6 +408,7 @@ class EnvoyDevice extends EventEmitter {
         if (enpowerGridStateControlDisplaqyType > 0) {
             const tile = {};
             tile.name = this.enpowerGridStateControl.name || 'Enpower Grid State Control';
+            tile.namePrefix = this.enpowerGridStateControl.namePrefix || false;
             tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][enpowerGridStateControlDisplaqyType];
             tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][enpowerGridStateControlDisplaqyType];
             tile.state = false;
@@ -404,6 +419,7 @@ class EnvoyDevice extends EventEmitter {
         if (enpowerGridStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.enpowerGridStateSensor.name || 'Enpower Grid State Sensor';
+            sensor.namePrefix = this.enpowerGridStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][enpowerGridStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][enpowerGridStateSensorDisplayType];
             sensor.state = false;
@@ -429,6 +445,7 @@ class EnvoyDevice extends EventEmitter {
         const enchargeBackupLevelSummaryAccessoryDisplayType = this.enchargeBackupLevelSummaryAccessory.displayType ?? 0;
         if (enchargeBackupLevelSummaryAccessoryDisplayType > 0) {
             const tile = {};
+            tile.namePrefix = this.enchargeBackupLevelSummaryAccessory.namePrefix || false;
             tile.serviceType = ['', Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor, Service.Battery][enchargeBackupLevelSummaryAccessoryDisplayType];
             tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected, Characteristic.StatusLowBattery][enchargeBackupLevelSummaryAccessoryDisplayType];
             tile.characteristicType1 = ['', Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel, Characteristic.BatteryLevel][enchargeBackupLevelSummaryAccessoryDisplayType];
@@ -442,6 +459,7 @@ class EnvoyDevice extends EventEmitter {
         const enchargeBackupLevelAccessoryDisplayType = this.enchargeBackupLevelAccessory.displayType ?? 0;
         if (enchargeBackupLevelAccessoryDisplayType > 0) {
             const tile = {};
+            tile.namePrefix = this.enchargeBackupLevelAccessory.namePrefix || false;
             tile.serviceType = ['', Service.Battery][enchargeBackupLevelAccessoryDisplayType];
             tile.characteristicType1 = ['', Characteristic.StatusLowBattery][enchargeBackupLevelAccessoryDisplayType];
             tile.characteristicType = ['', Characteristic.BatteryLevel][enchargeBackupLevelAccessoryDisplayType];
@@ -455,6 +473,7 @@ class EnvoyDevice extends EventEmitter {
         if (enchargeStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.enchargeStateSensor.name || 'State Sensor';
+            sensor.namePrefix = this.enchargeStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][enchargeStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][enchargeStateSensorDisplayType];
             sensor.state = false;
@@ -496,6 +515,7 @@ class EnvoyDevice extends EventEmitter {
         if (enchargeGridStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.enchargeGridStateSensor.name || 'Grid State Sensor';
+            sensor.namePrefix = this.enchargeGridStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][enchargeGridStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][enchargeGridStateSensorDisplayType];
             sensor.state = false;
@@ -539,6 +559,7 @@ class EnvoyDevice extends EventEmitter {
         if (solarGridStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.solarGridStateSensor.name || 'Solar Grid State Sensor';
+            sensor.namePrefix = this.solarGridStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][solarGridStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][solarGridStateSensorDisplayType];
             sensor.state = false;
@@ -565,6 +586,7 @@ class EnvoyDevice extends EventEmitter {
         if (generatorStateControlDisplaqyType > 0) {
             const tile = {};
             tile.name = this.generatorStateControl.name || 'Generator State Control';
+            tile.namePrefix = this.generatorStateControl.namePrefix || false;
             tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][generatorStateControlDisplaqyType];
             tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][generatorStateControlDisplaqyType];
             tile.state = false;
@@ -575,6 +597,7 @@ class EnvoyDevice extends EventEmitter {
         if (generatorStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.generatorStateSensor.name || 'Generator State Sensor';
+            sensor.namePrefix = this.generatorStateSensor.namePrefix || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][generatorStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][generatorStateSensorDisplayType];
             sensor.state = false;
@@ -930,7 +953,7 @@ class EnvoyDevice extends EventEmitter {
                 const tokenValid = await this.checkJwtToken();
                 const updateGridprofile = !tokenValid || !this.feature.gridProfile.supported ? false : await this.updateGridProfile();
                 const updatePlcLevel = !tokenValid || !this.feature.plcLevel.supported ? false : await this.updatePlcLevel();
-                const updateProductionState = !tokenValid ? false : await this.updateProductionState();
+                const updateProductionState = !tokenValid || !this.feature.productionState.supported ? false : await this.updateProductionState();
             } catch (error) {
                 this.handleError(error);
             };
@@ -984,7 +1007,7 @@ class EnvoyDevice extends EventEmitter {
         this.emit('error', `Impulse generator: ${error}`);
     };
 
-    async updateInfo() {
+    async getInfo() {
         const debug = this.enableDebugMode ? this.emit('debug', `Requesting info`) : false;
         try {
             const response = await this.axiosInstance(ApiUrls.GetInfo);
@@ -4148,7 +4171,8 @@ class EnvoyDevice extends EventEmitter {
             const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Grid Profile', profile) : false;
             return true;
         } catch (error) {
-            this.emit('warn', 'Arf Profile not supported, dont worry all working correct, only the profile name will not be displayed')
+            this.emit('warn', 'Arf Profile not supported, dont worry all working correct, only the profile name will not be displayed');
+            return null;
         };
     };
 
@@ -4259,6 +4283,7 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             this.emit('warn', `Update plc level error: ${error}, dont worry all working correct, only the plc level control will not be displayed`);
+            return null;
         };
     };
 
@@ -4325,6 +4350,7 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             this.emit('warn', `Update production state error: ${error}, dont worry all working correct, only the production state monitoring sensor and comtrol will not be displayed`);
+            return null;
         };
     };
 
@@ -7154,8 +7180,8 @@ class EnvoyDevice extends EventEmitter {
         const debug = this.enableDebugMode ? this.emit('debug', `Start`) : false;
         try {
             //get pv info
-            const updateInfo = await this.updateInfo();
-            if (!updateInfo) {
+            const getInfo = await this.getInfo();
+            if (!getInfo) {
                 return null;
             };
             const firmware7xx = this.pv.envoy.firmware >= 700;
@@ -7217,10 +7243,10 @@ class EnvoyDevice extends EventEmitter {
             const refreshLiveData = tokenValid ? await this.updateLiveData() : false;
 
             //get grid profile ab FW. >= 7.x.x.
-            const updateGridProfile = tokenValid ? await this.updateGridProfile() : false;
+            const refreshGridProfile = tokenValid ? await this.updateGridProfile() : false;
 
             //get plc communication level
-            const updatePlcLevel = (tokenValid && this.pv.envoy.jwtToken.installer) || digestAuthorizationInstaller ? await this.updatePlcLevel() : false;
+            const refreshPlcLevel = (tokenValid && this.pv.envoy.jwtToken.installer) || digestAuthorizationInstaller ? await this.updatePlcLevel() : false;
 
             //get envoy dev id
             const envoyDevIdValid = (tokenValid && this.pv.envoy.jwtToken.installer) || digestAuthorizationInstaller ? await this.getEnvoyDevId() : false;
@@ -7250,7 +7276,7 @@ class EnvoyDevice extends EventEmitter {
             const pushTimer3 = refreshProduction || refreshProductionPdm ? this.timers.push({ name: 'updateProduction', sampling: this.productionDataRefreshTime }) : false;
             const pushTimer4 = refreshEnsemble ? this.timers.push({ name: 'updateEnsemble', sampling: this.ensembleDataRefreshTime }) : false;
             const pushTimer5 = refreshLiveData ? this.timers.push({ name: 'updateLiveData', sampling: this.liveDataRefreshTime }) : false;
-            const pushTimer6 = updateGridProfile || updatePlcLevel || refreshProductionState ? this.timers.push({ name: 'updateGridPlcAndProductionState', sampling: 25000 }) : false;
+            const pushTimer6 = refreshGridProfile || refreshPlcLevel || refreshProductionState ? this.timers.push({ name: 'updateGridPlcAndProductionState', sampling: 25000 }) : false;
 
             return true;
         } catch (error) {
