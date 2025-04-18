@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - added multiphase support for q-relay sensor
 - digestauth refactor
-- passwdcsalc refactor
+- passwdcalc refactor
 - envoytoken refactor
 - cleanup
 
