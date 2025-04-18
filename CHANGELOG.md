@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - digestauth refactor
 - passwdcalc refactor
 - envoytoken refactor
+- redme update
 - cleanup
 
 ## [9.13.4] - (18.04.2025)
