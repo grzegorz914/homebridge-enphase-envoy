@@ -140,7 +140,8 @@
                     "qRelayStateSensor": {
                         "name": "Sensor name",
                         "displayType": 0,
-                        "namePrefix": false
+                        "namePrefix": false,
+                        "multiphase": false
                     },
                     "acBatterieName": "AC batterie name",
                     "acBatterieBackupLevelSummaryAccessory": {

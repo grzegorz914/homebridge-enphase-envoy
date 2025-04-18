@@ -184,6 +184,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| | `multiphase` | boolean | Enables multiphase support, if present |
 | `acBatterieName` | | string | AC Bettery Accessory name for Home app, if not set will use default name |
 | `acBatterieBackupLevelSummaryAccessory` | | key | `AC Batteries Backup Level Summary Accessory` in Home app, if present |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Light Bulb, `2` - Fan, `3` - Humidity Sensor, `4` - Carbon Monoxide Sensor, `5` - Battery |

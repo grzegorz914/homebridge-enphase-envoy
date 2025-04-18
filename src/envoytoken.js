@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { URLSearchParams } from 'url';
 import EventEmitter from 'events';
 import { EnphaseUrls } from './constants.js';
 
@@ -38,20 +39,22 @@ class EnvoyToken extends EventEmitter {
 
     async loginToEnlighten() {
         try {
+            const form = new URLSearchParams();
+            form.append('user[email]', this.user);
+            form.append('user[password]', this.passwd);
+
             const options = {
                 method: 'POST',
                 baseURL: EnphaseUrls.BaseUrl,
-                params: {
-                    'user[email]': this.user,
-                    'user[password]': this.passwd
-                },
+                url: EnphaseUrls.Login,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
+                data: form,
                 timeout: 10000
             };
 
-            const loginData = await axios(EnphaseUrls.Login, options);
+            const loginData = await axios(options);
             if (loginData.status !== 200) {
                 this.emit('error', `Login to Enlighten failed with status code: ${loginData.status}`);
                 return null;

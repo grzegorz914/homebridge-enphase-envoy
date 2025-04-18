@@ -1417,6 +1417,16 @@
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].qRelayStateSensor.displayType > 0;"
                   }
+                },
+                "multiphase": {
+                  "title": "Multiphase",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enables multiphase support, if present",
+                  "required": false,
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].qRelayStateSensor.displayType > 0;"
+                  }
                 }
               }
             },
@@ -3668,7 +3678,8 @@
                           "items": [
                             "devices[].qRelayStateSensor.displayType",
                             "devices[].qRelayStateSensor.name",
-                            "devices[].qRelayStateSensor.namePrefix"
+                            "devices[].qRelayStateSensor.namePrefix",
+                            "devices[].qRelayStateSensor.multiphase"
                           ]
                         }
                       ]

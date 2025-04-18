@@ -353,9 +353,13 @@ class EnvoyDevice extends EventEmitter {
         if (qRelayStateSensorDisplayType > 0) {
             const sensor = {};
             sensor.name = this.qRelayStateSensor.name || 'State Sensor';
+            sensor.multiphase = this.qRelayStateSensor.multiphase || false;
             sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][qRelayStateSensorDisplayType];
             sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][qRelayStateSensorDisplayType];
-            sensor.state = false;
+            sensor.state0 = false;
+            sensor.state1 = false;
+            sensor.state2 = false;
+            sensor.state3 = false;
             this.qRelayStateActiveSensor = sensor;
         };
 
@@ -1670,6 +1674,7 @@ class EnvoyDevice extends EventEmitter {
                         provisioned: qRelay.provisioned === true,
                         operating: qRelay.operating === true,
                         relay: ApiCodes[qRelay.relay] ?? 'Unknown',
+                        relayState: qRelay.relay === 'closed',
                         reasonCode: qRelay.reason_code,
                         reason: qRelay.reason,
                         linesCount: qRelay['line-count'],
@@ -1681,13 +1686,13 @@ class EnvoyDevice extends EventEmitter {
                     nsrb.push(obj);
 
                     //update chaaracteristics
-                    if (this.qRelayStateActiveSensor) {
-                        const state = obj.relay === 'Closed';
-                        this.qRelayStateActiveSensor.state = state;
-
-                        if (this.qRelayStateSensorServices) {
+                    if (this.qRelayStateActiveSensor && this.qRelayStateSensorServices) {
+                        const servicesCount = this.qRelayStateSensorServices[index].length
+                        for (let i = 0; i < servicesCount; i++) {
+                            const state = i === 0 ? obj.relayState : i === 1 ? obj.line1Connected : i === 2 ? obj.line2Connected : i === 3 ? obj.line3Connected : false;
+                            this.qRelayStateActiveSensor[`state${i}`] = state;
                             const characteristicType = this.qRelayStateActiveSensor.characteristicType;
-                            this.qRelayStateSensorServices[index]
+                            this.qRelayStateSensorServices[index][i]
                                 .updateCharacteristic(characteristicType, state)
                         }
                     }
@@ -5245,26 +5250,31 @@ class EnvoyDevice extends EventEmitter {
 
             //qrelays
             if (qRelaysInstalled) {
+                this.qRelayStateSensorServices = [];
                 this.qRelaysServices = [];
                 for (const qRelay of this.pv.inventory.qRelays) {
                     const serialNumber = qRelay.serialNumber;
 
                     if (this.qRelayStateActiveSensor) {
-                        this.qRelayStateSensorServices = [];
+                        const qRelayStateSensorServices = [];
                         const debug = this.enableDebugMode ? this.emit('debug', `Prepare Q-Relay ${serialNumber} State Sensor Service`) : false;
-                        const serviceName = this.qRelayStateActiveSensor.namePrefix ? `${accessoryName} ${this.qRelayStateActiveSensor.name}` : this.qRelayStateActiveSensor.name;
-                        const serviceType = this.qRelayStateActiveSensor.serviceType;
-                        const characteristicType = this.qRelayStateActiveSensor.characteristicType;
-                        const qRelayStateSensorService = accessory.addService(serviceType, serviceName, `qRelayStateSensorService${serialNumber}`);
-                        qRelayStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        qRelayStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                        qRelayStateSensorService.getCharacteristic(characteristicType)
-                            .onGet(async () => {
-                                const state = this.qRelayStateActiveSensor.state;
-                                const info = this.disableLogInfo ? false : this.emit('info', `Q-Relay: ${serialNumber}, state sensor: ${serviceName}, state: ${state ? 'Active' : 'Not Active'}`);
-                                return state;
-                            });
-                        this.qRelayStateSensorServices.push(qRelayStateSensorService);
+                        const sensorCount = this.qRelayStateActiveSensor.multiphase && qRelay.linesCount > 1 ? qRelay.linesCount + 1 : 1;
+                        for (let i = 0; i < sensorCount; i++) {
+                            const serviceName = this.qRelayStateActiveSensor.namePrefix ? `${accessoryName} ${i === 0 ? this.qRelayStateActiveSensor.name : `${this.qRelayStateActiveSensor.name} L${i}`}` : `${i === 0 ? this.qRelayStateActiveSensor.name : `${this.qRelayStateActiveSensor.name} L${i}`}`;
+                            const serviceType = this.qRelayStateActiveSensor.serviceType;
+                            const characteristicType = this.qRelayStateActiveSensor.characteristicType;
+                            const qRelayStateSensorService = accessory.addService(serviceType, serviceName, `qRelayStateSensorService${i}`);
+                            qRelayStateSensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            qRelayStateSensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                            qRelayStateSensorService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const state = this.qRelayStateActiveSensor[`state${i}`];
+                                    const info = this.disableLogInfo ? false : this.emit('info', `Q-Relay: ${serialNumber}, sensor: ${serviceName}, state: ${state ? 'Active' : 'Not Active'}`);
+                                    return state;
+                                });
+                            qRelayStateSensorServices.push(qRelayStateSensorService);
+                        }
+                        this.qRelayStateSensorServices.push(qRelayStateSensorServices);
                     };
 
                     const debug = this.enableDebugMode ? this.emit('debug', `Prepare Q-Relay ${serialNumber} Service`) : false;
