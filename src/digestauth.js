@@ -46,7 +46,7 @@ class DigestAuth {
 
                 return await axios.request(url, options);
             } catch (error) {
-                throw new Error(`Digest authentication error: ${error.message}`);
+                throw new Error(`Digest authentication error: ${error}`);
             }
         }
     }

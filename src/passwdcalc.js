@@ -53,7 +53,7 @@ class PasswdCalc {
 
             return password;
         } catch (error) {
-            throw new Error(`Generate password error: ${error.message}`);
+            throw new Error(`Generate password error: ${error}`);
         }
     }
 
