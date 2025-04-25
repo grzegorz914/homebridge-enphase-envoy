@@ -665,7 +665,7 @@ class EnvoyDevice extends EventEmitter {
                 envoyPasswd: '',
                 installerPasswd: '',
                 firmware: 500,
-                firmware7xx: envoyFirmware7xxTokenGenerationMode > 0,
+                firmware7xx: false,
                 jwtToken: {
                     generation_time: 0,
                     token: envoyToken,
@@ -7198,7 +7198,7 @@ class EnvoyDevice extends EventEmitter {
             if (!getInfo) {
                 return null;
             };
-            const firmware7xx = this.feature.info.firmware >= 700;
+            const firmware7xx = this.feature.info.firmware7xx;
 
             //get and validate JWT token
             const tokenValid = firmware7xx ? await this.checkJwtToken(true) : true;
