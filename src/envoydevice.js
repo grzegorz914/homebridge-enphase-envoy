@@ -4087,10 +4087,9 @@ class EnvoyDevice extends EventEmitter {
                 }
             });
 
-
             //enable live data stream if not enabled
             const scStreamEnabled = liveData.connection.scStream;
-            const enableLiveDataStream = !scStreamEnabled ? await this.setLiveDataStream() : false;
+            const enableLiveDataStream = !scStreamEnabled && this.feature.info.jwtToken.installer ? await this.setLiveDataStream() : false;
 
             //add live data to pv object
             this.pv.liveData = liveData;
