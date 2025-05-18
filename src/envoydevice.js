@@ -862,18 +862,47 @@ class EnvoyDevice extends EventEmitter {
                 esubs: [],
             },
             meters: [],
-            production: {},
+            production: {
+                pcu: {},
+                powerPeakPcu: 0
+            },
             energy: {},
-            productionPdm: {},
+            productionPdm: {
+                pcu: {},
+                eim: {},
+                rgm: {},
+                pmu: {},
+                powerPeakPcu: 0,
+                powerPeakEim: 0,
+                powerPeakRgm: 0,
+                powerPeakPmu: 0,
+
+            },
             energyPdm: {
-                production: {},
-                consumption: {}
+                production: {
+                    pcu: {},
+                    eim: {},
+                    rgm: {},
+                    pmu: {},
+                    powerPeakPcu: 0,
+                    powerPeakEim: 0,
+                    powerPeakRgm: 0,
+                    powerPeakPmu: 0,
+                },
+                consumption: {
+                    eim: {},
+                    powerPeak: 0
+                }
             },
             productionCt: {
                 pcu: {},
                 production: {},
                 consumption: [],
-                acBatterie: {}
+                acBatterie: {},
+                powerPeakPcu: 0,
+                powerPeakEim: 0,
+                consumptionTotalPowerPeak: 0,
+                consumptionNetPowerPeak: 0
             },
             ensemble: {
                 enpowers: {
@@ -1941,9 +1970,12 @@ class EnvoyDevice extends EventEmitter {
                         reactEnergyLagg: meter.reactEnergyLagg,
                         reactEnergyLead: meter.reactEnergyLead,
                         instantaneousDemand: meter.instantaneousDemand,
-                        activePower: meter.activePower / 1000,
-                        apparentPower: meter.apparentPower / 1000,
-                        reactivePower: meter.reactivePower / 1000,
+                        power: meter.activePower,
+                        powerKw: meter.activePower / 1000,
+                        apparentPower: meter.apparentPower,
+                        apparentPowerKw: meter.apparentPower / 1000,
+                        reactivePower: meter.reactivePower,
+                        reactivePowerKw: meter.reactivePower / 1000,
                         pwrFactor: meter.pwrFactor,
                         voltage: meter.voltage / this.pv.meters[index].voltageDivide,
                         current: meter.current,
@@ -1957,9 +1989,9 @@ class EnvoyDevice extends EventEmitter {
                     if (this.metersServices) {
                         this.metersServices[index]
                             .updateCharacteristic(Characteristic.EnphaseMeterReadingTime, obj.timeStamp)
-                            .updateCharacteristic(Characteristic.EnphaseMeterActivePower, obj.activePower)
-                            .updateCharacteristic(Characteristic.EnphaseMeterApparentPower, obj.apparentPower)
-                            .updateCharacteristic(Characteristic.EnphaseMeterReactivePower, obj.reactivePower)
+                            .updateCharacteristic(Characteristic.EnphaseMeterActivePower, obj.powerKw)
+                            .updateCharacteristic(Characteristic.EnphaseMeterApparentPower, obj.apparentPowerKw)
+                            .updateCharacteristic(Characteristic.EnphaseMeterReactivePower, obj.reactivePowerKw)
                             .updateCharacteristic(Characteristic.EnphaseMeterPwrFactor, obj.pwrFactor)
                             .updateCharacteristic(Characteristic.EnphaseMeterVoltage, obj.voltage)
                             .updateCharacteristic(Characteristic.EnphaseMeterCurrent, obj.current)
@@ -1997,11 +2029,19 @@ class EnvoyDevice extends EventEmitter {
             const productionKeys = Object.keys(production);
             const productionSupported = productionKeys.length > 0;
             if (productionSupported) {
+                const storedProductionPower = this.pv.productionPowerPeak;
                 const obj = {
                     type: 'Microinverters',
-                    activeCount: 0,
-                    measurmentType: 'Production',
+                    activeCount: this.feature.inventory.pcus.count,
+                    measurementType: 'Production',
                     readingTime: new Date().toLocaleString(),
+                    power: production.wattsNow,
+                    powerKw: production.wattsNow / 1000,
+                    powerState: await this.scaleValue(production.wattsNow, 0, this.powerProductionSummary, 0, 100) > 0,
+                    powerLevel: this.powerProductionSummary > 1 ? await this.scaleValue(production.wattsNow, 0, this.powerProductionSummary, 0, 100) : 0,
+                    powerPeak: Math.max(production.wattsNow, storedProductionPower),
+                    powerPeakKw: production.wattsNow > storedProductionPower ? production.wattsNow / 1000 : storedProductionPower / 1000,
+                    powerPeakDetected: production.wattsNow > storedProductionPower ?? false,
                     energyToday: production.wattHoursToday,
                     energyTodayKw: production.wattHoursToday / 1000,
                     energyLastSevenDays: production.wattHoursSevenDays,
@@ -2009,11 +2049,9 @@ class EnvoyDevice extends EventEmitter {
                     energyLifetime: (production.wattHoursLifetime + this.energyProductionLifetimeOffset),
                     energyLifetimeKw: (production.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000,
                     energyState: production.wattHoursToday > 0,
-                    power: production.wattsNow,
-                    powerKw: production.wattsNow / 1000,
-                    powerState: production.wattsNow > 0
                 };
-                this.pv.production = obj;
+                this.pv.production.powerPeakPcu = obj.powerPeak;
+                this.pv.production.pcu = obj;
             }
 
             //production pcu supported
@@ -2037,91 +2075,144 @@ class EnvoyDevice extends EventEmitter {
             const productionPdm = response.data;
             const debug = this.enableDebugMode ? this.emit('debug', `Production pdm: `, productionPdm) : false;
 
-            const obj = {
+            const storedProductionPowerPcu = this.pv.productionPdm.powerPeakPcu;
+            const pcu = {
                 type: 'Microinverters',
-                activeCount: 0,
-                measurmentType: 'Production',
+                activeCount: this.feature.inventory.pcus.count,
+                measurementType: 'Production',
                 readingTime: new Date().toLocaleString(),
                 power: productionPdm.watts_now_pcu,
                 powerKw: productionPdm.watts_now_pcu / 1000,
-                powerState: productionPdm.watts_now_pcu > 0,
-                energyToday: productionPdm.joules_today_pcu,
-                energyTodayKw: productionPdm.joules_today_pcu / 1000,
-                energyLastSevenDays: productionPdm.pcu_joules_seven_days,
-                energyLastSevenDaysKw: productionPdm.pcu_joules_seven_days / 1000,
-                energyLifetime: productionPdm.joules_lifetime_pcu + this.energyProductionLifetimeOffset,
-                energyLifetimeKw: (productionPdm.joules_lifetime_pcu + this.energyProductionLifetimeOffset) / 1000,
-                energyState: productionPdm.joules_today_pcu > 0,
-                activeEim: productionPdm.there_is_an_active_eim,  // true
-                powerEim: productionPdm.watts_now_eim,
-                powerKwEim: productionPdm.watts_now_eim / 1000,
-                powerStateEim: productionPdm.watts_now_eim > 0,
-                energyTodayEimSumm: productionPdm.watt_hours_today_eim.aggregate,
-                energyTodayKwEimSumm: productionPdm.watt_hours_today_eim.aggregate / 1000,
-                energyTodayEimL1: productionPdm.watt_hours_today_eim.channel[0],
-                energyTodayEimL2: productionPdm.watt_hours_today_eim.channel[1],
-                energyTodayEimL3: productionPdm.watt_hours_today_eim.channel[2],
-                energyLastSevenDaysEimSumm: productionPdm.eim_watt_hours_seven_days.aggregate,
-                energyLastSevenDaysKwEimSumm: productionPdm.eim_watt_hours_seven_days.aggregate / 1000,
-                energyLastSevenDaysEimL1: productionPdm.eim_watt_hours_seven_days.channel[0],
-                energyLastSevenDaysEimL2: productionPdm.eim_watt_hours_seven_days.channel[1],
-                energyLastSevenDaysEimL3: productionPdm.eim_watt_hours_seven_days.channel[2],
-                energyLifetimeEimSumm: productionPdm.watt_hours_lifetime_eim.aggregate + this.energyProductionLifetimeOffset,
-                energyLifetimeKwEimSumm: (productionPdm.watt_hours_lifetime_eim.aggregate + this.energyProductionLifetimeOffset) / 1000,
-                energyLifetimeEimL1: productionPdm.watt_hours_lifetime_eim.channel[0],
-                energyLifetimeEimL2: productionPdm.watt_hours_lifetime_eim.channel[1],
-                energyLifetimeEimL3: productionPdm.watt_hours_lifetime_eim.channel[2],
-                energyVahTodayEimSumm: productionPdm.vah_today_eim.aggregate,
-                energyVahTodayKwEimSumm: productionPdm.vah_today_eim.aggregate / 1000,
-                energyVahTodayEimL1: productionPdm.vah_today_eim.aggregate[0],
-                energyVahTodayEimL2: productionPdm.vah_today_eim.aggregate[1],
-                energyVahTodayEimL3: productionPdm.vah_today_eim.aggregate[2],
-                energyVahLifetimeEimSumm: productionPdm.vah_lifetime_eim.aggregate,
-                energyVahLifetimeKwEimSumm: productionPdm.vah_lifetime_eim.aggregate / 1000,
-                energyVahLifetimeEimL1: productionPdm.vah_lifetime_eim.channel[0],
-                energyVahLifetimeEimL2: productionPdm.vah_lifetime_eim.channel[1],
-                energyVahLifetimeEimL3: productionPdm.vah_lifetime_eim.channel[2],
-                energyVarhLeadTodayEimSumm: productionPdm.varh_lead_today_eim.aggregate,
-                energyVarhLeadTodayKwEimSumm: productionPdm.varh_lead_today_eim.aggregate / 1000,
-                energyVarhLeadTodayEimL1: productionPdm.varh_lead_today_eim.channel[0],
-                energyVarhLeadTodayEimL2: productionPdm.varh_lead_today_eim.channel[1],
-                energyVarhLeadTodayEimL3: productionPdm.varh_lead_today_eim.channel[2],
-                energyVarhLagTodayEimSumm: productionPdm.varh_lag_today_eim.aggregate,
-                energyVarhLagTodayKwEimSumm: productionPdm.varh_lag_today_eim.aggregate / 1000,
-                energyVarhLagTodayEimL1: productionPdm.varh_lag_today_eim.channel[0],
-                energyVarhLagTodayEimL2: productionPdm.varh_lag_today_eim.channel[1],
-                energyVarhLagTodayEimL3: productionPdm.varh_lag_today_eim.channel[2],
-                energyVarhLeadLifetimeEimSumm: productionPdm.varh_lead_lifetime_eim.aggregate,
-                energyVarhLeadLifetimeKwEimSumm: productionPdm.varh_lead_lifetime_eim.aggregate / 1000,
-                energyVarhLeadLifetimeEimL1: productionPdm.varh_lead_lifetime_eim.channel[0],
-                energyVarhLeadLifetimeEimL2: productionPdm.varh_lead_lifetime_eim.channel[1],
-                energyVarhLeadLifetimeEimL3: productionPdm.varh_lead_lifetime_eim.channel[2],
-                energyVarhLagLifetimeEimSumm: productionPdm.varh_lag_lifetime_eim.aggregate,
-                energyVarhLagLifetimeKwEimSumm: productionPdm.varh_lag_lifetime_eim.aggregate / 1000,
-                energyVarhLagLifetimeEimL1: productionPdm.varh_lag_lifetime_eim.channel[0],
-                energyVarhLagLifetimeEimL2: productionPdm.varh_lag_lifetime_eim.channel[1],
-                energyVarhLagLifetimeEimL3: productionPdm.varh_lag_lifetime_eim.channel[2],
-                energyStateEim: productionPdm.watt_hours_today_eim.aggregate > 0,
-                activeRgm: productionPdm.there_is_an_active_rgm,  // false,
-                powerRgm: productionPdm.watts_now_rgm,
-                powerKwRgm: productionPdm.watts_now_rgm / 1000,
-                energyTodayRgm: productionPdm.watt_hours_today_rgm,
-                energyTodayKwRgm: productionPdm.watt_hours_today_rgm / 1000,
-                energyLastSevenDaysRgm: productionPdm.rgm_watt_hours_seven_days,
-                energyLastSevenDaysKwRgm: productionPdm.rgm_watt_hours_seven_days / 1000,
-                energyLifetimeRgm: productionPdm.watt_hours_lifetime_rgm,
-                energyLifetimKweRgm: productionPdm.watt_hours_lifetime_rgm / 1000,
-                activePmu: productionPdm.watt_hours_lifetime_rgm,  // false,
-                powerPmu: productionPdm.watts_now_pmu,
-                energyTodayPmu: productionPdm.watt_hours_today_pmu,
-                energyTodayKwPmu: productionPdm.watt_hours_today_pmu / 1000,
-                energyLastSevenDaysPmu: productionPdm.pmu_watt_hours_seven_days,
-                energyLastSevenDaysKwPmu: productionPdm.pmu_watt_hours_seven_days / 1000,
-                energyLifetimePmu: productionPdm.watt_hours_lifetime_pmu,
-                energyLifetimeKwPmu: productionPdm.watt_hours_lifetime_pmu / 1000
+                powerState: await this.scaleValue(productionPdm.watts_now_pcu, 0, this.powerProductionSummary, 0, 100) > 0,
+                powerLevel: this.powerProductionSummary > 1 ? await this.scaleValue(productionPdm.watts_now_pcu, 0, this.powerProductionSummary, 0, 100) : 0,
+                powerPeak: Math.max(productionPdm.watts_now_pcu, storedProductionPowerPcu),
+                powerPeakKw: Math.max(productionPdm.watts_now_pcu, storedProductionPowerPcu) / 1000,
+                powerPeakDetected: productionPdm.watts_now_pcu > storedProductionPowerPcu,
+                energyToday: productionPdm.joules_today_pcu / 3600, //convert joules to Wh
+                energyTodayKw: productionPdm.joules_today_pcu / 3600000, //convert joules to kWh
+                energyLastSevenDays: productionPdm.pcu_joules_seven_days / 3600,
+                energyLastSevenDaysKw: productionPdm.pcu_joules_seven_days / 3600000,
+                energyLifetime: (productionPdm.joules_lifetime_pcu / 3600) + this.energyProductionLifetimeOffset,
+                energyLifetimeKw: (productionPdm.joules_lifetime_pcu / 3600000) + this.energyProductionLifetimeOffset,
+                energyState: productionPdm.joules_today_pcu > 0
             }
-            this.pv.production = obj;
-            this.pv.productionPdm = obj;
+            this.pv.productionPdm.powerPeakPcu = pcu.powerPeak;
+            this.pv.productionPdm.pcu = pcu;
+
+            const storedProductionPowerEim = this.pv.productionPdm.powerPeakEim;
+            const eim = {
+                type: 'Current Meter',
+                activeCount: 1,
+                measurementType: 'Production',
+                readingTime: new Date().toLocaleString(),
+                active: productionPdm.there_is_an_active_eim,
+                power: productionPdm.watts_now_eim,
+                powerKw: productionPdm.watts_now_eim / 1000,
+                powerState: await this.scaleValue(productionPdm.watts_now_eim, 0, this.powerProductionSummary, 0, 100) > 0,
+                powerLevel: this.powerProductionSummary > 1 ? await this.scaleValue(productionPdm.watts_now_eim, 0, this.powerProductionSummary, 0, 100) : 0,
+                powerPeak: Math.max(productionPdm.watts_now_eim, storedProductionPowerEim),
+                powerPeakKw: Math.max(productionPdm.watts_now_eim, storedProductionPowerEim) / 1000,
+                powerPeakDetected: productionPdm.watts_now_eim > storedProductionPowerEim,
+                energyToday: productionPdm.watt_hours_today_eim.aggregate,
+                energyTodayKw: productionPdm.watt_hours_today_eim.aggregate / 1000,
+                energyTodayL1: productionPdm.watt_hours_today_eim.channel[0],
+                energyTodayL2: productionPdm.watt_hours_today_eim.channel[1],
+                energyTodayL3: productionPdm.watt_hours_today_eim.channel[2],
+                energyLastSevenDays: productionPdm.eim_watt_hours_seven_days.aggregate,
+                energyLastSevenDaysKw: productionPdm.eim_watt_hours_seven_days.aggregate / 1000,
+                energyLastSevenDaysL1: productionPdm.eim_watt_hours_seven_days.channel[0],
+                energyLastSevenDaysL2: productionPdm.eim_watt_hours_seven_days.channel[1],
+                energyLastSevenDaysL3: productionPdm.eim_watt_hours_seven_days.channel[2],
+                energyLifetime: productionPdm.watt_hours_lifetime_eim.aggregate + this.energyProductionLifetimeOffset,
+                energyLifetimeKw: (productionPdm.watt_hours_lifetime_eim.aggregate + this.energyProductionLifetimeOffset) / 1000,
+                energyLifetimeL1: productionPdm.watt_hours_lifetime_eim.channel[0],
+                energyLifetimeL2: productionPdm.watt_hours_lifetime_eim.channel[1],
+                energyLifetimeL3: productionPdm.watt_hours_lifetime_eim.channel[2],
+                energyState: productionPdm.watt_hours_today_eim.aggregate > 0 ?? false,
+                energyVahToday: productionPdm.vah_today_eim.aggregate,
+                energyVahTodayKw: productionPdm.vah_today_eim.aggregate / 1000,
+                energyVahTodayL1: productionPdm.vah_today_eim.aggregate[0],
+                energyVahTodayL2: productionPdm.vah_today_eim.aggregate[1],
+                energyVahTodayL3: productionPdm.vah_today_eim.aggregate[2],
+                energyVahLifetime: productionPdm.vah_lifetime_eim.aggregate,
+                energyVahLifetimeKw: productionPdm.vah_lifetime_eim.aggregate / 1000,
+                energyVahLifetimeL1: productionPdm.vah_lifetime_eim.channel[0],
+                energyVahLifetimeL2: productionPdm.vah_lifetime_eim.channel[1],
+                energyVahLifetimeL3: productionPdm.vah_lifetime_eim.channel[2],
+                energyVarhLeadTodayS: productionPdm.varh_lead_today_eim.aggregate,
+                energyVarhLeadTodayKw: productionPdm.varh_lead_today_eim.aggregate / 1000,
+                energyVarhLeadTodayL1: productionPdm.varh_lead_today_eim.channel[0],
+                energyVarhLeadTodayL2: productionPdm.varh_lead_today_eim.channel[1],
+                energyVarhLeadTodayL3: productionPdm.varh_lead_today_eim.channel[2],
+                energyVarhLagToday: productionPdm.varh_lag_today_eim.aggregate,
+                energyVarhLagTodayKw: productionPdm.varh_lag_today_eim.aggregate / 1000,
+                energyVarhLagTodayL1: productionPdm.varh_lag_today_eim.channel[0],
+                energyVarhLagTodayL2: productionPdm.varh_lag_today_eim.channel[1],
+                energyVarhLagTodayL3: productionPdm.varh_lag_today_eim.channel[2],
+                energyVarhLeadLifetime: productionPdm.varh_lead_lifetime_eim.aggregate,
+                energyVarhLeadLifetimeKw: productionPdm.varh_lead_lifetime_eim.aggregate / 1000,
+                energyVarhLeadLifetimeL1: productionPdm.varh_lead_lifetime_eim.channel[0],
+                energyVarhLeadLifetimeL2: productionPdm.varh_lead_lifetime_eim.channel[1],
+                energyVarhLeadLifetimeL3: productionPdm.varh_lead_lifetime_eim.channel[2],
+                energyVarhLagLifetime: productionPdm.varh_lag_lifetime_eim.aggregate,
+                energyVarhLagLifetimeKw: productionPdm.varh_lag_lifetime_eim.aggregate / 1000,
+                energyVarhLagLifetimeL1: productionPdm.varh_lag_lifetime_eim.channel[0],
+                energyVarhLagLifetimeL2: productionPdm.varh_lag_lifetime_eim.channel[1],
+                energyVarhLagLifetimeL3: productionPdm.varh_lag_lifetime_eim.channel[2],
+                energyState: productionPdm.watt_hours_today_eim.aggregate > 0,
+            }
+            this.pv.productionPdm.powerPeakEim = eim.powerPeak;
+            this.pv.productionPdm.eim = eim;
+
+            const storedProductionPowerRgm = this.pv.productionPdm.powerPeakRgm;
+            const rgm = {
+                type: 'Revenue Grade Meter',
+                activeCount: 1,
+                measurementType: 'Production',
+                readingTime: new Date().toLocaleString(),
+                active: productionPdm.there_is_an_active_rgm,
+                power: productionPdm.watts_now_rgm,
+                powerKw: productionPdm.watts_now_rgm / 1000,
+                powerState: await this.scaleValue(productionPdm.watts_now_rgm, 0, this.powerProductionSummary, 0, 100) > 0,
+                powerLevel: this.powerProductionSummary > 1 ? await this.scaleValue(productionPdm.watts_now_rgm, 0, this.powerProductionSummary, 0, 100) : 0,
+                powerPeak: Math.max(productionPdm.watts_now_rgm, storedProductionPowerRgm),
+                powerPeakKw: Math.max(productionPdm.watts_now_rgm, storedProductionPowerRgm) / 1000,
+                powerPeakDetected: productionPdm.watts_now_rgm > storedProductionPowerRgm,
+                energyToday: productionPdm.watt_hours_today_rgm,
+                energyTodayKw: productionPdm.watt_hours_today_rgm / 1000,
+                energyLastSevenDays: productionPdm.rgm_watt_hours_seven_days,
+                energyLastSevenDaysKw: productionPdm.rgm_watt_hours_seven_days / 1000,
+                energyLifetime: productionPdm.watt_hours_lifetime_rgm,
+                energyLifetimKwe: productionPdm.watt_hours_lifetime_rgm / 1000,
+                energyState: productionPdm.watt_hours_today_rgm > 0 ?? false,
+            }
+            this.pv.productionPdm.powerPeakRgm = rgm.powerPeak;
+            this.pv.productionPdm.rgm = rgm;
+
+            const storedProductionPowerPmu = this.pv.productionPdm.powerPeakPmu;
+            const pmu = {
+                type: 'Power Meter Unit',
+                activeCount: 1,
+                measurementType: 'Production',
+                readingTime: new Date().toLocaleString(),
+                active: productionPdm.there_is_an_active_pmu,
+                power: productionPdm.watts_now_pmu,
+                powerKw: productionPdm.watts_now_pmu / 1000,
+                powerState: await this.scaleValue(productionPdm.watts_now_pmu, 0, this.powerProductionSummary, 0, 100) > 0,
+                powerLevel: this.powerProductionSummary > 1 ? await this.scaleValue(productionPdm.watts_now_pmu, 0, this.powerProductionSummary, 0, 100) : 0,
+                powerPeak: Math.max(productionPdm.watts_now_pmu, storedProductionPowerPmu),
+                powerPeakKw: Math.max(productionPdm.watts_now_pmu, storedProductionPowerPmu) / 1000,
+                powerPeakDetected: productionPdm.watts_now_pmu > storedProductionPowerPmu,
+                energyToday: productionPdm.watt_hours_today_pmu,
+                energyTodayKw: productionPdm.watt_hours_today_pmu / 1000,
+                energyLastSevenDays: productionPdm.pmu_watt_hours_seven_days,
+                energyLastSevenDaysKw: productionPdm.pmu_watt_hours_seven_days / 1000,
+                energyLifetime: productionPdm.watt_hours_lifetime_pmu,
+                energyLifetimeKw: productionPdm.watt_hours_lifetime_pmu / 1000,
+                energyState: productionPdm.watt_hours_today_pmu > 0 ?? false
+            }
+            this.pv.productionPdm.powerPeakPmu = pmu.powerPeak;
+            this.pv.productionPdm.pmu = pmu;
 
             //production pdm supported
             this.feature.productionPdm.supported = true;
@@ -2146,21 +2237,29 @@ class EnvoyDevice extends EventEmitter {
             const debug = this.enableDebugMode ? this.emit('debug', `Energy pdm: `, energyPdm) : false;
 
             //pdm energy summary 
-            const productionAllKeys = Object.keys(energyPdm);
-            const productionSupported = productionAllKeys.includes('production')
-            const consumptionSupported = productionAllKeys.includes('consumption')
+            const allKeys = Object.keys(energyPdm);
+            const productionSupported = allKeys.includes('production')
+            const consumptionSupported = allKeys.includes('consumption')
 
             //process production data if available
             if (productionSupported) {
                 const productionsKeys = Object.keys(energyPdm.production)
-                productionsKeys.forEach((type) => {
+                productionsKeys.forEach(async (type) => {
                     const productionDataType = energyPdm.production[type];
+                    const storedProductionPower = type === 'pcu' ? this.pv.energyPdm.production.powerPeakPcu : type === 'eim' ? this.pv.energyPdm.production.powerPeakEim : type === 'rgm' ? this.pv.energyPdm.production.powerPeakRgm : type === 'pmu' ? this.pv.energyPdm.production.powerPeakPmu : 0;
                     if (productionDataType) {
                         const obj = {
                             type: ApiCodes[type],
-                            activeCount: 0,
-                            measurmentType: 'Production',
+                            activeCount: 1,
+                            measurementType: 'Production',
                             readingTime: new Date().toLocaleString(),
+                            power: productionDataType.wattsNow,
+                            powerKw: productionDataType.wattsNow / 1000,
+                            powerState: await this.scaleValue(productionDataType.wattsNow, 0, this.powerProductionSummary, 0, 100) > 0,
+                            powerLevel: this.powerProductionSummary > 1 ? await this.scaleValue(productionDataType.wattsNow, 0, this.powerProductionSummary, 0, 100) : 0,
+                            powerPeak: Math.max(productionDataType.wattsNow, storedProductionPower),
+                            powerPeakKw: Math.max(productionDataType.wattsNow, storedProductionPower) / 1000,
+                            powerPeakDetected: productionDataType.wattsNow > storedProductionPower,
                             energyToday: productionDataType.wattHoursToday,
                             energyTodayKw: productionDataType.wattHoursToday / 1000,
                             energyLastSevenDays: productionDataType.wattHoursSevenDays,
@@ -2168,10 +2267,11 @@ class EnvoyDevice extends EventEmitter {
                             energyLifetime: (productionDataType.wattHoursLifetime + this.energyProductionLifetimeOffset),
                             energyLifetimeKw: (productionDataType.wattHoursLifetime + this.energyProductionLifetimeOffset) / 1000,
                             energyState: productionDataType.wattHoursToday > 0,
-                            power: productionDataType.wattsNow,
-                            powerKw: productionDataType.wattsNow / 1000,
-                            powerState: productionDataType.wattsNow > 0
                         };
+                        this.pv.energyPdm.production.powerPeakPcu = type === 'pcu' ? obj.powerPeak : this.pv.energyPdm.production.powerPeakPcu;
+                        this.pv.energyPdm.production.powerPeakEim = type === 'eim' ? obj.powerPeak : this.pv.energyPdm.production.powerPeakEim;
+                        this.pv.energyPdm.production.powerPeakRgm = type === 'rgm' ? obj.powerPeak : this.pv.energyPdm.production.powerPeakRgm;
+                        this.pv.energyPdm.production.powerPeakPmu = type === 'pmu' ? obj.powerPeak : this.pv.energyPdm.production.powerPeakPmu;
                         this.pv.energyPdm.production[type] = obj;
                     }
                 });
@@ -2182,24 +2282,29 @@ class EnvoyDevice extends EventEmitter {
 
             //process consumption data if available
             if (consumptionSupported) {
+                const storedConsumptionPower = this.pv.energyPdm.consumption.powerPeak;
                 const consumptionData = energyPdm.consumption.eim;
                 if (consumptionData) {
                     const obj = {
-                        type: 'Current meter',
-                        activeCount: 0,
-                        measurmentType: 'Consumption',
+                        type: 'Current Meter',
+                        activeCount: 1,
+                        measurementType: 'Consumption Net',
                         readingTime: new Date().toLocaleString(),
+                        power: consumptionData.wattsNow,
+                        powerKw: consumptionData.wattsNow / 1000,
+                        powerState: consumptionData.wattsNow > 0,
+                        powerPeak: Math.max(consumptionData.wattsNow, storedConsumptionPower),
+                        powerPeakKw: Math.max(consumptionData.wattsNow, storedConsumptionPower) / 1000,
+                        powerPeakDetected: consumptionData.wattsNow > storedConsumptionPower,
                         energyToday: consumptionData.wattHoursToday,
                         energyTodayKw: consumptionData.wattHoursToday / 1000,
                         energyLastSevenDays: consumptionData.wattHoursSevenDays,
                         energyLastSevenDaysKw: consumptionData.wattHoursSevenDays / 1000,
                         energyLifetime: (consumptionData.wattHoursLifetime + this.energyConsumptionNetLifetimeOffset),
                         energyLifetimeKw: (consumptionData.wattHoursLifetime + this.energyConsumptionNetLifetimeOffset) / 1000,
-                        energyState: consumptionData.wattHoursToday > 0,
-                        power: consumptionData.wattsNow,
-                        powerKw: consumptionData.wattsNow / 1000,
-                        powerState: consumptionData.wattsNow > 0
+                        energyState: consumptionData.wattHoursToday > 0
                     };
+                    this.pv.energyPdm.consumption.powerPeak = obj.powerPeak;
                     this.pv.energyPdm.consumption.eim = obj;
                 }
             }
@@ -2235,6 +2340,9 @@ class EnvoyDevice extends EventEmitter {
             const metersConsumptionEnabled = this.feature.meters.consumption.enabled;
             const metersConsumpionVoltageDivide = this.feature.meters.consumption.voltageDivide;
             const acBatteriesInstalled = this.feature.inventory.acbs.installed;
+            const productionPdmSupported = this.feature.productionPdm.supported;
+            const energyPdmProductionSupported = this.feature.energyPdm.production.supported;
+            const energyPdmConsumptionSupported = this.feature.energyPdm.consumption.supported;
 
             //production ct
             const productionCtKeys = Object.keys(productionCtData);
@@ -2245,16 +2353,31 @@ class EnvoyDevice extends EventEmitter {
                 const productionCtProductionPcuKeys = Object.keys(productionCtProductionPcu);
                 const productionCtProductionPcuSupported = productionCtProductionPcuKeys.length > 0;
                 if (productionCtProductionPcuSupported) {
+                    const storedProductionPower = this.pv.productionCt.powerPeakPcu;
                     const obj = {
                         type: ApiCodes[productionCtProductionPcu.type] ?? 'Unknown',
                         activeCount: productionCtProductionPcu.activeCount,
-                        measurmentType: 'Production',
+                        measurementType: 'Production',
                         readingTime: new Date(productionCtProductionPcu.readingTime * 1000).toLocaleString(),
                         power: productionCtProductionPcu.wNow ?? 0, //watts
                         powerKw: (productionCtProductionPcu.wNow ?? 0) / 1000, //kW
+                        powerState: await this.scaleValue(productionCtProductionPcu.wNow, 0, this.powerProductionSummary, 0, 100) > 0,
+                        powerLevel: this.powerProductionSummary > 1 ? await this.scaleValue(productionCtProductionPcu.wNow, 0, this.powerProductionSummary, 0, 100) : 0,
+                        powerPeak: Math.max(productionCtProductionPcu.wNow, storedProductionPower),
+                        powerPeakKw: Math.max(productionCtProductionPcu.wNow, storedProductionPower) / 1000,
+                        powerPeakDetected: productionCtProductionPcu.wNow > storedProductionPower ?? false,
+                        energyToday: 0,
+                        energyTodayKw: 0,
+                        energyLastSevenDays: 0,
+                        energyLastSevenDaysKw: 0,
+                        energyLifetime: 0 + this.energyProductionLifetimeOffset,
+                        energyLifetimeKw: 0 + this.energyProductionLifetimeOffset,
                         energyLifetime: (productionCtProductionPcu.whLifetime + this.energyProductionLifetimeOffset),
                         energyLifetimeKw: (productionCtProductionPcu.whLifetime + this.energyProductionLifetimeOffset) / 1000,
+                        energyState: false
                     }
+                    this.pv.productionCt.powerPeakPcu = obj.powerPeak;
+
                     //add to pv object
                     this.pv.productionCt.pcu = obj;
                 }
@@ -2266,37 +2389,51 @@ class EnvoyDevice extends EventEmitter {
                 const productionCtProductionEimKeys = Object.keys(productionCtProductionEim);
                 const productionCtProductionEimSupported = productionCtProductionEimKeys.length > 0;
                 if (productionCtProductionEimSupported) {
-                    const storedProductionPower = this.pv.productionPowerPeak;
+                    const storedProductionPower = this.pv.productionCt.powerPeakEim;
+                    const productionSource = metersProductionEnabled ? (energyPdmProductionSupported ? this.pv.energyPdm.production.eim : productionCtProductionEim) : (energyPdmProductionSupported ? this.pv.productionPdm.production.pcu : this.pv.production.pcu);
+                    const isEim = metersProductionEnabled && !energyPdmProductionSupported;
+                    const power = isEim ? productionSource.wNow : productionSource.power;
                     const obj = {
-                        type: metersProductionEnabled ? ApiCodes[productionCtProductionEim.type] : this.pv.productionCt.pcu.type,
-                        activeCount: metersProductionEnabled ? productionCtProductionEim.activeCount : this.pv.productionCt.pcu.activeCount,
-                        measurmentType: metersProductionEnabled ? ApiCodes[productionCtProductionEim.measurementType] : this.pv.productionCt.pcu.type,
-                        readingTime: metersProductionEnabled ? new Date(productionCtProductionEim.readingTime * 1000).toLocaleString() : this.pv.productionCt.pcu.readingTime,
-                        power: metersProductionEnabled ? productionCtProductionEim.wNow : this.pv.productionCt.pcu.power, //watts
-                        powerKw: metersProductionEnabled ? productionCtProductionEim.wNow / 1000 : this.pv.productionCt.pcu.powerKw, //kW
-                        powerState: metersProductionEnabled ? await this.scaleValue(productionCtProductionEim.wNow, 0, this.powerProductionSummary, 0, 100) > 0 : await this.scaleValue(this.pv.productionCt.pcu.power, 0, this.powerProductionSummary, 0, 100) > 0,
-                        powerLevel: this.powerProductionSummary > 1 ? (metersProductionEnabled ? await this.scaleValue(productionCtProductionEim.wNow, 0, this.powerProductionSummary, 0, 100) : await this.scaleValue(this.pv.productionCt.pcu.power, 0, this.powerProductionSummary, 0, 100)) : 0,
-                        powerPeak: metersProductionEnabled ? (productionCtProductionEim.wNow > storedProductionPower ? productionCtProductionEim.wNow : storedProductionPower) : (this.pv.productionCt.pcu.power > storedProductionPower ? this.pv.productionCt.pcu.power : storedProductionPower),
-                        powerPeakKw: metersProductionEnabled ? (productionCtProductionEim.wNow > storedProductionPower ? productionCtProductionEim.wNow / 1000 : storedProductionPower / 1000) : (this.pv.productionCt.pcu.power > storedProductionPower ? this.pv.productionCt.pcu.powerKw : storedProductionPower / 1000),
-                        powerPeakDetected: metersProductionEnabled ? productionCtProductionEim.wNow > storedProductionPower : this.pv.productionCt.pcu.power > storedProductionPower ?? false,
-                        energyToday: metersProductionEnabled ? productionCtProductionEim.whToday : this.pv.production.energyToday ?? 0,
-                        energyTodayKw: metersProductionEnabled ? productionCtProductionEim.whToday / 1000 : this.pv.production.energyTodayKw ?? 0,
-                        energyLastSevenDays: metersProductionEnabled ? productionCtProductionEim.whLastSevenDays : this.pv.production.energyLastSevenDays ?? 0,
-                        energyLastSevenDaysKw: metersProductionEnabled ? productionCtProductionEim.whLastSevenDays / 1000 : this.pv.production.energyLastSevenDaysKw ?? 0,
-                        energyLifetime: metersProductionEnabled ? (productionCtProductionEim.whLifetime + this.energyProductionLifetimeOffset) : this.pv.production.energyLifetime ?? 0,
-                        energyLifetimeKw: metersProductionEnabled ? (productionCtProductionEim.whLifetime + this.energyProductionLifetimeOffset) / 1000 : this.pv.production.energyLifetimeKw ?? 0,
-                        energyState: metersProductionEnabled ? productionCtProductionEim.whToday > 0 : this.pv.production.energyState ?? false,
-                        energyVarhLeadLifetime: metersProductionEnabled ? productionCtProductionEim.varhLeadLifetime / 1000 : 0,
-                        energyVarhLagLifetime: metersProductionEnabled ? productionCtProductionEim.varhLagLifetime / 1000 : 0,
-                        energyVahToday: metersProductionEnabled ? productionCtProductionEim.vahToday / 1000 : 0,
-                        energyVarhLeadToday: metersProductionEnabled ? productionCtProductionEim.varhLeadToday / 1000 : 0,
-                        energyVarhLagToday: metersProductionEnabled ? productionCtProductionEim.varhLagToday / 1000 : 0,
-                        rmsCurrent: metersProductionEnabled ? productionCtProductionEim.rmsCurrent : 0,
-                        rmsVoltage: metersProductionEnabled ? productionCtProductionEim.rmsVoltage / metersProductionVoltageDivide : 1,
-                        reactivePower: metersProductionEnabled ? productionCtProductionEim.reactPwr / 1000 : 0,
-                        apparentPower: metersProductionEnabled ? productionCtProductionEim.apprntPwr / 1000 : 0,
-                        pwrFactor: metersProductionEnabled ? productionCtProductionEim.pwrFactor : 0
-                    }
+                        type: isEim ? ApiCodes[productionSource.type] : productionSource.type,
+                        activeCount: productionSource.activeCount,
+                        measurementType: isEim ? ApiCodes[productionSource.measurementType] : productionSource.measurementType,
+                        readingTime: isEim ? new Date(productionSource.readingTime * 1000).toLocaleString() : productionSource.readingTime,
+                        power: power,
+                        powerKw: isEim ? power / 1000 : productionSource.powerKw,
+                        powerState: isEim ? (await this.scaleValue(productionSource.wNow, 0, this.powerProductionSummary, 0, 100)) > 0 : productionSource.powerState,
+                        powerLevel: this.powerProductionSummary > 1 ? (isEim ? await this.scaleValue(productionSource.wNow, 0, this.powerProductionSummary, 0, 100) : productionSource.powerLevel) : 0,
+                        powerPeak: Math.max(power, storedProductionPower),
+                        powerPeakKw: Math.max(power, storedProductionPower) / 1000,
+                        powerPeakDetected: power > storedProductionPower,
+                        energyToday: isEim ? productionSource.whToday : productionSource.energyTodaySumm ?? 0,
+                        energyTodayKw: isEim ? productionSource.whToday / 1000 : productionSource.energyTodayKwSumm ?? 0,
+                        energyLastSevenDays: isEim ? productionSource.whLastSevenDays : productionSource.energyLastSevenDaysSumm ?? 0,
+                        energyLastSevenDaysKw: isEim ? productionSource.whLastSevenDays / 1000 : productionSource.energyLastSevenDaysKwSumm ?? 0,
+                        energyLifetime: isEim ? productionSource.whLifetime + this.energyProductionLifetimeOffset : productionSource.energyLifetimeSumm ?? 0,
+                        energyLifetimeKw: isEim ? (productionSource.whLifetime + this.energyProductionLifetimeOffset) / 1000 : productionSource.energyLifetimeKwSumm ?? 0,
+                        energyState: isEim ? productionSource.whToday > 0 : productionSource.energyState ?? false,
+                        energyVarhLeadToday: productionCtProductionEim.varhLeadToday,
+                        energyVarhLeadTodayKw: productionCtProductionEim.varhLeadToday / 1000,
+                        energyVarhLeadLifetime: productionCtProductionEim.varhLeadLifetime,
+                        energyVarhLeadLifetimeKw: productionCtProductionEim.varhLeadLifetime / 1000,
+                        energyVarhLagToday: productionCtProductionEim.varhLagToday,
+                        energyVarhLagTodayKw: productionCtProductionEim.varhLagToday / 1000,
+                        energyVarhLagLifetime: productionCtProductionEim.varhLagLifetime,
+                        energyVarhLagLifetimeKw: productionCtProductionEim.varhLagLifetime / 1000,
+                        energyVahToday: productionCtProductionEim.vahToday,
+                        energyVahTodayKw: productionCtProductionEim.vahToday / 1000,
+                        energyVahLifetime: productionCtProductionEim.vahLifetime,
+                        energyVahLifetimeKw: productionCtProductionEim.vahLifetime / 1000,
+                        reactivePower: productionCtProductionEim.reactPwr,
+                        reactivePowerKw: productionCtProductionEim.reactPwr / 1000,
+                        apparentPower: productionCtProductionEim.apprntPwr,
+                        apparentPowerKw: productionCtProductionEim.apprntPwr / 1000,
+                        rmsCurrent: productionCtProductionEim.rmsCurrent,
+                        rmsVoltage: productionCtProductionEim.rmsVoltage / metersProductionVoltageDivide,
+                        pwrFactor: productionCtProductionEim.pwrFactor
+                    };
+                    this.pv.productionCt.powerPeakEim = obj.powerPeak;
+
                     //add to pv object
                     this.pv.powerState = obj.powerState;
                     this.pv.powerLevel = obj.powerLevel;
@@ -2339,8 +2476,8 @@ class EnvoyDevice extends EventEmitter {
                             this.productionsService
                                 .updateCharacteristic(Characteristic.EnphaseRmsCurrent, obj.rmsCurrent)
                                 .updateCharacteristic(Characteristic.EnphaseRmsVoltage, obj.rmsVoltage)
-                                .updateCharacteristic(Characteristic.EnphaseReactivePower, obj.reactivePower)
-                                .updateCharacteristic(Characteristic.EnphaseApparentPower, obj.apparentPower)
+                                .updateCharacteristic(Characteristic.EnphaseReactivePower, obj.reactivePowerKw)
+                                .updateCharacteristic(Characteristic.EnphaseApparentPower, obj.apparentPowerKw)
                                 .updateCharacteristic(Characteristic.EnphasePwrFactor, obj.pwrFactor);
                         }
                     }
@@ -2447,39 +2584,53 @@ class EnvoyDevice extends EventEmitter {
                 const arr = [];
                 const consumptions = productionCtData.consumption ?? [];
                 consumptions.forEach((consumption, index) => {
-                    const measurementType = ApiCodes[consumption.measurementType];
-                    const storedConsumptionPower = measurementType === 'Consumption Total' ? this.pv.consumptionTotalPowerPeak : measurementType === 'Consumption Net' ? this.pv.consumptionNetPowerPeak : 0;
-                    const consumptionLifetimeOffset = [this.energyConsumptionTotalLifetimeOffset, this.energyConsumptionNetLifetimeOffset][index];
+                    const measurementTypeKey = ApiCodes[consumption.measurementType];
+                    const isNet = measurementTypeKey === 'Consumption Net';
+                    const isTotal = measurementTypeKey === 'Consumption Total';
+                    const storedConsumptionPower = isTotal ? this.pv.consumptionTotalPowerPeak : isNet ? this.pv.consumptionNetPowerPeak : 0;
+                    const consumptionLifetimeOffset = isTotal ? this.energyConsumptionTotalLifetimeOffset : isNet ? this.energyConsumptionNetLifetimeOffset : 0;
+                    const isNetPdm = isNet && energyPdmConsumptionSupported;
+                    const consumptionSource = isNetPdm ? this.pv.energyPdm.consumption.eim : consumption;
+                    const power = isNetPdm ? consumptionSource.power : consumptionSource.wNow;
+
                     const obj = {
-                        type: ApiCodes[consumption.type],
-                        measurmentType: measurementType,
-                        activeCount: consumption.activeCount,
-                        readingTime: new Date(consumption.readingTime * 1000).toLocaleString(),
-                        power: consumption.wNow ?? 0, //watts
-                        powerKw: consumption.wNow / 1000, //kW
-                        powerState: consumption.wNow > 0 ?? false,
-                        powerPeak: consumption.wNow > storedConsumptionPower ? consumption.wNow : storedConsumptionPower,
-                        powerPeakKw: consumption.wNow > storedConsumptionPower ? consumption.wNow / 1000 : storedConsumptionPower / 1000,
-                        powerPeakDetected: consumption.wNow > storedConsumptionPower ?? false,
-                        energyState: consumption.whToday > 0 ?? false,
-                        energyLifetime: (consumption.whLifetime + consumptionLifetimeOffset),
-                        energyLifetimeKw: (consumption.whLifetime + consumptionLifetimeOffset) / 1000,
-                        energyVarhLeadLifetime: consumption.varhLeadLifetime / 1000,
-                        energyVarhLagLifetime: consumption.varhLagLifetime / 1000,
-                        energyVahLifetime: consumption.vahLifetime / 1000,
-                        energyLastSevenDays: consumption.whLastSevenDays,
-                        energyLastSevenDaysKw: consumption.whLastSevenDays / 1000,
-                        energyToday: consumption.whToday,
-                        energyTodayKw: consumption.whToday / 1000,
-                        energyVahToday: consumption.vahToday / 1000,
-                        energyVarhLeadToday: consumption.varhLeadToday / 1000,
-                        energyVarhLagToday: consumption.varhLagToday / 1000,
+                        type: isNetPdm ? consumptionSource.type : ApiCodes[consumptionSource.type],
+                        measurementType: isNetPdm ? consumptionSource.measurementType : ApiCodes[consumptionSource.measurementType],
+                        activeCount: consumptionSource.activeCount,
+                        readingTime: isNetPdm ? consumptionSource.readingTime : new Date(consumptionSource.readingTime * 1000).toLocaleString(),
+                        power: power,
+                        powerKw: isNetPdm ? consumptionSource.powerKw : power / 1000,
+                        powerState: power > 0,
+                        powerPeak: Math.max(power, storedConsumptionPower),
+                        powerPeakKw: Math.max(power, storedConsumptionPower) / 1000,
+                        powerPeakDetected: power > storedConsumptionPower,
+                        energyToday: isNetPdm ? consumptionSource.energyToday : consumptionSource.whToday,
+                        energyTodayKw: isNetPdm ? consumptionSource.energyTodayKw : consumptionSource.whToday / 1000,
+                        energyLastSevenDays: isNetPdm ? consumptionSource.energyLastSevenDays : consumptionSource.whLastSevenDays,
+                        energyLastSevenDaysKw: isNetPdm ? consumptionSource.energyLastSevenDaysKw : consumptionSource.whLastSevenDays / 1000,
+                        energyLifetime: isNetPdm ? consumptionSource.energyLifetime : (consumptionSource.whLifetime + consumptionLifetimeOffset),
+                        energyLifetimeKw: isNetPdm ? consumptionSource.energyLifetime : (consumptionSource.whLifetime + consumptionLifetimeOffset) / 1000,
+                        energyState: isNetPdm ? consumptionSource.energyState : (consumptionSource.whToday > 0) ?? false,
+                        energyVarhLeadToday: consumption.varhLeadToday,
+                        energyVarhLeadTodayKw: consumption.varhLeadToday / 1000,
+                        energyVarhLeadLifetime: consumption.varhLeadLifetime,
+                        energyVarhLeadLifetimeKw: consumption.varhLeadLifetime / 1000,
+                        energyVarhLagToday: consumption.varhLagToday,
+                        energyVarhLagTodayKw: consumption.varhLagToday / 1000,
+                        energyVarhLagLifetime: consumption.varhLagLifetime,
+                        energyVarhLagLifetimeKw: consumption.varhLagLifetime / 1000,
+                        energyVahToday: consumption.vahToday,
+                        energyVahTodayKw: consumption.vahToday / 1000,
+                        energyVahLifetime: consumption.vahLifetime,
+                        energyVahLifetimeKw: consumption.vahLifetime / 1000,
+                        reactivePower: consumption.reactPwr,
+                        reactivePowerKw: consumption.reactPwr / 1000,
+                        apparentPower: consumption.apprntPwr,
+                        apparentPowerKw: consumption.apprntPwr / 1000,
                         rmsCurrent: consumption.rmsCurrent,
                         rmsVoltage: consumption.rmsVoltage / metersConsumpionVoltageDivide,
-                        reactivePower: consumption.reactPwr / 1000,
-                        apparentPower: consumption.apprntPwr / 1000,
-                        pwrFactor: consumption.pwrFactor
-                    }
+                        pwrFactor: consumption.pwrFactor,
+                    };
                     //push to array
                     arr.push(obj);
 
@@ -2495,20 +2646,20 @@ class EnvoyDevice extends EventEmitter {
                             .updateCharacteristic(Characteristic.EnphaseEnergyLifetime, obj.energyLifetimeKw)
                             .updateCharacteristic(Characteristic.EnphaseRmsCurrent, obj.rmsCurrent)
                             .updateCharacteristic(Characteristic.EnphaseRmsVoltage, obj.rmsVoltage)
-                            .updateCharacteristic(Characteristic.EnphaseReactivePower, obj.reactivePower)
-                            .updateCharacteristic(Characteristic.EnphaseApparentPower, obj.apparentPower)
+                            .updateCharacteristic(Characteristic.EnphaseReactivePower, obj.reactivePowerKw)
+                            .updateCharacteristic(Characteristic.EnphaseApparentPower, obj.apparentPowerKw)
                             .updateCharacteristic(Characteristic.EnphasePwrFactor, obj.pwrFactor)
                             .updateCharacteristic(Characteristic.EnphasePowerMaxReset, false);
                     }
 
                     //sensors total
-                    if (measurementType === 'Consumption Total') {
+                    if (isTotal) {
                         //store power peak in pv object
                         this.pv.consumptionTotalPowerPeak = obj.powerPeak;
 
                         //debug
-                        const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;
-                        const debug2 = this.enableDebugMode ? this.emit('debug', `${measurementType} energy state: ${obj.energyState}`) : false;
+                        const debug1 = this.enableDebugMode ? this.emit('debug', `${obj.measurementType} power state: ${obj.powerState}`) : false;
+                        const debug2 = this.enableDebugMode ? this.emit('debug', `${obj.measurementType} energy state: ${obj.energyState}`) : false;
 
                         //power
                         if (this.powerConsumptionTotalStateActiveSensor) {
@@ -2598,13 +2749,13 @@ class EnvoyDevice extends EventEmitter {
                     }
 
                     //sensors net
-                    if (measurementType === 'Consumption Net') {
+                    if (isNet) {
                         //store power peak in pv object
                         this.pv.consumptionNetPowerPeak = obj.powerPeak;
 
                         //debug
-                        const debug1 = this.enableDebugMode ? this.emit('debug', `${measurementType} power state: ${obj.powerState}`) : false;
-                        const debug2 = this.enableDebugMode ? this.emit('debug', `${measurementType} energy state: ${obj.energyState}`) : false;
+                        const debug1 = this.enableDebugMode ? this.emit('debug', `${obj.measurementType} power state: ${obj.powerState}`) : false;
+                        const debug2 = this.enableDebugMode ? this.emit('debug', `${obj.measurementType} energy state: ${obj.energyState}`) : false;
 
                         //power
                         if (this.powerConsumptionNetStateActiveSensor) {
@@ -5724,19 +5875,19 @@ class EnvoyDevice extends EventEmitter {
                     if (meter.state) {
                         meterService.getCharacteristic(Characteristic.EnphaseMeterActivePower)
                             .onGet(async () => {
-                                const value = meter.readings.activePower;
+                                const value = meter.readings.powerKw;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Meter: ${measurementType}, active power: ${value} kW`);
                                 return value;
                             });
                         meterService.getCharacteristic(Characteristic.EnphaseMeterApparentPower)
                             .onGet(async () => {
-                                const value = meter.readings.apparentPower;
+                                const value = meter.readings.apparentPowerKw;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Meter: ${measurementType}, apparent power: ${value} kVA`);
                                 return value;
                             });
                         meterService.getCharacteristic(Characteristic.EnphaseMeterReactivePower)
                             .onGet(async () => {
-                                const value = meter.readings.reactivePower;
+                                const value = meter.readings.reactivePowerKw;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Meter: ${measurementType}, reactive power: ${value} kVAr`);
                                 return value;
                             });
@@ -5832,13 +5983,13 @@ class EnvoyDevice extends EventEmitter {
                             });
                         productionsService.getCharacteristic(Characteristic.EnphaseReactivePower)
                             .onGet(async () => {
-                                const value = this.pv.productionCt.production.reactivePower;
+                                const value = this.pv.productionCt.production.reactivePowerKw;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Production net reactive power: ${value} kVAr`);
                                 return value;
                             });
                         productionsService.getCharacteristic(Characteristic.EnphaseApparentPower)
                             .onGet(async () => {
-                                const value = this.pv.productionCt.production.apparentPower;
+                                const value = this.pv.productionCt.production.apparentPowerKw;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Production net apparent power: ${value} kVA`);
                                 return value;
                             });
@@ -5955,104 +6106,104 @@ class EnvoyDevice extends EventEmitter {
                 if (metersConsumptionEnabled && productionCtConsumptionSupported) {
                     this.consumptionsServices = [];
                     for (const consumption of this.pv.productionCt.consumption) {
-                        const measurmentType = consumption.measurmentType;
-                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power And Energy Service`) : false;
-                        const consumptionService = accessory.addService(Service.EnphasePowerAndEnergyService, `${measurmentType} Power And Energy`, `consumptionService${measurmentType}`);
-                        consumptionService.setCharacteristic(Characteristic.ConfiguredName, `${measurmentType} Power And Energy`);
+                        const measurementType = consumption.measurementType;
+                        const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Power And Energy Service`) : false;
+                        const consumptionService = accessory.addService(Service.EnphasePowerAndEnergyService, `${measurementType} Power And Energy`, `consumptionService${measurementType}`);
+                        consumptionService.setCharacteristic(Characteristic.ConfiguredName, `${measurementType} Power And Energy`);
                         consumptionService.getCharacteristic(Characteristic.EnphasePower)
                             .onGet(async () => {
                                 const value = consumption.powerKw;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} power: ${value} kW`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} power: ${value} kW`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphasePowerMax)
                             .onGet(async () => {
                                 const value = consumption.powerPeakKw;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} power peak: ${value} kW`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} power peak: ${value} kW`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphasePowerMaxDetected)
                             .onGet(async () => {
                                 const value = consumption.powerPeakDetected;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} power peak detected: ${value ? 'Yes' : 'No'}`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} power peak detected: ${value ? 'Yes' : 'No'}`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphaseEnergyToday)
                             .onGet(async () => {
                                 const value = consumption.energyTodayKw;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} energy today: ${value} kWh`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} energy today: ${value} kWh`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphaseEnergyLastSevenDays)
                             .onGet(async () => {
                                 const value = consumption.energyLastSevenDaysKw;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} energy last seven days: ${value} kWh`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} energy last seven days: ${value} kWh`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphaseEnergyLifetime)
                             .onGet(async () => {
                                 const value = consumption.energyLifetimeKw;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} energy lifetime: ${value} kWh`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} energy lifetime: ${value} kWh`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphaseRmsCurrent)
                             .onGet(async () => {
                                 const value = consumption.rmsCurrent;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} current: ${value} A`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} current: ${value} A`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphaseRmsVoltage)
                             .onGet(async () => {
                                 const value = consumption.rmsVoltage;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} voltage: ${value} V`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} voltage: ${value} V`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphaseReactivePower)
                             .onGet(async () => {
-                                const value = consumption.reactivePower;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} reactive power: ${value} kVAr`);
+                                const value = consumption.reactivePowerKw;
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} reactive power: ${value} kVAr`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphaseApparentPower)
                             .onGet(async () => {
-                                const value = consumption.apparentPower;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} apparent power: ${value} kVA`);
+                                const value = consumption.apparentPowerKw;
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} apparent power: ${value} kVA`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphasePwrFactor)
                             .onGet(async () => {
                                 const value = consumption.pwrFactor;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} power factor: ${value} cos φ`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} power factor: ${value} cos φ`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphaseReadingTime)
                             .onGet(async () => {
                                 const value = consumption.readingTime;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} last report: ${value}`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} last report: ${value}`);
                                 return value;
                             });
                         consumptionService.getCharacteristic(Characteristic.EnphasePowerMaxReset)
                             .onGet(async () => {
                                 const state = false;
-                                const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} power peak reset: Off`);
+                                const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} power peak reset: Off`);
                                 return state;
                             })
                             .onSet(async (state) => {
                                 try {
-                                    const set = state ? measurmentType === 'Consumption Total' ? this.pv.consumptionTotalPowerPeak = 0 : measurmentType === 'Consumption Net' ? this.pv.consumptionNetPowerPeak = 0 : false : false;
-                                    const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} power peak reset: On`);
+                                    const set = state ? measurementType === 'Consumption Total' ? this.pv.consumptionTotalPowerPeak = 0 : measurementType === 'Consumption Net' ? this.pv.consumptionNetPowerPeak = 0 : false : false;
+                                    const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} power peak reset: On`);
                                     consumptionService.updateCharacteristic(Characteristic.EnphasePowerMaxReset, false);
                                 } catch (error) {
-                                    this.emit('warn', `${measurmentType}, power peak reset error: ${error}`);
+                                    this.emit('warn', `${measurementType}, power peak reset error: ${error}`);
                                 };
                             });
                         this.consumptionsServices.push(consumptionService);
 
                         //total
-                        if (measurmentType === 'Consumption Total') {
+                        if (measurementType === 'Consumption Total') {
                             //consumption total state sensor service
                             if (this.powerConsumptionTotalStateActiveSensor) {
-                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power State Sensor Service`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Power State Sensor Service`) : false;
                                 const serviceName = this.powerConsumptionTotalStateActiveSensor.namePrefix ? `${accessoryName} ${this.powerConsumptionTotalStateActiveSensor.name}` : this.powerConsumptionTotalStateActiveSensor.name;
                                 const serviceType = this.powerConsumptionTotalStateActiveSensor.serviceType;
                                 const characteristicType = this.powerConsumptionTotalStateActiveSensor.characteristicType;
@@ -6062,7 +6213,7 @@ class EnvoyDevice extends EventEmitter {
                                 powerConsumptionTotalStateSensorService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.powerConsumptionTotalStateActiveSensor.state;
-                                        const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} power state sensor: ${state ? 'Active' : 'Not active'}`);
+                                        const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} power state sensor: ${state ? 'Active' : 'Not active'}`);
                                         return state;
                                     });
                                 this.powerConsumptionTotalStateSensorService = powerConsumptionTotalStateSensorService;
@@ -6070,7 +6221,7 @@ class EnvoyDevice extends EventEmitter {
 
                             //consumption total power peak sensors service
                             if (this.powerConsumptionTotalLevelActiveSensorsCount > 0) {
-                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power Level Sensor Services`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Power Level Sensor Services`) : false;
                                 this.powerConsumptionTotalLevelSensorsServices = [];
                                 for (let i = 0; i < this.powerConsumptionTotalLevelActiveSensorsCount; i++) {
                                     const serviceName = this.powerConsumptionTotalLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionTotalLevelActiveSensors[i].name}` : this.powerConsumptionTotalLevelActiveSensors[i].name;
@@ -6091,7 +6242,7 @@ class EnvoyDevice extends EventEmitter {
 
                             //consumption total energy state sensor service
                             if (this.energyConsumptionTotalStateActiveSensor) {
-                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy State Sensor Service`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Energy State Sensor Service`) : false;
                                 const serviceName = this.energyConsumptionTotalStateActiveSensor.namePrefix ? `${accessoryName} ${this.energyConsumptionTotalStateActiveSensor.name}` : this.energyConsumptionTotalStateActiveSensor.name;
                                 const serviceType = this.energyConsumptionTotalStateActiveSensor.serviceType;
                                 const characteristicType = this.energyConsumptionTotalStateActiveSensor.characteristicType;
@@ -6101,7 +6252,7 @@ class EnvoyDevice extends EventEmitter {
                                 energyConsumptionTotalStateSensorService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.energyConsumptionTotalStateActiveSensor.state;
-                                        const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
+                                        const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
                                         return state;
                                     });
                                 this.energyConsumptionTotalStateSensorService = energyConsumptionTotalStateSensorService;
@@ -6109,7 +6260,7 @@ class EnvoyDevice extends EventEmitter {
 
                             //consumption total energy level sensor service
                             if (this.energyConsumptionTotalLevelActiveSensorsCount > 0) {
-                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy Level Sensor Services`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Energy Level Sensor Services`) : false;
                                 this.energyConsumptionTotalLevelSensorsServices = [];
                                 for (let i = 0; i < this.energyConsumptionTotalLevelActiveSensorsCount; i++) {
                                     const serviceName = this.energyConsumptionTotalLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionTotalLevelActiveSensors[i].name}` : this.energyConsumptionTotalLevelActiveSensors[i].name;
@@ -6130,10 +6281,10 @@ class EnvoyDevice extends EventEmitter {
                         };
 
                         //net
-                        if (measurmentType === 'Consumption Net') {
+                        if (measurementType === 'Consumption Net') {
                             //consumption net state sensor service
                             if (this.powerConsumptionNetStateActiveSensor) {
-                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power State Sensor Service`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Power State Sensor Service`) : false;
                                 const serviceName = this.powerConsumptionNetStateActiveSensor.namePrefix ? `${accessoryName} ${this.powerConsumptionNetStateActiveSensor.name}` : this.powerConsumptionNetStateActiveSensor.name;
                                 const serviceType = this.powerConsumptionNetStateActiveSensor.serviceType;
                                 const characteristicType = this.powerConsumptionNetStateActiveSensor.characteristicType;
@@ -6143,7 +6294,7 @@ class EnvoyDevice extends EventEmitter {
                                 powerConsumptionNetStateSensorService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.powerConsumptionNetStateActiveSensor.state;
-                                        const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} power state sensor: ${state ? 'Active' : 'Not active'}`);
+                                        const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} power state sensor: ${state ? 'Active' : 'Not active'}`);
                                         return state;
                                     });
                                 this.powerConsumptionNetStateSensorService = powerConsumptionNetStateSensorService;
@@ -6151,7 +6302,7 @@ class EnvoyDevice extends EventEmitter {
 
                             //consumption net power peak sensor service
                             if (this.powerConsumptionNetLevelActiveSensorsCount > 0) {
-                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Power Level Sensor Services`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Power Level Sensor Services`) : false;
                                 this.powerConsumptionNetLevelSensorsServices = [];
                                 for (let i = 0; i < this.powerConsumptionNetLevelActiveSensorsCount; i++) {
                                     const serviceName = this.powerConsumptionNetLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.powerConsumptionNetLevelActiveSensors[i].name}` : this.powerConsumptionNetLevelActiveSensors[i].name;
@@ -6172,7 +6323,7 @@ class EnvoyDevice extends EventEmitter {
 
                             //consumption net energy state sensor service
                             if (this.energyConsumptionNetStateActiveSensor) {
-                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy State Sensor Service`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Energy State Sensor Service`) : false;
                                 const serviceName = this.energyConsumptionNetStateActiveSensor.namePrefix ? `${accessoryName} ${this.energyConsumptionNetStateActiveSensor.name}` : this.energyConsumptionNetStateActiveSensor.name;
                                 const serviceType = this.energyConsumptionNetStateActiveSensor.serviceType;
                                 const characteristicType = this.energyConsumptionNetStateActiveSensor.characteristicType;
@@ -6182,14 +6333,14 @@ class EnvoyDevice extends EventEmitter {
                                 energyConsumptionNetStateSensorService.getCharacteristic(characteristicType)
                                     .onGet(async () => {
                                         const state = this.energyConsumptionNetStateActiveSensor.state;
-                                        const info = this.disableLogInfo ? false : this.emit('info', `${measurmentType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
+                                        const info = this.disableLogInfo ? false : this.emit('info', `${measurementType} energy state sensor: ${state ? 'Active' : 'Not active'}`);
                                         return state;
                                     });
                                 this.energyConsumptionNetStateSensorService = energyConsumptionNetStateSensorService;
                             };
 
                             if (this.energyConsumptionNetLevelActiveSensorsCount > 0) {
-                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurmentType} Energy Level Sensor Services`) : false;
+                                const debug = this.enableDebugMode ? this.emit('debug', `Prepare ${measurementType} Energy Level Sensor Services`) : false;
                                 this.energyConsumptionNetLevelSensorsServices = [];
                                 for (let i = 0; i < this.energyConsumptionNetLevelActiveSensorsCount; i++) {
                                     const serviceName = this.energyConsumptionNetLevelActiveSensors[i].namePrefix ? `${accessoryName} ${this.energyConsumptionNetLevelActiveSensors[i].name}` : this.energyConsumptionNetLevelActiveSensors[i].name;
