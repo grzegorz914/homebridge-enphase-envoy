@@ -180,6 +180,7 @@ export const ApiCodes = {
     "rgm": "Revenue Grade Meter",
     "pmu": "Power Meter Unit",
     "production": "Production",
+    "consumption": "Consumption Net",
     "net-consumption": "Consumption Net",
     "total-consumption": "Consumption Total",
     "storage": "Storage",

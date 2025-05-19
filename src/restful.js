@@ -26,6 +26,7 @@ class RestFul extends EventEmitter {
             liveData: 'This data is not available in your system.',
             production: 'This data is not available in your system.',
             productionCt: 'This data is not available in your system.',
+            productionAll: 'This data is not available in your system.',
             energyPdm: 'This data is not available in your system.',
             productionPdm: 'This data is not available in your system.',
             microinverters: 'This data is not available in your system.',
@@ -62,6 +63,7 @@ class RestFul extends EventEmitter {
             restFul.get('/livedata', (req, res) => { res.json(this.restFulData.liveData) });
             restFul.get('/production', (req, res) => { res.json(this.restFulData.production) });
             restFul.get('/productionct', (req, res) => { res.json(this.restFulData.productionCt) });
+            restFul.get('/productionall', (req, res) => { res.json(this.restFulData.productionAll) });
             restFul.get('/energypdm', (req, res) => { res.json(this.restFulData.energyPdm) });
             restFul.get('/productionpdm', (req, res) => { res.json(this.restFulData.productionPdm) });
             restFul.get('/microinverters', (req, res) => { res.json(this.restFulData.microinverters) });
@@ -153,6 +155,9 @@ class RestFul extends EventEmitter {
                 break;
             case 'productionct':
                 this.restFulData.productionCt = data;
+                break;
+            case 'productionall':
+                this.restFulData.productionAll = data;
                 break;
             case 'energypdm':
                 this.restFulData.energyPdm = data;

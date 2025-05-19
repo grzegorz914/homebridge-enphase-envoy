@@ -944,12 +944,28 @@ export default (api) => {
     }
     Characteristic.EnphasePowerMaxReset = EnphasePowerMaxReset;
 
+    class EnphaseFreq extends Characteristic {
+        constructor() {
+            super('Frequency', '00000085-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'Hz',
+                maxValue: 100,
+                minValue: 0,
+                minStep: 0.01,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EnphaseFreq = EnphaseFreq;
+
     //power production service
     class EnphasePowerAndEnergyService extends Service {
         constructor(displayName, subtype) {
             super(displayName, '00000004-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.EnphasePower);
+            this.addCharacteristic(Characteristic.EnphasePower)
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.EnphasePowerMax);
             this.addOptionalCharacteristic(Characteristic.EnphasePowerMaxDetected);
@@ -963,6 +979,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnphasePwrFactor);
             this.addOptionalCharacteristic(Characteristic.EnphaseReadingTime);
             this.addOptionalCharacteristic(Characteristic.EnphasePowerMaxReset);
+            this.addOptionalCharacteristic(Characteristic.EnphaseFreq);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }

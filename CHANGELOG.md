@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.15.0] - (xx.05.2025)
+
+## Changes
+
+- fix [#198](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/198)
+- refactor code of production and consumption data update (support fw. >= 8.2.4xx)
+- bump dependencies
+- redme update
+- cleanup 
+
 ## [9.14.6] - (12.05.2025)
 
 ## Changes
