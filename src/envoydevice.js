@@ -1483,7 +1483,7 @@ class EnvoyDevice extends EventEmitter {
                     .updateCharacteristic(Characteristic.EnphaseEnvoyCommNumAndLevel, `${obj.comm.num} / ${obj.comm.level} %`)
                     .updateCharacteristic(Characteristic.EnphaseEnvoyCommNumPcuAndLevel, `${obj.comm.pcuNum} / ${obj.comm.pcuLevel} %`);
                 if (this.feature.inventory.nsrbs.installed) {
-                    this.envoyService.updateCharacteristic.updateCharacteristic(Characteristic.EnphaseEnvoyCommNumNsrbAndLevel, `${obj.comm.nsrbNum} / ${obj.comm.nsrbLevel} %`);
+                    this.envoyService.updateCharacteristic(Characteristic.EnphaseEnvoyCommNumNsrbAndLevel, `${obj.comm.nsrbNum} / ${obj.comm.nsrbLevel} %`);
                 }
                 if (obj.dbSize !== -1 && obj.dbPercentFull !== -1) {
                     this.envoyService.updateCharacteristic(Characteristic.EnphaseEnvoyDbSize, `${obj.dbSize} / ${obj.dbPercentFull} %`);
