@@ -2442,7 +2442,7 @@ class EnvoyDevice extends EventEmitter {
             //get enabled devices
             const metersProductionEnabled = this.feature.meters.production.enabled;;
             const metersConsumptionEnabled = this.feature.meters.consumption.enabled;
-            const energyPdmProductionSupported = this.feature.energyPdm.production.eim.installed;
+            const energyPdmProductionSupported = this.feature.energyPdm.production.supported;
             const energyPdmConsumptionSupported = this.feature.energyPdm.consumption.supported;
 
             //production
