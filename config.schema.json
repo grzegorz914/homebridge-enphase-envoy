@@ -682,6 +682,150 @@
               "description": "Here set offset in (Wh) for energy production (if needed)",
               "required": false
             },
+            "gridProductionQualitySensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "displayType": {
+                    "title": "Accessory type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Accessory type for Home app",
+                    "required": true
+                  },
+                  "name": {
+                    "title": "Accessory name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Name for the sensor accessory in the Home app",
+                    "required": false
+                  },
+                  "compareMode": {
+                    "title": "Comparison mode",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Comparison mode",
+                    "required": true
+                  },
+                  "compareType": {
+                    "title": "Comparison type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": "Current (A)",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Voltage (V)",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Frequency (Hz)",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Power Factor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Comparison mode",
+                    "required": true
+                  },
+                  "compareLevel": {
+                    "title": "Level",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 260,
+                    "multipleOf": 0.1,
+                    "default": 0,
+                    "description": "Here set level to compare at which the sensor fired.",
+                    "required": false
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use the accessory name as a prefix",
+                    "required": false
+                  }
+                }
+              }
+            },
             "powerConsumptionTotalStateSensor": {
               "title": "Power State Sensor",
               "type": "object",
@@ -1021,6 +1165,150 @@
                 }
               }
             },
+            "gridConsumptionTotalQualitySensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "displayType": {
+                    "title": "Accessory type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Accessory type for Home app",
+                    "required": true
+                  },
+                  "name": {
+                    "title": "Accessory name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Name for the sensor accessory in the Home app",
+                    "required": false
+                  },
+                  "compareMode": {
+                    "title": "Comparison mode",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Comparison mode",
+                    "required": true
+                  },
+                  "compareType": {
+                    "title": "Comparison type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": "Current (A)",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Voltage (V)",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Frequency (Hz)",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Power Factor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Comparison mode",
+                    "required": true
+                  },
+                  "compareLevel": {
+                    "title": "Level",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 260,
+                    "multipleOf": 0.1,
+                    "default": 0,
+                    "description": "Here set level to compare at which the sensor fired.",
+                    "required": false
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use the accessory name as a prefix",
+                    "required": false
+                  }
+                }
+              }
+            },
             "powerConsumptionNetStateSensor": {
               "title": "Power State Sensor",
               "type": "object",
@@ -1347,6 +1635,150 @@
                     "minimum": 0,
                     "default": 0,
                     "description": "Here set energy level in (Wh) to compare at which the sensor fired.",
+                    "required": false
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use the accessory name as a prefix",
+                    "required": false
+                  }
+                }
+              }
+            },
+            "gridConsumptionNetQualitySensors": {
+              "title": "Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "displayType": {
+                    "title": "Accessory type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Accessory type for Home app",
+                    "required": true
+                  },
+                  "name": {
+                    "title": "Accessory name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Name for the sensor accessory in the Home app",
+                    "required": false
+                  },
+                  "compareMode": {
+                    "title": "Comparison mode",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      }
+                    ],
+                    "description": "Comparison mode",
+                    "required": true
+                  },
+                  "compareType": {
+                    "title": "Comparison type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": "Current (A)",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Voltage (V)",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Frequency (Hz)",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Power Factor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Comparison mode",
+                    "required": true
+                  },
+                  "compareLevel": {
+                    "title": "Level",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 260,
+                    "multipleOf": 0.1,
+                    "default": 0,
+                    "description": "Here set level to compare at which the sensor fired.",
                     "required": false
                   },
                   "namePrefix": {
@@ -3449,6 +3881,35 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "title": "Grid ",
+                          "items": [
+                            {
+                              "key": "devices[]",
+                              "type": "section",
+                              "title": "Quality Sensors",
+                              "description": "Section for enabling sensor for grid quality monitoring",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                {
+                                  "key": "devices[].gridProductionQualitySensors",
+                                  "type": "tabarray",
+                                  "title": "{{ value.name || 'sensor' }}",
+                                  "items": [
+                                    "devices[].gridProductionQualitySensors[].displayType",
+                                    "devices[].gridProductionQualitySensors[].name",
+                                    "devices[].gridProductionQualitySensors[].compareMode",
+                                    "devices[].gridProductionQualitySensors[].compareType",
+                                    "devices[].gridProductionQualitySensors[].compareLevel",
+                                    "devices[].gridProductionQualitySensors[].namePrefix"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -3554,6 +4015,35 @@
                                       ]
                                     }
                                   ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "title": "Grid ",
+                                  "items": [
+                                    {
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Quality Sensors",
+                                      "description": "Section for enabling sensor for grid quality monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        {
+                                          "key": "devices[].gridConsumptionTotalQualitySensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].gridConsumptionTotalQualitySensors[].displayType",
+                                            "devices[].gridTotalQualitgridConsumptionTotalQualitySensorsySensors[].name",
+                                            "devices[].gridConsumptionTotalQualitySensors[].compareMode",
+                                            "devices[].gridConsumptionTotalQualitySensors[].compareType",
+                                            "devices[].gridConsumptionTotalQualitySensors[].compareLevel",
+                                            "devices[].gridConsumptionTotalQualitySensors[].namePrefix"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -3645,6 +4135,35 @@
                                             "devices[].energyConsumptionNetLevelSensors[].compareMode",
                                             "devices[].energyConsumptionNetLevelSensors[].energyLevel",
                                             "devices[].energyConsumptionNetLevelSensors[].namePrefix"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "title": "Grid ",
+                                  "items": [
+                                    {
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Quality Sensors",
+                                      "description": "Section for enabling sensor for grid quality monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        {
+                                          "key": "devices[].gridConsumptionNetQualitySensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].gridConsumptionNetQualitySensors[].displayType",
+                                            "devices[].gridConsumptionNetQualitySensors[].name",
+                                            "devices[].gridConsumptionNetQualitySensors[].compareMode",
+                                            "devices[].gridConsumptionNetQualitySensors[].compareType",
+                                            "devices[].gridConsumptionNetQualitySensors[].compareLevel",
+                                            "devices[].gridConsumptionNetQualitySensors[].namePrefix"
                                           ]
                                         }
                                       ]

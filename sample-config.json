@@ -73,6 +73,16 @@
                             "namePrefix": false
                         }
                     ],
+                    "gridProductionQualitySensors": [
+                        {
+                            "displayType": 0,
+                            "name": "Cyrrent > 5A",
+                            "compareMode": 0,
+                            "compareType": 0,
+                            "compareevel": 5,
+                            "namePrefix": false
+                        }
+                    ],
                     "powerConsumptionTotalStateSensor": {
                         "name": "Consumption Total power state",
                         "displayType": 0
@@ -98,6 +108,16 @@
                             "compareMode": 0,
                             "energyLevel": 5000,
                             "displayType": 0,
+                            "namePrefix": false
+                        }
+                    ],
+                    "gridConsumptionTotalQualitySensors": [
+                        {
+                            "displayType": 0,
+                            "name": "Cyrrent > 5A",
+                            "compareMode": 0,
+                            "compareType": 0,
+                            "compareevel": 5,
                             "namePrefix": false
                         }
                     ],
@@ -134,6 +154,16 @@
                             "compareMode": 0,
                             "energyLevel": 5000,
                             "displayType": 0,
+                            "namePrefix": false
+                        }
+                    ],
+                    "gridConsumptionNetQualitySensors": [
+                        {
+                            "displayType": 0,
+                            "name": "Cyrrent > 5A",
+                            "compareMode": 0,
+                            "compareType": 0,
+                            "compareevel": 5,
                             "namePrefix": false
                         }
                     ],

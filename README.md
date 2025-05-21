@@ -45,8 +45,8 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 ### Monitoring Sensors
 
 * System `Data Refresh`
-* Production `State`, `Power State`, `Power Level`, `Energy State`, `Energy Level`
-* Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`
+* Production `State`, `Power State`, `Power Level`, `Energy State`, `Energy Level`, `Current`, `Voltage`, `Frequency`, `Power Factor`
+* Consumption `Power State`, `Power Level`, `Energy State`, `Energy Level`, `Current`, `Voltage`, `Frequency`, `Power Factor`
 * Q-Relay `State`
 * Enpower `Grid State`
 * Encharge: `State`, `Grid State`, `Backup Level`, `Dry Contacts`
@@ -137,7 +137,14 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
 | | `energyLevel` | number | Energy production level in `Wh` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| | `namePrefix` | boolean | Use accessory name for prefix ||
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `gridProductionQualitySensors` | | key | `Power Level Sensor` for production monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareType` | string | Comparison type: `Current`, `Voltage`, `Frequency`, `Power Factor` |
+| | `compareLevel` | number | Level to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 | `powerConsumptionTotalStateSensor` | | key | `Power State Sensor` for total consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -159,6 +166,13 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `energyLevel` | number | Energy level total in `Wh` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
+| `gridConsumptionTotalQualitySensors` | | key | `Power Level Sensor` for production monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareType` | string | Comparison type: `Current`, `Voltage`, `Frequency`, `Power Factor` |
+| | `compareLevel` | number | Level to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 | `powerConsumptionNetStateSensor` | | key | `Power State Sensor` for net consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -178,6 +192,13 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
 | | `energyLevel` | number | Net energy comsumption level in `Wh` to compare to sensor that was triggered |
+| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
+| | `namePrefix` | boolean | Use accessory name for prefix |
+| `gridConsumptionNetQualitySensors` | | key | `Power Level Sensor` for production monitoring |
+| | `name` | string | Accessory name for Home app |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareType` | string | Comparison type: `Current`, `Voltage`, `Frequency`, `Power Factor` |
+| | `compareLevel` | number | Level to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `qRelayStateSensor` | | key | `Q-Relay State Sensor` for monitoring. If `State ON`, the contact was opened. |

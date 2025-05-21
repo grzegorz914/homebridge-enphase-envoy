@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [9.15.0] - (xx.05.2025)
+## [9.16.0] - (21.05.2025)
+
+## Changes
+
+- added grid quality sensors for(Current, Voltage, Frequency, Power Factor) if meters are installed
+- fix qRelay state update 
+- redme update
+- cleanup 
+
+
+## [9.15.0] - (18.05.2025)
 
 ## Changes
 
