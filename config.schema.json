@@ -769,7 +769,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": true
+                    "required": false
                   },
                   "compareType": {
                     "title": "Comparison type",
@@ -797,24 +797,20 @@
                         ]
                       },
                       {
-                        "title": "Power Factor",
+                        "title": "Power Factor (cos φ)",
                         "enum": [
                           3
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "description": "Comparison type",
+                    "required": false
                   },
                   "compareLevel": {
                     "title": "Level",
                     "type": "number",
-                    "minimum": 0,
-                    "maximum": 260,
-                    "multipleOf": 0.1,
                     "default": 0,
-                    "description": "Here set level to compare at which the sensor fired.",
-                    "required": false
+                    "description": "Here set level to compare at which the sensor fired."
                   },
                   "namePrefix": {
                     "title": "Prefix",
@@ -1287,14 +1283,11 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": true
+                    "required": false
                   },
                   "compareLevel": {
                     "title": "Level",
                     "type": "number",
-                    "minimum": 0,
-                    "maximum": 260,
-                    "multipleOf": 0.1,
                     "default": 0,
                     "description": "Here set level to compare at which the sensor fired.",
                     "required": false
@@ -1734,7 +1727,7 @@
                       }
                     ],
                     "description": "Comparison mode",
-                    "required": true
+                    "required": false
                   },
                   "compareType": {
                     "title": "Comparison type",
@@ -1774,9 +1767,6 @@
                   "compareLevel": {
                     "title": "Level",
                     "type": "number",
-                    "minimum": 0,
-                    "maximum": 260,
-                    "multipleOf": 0.1,
                     "default": 0,
                     "description": "Here set level to compare at which the sensor fired.",
                     "required": false
@@ -4034,7 +4024,7 @@
                                           "title": "{{ value.name || 'sensor' }}",
                                           "items": [
                                             "devices[].gridConsumptionTotalQualitySensors[].displayType",
-                                            "devices[].gridTotalQualitgridConsumptionTotalQualitySensorsySensors[].name",
+                                            "devices[].gridConsumptionTotalQualitySensors[].name",
                                             "devices[].gridConsumptionTotalQualitySensors[].compareMode",
                                             "devices[].gridConsumptionTotalQualitySensors[].compareType",
                                             "devices[].gridConsumptionTotalQualitySensors[].compareLevel",
