@@ -1851,12 +1851,10 @@ class EnvoyDevice extends EventEmitter {
                     this.pv.inventory.pcus[index].status = obj;
 
                     //update chaaracteristics
-                    if (this.pcuServices) {
-                        this.pcuServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseMicroinverterLastReportDate, obj.lastReportDate)
-                            .updateCharacteristic(Characteristic.EnphaseMicroinverterPower, obj.lastReportWatts)
-                            .updateCharacteristic(Characteristic.EnphaseMicroinverterPowerMax, obj.maxReportWatts)
-                    }
+                    this.pcuServices?.[index]?.updateCharacteristic(Characteristic.EnphaseMicroinverterLastReportDate, obj.lastReportDate)
+                        .updateCharacteristic(Characteristic.EnphaseMicroinverterPower, obj.lastReportWatts)
+                        .updateCharacteristic(Characteristic.EnphaseMicroinverterPowerMax, obj.maxReportWatts);
+
                 });
             }
 
@@ -1934,14 +1932,13 @@ class EnvoyDevice extends EventEmitter {
                     }
 
                     //update characteristics
-                    if (this.metersServices) {
-                        this.metersServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseMeterState, obj.state)
-                            .updateCharacteristic(Characteristic.EnphaseMeterPhaseMode, obj.phaseMode)
-                            .updateCharacteristic(Characteristic.EnphaseMeterPhaseCount, obj.phaseCount)
-                            .updateCharacteristic(Characteristic.EnphaseMeterMeteringStatus, obj.meteringStatus)
-                            .updateCharacteristic(Characteristic.EnphaseMeterStatusFlags, obj.statusFlags);
-                    }
+                    this.metersServices?.[index]
+                        ?.updateCharacteristic(Characteristic.EnphaseMeterState, obj.state)
+                        .updateCharacteristic(Characteristic.EnphaseMeterPhaseMode, obj.phaseMode)
+                        .updateCharacteristic(Characteristic.EnphaseMeterPhaseCount, obj.phaseCount)
+                        .updateCharacteristic(Characteristic.EnphaseMeterMeteringStatus, obj.meteringStatus)
+                        .updateCharacteristic(Characteristic.EnphaseMeterStatusFlags, obj.statusFlags);
+
 
                 });
                 //add ct meters to pv meters
@@ -2515,12 +2512,8 @@ class EnvoyDevice extends EventEmitter {
             if (this.systemAccessoryActive) {
                 this.systemAccessoryActive.state = obj.powerState;
                 this.systemAccessoryActive.level = obj.powerLevel;
-
-                if (this.systemService) {
-                    this.systemService
-                        .updateCharacteristic(this.systemAccessoryActive.characteristicType, obj.powerState)
-                        .updateCharacteristic(this.systemAccessoryActive.characteristicType1, obj.powerLevel)
-                }
+                this.systemService?.updateCharacteristic(this.systemAccessoryActive.characteristicType, obj.powerState)
+                    .updateCharacteristic(this.systemAccessoryActive.characteristicType1, obj.powerLevel)
             }
 
             if (this.productionService) {
@@ -2555,7 +2548,6 @@ class EnvoyDevice extends EventEmitter {
                 }
             }
 
-
             //sensors energy
             if (this.energyProductionLevelActiveSensorsCount > 0) {
                 for (let i = 0; i < this.energyProductionLevelActiveSensorsCount; i++) {
@@ -2567,7 +2559,6 @@ class EnvoyDevice extends EventEmitter {
                 }
             }
 
-
             //sensors grid quality
             if (metersProductionEnabled && this.gridProductionQualityActiveSensorsCount > 0) {
                 for (let i = 0; i < this.gridProductionQualityActiveSensorsCount; i++) {
@@ -2575,11 +2566,7 @@ class EnvoyDevice extends EventEmitter {
                     const compareValue = [obj.current, obj.voltage, obj.frequency, obj.pwrFactor][sensor.compareType];
                     const state = await this.evaluateCompareMode(compareValue, sensor.compareLevel, sensor.compareMode);
                     sensor.state = state;
-
-                    const service = this.gridProductionQualityActiveSensorsServices?.[i];
-                    if (service) {
-                        service.updateCharacteristic(sensor.characteristicType, state);
-                    }
+                    this.gridProductionQualityActiveSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                 }
             }
 
@@ -2712,7 +2699,6 @@ class EnvoyDevice extends EventEmitter {
                                 const sensor = this.powerConsumptionNetLevelActiveSensors[i];
                                 const state = await this.evaluateCompareMode(obj1.power, sensor.powerLevel, sensor.compareMode);
                                 sensor.state = state;
-                                this.emit('warn', `${obj1.measurementType} sensor state1: ${state}`)
                                 this.powerConsumptionNetLevelSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                             }
                         }
@@ -2820,20 +2806,23 @@ class EnvoyDevice extends EventEmitter {
 
                         //update chaaracteristics
                         if (this.enchargeBackupLevelActiveAccessory) {
-                            const lowBatteryState = obj.percentFull < this.enchargeBackupLevelActiveAccessory.minSoc;
-                            const backupLevel = obj.percentFull;
-                            const chargingState = obj.chargingState;
+                            const { percentFull, chargingState } = obj;
+                            const lowBatteryState = percentFull < this.enchargeBackupLevelActiveAccessory.minSoc;
 
-                            if (this.enchargesLevelAndStateServices) {
-                                const characteristicType = this.enchargeBackupLevelActiveAccessory.characteristicType;
-                                const characteristicType1 = this.enchargeBackupLevelActiveAccessory.characteristicType1;
-                                const characteristicType2 = this.enchargeBackupLevelActiveAccessory.characteristicType2;
-                                this.enchargesLevelAndStateServices[index]
-                                    .updateCharacteristic(characteristicType, lowBatteryState)
-                                    .updateCharacteristic(characteristicType1, backupLevel)
-                                    .updateCharacteristic(characteristicType2, chargingState);
+                            const service = this.enchargesLevelAndStateServices?.[index];
+                            const {
+                                characteristicType,
+                                characteristicType1,
+                                characteristicType2
+                            } = this.enchargeBackupLevelActiveAccessory;
+
+                            if (service) {
+                                service.updateCharacteristic(characteristicType, lowBatteryState);
+                                service.updateCharacteristic(characteristicType1, percentFull);
+                                service.updateCharacteristic(characteristicType2, chargingState);
                             }
                         }
+
 
                         if (this.enchargesServices) {
                             this.enchargesServices[index]
@@ -2868,20 +2857,20 @@ class EnvoyDevice extends EventEmitter {
 
                     //update chaaracteristics
                     if (this.enchargeBackupLevelSummaryActiveAccessory) {
-                        const serviceBattery = this.enchargeBackupLevelSummaryActiveAccessory.displayType === 5;
-                        const backupLevel = percentFullSum > this.enchargeBackupLevelSummaryActiveAccessory.minSoc ? percentFullSum : 0;
-                        const state = serviceBattery ? backupLevel < this.enchargeBackupLevelSummaryActiveAccessory.minSoc : backupLevel > this.enchargeBackupLevelSummaryActiveAccessory.minSoc;
-                        this.enchargeBackupLevelSummaryActiveAccessory.state = state;
-                        this.enchargeBackupLevelSummaryActiveAccessory.backupLevel = backupLevel;
+                        const accessory = this.enchargeBackupLevelSummaryActiveAccessory;
+                        const serviceBattery = accessory.displayType === 5;
+                        const backupLevel = percentFullSum > accessory.minSoc ? percentFullSum : 0;
+                        const state = serviceBattery
+                            ? backupLevel < accessory.minSoc
+                            : backupLevel > accessory.minSoc;
 
-                        if (this.enchargeSummaryLevelAndStateService) {
-                            const characteristicType = this.enchargeBackupLevelSummaryActiveAccessory.characteristicType;
-                            const characteristicType1 = this.enchargeBackupLevelSummaryActiveAccessory.characteristicType1;
-                            this.enchargeSummaryLevelAndStateService
-                                .updateCharacteristic(characteristicType, state)
-                                .updateCharacteristic(characteristicType1, backupLevel)
-                        }
+                        accessory.state = state;
+                        accessory.backupLevel = backupLevel;
+
+                        this.enchargeSummaryLevelAndStateService?.updateCharacteristic(accessory.characteristicType, state)
+                            .updateCharacteristic(accessory.characteristicType1, backupLevel);
                     }
+
                 }
                 //encharges
                 this.feature.encharges.supported = enchargesSupported;
@@ -2960,38 +2949,26 @@ class EnvoyDevice extends EventEmitter {
                         if (this.enpowerGridStateActiveControl) {
                             const state = obj.mainsAdminStateBool;
                             this.enpowerGridStateActiveControl.state = state;
-
-                            if (this.enpowerGridStateControlService) {
-                                const characteristicType = this.enpowerGridStateActiveControl.characteristicType;
-                                this.enpowerGridStateControlService
-                                    .updateCharacteristic(characteristicType, state)
-                            }
+                            const characteristicType = this.enpowerGridStateActiveControl.characteristicType;
+                            this.enpowerGridStateControlService?.updateCharacteristic(characteristicType, state);
                         }
+
 
                         //enpower grid state sensor
                         if (this.enpowerGridStateActiveSensor) {
                             const state = obj.enpwrGridStateBool;
                             this.enpowerGridStateActiveSensor.state = state;
-
-                            if (this.enpowerGridStateSensorService) {
-                                const characteristicType = this.enpowerGridStateActiveSensor.characteristicType;
-                                this.enpowerGridStateSensorService
-                                    .updateCharacteristic(characteristicType, state)
-                            }
+                            const characteristicType = this.enpowerGridStateActiveSensor.characteristicType;
+                            this.enpowerGridStateSensorService?.updateCharacteristic(characteristicType, state);
                         }
 
                         //enpower grid mode sensors
                         if (this.enpowerGridModeActiveSensorsCount > 0) {
                             for (let i = 0; i < this.enpowerGridModeActiveSensorsCount; i++) {
-                                const gridMode = this.enpowerGridModeActiveSensors[i].gridMode;
-                                const state = gridMode === obj.enpwrGridMode;
-                                this.enpowerGridModeActiveSensors[i].state = state;
-
-                                if (this.enpowerGridModeSensorsServices) {
-                                    const characteristicType = this.enpowerGridModeActiveSensors[i].characteristicType;
-                                    this.enpowerGridModeSensorsServices[i]
-                                        .updateCharacteristic(characteristicType, state)
-                                }
+                                const sensor = this.enpowerGridModeActiveSensors[i];
+                                const state = sensor.gridMode === obj.enpwrGridMode;
+                                sensor.state = state;
+                                this.enpowerGridModeSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                             }
                         }
                     });
@@ -3262,37 +3239,34 @@ class EnvoyDevice extends EventEmitter {
                 this.pv.ensemble.relay = relay;
 
                 //update chaaracteristics
-                if (this.ensembleStatusService) {
-                    this.ensembleStatusService
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleRestPower, counters.restPowerKw)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHz, secctrl.freqBiasHz)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasV, secctrl.voltageBiasV)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzQ8, secctrl.freqBiasHzQ8)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVQ5, secctrl.voltageBiasVQ5)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzPhaseB, secctrl.freqBiasHzPhaseB)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVPhaseB, secctrl.voltageBiasVPhaseB)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzQ8PhaseB, secctrl.freqBiasHzQ8PhaseB)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVQ5PhaseB, secctrl.voltageBiasVQ5PhaseB)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzPhaseC, secctrl.freqBiasHzPhaseC)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVPhaseC, secctrl.voltageBiasVPhaseC)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzQ8PhaseC, secctrl.freqBiasHzQ8PhaseC)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVQ5PhaseC, secctrl.voltageBiasVQ5PhaseC)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleConfiguredBackupSoc, secctrl.configuredBackupSoc)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleAdjustedBackupSoc, secctrl.adjustedBackupSoc)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleAggSoc, secctrl.aggSoc)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleAggMaxEnergy, secctrl.aggMaxEnergyKw)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggSoc, secctrl.encAggSoc)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggRatedPower, this.pv.ensemble.encharges.ratedPowerSumKw)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggPercentFull, this.pv.ensemble.encharges.percentFullSum)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggBackupEnergy, secctrl.encAggBackupEnergy)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggAvailEnergy, secctrl.encAggAvailEnergy)
-                }
+                this.ensembleStatusService?.updateCharacteristic(Characteristic.EnphaseEnsembleRestPower, counters.restPowerKw)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHz, secctrl.freqBiasHz)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasV, secctrl.voltageBiasV)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzQ8, secctrl.freqBiasHzQ8)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVQ5, secctrl.voltageBiasVQ5)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzPhaseB, secctrl.freqBiasHzPhaseB)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVPhaseB, secctrl.voltageBiasVPhaseB)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzQ8PhaseB, secctrl.freqBiasHzQ8PhaseB)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVQ5PhaseB, secctrl.voltageBiasVQ5PhaseB)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzPhaseC, secctrl.freqBiasHzPhaseC)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVPhaseC, secctrl.voltageBiasVPhaseC)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleFreqBiasHzQ8PhaseC, secctrl.freqBiasHzQ8PhaseC)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleVoltageBiasVQ5PhaseC, secctrl.voltageBiasVQ5PhaseC)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleConfiguredBackupSoc, secctrl.configuredBackupSoc)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleAdjustedBackupSoc, secctrl.adjustedBackupSoc)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleAggSoc, secctrl.aggSoc)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleAggMaxEnergy, secctrl.aggMaxEnergyKw)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggSoc, secctrl.encAggSoc)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggRatedPower, this.pv.ensemble.encharges.ratedPowerSumKw)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggPercentFull, this.pv.ensemble.encharges.percentFullSum)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggBackupEnergy, secctrl.encAggBackupEnergy)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleEncAggAvailEnergy, secctrl.encAggAvailEnergy);
 
                 //encharge grid state sensor
                 if (this.enchargeGridStateActiveSensor) {
                     const state = relay.enchgGridStateBool;
                     this.enchargeGridStateActiveSensor.state = state;
-                    this.enchargeGridStateSensorService?.updateCharacteristic(his.enchargeGridStateActiveSensor.characteristicType, state);
+                    this.enchargeGridStateSensorService?.updateCharacteristic(this.enchargeGridStateActiveSensor.characteristicType, state);
                 }
 
                 //encharge grid mode sensors
@@ -3302,11 +3276,7 @@ class EnvoyDevice extends EventEmitter {
                         const sensor = this.enchargeGridModeActiveSensors[i];
                         const state = sensor.gridMode === currentGridMode;
                         sensor.state = state;
-
-                        const service = this.enchargeGridModeSensorsServices?.[i];
-                        if (service) {
-                            service.updateCharacteristic(sensor.characteristicType, state);
-                        }
+                        const service = this.enchargeGridModeSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                     }
                 }
 
@@ -3317,11 +3287,7 @@ class EnvoyDevice extends EventEmitter {
                         const sensor = this.enchargeBackupLevelActiveSensors[i];
                         const state = await this.evaluateCompareMode(percentFull, sensor.backupLevel, sensor.compareMode);
                         sensor.state = state;
-
-                        const service = this.enchargeBackupLevelSensorsServices?.[i];
-                        if (service) {
-                            service.updateCharacteristic(sensor.characteristicType, state);
-                        }
+                        const service = this.enchargeBackupLevelSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                     }
                 }
 
@@ -3329,7 +3295,7 @@ class EnvoyDevice extends EventEmitter {
                 if (this.solarGridStateActiveSensor) {
                     const state = relay.solarGridStateBool;
                     this.solarGridStateActiveSensor.state = state;
-                    this.solarGridStateSensorService?.updateCharacteristic(his.solarGridStateActiveSensor.characteristicType, state);
+                    this.solarGridStateSensorService?.updateCharacteristic(this.solarGridStateActiveSensor.characteristicType, state);
                 }
 
                 //solar grid mode sensors
@@ -3339,11 +3305,7 @@ class EnvoyDevice extends EventEmitter {
                         const sensor = this.solarGridModeActiveSensors[i];
                         const state = sensor.gridMode === currentGridMode;
                         sensor.state = state;
-
-                        const service = this.solarGridModeSensorsServices?.[i];
-                        if (service) {
-                            service.updateCharacteristic(sensor.characteristicType, state);
-                        }
+                        const service = this.solarGridModeSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                     }
                 }
 
@@ -3397,13 +3359,10 @@ class EnvoyDevice extends EventEmitter {
                 if (this.enchargeStateActiveSensor) {
                     const state = obj.enable;
                     this.enchargeStateActiveSensor.state = state;
-
-                    if (this.enchargeStateSensorService) {
-                        const characteristicType = this.enchargeStateActiveSensor.characteristicType;
-                        this.enchargeStateSensorService
-                            .updateCharacteristic(characteristicType, state);
-                    }
+                    const characteristicType = this.enchargeStateActiveSensor.characteristicType;
+                    this.enchargeStateSensorService?.updateCharacteristic(characteristicType, state);
                 }
+
 
             }
 
@@ -3601,12 +3560,10 @@ class EnvoyDevice extends EventEmitter {
                         const state = tariff.storageSettings.mode === sensor.profile;
                         sensor.state = state;
 
-                        if (this.enchargeProfileSensorsServices) {
-                            const service = this.enchargeProfileSensorsServices[i];
-                            service.updateCharacteristic(sensor.characteristicType, state);
-                        }
+                        this.enchargeProfileSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                     }
                 }
+
 
             }
 
@@ -3651,16 +3608,10 @@ class EnvoyDevice extends EventEmitter {
                         arr.push(obj);
 
                         //dry contacts control
-                        if (this.dryContactsControlServices) {
-                            this.dryContactsControlServices[index]
-                                .updateCharacteristic(Characteristic.On, obj.stateBool)
-                        }
+                        this.dryContactsControlServices?.[index]?.updateCharacteristic(Characteristic.On, obj.stateBool);
 
                         //dry contacts sensors
-                        if (this.dryContactsSensorServices?.[index]) {
-                            this.dryContactsSensorServices[index]
-                                .updateCharacteristic(Characteristic.ContactSensorState, obj.stateBool);
-                        }
+                        this.dryContactsSensorServices?.[index]?.updateCharacteristic(Characteristic.ContactSensorState, obj.stateBool);
 
                     });
                     this.pv.ensemble.dryContacts = arr;
@@ -3785,18 +3736,15 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.EnphaseEnvoyGeneratorMode, obj.adminMode)
                 }
 
-                if (this.generatorService) {
-                    this.generatorService
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorAdminState, obj.adminState)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorOperState, obj.operState)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorAdminMode, obj.adminMode)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorShedule, obj.schedule)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorStartSoc, obj.startSoc)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorStopSoc, obj.stopSoc)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorExexOn, obj.excOn)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorPresent, obj.present)
-                        .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorType, obj.type);
-                }
+                this.generatorService?.updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorAdminState, obj.adminState)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorOperState, obj.operState)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorAdminMode, obj.adminMode)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorShedule, obj.schedule)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorStartSoc, obj.startSoc)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorStopSoc, obj.stopSoc)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorExexOn, obj.excOn)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorPresent, obj.present)
+                    .updateCharacteristic(Characteristic.EnphaseEnsembleGeneratorType, obj.type);
 
                 //generator control
                 if (this.generatorStateActiveControl) {
@@ -4161,20 +4109,14 @@ class EnvoyDevice extends EventEmitter {
 
 
             //update plc level control state
-            if (this.envoyService) {
-                this.envoyService
-                    .updateCharacteristic(Characteristic.EnphaseEnvoyCheckCommLevel, false);
-            }
+            this.envoyService?.updateCharacteristic(Characteristic.EnphaseEnvoyCheckCommLevel, false);
 
             if (this.plcLevelActiveControl) {
                 this.plcLevelActiveControl.state = false;
-
-                if (this.plcLevelControlService) {
-                    const characteristicType = this.plcLevelActiveControl.characteristicType;
-                    this.plcLevelControlService
-                        .updateCharacteristic(characteristicType, false)
-                }
+                const characteristicType = this.plcLevelActiveControl.characteristicType;
+                this.plcLevelControlService?.updateCharacteristic(characteristicType, false);
             }
+
 
             //update plc level state
             this.pv.plcLevelState = false;
