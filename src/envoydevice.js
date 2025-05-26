@@ -2623,23 +2623,22 @@ class EnvoyDevice extends EventEmitter {
                     arr.push(obj1);
 
                     //update characteristics
-                    if (this.consumptionsServices) {
-                        this.consumptionsServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseReadingTime, obj1.readingTime)
-                            .updateCharacteristic(Characteristic.EnphasePower, obj1.powerKw)
-                            .updateCharacteristic(Characteristic.EnphasePowerMax, obj1.powerPeakKw)
-                            .updateCharacteristic(Characteristic.EnphasePowerMaxDetected, obj1.powerPeakDetected)
-                            .updateCharacteristic(Characteristic.EnphaseEnergyToday, obj1.energyTodayKw)
-                            .updateCharacteristic(Characteristic.EnphaseEnergyLastSevenDays, obj1.energyLastSevenDaysKw)
-                            .updateCharacteristic(Characteristic.EnphaseEnergyLifetime, obj1.energyLifetimeKw)
-                            .updateCharacteristic(Characteristic.EnphaseReactivePower, obj1.reactivePowerKw)
-                            .updateCharacteristic(Characteristic.EnphaseApparentPower, obj1.apparentPowerKw)
-                            .updateCharacteristic(Characteristic.EnphaseRmsCurrent, obj1.current)
-                            .updateCharacteristic(Characteristic.EnphaseRmsVoltage, obj1.voltage)
-                            .updateCharacteristic(Characteristic.EnphasePwrFactor, obj1.pwrFactor)
-                            .updateCharacteristic(Characteristic.EnphaseFreq, obj1.frequency)
-                            .updateCharacteristic(Characteristic.EnphasePowerMaxReset, false);
-                    }
+                    this.consumptionsServices?.[index]
+                        ?.updateCharacteristic(Characteristic.EnphaseReadingTime, obj1.readingTime)
+                        .updateCharacteristic(Characteristic.EnphasePower, obj1.powerKw)
+                        .updateCharacteristic(Characteristic.EnphasePowerMax, obj1.powerPeakKw)
+                        .updateCharacteristic(Characteristic.EnphasePowerMaxDetected, obj1.powerPeakDetected)
+                        .updateCharacteristic(Characteristic.EnphaseEnergyToday, obj1.energyTodayKw)
+                        .updateCharacteristic(Characteristic.EnphaseEnergyLastSevenDays, obj1.energyLastSevenDaysKw)
+                        .updateCharacteristic(Characteristic.EnphaseEnergyLifetime, obj1.energyLifetimeKw)
+                        .updateCharacteristic(Characteristic.EnphaseReactivePower, obj1.reactivePowerKw)
+                        .updateCharacteristic(Characteristic.EnphaseApparentPower, obj1.apparentPowerKw)
+                        .updateCharacteristic(Characteristic.EnphaseRmsCurrent, obj1.current)
+                        .updateCharacteristic(Characteristic.EnphaseRmsVoltage, obj1.voltage)
+                        .updateCharacteristic(Characteristic.EnphasePwrFactor, obj1.pwrFactor)
+                        .updateCharacteristic(Characteristic.EnphaseFreq, obj1.frequency)
+                        .updateCharacteristic(Characteristic.EnphasePowerMaxReset, false);
+
 
                     //total
                     if (obj1.measurementType === 'Consumption Total') {
