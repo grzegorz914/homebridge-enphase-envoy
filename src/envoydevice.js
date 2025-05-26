@@ -2596,7 +2596,6 @@ class EnvoyDevice extends EventEmitter {
                 const consumptions = this.pv.productionCt.consumption ?? [];
                 consumptions.forEach(async (consumption, index) => {
                     const energyPdmConsumptionSupported = this.feature.energyPdm.consumption.supported;
-                    const isTotal = consumption.measurementType === 'total-consumption';
                     const isNet = consumption.measurementType === 'net-consumption';
                     const consumptionPowerStored = isNet ? this.pv.consumptionNetPowerPeak : this.pv.consumptionTotalPowerPeak;
                     const consumptionLifetimeOffset = isNet ? this.energyConsumptionNetLifetimeOffset : this.energyConsumptionTotalLifetimeOffset;
@@ -2656,7 +2655,7 @@ class EnvoyDevice extends EventEmitter {
                     }
 
                     //total
-                    if (isTotal) {
+                    if (obj1.measurementType === 'Consumption Total') {
                         //store power peak in pv object
                         this.pv.consumptionTotalPowerPeak = obj1.powerPeak;
 
@@ -2669,13 +2668,9 @@ class EnvoyDevice extends EventEmitter {
                         if (this.powerConsumptionTotalLevelActiveSensorsCount > 0) {
                             for (let i = 0; i < this.powerConsumptionTotalLevelActiveSensorsCount; i++) {
                                 const sensor = this.powerConsumptionTotalLevelActiveSensors[i];
-                                const state = await this.evaluateCompareMode(obj1.energyToday, sensor.energyLevel, sensor.compareMode);
+                                const state = await this.evaluateCompareMode(obj1.power, sensor.powerLevel, sensor.compareMode);
                                 sensor.state = state;
-
-                                const service = this.powerConsumptionTotalLevelSensorsServices?.[i];
-                                if (service) {
-                                    service.updateCharacteristic(sensor.characteristicType, state);
-                                }
+                                this.powerConsumptionTotalLevelSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                             }
                         }
 
@@ -2685,11 +2680,7 @@ class EnvoyDevice extends EventEmitter {
                                 const sensor = this.energyConsumptionTotalLevelActiveSensors[i];
                                 const state = await this.evaluateCompareMode(obj1.energyToday, sensor.energyLevel, sensor.compareMode);
                                 sensor.state = state;
-
-                                const service = this.energyConsumptionTotalLevelSensorsServices?.[i];
-                                if (service) {
-                                    service.updateCharacteristic(sensor.characteristicType, state);
-                                }
+                                this.energyConsumptionTotalLevelSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                             }
                         }
 
@@ -2700,17 +2691,13 @@ class EnvoyDevice extends EventEmitter {
                                 const compareValue = [obj.current, obj.voltage, obj.frequency, obj.pwrFactor][sensor.compareType];
                                 const state = await this.evaluateCompareMode(compareValue, sensor.compareLevel, sensor.compareMode);
                                 sensor.state = state;
-
-                                const service = this.gridConsumptionTotalQualityActiveSensorsServices?.[i];
-                                if (service) {
-                                    service.updateCharacteristic(sensor.characteristicType, state);
-                                }
+                                this.gridConsumptionTotalLevelSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                             }
                         }
                     }
 
                     //net
-                    if (isNet) {
+                    if (obj1.measurementType === 'Consumption Net') {
                         //store power peak in pv object
                         this.pv.consumptionNetPowerPeak = obj1.powerPeak;
 
@@ -2723,13 +2710,10 @@ class EnvoyDevice extends EventEmitter {
                         if (this.powerConsumptionNetLevelActiveSensorsCount > 0) {
                             for (let i = 0; i < this.powerConsumptionNetLevelActiveSensorsCount; i++) {
                                 const sensor = this.powerConsumptionNetLevelActiveSensors[i];
-                                const state = await this.evaluateCompareMode(obj1.energyToday, sensor.energyLevel, sensor.compareMode);
+                                const state = await this.evaluateCompareMode(obj1.power, sensor.powerLevel, sensor.compareMode);
                                 sensor.state = state;
-
-                                const service = this.powerConsumptionNetLevelSensorsServices?.[i];
-                                if (service) {
-                                    service.updateCharacteristic(sensor.characteristicType, state);
-                                }
+                                this.emit('warn', `${obj1.measurementType} sensor state1: ${state}`)
+                                this.powerConsumptionNetLevelSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                             }
                         }
 
@@ -2739,11 +2723,7 @@ class EnvoyDevice extends EventEmitter {
                                 const sensor = this.energyConsumptionNetLevelActiveSensors[i];
                                 const state = await this.evaluateCompareMode(obj1.energyToday, sensor.energyLevel, sensor.compareMode);
                                 sensor.state = state;
-
-                                const service = this.energyConsumptionNetLevelSensorsServices?.[i];
-                                if (service) {
-                                    service.updateCharacteristic(sensor.characteristicType, state);
-                                }
+                                this.energyConsumptionNetLevelSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                             }
                         }
 
@@ -2754,11 +2734,7 @@ class EnvoyDevice extends EventEmitter {
                                 const compareValue = [obj.current, obj.voltage, obj.frequency, obj.pwrFactor][sensor.compareType];
                                 const state = await this.evaluateCompareMode(compareValue, sensor.compareLevel, sensor.compareMode);
                                 sensor.state = state;
-
-                                const service = this.gridConsumptionNetQualityActiveSensorsServices?.[i];
-                                if (service) {
-                                    service.updateCharacteristic(sensor.characteristicType, state);
-                                }
+                                this.gridConsumptionNetQualityActiveSensorsServices?.[i]?.updateCharacteristic(sensor.characteristicType, state);
                             }
                         }
                     }
