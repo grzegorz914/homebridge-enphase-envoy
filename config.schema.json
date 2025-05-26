@@ -250,14 +250,14 @@
                       ]
                     }
                   ],
-                  "description": "Accessory type in Home app",
+                  "description": "Accessory type for Home app",
                   "required": true
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
-                  "placeholder": "Accessory name",
-                  "description": "Accessory name",
+                  "placeholder": "Sensor name",
+                  "description": "Name for the sensor accessory in the Home app",
                   "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].productionStateSensor.displayType > 0;"
@@ -267,7 +267,7 @@
                   "title": "Prefix",
                   "type": "boolean",
                   "default": false,
-                  "description": "Use accessory name as a prefix",
+                  "description": "Use the accessory name as a prefix",
                   "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].productionStateSensor.displayType > 0;"
@@ -344,67 +344,6 @@
               "description": "Using the Enphase app, provide the total (W) of all microinverters (used to calculate percentage)",
               "required": true
             },
-            "powerProductionStateSensor": {
-              "title": "Power State Sensor",
-              "type": "object",
-              "properties": {
-                "displayType": {
-                  "title": "Accessory type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "default": 0,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Motion Sensor",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Occupancy Sensor",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Contact Sensor",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
-                },
-                "name": {
-                  "title": "Accessory name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].powerProductionStateSensor.displayType > 0;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Use the accessory name as a prefix",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].powerProductionStateSensor.displayType > 0;"
-                  }
-                }
-              }
-            },
             "powerProductionLevelSensors": {
               "title": "Sensors",
               "type": "array",
@@ -456,6 +395,8 @@
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -487,6 +428,12 @@
                         "enum": [
                           4
                         ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
+                        ]
                       }
                     ],
                     "description": "Comparison mode",
@@ -505,67 +452,6 @@
                     "default": false,
                     "description": "Use the accessory name as a prefix",
                     "required": false
-                  }
-                }
-              }
-            },
-            "energyProductionStateSensor": {
-              "title": "Energy State Sensor",
-              "type": "object",
-              "properties": {
-                "displayType": {
-                  "title": "Accessory type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "default": 0,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Motion Sensor",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Occupancy Sensor",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Contact Sensor",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
-                },
-                "name": {
-                  "title": "Accessory name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].energyProductionStateSensor.displayType > 0;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Use the accessory name as a prefix",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].energyProductionStateSensor.displayType > 0;"
                   }
                 }
               }
@@ -621,6 +507,8 @@
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -651,6 +539,12 @@
                         "title": "<=",
                         "enum": [
                           4
+                        ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
                         ]
                       }
                     ],
@@ -730,47 +624,6 @@
                     "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
-                  "compareMode": {
-                    "title": "Comparison mode",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 4,
-                    "default": 0,
-                    "oneOf": [
-                      {
-                        "title": ">",
-                        "enum": [
-                          0
-                        ]
-                      },
-                      {
-                        "title": ">=",
-                        "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "==",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "<",
-                        "enum": [
-                          3
-                        ]
-                      },
-                      {
-                        "title": "<=",
-                        "enum": [
-                          4
-                        ]
-                      }
-                    ],
-                    "description": "Comparison mode",
-                    "required": false
-                  },
                   "compareType": {
                     "title": "Comparison type",
                     "type": "integer",
@@ -804,10 +657,57 @@
                       }
                     ],
                     "description": "Comparison type",
-                    "required": false
+                    "required": true
+                  },
+                  "compareMode": {
+                    "title": "Comparison mode",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
+                        ]
+                      }
+                    ],
+                    "description": "Comparison mode",
+                    "required": true
                   },
                   "compareLevel": {
-                    "title": "Level",
+                    "title": "Comparison level",
                     "type": "number",
                     "default": 0,
                     "description": "Here set level to compare at which the sensor fired."
@@ -818,67 +718,6 @@
                     "default": false,
                     "description": "Use the accessory name as a prefix",
                     "required": false
-                  }
-                }
-              }
-            },
-            "powerConsumptionTotalStateSensor": {
-              "title": "Power State Sensor",
-              "type": "object",
-              "properties": {
-                "displayType": {
-                  "title": "Accessory type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "default": 0,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Motion Sensor",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Occupancy Sensor",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Contact Sensor",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
-                },
-                "name": {
-                  "title": "Accessory name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalStateSensor.displayType > 0;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Use the accessory name as a prefix",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].powerConsumptionTotalStateSensor.displayType > 0;"
                   }
                 }
               }
@@ -934,6 +773,8 @@
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -965,6 +806,12 @@
                         "enum": [
                           4
                         ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
+                        ]
                       }
                     ],
                     "description": "Comparison mode",
@@ -994,67 +841,6 @@
               "default": 0,
               "description": "Offset in (Wh) for energy consumption total (if needed)",
               "required": false
-            },
-            "energyConsumptionTotalStateSensor": {
-              "title": "Energy State Sensor",
-              "type": "object",
-              "properties": {
-                "displayType": {
-                  "title": "Accessory type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "default": 0,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Motion Sensor",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Occupancy Sensor",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Contact Sensor",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
-                },
-                "name": {
-                  "title": "Accessory name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].energyConsumptionTotalStateSensor.displayType > 0;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Use the accessory name as a prefix",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].energyConsumptionTotalStateSensor.displayType > 0;"
-                  }
-                }
-              }
             },
             "energyConsumptionTotalLevelSensors": {
               "title": "Sensors",
@@ -1107,6 +893,8 @@
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -1137,6 +925,12 @@
                         "title": "<=",
                         "enum": [
                           4
+                        ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
                         ]
                       }
                     ],
@@ -1209,11 +1003,46 @@
                     "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
+                  "compareType": {
+                    "title": "Comparison type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": "Current (A)",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Voltage (V)",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Frequency (Hz)",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Power Factor (cos φ)",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Comparison type",
+                    "required": true
+                  },
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
                     "minimum": 0,
-                    "maximum": 4,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -1245,52 +1074,22 @@
                         "enum": [
                           4
                         ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
+                        ]
                       }
                     ],
                     "description": "Comparison mode",
                     "required": true
                   },
-                  "compareType": {
-                    "title": "Comparison type",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 3,
-                    "default": 0,
-                    "oneOf": [
-                      {
-                        "title": "Current (A)",
-                        "enum": [
-                          0
-                        ]
-                      },
-                      {
-                        "title": "Voltage (V)",
-                        "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "Frequency (Hz)",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "Power Factor",
-                        "enum": [
-                          3
-                        ]
-                      }
-                    ],
-                    "description": "Comparison mode",
-                    "required": false
-                  },
                   "compareLevel": {
-                    "title": "Level",
+                    "title": "Comparison level",
                     "type": "number",
                     "default": 0,
-                    "description": "Here set level to compare at which the sensor fired.",
-                    "required": false
+                    "description": "Here set level to compare at which the sensor fired."
                   },
                   "namePrefix": {
                     "title": "Prefix",
@@ -1298,67 +1097,6 @@
                     "default": false,
                     "description": "Use the accessory name as a prefix",
                     "required": false
-                  }
-                }
-              }
-            },
-            "powerConsumptionNetStateSensor": {
-              "title": "Power State Sensor",
-              "type": "object",
-              "properties": {
-                "displayType": {
-                  "title": "Accessory type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "default": 0,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Motion Sensor",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Occupancy Sensor",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Contact Sensor",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
-                },
-                "name": {
-                  "title": "Accessory name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].powerConsumptionNetStateSensor.displayType > 0;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Use the accessory name as a prefix",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].powerConsumptionNetStateSensor.displayType > 0;"
                   }
                 }
               }
@@ -1414,6 +1152,8 @@
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -1445,6 +1185,12 @@
                         "enum": [
                           4
                         ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
+                        ]
                       }
                     ],
                     "description": "Comparison mode",
@@ -1473,67 +1219,6 @@
               "default": 0,
               "description": "Offset in (Wh) for net energy consumption (if needed)",
               "required": false
-            },
-            "energyConsumptionNetStateSensor": {
-              "title": "Energy State Sensor",
-              "type": "object",
-              "properties": {
-                "displayType": {
-                  "title": "Accessory type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "default": 0,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Motion Sensor",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Occupancy Sensor",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Contact Sensor",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
-                },
-                "name": {
-                  "title": "Accessory name",
-                  "type": "string",
-                  "placeholder": "Sensor name",
-                  "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].energyConsumptionNetStateSensor.displayType > 0;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Use the accessory name as a prefix",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].energyConsumptionNetStateSensor.displayType > 0;"
-                  }
-                }
-              }
             },
             "energyConsumptionNetLevelSensors": {
               "title": "Sensors",
@@ -1586,6 +1271,8 @@
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -1616,6 +1303,12 @@
                         "title": "<=",
                         "enum": [
                           4
+                        ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
                         ]
                       }
                     ],
@@ -1688,11 +1381,46 @@
                     "description": "Name for the sensor accessory in the Home app",
                     "required": false
                   },
+                  "compareType": {
+                    "title": "Comparison type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "oneOf": [
+                      {
+                        "title": "Current (A)",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Voltage (V)",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Frequency (Hz)",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Power Factor (cos φ)",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ],
+                    "description": "Comparison type",
+                    "required": true
+                  },
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
                     "minimum": 0,
-                    "maximum": 4,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -1724,40 +1452,11 @@
                         "enum": [
                           4
                         ]
-                      }
-                    ],
-                    "description": "Comparison mode",
-                    "required": false
-                  },
-                  "compareType": {
-                    "title": "Comparison type",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 3,
-                    "default": 0,
-                    "oneOf": [
-                      {
-                        "title": "Current (A)",
-                        "enum": [
-                          0
-                        ]
                       },
                       {
-                        "title": "Voltage (V)",
+                        "title": "!=",
                         "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "Frequency (Hz)",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "Power Factor",
-                        "enum": [
-                          3
+                          5
                         ]
                       }
                     ],
@@ -1765,11 +1464,10 @@
                     "required": true
                   },
                   "compareLevel": {
-                    "title": "Level",
+                    "title": "Comparison level",
                     "type": "number",
                     "default": 0,
-                    "description": "Here set level to compare at which the sensor fired.",
-                    "required": false
+                    "description": "Here set level to compare at which the sensor fired."
                   },
                   "namePrefix": {
                     "title": "Prefix",
@@ -2831,6 +2529,8 @@
                   "compareMode": {
                     "title": "Comparison mode",
                     "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
                     "default": 0,
                     "oneOf": [
                       {
@@ -2861,6 +2561,12 @@
                         "title": "<=",
                         "enum": [
                           4
+                        ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
                         ]
                       }
                     ],
@@ -3465,16 +3171,6 @@
                 }
               }
             },
-            "metersDataRefreshTime": {
-              "title": "Meters Refresh Time",
-              "type": "number",
-              "minimum": 0.5,
-              "maximum": 60,
-              "multipleOf": 0.5,
-              "default": 5,
-              "description": "Meters data refresh time (seconds)",
-              "required": false
-            },
             "productionDataRefreshTime": {
               "title": "Production Refresh Time",
               "type": "number",
@@ -3737,42 +3433,56 @@
                       "title": "{{ value.title }}",
                       "items": [
                         {
-                          "key": "devices[].productionStateControl",
+                          "key": "devices[]",
                           "type": "section",
-                          "title": "Production State Control",
-                          "description": "Section for enabling additional accessory for production state control (firmware v7.0+ requires installer credentials)",
-                          "expandable": true,
-                          "expanded": false,
+                          "title": "Production State",
                           "items": [
-                            "devices[].productionStateControl.displayType",
-                            "devices[].productionStateControl.name",
-                            "devices[].productionStateControl.namePrefix"
+                            {
+                              "key": "devices[].productionStateControl",
+                              "type": "section",
+                              "title": "Control",
+                              "description": "Section for enabling additional accessory for production state control (firmware v7.0+ requires installer credentials)",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].productionStateControl.displayType",
+                                "devices[].productionStateControl.name",
+                                "devices[].productionStateControl.namePrefix"
+                              ]
+                            },
+                            {
+                              "key": "devices[].productionStateSensor",
+                              "type": "section",
+                              "title": "Sensor",
+                              "description": "Section for enabling sensor for production state monitoring (firmware v7.0+ requires installer credentials)",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].productionStateSensor.displayType",
+                                "devices[].productionStateSensor.name",
+                                "devices[].productionStateSensor.namePrefix"
+                              ]
+                            }
                           ]
                         },
                         {
-                          "key": "devices[].productionStateSensor",
+                          "key": "devices[]",
                           "type": "section",
-                          "title": "Production State Sensor",
-                          "description": "Section for enabling sensor for production state monitoring (firmware v7.0+ requires installer credentials)",
-                          "expandable": true,
-                          "expanded": false,
+                          "title": "PLC Level",
                           "items": [
-                            "devices[].productionStateSensor.displayType",
-                            "devices[].productionStateSensor.name",
-                            "devices[].productionStateSensor.namePrefix"
-                          ]
-                        },
-                        {
-                          "key": "devices[].plcLevelControl",
-                          "type": "section",
-                          "title": "PLC Level Refresh Control",
-                          "description": "Section for enabling additional accessory for PLC level refresh control (firmware v7.0+ requires installer credentials)",
-                          "expandable": true,
-                          "expanded": false,
-                          "items": [
-                            "devices[].plcLevelControl.displayType",
-                            "devices[].plcLevelControl.name",
-                            "devices[].plcLevelControl.namePrefix"
+                            {
+                              "key": "devices[].plcLevelControl",
+                              "type": "section",
+                              "title": "Refresh Control",
+                              "description": "Section for enabling additional accessory for PLC level refresh control (firmware v7.0+ requires installer credentials)",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].plcLevelControl.displayType",
+                                "devices[].plcLevelControl.name",
+                                "devices[].plcLevelControl.namePrefix"
+                              ]
+                            }
                           ]
                         }
                       ]
@@ -3794,22 +3504,9 @@
                           "items": [
                             "devices[].powerProductionSummary",
                             {
-                              "key": "devices[].powerProductionStateSensor",
-                              "type": "section",
-                              "title": "Power State Sensor",
-                              "description": "Section for enabling sensor for power state monitoring",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].powerProductionStateSensor.displayType",
-                                "devices[].powerProductionStateSensor.name",
-                                "devices[].powerProductionStateSensor.namePrefix"
-                              ]
-                            },
-                            {
                               "key": "devices[]",
                               "type": "section",
-                              "title": "Power Level Sensors",
+                              "title": "Sensors",
                               "description": "Section for creating sensors for power level monitoring",
                               "expandable": true,
                               "expanded": false,
@@ -3836,22 +3533,9 @@
                           "items": [
                             "devices[].energyProductionLifetimeOffset",
                             {
-                              "key": "devices[].energyProductionStateSensor",
-                              "type": "section",
-                              "title": "Energy State Sensor",
-                              "description": "Section for enabling sensor for energy state monitoring",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].energyProductionStateSensor.displayType",
-                                "devices[].energyProductionStateSensor.name",
-                                "devices[].energyProductionStateSensor.namePrefix"
-                              ]
-                            },
-                            {
                               "key": "devices[]",
                               "type": "section",
-                              "title": "Energy Level Sensors",
+                              "title": "Sensors",
                               "description": "Section for creating sensors for energy level monitoring",
                               "expandable": true,
                               "expanded": false,
@@ -3879,7 +3563,7 @@
                             {
                               "key": "devices[]",
                               "type": "section",
-                              "title": "Quality Sensors",
+                              "title": "Sensors",
                               "description": "Section for enabling sensor for grid quality monitoring",
                               "expandable": true,
                               "expanded": false,
@@ -3891,8 +3575,8 @@
                                   "items": [
                                     "devices[].gridProductionQualitySensors[].displayType",
                                     "devices[].gridProductionQualitySensors[].name",
-                                    "devices[].gridProductionQualitySensors[].compareMode",
                                     "devices[].gridProductionQualitySensors[].compareType",
+                                    "devices[].gridProductionQualitySensors[].compareMode",
                                     "devices[].gridProductionQualitySensors[].compareLevel",
                                     "devices[].gridProductionQualitySensors[].namePrefix"
                                   ]
@@ -3928,22 +3612,9 @@
                                   "title": "Power",
                                   "items": [
                                     {
-                                      "key": "devices[].powerConsumptionTotalStateSensor",
-                                      "type": "section",
-                                      "title": "Power State Sensor",
-                                      "description": "Section for enabling sensor for power state monitoring",
-                                      "expandable": true,
-                                      "expanded": false,
-                                      "items": [
-                                        "devices[].powerConsumptionTotalStateSensor.displayType",
-                                        "devices[].powerConsumptionTotalStateSensor.name",
-                                        "devices[].powerConsumptionTotalStateSensor.namePrefix"
-                                      ]
-                                    },
-                                    {
                                       "key": "devices[]",
                                       "type": "section",
-                                      "title": "Power Level Sensors",
+                                      "title": "Sensors",
                                       "description": "Section for creating sensors for power level monitoring",
                                       "expandable": true,
                                       "expanded": false,
@@ -3970,22 +3641,9 @@
                                   "items": [
                                     "devices[].energyConsumptionTotalLifetimeOffset",
                                     {
-                                      "key": "devices[].energyConsumptionTotalStateSensor",
-                                      "type": "section",
-                                      "title": "Energy State Sensor",
-                                      "description": "Section for enabling sensor for energy state monitoring",
-                                      "expandable": true,
-                                      "expanded": false,
-                                      "items": [
-                                        "devices[].energyConsumptionTotalStateSensor.displayType",
-                                        "devices[].energyConsumptionTotalStateSensor.name",
-                                        "devices[].energyConsumptionTotalStateSensor.namePrefix"
-                                      ]
-                                    },
-                                    {
                                       "key": "devices[]",
                                       "type": "section",
-                                      "title": "Energy Level Sensors",
+                                      "title": "Sensors",
                                       "description": "Section for creating sensors for energy level monitoring",
                                       "expandable": true,
                                       "expanded": false,
@@ -4013,7 +3671,7 @@
                                     {
                                       "key": "devices[]",
                                       "type": "section",
-                                      "title": "Quality Sensors",
+                                      "title": "Sensors",
                                       "description": "Section for enabling sensor for grid quality monitoring",
                                       "expandable": true,
                                       "expanded": false,
@@ -4025,8 +3683,8 @@
                                           "items": [
                                             "devices[].gridConsumptionTotalQualitySensors[].displayType",
                                             "devices[].gridConsumptionTotalQualitySensors[].name",
-                                            "devices[].gridConsumptionTotalQualitySensors[].compareMode",
                                             "devices[].gridConsumptionTotalQualitySensors[].compareType",
+                                            "devices[].gridConsumptionTotalQualitySensors[].compareMode",
                                             "devices[].gridConsumptionTotalQualitySensors[].compareLevel",
                                             "devices[].gridConsumptionTotalQualitySensors[].namePrefix"
                                           ]
@@ -4053,22 +3711,9 @@
                                   "title": "Power",
                                   "items": [
                                     {
-                                      "key": "devices[].powerConsumptionNetStateSensor",
-                                      "type": "section",
-                                      "title": "Power State Sensor",
-                                      "description": "Section for enabling sensor for power state monitoring",
-                                      "expandable": true,
-                                      "expanded": false,
-                                      "items": [
-                                        "devices[].powerConsumptionNetStateSensor.displayType",
-                                        "devices[].powerConsumptionNetStateSensor.name",
-                                        "devices[].powerConsumptionNetStateSensor.namePrefix"
-                                      ]
-                                    },
-                                    {
                                       "key": "devices[]",
                                       "type": "section",
-                                      "title": "Power Level Sensors",
+                                      "title": "Sensors",
                                       "description": "Section for creating sensors for power level monitoring",
                                       "expandable": true,
                                       "expanded": false,
@@ -4095,22 +3740,9 @@
                                   "items": [
                                     "devices[].energyConsumptionNetLifetimeOffset",
                                     {
-                                      "key": "devices[].energyConsumptionNetStateSensor",
-                                      "type": "section",
-                                      "title": "Energy State Sensor",
-                                      "description": "Section for enabling sensor for energy state monitoring",
-                                      "expandable": true,
-                                      "expanded": false,
-                                      "items": [
-                                        "devices[].energyConsumptionNetStateSensor.displayType",
-                                        "devices[].energyConsumptionNetStateSensor.name",
-                                        "devices[].energyConsumptionNetStateSensor.namePrefix"
-                                      ]
-                                    },
-                                    {
                                       "key": "devices[]",
                                       "type": "section",
-                                      "title": "Energy Level Sensors",
+                                      "title": "Sensors",
                                       "description": "Section for creating sensors for energy level monitoring",
                                       "expandable": true,
                                       "expanded": false,
@@ -4138,7 +3770,7 @@
                                     {
                                       "key": "devices[]",
                                       "type": "section",
-                                      "title": "Quality Sensors",
+                                      "title": "Sensors",
                                       "description": "Section for enabling sensor for grid quality monitoring",
                                       "expandable": true,
                                       "expanded": false,
@@ -4150,8 +3782,8 @@
                                           "items": [
                                             "devices[].gridConsumptionNetQualitySensors[].displayType",
                                             "devices[].gridConsumptionNetQualitySensors[].name",
-                                            "devices[].gridConsumptionNetQualitySensors[].compareMode",
                                             "devices[].gridConsumptionNetQualitySensors[].compareType",
+                                            "devices[].gridConsumptionNetQualitySensors[].compareMode",
                                             "devices[].gridConsumptionNetQualitySensors[].compareLevel",
                                             "devices[].gridConsumptionNetQualitySensors[].namePrefix"
                                           ]
@@ -4173,24 +3805,17 @@
                   "title": "Q-Relay",
                   "items": [
                     {
-                      "key": "devices[]",
-                      "type": "tabarray",
-                      "title": "{{ value.title }}",
+                      "key": "devices[].qRelayStateSensor",
+                      "type": "section",
+                      "title": "State Sensor",
+                      "description": "Section for enabling sensor for q-relay state monitoring",
+                      "expandable": true,
+                      "expanded": false,
                       "items": [
-                        {
-                          "key": "devices[].qRelayStateSensor",
-                          "type": "section",
-                          "title": "State Sensor",
-                          "description": "Section for enabling sensor for q-relay state monitoring",
-                          "expandable": true,
-                          "expanded": false,
-                          "items": [
-                            "devices[].qRelayStateSensor.displayType",
-                            "devices[].qRelayStateSensor.name",
-                            "devices[].qRelayStateSensor.namePrefix",
-                            "devices[].qRelayStateSensor.multiphase"
-                          ]
-                        }
+                        "devices[].qRelayStateSensor.displayType",
+                        "devices[].qRelayStateSensor.name",
+                        "devices[].qRelayStateSensor.namePrefix",
+                        "devices[].qRelayStateSensor.multiphase"
                       ]
                     }
                   ]
@@ -4199,6 +3824,7 @@
                   "key": "devices[]",
                   "title": "AC Batteries",
                   "items": [
+                    "devices[].acBatterieName",
                     {
                       "key": "devices[]",
                       "type": "tabarray",
@@ -4207,13 +3833,12 @@
                         {
                           "key": "devices[]",
                           "type": "section",
-                          "title": "Accessory",
+                          "title": "Backup",
                           "items": [
-                            "devices[].acBatterieName",
                             {
                               "key": "devices[].acBatterieBackupLevelSummaryAccessory",
                               "type": "section",
-                              "title": "Backup Level Summary",
+                              "title": "Level Summary",
                               "description": "Section for enabling additional accessory for ac batteries backup level summary",
                               "expandable": true,
                               "expanded": false,
@@ -4226,7 +3851,7 @@
                             {
                               "key": "devices[].acBatterieBackupLevelAccessory",
                               "type": "section",
-                              "title": "Backup Level Individual",
+                              "title": "Level Individual",
                               "description": "Section for enabling additional accessory for ac battery backup level",
                               "expandable": true,
                               "expanded": false,
@@ -4263,48 +3888,55 @@
                               "title": "{{ value.title }}",
                               "items": [
                                 {
-                                  "key": "devices[].enpowerGridStateControl",
-                                  "type": "section",
-                                  "title": "Grid State Control",
-                                  "description": "Section for enabling additional accessory for grid state control",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
-                                    "devices[].enpowerGridStateControl.displayType",
-                                    "devices[].enpowerGridStateControl.name",
-                                    "devices[].enpowerGridStateControl.namePrefix"
-                                  ]
-                                },
-                                {
-                                  "key": "devices[].enpowerGridStateSensor",
-                                  "type": "section",
-                                  "title": "Grid State Sensor",
-                                  "description": "Section for enabling sensor for grid state monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
-                                    "devices[].enpowerGridStateSensor.displayType",
-                                    "devices[].enpowerGridStateSensor.name",
-                                    "devices[].enpowerGridStateSensor.namePrefix"
-                                  ]
-                                },
-                                {
                                   "key": "devices[]",
                                   "type": "section",
-                                  "title": "Grid Mode Sensors",
-                                  "description": "Section for creating sensors for grid mode monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
+                                  "title": "Grid",
                                   "items": [
                                     {
-                                      "key": "devices[].enpowerGridModeSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[].enpowerGridStateControl",
+                                      "type": "section",
+                                      "title": "State Control",
+                                      "description": "Section for enabling additional accessory for grid state control",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].enpowerGridModeSensors[].displayType",
-                                        "devices[].enpowerGridModeSensors[].name",
-                                        "devices[].enpowerGridModeSensors[].gridMode",
-                                        "devices[].enpowerGridModeSensors[].namePrefix"
+                                        "devices[].enpowerGridStateControl.displayType",
+                                        "devices[].enpowerGridStateControl.name",
+                                        "devices[].enpowerGridStateControl.namePrefix"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[].enpowerGridStateSensor",
+                                      "type": "section",
+                                      "title": "State Sensor",
+                                      "description": "Section for enabling sensor for grid state monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        "devices[].enpowerGridStateSensor.displayType",
+                                        "devices[].enpowerGridStateSensor.name",
+                                        "devices[].enpowerGridStateSensor.namePrefix"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Mode Sensors",
+                                      "description": "Section for creating sensors for grid mode monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        {
+                                          "key": "devices[].enpowerGridModeSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].enpowerGridModeSensors[].displayType",
+                                            "devices[].enpowerGridModeSensors[].name",
+                                            "devices[].enpowerGridModeSensors[].gridMode",
+                                            "devices[].enpowerGridModeSensors[].namePrefix"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -4317,6 +3949,7 @@
                           "key": "devices[]",
                           "title": "Encharges",
                           "items": [
+                            "devices[].enchargeName",
                             {
                               "key": "devices[]",
                               "type": "tabarray",
@@ -4325,13 +3958,32 @@
                                 {
                                   "key": "devices[]",
                                   "type": "section",
-                                  "title": "Accessory",
+                                  "title": "State",
                                   "items": [
-                                    "devices[].enchargeName",
+                                    {
+                                      "key": "devices[].enchargeStateSensor",
+                                      "type": "section",
+                                      "title": "Sensor",
+                                      "description": "Section for enabling sensor for encharges state monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        "devices[].enchargeStateSensor.displayType",
+                                        "devices[].enchargeStateSensor.name",
+                                        "devices[].enchargeStateSensor.namePrefix"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "key": "devices[]",
+                                  "type": "section",
+                                  "title": "Backup",
+                                  "items": [
                                     {
                                       "key": "devices[].enchargeBackupLevelSummaryAccessory",
                                       "type": "section",
-                                      "title": "Backup Level Summary",
+                                      "title": "Level Summary",
                                       "description": "Section for enabling additional accessory for encharges backup level summary",
                                       "expandable": true,
                                       "expanded": false,
@@ -4344,7 +3996,7 @@
                                     {
                                       "key": "devices[].enchargeBackupLevelAccessory",
                                       "type": "section",
-                                      "title": "Backup Level Individual",
+                                      "title": "Level Individual",
                                       "description": "Section for enabling additional accessory for encharge backup level",
                                       "expandable": true,
                                       "expanded": false,
@@ -4353,39 +4005,27 @@
                                         "devices[].enchargeBackupLevelAccessory.minSoc",
                                         "devices[].enchargeBackupLevelAccessory.namePrefix"
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "key": "devices[].enchargeStateSensor",
-                                  "type": "section",
-                                  "title": "State Sensor",
-                                  "description": "Section for enabling sensor for encharges state monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
-                                    "devices[].enchargeStateSensor.displayType",
-                                    "devices[].enchargeStateSensor.name",
-                                    "devices[].enchargeStateSensor.namePrefix"
-                                  ]
-                                },
-                                {
-                                  "key": "devices[]",
-                                  "type": "section",
-                                  "title": "Profile Controls",
-                                  "description": "Section for creating additional accessory for encharge profile control",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
+                                    },
                                     {
-                                      "key": "devices[].enchargeProfileControl",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'control' }}",
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Level Sensors",
+                                      "description": "Section for creating conditional sensors to monitor encharges SoC",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].enchargeProfileControl[].displayType",
-                                        "devices[].enchargeProfileControl[].name",
-                                        "devices[].enchargeProfileControl[].profile",
-                                        "devices[].enchargeProfileControl[].namePrefix"
+                                        {
+                                          "key": "devices[].enchargeBackupLevelSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].enchargeBackupLevelSensors[].displayType",
+                                            "devices[].enchargeBackupLevelSensors[].name",
+                                            "devices[].enchargeBackupLevelSensors[].compareMode",
+                                            "devices[].enchargeBackupLevelSensors[].backupLevel",
+                                            "devices[].enchargeBackupLevelSensors[].namePrefix"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -4393,54 +4033,48 @@
                                 {
                                   "key": "devices[]",
                                   "type": "section",
-                                  "title": "Profile Sensors",
-                                  "description": "Section for creating sensors for encharge profile monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
+                                  "title": "Profile",
                                   "items": [
                                     {
-                                      "key": "devices[].enchargeProfileSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Controls",
+                                      "description": "Section for creating additional accessory for encharge profile control",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].enchargeProfileSensors[].displayType",
-                                        "devices[].enchargeProfileSensors[].name",
-                                        "devices[].enchargeProfileSensors[].profile",
-                                        "devices[].enchargeProfileSensors[].namePrefix"
+                                        {
+                                          "key": "devices[].enchargeProfileControl",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'control' }}",
+                                          "items": [
+                                            "devices[].enchargeProfileControl[].displayType",
+                                            "devices[].enchargeProfileControl[].name",
+                                            "devices[].enchargeProfileControl[].profile",
+                                            "devices[].enchargeProfileControl[].namePrefix"
+                                          ]
+                                        }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "key": "devices[].enchargeGridStateSensor",
-                                  "type": "section",
-                                  "title": "Grid State Sensor",
-                                  "description": "Section for enabling sensor for grid state monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
-                                    "devices[].enchargeGridStateSensor.displayType",
-                                    "devices[].enchargeGridStateSensor.name",
-                                    "devices[].enchargeGridStateSensor.namePrefix"
-                                  ]
-                                },
-                                {
-                                  "key": "devices[]",
-                                  "type": "section",
-                                  "title": "Grid Mode Sensors",
-                                  "description": "Section for enabling sensor for grid mode monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
+                                    },
                                     {
-                                      "key": "devices[].enchargeGridModeSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Sensors",
+                                      "description": "Section for creating sensors for encharge profile monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].enchargeGridModeSensors[].displayType",
-                                        "devices[].enchargeGridModeSensors[].name",
-                                        "devices[].enchargeGridModeSensors[].gridMode",
-                                        "devices[].enchargeGridModeSensors[].namePrefix"
+                                        {
+                                          "key": "devices[].enchargeProfileSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].enchargeProfileSensors[].displayType",
+                                            "devices[].enchargeProfileSensors[].name",
+                                            "devices[].enchargeProfileSensors[].profile",
+                                            "devices[].enchargeProfileSensors[].namePrefix"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -4448,21 +4082,40 @@
                                 {
                                   "key": "devices[]",
                                   "type": "section",
-                                  "title": "Backup Level Sensors",
-                                  "description": "Section for creating conditional sensors to monitor encharges SoC",
-                                  "expandable": true,
-                                  "expanded": false,
+                                  "title": "Grid",
                                   "items": [
                                     {
-                                      "key": "devices[].enchargeBackupLevelSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[].enchargeGridStateSensor",
+                                      "type": "section",
+                                      "title": "State Sensor",
+                                      "description": "Section for enabling sensor for grid state monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].enchargeBackupLevelSensors[].displayType",
-                                        "devices[].enchargeBackupLevelSensors[].name",
-                                        "devices[].enchargeBackupLevelSensors[].compareMode",
-                                        "devices[].enchargeBackupLevelSensors[].backupLevel",
-                                        "devices[].enchargeBackupLevelSensors[].namePrefix"
+                                        "devices[].enchargeGridStateSensor.displayType",
+                                        "devices[].enchargeGridStateSensor.name",
+                                        "devices[].enchargeGridStateSensor.namePrefix"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Mode Sensors",
+                                      "description": "Section for enabling sensor for grid mode monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        {
+                                          "key": "devices[].enchargeGridModeSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].enchargeGridModeSensors[].displayType",
+                                            "devices[].enchargeGridModeSensors[].name",
+                                            "devices[].enchargeGridModeSensors[].gridMode",
+                                            "devices[].enchargeGridModeSensors[].namePrefix"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -4481,35 +4134,42 @@
                               "title": "{{ value.title }}",
                               "items": [
                                 {
-                                  "key": "devices[].solarGridStateSensor",
-                                  "type": "section",
-                                  "title": "Grid State Sensor",
-                                  "description": "Section for enabling sensor for grid state monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
-                                    "devices[].solarGridStateSensor.displayType",
-                                    "devices[].solarGridStateSensor.name",
-                                    "devices[].solarGridStateSensor.namePrefix"
-                                  ]
-                                },
-                                {
                                   "key": "devices[]",
                                   "type": "section",
-                                  "title": "Grid Mode Sensors",
-                                  "description": "Section for enabling sensor for grid mode monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
+                                  "title": "Grid",
                                   "items": [
                                     {
-                                      "key": "devices[].solarGridModeSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[].solarGridStateSensor",
+                                      "type": "section",
+                                      "title": "State Sensor",
+                                      "description": "Section for enabling sensor for grid state monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].solarGridModeSensors[].displayType",
-                                        "devices[].solarGridModeSensors[].name",
-                                        "devices[].solarGridModeSensors[].gridMode",
-                                        "devices[].solarGridModeSensors[].namePrefix"
+                                        "devices[].solarGridStateSensor.displayType",
+                                        "devices[].solarGridStateSensor.name",
+                                        "devices[].solarGridStateSensor.namePrefix"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Mode Sensors",
+                                      "description": "Section for enabling sensor for grid mode monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        {
+                                          "key": "devices[].solarGridModeSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].solarGridModeSensors[].displayType",
+                                            "devices[].solarGridModeSensors[].name",
+                                            "devices[].solarGridModeSensors[].gridMode",
+                                            "devices[].solarGridModeSensors[].namePrefix"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -4528,48 +4188,34 @@
                               "title": "{{ value.title }}",
                               "items": [
                                 {
-                                  "key": "devices[].generatorStateControl",
-                                  "type": "section",
-                                  "title": "State Control",
-                                  "description": "Section for enabling additional accessory for state control",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
-                                    "devices[].generatorStateControl.displayType",
-                                    "devices[].generatorStateControl.name",
-                                    "devices[].generatorStateControl.namePrefix"
-                                  ]
-                                },
-                                {
-                                  "key": "devices[].generatorStateSensor",
-                                  "type": "section",
-                                  "title": "State Sensor",
-                                  "description": "Section for enabling sensor for generator state monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
-                                  "items": [
-                                    "devices[].generatorStateSensor.displayType",
-                                    "devices[].generatorStateSensor.name",
-                                    "devices[].generatorStateSensor.namePrefix"
-                                  ]
-                                },
-                                {
                                   "key": "devices[]",
                                   "type": "section",
-                                  "title": "Mode Controls",
-                                  "description": "Section for creating additional accessories for generator mode control",
-                                  "expandable": true,
-                                  "expanded": false,
+                                  "title": "State",
                                   "items": [
                                     {
-                                      "key": "devices[].generatorModeControls",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'control' }}",
+                                      "key": "devices[].generatorStateControl",
+                                      "type": "section",
+                                      "title": "Control",
+                                      "description": "Section for enabling additional accessory for state control",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].generatorModeControls[].displayType",
-                                        "devices[].generatorModeControls[].name",
-                                        "devices[].generatorModeControls[].mode",
-                                        "devices[].generatorModeControls[].namePrefix"
+                                        "devices[].generatorStateControl.displayType",
+                                        "devices[].generatorStateControl.name",
+                                        "devices[].generatorStateControl.namePrefix"
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[].generatorStateSensor",
+                                      "type": "section",
+                                      "title": "Sensor",
+                                      "description": "Section for enabling sensor for generator state monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        "devices[].generatorStateSensor.displayType",
+                                        "devices[].generatorStateSensor.name",
+                                        "devices[].generatorStateSensor.namePrefix"
                                       ]
                                     }
                                   ]
@@ -4577,20 +4223,48 @@
                                 {
                                   "key": "devices[]",
                                   "type": "section",
-                                  "title": "Mode Sensors",
-                                  "description": "Section for creating sensors for generator mode monitoring",
-                                  "expandable": true,
-                                  "expanded": false,
+                                  "title": "Mode",
                                   "items": [
                                     {
-                                      "key": "devices[].generatorModeSensors",
-                                      "type": "tabarray",
-                                      "title": "{{ value.name || 'sensor' }}",
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Controls",
+                                      "description": "Section for creating additional accessories for generator mode control",
+                                      "expandable": true,
+                                      "expanded": false,
                                       "items": [
-                                        "devices[].generatorModeSensors[].displayType",
-                                        "devices[].generatorModeSensors[].name",
-                                        "devices[].generatorModeSensors[].mode",
-                                        "devices[].generatorModeSensors[].namePrefix"
+                                        {
+                                          "key": "devices[].generatorModeControls",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'control' }}",
+                                          "items": [
+                                            "devices[].generatorModeControls[].displayType",
+                                            "devices[].generatorModeControls[].name",
+                                            "devices[].generatorModeControls[].mode",
+                                            "devices[].generatorModeControls[].namePrefix"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "key": "devices[]",
+                                      "type": "section",
+                                      "title": "Sensors",
+                                      "description": "Section for creating sensors for generator mode monitoring",
+                                      "expandable": true,
+                                      "expanded": false,
+                                      "items": [
+                                        {
+                                          "key": "devices[].generatorModeSensors",
+                                          "type": "tabarray",
+                                          "title": "{{ value.name || 'sensor' }}",
+                                          "items": [
+                                            "devices[].generatorModeSensors[].displayType",
+                                            "devices[].generatorModeSensors[].name",
+                                            "devices[].generatorModeSensors[].mode",
+                                            "devices[].generatorModeSensors[].namePrefix"
+                                          ]
+                                        }
                                       ]
                                     }
                                   ]
@@ -4644,40 +4318,36 @@
                           "key": "devices[]",
                           "type": "section",
                           "title": "Data Refresh",
-                          "description": "Section for setting individual data refesh time for devices",
-                          "expandable": true,
-                          "expanded": false,
                           "items": [
-                            "devices[].metersDataRefreshTime",
                             "devices[].productionDataRefreshTime",
                             "devices[].liveDataRefreshTime",
-                            "devices[].ensembleDataRefreshTime"
-                          ]
-                        },
-                        {
-                          "key": "devices[].dataRefreshControl",
-                          "type": "section",
-                          "title": "Data Refresh Control",
-                          "description": "Section for enabling additional accessory for data refresh control",
-                          "expandable": true,
-                          "expanded": false,
-                          "items": [
-                            "devices[].dataRefreshControl.displayType",
-                            "devices[].dataRefreshControl.name",
-                            "devices[].dataRefreshControl.namePrefix"
-                          ]
-                        },
-                        {
-                          "key": "devices[].dataRefreshSensor",
-                          "type": "section",
-                          "title": "Data Refresh Sensor",
-                          "description": "Section for enabling sensor for data refresh monitoring",
-                          "expandable": true,
-                          "expanded": false,
-                          "items": [
-                            "devices[].dataRefreshSensor.displayType",
-                            "devices[].dataRefreshSensor.name",
-                            "devices[].dataRefreshSensor.namePrefix"
+                            "devices[].ensembleDataRefreshTime",
+                            {
+                              "key": "devices[].dataRefreshControl",
+                              "type": "section",
+                              "title": "Control",
+                              "description": "Section for enabling additional accessory for data refresh control",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].dataRefreshControl.displayType",
+                                "devices[].dataRefreshControl.name",
+                                "devices[].dataRefreshControl.namePrefix"
+                              ]
+                            },
+                            {
+                              "key": "devices[].dataRefreshSensor",
+                              "type": "section",
+                              "title": "Sensor",
+                              "description": "Section for enabling sensor for data refresh monitoring",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].dataRefreshSensor.displayType",
+                                "devices[].dataRefreshSensor.name",
+                                "devices[].dataRefreshSensor.namePrefix"
+                              ]
+                            }
                           ]
                         }
                       ]

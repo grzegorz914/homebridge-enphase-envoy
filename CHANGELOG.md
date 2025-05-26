@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.17.0] - (26.05.2025)
+
+## Changes
+
+- removed duplicated power and energy state sensors, the state sensor can be create by level sensors > 0
+- removed meters refresh time
+- fix consumption power peak detected
+- refactor production all code
+- refsctor charcteristics update
+- added conparator (!==) to sensors
+- config UI improvements
+- mqtt clientId and prefix updated
+- redme update
+- cleanup 
+
 ## [9.16.0] - (21.05.2025)
 
 ## Changes

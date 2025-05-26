@@ -52,10 +52,15 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 * Encharge: `State`, `Grid State`, `Backup Level`, `Dry Contacts`
 * Solar `Grid State`
 * Encharge Profile: `Self Consumption`, `Savings`, `Economy`, `Full Backup`
-* Grid Mode
-  * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
-  * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
-  * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+* Grid:
+  * Mode:
+    * Enpower `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+    * Encharge `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+    * Solar `Grid On`, `Grid Off`, `Multimode Grid On`, `Multimode Grid Off`, `Grid Tied`, `Grid Forming`
+  * Quality:
+    * Production `Current (A)`, `Voltage (V)`, `Power Factor (cos Fi)`, `Frequency (Hz)`
+    * Consumption Total `Current (A)`, `Voltage (V)`, `Power Factor (cos Fi)`, `Frequency (Hz)`,
+    * Consumption Net `Current (A)`, `Voltage (V)`, `Power Factor (cos Fi)`, `Frequency (Hz)`,
 * Generator `State`, `Mode`
 
 ### Control Switches, Outlets, Lightbulbs
@@ -117,10 +122,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `powerProductionSummary` | | number | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %` |
-| `powerProductionStateSensor` | | key | `Power State Sensor` for production monitoring |
-| | `name` | string | Accessory name for Home app |
-| | `displayType` | number | Accessory type displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| | `namePrefix` | boolean | Use accessory name for prefix |
 | `powerProductionLevelSensors` | | key | `Power Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
@@ -128,10 +129,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyProductionLifetimeOffset` | | number | `Energy Offset` in `Wh` for production (if needed) `+/-` |
-| `energyProductionStateSensor` | | key | `Energy State Sensor` for production monitoring |
-| | `name` | string | Accessory name for Home app |
-| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyProductionLevelSensors` | | key | `Energy Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
@@ -145,10 +142,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `compareLevel` | number | Level to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `powerConsumptionTotalStateSensor` | | key | `Power State Sensor` for total consumption monitoring |
-| | `name` | string | Accessory name for Home app |
-| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| | `namePrefix` | boolean | Use accessory name for prefix |
 | `powerConsumptionTotalLevelSensors` | | key | `Power Level Sensor` for total consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
@@ -156,10 +149,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyConsumptionTotalLifetimeOffset` | | number | `Energy Offset` in `Wh` for total consumption (if needed) `+/-` |
-| `energyConsumptionTotalStateSensor` | | key | `Energy State Sensor` for total consumption monitoring |
-| | `name` | string | Accessory name for Home app |
-| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyConsumptionTotalLevelSensors` | | key | `Energy Level Sensor` for total consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
@@ -173,10 +162,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `compareLevel` | number | Level to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `powerConsumptionNetStateSensor` | | key | `Power State Sensor` for net consumption monitoring |
-| | `name` | string | Accessory name for Home app |
-| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| | `namePrefix` | boolean | Use accessory name for prefix |
 | `powerConsumptionNetLevelSensors` | | key | `Power Level Sensor` for net power consumption level monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
@@ -184,10 +169,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyConsumptionNetLifetimeOffset` | | number | `Energy Offset` in `Wh` for consumption `Net` (if needed) `+/-` |
-| `energyConsumptionNetStateSensor` | | key | `Energy State Sensor` for net consumption monitoring |
-| | `name` | string | Accessory name for Home app |
-| | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
-| | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyConsumptionNetLevelSensors` | | key | `Energy Level Sensor` for net consumption monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
@@ -300,7 +281,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
-| `metersDataRefreshTime` | | number | `Meters Data` refresh time (seconds) |
 | `productionDataRefreshTime` | | number | `Production Data` refresh time (seconds) |
 | `liveDataRefreshTime` | | number | `Live Data` refresh time (seconds) |
 | `ensembleDataRefreshTime` | | number | `Ensemble Data` refresh time (seconds) |
