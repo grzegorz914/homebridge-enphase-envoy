@@ -2220,7 +2220,7 @@ class EnvoyDevice extends EventEmitter {
             //process production data if available
             if (productionSupported) {
                 const productionsKeys = Object.keys(energyPdm.production)
-                productionsKeys.forEach(async (type) => {
+                productionsKeys.forEach((type) => {
                     const productionDataType = energyPdm.production[type];
                     if (productionDataType) {
                         const obj = {
@@ -2458,7 +2458,6 @@ class EnvoyDevice extends EventEmitter {
             //production
             const metersProductionEnabled = this.feature.meters.production.enabled;
             const energyPdmProductionSupported = this.feature.energyPdm.production.supported;
-            const productionPowerStored = this.pv.productionPowerPeak;
             const productionSourcePower = metersProductionEnabled ? this.pv.meters.production.readings : (energyPdmProductionSupported ? this.pv.energyPdm.production.pcu : this.pv.production.pcu);
             const productionSourceEnergy = metersProductionEnabled ? (energyPdmProductionSupported ? this.pv.energyPdm.production.eim : this.pv.productionCt.eim) : productionSourcePower;
             const productionSourceMeter = metersProductionEnabled ? productionSourcePower : {};
@@ -2466,20 +2465,22 @@ class EnvoyDevice extends EventEmitter {
             const debug8 = this.enableDebugMode ? this.emit('debug', `Production all production energy:`, productionSourceEnergy) : false;
             const debug6 = this.enableDebugMode ? this.emit('debug', `Production all production meter:`, productionSourceMeter) : false;
 
-            const powerLevel = this.powerProductionSummary > 1 ? await this.scaleValue(productionSourcePower.power, 0, this.powerProductionSummary, 0, 100) : 0;
-            const powerPeak = Math.max(productionSourcePower.power, productionPowerStored);
+            const powerProductionStored = this.pv.productionPowerPeak;
+            const power = productionSourcePower.power;
+            const powerLevel = this.powerProductionSummary > 1 ? await this.scaleValue(power, 0, this.powerProductionSummary, 0, 100) : 0;
+            const powerPeak = Number.isFinite(Math.max(power, powerProductionStored)) ? Math.max(power, powerProductionStored) : powerProductionStored;
             const obj = {
                 type: ApiCodes[productionSourcePower.type],
                 activeCount: productionSourcePower.activeCount,
                 measurementType: productionSourcePower.measurementType,
                 readingTime: productionSourcePower.readingTime,
-                power: productionSourcePower.power,
-                powerKw: productionSourcePower.power / 1000,
+                power: power,
+                powerKw: power / 1000,
                 powerLevel: powerLevel,
                 powerState: powerLevel > 0,
                 powerPeak: powerPeak,
                 powerPeakKw: powerPeak / 1000,
-                powerPeakDetected: productionSourcePower.power > productionPowerStored,
+                powerPeakDetected: power > powerProductionStored,
                 energyToday: productionSourceEnergy.energyToday,
                 energyTodayKw: productionSourceEnergy.energyToday / 1000,
                 energyLastSevenDays: productionSourceEnergy.energyLastSevenDays,
@@ -2581,34 +2582,37 @@ class EnvoyDevice extends EventEmitter {
             if (metersConsumptionEnabled) {
                 const arr = [];
                 const consumptions = this.pv.productionCt.consumption ?? [];
-                consumptions.forEach(async (consumption, index) => {
+                for (const [index, consumption] of consumptions.entries()) {
                     const energyPdmConsumptionSupported = this.feature.energyPdm.consumption.supported;
                     const isNet = consumption.measurementType === 'net-consumption';
-                    const consumptionPowerStored = isNet ? this.pv.consumptionNetPowerPeak : this.pv.consumptionTotalPowerPeak;
-                    const consumptionLifetimeOffset = isNet ? this.energyConsumptionNetLifetimeOffset : this.energyConsumptionTotalLifetimeOffset;
                     const consumptionSourcePower = isNet ? this.pv.meters.consumption.readings : consumption;
                     const consumptionSourceEnergy = isNet && energyPdmConsumptionSupported ? this.pv.energyPdm.consumption.eim : consumption;
                     const consumptionSourceMeter = isNet ? consumptionSourcePower : consumption;
                     const debug7 = this.enableDebugMode ? this.emit('debug', `Production all consumption power:`, consumptionSourcePower) : false;
                     const debug8 = this.enableDebugMode ? this.emit('debug', `Production all consumption energy:`, consumptionSourceEnergy) : false;
                     const debug9 = this.enableDebugMode ? this.emit('debug', `Production all consumption meter:`, consumptionSourceMeter) : false;
+
+                    const powerConsumptionStored = isNet ? this.pv.consumptionNetPowerPeak : this.pv.consumptionTotalPowerPeak;
+                    const power = consumptionSourcePower.power;
+                    const powerPeak = Number.isFinite(Math.max(power, powerConsumptionStored)) ? Math.max(power, powerConsumptionStored) : powerConsumptionStored;
+                    const energyConsumptionLifetimeOffset = isNet ? this.energyConsumptionNetLifetimeOffset : this.energyConsumptionTotalLifetimeOffset;
                     const obj1 = {
                         type: ApiCodes[consumptionSourcePower.type],
                         measurementType: consumptionSourcePower.measurementType,
                         activeCount: consumptionSourcePower.activeCount,
                         readingTime: consumptionSourcePower.readingTime,
-                        power: consumptionSourcePower.power,
-                        powerKw: consumptionSourcePower.power / 1000,
-                        powerState: consumptionSourcePower.power > 0,
-                        powerPeak: Math.max(consumptionSourcePower.power, consumptionPowerStored),
-                        powerPeakKw: Math.max(consumptionSourcePower.power, consumptionPowerStored) / 1000,
-                        powerPeakDetected: consumptionSourcePower.power > consumptionPowerStored,
+                        power: power,
+                        powerKw: power / 1000,
+                        powerState: power > 0,
+                        powerPeak: powerPeak,
+                        powerPeakKw: powerPeak / 1000,
+                        powerPeakDetected: power > powerConsumptionStored,
                         energyToday: consumptionSourceEnergy.energyToday,
                         energyTodayKw: consumptionSourceEnergy.energyToday / 1000,
                         energyLastSevenDays: consumptionSourceEnergy.energyLastSevenDays,
                         energyLastSevenDaysKw: consumptionSourceEnergy.energyLastSevenDays / 1000,
-                        energyLifetime: consumptionSourceEnergy.energyLifetime + consumptionLifetimeOffset,
-                        energyLifetimeKw: (consumptionSourceEnergy.energyLifetime + consumptionLifetimeOffset) / 1000,
+                        energyLifetime: consumptionSourceEnergy.energyLifetime + energyConsumptionLifetimeOffset,
+                        energyLifetimeKw: (consumptionSourceEnergy.energyLifetime + energyConsumptionLifetimeOffset) / 1000,
                         energyState: consumptionSourceEnergy.energyToday > 0,
                         reactivePower: consumptionSourceMeter.reactivePower,
                         reactivePowerKw: consumptionSourceMeter.reactivePower / 1000,
@@ -2723,7 +2727,7 @@ class EnvoyDevice extends EventEmitter {
                             }
                         }
                     }
-                })
+                }
                 //add consumption arr to pv
                 this.pv.productionAll.consumption = arr;
 
