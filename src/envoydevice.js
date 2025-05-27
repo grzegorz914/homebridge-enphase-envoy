@@ -1979,6 +1979,7 @@ class EnvoyDevice extends EventEmitter {
                 //meters reading summary data
                 metersInstalled.forEach((meter, index) => {
                     const measurementType = this.pv.meters.data[index].measurementType;
+                    const voltageDivide = this.pv.meters.data[index].voltageDivide;
                     const obj = {
                         type: 'eim',
                         activeCount: 1,
@@ -1991,7 +1992,7 @@ class EnvoyDevice extends EventEmitter {
                         reactivePower: meter.reactivePower,
                         reactivePowerKw: meter.reactivePower / 1000,
                         current: meter.current,
-                        voltage: meter.voltage / this.pv.meters.data[index].voltageDivide,
+                        voltage: meter.voltage / voltageDivide,
                         pwrFactor: meter.pwrFactor,
                         frequency: meter.freq,
                         actEnergyDlvd: meter.actEnergyDlvd,
@@ -2024,17 +2025,15 @@ class EnvoyDevice extends EventEmitter {
                     }
 
                     //update chaaracteristics
-                    if (this.metersServices) {
-                        this.metersServices[index]
-                            .updateCharacteristic(Characteristic.EnphaseMeterReadingTime, obj.readingTime)
-                            .updateCharacteristic(Characteristic.EnphaseMeterActivePower, obj.powerKw)
-                            .updateCharacteristic(Characteristic.EnphaseMeterApparentPower, obj.apparentPowerKw)
-                            .updateCharacteristic(Characteristic.EnphaseMeterReactivePower, obj.reactivePowerKw)
-                            .updateCharacteristic(Characteristic.EnphaseMeterPwrFactor, obj.pwrFactor)
-                            .updateCharacteristic(Characteristic.EnphaseMeterVoltage, obj.voltage)
-                            .updateCharacteristic(Characteristic.EnphaseMeterCurrent, obj.current)
-                            .updateCharacteristic(Characteristic.EnphaseMeterFreq, obj.frequency);
-                    }
+                    this.metersServices?.[index]
+                        ?.updateCharacteristic(Characteristic.EnphaseMeterReadingTime, obj.readingTime)
+                        .updateCharacteristic(Characteristic.EnphaseMeterActivePower, obj.powerKw)
+                        .updateCharacteristic(Characteristic.EnphaseMeterApparentPower, obj.apparentPowerKw)
+                        .updateCharacteristic(Characteristic.EnphaseMeterReactivePower, obj.reactivePowerKw)
+                        .updateCharacteristic(Characteristic.EnphaseMeterPwrFactor, obj.pwrFactor)
+                        .updateCharacteristic(Characteristic.EnphaseMeterVoltage, obj.voltage)
+                        .updateCharacteristic(Characteristic.EnphaseMeterCurrent, obj.current)
+                        .updateCharacteristic(Characteristic.EnphaseMeterFreq, obj.frequency);
 
                 });
 
@@ -2287,6 +2286,7 @@ class EnvoyDevice extends EventEmitter {
             //get enabled devices
             const metersConsumptionEnabled = this.feature.meters.consumption.enabled;
             const acBatteriesInstalled = this.feature.inventory.acbs.installed;
+            const voltageDivide = this.pv.meters.data[0].voltageDivide;
 
             //production ct
             const productionCtKeys = Object.keys(productionCtData);
@@ -2336,7 +2336,7 @@ class EnvoyDevice extends EventEmitter {
                         reactivePower: productionCtProductionEim.reactPwr,
                         apparentPower: productionCtProductionEim.apprntPwr,
                         current: productionCtProductionEim.rmsCurrent,
-                        voltage: productionCtProductionEim.rmsVoltage,
+                        voltage: productionCtProductionEim.rmsVoltage / voltageDivide,
                         pwrFactor: productionCtProductionEim.pwrFactor,
                         frequency: this.pv.meters.production.readings.frequency
                     };
@@ -2373,7 +2373,7 @@ class EnvoyDevice extends EventEmitter {
                         reactivePower: consumption.reactPwr,
                         apparentPower: consumption.apprntPwr,
                         current: consumption.rmsCurrent,
-                        voltage: consumption.rmsVoltage,
+                        voltage: consumption.rmsVoltage / voltageDivide,
                         pwrFactor: consumption.pwrFactor,
                         frequency: this.pv.meters.consumption.readings.frequency
                     };
@@ -2584,7 +2584,7 @@ class EnvoyDevice extends EventEmitter {
                 const consumptions = this.pv.productionCt.consumption ?? [];
                 for (const [index, consumption] of consumptions.entries()) {
                     const energyPdmConsumptionSupported = this.feature.energyPdm.consumption.supported;
-                    const isNet = consumption.measurementType === 'net-consumption';
+                    const isNet = consumption.measurementType === 'Consumption Net';
                     const consumptionSourcePower = isNet ? this.pv.meters.consumption.readings : consumption;
                     const consumptionSourceEnergy = isNet && energyPdmConsumptionSupported ? this.pv.energyPdm.consumption.eim : consumption;
                     const consumptionSourceMeter = isNet ? consumptionSourcePower : consumption;
