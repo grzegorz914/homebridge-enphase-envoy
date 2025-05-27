@@ -2513,29 +2513,31 @@ class EnvoyDevice extends EventEmitter {
             if (this.systemAccessoryActive) {
                 this.systemAccessoryActive.state = obj.powerState;
                 this.systemAccessoryActive.level = obj.powerLevel;
-                this.systemService?.updateCharacteristic(this.systemAccessoryActive.characteristicType, obj.powerState)
+                this.systemService
+                    ?.updateCharacteristic(this.systemAccessoryActive.characteristicType, obj.powerState)
                     .updateCharacteristic(this.systemAccessoryActive.characteristicType1, obj.powerLevel)
             }
 
-            if (this.productionService) {
+            this.productionService
+                ?.updateCharacteristic(Characteristic.EnphaseReadingTime, obj.readingTime)
+                .updateCharacteristic(Characteristic.EnphasePower, obj.powerKw)
+                .updateCharacteristic(Characteristic.EnphasePowerMax, obj.powerPeakKw)
+                .updateCharacteristic(Characteristic.EnphasePowerMaxDetected, obj.powerPeakDetected)
+                .updateCharacteristic(Characteristic.EnphaseEnergyToday, obj.energyTodayKw)
+                .updateCharacteristic(Characteristic.EnphaseEnergyLastSevenDays, obj.energyLastSevenDaysKw)
+                .updateCharacteristic(Characteristic.EnphaseEnergyLifetime, obj.energyLifetimeKw)
+                .updateCharacteristic(Characteristic.EnphasePowerMaxReset, false);
+
+            const arr = [obj.reactivePower, obj.reactivePowerKw, obj.apparentPower, obj.apparentPowerKw, obj.current, obj.voltage, obj.pwrFactor, obj.frequency];
+            const allValid = arr.every(v => typeof v === 'number' && isFinite(v));
+            if (metersProductionEnabled && allValid) {
                 this.productionService
-                    .updateCharacteristic(Characteristic.EnphaseReadingTime, obj.readingTime)
-                    .updateCharacteristic(Characteristic.EnphasePower, obj.powerKw)
-                    .updateCharacteristic(Characteristic.EnphasePowerMax, obj.powerPeakKw)
-                    .updateCharacteristic(Characteristic.EnphasePowerMaxDetected, obj.powerPeakDetected)
-                    .updateCharacteristic(Characteristic.EnphaseEnergyToday, obj.energyTodayKw)
-                    .updateCharacteristic(Characteristic.EnphaseEnergyLastSevenDays, obj.energyLastSevenDaysKw)
-                    .updateCharacteristic(Characteristic.EnphaseEnergyLifetime, obj.energyLifetimeKw)
-                    .updateCharacteristic(Characteristic.EnphasePowerMaxReset, false);
-                if (metersProductionEnabled) {
-                    this.productionService
-                        .updateCharacteristic(Characteristic.EnphaseReactivePower, obj.reactivePowerKw)
-                        .updateCharacteristic(Characteristic.EnphaseApparentPower, obj.apparentPowerKw)
-                        .updateCharacteristic(Characteristic.EnphaseRmsCurrent, obj.current)
-                        .updateCharacteristic(Characteristic.EnphaseRmsVoltage, obj.voltage)
-                        .updateCharacteristic(Characteristic.EnphasePwrFactor, obj.pwrFactor)
-                        .updateCharacteristic(Characteristic.EnphaseFreq, obj.frequency);
-                }
+                    ?.updateCharacteristic(Characteristic.EnphaseReactivePower, obj.reactivePowerKw)
+                    .updateCharacteristic(Characteristic.EnphaseApparentPower, obj.apparentPowerKw)
+                    .updateCharacteristic(Characteristic.EnphaseRmsCurrent, obj.current)
+                    .updateCharacteristic(Characteristic.EnphaseRmsVoltage, obj.voltage)
+                    .updateCharacteristic(Characteristic.EnphasePwrFactor, obj.pwrFactor)
+                    .updateCharacteristic(Characteristic.EnphaseFreq, obj.frequency);
             }
 
             //sensors power
@@ -2634,15 +2636,20 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.EnphasePowerMaxDetected, obj1.powerPeakDetected)
                         .updateCharacteristic(Characteristic.EnphaseEnergyToday, obj1.energyTodayKw)
                         .updateCharacteristic(Characteristic.EnphaseEnergyLastSevenDays, obj1.energyLastSevenDaysKw)
-                        .updateCharacteristic(Characteristic.EnphaseEnergyLifetime, obj1.energyLifetimeKw)
-                        .updateCharacteristic(Characteristic.EnphaseReactivePower, obj1.reactivePowerKw)
-                        .updateCharacteristic(Characteristic.EnphaseApparentPower, obj1.apparentPowerKw)
-                        .updateCharacteristic(Characteristic.EnphaseRmsCurrent, obj1.current)
-                        .updateCharacteristic(Characteristic.EnphaseRmsVoltage, obj1.voltage)
-                        .updateCharacteristic(Characteristic.EnphasePwrFactor, obj1.pwrFactor)
-                        .updateCharacteristic(Characteristic.EnphaseFreq, obj1.frequency)
-                        .updateCharacteristic(Characteristic.EnphasePowerMaxReset, false);
+                        .updateCharacteristic(Characteristic.EnphaseEnergyLifetime, obj1.energyLifetimeKw);
 
+                    const arr1 = [obj1.reactivePower, obj1.reactivePowerKw, obj1.apparentPower, obj1.apparentPowerKw, obj1.current, obj1.voltage, obj1.pwrFactor, obj1.frequency];
+                    const allValid = arr1.every(v => typeof v === 'number' && isFinite(v));
+                    if (allValid) {
+                        this.consumptionsServices?.[index]
+                            ?.updateCharacteristic(Characteristic.EnphaseReactivePower, obj1.reactivePowerKw)
+                            .updateCharacteristic(Characteristic.EnphaseApparentPower, obj1.apparentPowerKw)
+                            .updateCharacteristic(Characteristic.EnphaseRmsCurrent, obj1.current)
+                            .updateCharacteristic(Characteristic.EnphaseRmsVoltage, obj1.voltage)
+                            .updateCharacteristic(Characteristic.EnphasePwrFactor, obj1.pwrFactor)
+                            .updateCharacteristic(Characteristic.EnphaseFreq, obj1.frequency)
+                            .updateCharacteristic(Characteristic.EnphasePowerMaxReset, false);
+                    };
 
                     //total
                     if (obj1.measurementType === 'Consumption Total') {
