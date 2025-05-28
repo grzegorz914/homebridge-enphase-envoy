@@ -76,7 +76,7 @@ class EnvoyPlatform {
             ...device.mqtt,
             passwd: 'removed'
           }
-        };
+        }
         const debug1 = !enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}.`);
 
         //check files exists, if not then create it
@@ -94,7 +94,7 @@ class EnvoyPlatform {
             if (!existsSync(file)) {
               writeFileSync(file, '0');
             }
-          });
+          })
         } catch (error) {
           const emitLog = disableLogError ? false : log.error(`Device: ${host} ${deviceName}, Prepare files error: ${error}.`);
           return;
@@ -124,7 +124,7 @@ class EnvoyPlatform {
             })
             .on('error', (error) => {
               const emitLog = disableLogError ? false : log.error(`Device: ${host} ${deviceName}, ${error}.`);
-            });
+            })
 
           //create impulse generator
           const impulseGenerator = new ImpulseGenerator();
@@ -137,31 +137,29 @@ class EnvoyPlatform {
               const startImpulseGenerator = startDone ? await envoyDevice.startImpulseGenerator() : false
             } catch (error) {
               const emitLog = disableLogError ? false : log.error(`Device: ${host} ${deviceName}, ${error}, trying again.`);
-            };
+            }
           }).on('state', (state) => {
             const emitLog = !enableDebugMode ? false : state ? log.info(`Device: ${host} ${deviceName}, Start impulse generator started.`) : log.info(`Device: ${host} ${deviceName}, Start impulse generator stopped.`);
-          });
+          })
 
           //start impulse generator
           await impulseGenerator.start([{ name: 'start', sampling: 45000 }]);
         } catch (error) {
           throw new Error(`Device: ${host} ${deviceName}, Did finish launching error: ${error}.`);
-        };
+        }
 
         i++;
-      };
-    });
-  };
+      }
+    })
+  }
 
   configureAccessory(accessory) {
     this.accessories.push(accessory);
-  };
-};
+  }
+}
 
 export default (api) => {
-
   //import and register custom characteristics
   CustomCharacteristics(api);
-
   api.registerPlatform(PluginName, PlatformName, EnvoyPlatform);
 }

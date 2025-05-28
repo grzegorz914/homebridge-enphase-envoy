@@ -99,6 +99,6 @@ class EnvoyToken extends EventEmitter {
             throw new Error(`Get token error: ${error}`);
         }
     }
-};
+}
 export default EnvoyToken;
 
