@@ -121,60 +121,60 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `powerProductionSummary` | | number | `Power Summary`, in `W`, of all microinverters. This will be used to calculate the display power level in the Home app `0-100 %` |
 | `powerProductionLevelSensors` | | key | `Power Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `powerLevel` | number | Power production level in `W` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyProductionLifetimeOffset` | | number | `Energy Offset` in `Wh` for production (if needed) `+/-` |
 | `energyProductionLevelSensors` | | key | `Energy Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `energyLevel` | number | Energy production level in `Wh` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `gridProductionQualitySensors` | | key | `Power Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `compareType` | string | Comparison type: `Current`, `Voltage`, `Frequency`, `Power Factor` |
 | | `compareLevel` | number | Level to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `powerConsumptionTotalLevelSensors` | | key | `Power Level Sensor` for total consumption monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `powerLevel` | number | Total power consumption level in `W` to compare to power level sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyConsumptionTotalLifetimeOffset` | | number | `Energy Offset` in `Wh` for total consumption (if needed) `+/-` |
 | `energyConsumptionTotalLevelSensors` | | key | `Energy Level Sensor` for total consumption monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `energyLevel` | number | Energy level total in `Wh` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `gridConsumptionTotalQualitySensors` | | key | `Power Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `compareType` | string | Comparison type: `Current`, `Voltage`, `Frequency`, `Power Factor` |
 | | `compareLevel` | number | Level to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `powerConsumptionNetLevelSensors` | | key | `Power Level Sensor` for net power consumption level monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `powerLevel` | number | Net power consumption power level in `W` to compare for the sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `energyConsumptionNetLifetimeOffset` | | number | `Energy Offset` in `Wh` for consumption `Net` (if needed) `+/-` |
 | `energyConsumptionNetLevelSensors` | | key | `Energy Level Sensor` for net consumption monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `energyLevel` | number | Net energy comsumption level in `Wh` to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
 | | `namePrefix` | boolean | Use accessory name for prefix |
 | `gridConsumptionNetQualitySensors` | | key | `Power Level Sensor` for production monitoring |
 | | `name` | string | Accessory name for Home app |
-| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=` |
+| | `compareMode` | string | Comparison mode: `<`, `<=`, `==`, `>`, `>=`, `!=` |
 | | `compareType` | string | Comparison type: `Current`, `Voltage`, `Frequency`, `Power Factor` |
 | | `compareLevel` | number | Level to compare to sensor that was triggered |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
