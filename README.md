@@ -65,7 +65,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 
 ### Control Switches, Outlets, Lightbulbs
 
-* System `Data Refresh`
+* System `Data Refresh`, `Lock Control`
 * Production `State`, `Power Mode`, `Power State`, `Power Level`
 * AC Battery `Energy State`, `Backup Level Summary`, `Backup Level`
 * Enpower `Grid State`, `Dry Contacts`
