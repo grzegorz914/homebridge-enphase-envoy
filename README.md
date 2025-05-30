@@ -109,10 +109,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `enlightenPasswd` | | string | Enlighten password |
 | `envoyToken` | | string | Token if you selected `2 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
 | `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
-| `productionStateControl` | | key | `Production State Control` for [Power Production](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki#power-production-control)  (firmware v7.0+ require installer credentials). |
-| | `name` | string | Accessory name for Home app. |
-| | `displayType` | number | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb |
-| | `namePrefix` | boolean | Use accessory name for prefix |
+| `lockControl` | | boolean | Enable if you want to use auto lock control |
 | `productionStateSensor` | | key | `Production State Sensor` for production state monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |

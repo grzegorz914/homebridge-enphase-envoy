@@ -180,7 +180,7 @@ class RestFul extends EventEmitter {
             default:
                 this.emit('warn', `RESTFul update path: ${path}, data: ${data}`)
                 break;
-        };
+        }
         const emitDebug = this.restFulDebug ? this.emit('debug', `RESTFul update path: ${path}, data: ${JSON.stringify(data, null, 2)}`) : false;
     }
 }

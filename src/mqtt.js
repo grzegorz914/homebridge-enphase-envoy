@@ -34,7 +34,7 @@ class Mqtt extends EventEmitter {
                     } catch (error) {
                         this.emit('warn', `MQTT Parse object error: ${error}`);
                     }
-                })
+                });
             } catch (error) {
                 this.emit('warn', `MQTT Connect error: ${error}`);
             }
@@ -47,7 +47,7 @@ class Mqtt extends EventEmitter {
             } catch (error) {
                 this.emit('warn', `MQTT Publish error: ${error}`);
             }
-        })
+        });
 
         this.emit('connect');
     }

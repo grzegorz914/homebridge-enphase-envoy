@@ -76,7 +76,7 @@ class EnvoyPlatform {
             ...device.mqtt,
             passwd: 'removed'
           }
-        }
+        };
         const debug1 = !enableDebugMode ? false : log.info(`Device: ${host} ${deviceName}, Config: ${JSON.stringify(config, null, 2)}.`);
 
         //check files exists, if not then create it
@@ -94,7 +94,7 @@ class EnvoyPlatform {
             if (!existsSync(file)) {
               writeFileSync(file, '0');
             }
-          })
+          });
         } catch (error) {
           const emitLog = disableLogError ? false : log.error(`Device: ${host} ${deviceName}, Prepare files error: ${error}.`);
           return;
@@ -147,7 +147,6 @@ class EnvoyPlatform {
         } catch (error) {
           throw new Error(`Device: ${host} ${deviceName}, Did finish launching error: ${error}.`);
         }
-
         i++;
       }
     })

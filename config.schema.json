@@ -153,66 +153,12 @@
               },
               "required": true
             },
-            "productionStateControl": {
-              "title": "Production State Control",
-              "type": "object",
-              "properties": {
-                "displayType": {
-                  "title": "Accessory type",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 3,
-                  "default": 0,
-                  "oneOf": [
-                    {
-                      "title": "None/Disabled",
-                      "enum": [
-                        0
-                      ]
-                    },
-                    {
-                      "title": "Switch",
-                      "enum": [
-                        1
-                      ]
-                    },
-                    {
-                      "title": "Outlet",
-                      "enum": [
-                        2
-                      ]
-                    },
-                    {
-                      "title": "Lightbulb",
-                      "enum": [
-                        3
-                      ]
-                    }
-                  ],
-                  "description": "Accessory type in Home app",
-                  "required": true
-                },
-                "name": {
-                  "title": "Accessory name",
-                  "type": "string",
-                  "placeholder": "Accessory name",
-                  "description": "Accessory name",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].productionStateControl.displayType > 0;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Use accessory name as a prefix",
-                  "required": false,
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].productionStateControl.displayType > 0;"
-                  }
-                }
-              }
+            "lockControl": {
+              "title": "Lock Control",
+              "type": "boolean",
+              "default": true,
+              "description": "Enable for auto lock control accessory",
+              "required": false
             },
             "productionStateSensor": {
               "title": "Production State Sensor",
@@ -3427,6 +3373,7 @@
                   "key": "devices[]",
                   "title": "Envoy",
                   "items": [
+                    "devices[].lockControl",
                     {
                       "key": "devices[]",
                       "type": "tabarray",
@@ -3437,19 +3384,6 @@
                           "type": "section",
                           "title": "Production State",
                           "items": [
-                            {
-                              "key": "devices[].productionStateControl",
-                              "type": "section",
-                              "title": "Control",
-                              "description": "Section for enabling additional accessory for production state control (firmware v7.0+ requires installer credentials)",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].productionStateControl.displayType",
-                                "devices[].productionStateControl.name",
-                                "devices[].productionStateControl.namePrefix"
-                              ]
-                            },
                             {
                               "key": "devices[].productionStateSensor",
                               "type": "section",
