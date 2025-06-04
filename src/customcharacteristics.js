@@ -1562,9 +1562,41 @@ export default (api) => {
     }
     Characteristic.MicroinverterFrequency = MicroinverterFrequency;
 
+    class MicroinverterVoltageDc extends Characteristic {
+        constructor() {
+            super('Voltage DC', '00000149-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'V',
+                maxValue: 1000,
+                minValue: 0,
+                minStep: 0.1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.MicroinverterVoltageDc = MicroinverterVoltageDc;
+
+    class MicroinverterCurrentDc extends Characteristic {
+        constructor() {
+            super('Current DC', '0000015A-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'A',
+                maxValue: 1000,
+                minValue: -1000,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.MicroinverterCurrentDc = MicroinverterCurrentDc;
+
     class MicroinverterTemperature extends Characteristic {
         constructor() {
-            super('Temperature', '00000149-000B-1000-8000-0026BB765291');
+            super('Temperature', '0000015B-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.FLOAT,
                 unit: '°C',
@@ -1602,6 +1634,8 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.MicroinverterCurrent);
             this.addOptionalCharacteristic(Characteristic.MicroinverterVoltage);
             this.addOptionalCharacteristic(Characteristic.MicroinverterFrequency);
+            this.addOptionalCharacteristic(Characteristic.MicroinverterVoltageDc);
+            this.addOptionalCharacteristic(Characteristic.MicroinverterCurrentDc);
             this.addOptionalCharacteristic(Characteristic.MicroinverterTemperature);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }

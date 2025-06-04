@@ -1936,6 +1936,8 @@ class EnvoyDevice extends EventEmitter {
                         .updateCharacteristic(Characteristic.MicroinverterEnergyLastSevenDays, obj.energyLastSevenDaysKw)
                         .updateCharacteristic(Characteristic.MicroinverterVoltage, obj.voltage)
                         .updateCharacteristic(Characteristic.MicroinverterFrequency, obj.frequency)
+                        .updateCharacteristic(Characteristic.MicroinverterCurrentDc, obj.currentDc)
+                        .updateCharacteristic(Characteristic.MicroinverterVoltageDc, obj.voltageDc)
                         .updateCharacteristic(Characteristic.MicroinverterTemperature, obj.temperature);
                 });
 
@@ -5402,6 +5404,18 @@ class EnvoyDevice extends EventEmitter {
                             .onGet(async () => {
                                 const value = pcu.data.frequency;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Microinverter: ${serialNumber}, frequency: ${value} Hz`);
+                                return value;
+                            });
+                        pcuService.getCharacteristic(Characteristic.MicroinverterVoltageDc)
+                            .onGet(async () => {
+                                const value = pcu.data.voltageDc;
+                                const info = this.disableLogInfo ? false : this.emit('info', `Microinverter: ${serialNumber}, voltage dc: ${value} V`);
+                                return value;
+                            });
+                        pcuService.getCharacteristic(Characteristic.MicroinverterCurrentDc)
+                            .onGet(async () => {
+                                const value = pcu.data.currentDc;
+                                const info = this.disableLogInfo ? false : this.emit('info', `Microinverter: ${serialNumber}, current dc: ${value} A`);
                                 return value;
                             });
                         pcuService.getCharacteristic(Characteristic.MicroinverterTemperature)
