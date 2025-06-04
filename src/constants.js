@@ -32,6 +32,7 @@ export const ApiUrls = {
     "ClearGFIPost": "/admin/lib/admin_dcc_display.json",
     "DerSettings": "/ivp/ss/der_settings",
     "DevStatus": "/ivp/peb/devstatus",
+    "DevicesData": "/ivp/pdm/device_data",
     "DryContacts": "/ivp/ensemble/dry_contacts",
     "DryContactsSettings": "/ivp/ss/dry_contact_settings",
     "EnchargeBattery": "/ivp/ensemble/power",
