@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.20.0] - (14.06.2025)
+
+## Changes
+
+- stability and performance improvements
+- added devicesdata, metersRportsto to the RESTFul rquests
+- added Energy and Productin Consumption Total service if present
+- added energyLifetimeUpload characteristic for Production(mean self consumption) and Consumption Net(mean upload to the grid)
+- added node.js 24 support
+- bump dependencies
+- redme updated
+- cleanup
+
 ## [9.19.0] - (04.06.2025)
 
 ## Changes

@@ -28,8 +28,7 @@ class EnvoyToken extends EventEmitter {
             tokenData.installer = installerToken;
 
             //emit success
-            this.emit('success', `JWT Token refresh success`);
-            this.emit('success', `JWT Token ${installerToken ? 'installer,' : 'user,'} valid: ${new Date(tokenData.expires_at * 1000).toLocaleString()}`);
+            this.emit('success', `Token ${installerToken ? 'installer,' : 'user,'} expire at: ${new Date(tokenData.expires_at * 1000).toLocaleString()}`);
 
             return tokenData;
         } catch (error) {

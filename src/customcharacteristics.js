@@ -960,6 +960,22 @@ export default (api) => {
     }
     Characteristic.Frequency = Frequency;
 
+    class EnergyLifetimeUpload extends Characteristic {
+        constructor() {
+            super('Energy lifetime upload', '00000086-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'kWh',
+                maxValue: 100000000,
+                minValue: -100000000,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EnergyLifetimeUpload = EnergyLifetimeUpload;
+
     //power production service
     class PowerAndEnergyService extends Service {
         constructor(displayName, subtype) {
@@ -972,6 +988,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnergyToday);
             this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
             this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
+            this.addOptionalCharacteristic(Characteristic.EnergyLifetimeUpload);
             this.addOptionalCharacteristic(Characteristic.Current);
             this.addOptionalCharacteristic(Characteristic.Voltage);
             this.addOptionalCharacteristic(Characteristic.ReactivePower);
