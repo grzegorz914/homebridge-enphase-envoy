@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.0.0] - (xx.06.2025)
+
+## Note!!!
+- after update to this version the accessory and bridge need to be removed from the homebridge / Home.app and added again
+
+## Changes
+
+- full code refactor
+- stability and performance improvements
+- added many detailed data for microinverters, meters, qrelays
+- RESTFul code refactor and updated
+- cleanup custom characteristics
+- cleanup
+- readme updated
+- many more small changes
+
 ## [9.20.1] - (15.06.2025)
 
 ## Changes

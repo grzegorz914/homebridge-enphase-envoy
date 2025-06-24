@@ -53,7 +53,7 @@ export default (api) => {
 
     class EverReportedToEnlighten extends Characteristic {
         constructor() {
-            super('Report to Enlighten', '00000013-000B-1000-8000-0026BB765291');
+            super('Report to enlighten', '00000013-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.BOOL,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -173,7 +173,7 @@ export default (api) => {
 
     class TimeZone extends Characteristic {
         constructor() {
-            super('Time Zone', '00000024-000B-1000-8000-0026BB765291');
+            super('Time zone', '00000024-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.STRING,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -197,7 +197,7 @@ export default (api) => {
 
     class LastEnlightenReporDate extends Characteristic {
         constructor() {
-            super('Last report to Enlighten', '00000026-000B-1000-8000-0026BB765291');
+            super('Last report to enlighten', '00000026-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.STRING,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -293,17 +293,17 @@ export default (api) => {
     Characteristic.DataRefresh = DataRefresh;
 
     //Q-Relay
-    class RelayState extends Characteristic {
+    class State extends Characteristic {
         constructor() {
-            super('Relay', '00000031-000B-1000-8000-0026BB765291');
+            super('State', '00000031-000B-1000-8000-0026BB765291');
             this.setProps({
-                format: Formats.STRING,
+                format: Formats.BOOL,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.RelayState = RelayState;
+    Characteristic.State = State;
 
     class LinesCount extends Characteristic {
         constructor() {
@@ -429,9 +429,9 @@ export default (api) => {
     }
     Characteristic.Status = Status;
 
-    class LastReportDate extends Characteristic {
+    class ReadingTime extends Characteristic {
         constructor() {
-            super('Last report', '00000044-000B-1000-8000-0026BB765291');
+            super('Reading time', '00000044-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.STRING,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -439,24 +439,12 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.LastReportDate = LastReportDate;
+    Characteristic.ReadingTime = ReadingTime;
 
     // current meters
-    class State extends Characteristic {
+    class Type extends Characteristic {
         constructor() {
-            super('State', '00000051-000B-1000-8000-0026BB765291');
-            this.setProps({
-                format: Formats.BOOL,
-                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-            });
-            this.value = this.getDefaultValue();
-        }
-    }
-    Characteristic.State = State;
-
-    class MeasurementType extends Characteristic {
-        constructor() {
-            super(' type', '00000052-000B-1000-8000-0026BB765291');
+            super('Type', '00000052-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.STRING,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -464,7 +452,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.MeasurementType = MeasurementType;
+    Characteristic.Type = Type;
 
     class PhaseCount extends Characteristic {
         constructor() {
@@ -501,18 +489,6 @@ export default (api) => {
         }
     }
     Characteristic.MeteringStatus = MeteringStatus;
-
-    class StatusFlags extends Characteristic {
-        constructor() {
-            super('Status flag', '00000056-000B-1000-8000-0026BB765291');
-            this.setProps({
-                format: Formats.STRING,
-                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-            });
-            this.value = this.getDefaultValue();
-        }
-    }
-    Characteristic.StatusFlags = StatusFlags;
 
     class Power extends Characteristic {
         constructor() {
@@ -602,7 +578,7 @@ export default (api) => {
                 unit: 'A',
                 maxValue: 1000,
                 minValue: -1000,
-                minStep: 0.001,
+                minStep: 0.1,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
             this.value = this.getDefaultValue();
@@ -626,7 +602,72 @@ export default (api) => {
     }
     Characteristic.Frequency = Frequency;
 
+    class VoltageL1 extends Characteristic {
+        constructor() {
+            super('Voltage L1', '00000065-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'V',
+                maxValue: 1000,
+                minValue: 0,
+                minStep: 0.1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.VoltageL1 = VoltageL1;
+
+    class VoltageL2 extends Characteristic {
+        constructor() {
+            super('Voltage L2', '00000066-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'V',
+                maxValue: 1000,
+                minValue: 0,
+                minStep: 0.1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.VoltageL2 = VoltageL2;
+
+    class VoltageL3 extends Characteristic {
+        constructor() {
+            super('Voltage L3', '00000067-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'V',
+                maxValue: 1000,
+                minValue: 0,
+                minStep: 0.1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.VoltageL3 = VoltageL3;
+
+    class AcOffset extends Characteristic {
+        constructor() {
+            super('Voltage offset', '00000068-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'V',
+                maxValue: 1000,
+                minValue: -1000,
+                minStep: 0.1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.AcOffset = AcOffset;
+
     //Power and Energy characteristics
+
     class PowerPeak extends Characteristic {
         constructor() {
             super('Power peak', '00000072-000B-1000-8000-0026BB765291');
@@ -781,7 +822,7 @@ export default (api) => {
     Characteristic.ActiveCount = ActiveCount;
 
     //AC Batterie
-    class ChargeStatus extends Characteristic {
+    class ChargeState extends Characteristic {
         constructor() {
             super('Charge status', '00000111-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -791,7 +832,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.ChargeStatus = ChargeStatus;
+    Characteristic.ChargeState = ChargeState;
 
     class SleepEnabled extends Characteristic {
         constructor() {
@@ -860,8 +901,8 @@ export default (api) => {
             this.setProps({
                 format: Formats.INT,
                 unit: 'W',
-                maxValue: 1000,
-                minValue: 0,
+                maxValue: 1000000,
+                minValue: -1000000,
                 minStep: 1,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
@@ -870,15 +911,31 @@ export default (api) => {
     }
     Characteristic.PowerW = PowerW;
 
+    class PowerPeakW extends Characteristic {
+        constructor() {
+            super('Power peak', '00000132-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'W',
+                maxValue: 1000000,
+                minValue: -1000000,
+                minStep: 1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.PowerPeakW = PowerPeakW;
+
     class EnergyTodayWh extends Characteristic {
         constructor() {
             super('Energy today', '00000133-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.FLOAT,
                 unit: 'Wh',
-                maxValue: 10000,
-                minValue: -10000,
-                minStep: 0.001,
+                maxValue: 1000000,
+                minValue: -1000000,
+                minStep: 1,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
             this.value = this.getDefaultValue();
@@ -892,15 +949,47 @@ export default (api) => {
             this.setProps({
                 format: Formats.FLOAT,
                 unit: 'Wh',
-                maxValue: 10000,
-                minValue: -10000,
-                minStep: 0.001,
+                maxValue: 1000000,
+                minValue: -1000000,
+                minStep: 1,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
             this.value = this.getDefaultValue();
         }
     }
     Characteristic.EnergyYesterdayWh = EnergyYesterdayWh;
+
+    class EnergyLastSevenDaysWh extends Characteristic {
+        constructor() {
+            super('Energy last 7 days', '00000135-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'Wh',
+                maxValue: 1000000,
+                minValue: -1000000,
+                minStep: 1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EnergyLastSevenDaysWh = EnergyLastSevenDaysWh;
+
+    class EnergyLifetimeWh extends Characteristic {
+        constructor() {
+            super('Energy lifetime', '00000136-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'Wh',
+                maxValue: 100000000,
+                minValue: -100000000,
+                minStep: 0.1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EnergyLifetimeWh = EnergyLifetimeWh;
 
     class VoltageDc extends Characteristic {
         constructor() {
@@ -909,7 +998,7 @@ export default (api) => {
                 format: Formats.FLOAT,
                 unit: 'V',
                 maxValue: 1000,
-                minValue: 0,
+                minValue: -1000,
                 minStep: 0.1,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
@@ -926,7 +1015,7 @@ export default (api) => {
                 unit: 'A',
                 maxValue: 1000,
                 minValue: -1000,
-                minStep: 0.001,
+                minStep: 0.1,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
             this.value = this.getDefaultValue();
@@ -949,6 +1038,18 @@ export default (api) => {
         }
     }
     Characteristic.Temperature = Temperature;
+
+    class GfiClear extends Characteristic {
+        constructor() {
+            super('Gfi clear', '00000150-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.STRING,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.GfiClear = GfiClear;
 
     //Encharge
     class AdminStateStr extends Characteristic {
@@ -1041,7 +1142,7 @@ export default (api) => {
 
     class DcSwitchOff extends Characteristic {
         constructor() {
-            super('DC switch OFF', '00000164-000B-1000-8000-0026BB765291');
+            super('DC switch', '00000164-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.BOOL,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -1068,7 +1169,6 @@ export default (api) => {
     Characteristic.Rev = Rev;
 
     //Enpowe
-
     class MainsAdminState extends Characteristic {
         constructor() {
             super('Admin state', '00000177-000B-1000-8000-0026BB765291');
@@ -1471,18 +1571,6 @@ export default (api) => {
     Characteristic.EncAggAvailEnergy = EncAggAvailEnergy;
 
     //Wireless connection kit
-    class Type extends Characteristic {
-        constructor() {
-            super('Type', '00000220-000B-1000-8000-0026BB765291');
-            this.setProps({
-                format: Formats.STRING,
-                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-            });
-            this.value = this.getDefaultValue();
-        }
-    }
-    Characteristic.Type = Type;
-
     class Connected extends Characteristic {
         constructor() {
             super('Connected', '00000221-000B-1000-8000-0026BB765291');
@@ -1763,21 +1851,26 @@ export default (api) => {
         constructor(displayName, subtype) {
             super(displayName, '00000002-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.RelayState);
+            this.addCharacteristic(Characteristic.State);
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.LinesCount);
             this.addOptionalCharacteristic(Characteristic.Line1Connected);
             this.addOptionalCharacteristic(Characteristic.Line2Connected);
             this.addOptionalCharacteristic(Characteristic.Line3Connected);
-            this.addOptionalCharacteristic(Characteristic.Producing);
             this.addOptionalCharacteristic(Characteristic.Communicating);
             this.addOptionalCharacteristic(Characteristic.Provisioned);
             this.addOptionalCharacteristic(Characteristic.Operating);
             this.addOptionalCharacteristic(Characteristic.CommLevel);
             this.addOptionalCharacteristic(Characteristic.Status);
             this.addOptionalCharacteristic(Characteristic.Firmware);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
+            this.addOptionalCharacteristic(Characteristic.AcOffset);
+            this.addOptionalCharacteristic(Characteristic.VoltageL1);
+            this.addOptionalCharacteristic(Characteristic.VoltageL2);
+            this.addOptionalCharacteristic(Characteristic.VoltageL3);
+            this.addOptionalCharacteristic(Characteristic.Frequency);
+            this.addOptionalCharacteristic(Characteristic.Temperature);
             this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1792,17 +1885,19 @@ export default (api) => {
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.PhaseMode);
             this.addOptionalCharacteristic(Characteristic.PhaseCount);
-            this.addOptionalCharacteristic(Characteristic.MeasurementType);
+            this.addOptionalCharacteristic(Characteristic.Type);
             this.addOptionalCharacteristic(Characteristic.MeteringStatus);
-            this.addOptionalCharacteristic(Characteristic.StatusFlags);
+            this.addOptionalCharacteristic(Characteristic.Status);
             this.addOptionalCharacteristic(Characteristic.Power);
             this.addOptionalCharacteristic(Characteristic.ApparentPower);
             this.addOptionalCharacteristic(Characteristic.ReactivePower);
-            this.addOptionalCharacteristic(Characteristic.PwrFactor);
-            this.addOptionalCharacteristic(Characteristic.Voltage);
+            this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
+            this.addOptionalCharacteristic(Characteristic.EnergyLifetimeUpload);
             this.addOptionalCharacteristic(Characteristic.Current);
+            this.addOptionalCharacteristic(Characteristic.Voltage);
+            this.addOptionalCharacteristic(Characteristic.PwrFactor);
             this.addOptionalCharacteristic(Characteristic.Frequency);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1817,18 +1912,18 @@ export default (api) => {
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.PowerPeak);
             this.addOptionalCharacteristic(Characteristic.PowerPeakDetected);
+            this.addOptionalCharacteristic(Characteristic.PowerPeakReset);
+            this.addOptionalCharacteristic(Characteristic.ApparentPower);
+            this.addOptionalCharacteristic(Characteristic.ReactivePower);
             this.addOptionalCharacteristic(Characteristic.EnergyToday);
             this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
             this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
             this.addOptionalCharacteristic(Characteristic.EnergyLifetimeUpload);
             this.addOptionalCharacteristic(Characteristic.Current);
             this.addOptionalCharacteristic(Characteristic.Voltage);
-            this.addOptionalCharacteristic(Characteristic.ReactivePower);
-            this.addOptionalCharacteristic(Characteristic.ApparentPower);
-            this.addOptionalCharacteristic(Characteristic.PwrFactor);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
-            this.addOptionalCharacteristic(Characteristic.PowerPeakReset);
             this.addOptionalCharacteristic(Characteristic.Frequency);
+            this.addOptionalCharacteristic(Characteristic.PwrFactor);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1845,7 +1940,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.PercentFull);
             this.addOptionalCharacteristic(Characteristic.ActiveCount);
             this.addOptionalCharacteristic(Characteristic.State);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1856,7 +1951,7 @@ export default (api) => {
         constructor(displayName, subtype) {
             super(displayName, '00000006-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.ChargeStatus);
+            this.addCharacteristic(Characteristic.ChargeState);
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.Producing);
             this.addOptionalCharacteristic(Characteristic.Communicating);
@@ -1870,7 +1965,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.SleepMaxSoc);
             this.addOptionalCharacteristic(Characteristic.Status);
             this.addOptionalCharacteristic(Characteristic.Firmware);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1881,9 +1976,10 @@ export default (api) => {
         constructor(displayName, subtype) {
             super(displayName, '00000007-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.PowerW);
+            this.addOptionalCharacteristic(Characteristic.Status);
             // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.PowerPeak);
+            this.addCharacteristic(Characteristic.PowerW);
+            this.addOptionalCharacteristic(Characteristic.PowerPeakW);
             this.addOptionalCharacteristic(Characteristic.EnergyTodayWh);
             this.addOptionalCharacteristic(Characteristic.EnergyYesterdayWh);
             this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
@@ -1893,16 +1989,16 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.Provisioned);
             this.addOptionalCharacteristic(Characteristic.Operating);
             this.addOptionalCharacteristic(Characteristic.CommLevel);
-            this.addOptionalCharacteristic(Characteristic.Status);
+            this.addOptionalCharacteristic(Characteristic.GfiClear);
             this.addOptionalCharacteristic(Characteristic.Firmware);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
             this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.Current);
             this.addOptionalCharacteristic(Characteristic.Voltage);
             this.addOptionalCharacteristic(Characteristic.Frequency);
-            this.addOptionalCharacteristic(Characteristic.VoltageDc);
             this.addOptionalCharacteristic(Characteristic.CurrentDc);
+            this.addOptionalCharacteristic(Characteristic.VoltageDc);
             this.addOptionalCharacteristic(Characteristic.Temperature);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1928,10 +2024,10 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.Capacity);
             this.addOptionalCharacteristic(Characteristic.DcSwitchOff);
             this.addOptionalCharacteristic(Characteristic.Rev);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.Status);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
             this.addOptionalCharacteristic(Characteristic.CommLevel);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1953,9 +2049,10 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.MainsOperState);
             this.addOptionalCharacteristic(Characteristic.EnpwrGridMode);
             this.addOptionalCharacteristic(Characteristic.EnchgGridMode);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.Status);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
+            this.addOptionalCharacteristic(Characteristic.CommLevel);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -2018,10 +2115,10 @@ export default (api) => {
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.Communicating);
             this.addOptionalCharacteristic(Characteristic.Operating);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
             this.addOptionalCharacteristic(Characteristic.Status);
             this.addOptionalCharacteristic(Characteristic.Firmware);
-            this.addOptionalCharacteristic(Characteristic.LastReportDate);
+            this.addOptionalCharacteristic(Characteristic.CommLevel);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -2041,6 +2138,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.ApparentPowerL1);
             this.addOptionalCharacteristic(Characteristic.ApparentPowerL2);
             this.addOptionalCharacteristic(Characteristic.ApparentPowerL3);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }

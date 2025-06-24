@@ -354,6 +354,14 @@ export const ApiCodes = {
     "lwui.home.warnings.cross_domain_traffic": "Cross Domain Traffic"
 };
 
+export const MetersKeyMap = {
+                    'Production': 'production',
+                    'Consumption Net': 'net',
+                    'Consumption Total': 'total',
+                    'Storage': 'storage',
+                    'Pcu': 'pcu'
+                };
+
 export const LedStatus = {
     "0": "Off",
     "1": "Standby",
