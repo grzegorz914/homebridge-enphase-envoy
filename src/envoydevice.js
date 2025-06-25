@@ -1192,6 +1192,12 @@ class EnvoyDevice extends EventEmitter {
             const tokenValid = this.feature.tokenValid;
             const debug1 = this.enableDebugMode ? this.emit('debug', `Token: ${tokenValid ? 'Valid' : 'Not valid'}`) : false;
 
+            //restFul
+            const restFul = this.restFulConnected ? this.restFul1.update('token', this.feature.info.jwtToken) : false;
+
+            //mqtt
+            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Token', this.feature.info.jwtToken) : false;
+
             if (tokenExist && tokenValid) {
                 this.feature.checkTokenRunning = false;
                 return true;
@@ -1214,6 +1220,7 @@ class EnvoyDevice extends EventEmitter {
                 return null;
             }
             this.feature.checkTokenRunning = false;
+
             return true;
         } catch (error) {
             this.feature.checkTokenRunning = false;
@@ -1255,12 +1262,6 @@ class EnvoyDevice extends EventEmitter {
             } catch (error) {
                 this.emit('error', `Save token error: ${error}`);
             }
-
-            //restFul
-            const restFul = this.restFulConnected ? this.restFul1.update('token', tokenData) : false;
-
-            //mqtt
-            const mqtt = this.mqttConnected ? this.mqtt1.emit('publish', 'Token', tokenData) : false;
             return true;
         } catch (error) {
             throw new Error(`Get token error: ${error}`);
@@ -4672,7 +4673,7 @@ class EnvoyDevice extends EventEmitter {
             return true;
         } catch (error) {
             if (start) {
-                this.emit('warn', `Plc level not supported, dont worry all working correct, only the plc level control will not be displayed, error: ${error}`);
+                this.emit('warn', `Plc level not supported, dont worry all working correct, only the plc level and control will not be displayed, error: ${error}`);
                 return null;
             }
             throw new Error(`Update plc level: ${error}`)

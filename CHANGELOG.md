@@ -5,10 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [10.0.0] - (24.06.2025)
-
 ## Note!!!
-- after update to this version the accessory and bridge need to be removed from the homebridge / Home.app and added again
+- after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
+
+## [10.0.1] - (25.06.2025)
+
+## Changes
+
+- fix RESTFul `detaileddevicesdata` and `token` paths
+- fix Mqtt `token` refresh
+- redme updated
+
+## [10.0.0] - (24.06.2025)
 
 ## Changes
 
@@ -114,7 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - config UI improvements
 - mqtt clientId and prefix updated
 - redme update
-- cleanup 
+- cleanup
 
 ## [9.16.0] - (21.05.2025)
 

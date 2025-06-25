@@ -18,7 +18,7 @@ class RestFul extends EventEmitter {
             meters: DEFAULT_MESSAGE,
             metersreading: DEFAULT_MESSAGE,
             metersreports: DEFAULT_MESSAGE,
-            detaileddevices_data: DEFAULT_MESSAGE,
+            detaileddevicesdata: DEFAULT_MESSAGE,
             microinvertersdata: DEFAULT_MESSAGE,
             qrelaysdata: DEFAULT_MESSAGE,
             metersdata: DEFAULT_MESSAGE,
