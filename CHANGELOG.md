@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Note!!!
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.0.3] - (29.06.2025)
+
+## Changes
+
+- fix scale plc level to 100%
+
 ## [10.0.2] - (29.06.2025)
 
 ## Changes

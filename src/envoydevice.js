@@ -4571,10 +4571,7 @@ class EnvoyDevice extends EventEmitter {
                 }
             };
 
-            const response = this.feature.info.firmware7xx
-                ? await this.axiosInstance(ApiUrls.InverterComm)
-                : await this.digestAuthInstaller.request(ApiUrls.InverterComm, options);
-
+            const response = this.feature.info.firmware7xx ? await this.axiosInstance(ApiUrls.InverterComm) : await this.digestAuthInstaller.request(ApiUrls.InverterComm, options);
             const plcLevel = response.data;
             if (this.enableDebugMode) this.emit('debug', 'Plc level:', plcLevel);
             this.pv.plcLevelCheckState = true;
@@ -4597,7 +4594,7 @@ class EnvoyDevice extends EventEmitter {
                 for (const device of devices) {
                     const serialNumber = device.serialNumber;
                     const rawValue = plcLevel[serialNumber] ?? 0;
-                    device.commLevel = this.scaleValue(rawValue, 0, 20, 0, 100);
+                    device.commLevel = this.scaleValue(rawValue, 0, 5, 0, 100);
                 }
                 featureFlag.supported = true;
             }
@@ -4713,7 +4710,8 @@ class EnvoyDevice extends EventEmitter {
                 this.envoyService?.updateCharacteristic(Characteristic.ProductionState, state);
                 if (this.productionStateActiveSensor) {
                     this.productionStateActiveSensor.state = state;
-                    this.productionStateSensorService?.updateCharacteristic(this.productionStateActiveSensor.characteristicType, state);
+                    this.productionStateSensorService
+                        ?.updateCharacteristic(this.productionStateActiveSensor.characteristicType, state);
                 }
                 this.feature.productionState.supported = true;
             }
