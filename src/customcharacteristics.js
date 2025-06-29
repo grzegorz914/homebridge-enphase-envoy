@@ -256,7 +256,7 @@ export default (api) => {
     Characteristic.GeneratorMode = GeneratorMode;
 
 
-    class CheckCommLevel extends Characteristic {
+    class PlcLevelCheck extends Characteristic {
         constructor() {
             super('Plc level check', '00000029-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -266,7 +266,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.CheckCommLevel = CheckCommLevel;
+    Characteristic.PlcLevelCheck = PlcLevelCheck;
 
     class ProductionState extends Characteristic {
         constructor() {
@@ -280,7 +280,7 @@ export default (api) => {
     }
     Characteristic.ProductionState = ProductionState;
 
-    class DataRefresh extends Characteristic {
+    class DataSampling extends Characteristic {
         constructor() {
             super('Data sampling', '00000300-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -290,7 +290,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.DataRefresh = DataRefresh;
+    Characteristic.DataSampling = DataSampling;
 
     //Q-Relay
     class State extends Characteristic {
@@ -1838,9 +1838,9 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnpowerGridMode);
             this.addOptionalCharacteristic(Characteristic.GeneratorState);
             this.addOptionalCharacteristic(Characteristic.GeneratorMode);
-            this.addOptionalCharacteristic(Characteristic.CheckCommLevel);
+            this.addOptionalCharacteristic(Characteristic.PlcLevelCheck);
             this.addOptionalCharacteristic(Characteristic.ProductionState);
-            this.addOptionalCharacteristic(Characteristic.DataRefresh);
+            this.addOptionalCharacteristic(Characteristic.DataSampling);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1940,6 +1940,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.PercentFull);
             this.addOptionalCharacteristic(Characteristic.ActiveCount);
             this.addOptionalCharacteristic(Characteristic.State);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
@@ -1957,6 +1958,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.Communicating);
             this.addOptionalCharacteristic(Characteristic.Provisioned);
             this.addOptionalCharacteristic(Characteristic.Operating);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.CommLevel);
             this.addOptionalCharacteristic(Characteristic.SleepEnabled);
             this.addOptionalCharacteristic(Characteristic.PercentFull);

@@ -38,7 +38,7 @@ class RestFul extends EventEmitter {
             generatorsettings: DEFAULT_MESSAGE,
             gridprofile: DEFAULT_MESSAGE,
             livedata: DEFAULT_MESSAGE,
-            powermode: DEFAULT_MESSAGE,
+            productionstate: DEFAULT_MESSAGE,
             plclevel: DEFAULT_MESSAGE,
             datasampling: DEFAULT_MESSAGE
         };
