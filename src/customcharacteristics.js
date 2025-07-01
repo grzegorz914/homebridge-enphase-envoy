@@ -255,6 +255,18 @@ export default (api) => {
     }
     Characteristic.GeneratorMode = GeneratorMode;
 
+    class SystemControl extends Characteristic {
+        constructor() {
+            super('System control', '00000303-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.BOOL,
+                perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.SystemControl = SystemControl;
+
 
     class PlcLevelCheck extends Characteristic {
         constructor() {
@@ -911,7 +923,7 @@ export default (api) => {
     }
     Characteristic.PowerW = PowerW;
 
-    class PowerPeakW extends Characteristic {
+    class PowerPeakkW extends Characteristic {
         constructor() {
             super('Power peak', '00000132-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -925,7 +937,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.PowerPeakW = PowerPeakW;
+    Characteristic.PowerPeakkW = PowerPeakkW;
 
     class EnergyTodayWh extends Characteristic {
         constructor() {
@@ -1816,9 +1828,9 @@ export default (api) => {
         constructor(displayName, subtype) {
             super(displayName, '00000001-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.Alerts);
+            this.addCharacteristic(Characteristic.DataSampling);
             // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.Alerts);
             this.addOptionalCharacteristic(Characteristic.PrimaryInterface);
             this.addOptionalCharacteristic(Characteristic.NetworkWebComm);
             this.addOptionalCharacteristic(Characteristic.EverReportedToEnlighten);
@@ -1838,9 +1850,10 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnpowerGridMode);
             this.addOptionalCharacteristic(Characteristic.GeneratorState);
             this.addOptionalCharacteristic(Characteristic.GeneratorMode);
+            this.addOptionalCharacteristic(Characteristic.SystemControl);
             this.addOptionalCharacteristic(Characteristic.PlcLevelCheck);
             this.addOptionalCharacteristic(Characteristic.ProductionState);
-            this.addOptionalCharacteristic(Characteristic.DataSampling);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -1853,14 +1866,13 @@ export default (api) => {
             // Mandatory Characteristics
             this.addCharacteristic(Characteristic.State);
             // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Communicating);
+            this.addOptionalCharacteristic(Characteristic.Provisioned);
+            this.addOptionalCharacteristic(Characteristic.Operating);
             this.addOptionalCharacteristic(Characteristic.LinesCount);
             this.addOptionalCharacteristic(Characteristic.Line1Connected);
             this.addOptionalCharacteristic(Characteristic.Line2Connected);
             this.addOptionalCharacteristic(Characteristic.Line3Connected);
-            this.addOptionalCharacteristic(Characteristic.Communicating);
-            this.addOptionalCharacteristic(Characteristic.Provisioned);
-            this.addOptionalCharacteristic(Characteristic.Operating);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
             this.addOptionalCharacteristic(Characteristic.Status);
             this.addOptionalCharacteristic(Characteristic.Firmware);
             this.addOptionalCharacteristic(Characteristic.AcOffset);
@@ -1869,6 +1881,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.VoltageL3);
             this.addOptionalCharacteristic(Characteristic.Frequency);
             this.addOptionalCharacteristic(Characteristic.Temperature);
+            this.addOptionalCharacteristic(Characteristic.CommLevel);
             this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
@@ -1958,8 +1971,6 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.Communicating);
             this.addOptionalCharacteristic(Characteristic.Provisioned);
             this.addOptionalCharacteristic(Characteristic.Operating);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
             this.addOptionalCharacteristic(Characteristic.SleepEnabled);
             this.addOptionalCharacteristic(Characteristic.PercentFull);
             this.addOptionalCharacteristic(Characteristic.MaxCellTemp);
@@ -1967,6 +1978,8 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.SleepMaxSoc);
             this.addOptionalCharacteristic(Characteristic.Status);
             this.addOptionalCharacteristic(Characteristic.Firmware);
+            this.addOptionalCharacteristic(Characteristic.CommLevel);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
@@ -1978,28 +1991,28 @@ export default (api) => {
         constructor(displayName, subtype) {
             super(displayName, '00000007-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addOptionalCharacteristic(Characteristic.Status);
+            this.addCharacteristic(Characteristic.Status);
             // Optional Characteristics
-            this.addCharacteristic(Characteristic.PowerW);
-            this.addOptionalCharacteristic(Characteristic.PowerPeakW);
-            this.addOptionalCharacteristic(Characteristic.EnergyTodayWh);
-            this.addOptionalCharacteristic(Characteristic.EnergyYesterdayWh);
-            this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
-            this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
             this.addOptionalCharacteristic(Characteristic.Producing);
             this.addOptionalCharacteristic(Characteristic.Communicating);
             this.addOptionalCharacteristic(Characteristic.Provisioned);
             this.addOptionalCharacteristic(Characteristic.Operating);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
             this.addOptionalCharacteristic(Characteristic.GfiClear);
             this.addOptionalCharacteristic(Characteristic.Firmware);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.PowerW);
+            this.addOptionalCharacteristic(Characteristic.PowerPeakkW);
+            this.addOptionalCharacteristic(Characteristic.EnergyTodayWh);
+            this.addOptionalCharacteristic(Characteristic.EnergyYesterdayWh);
+            this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
+            this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
             this.addOptionalCharacteristic(Characteristic.Current);
             this.addOptionalCharacteristic(Characteristic.Voltage);
             this.addOptionalCharacteristic(Characteristic.Frequency);
             this.addOptionalCharacteristic(Characteristic.CurrentDc);
             this.addOptionalCharacteristic(Characteristic.VoltageDc);
             this.addOptionalCharacteristic(Characteristic.Temperature);
+            this.addOptionalCharacteristic(Characteristic.CommLevel);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
@@ -2013,8 +2026,8 @@ export default (api) => {
             // Mandatory Characteristics
             this.addCharacteristic(Characteristic.AdminStateStr);
             // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Operating);
             this.addOptionalCharacteristic(Characteristic.Communicating);
+            this.addOptionalCharacteristic(Characteristic.Operating);
             this.addOptionalCharacteristic(Characteristic.CommLevelSubGhz);
             this.addOptionalCharacteristic(Characteristic.CommLevel24Ghz);
             this.addOptionalCharacteristic(Characteristic.SleepEnabled);
@@ -2098,9 +2111,9 @@ export default (api) => {
         constructor(displayName, subtype) {
             super(displayName, '00000010-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.Type);
+            this.addCharacteristic(Characteristic.Connected);
             // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Connected);
+            this.addOptionalCharacteristic(Characteristic.Type);
             this.addOptionalCharacteristic(Characteristic.SignalStrength);
             this.addOptionalCharacteristic(Characteristic.SignalStrengthMax);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);

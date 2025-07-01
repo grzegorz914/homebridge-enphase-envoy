@@ -2321,7 +2321,7 @@ class EnvoyDevice extends EventEmitter {
                     if (pcusStatusDataSupported || pcusDetailedDataSupported) {
                         service
                             .updateCharacteristic(Characteristic.PowerW, pcuData.power)
-                            .updateCharacteristic(Characteristic.PowerPeakW, pcuData.powerPeak);
+                            .updateCharacteristic(Characteristic.PowerPeakkW, pcuData.powerPeak);
                     }
 
                     if (pcusDetailedDataSupported) {
@@ -4584,20 +4584,23 @@ class EnvoyDevice extends EventEmitter {
                 { devices: this.pv.ensemble.enpowers.devices, flag: this.feature.plcLevel.enpowers, installed: this.feature.ensemble.enpowers.installed },
             ];
 
-            for (const target of targets) {
-                if (!target.installed) {
-                    continue;
+            for (const { devices, flag, installed } of targets) {
+                if (!installed || !Array.isArray(devices)) continue;
+                const knownSerials = new Set(devices.map(d => d.serialNumber));
+
+                for (const serial of knownSerials) {
+                    if (!(serial in plcLevel)) continue;
+
+                    const raw = plcLevel[serial];
+                    const device = devices.find(d => d.serialNumber === serial);
+                    if (device) {
+                        device.commLevel = this.scaleValue(raw, 0, 5, 0, 100);
+                    }
                 }
 
-                const devices = target.devices;
-                const featureFlag = target.flag;
-                for (const device of devices) {
-                    const serialNumber = device.serialNumber;
-                    const rawValue = plcLevel[serialNumber] ?? 0;
-                    device.commLevel = this.scaleValue(rawValue, 0, 5, 0, 100);
-                }
-                featureFlag.supported = true;
+                flag.supported = true;
             }
+
 
             // update plc level state
             this.pv.plcLevelCheckState = false;
@@ -5092,6 +5095,53 @@ class EnvoyDevice extends EventEmitter {
                 .setCharacteristic(Characteristic.SerialNumber, envoySerialNumber ?? 'Serial Number')
                 .setCharacteristic(Characteristic.FirmwareRevision, this.pv.info.software.replace(/[a-zA-Z]/g, '') ?? '0');
 
+            //system control lock service
+            if (this.lockControl) {
+                if (this.enableDebugMode) this.emit('debug', `Prepare System Control Lock Service`);
+
+                pvControl = false;
+                const lockService = accessory.addService(Service.LockMechanism, accessoryName, `lockService`);
+                lockService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                lockService.setCharacteristic(Characteristic.ConfiguredName, accessoryName);
+                lockService.getCharacteristic(Characteristic.LockCurrentState)
+                    .onGet(async () => {
+                        const state = pvControl ? 0 : 1;
+                        const info = this.disableLogInfo ? false : this.emit('info', `System Control: ${state ? 'Unlocked' : 'Locked'}`);
+                        return state;
+                    });
+                lockService.getCharacteristic(Characteristic.LockTargetState)
+                    .onGet(async () => {
+                        const state = pvControl ? 0 : 1;
+                        return state;
+                    })
+                    .onSet(async (value) => {
+                        if (value === Characteristic.LockTargetState.UNSECURED) {
+                            this.emit('success', `System control unlocked`);
+                            pvControl = true;
+                            lockService.updateCharacteristic(Characteristic.LockCurrentState, 0);
+                            this.envoyService.updateCharacteristic(Characteristic.SystemControl, true);
+
+                            if (this.unlockTimeout) clearTimeout(this.unlockTimeout);
+                            this.unlockTimeout = setTimeout(() => {
+                                pvControl = false;
+                                lockService.updateCharacteristic(Characteristic.LockCurrentState, 1);
+                                lockService.updateCharacteristic(Characteristic.LockTargetState, 1);
+                                this.envoyService.updateCharacteristic(Characteristic.SystemControl, false);
+
+                                this.emit('success', `System control locked`);
+                            }, 30000);
+                        } else {
+                            this.emit('success', `System control locked`);
+                            pvControl = false;
+                            if (this.unlockTimeout) clearTimeout(this.unlockTimeout);
+                            lockService.updateCharacteristic(Characteristic.LockCurrentState, 1);
+                            lockService.updateCharacteristic(Characteristic.LockTargetState, 1);
+                            this.envoyService.updateCharacteristic(Characteristic.SystemControl, false);
+                        }
+                    });
+                this.lockService = lockService;
+            }
+
             //system
             if (this.enableDebugMode) this.emit('debug', `Prepare System Service`);
             const systemService = accessory.addService(this.systemAccessory.serviceType, accessoryName, `systemService`);
@@ -5367,6 +5417,22 @@ class EnvoyDevice extends EventEmitter {
                             return value;
                         });
                 }
+                if (this.lockControl) {
+                    envoyService.getCharacteristic(Characteristic.SystemControl)
+                        .onGet(async () => {
+                            const state = pvControl;
+                            const info = this.disableLogInfo ? false : this.emit('info', `Envoy: ${envoySerialNumber}, system control: ${state ? 'Enabled' : 'Disabled'}`);
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            try {
+                                const setStatet = state !== pvControl ? this.lockService.setCharacteristic(Characteristic.LockTargetState, !state) : false;
+                                const info = this.disableLogInfo && setStatet ? false : this.emit('info', `Envoy: ${envoySerialNumber}, set system control to: ${state ? `Enable` : `Disable`}`);
+                            } catch (error) {
+                                this.emit('warn', `Envoy: ${envoySerialNumber}, set system control error: ${error}`);
+                            }
+                        });
+                }
                 if (productionStateSupported) {
                     envoyService.getCharacteristic(Characteristic.ProductionState)
                         .onGet(async () => {
@@ -5606,7 +5672,7 @@ class EnvoyDevice extends EventEmitter {
                                 const info = this.disableLogInfo ? false : this.emit('info', `Microinverter: ${serialNumber}, power: ${value} W`);
                                 return value;
                             });
-                        pcuService.getCharacteristic(Characteristic.PowerPeakW)
+                        pcuService.getCharacteristic(Characteristic.PowerPeakkW)
                             .onGet(async () => {
                                 const value = pcu.powerPeak;
                                 const info = this.disableLogInfo ? false : this.emit('info', `Microinverter: ${serialNumber}, power peak: ${value} W`);
@@ -7678,48 +7744,6 @@ class EnvoyDevice extends EventEmitter {
                         });
                     this.liveDataServices.push(liveDataService);
                 }
-            }
-
-            //system control lock service
-            if (this.lockControl) {
-                if (this.enableDebugMode) this.emit('debug', `Prepare System Control Lock Service`);
-
-                pvControl = false;
-                const lockService = accessory.addService(Service.LockMechanism, accessoryName, `lockService`);
-                lockService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                lockService.setCharacteristic(Characteristic.ConfiguredName, accessoryName);
-                lockService.getCharacteristic(Characteristic.LockCurrentState)
-                    .onGet(async () => {
-                        const state = pvControl ? 0 : 1;
-                        const info = this.disableLogInfo ? false : this.emit('info', `System Control: ${state ? 'Unlocked' : 'Locked'}`);
-                        return state;
-                    });
-                lockService.getCharacteristic(Characteristic.LockTargetState)
-                    .onGet(async () => {
-                        const state = pvControl ? 0 : 1;
-                        return state;
-                    })
-                    .onSet(async (value) => {
-                        if (value === Characteristic.LockTargetState.UNSECURED) {
-                            this.emit('success', `System control unlocked`);
-                            pvControl = true;
-                            lockService.updateCharacteristic(Characteristic.LockCurrentState, 0);
-
-                            if (this.unlockTimeout) clearTimeout(this.unlockTimeout);
-                            this.unlockTimeout = setTimeout(() => {
-                                pvControl = false;
-                                lockService.updateCharacteristic(Characteristic.LockCurrentState, 1);
-                                lockService.updateCharacteristic(Characteristic.LockTargetState, 1);
-                                this.emit('success', `System control locked`);
-                            }, 30000);
-                        } else {
-                            this.emit('success', `System control locked`);
-                            pvControl = false;
-                            if (this.unlockTimeout) clearTimeout(this.unlockTimeout);
-                            lockService.updateCharacteristic(Characteristic.LockCurrentState, 1);
-                            lockService.updateCharacteristic(Characteristic.LockTargetState, 1);
-                        }
-                    });
             }
 
             return accessory;
