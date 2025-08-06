@@ -26,9 +26,9 @@ export default (api) => {
     }
     Characteristic.GridProfile = GridProfile;
 
-    class PrimaryInterface extends Characteristic {
+    class CommInterface extends Characteristic {
         constructor() {
-            super('Network interface', '00000011-000B-1000-8000-0026BB765291');
+            super('Comm interface', '00000011-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.STRING,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -36,7 +36,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.PrimaryInterface = PrimaryInterface;
+    Characteristic.CommInterface = CommInterface;
 
     class NetworkWebComm extends Characteristic {
         constructor() {
@@ -413,7 +413,7 @@ export default (api) => {
     }
     Characteristic.Operating = Operating;
 
-    class CommLevel extends Characteristic {
+    class PlcLevel extends Characteristic {
         constructor() {
             super('PLC level', '00000041-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -427,7 +427,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.CommLevel = CommLevel;
+    Characteristic.PlcLevel = PlcLevel;
 
     class Status extends Characteristic {
         constructor() {
@@ -501,6 +501,22 @@ export default (api) => {
         }
     }
     Characteristic.MeteringStatus = MeteringStatus;
+
+    class RatedPower extends Characteristic {
+        constructor() {
+            super('Rated power', '00000056-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'kW',
+                maxValue: 1000,
+                minValue: -1000,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.RatedPower = RatedPower;
 
     class Power extends Characteristic {
         constructor() {
@@ -678,6 +694,18 @@ export default (api) => {
     }
     Characteristic.AcOffset = AcOffset;
 
+    class Phase extends Characteristic {
+        constructor() {
+            super('Phase', '00000069-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.STRING,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.Phase = Phase;
+
     //Power and Energy characteristics
 
     class PowerPeak extends Characteristic {
@@ -836,7 +864,7 @@ export default (api) => {
     //AC Batterie
     class ChargeState extends Characteristic {
         constructor() {
-            super('Charge status', '00000111-000B-1000-8000-0026BB765291');
+            super('Charge state', '00000111-000B-1000-8000-0026BB765291');
             this.setProps({
                 format: Formats.STRING,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
@@ -1064,18 +1092,6 @@ export default (api) => {
     Characteristic.GfiClear = GfiClear;
 
     //Encharge
-    class AdminStateStr extends Characteristic {
-        constructor() {
-            super('Charge status', '00000151-000B-1000-8000-0026BB765291');
-            this.setProps({
-                format: Formats.STRING,
-                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-            });
-            this.value = this.getDefaultValue();
-        }
-    }
-    Characteristic.AdminStateStr = AdminStateStr;
-
     class CommLevelSubGhz extends Characteristic {
         constructor() {
             super('Sub GHz level', '00000154-000B-1000-8000-0026BB765291');
@@ -1120,22 +1136,6 @@ export default (api) => {
     }
     Characteristic.LedStatus = LedStatus;
 
-    class RealPowerW extends Characteristic {
-        constructor() {
-            super('Real power', '00000162-000B-1000-8000-0026BB765291');
-            this.setProps({
-                format: Formats.FLOAT,
-                unit: 'kW',
-                maxValue: 1000,
-                minValue: -1000,
-                minStep: 0.001,
-                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-            });
-            this.value = this.getDefaultValue();
-        }
-    }
-    Characteristic.RealPowerW = RealPowerW;
-
     class Capacity extends Characteristic {
         constructor() {
             super('Capacity', '00000163-000B-1000-8000-0026BB765291');
@@ -1164,7 +1164,7 @@ export default (api) => {
     }
     Characteristic.DcSwitchOff = DcSwitchOff;
 
-    class Rev extends Characteristic {
+    class Revision extends Characteristic {
         constructor() {
             super('Revision', '00000165-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -1178,22 +1178,10 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.Rev = Rev;
+    Characteristic.Revision = Revision;
 
-    //Enpowe
-    class MainsAdminState extends Characteristic {
-        constructor() {
-            super('Admin state', '00000177-000B-1000-8000-0026BB765291');
-            this.setProps({
-                format: Formats.STRING,
-                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-            });
-            this.value = this.getDefaultValue();
-        }
-    }
-    Characteristic.MainsAdminState = MainsAdminState;
-
-    class MainsOperState extends Characteristic {
+    //Enpower
+    class OperatingState extends Characteristic {
         constructor() {
             super('Operating state', '00000178-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -1203,7 +1191,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.MainsOperState = MainsOperState;
+    Characteristic.OperatingState = OperatingState;
 
     class EnpwrGridMode extends Characteristic {
         constructor() {
@@ -1534,22 +1522,6 @@ export default (api) => {
     }
     Characteristic.EncAggRatedPower = EncAggRatedPower;
 
-    class EncAggPercentFull extends Characteristic {
-        constructor() {
-            super('ENC percent full', '00000211-000B-1000-8000-0026BB765291');
-            this.setProps({
-                format: Formats.UINT8,
-                unit: Units.PERCENTAGE,
-                maxValue: 100,
-                minValue: 0,
-                minStep: 1,
-                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-            });
-            this.value = this.getDefaultValue();
-        }
-    }
-    Characteristic.EncAggPercentFull = EncAggPercentFull;
-
     class EncAggBackupEnergy extends Characteristic {
         constructor() {
             super('ENC backup energy', '00000209-000B-1000-8000-0026BB765291');
@@ -1751,18 +1723,6 @@ export default (api) => {
     }
     Characteristic.AdminState = AdminState;
 
-    class OperState extends Characteristic {
-        constructor() {
-            super('Operation state', '00000253-000B-1000-8000-0026BB765291');
-            this.setProps({
-                format: Formats.STRING,
-                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
-            });
-            this.value = this.getDefaultValue();
-        }
-    }
-    Characteristic.OperState = OperState;
-
     class StartSoc extends Characteristic {
         constructor() {
             super('Start soc', '00000254-000B-1000-8000-0026BB765291');
@@ -1823,6 +1783,30 @@ export default (api) => {
     }
     Characteristic.Present = Present;
 
+    class GridState extends Characteristic {
+        constructor() {
+            super('Grid state', '00000260-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.STRING,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.GridState = GridState;
+
+    class MidState extends Characteristic {
+        constructor() {
+            super('Mid state', '00000261-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.STRING,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.MidState = MidState;
+
     //Envoy service
     class EnvoyService extends Service {
         constructor(displayName, subtype) {
@@ -1831,7 +1815,7 @@ export default (api) => {
             this.addCharacteristic(Characteristic.DataSampling);
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.Alerts);
-            this.addOptionalCharacteristic(Characteristic.PrimaryInterface);
+            this.addOptionalCharacteristic(Characteristic.CommInterface);
             this.addOptionalCharacteristic(Characteristic.NetworkWebComm);
             this.addOptionalCharacteristic(Characteristic.EverReportedToEnlighten);
             this.addOptionalCharacteristic(Characteristic.CommNumAndLevel);
@@ -1859,6 +1843,55 @@ export default (api) => {
     }
     Service.EnvoyService = EnvoyService;
 
+    //Wireless connection kit service
+    class WirelessConnectionKitService extends Service {
+        constructor(displayName, subtype) {
+            super(displayName, '00000010-000A-1000-8000-0026BB765291', subtype);
+            // Mandatory Characteristics
+            this.addCharacteristic(Characteristic.Connected);
+            // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Type);
+            this.addOptionalCharacteristic(Characteristic.SignalStrength);
+            this.addOptionalCharacteristic(Characteristic.SignalStrengthMax);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+        }
+    }
+    Service.WirelessConnectionKitService = WirelessConnectionKitService;
+
+    //Microinverter service
+    class MicroinverterService extends Service {
+        constructor(displayName, subtype) {
+            super(displayName, '00000007-000A-1000-8000-0026BB765291', subtype);
+            // Mandatory Characteristics
+            this.addCharacteristic(Characteristic.Status);
+            // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Producing);
+            this.addOptionalCharacteristic(Characteristic.Communicating);
+            this.addOptionalCharacteristic(Characteristic.Provisioned);
+            this.addOptionalCharacteristic(Characteristic.Operating);
+            this.addOptionalCharacteristic(Characteristic.GfiClear);
+            this.addOptionalCharacteristic(Characteristic.Phase);
+            this.addOptionalCharacteristic(Characteristic.Firmware);
+            this.addOptionalCharacteristic(Characteristic.PowerW);
+            this.addOptionalCharacteristic(Characteristic.PowerPeakkW);
+            this.addOptionalCharacteristic(Characteristic.EnergyTodayWh);
+            this.addOptionalCharacteristic(Characteristic.EnergyYesterdayWh);
+            this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
+            this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
+            this.addOptionalCharacteristic(Characteristic.Current);
+            this.addOptionalCharacteristic(Characteristic.Voltage);
+            this.addOptionalCharacteristic(Characteristic.Frequency);
+            this.addOptionalCharacteristic(Characteristic.CurrentDc);
+            this.addOptionalCharacteristic(Characteristic.VoltageDc);
+            this.addOptionalCharacteristic(Characteristic.Temperature);
+            this.addOptionalCharacteristic(Characteristic.PlcLevel);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+        }
+    }
+    Service.MicroinverterService = MicroinverterService;
+
     //qrelay service
     class QrelayService extends Service {
         constructor(displayName, subtype) {
@@ -1869,6 +1902,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.Communicating);
             this.addOptionalCharacteristic(Characteristic.Provisioned);
             this.addOptionalCharacteristic(Characteristic.Operating);
+            this.addOptionalCharacteristic(Characteristic.GfiClear);
             this.addOptionalCharacteristic(Characteristic.LinesCount);
             this.addOptionalCharacteristic(Characteristic.Line1Connected);
             this.addOptionalCharacteristic(Characteristic.Line2Connected);
@@ -1881,13 +1915,58 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.VoltageL3);
             this.addOptionalCharacteristic(Characteristic.Frequency);
             this.addOptionalCharacteristic(Characteristic.Temperature);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
+            this.addOptionalCharacteristic(Characteristic.PlcLevel);
             this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
     Service.QrelayService = QrelayService;
+
+    //AC Batterie service
+    class AcBatterieService extends Service {
+        constructor(displayName, subtype) {
+            super(displayName, '00000006-000A-1000-8000-0026BB765291', subtype);
+            // Mandatory Characteristics
+            this.addCharacteristic(Characteristic.ChargeState);
+            // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Status);
+            this.addOptionalCharacteristic(Characteristic.Producing);
+            this.addOptionalCharacteristic(Characteristic.Communicating);
+            this.addOptionalCharacteristic(Characteristic.Provisioned);
+            this.addOptionalCharacteristic(Characteristic.Operating);
+            this.addOptionalCharacteristic(Characteristic.GfiClear);
+            this.addOptionalCharacteristic(Characteristic.SleepEnabled);
+            this.addOptionalCharacteristic(Characteristic.PercentFull);
+            this.addOptionalCharacteristic(Characteristic.MaxCellTemp);
+            this.addOptionalCharacteristic(Characteristic.SleepMinSoc);
+            this.addOptionalCharacteristic(Characteristic.SleepMaxSoc);
+            this.addOptionalCharacteristic(Characteristic.Firmware);
+            this.addOptionalCharacteristic(Characteristic.PlcLevel);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+        }
+    }
+    Service.AcBatterieService = AcBatterieService;
+
+    //AC Batterie summary service
+    class AcBatterieSummaryService extends Service {
+        constructor(displayName, subtype) {
+            super(displayName, '00000005-000A-1000-8000-0026BB765291', subtype);
+            // Mandatory Characteristics
+            this.addCharacteristic(Characteristic.ChargeState);
+            // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Power);
+            this.addOptionalCharacteristic(Characteristic.Energy);
+            this.addOptionalCharacteristic(Characteristic.PercentFull);
+            this.addOptionalCharacteristic(Characteristic.ActiveCount);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+        }
+    }
+    Service.AcBatterieSummaryService = AcBatterieSummaryService;
 
     //Meters service
     class MeterService extends Service {
@@ -1942,144 +2021,38 @@ export default (api) => {
     }
     Service.PowerAndEnergyService = PowerAndEnergyService;
 
-    //AC Batterie summary service
-    class AcBatterieSummaryService extends Service {
+    //Ensemble inventory service
+    class EnsembleService extends Service {
         constructor(displayName, subtype) {
-            super(displayName, '00000005-000A-1000-8000-0026BB765291', subtype);
-            // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.Power);
-            // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Energy);
-            this.addOptionalCharacteristic(Characteristic.PercentFull);
-            this.addOptionalCharacteristic(Characteristic.ActiveCount);
-            this.addOptionalCharacteristic(Characteristic.State);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
-            this.addOptionalCharacteristic(Characteristic.ReadingTime);
-            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
-        }
-    }
-    Service.AcBatterieSummaryService = AcBatterieSummaryService;
-
-    //AC Batterie service
-    class AcBatterieService extends Service {
-        constructor(displayName, subtype) {
-            super(displayName, '00000006-000A-1000-8000-0026BB765291', subtype);
-            // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.ChargeState);
-            // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Producing);
-            this.addOptionalCharacteristic(Characteristic.Communicating);
-            this.addOptionalCharacteristic(Characteristic.Provisioned);
-            this.addOptionalCharacteristic(Characteristic.Operating);
-            this.addOptionalCharacteristic(Characteristic.SleepEnabled);
-            this.addOptionalCharacteristic(Characteristic.PercentFull);
-            this.addOptionalCharacteristic(Characteristic.MaxCellTemp);
-            this.addOptionalCharacteristic(Characteristic.SleepMinSoc);
-            this.addOptionalCharacteristic(Characteristic.SleepMaxSoc);
-            this.addOptionalCharacteristic(Characteristic.Status);
-            this.addOptionalCharacteristic(Characteristic.Firmware);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
-            this.addOptionalCharacteristic(Characteristic.ReadingTime);
-            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
-        }
-    }
-    Service.AcBatterieService = AcBatterieService;
-
-    //Microinverter service
-    class MicroinverterService extends Service {
-        constructor(displayName, subtype) {
-            super(displayName, '00000007-000A-1000-8000-0026BB765291', subtype);
+            super(displayName, '00000011-000B-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
             this.addCharacteristic(Characteristic.Status);
             // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Producing);
             this.addOptionalCharacteristic(Characteristic.Communicating);
-            this.addOptionalCharacteristic(Characteristic.Provisioned);
             this.addOptionalCharacteristic(Characteristic.Operating);
             this.addOptionalCharacteristic(Characteristic.GfiClear);
             this.addOptionalCharacteristic(Characteristic.Firmware);
-            this.addOptionalCharacteristic(Characteristic.PowerW);
-            this.addOptionalCharacteristic(Characteristic.PowerPeakkW);
-            this.addOptionalCharacteristic(Characteristic.EnergyTodayWh);
-            this.addOptionalCharacteristic(Characteristic.EnergyYesterdayWh);
-            this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
-            this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
-            this.addOptionalCharacteristic(Characteristic.Current);
-            this.addOptionalCharacteristic(Characteristic.Voltage);
-            this.addOptionalCharacteristic(Characteristic.Frequency);
-            this.addOptionalCharacteristic(Characteristic.CurrentDc);
-            this.addOptionalCharacteristic(Characteristic.VoltageDc);
-            this.addOptionalCharacteristic(Characteristic.Temperature);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.CommInterface);
+            this.addOptionalCharacteristic(Characteristic.AdminState);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
-    Service.MicroinverterService = MicroinverterService;
-
-    //Encharge service
-    class EnchargeService extends Service {
-        constructor(displayName, subtype) {
-            super(displayName, '00000014-000A-1000-8000-0026BB765291', subtype);
-            // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.AdminStateStr);
-            // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Communicating);
-            this.addOptionalCharacteristic(Characteristic.Operating);
-            this.addOptionalCharacteristic(Characteristic.CommLevelSubGhz);
-            this.addOptionalCharacteristic(Characteristic.CommLevel24Ghz);
-            this.addOptionalCharacteristic(Characteristic.SleepEnabled);
-            this.addOptionalCharacteristic(Characteristic.PercentFull);
-            this.addOptionalCharacteristic(Characteristic.Temperature);
-            this.addOptionalCharacteristic(Characteristic.MaxCellTemp);
-            this.addOptionalCharacteristic(Characteristic.LedStatus);
-            this.addOptionalCharacteristic(Characteristic.RealPowerW);
-            this.addOptionalCharacteristic(Characteristic.Capacity);
-            this.addOptionalCharacteristic(Characteristic.DcSwitchOff);
-            this.addOptionalCharacteristic(Characteristic.Rev);
-            this.addOptionalCharacteristic(Characteristic.Status);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
-            this.addOptionalCharacteristic(Characteristic.ReadingTime);
-            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
-        }
-    }
-    Service.EnchargeService = EnchargeService;
-
-    // Enpower service
-    class EnpowerService extends Service {
-        constructor(displayName, subtype) {
-            super(displayName, '00000008-000A-1000-8000-0026BB765291', subtype);
-            // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.AdminStateStr);
-            // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Operating);
-            this.addOptionalCharacteristic(Characteristic.Communicating);
-            this.addOptionalCharacteristic(Characteristic.CommLevelSubGhz);
-            this.addOptionalCharacteristic(Characteristic.CommLevel24Ghz);
-            this.addOptionalCharacteristic(Characteristic.Temperature);
-            this.addOptionalCharacteristic(Characteristic.MainsAdminState);
-            this.addOptionalCharacteristic(Characteristic.MainsOperState);
-            this.addOptionalCharacteristic(Characteristic.EnpwrGridMode);
-            this.addOptionalCharacteristic(Characteristic.EnchgGridMode);
-            this.addOptionalCharacteristic(Characteristic.Status);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
-            this.addOptionalCharacteristic(Characteristic.GridProfile);
-            this.addOptionalCharacteristic(Characteristic.ReadingTime);
-            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
-        }
-    }
-    Service.EnpowerService = EnpowerService;
+    Service.EnsembleService = EnsembleService;
 
     //Ennsemble service
-    class EnsembleService extends Service {
+    class EnsembleSummaryService extends Service {
         constructor(displayName, subtype) {
             super(displayName, '00000009-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.RestPower);
+            this.addCharacteristic(Characteristic.AggSoc);
             // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.AggMaxEnergy);
+            this.addOptionalCharacteristic(Characteristic.EncAggSoc);
+            this.addOptionalCharacteristic(Characteristic.EncAggBackupEnergy);
+            this.addOptionalCharacteristic(Characteristic.EncAggAvailEnergy);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredBackupSoc);
+            this.addOptionalCharacteristic(Characteristic.AdjustedBackupSoc);
             this.addOptionalCharacteristic(Characteristic.FrequencyBiasHz);
             this.addOptionalCharacteristic(Characteristic.VoltageBiasV);
             this.addOptionalCharacteristic(Characteristic.FrequencyBiasHzQ8);
@@ -2092,52 +2065,136 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.VoltageBiasVPhaseC);
             this.addOptionalCharacteristic(Characteristic.FrequencyBiasHzQ8PhaseC);
             this.addOptionalCharacteristic(Characteristic.VoltageBiasVQ5PhaseC);
-            this.addOptionalCharacteristic(Characteristic.ConfiguredBackupSoc);
-            this.addOptionalCharacteristic(Characteristic.AdjustedBackupSoc);
-            this.addOptionalCharacteristic(Characteristic.AggSoc);
-            this.addOptionalCharacteristic(Characteristic.AggMaxEnergy);
-            this.addOptionalCharacteristic(Characteristic.EncAggSoc);
-            this.addOptionalCharacteristic(Characteristic.EncAggRatedPower);
-            this.addOptionalCharacteristic(Characteristic.EncAggPercentFull);
-            this.addOptionalCharacteristic(Characteristic.EncAggBackupEnergy);
-            this.addOptionalCharacteristic(Characteristic.EncAggAvailEnergy);
+            this.addOptionalCharacteristic(Characteristic.RestPower);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
-    Service.EnsembleService = EnsembleService;
+    Service.EnsembleSummaryService = EnsembleSummaryService;
 
-    //Wireless connection kit service
-    class WirelessConnectionKitService extends Service {
+    //Encharge service
+    class EnchargeService extends Service {
         constructor(displayName, subtype) {
-            super(displayName, '00000010-000A-1000-8000-0026BB765291', subtype);
+            super(displayName, '00000014-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.Connected);
+            this.addCharacteristic(Characteristic.ChargeState);
             // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Type);
-            this.addOptionalCharacteristic(Characteristic.SignalStrength);
-            this.addOptionalCharacteristic(Characteristic.SignalStrengthMax);
+            this.addOptionalCharacteristic(Characteristic.AdminState);
+            this.addOptionalCharacteristic(Characteristic.Communicating);
+            this.addOptionalCharacteristic(Characteristic.CommLevelSubGhz);
+            this.addOptionalCharacteristic(Characteristic.CommLevel24Ghz);
+            this.addOptionalCharacteristic(Characteristic.SleepEnabled);
+            this.addOptionalCharacteristic(Characteristic.PercentFull);
+            this.addOptionalCharacteristic(Characteristic.Temperature);
+            this.addOptionalCharacteristic(Characteristic.MaxCellTemp);
+            this.addOptionalCharacteristic(Characteristic.LedStatus);
+            this.addOptionalCharacteristic(Characteristic.Capacity);
+            this.addOptionalCharacteristic(Characteristic.RatedPower);
+            this.addOptionalCharacteristic(Characteristic.DcSwitchOff);
+            this.addOptionalCharacteristic(Characteristic.Revision);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.CommInterface);
+            this.addOptionalCharacteristic(Characteristic.RestPower);
+            this.addOptionalCharacteristic(Characteristic.PlcLevel);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
-    Service.WirelessConnectionKitService = WirelessConnectionKitService;
+    Service.EnchargeService = EnchargeService;
 
-    //Ensemble inventory service
-    class EnsembleInventoryService extends Service {
+    // Enpower service
+    class EnpowerService extends Service {
         constructor(displayName, subtype) {
-            super(displayName, '00000011-000B-1000-8000-0026BB765291', subtype);
+            super(displayName, '00000008-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.Producing);
+            this.addCharacteristic(Characteristic.AdminState);
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.Communicating);
-            this.addOptionalCharacteristic(Characteristic.Operating);
+            this.addOptionalCharacteristic(Characteristic.CommLevelSubGhz);
+            this.addOptionalCharacteristic(Characteristic.CommLevel24Ghz);
+            this.addOptionalCharacteristic(Characteristic.Temperature);
+            this.addOptionalCharacteristic(Characteristic.OperatingState);
+            this.addOptionalCharacteristic(Characteristic.EnpwrGridMode);
+            this.addOptionalCharacteristic(Characteristic.EnchgGridMode);
             this.addOptionalCharacteristic(Characteristic.Status);
-            this.addOptionalCharacteristic(Characteristic.Firmware);
-            this.addOptionalCharacteristic(Characteristic.CommLevel);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.CommInterface);
+            this.addOptionalCharacteristic(Characteristic.PlcLevel);
+            this.addOptionalCharacteristic(Characteristic.GridProfile);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+        }
+    }
+    Service.EnpowerService = EnpowerService;
+
+    //Collar service
+    class CollarService extends Service {
+        constructor(displayName, subtype) {
+            super(displayName, '00000014-000A-1000-8000-0026BB765291', subtype);
+            // Mandatory Characteristics
+            this.addCharacteristic(Characteristic.AdminState);
+            // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Type);
+            this.addOptionalCharacteristic(Characteristic.Status);
+            this.addOptionalCharacteristic(Characteristic.MidState);
+            this.addOptionalCharacteristic(Characteristic.GridState);
+            this.addOptionalCharacteristic(Characteristic.Communicating);
+            this.addOptionalCharacteristic(Characteristic.Temperature);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
-    Service.EnsembleInventoryService = EnsembleInventoryService;
+    Service.CollarService = CollarService;
+
+    //C6 combiner controler service
+    class C6CombinerControlerService extends Service {
+        constructor(displayName, subtype) {
+            super(displayName, '00000015-000A-1000-8000-0026BB765291', subtype);
+            // Mandatory Characteristics
+            this.addCharacteristic(Characteristic.AdminState);
+            // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Type);
+            this.addOptionalCharacteristic(Characteristic.Communicating);
+            this.addOptionalCharacteristic(Characteristic.Firmware);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+        }
+    }
+    Service.C6CombinerControlerService = C6CombinerControlerService;
+
+    //C6 rgm servicee
+    class C6RgmService extends Service {
+        constructor(displayName, subtype) {
+            super(displayName, '00000016-000A-1000-8000-0026BB765291', subtype);
+            // Mandatory Characteristics
+            this.addCharacteristic(Characteristic.Status);
+            // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Type);
+            this.addOptionalCharacteristic(Characteristic.Firmware);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+        }
+    }
+    Service.C6RgmService = C6RgmService;
+
+    //Generator service
+    class GerneratorService extends Service {
+        constructor(displayName, subtype) {
+            super(displayName, '00000013-000A-1000-8000-0026BB765291', subtype);
+            // Mandatory Characteristics
+            this.addCharacteristic(Characteristic.AdminMode);
+            // Optional Characteristics
+            this.addOptionalCharacteristic(Characteristic.Type);
+            this.addOptionalCharacteristic(Characteristic.AdminState);
+            this.addOptionalCharacteristic(Characteristic.OperatingState);
+            this.addOptionalCharacteristic(Characteristic.StartSoc);
+            this.addOptionalCharacteristic(Characteristic.StopSoc);
+            this.addOptionalCharacteristic(Characteristic.ExexOn);
+            this.addOptionalCharacteristic(Characteristic.Shedule);
+            this.addOptionalCharacteristic(Characteristic.Present);
+            this.addOptionalCharacteristic(Characteristic.ReadingTime);
+            this.addOptionalCharacteristic(Characteristic.ConfiguredName);
+        }
+    }
+    Service.GerneratorService = GerneratorService;
 
     //Live data service
     class LiveDataService extends Service {
@@ -2159,23 +2216,97 @@ export default (api) => {
     }
     Service.LiveDataService = LiveDataService;
 
-    //Generator service
-    class GerneratorService extends Service {
+    // EVE electric meter
+    class EveCurrentConsumption extends Characteristic {
+        constructor() {
+            super('Power', 'E863F10D-079E-48FF-8F27-9C2605A29F52');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'W',
+                maxValue: 1000000,
+                minValue: -1000000,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EveCurrentConsumption = EveCurrentConsumption;
+
+    class EveTotalConsumption extends Characteristic {
+        constructor() {
+            super('Energy', 'E863F10C-079E-48FF-8F27-9C2605A29F52');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'kWh',
+                maxValue: 4294967295,
+                minValue: 0,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EveTotalConsumption = EveTotalConsumption;
+
+    class EveVoltage extends Characteristic {
+        constructor() {
+            super('Voltage', 'E863F10A-079E-48FF-8F27-9C2605A29F52');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'V',
+                maxValue: 1000,
+                minValue: 0,
+                minStep: 0.1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EveVoltage = EveVoltage;
+
+    class EveElectricCurrent extends Characteristic {
+        constructor() {
+            super('Current', 'E863F126-079E-48FF-8F27-9C2605A29F52');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'A',
+                maxValue: 1000,
+                minValue: -1000,
+                minStep: 0.1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EveElectricCurrent = EveElectricCurrent;
+
+    class EveResetTime extends Characteristic {
+        constructor() {
+            super('Reset time', 'E863F112-079E-48FF-8F27-9C2605A29F52');
+            this.setProps({
+                format: Formats.UInt32,
+                perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EveResetTime = EveResetTime;
+
+
+    // Eve Power‑Meter service
+    class EvePowerMeter extends Service {
         constructor(displayName, subtype) {
-            super(displayName, '00000013-000A-1000-8000-0026BB765291', subtype);
+            super(displayName, 'E863F130-079E-48FF-8F27-9C2605A29F52', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.AdminMode);
+            this.addCharacteristic(Characteristic.EveCurrentConsumption);
+            this.addCharacteristic(Characteristic.EveTotalConsumption);
             // Optional Characteristics
-            this.addOptionalCharacteristic(Characteristic.Type);
-            this.addOptionalCharacteristic(Characteristic.AdminState);
-            this.addOptionalCharacteristic(Characteristic.OperState);
-            this.addOptionalCharacteristic(Characteristic.StartSoc);
-            this.addOptionalCharacteristic(Characteristic.StopSoc);
-            this.addOptionalCharacteristic(Characteristic.ExexOn);
-            this.addOptionalCharacteristic(Characteristic.Shedule);
-            this.addOptionalCharacteristic(Characteristic.Present);
+            this.addOptionalCharacteristic(Characteristic.EveVoltage);
+            this.addOptionalCharacteristic(Characteristic.EveElectricCurrent);
+            this.addOptionalCharacteristic(Characteristic.EveResetTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
-    Service.GerneratorService = GerneratorService;
+    Service.EvePowerMeter = EvePowerMeter;
 };

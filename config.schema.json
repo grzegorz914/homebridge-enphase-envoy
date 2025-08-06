@@ -154,10 +154,40 @@
               "required": true
             },
             "lockControl": {
-              "title": "Lock Control",
+              "title": "Control",
               "type": "boolean",
               "default": true,
-              "description": "Enable for auto lock control accessory",
+              "description": "Enables system control auto lock accessory",
+              "required": false
+            },
+            "lockControlPrefix": {
+              "title": "Prefix",
+              "type": "boolean",
+              "default": false,
+              "description": "Use accessory name as a prefix",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].lockControl === true"
+              }
+            },
+            "lockControlTime": {
+              "title": "Auto Lock Time",
+              "type": "number",
+              "minimum": 1,
+              "maximum": 60,
+              "multipleOf": 1,
+              "default": 30,
+              "description": "System control auto lock time (seconds)",
+              "required": false,
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].lockControl === true"
+              }
+            },
+            "energyMeter": {
+              "title": "Energy Meter",
+              "type": "boolean",
+              "default": false,
+              "description": "Enables energy meter as a axtra accessory to display charts in EVE app",
               "required": false
             },
             "productionStateSensor": {
@@ -2047,7 +2077,7 @@
                     "default": "backup",
                     "oneOf": [
                       {
-                        "title": "Savings",
+                        "title": "Savings Mode",
                         "enum": [
                           "savings-mode"
                         ]
@@ -2069,22 +2099,17 @@
                         "enum": [
                           "self-consumption"
                         ]
-                      },
-                      {
-                        "title": "Grid Tied",
-                        "enum": [
-                          "grid-tied"
-                        ]
-                      },
-                      {
-                        "title": "Grid Forming",
-                        "enum": [
-                          "grid-forming"
-                        ]
                       }
                     ],
                     "description": "Here select the profile.",
                     "required": true
+                  },
+                  "chargeFromGrid": {
+                    "title": "Charge From Grid",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here allow charge from grid",
+                    "required": false
                   },
                   "namePrefix": {
                     "title": "Prefix",
@@ -2150,7 +2175,7 @@
                     "default": "backup",
                     "oneOf": [
                       {
-                        "title": "Savings",
+                        "title": "Savings Mode",
                         "enum": [
                           "savings-mode"
                         ]
@@ -2171,18 +2196,6 @@
                         "title": "Self Consumption",
                         "enum": [
                           "self-consumption"
-                        ]
-                      },
-                      {
-                        "title": "Grid Tied",
-                        "enum": [
-                          "grid-tied"
-                        ]
-                      },
-                      {
-                        "title": "Grid Forming",
-                        "enum": [
-                          "grid-forming"
                         ]
                       }
                     ],
@@ -3118,7 +3131,7 @@
               }
             },
             "productionDataRefreshTime": {
-              "title": "Production Refresh Time",
+              "title": "Production",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
@@ -3128,7 +3141,7 @@
               "required": false
             },
             "liveDataRefreshTime": {
-              "title": "Live Data Refresh Time",
+              "title": "Live Data",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
@@ -3141,7 +3154,7 @@
               }
             },
             "ensembleDataRefreshTime": {
-              "title": "Ensemble Refresh Time",
+              "title": "Ensemble",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
@@ -3373,7 +3386,7 @@
                   "key": "devices[]",
                   "title": "Envoy",
                   "items": [
-                    "devices[].lockControl",
+                    "devices[].energyMeter",
                     {
                       "key": "devices[]",
                       "type": "tabarray",
@@ -3417,6 +3430,52 @@
                                 "devices[].plcLevelControl.namePrefix"
                               ]
                             }
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "type": "section",
+                          "title": "Data Refresh",
+                          "items": [
+                            "devices[].productionDataRefreshTime",
+                            "devices[].liveDataRefreshTime",
+                            "devices[].ensembleDataRefreshTime",
+                            {
+                              "key": "devices[].dataRefreshControl",
+                              "type": "section",
+                              "title": "Control",
+                              "description": "Section for enabling additional accessory for data refresh control",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].dataRefreshControl.displayType",
+                                "devices[].dataRefreshControl.name",
+                                "devices[].dataRefreshControl.namePrefix"
+                              ]
+                            },
+                            {
+                              "key": "devices[].dataRefreshSensor",
+                              "type": "section",
+                              "title": "Sensor",
+                              "description": "Section for enabling sensor for data refresh monitoring",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].dataRefreshSensor.displayType",
+                                "devices[].dataRefreshSensor.name",
+                                "devices[].dataRefreshSensor.namePrefix"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "type": "section",
+                          "title": "System Control",
+                          "items": [
+                            "devices[].lockControl",
+                            "devices[].lockControlPrefix",
+                            "devices[].lockControlTime"
                           ]
                         }
                       ]
@@ -3978,14 +4037,15 @@
                                       "expanded": false,
                                       "items": [
                                         {
-                                          "key": "devices[].enchargeProfileControl",
+                                          "key": "devices[].enchargeProfileControls",
                                           "type": "tabarray",
                                           "title": "{{ value.name || 'control' }}",
                                           "items": [
-                                            "devices[].enchargeProfileControl[].displayType",
-                                            "devices[].enchargeProfileControl[].name",
-                                            "devices[].enchargeProfileControl[].profile",
-                                            "devices[].enchargeProfileControl[].namePrefix"
+                                            "devices[].enchargeProfileControls[].displayType",
+                                            "devices[].enchargeProfileControls[].name",
+                                            "devices[].enchargeProfileControls[].profile",
+                                            "devices[].enchargeProfileControls[].chargeFromGrid",
+                                            "devices[].enchargeProfileControls[].namePrefix"
                                           ]
                                         }
                                       ]
@@ -4246,42 +4306,6 @@
                             "devices[].disableLogWarn",
                             "devices[].disableLogError",
                             "devices[].enableDebugMode"
-                          ]
-                        },
-                        {
-                          "key": "devices[]",
-                          "type": "section",
-                          "title": "Data Refresh",
-                          "items": [
-                            "devices[].productionDataRefreshTime",
-                            "devices[].liveDataRefreshTime",
-                            "devices[].ensembleDataRefreshTime",
-                            {
-                              "key": "devices[].dataRefreshControl",
-                              "type": "section",
-                              "title": "Control",
-                              "description": "Section for enabling additional accessory for data refresh control",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].dataRefreshControl.displayType",
-                                "devices[].dataRefreshControl.name",
-                                "devices[].dataRefreshControl.namePrefix"
-                              ]
-                            },
-                            {
-                              "key": "devices[].dataRefreshSensor",
-                              "type": "section",
-                              "title": "Sensor",
-                              "description": "Section for enabling sensor for data refresh monitoring",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].dataRefreshSensor.displayType",
-                                "devices[].dataRefreshSensor.name",
-                                "devices[].dataRefreshSensor.namePrefix"
-                              ]
-                            }
                           ]
                         }
                       ]

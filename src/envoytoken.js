@@ -9,26 +9,21 @@ class EnvoyToken extends EventEmitter {
         this.user = config.user;
         this.passwd = config.passwd;
         this.serialNumber = config.serialNumber;
-    };
+    }
 
     async refreshToken() {
         try {
             const cookie = await this.loginToEnlighten();
-            if (!cookie) {
-                return null;
-            }
+            if (!cookie) return null;
 
             const tokenData = await this.getToken(cookie);
-            if (!tokenData) {
-                return null;
-            }
+            if (!tokenData) return null;
 
-            //check if token is instslloer or user
+            // Determine if token is installer or user (12h = 43200 seconds)
             const installerToken = (tokenData.expires_at - tokenData.generation_time) === 43200;
             tokenData.installer = installerToken;
 
-            //emit success
-            this.emit('success', `Token ${installerToken ? 'installer,' : 'user,'} expire at: ${new Date(tokenData.expires_at * 1000).toLocaleString()}`);
+            this.emit('success', `Token ${installerToken ? 'installer' : 'user'}, expires at: ${new Date(tokenData.expires_at * 1000).toLocaleString()}`);
 
             return tokenData;
         } catch (error) {
@@ -42,7 +37,7 @@ class EnvoyToken extends EventEmitter {
             form.append('user[email]', this.user);
             form.append('user[password]', this.passwd);
 
-            const options = {
+            const response = await axios({
                 method: 'POST',
                 baseURL: EnphaseUrls.BaseUrl,
                 url: EnphaseUrls.Login,
@@ -51,17 +46,16 @@ class EnvoyToken extends EventEmitter {
                 },
                 data: form,
                 timeout: 10000
-            };
+            });
 
-            const loginData = await axios(options);
-            if (loginData.status !== 200) {
-                this.emit('error', `Login to Enlighten failed with status code: ${loginData.status}`);
+            if (response.status !== 200) {
+                this.emit('error', `Login failed with status code: ${response.status}`);
                 return null;
             }
 
-            const cookie = loginData.headers['set-cookie'] ?? false;
+            const cookie = response.headers['set-cookie'];
             if (!cookie) {
-                this.emit('warn', `Cookie data is incomplete: ${JSON.stringify(loginData)}`);
+                this.emit('warn', `No cookie returned from login. Response headers: ${JSON.stringify(response.headers)}`);
                 return null;
             }
 
@@ -73,23 +67,24 @@ class EnvoyToken extends EventEmitter {
 
     async getToken(cookie) {
         try {
-            const options = {
+            const response = await axios({
                 method: 'GET',
                 baseURL: EnphaseUrls.BaseUrl,
+                url: EnphaseUrls.EntrezAuthToken,
                 params: {
-                    'serial_num': this.serialNumber
+                    serial_num: this.serialNumber
                 },
                 headers: {
                     Accept: 'application/json',
                     Cookie: cookie
                 },
                 timeout: 10000
-            };
+            });
 
-            const response = await axios(EnphaseUrls.EntrezAuthToken, options);
             const tokenData = response.data;
+
             if (!tokenData.token || !tokenData.expires_at || !tokenData.generation_time) {
-                this.emit('warn', `Token data is incomplete: ${JSON.stringify(tokenData)}`);
+                this.emit('warn', `Incomplete token data: ${JSON.stringify(tokenData)}`);
                 return null;
             }
 
@@ -99,5 +94,7 @@ class EnvoyToken extends EventEmitter {
         }
     }
 }
+
 export default EnvoyToken;
+
 

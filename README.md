@@ -30,14 +30,13 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 ## Supported hardware
 
 * Firmware v5 through v8
-* System `Envoy S`, `IQ Gateway`, `IQ Load Controller`, `IQ Combiner`
-* Q-Relays `Q-RELAY-1P` `Q-RELAY-3P`
-* AC Batteries `AC Battery Storage`
-* Meters `Production`, `Consumption`, `Storage`
+* System/Enpower `Envoy S`, `IQ Gateway`, `IQ Load Controller`, `IQ Combiner Controller`
+* Q-Relays `Q-Relay 1P` `Q-Relay 3P`
+* AC Batteries `AC Battery`
+* Meters `Production`, `Consumption`, `Storage`, `Back Feed`, `EV Charger`, `PV 3P`, `Load`
 * Microinverters `M215`, `M250`, `IQ6`, `IQ7`, `IQ8`
-* Encharges `IQ Battery 3`, `IQ Battery 10`, `IQ Battery 5P`, `IQ Battery 3T`, `IQ Battery 10T`
-* Ensemble/Enpower `IQ System Controller`, `IQ System Controller 2`
-* WirelessKit `Communications Kit`
+* Encharges `IQ Battery 3`, `IQ Battery 10`, `IQ Battery 5P`, `IQ Battery 3T`, `IQ Battery 10T`, `IQ Battery 10C`
+* WirelessKit `Communications Kit 1/2`
 * Generator
 
 ## Exposed accessories in the Apple Home app
@@ -109,7 +108,10 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `enlightenPasswd` | | string | Enlighten password |
 | `envoyToken` | | string | Token if you selected `2 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
 | `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
-| `lockControl` | | boolean | Enable if you want to use auto lock control |
+| `lockControl` | | boolean | Enables system control auto lock accessory |
+| `lockControlPrefix` | | boolean | Use accessory name for prefix |
+| `lockControlTime` | | number | `System Auto Lock Control` time (seconds) |
+| `energyMeter` | | boolean | Enables energy meter as a axtra accessory to display charts in EVE app |
 | `productionStateSensor` | | key | `Production State Sensor` for production state monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -219,6 +221,8 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `name` | string | Accessory name for Home app |
 | | `profile` | string | Profile: `Savings`, `Economy`, `Full Backup`, `Self Consumption` |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Lightbulb |
+| | `chargeFromGrid` | boolean | Allow charge from grid  |
+| | `namePrefix` | boolean | Use accessory name for prefix |
 | `enchargeProfileSensors` | | key | `Encharge Profile Sensors` for monitoring. If the `Profile` matches, the contact was opened. |
 | | `name` | string | Accessory name for Home app |
 | | `profile` | string | Profile: `Savings`, `Economy`, `Full Backup`, `Self Consumption` |
@@ -309,14 +313,16 @@ Path `status` response all available paths.
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `token`, `info`, `home`, `inventory`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`,`powerandenergydata`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `gridprofile`, `livedata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
+| GET | `http//ip:port` | `token`, `info`, `home`, `inventory`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`,`powerandenergydata`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | POST | `http//ip:port` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop |
 |      | `http//ip:port` | `PowerProductionState` | `true`, `false` | boolean | Production state On/Off |
 |      | `http//ip:port` | `PlcLevel` | `true` | boolean | Check Plc Level On |
-|      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile |
+|      | `http//ip:port` | `EnchargeProfile` | `self-consumption`, `savings-mode`, `economy`, `backup` | string | Set encharge profile |
+|      | `http//ip:port` | `EnchargeReservedSoc` | `0-100` | number | Set encharge reserve SoC 0-100% |
+|      | `http//ip:port` | `EnchargeChargeFromGrid` | `true`, `false` | boolean | Set encharge charge from grid On/Off |
 |      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
 |      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto |
 
@@ -326,13 +332,15 @@ Subscribe using JSON `{ "EnchargeProfile": "savings" }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-| Publish | `Token`, `Info`, `Home`, `Inventory`, `Microinverters Status`, `Meters`, `Meters Reading`, `Meters Reports`, `Detailed Devices Data`, `Microinverters Data`, `Q-Relays Data`, `Meters Data`, `Production`, `Production Pdm`, `Energy Pdm`, `Production CT`, `Power And Energy Data`, `AC Battery Data`, `Ensemble Inventory`, `Ensemble Status`, `Encharge Settings`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Grid Profile`, `Live Data`, `Production State`, `PLC Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
+| Publish | `Token`, `Info`, `Home`, `Inventory`, `Microinverters Status`, `Meters`, `Meters Reading`, `Meters Reports`, `Detailed Devices Data`, `Microinverters Data`, `Q-Relays Data`, `Meters Data`, `Production`, `Production Pdm`, `Energy Pdm`, `Production CT`, `Power And Energy Data`, `AC Battery Data`, `Ensemble Inventory`, `Ensemble Status`, `Ensemble Status`, `Encharge Power`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Ensemble Data`, `Grid Profile`, `Live Data`, `Production State`, `PLC Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | Subscribe | `Set` | `DataSampling` | `true`, `false` | boolean | Data sampling Start/Stop |
 |           | `Set` | `ProductionState` | `true`, `false` | boolean | Production state On/Off |
 |           | `Set` | `PlcLevel` | `true` | boolean | Check Plc Level On |
-|           | `Set` | `EnchargeProfile` | `self-consumption`, `savings`, `economy`, `fullbackup` | string | Set encharge profile |
+|           | `Set` | `EnchargeProfile` | `self-consumption`, `savings-mode`, `economy`, `backup` | string | Set encharge profile |
+|           | `Set` | `EnchargeReservedSoc` | `0-100` | number | Set encharge reserve SoC 0-100% |
+|           | `Set` | `EnchargeChargeFromGrid` | `true`, `false` | boolean | Set encharge charge from grid On/Off |
 |           | `Set` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
 |           | `Set` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto |
