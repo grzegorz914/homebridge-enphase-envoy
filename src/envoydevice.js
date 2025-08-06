@@ -3984,11 +3984,10 @@ class EnvoyDevice extends EventEmitter {
                         const sourceEim = this.pv.powerAndEnergy[key].eim;
                         sourceMeter = meterEnabled ? this.pv.meters.find(m => m.measurementType === 'Production') : sourcePcu;
                         sourceEnergy = meterEnabled ? sourceEim : sourcePcu;
-                        powerPeakStored = powerAndEnergyData.powerPeak ?? 0;
                         power = Number.isFinite(sourceMeter?.power) ? sourceMeter.power : powerAndEnergyData.power ?? 0;
                         powerLevel = this.powerProductionSummary > 1 && Number.isFinite(sourceMeter?.power) ? this.scaleValue(sourceMeter.power, 0, this.powerProductionSummary, 0, 100) : 0;
                         powerState = powerLevel > 0;
-                        powerPeak = Number.isFinite(sourceMeter?.power) ? Math.max(sourceMeter.power, powerPeakStored) : powerPeakStored;
+                        powerPeak = Number.isFinite(sourceMeter?.power) ? Math.max(sourceMeter.power, powerPeakStored) : powerAndEnergyData.powerPeak ?? 0;
                         energyToday = Number.isFinite(sourceEnergy?.energyToday) ? sourceEnergy.energyToday : powerAndEnergyData.energyToday ?? 0;
                         energyLastSevenDays = Number.isFinite(sourceEnergy?.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : powerAndEnergyData.energyLastSevenDays ?? 0;
                         energyLifetime = Number.isFinite(sourceMeter?.energyLifetime) ? sourceMeter.energyLifetime : powerAndEnergyData.energyLifetime ?? 0;
@@ -3999,9 +3998,8 @@ class EnvoyDevice extends EventEmitter {
                     case 'consumptionNet': {
                         sourceMeter = this.pv.meters.find(m => m.measurementType === 'Consumption Net');
                         sourceEnergy = this.pv.powerAndEnergy[key];
-                        powerPeakStored = powerAndEnergyData.powerPeak ?? 0;
                         power = Number.isFinite(sourceMeter?.power) ? sourceMeter.power : powerAndEnergyData.power ?? 0;
-                        powerPeak = Number.isFinite(sourceMeter?.power) ? Math.max(sourceMeter.power, powerPeakStored) : powerPeakStored;
+                        powerPeak = Number.isFinite(sourceMeter?.power) ? Math.max(sourceMeter.power, powerPeakStored) : powerAndEnergyData.powerPeak ?? 0;
                         energyToday = Number.isFinite(sourceEnergy?.energyToday) ? sourceEnergy.energyToday : powerAndEnergyData.energyToday ?? 0;
                         energyLastSevenDays = Number.isFinite(sourceEnergy?.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : powerAndEnergyData.energyLastSevenDays ?? 0;
                         energyLifetime = Number.isFinite(sourceMeter?.energyLifetime) ? sourceMeter.energyLifetime : powerAndEnergyData.energyLifetime ?? 0;
@@ -4012,9 +4010,8 @@ class EnvoyDevice extends EventEmitter {
                     case 'consumptionTotal': {
                         sourceMeter = this.pv.meters.find(m => m.measurementType === 'Consumption Total');
                         sourceEnergy = this.pv.powerAndEnergy[key];
-                        powerPeakStored = powerAndEnergyData.powerPeak ?? 0;
                         power = Number.isFinite(sourceMeter?.power) ? sourceMeter.power : powerAndEnergyData.power ?? 0;
-                        powerPeak = Number.isFinite(sourceMeter?.power) ? Math.max(sourceMeter.power, powerPeakStored) : powerPeakStored;
+                        powerPeak = Number.isFinite(sourceMeter?.power) ? Math.max(sourceMeter.power, powerPeakStored) : powerAndEnergyData.powerPeak ?? 0;
                         energyToday = Number.isFinite(sourceEnergy?.energyToday) ? sourceEnergy.energyToday : powerAndEnergyData.energyToday ?? 0;
                         energyLastSevenDays = Number.isFinite(sourceEnergy?.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : powerAndEnergyData.energyLastSevenDays ?? 0;
                         energyLifetime = Number.isFinite(sourceMeter?.energyLifetime) ? sourceMeter.energyLifetime : powerAndEnergyData.energyLifetime ?? 0;
