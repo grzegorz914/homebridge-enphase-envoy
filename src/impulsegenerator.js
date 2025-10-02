@@ -9,14 +9,13 @@ class ImpulseGenerator extends EventEmitter {
 
     async start(timers) {
         if (this.timersState) {
-            this.state(true); // Re-emit current state
+            this.state(true);
             return true;
         }
 
         this.timers = [];
 
         for (const timer of timers) {
-            // Immediately emit the timer event once on start
             this.emit(timer.name);
 
             const interval = setInterval(() => {
@@ -32,7 +31,7 @@ class ImpulseGenerator extends EventEmitter {
 
     async stop() {
         if (!this.timersState) {
-            this.state(false); // Re-emit current state
+            this.state(false);
             return true;
         }
 

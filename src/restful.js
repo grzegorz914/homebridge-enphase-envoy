@@ -21,6 +21,7 @@ class RestFul extends EventEmitter {
             detaileddevicesdata: DEFAULT_MESSAGE,
             microinvertersdata: DEFAULT_MESSAGE,
             qrelaysdata: DEFAULT_MESSAGE,
+            homedata: DEFAULT_MESSAGE,
             metersdata: DEFAULT_MESSAGE,
             production: DEFAULT_MESSAGE,
             productionpdm: DEFAULT_MESSAGE,
@@ -84,9 +85,7 @@ class RestFul extends EventEmitter {
                     this.emit('set', key, value);
                     this.update(key, value);
 
-                    if (this.restFulDebug) {
-                        this.emit('debug', `RESTFul post data: ${JSON.stringify(obj, null, 2)}`);
-                    }
+                    if (this.restFulDebug) this.emit('debug', `RESTFul post data: ${JSON.stringify(obj, null, 2)}`);
 
                     res.json({ success: true, received: obj });
                 } catch (error) {
@@ -106,9 +105,7 @@ class RestFul extends EventEmitter {
     update(path, data) {
         if (this.restFulData.hasOwnProperty(path)) {
             this.restFulData[path] = data;
-            if (this.restFulDebug) {
-                this.emit('debug', `RESTFul update path: ${path}, data: ${JSON.stringify(data, null, 2)}`);
-            }
+            if (this.restFulDebug) this.emit('debug', `RESTFul update path: ${path}, data: ${JSON.stringify(data, null, 2)}`);
         } else {
             this.emit('warn', `RESTFul update failed. Unknown path: "${path}". Valid paths: ${Object.keys(this.restFulData).join(', ')}`);
         }

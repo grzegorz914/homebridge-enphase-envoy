@@ -34,20 +34,16 @@ class EnvoyPlatform {
 
         const deviceName = device.name;
         const host = device.host || (i === 0 ? 'envoy.local' : `envoy-${i + 1}.local`);
-        const {
-          envoyFirmware7xxTokenGenerationMode = 0,
-          envoyPasswd,
-          envoyToken,
-          envoyTokenInstaller = false,
-          enlightenUser,
-          enlightenPasswd,
-          enableDebugMode = false,
-          disableLogDeviceInfo = false,
-          disableLogInfo = false,
-          disableLogSuccess = false,
-          disableLogWarn = false,
-          disableLogError = false
-        } = device;
+        const { envoyFirmware7xxTokenGenerationMode = 0, envoyPasswd, envoyToken, envoyTokenInstaller = false, enlightenUser, enlightenPasswd } = device;
+
+        const logLevel = {
+          devInfo: device.log?.deviceInfo || true,
+          success: device.log?.success || true,
+          info: device.log?.info || false,
+          warn: device.log?.warn || true,
+          error: device.log?.error || true,
+          debug: device.log?.debug || false
+        };
 
         if (!deviceName) {
           log.warn(`Device: ${host}, Name missing.`);
@@ -64,14 +60,19 @@ class EnvoyPlatform {
           continue;
         }
 
-        if (enableDebugMode) {
+        if (logLevel.debug) {
           log.info(`Device: ${host} ${deviceName}, did finish launching.`);
           const redactedConfig = JSON.stringify({
             ...device,
             envoyPasswd: 'removed',
             envoyToken: 'removed',
             enlightenPasswd: 'removed',
-            mqtt: { ...device.mqtt, passwd: 'removed' }
+            mqtt: {
+              auth: {
+                ...device.mqtt?.auth,
+                passwd: 'removed',
+              }
+            },
           }, null, 2);
           log.info(`Device: ${host} ${deviceName}, Config: ${redactedConfig}`);
         }
@@ -86,94 +87,51 @@ class EnvoyPlatform {
             if (!existsSync(file)) writeFileSync(file, '0');
           });
         } catch (error) {
-          if (!disableLogError) log.error(`Device: ${host} ${deviceName}, File init error: ${error}`);
+          if (logLevel.error) log.error(`Device: ${host} ${deviceName}, File init error: ${error}`);
           continue;
         }
 
-        const devicesClass = device.energyMeter ? [EnvoyDevice, EnergyMeter] : [EnvoyDevice];
-        for (const [index, DeviceClass] of devicesClass.entries()) {
-          try {
+        try {
+          const devicesClass = device.energyMeter ? [EnvoyDevice, EnergyMeter] : [EnvoyDevice];
+          for (const [index, DeviceClass] of devicesClass.entries()) {
             const accessoryName = index === 0 ? deviceName : 'Energy Meter';
-            const envoyDevice = new DeviceClass(
-              api,
-              log,
-              accessoryName,
-              host,
-              displayType,
-              envoyFirmware7xxTokenGenerationMode,
-              envoyPasswd,
-              envoyToken,
-              envoyTokenInstaller,
-              enlightenUser,
-              enlightenPasswd,
-              envoyIdFile,
-              envoyTokenFile,
-              device,
-              energyMeterHistory,
-              index === 1 ? this.FakeGatoHistoryService : undefined
-            );
 
-            this.attachEventHandlers(api, envoyDevice, log, {
-              host,
-              deviceName: accessoryName,
-            });
-
-            const impulseGenerator = new ImpulseGenerator();
-            let lock = false;
-
-            impulseGenerator
+            // create impulse generator
+            const impulseGenerator = new ImpulseGenerator()
               .on('start', async () => {
-                if (lock) return;
-                lock = true;
                 try {
-                  const started = await envoyDevice.start();
-                  if (started) {
+                  const envoyDevice = new DeviceClass(api, accessoryName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device, energyMeterHistory, index === 1 ? this.FakeGatoHistoryService : undefined)
+                    .on('devInfo', (info) => logLevel.devInfo && log.info(info))
+                    .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${deviceName}, ${msg}`))
+                    .on('info', (msg) => logLevel.info && log.info(`Device: ${host} ${deviceName}, ${msg}`))
+                    .on('debug', (msg, data) => logLevel.debug && log.info(`Device: ${host} ${deviceName}, debug: ${data ? `${msg} ${JSON.stringify(data, null, 2)}` : msg}`))
+                    .on('warn', (msg) => logLevel.warn && log.warn(`Device: ${host} ${deviceName}, ${msg}`))
+                    .on('error', (msg) => logLevel.error && log.error(`Device: ${host} ${deviceName}, ${msg}`));
+
+                  const accessory = await envoyDevice.start();
+                  if (accessory) {
+                    api.publishExternalAccessories(PluginName, [accessory]);
+                    if (logLevel.success) log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
+
                     await impulseGenerator.stop();
                     await envoyDevice.startImpulseGenerator();
                   }
                 } catch (error) {
-                  if (!disableLogError) log.error(`Device: ${host} ${accessoryName}, ${error}, retrying.`);
-                } finally {
-                  lock = false;
+                  if (logLevel.error) log.error(`Device: ${host} ${accessoryName}, ${error}, retrying.`);
                 }
               })
               .on('state', state => {
-                if (enableDebugMode) log.info(`Device: ${host} ${accessoryName}, Impulse generator ${state ? 'started' : 'stopped'}.`);
+                if (logLevel.debug) log.info(`Device: ${host} ${accessoryName}, Impulse generator ${state ? 'started' : 'stopped'}.`);
               });
 
+            // start impulse generator
             await impulseGenerator.start([{ name: 'start', sampling: 90000 }]);
-          } catch (error) {
-            log.error(`Device: ${host} ${deviceName}, Initialization error: ${error}`);
           }
+        } catch (error) {
+          if (logLevel.error) log.error(`Device: ${host} ${deviceName}, Did finish launching error: ${error}`);
         }
       }
     });
-  }
-
-  attachEventHandlers(api, envoyDevice, log, { host, deviceName }) {
-    envoyDevice
-      .on('publishAccessory', accessory => {
-        api.publishExternalAccessories(PluginName, [accessory]);
-        log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
-      })
-      .on('devInfo', devInfo => {
-        log.info(devInfo);
-      })
-      .on('success', msg => {
-        log.success(`Device: ${host} ${deviceName}, ${msg}`);
-      })
-      .on('info', msg => {
-        log.info(`Device: ${host} ${deviceName}, ${msg}`);
-      })
-      .on('debug', (msg, data) => {
-        log.info(`Device: ${host} ${deviceName}, debug: ${data ? `${msg} ${JSON.stringify(data, null, 2)}` : msg}`);
-      })
-      .on('warn', msg => {
-        log.warn(`Device: ${host} ${deviceName}, ${msg}`);
-      })
-      .on('error', error => {
-        log.error(`Device: ${host} ${deviceName}, ${error}`);
-      });
   }
 
   configureAccessory(accessory) {

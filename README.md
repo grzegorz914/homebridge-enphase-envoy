@@ -285,12 +285,13 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `productionDataRefreshTime` | | number | `Production Data` refresh time (seconds) |
 | `liveDataRefreshTime` | | number | `Live Data` refresh time (seconds) |
 | `ensembleDataRefreshTime` | | number | `Ensemble Data` refresh time (seconds) |
-| `disableLogDeviceInfo` | | boolean | Disables log device info for every connected device to the network |
-| `disableLogInfo` | | boolean | Disables to the Homebridge log console |
-| `disableLogSuccess` | | boolean | Disables logging of device success |
-| `disableLogWarn` | | boolean | Disables logging of device warnings |
-| `disableLogError` | | boolean | Disables logging of device errors |
-| `enableDebugMode` | | boolean | Verbose logging to the Homebridge console |
+| `log` | | key | `Log` from HomeKit. |
+| | `deviceInfo` | boolean | If enabled, log device info will be displayed by every connections device to the network. |
+| | `success` | boolean | If enabled, success log will be displayed in console. |
+| | `info` | boolean | If enabled, info log will be displayed in console. |
+| | `warn` | boolean | If enabled, warn log will be displayed in console. |
+| | `error` | boolean | If enabled, error log will be displayed in console. |
+| | `debug` | boolean | If enabled, debug log will be displayed in console. |
 | `restFul` | | key | REST service |
 | | `enable` | boolean | Enables REST service to start automatically and respond to any request |
 | | `port` | number | `Port` for REST service |
@@ -313,7 +314,7 @@ Path `status` response all available paths.
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `token`, `info`, `home`, `inventory`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`,`powerandenergydata`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
+| GET | `http//ip:port` | `token`, `info`, `home`, `homedata`, `inventory`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`,`powerandenergydata`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -332,7 +333,7 @@ Subscribe using JSON `{ "EnchargeProfile": "savings" }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-| Publish | `Token`, `Info`, `Home`, `Inventory`, `Microinverters Status`, `Meters`, `Meters Reading`, `Meters Reports`, `Detailed Devices Data`, `Microinverters Data`, `Q-Relays Data`, `Meters Data`, `Production`, `Production Pdm`, `Energy Pdm`, `Production CT`, `Power And Energy Data`, `AC Battery Data`, `Ensemble Inventory`, `Ensemble Status`, `Ensemble Status`, `Encharge Power`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Ensemble Data`, `Grid Profile`, `Live Data`, `Production State`, `PLC Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
+| Publish | `Token`, `Info`, `Home`, `Home Data`, `Inventory`, `Microinverters Status`, `Meters`, `Meters Reading`, `Meters Reports`, `Detailed Devices Data`, `Microinverters Data`, `Q-Relays Data`, `Meters Data`, `Production`, `Production Pdm`, `Energy Pdm`, `Production CT`, `Power And Energy Data`, `AC Battery Data`, `Ensemble Inventory`, `Ensemble Status`, `Ensemble Status`, `Encharge Power`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Ensemble Data`, `Grid Profile`, `Live Data`, `Production State`, `PLC Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |

@@ -36,15 +36,16 @@ class EnergyMeter extends EventEmitter {
         this.energyConsumptionNetLifetimeOffset = device.energyConsumptionNetLifetimeOffset || 0;
 
         //log
-        this.enableDebugMode = device.enableDebugMode || false;
-        this.disableLogInfo = device.disableLogInfo || false;
-        this.disableLogDeiceInfo = device.disableLogDeviceInfo || false;
+        this.logDeviceInfo = device.log?.deviceInfo || true;
+        this.logInfo = device.log?.info || false;
+        this.logWarn = device.log?.warn || true;
+        this.logDebug = device.log?.debug || false;
 
         //setup variables
         this.envoyTokenFile = envoyTokenFile;
         this.energyMeterHistory = energyMeterHistory;
         this.FakeGatoHistoryService = FakeGatoHistoryService;
-        this.startPrepareAccessory = true;
+        this.checkTokenRunning = false;
 
         //url
         this.url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${this.host}` : `http://${this.host}`;
@@ -176,8 +177,7 @@ class EnergyMeter extends EventEmitter {
             },
             powerAndEnergyData: {
                 supported: false
-            },
-            checkTokenRunning: false,
+            }
         };
 
         //pv object
@@ -211,15 +211,15 @@ class EnergyMeter extends EventEmitter {
         this.impulseGenerator = new ImpulseGenerator()
             .on('updatePowerandEnergy', () => this.handleWithLock('updatePowerandEnergy', async () => {
                 const updateMeters = this.feature.meters.supported ? await this.updateMeters() : false;
-                const updateMetersReading = updateMeters && this.feature.meters.installed && this.feature.metersReading.installed && !this.feature.metersReports.installed ? await this.updateMetersReading(false) : false;
-                const updateMetersReports = updateMeters && this.feature.meters.installed && this.feature.metersReports.installed ? await this.updateMetersReports(false) : false;
-                const updateMetersData = updateMeters && this.feature.metersData.supported ? await this.updateMetersData() : false;
+                if (updateMeters && this.feature.meters.installed && this.feature.metersReading.installed && !this.feature.metersReports.installed) await this.updateMetersReading(false);
+                if (updateMeters && this.feature.meters.installed && this.feature.metersReports.installed) await this.updateMetersReports(false);
+                if (updateMeters && this.feature.metersData.supported) await this.updateMetersData();
 
-                const updateProduction = this.feature.production.supported ? await this.updateProduction() : false;
-                const updateProductionPdm = this.feature.productionPdm.supported && !this.feature.energyPdm.supported ? await this.updateProductionPdm() : false;
-                const updateEnergyPdm = this.feature.energyPdm.supported ? await this.updateEnergyPdm() : false;
-                const updateProductionCt = this.feature.productionCt.supported ? await this.updateProductionCt() : false;
-                const updatePowerAndEnergyData = this.feature.powerAndEnergyData.supported ? await this.updatePowerAndEnergyData() : false;
+                if (this.feature.production.supported) await this.updateProduction();
+                if (this.feature.productionPdm.supported && !this.feature.energyPdm.supported) await this.updateProductionPdm();
+                if (this.feature.energyPdm.supported) await this.updateEnergyPdm();
+                if (this.feature.productionCt.supported) await this.updateProductionCt();
+                if (this.feature.powerAndEnergyData.supported) await this.updatePowerAndEnergyData();
             }))
             .on('state', (state) => {
                 this.emit(state ? 'success' : 'warn', `Impulse generator ${state ? 'started' : 'stopped'}`);
@@ -248,7 +248,7 @@ class EnergyMeter extends EventEmitter {
         const errorString = error.toString();
         const tokenNotValid = errorString.includes('status code 401');
         if (tokenNotValid) {
-            if (this.feature.checkTokenRunning) {
+            if (this.checkTokenRunning) {
                 return;
             }
             this.feature.info.jwtToken.token = '';
@@ -330,7 +330,7 @@ class EnergyMeter extends EventEmitter {
     }
 
     async getInfo() {
-        if (this.enableDebugMode) this.emit('debug', 'Requesting info');
+        if (this.logDebug) this.emit('debug', 'Requesting info');
 
         try {
             const response = await this.axiosInstance(ApiUrls.GetInfo);
@@ -362,11 +362,11 @@ class EnergyMeter extends EventEmitter {
                 }
             };
 
-            if (this.enableDebugMode) this.emit('debug', 'Parsed info:', debugParsed);
+            if (this.logDebug) this.emit('debug', 'Parsed info:', debugParsed);
 
             const serialNumber = device.sn?.toString() ?? null;
             if (!serialNumber) {
-                this.emit('warn', 'Envoy serial number missing!');
+                if (this.logWarn) this.emit('warn', 'Envoy serial number missing!');
                 return null;
             }
 
@@ -413,19 +413,19 @@ class EnergyMeter extends EventEmitter {
     }
 
     async checkToken(start) {
-        if (this.enableDebugMode) this.emit('debug', 'Requesting check token');
+        if (this.logDebug) this.emit('debug', 'Requesting check token');
 
-        if (this.feature.checkTokenRunning) {
-            if (this.enableDebugMode) this.emit('debug', 'Token check already running');
+        if (this.checkTokenRunning) {
+            if (this.logDebug) this.emit('debug', 'Token check already running');
             return null;
         }
 
         if (!this.feature.info.tokenRequired) {
-            if (this.enableDebugMode) this.emit('debug', 'Token not required, skipping token check');
+            if (this.logDebug) this.emit('debug', 'Token not required, skipping token check');
             return true;
         }
 
-        this.feature.checkTokenRunning = true;
+        this.checkTokenRunning = true;
         try {
             const now = Math.floor(Date.now() / 1000);
 
@@ -436,65 +436,65 @@ class EnergyMeter extends EventEmitter {
                     try {
                         const parsedData = JSON.parse(data);
                         const fileTokenExist = parsedData.token ? 'Exist' : 'Missing';
-                        if (this.enableDebugMode) this.emit('debug', `Token from file: ${fileTokenExist}`);
+                        if (this.logDebug) this.emit('debug', `Token from file: ${fileTokenExist}`);
                         if (parsedData.token) {
                             this.feature.info.jwtToken = parsedData;
                         }
                     } catch (error) {
-                        this.emit('warn', `Token parse error: ${error}`);
+                        if (this.logWarn) this.emit('warn', `Token parse error: ${error}`);
                     }
                 } catch (error) {
-                    this.emit('warn', `Read Token from file error: ${error}`);
+                    if (this.logWarn) this.emit('warn', `Read Token from file error: ${error}`);
                 }
             }
 
             const jwt = this.feature.info.jwtToken || {};
             const tokenExist = jwt.token && (this.envoyFirmware7xxTokenGenerationMode === 2 || jwt.expires_at >= now + 60);
 
-            if (this.enableDebugMode) {
+            if (this.logDebug) {
                 const remaining = jwt.expires_at ? jwt.expires_at - now : 'N/A';
                 this.emit('debug', `Token: ${tokenExist ? 'Exist' : 'Missing'}, expires in ${remaining} seconds`);
             }
 
             const tokenValid = this.feature.info.tokenValid;
-            if (this.enableDebugMode) this.emit('debug', `Token: ${tokenValid ? 'Valid' : 'Not valid'}`);
+            if (this.logDebug) this.emit('debug', `Token: ${tokenValid ? 'Valid' : 'Not valid'}`);
 
             // RESTFul and MQTT sync
             if (this.restFulConnected) this.restFul1.update('token', jwt);
             if (this.mqttConnected) this.mqtt1.emit('publish', 'Token', jwt);
 
             if (tokenExist && tokenValid) {
-                if (this.enableDebugMode) this.emit('debug', 'Token check complete: Valid=true');
+                if (this.logDebug) this.emit('debug', 'Token check complete: Valid=true');
                 return true;
             }
 
             if (!tokenExist) {
-                this.emit('warn', 'Token not exist, requesting new');
+                if (this.logWarn) this.emit('warn', 'Token not exist, requesting new');
                 await this.delayBeforeRetry?.() ?? new Promise(resolve => setTimeout(resolve, 30000));
                 const gotToken = await this.getToken();
                 if (!gotToken) return null;
             }
 
             if (!this.feature.info.jwtToken.token) {
-                this.emit('warn', 'Token became invalid before validation');
+                if (this.logWarn) this.emit('warn', 'Token became invalid before validation');
                 return null;
             }
 
-            this.emit('warn', 'Token exist but not valid, validating');
+            if (this.logWarn) this.emit('warn', 'Token exist but not valid, validating');
             const validated = await this.validateToken();
             if (!validated) return null;
 
-            if (this.enableDebugMode) this.emit('debug', 'Token check complete: Valid=true');
+            if (this.logDebug) this.emit('debug', 'Token check complete: Valid=true');
             return true;
         } catch (error) {
             throw new Error(`Check token error: ${error}`);
         } finally {
-            this.feature.checkTokenRunning = false;
+            this.checkTokenRunning = false;
         }
     }
 
     async getToken() {
-        if (this.enableDebugMode) this.emit('debug', 'Requesting token');
+        if (this.logDebug) this.emit('debug', 'Requesting token');
 
         try {
             // Create EnvoyToken instance and attach log event handlers
@@ -511,7 +511,7 @@ class EnergyMeter extends EventEmitter {
             const tokenData = await envoyToken.refreshToken();
 
             if (!tokenData || !tokenData.token) {
-                this.emit('warn', 'Token request returned empty or invalid');
+                if (this.logWarn) this.emit('warn', 'Token request returned empty or invalid');
                 return null;
             }
 
@@ -520,7 +520,7 @@ class EnergyMeter extends EventEmitter {
                 ...tokenData,
                 token: `${tokenData.token.slice(0, 5)}...<redacted>`
             };
-            if (this.enableDebugMode) this.emit('debug', 'Token:', maskedTokenData);
+            if (this.logDebug) this.emit('debug', 'Token:', maskedTokenData);
 
             // Save token in memory
             this.feature.info.jwtToken = tokenData;
@@ -539,7 +539,7 @@ class EnergyMeter extends EventEmitter {
     }
 
     async validateToken() {
-        if (this.enableDebugMode) this.emit('debug', 'Requesting validate token');
+        if (this.logDebug) this.emit('debug', 'Requesting validate token');
 
         this.feature.info.tokenValid = false;
 
@@ -556,14 +556,14 @@ class EnergyMeter extends EventEmitter {
             // Check for expected response string
             const tokenValid = typeof responseBody === 'string' && responseBody.includes('Valid token');
             if (!tokenValid) {
-                this.emit('warn', `Token not valid. Response: ${responseBody}`);
+                if (this.logWarn) this.emit('warn', `Token not valid. Response: ${responseBody}`);
                 return null;
             }
 
             // Extract and validate cookie
             const cookie = response.headers['set-cookie'];
             if (!cookie) {
-                this.emit('warn', 'No cookie received during token validation');
+                if (this.logWarn) this.emit('warn', 'No cookie received during token validation');
                 return null;
             }
 
@@ -583,12 +583,12 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updateMeters() {
-        if (this.enableDebugMode) this.emit('debug', `Requesting meters info`);
+        if (this.logDebug) this.emit('debug', `Requesting meters info`);
 
         try {
             const response = await this.axiosInstance(ApiUrls.InternalMeterInfo);
             const responseData = response.data;
-            if (this.enableDebugMode) this.emit('debug', `Meters:`, responseData);
+            if (this.logDebug) this.emit('debug', `Meters:`, responseData);
 
             // Check if any meters are installed
             const metersInstalled = responseData.length > 0;
@@ -598,7 +598,7 @@ class EnergyMeter extends EventEmitter {
                     const measurementType = ApiCodes[meter.measurementType];
                     const key = MetersKeyMap[measurementType];
                     if (!key) {
-                        const debug = !this.enableDebugMode ? false : this.emit('debug', `Unknown meter measurement type: ${measurementType}`);
+                        if (this.logDebug) this.emit('debug', `Unknown meter measurement type: ${measurementType}`);
                         continue;
                     }
 
@@ -648,12 +648,12 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updateMetersReading(start) {
-        if (this.enableDebugMode) this.emit('debug', `Requesting meters reading`);
+        if (this.logDebug) this.emit('debug', `Requesting meters reading`);
 
         try {
             const response = await this.axiosInstance(ApiUrls.InternalMeterReadings);
             const responseData = response.data;
-            if (this.enableDebugMode) this.emit('debug', `Meters reading:`, responseData);
+            if (this.logDebug) this.emit('debug', `Meters reading:`, responseData);
 
             // Check if readings exist and are valid
             const metersReadingInstalled = Array.isArray(responseData) && responseData.length > 0;
@@ -661,7 +661,7 @@ class EnergyMeter extends EventEmitter {
                 for (const meter of responseData) {
                     const index = this.pv.meters.findIndex(m => m.eid === meter.eid);
                     if (index === -1) {
-                        const debug = !this.enableDebugMode ? false : this.emit('debug', `Unknown meter readings EID: ${meter.eid}`);
+                        if (this.logDebug) this.emit('debug', `Unknown meter readings EID: ${meter.eid}`);
                         continue;
                     }
 
@@ -688,7 +688,7 @@ class EnergyMeter extends EventEmitter {
             return true;
         } catch (error) {
             if (start) {
-                this.emit('warn', `Meters readings not supported, dont worry all working correct, only some additional data will not be present, error: ${error}`);
+                if (this.logWarn) this.emit('warn', `Meters readings not supported, dont worry all working correct, only some additional data will not be present, error: ${error}`);
                 return null;
             }
             throw new Error(`Update meters reading error: ${error}`);
@@ -696,12 +696,12 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updateMetersReports(start) {
-        if (this.enableDebugMode) this.emit('debug', `Requesting meters reports`);
+        if (this.logDebug) this.emit('debug', `Requesting meters reports`);
 
         try {
             const response = await this.axiosInstance(ApiUrls.InternalMetersReports);
             const responseData = response.data;
-            if (this.enableDebugMode) this.emit('debug', `Meters reports:`, responseData);
+            if (this.logDebug) this.emit('debug', `Meters reports:`, responseData);
 
             // Check if reports exist
             const metersReportsInstalled = Array.isArray(responseData) && responseData.length > 0;
@@ -710,7 +710,7 @@ class EnergyMeter extends EventEmitter {
                     const measurementType = ApiCodes[meter.reportType];
                     const key = MetersKeyMap[measurementType];
                     if (!key) {
-                        const debug = !this.enableDebugMode ? false : this.emit('debug', `Unknown meters reports type: ${measurementType}`);
+                        if (this.logDebug) this.emit('debug', `Unknown meters reports type: ${measurementType}`);
                         continue;
                     }
 
@@ -772,7 +772,7 @@ class EnergyMeter extends EventEmitter {
             return true;
         } catch (error) {
             if (start) {
-                this.emit('warn', `Meters reports not supported, dont worry all working correct, only some additional data will not be present, error: ${error}`);
+                if (this.logWarn) this.emit('warn', `Meters reports not supported, dont worry all working correct, only some additional data will not be present, error: ${error}`);
                 return null;
             }
             throw new Error(`Update meters reports error: ${error}`);
@@ -780,7 +780,7 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updateMetersData() {
-        if (this.enableDebugMode) this.emit('debug', 'Requesting meters data');
+        if (this.logDebug) this.emit('debug', 'Requesting meters data');
 
         try {
             const meters = this.pv.meters ?? [];
@@ -834,12 +834,12 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updateProduction() {
-        if (this.enableDebugMode) this.emit('debug', `Requesting production`);
+        if (this.logDebug) this.emit('debug', `Requesting production`);
 
         try {
             const response = await this.axiosInstance(ApiUrls.Production);
             const production = response.data;
-            if (this.enableDebugMode) this.emit('debug', `Production:`, production);
+            if (this.logDebug) this.emit('debug', `Production:`, production);
 
             const productionSupported = Object.keys(production).length > 0;
 
@@ -864,12 +864,12 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updateProductionPdm() {
-        if (this.enableDebugMode) this.emit('debug', `Requesting production pdm`);
+        if (this.logDebug) this.emit('debug', `Requesting production pdm`);
 
         try {
             const response = await this.axiosInstance(ApiUrls.ProductionPdm);
             const data = response.data;
-            if (this.enableDebugMode) this.emit('debug', `Production pdm:`, data);
+            if (this.logDebug) this.emit('debug', `Production pdm:`, data);
 
             // PCU
             const pcu = {
@@ -935,12 +935,12 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updateEnergyPdm() {
-        if (this.enableDebugMode) this.emit('debug', `Requesting energy pdm`);
+        if (this.logDebug) this.emit('debug', `Requesting energy pdm`);
 
         try {
             const response = await this.axiosInstance(ApiUrls.EnergyPdm);
             const energyPdm = response.data;
-            if (this.enableDebugMode) this.emit('debug', `Energy pdm: `, energyPdm);
+            if (this.logDebug) this.emit('debug', `Energy pdm: `, energyPdm);
 
             // Process production data
             if ('production' in energyPdm && energyPdm.production) {
@@ -986,12 +986,12 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updateProductionCt() {
-        if (this.enableDebugMode) this.emit('debug', `Requesting production ct`);
+        if (this.logDebug) this.emit('debug', `Requesting production ct`);
 
         try {
             const response = await this.axiosInstance(ApiUrls.SystemReadingStats);
             const data = response.data;
-            if (this.enableDebugMode) this.emit('debug', `Production ct:`, data);
+            if (this.logDebug) this.emit('debug', `Production ct:`, data);
 
             const keys = Object.keys(data);
 
@@ -1051,7 +1051,7 @@ class EnergyMeter extends EventEmitter {
     }
 
     async updatePowerAndEnergyData() {
-        if (this.enableDebugMode) this.emit('debug', `Requesting power and energy data`);
+        if (this.logDebug) this.emit('debug', `Requesting power and energy data`);
 
         try {
             const dataArr = [
@@ -1122,7 +1122,7 @@ class EnergyMeter extends EventEmitter {
                     });
                 }
 
-                if (this.enableDebugMode) {
+                if (this.logDebug) {
                     this.emit('debug', `${obj.measurementType} data source meter:`, sourceMeter);
                     this.emit('debug', `${obj.measurementType} data source energy:`, sourceEnergy);
                 }
@@ -1163,7 +1163,7 @@ class EnergyMeter extends EventEmitter {
     }
 
     async getDeviceInfo() {
-        if (this.enableDebugMode) {
+        if (this.logDebug) {
             this.emit('debug', `Requesting device info`);
             this.emit('debug', `Pv object:`, this.pv);
         }
@@ -1179,7 +1179,7 @@ class EnergyMeter extends EventEmitter {
     //prepare accessory
     async prepareAccessory() {
         try {
-            if (this.enableDebugMode) this.emit('debug', `Prepare accessory`);
+            if (this.logDebug) this.emit('debug', `Prepare accessory`);
 
             const envoySerialNumber = this.pv.info.serialNumber;
             const accessoryName = this.name;
@@ -1188,7 +1188,7 @@ class EnergyMeter extends EventEmitter {
             const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
 
             // Accessory Info Service
-            if (this.enableDebugMode) this.emit('debug', `Prepare Information Service`);
+            if (this.logDebug) this.emit('debug', `Prepare Information Service`);
             accessory.getService(Service.AccessoryInformation)
                 .setCharacteristic(Characteristic.Manufacturer, 'Enphase')
                 .setCharacteristic(Characteristic.Model, this.pv.info.modelName ?? 'Model Name')
@@ -1212,7 +1212,7 @@ class EnergyMeter extends EventEmitter {
                 const measurementType = powerAndEnergy.measurementType;
                 const key = MetersKeyMap[measurementType];
 
-                if (this.enableDebugMode) this.emit('debug', `Prepare Meter ${measurementType} Service`);
+                if (this.logDebug) this.emit('debug', `Prepare Meter ${measurementType} Service`);
 
                 const serviceName = `Energy Meter ${measurementType}`;
                 const energyMeterService = accessory.addService(Service.EvePowerMeter, serviceName, `energyMeterService${measurementType}`);
@@ -1221,28 +1221,28 @@ class EnergyMeter extends EventEmitter {
                 energyMeterService.getCharacteristic(Characteristic.EveCurrentConsumption)
                     .onGet(async () => {
                         const value = powerAndEnergy.power;
-                        if (!this.disableLogInfo) this.emit('info', `Energy Meter: ${measurementType}, power: ${value} W`);
+                        if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, power: ${value} W`);
                         return value;
                     });
 
                 energyMeterService.getCharacteristic(Characteristic.EveTotalConsumption)
                     .onGet(async () => {
                         const value = powerAndEnergy.energyLifetimeKw;
-                        if (!this.disableLogInfo) this.emit('info', `Energy Meter: ${measurementType}, energy lifetime: ${value} kWh`);
+                        if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, energy lifetime: ${value} kWh`);
                         return value;
                     });
                 if (powerAndEnergy.gridQualityState) {
                     energyMeterService.getCharacteristic(Characteristic.EveElectricCurrent)
                         .onGet(async () => {
                             const value = powerAndEnergy.current;
-                            if (!this.disableLogInfo) this.emit('info', `Energy Meter: ${measurementType}, current: ${value} A`);
+                            if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, current: ${value} A`);
                             return value;
                         });
 
                     energyMeterService.getCharacteristic(Characteristic.EveVoltage)
                         .onGet(async () => {
                             const value = powerAndEnergy.voltage;
-                            if (!this.disableLogInfo) this.emit('info', `Energy Meter: ${measurementType}, voltage: ${value} V`);
+                            if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, voltage: ${value} V`);
                             return value;
                         });
                 }
@@ -1267,7 +1267,7 @@ class EnergyMeter extends EventEmitter {
 
     //start
     async start() {
-        if (this.enableDebugMode) this.emit('debug', `Start`);
+        if (this.logDebug) this.emit('debug', `Start`);
 
         try {
             // Create axios instance
@@ -1302,20 +1302,15 @@ class EnergyMeter extends EventEmitter {
             this.emit('success', `Connect Success`);
 
             // Optional logging
-            if (!this.disableLogDeviceInfo) await this.getDeviceInfo();
-
-            // Prepare HomeKit accessory
-            if (this.startPrepareAccessory) {
-                const accessory = await this.prepareAccessory();
-                this.emit('publishAccessory', accessory);
-                this.startPrepareAccessory = false;
-            }
+            if (this.logDeviceInfo) await this.getDeviceInfo();
 
             // Setup timers
             this.timers = [];
             if (getPowerAndEnergyData) this.timers.push({ name: 'updatePowerandEnergy', sampling: 10000 });
 
-            return true;
+            // Prepare HomeKit accessory
+            const accessory = await this.prepareAccessory();
+            return accessory;
         } catch (error) {
             throw new Error(`Start error: ${error}`);
         }

@@ -127,13 +127,33 @@ export default (api) => {
         constructor() {
             super('DB size', '00000019-000B-1000-8000-0026BB765291');
             this.setProps({
-                format: Formats.STRING,
+                format: Formats.FLOAT,
+                unit: 'MB',
+                maxValue: 1000000,
+                minValue: -1000000,
+                minStep: 0.1,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
             this.value = this.getDefaultValue();
         }
     }
     Characteristic.DbSize = DbSize;
+
+    class DbPercentFull extends Characteristic {
+        constructor() {
+            super('DB percent full', '00000020-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.UINT8,
+                unit: Units.PERCENTAGE,
+                maxValue: 100,
+                minValue: 0,
+                minStep: 1,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.DbPercentFull = DbPercentFull;
 
     class Tariff extends Characteristic {
         constructor() {
@@ -951,7 +971,7 @@ export default (api) => {
     }
     Characteristic.PowerW = PowerW;
 
-    class PowerPeakkW extends Characteristic {
+    class PowerPeakW extends Characteristic {
         constructor() {
             super('Power peak', '00000132-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -965,7 +985,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.PowerPeakkW = PowerPeakkW;
+    Characteristic.PowerPeakW = PowerPeakW;
 
     class EnergyTodayWh extends Characteristic {
         constructor() {
@@ -1193,7 +1213,7 @@ export default (api) => {
     }
     Characteristic.OperatingState = OperatingState;
 
-    class EnpwrGridMode extends Characteristic {
+    class GridMode extends Characteristic {
         constructor() {
             super('Grid mode', '00000179-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -1203,7 +1223,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.EnpwrGridMode = EnpwrGridMode;
+    Characteristic.GridMode = GridMode;
 
     class EnchgGridMode extends Characteristic {
         constructor() {
@@ -1233,6 +1253,22 @@ export default (api) => {
         }
     }
     Characteristic.RestPower = RestPower;
+
+    class RealPower extends Characteristic {
+        constructor() {
+            super('Real power', '00000262-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'kW',
+                maxValue: 1000,
+                minValue: -1000,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.RealPower = RealPower;
 
     class FrequencyBiasHz extends Characteristic {
         constructor() {
@@ -1824,6 +1860,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.CommNumAcbAndLevel);
             this.addOptionalCharacteristic(Characteristic.CommNumEnchgAndLevel);
             this.addOptionalCharacteristic(Characteristic.DbSize);
+            this.addOptionalCharacteristic(Characteristic.DbPercentFull);
             this.addOptionalCharacteristic(Characteristic.Tariff);
             this.addOptionalCharacteristic(Characteristic.Firmware);
             this.addOptionalCharacteristic(Characteristic.UpdateStatus);
@@ -1873,7 +1910,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.Phase);
             this.addOptionalCharacteristic(Characteristic.Firmware);
             this.addOptionalCharacteristic(Characteristic.PowerW);
-            this.addOptionalCharacteristic(Characteristic.PowerPeakkW);
+            this.addOptionalCharacteristic(Characteristic.PowerPeakW);
             this.addOptionalCharacteristic(Characteristic.EnergyTodayWh);
             this.addOptionalCharacteristic(Characteristic.EnergyYesterdayWh);
             this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
@@ -2066,6 +2103,8 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.FrequencyBiasHzQ8PhaseC);
             this.addOptionalCharacteristic(Characteristic.VoltageBiasVQ5PhaseC);
             this.addOptionalCharacteristic(Characteristic.RestPower);
+            this.addOptionalCharacteristic(Characteristic.RatedPower);
+            this.addOptionalCharacteristic(Characteristic.RealPower);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
@@ -2093,7 +2132,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.Revision);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.CommInterface);
-            this.addOptionalCharacteristic(Characteristic.RestPower);
+            this.addOptionalCharacteristic(Characteristic.RealPower);
             this.addOptionalCharacteristic(Characteristic.PlcLevel);
             this.addOptionalCharacteristic(Characteristic.GridProfile);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
@@ -2113,7 +2152,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.CommLevel24Ghz);
             this.addOptionalCharacteristic(Characteristic.Temperature);
             this.addOptionalCharacteristic(Characteristic.OperatingState);
-            this.addOptionalCharacteristic(Characteristic.EnpwrGridMode);
+            this.addOptionalCharacteristic(Characteristic.GridMode);
             this.addOptionalCharacteristic(Characteristic.EnchgGridMode);
             this.addOptionalCharacteristic(Characteristic.Status);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
