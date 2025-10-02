@@ -2075,24 +2075,24 @@ class EnvoyDevice extends EventEmitter {
 
             //pcu devices count
             const pcusSupported = pcus.length > 0;
-            if (pcusSupported) {
-                this.pv.inventory.pcus.forEach((pcu) => {
-                    const device = pcus.find(device => device.serialNumber === pcu.serialNumber);
-                    if (!device) {
-                        return;
-                    }
+            if (!pcusSupported) return;
 
-                    const obj = {
-                        type: 'pcu',
-                        readingTime: device.lastReportDate,
-                        power: device.lastReportWatts,
-                        powerPeak: device.maxReportWatts,
-                    };
+            this.pv.inventory.pcus.forEach((pcu) => {
+                const device = pcus.find(device => device.serialNumber === pcu.serialNumber);
+                if (!device) {
+                    return;
+                }
 
-                    Object.assign(pcu, obj);
-                });
-                this.feature.pcuStatus.supported = true;
-            }
+                const obj = {
+                    type: 'pcu',
+                    readingTime: device.lastReportDate,
+                    power: device.lastReportWatts,
+                    powerPeak: device.maxReportWatts,
+                };
+
+                Object.assign(pcu, obj);
+            });
+            this.feature.pcuStatus.supported = true;
 
             // RESTFul and MQTT update
             if (this.restFulConnected) this.restFul1.update('microinvertersstatus', pcus)
@@ -2838,32 +2838,29 @@ class EnvoyDevice extends EventEmitter {
     }
 
     async updateEnsemblePower() {
-        if (this.logDebug) {
-            this.emit('debug', `Requesting ensemble power`);
-        }
+        if (this.logDebug) this.emit('debug', `Requesting ensemble power`);
 
         try {
             const response = await this.axiosInstance.get(ApiUrls.EnsemblePower);
-            const ensemblePower = response.data;
+            const devices = response.data.devices || [];
+            if (this.logDebug) this.emit('debug', `Ensemble power response:`, devices);
 
-            if (this.logDebug) this.emit('debug', `Ensemble power response:`, ensemblePower);
-
-            const devices = ensemblePower.devices || [];
-            if (!devices.length) return;
+            const devicesSupported = devices.length > 0;
+            if (!devicesSupported) return false;
 
             // update encharges
             const encharges = this.pv.inventory.esubs.encharges.devices || [];
             for (const encharge of encharges) {
-                if (this.logDebug) this.emit('debug', `Encharge serial number:`, encharge.serialNumber);
-                const power = devices.find(d => d.serial_num === encharge.serialNumber);
-                if (this.logDebug) this.emit('debug', `Device power:`, power);
-                if (!power) continue;
+                const serialNumber = encharge.serialNumber;
+                const device = devices.find(device => device.serial_num === serialNumber);
+                if (this.logDebug) this.emit('debug', `Ensemble device power:`, device);
+                if (!device) continue;
 
                 encharge.power = {
-                    serialNumber: power.serial_num,
-                    realPower: power.real_power_mw,
-                    apparentPower: power.apparent_power_mva,
-                    soc: power.soc,
+                    serialNumber: device.serial_num,
+                    realPower: device.real_power_mw,
+                    apparentPower: device.apparent_power_mva,
+                    soc: device.soc,
                 };
 
                 this.feature.inventory.esubs.encharges.power.supported = true;
@@ -2873,8 +2870,8 @@ class EnvoyDevice extends EventEmitter {
             this.feature.ensemble.power.supported = true;
 
             // RESTFul and MQTT update
-            if (this.restFulConnected) this.restFul1.update('ensemblepower', ensemblePower);
-            if (this.mqttConnected) this.mqtt1.emit('publish', 'Ensemble Power', ensemblePower);
+            if (this.restFulConnected) this.restFul1.update('ensemblepower', devices);
+            if (this.mqttConnected) this.mqtt1.emit('publish', 'Ensemble Power', devices);
 
             return true;
         } catch (error) {
@@ -5220,10 +5217,9 @@ class EnvoyDevice extends EventEmitter {
                 const collars = this.pv.inventory.esubs.collars ?? [];
                 const updatedCollars = await Promise.all(collars.map(async (collar, index) => {
                     const deviceStatus = await this.getStatus(collar.deviceStatus);
-                    const type = ApiCodes[collar.type] ?? collar.type;
 
                     const updatedCollarsData = {
-                        type,
+                        type: collar.type,
                         partNumber: collar.partNumber,
                         serialNumber: collar.serialNumber,
                         installed: this.formatTimestamp(collar.installed),
@@ -5271,10 +5267,9 @@ class EnvoyDevice extends EventEmitter {
 
                 const c6CombinerControllers = this.pv.inventory.esubs.c6CombinerControllers ?? [];
                 const updatedC6CombinerControllers = await Promise.all(c6CombinerControllers.map(async (c6CombinerController, index) => {
-                    const type = ApiCodes[c6CombinerController.type] ?? c6CombinerController.type;
 
                     const updatedC6CombinerControllersData = {
-                        type,
+                        type: c6CombinerController.type,
                         partNumber: c6CombinerController.partNumber,
                         serialNumber: c6CombinerController.serialNumber,
                         installed: this.formatTimestamp(c6CombinerController.installed),
@@ -5314,16 +5309,15 @@ class EnvoyDevice extends EventEmitter {
 
                 const c6Rgms = this.pv.inventory.esubs.c6Rgms ?? [];
                 const updatedC6Rgms = await Promise.all(c6Rgms.map(async (c6Rgm, index) => {
-                    const type = ApiCodes[c6Rgm.type] ?? c6Rgm.type;
 
                     const updatedC6RgmsData = {
-                        type,
+                        type: c6Rgm.type,
                         partNumber: c6Rgm.partNumber,
                         serialNumber: c6Rgm.serialNumber,
                         installed: this.formatTimestamp(c6Rgm.installed),
                         readingTime: this.formatTimestamp(),
                         firmware: c6Rgm.firmware,
-                        deviceStatus: c6Rgm.deviceState,
+                        deviceStatus: (c6Rgm.deviceState).toString(),
                     }
 
                     // Create characteristics
@@ -8102,7 +8096,7 @@ class EnvoyDevice extends EventEmitter {
                         if (this.logDebug) this.emit('debug', `Prepare C6 Combiner Controller ${serialNumber} Service`);
 
                         const serviceName = `C6 Combiner Controller ${serialNumber}`;
-                        const service = accessory.addService(Service.c6CombinerControllerServices, serviceName, `c6CombinerControllerService${serialNumber}`);
+                        const service = accessory.addService(Service.C6CombinerControlerService, serviceName, `c6CombinerControllerService${serialNumber}`);
                         service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
 
                         // Create characteristics
@@ -8136,7 +8130,7 @@ class EnvoyDevice extends EventEmitter {
                         if (this.logDebug) this.emit('debug', `Prepare C6 Rgm ${serialNumber} Service`);
 
                         const serviceName = `C6 Rgm ${serialNumber}`;
-                        const service = accessory.addService(Service.c6RgmServices, serviceName, `c6RgmService${serialNumber}`);
+                        const service = accessory.addService(Service.C6RgmService, serviceName, `c6RgmService${serialNumber}`);
                         service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
 
                         // Create characteristics
