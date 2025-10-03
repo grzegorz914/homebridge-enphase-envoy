@@ -4,6 +4,7 @@ class ImpulseGenerator extends EventEmitter {
     constructor() {
         super();
         this.timersState = false;
+        this.timers = [];
     }
 
     async start(timers) {
@@ -12,19 +13,19 @@ class ImpulseGenerator extends EventEmitter {
             return true;
         }
 
-        //update state
-        const updateState = timers.length > 0 ? this.state(true) : false;
-
-        //add timers
         this.timers = [];
+
         for (const timer of timers) {
             this.emit(timer.name);
 
-            const newTimer = setInterval(() => {
+            const interval = setInterval(() => {
                 this.emit(timer.name);
             }, timer.sampling);
-            this.timers.push(newTimer);
+
+            this.timers.push(interval);
         }
+
+        this.state(true);
         return true;
     }
 
@@ -34,10 +35,11 @@ class ImpulseGenerator extends EventEmitter {
             return true;
         }
 
-        //update state
-        this.timers.forEach(timer => clearInterval(timer));
-        this.timers = [];
+        for (const timer of this.timers) {
+            clearInterval(timer);
+        }
 
+        this.timers = [];
         this.state(false);
         return true;
     }
@@ -47,4 +49,6 @@ class ImpulseGenerator extends EventEmitter {
         this.emit('state', state);
     }
 }
+
 export default ImpulseGenerator;
+

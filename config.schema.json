@@ -19,16 +19,14 @@
               "title": "Accessory name",
               "type": "string",
               "placeholder": "Accessory name",
-              "description": "Accessory name to be displayed in Home app",
-              "required": true
+              "description": "Accessory name to be displayed in Home app"
             },
             "host": {
               "title": "IP/Hostname",
               "type": "string",
               "placeholder": "IP address or hostname",
               "format": "hostname",
-              "description": "IP Address or hostname of the Enphase Envoy gateway (defaults to envoy.local). For firmware v7+, please set the IP address.",
-              "required": false
+              "description": "IP Address or hostname of the Enphase Envoy gateway (defaults to envoy.local). For firmware v7+, please set the IP address."
             },
             "displayType": {
               "title": "Accessory type",
@@ -36,6 +34,7 @@
               "minimum": 0,
               "maximum": 4,
               "default": 1,
+              "description": "Accessory type for Home app",
               "oneOf": [
                 {
                   "title": "None/Disabled",
@@ -67,9 +66,7 @@
                     4
                   ]
                 }
-              ],
-              "description": "Accessory type for Home app",
-              "required": true
+              ]
             },
             "envoyFirmware7xxTokenGenerationMode": {
               "title": "Envoy Credentials Mode",
@@ -77,6 +74,7 @@
               "minimum": 0,
               "maximum": 2,
               "default": 0,
+              "description": "Method used login to Envoy api",
               "oneOf": [
                 {
                   "title": "Envoy password",
@@ -96,9 +94,7 @@
                     2
                   ]
                 }
-              ],
-              "description": "Method used login to Envoy api",
-              "required": true
+              ]
             },
             "envoyPasswd": {
               "title": "Envoy password",
@@ -108,8 +104,7 @@
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
-              },
-              "required": false
+              }
             },
             "enlightenUser": {
               "title": "Enlighten username/email address",
@@ -118,8 +113,7 @@
               "description": "Enphase Enlighten username.",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
-              },
-              "required": false
+              }
             },
             "enlightenPasswd": {
               "title": "Enlighten password",
@@ -129,8 +123,7 @@
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 1;"
-              },
-              "required": false
+              }
             },
             "envoyToken": {
               "title": "Envoy token",
@@ -140,8 +133,7 @@
               "format": "password",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 2;"
-              },
-              "required": false
+              }
             },
             "envoyTokenInstaller": {
               "title": "Installer",
@@ -150,15 +142,40 @@
               "description": "Enable for installer-provided token",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 2;"
-              },
-              "required": true
+              }
             },
             "lockControl": {
-              "title": "Lock Control",
+              "title": "Control",
               "type": "boolean",
               "default": true,
-              "description": "Enable for auto lock control accessory",
-              "required": false
+              "description": "Enables system control auto lock accessory"
+            },
+            "lockControlPrefix": {
+              "title": "Prefix",
+              "type": "boolean",
+              "default": false,
+              "description": "Use accessory name as a prefix",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].lockControl === true"
+              }
+            },
+            "lockControlTime": {
+              "title": "Auto Lock Time",
+              "type": "number",
+              "minimum": 1,
+              "maximum": 60,
+              "multipleOf": 1,
+              "default": 30,
+              "description": "System control auto lock time (seconds)",
+              "condition": {
+                "functionBody": "return model.devices[arrayIndices].lockControl === true"
+              }
+            },
+            "energyMeter": {
+              "title": "Energy Meter",
+              "type": "boolean",
+              "default": false,
+              "description": "Enables energy meter as a axtra accessory to display charts in EVE app"
             },
             "productionStateSensor": {
               "title": "Production State Sensor",
@@ -170,6 +187,7 @@
                   "minimum": 0,
                   "maximum": 3,
                   "default": 0,
+                  "description": "Accessory type for Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -195,16 +213,13 @@
                         3
                       ]
                     }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  ]
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].productionStateSensor.displayType > 0;"
                   }
@@ -214,12 +229,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].productionStateSensor.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "plcLevelControl": {
               "title": "PLC Level Refresh Control",
@@ -257,15 +274,13 @@
                       ]
                     }
                   ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  "description": "Accessory type for Home app"
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name for Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].plcLevelControl.displayType > 0;"
                   }
@@ -275,20 +290,21 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].plcLevelControl.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "powerProductionSummary": {
               "title": "Power Summary",
               "type": "integer",
               "minimum": 1,
               "default": 1000,
-              "description": "Using the Enphase app, provide the total (W) of all microinverters (used to calculate percentage)",
-              "required": true
+              "description": "Using the Enphase app, provide the total (W) of all microinverters (used to calculate percentage)"
             },
             "powerProductionLevelSensors": {
               "title": "Sensors",
@@ -302,6 +318,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -327,16 +344,16 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerProductionLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -344,6 +361,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -382,24 +400,33 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerProductionLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
                     "minimum": 0,
                     "description": "Power level in (W) for comparison to sensor that was triggered",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerProductionLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerProductionLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareMode"
+                ]
               }
             },
             "energyProductionLevelSensors": {
@@ -414,6 +441,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -439,16 +467,16 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyProductionLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -456,6 +484,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -494,8 +523,9 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyProductionLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "energyLevel": {
                     "title": "Enargy Level",
@@ -503,24 +533,31 @@
                     "minimum": 0,
                     "default": 0,
                     "description": "Energy level in (Wh) to compare to sensor that was triggered",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyProductionLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyProductionLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareMode"
+                ]
               }
             },
             "energyProductionLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "description": "Here set offset in (Wh) for energy production (if needed)",
-              "required": false
+              "description": "Here set offset in (Wh) for energy production (if needed)"
             },
             "gridProductionQualitySensors": {
               "title": "Sensors",
@@ -534,6 +571,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -559,16 +597,16 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridProductionQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareType": {
                     "title": "Comparison type",
@@ -576,6 +614,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Comparison type",
                     "oneOf": [
                       {
                         "title": "Current (A)",
@@ -602,8 +641,9 @@
                         ]
                       }
                     ],
-                    "description": "Comparison type",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridProductionQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -611,6 +651,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -649,23 +690,34 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridProductionQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareLevel": {
                     "title": "Comparison level",
                     "type": "number",
                     "default": 0,
-                    "description": "Here set level to compare at which the sensor fired."
+                    "description": "Here set level to compare at which the sensor fired.",
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridProductionQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridProductionQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareType",
+                  "compareMode"
+                ]
               }
             },
             "powerConsumptionTotalLevelSensors": {
@@ -680,6 +732,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -705,16 +758,16 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerConsumptionTotalLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -722,6 +775,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -760,8 +814,9 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerConsumptionTotalLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "powerLevel": {
                     "title": "Power Level",
@@ -769,24 +824,31 @@
                     "minimum": 0,
                     "default": 0,
                     "description": "Power level in (W) for comparison to sensor that was triggered",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerConsumptionTotalLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerConsumptionTotalLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareMode"
+                ]
               }
             },
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "description": "Offset in (Wh) for energy consumption total (if needed)",
-              "required": false
+              "description": "Offset in (Wh) for energy consumption total (if needed)"
             },
             "energyConsumptionTotalLevelSensors": {
               "title": "Sensors",
@@ -800,6 +862,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -825,16 +888,16 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyConsumptionTotalLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -842,6 +905,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -880,8 +944,9 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyConsumptionTotalLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "energyLevel": {
                     "title": "Enargy Level",
@@ -889,16 +954,24 @@
                     "minimum": 0,
                     "default": 0,
                     "description": "Energy level in (Wh) to compare to sensor that was triggered",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyConsumptionTotalLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyConsumptionTotalLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareMode"
+                ]
               }
             },
             "gridConsumptionTotalQualitySensors": {
@@ -913,6 +986,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -938,16 +1012,16 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionTotalQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareType": {
                     "title": "Comparison type",
@@ -955,6 +1029,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Comparison type",
                     "oneOf": [
                       {
                         "title": "Current (A)",
@@ -981,8 +1056,9 @@
                         ]
                       }
                     ],
-                    "description": "Comparison type",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionTotalQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -990,6 +1066,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -1028,23 +1105,34 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionTotalQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareLevel": {
                     "title": "Comparison level",
                     "type": "number",
                     "default": 0,
-                    "description": "Here set level to compare at which the sensor fired."
+                    "description": "Here set level to compare at which the sensor fired.",
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionTotalQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionTotalQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareType",
+                  "compareMode"
+                ]
               }
             },
             "powerConsumptionNetLevelSensors": {
@@ -1059,6 +1147,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1084,16 +1173,16 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerConsumptionNetLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -1101,6 +1190,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -1139,32 +1229,40 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerConsumptionNetLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "powerLevel": {
                     "title": "Power Level",
                     "type": "integer",
                     "default": 0,
                     "description": "Here set power level in (W) to compare at which the sensor fired, negative value (-) mean exporting energy to the grid.",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerConsumptionNetLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].powerConsumptionNetLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareMode"
+                ]
               }
             },
             "energyConsumptionNetLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
               "default": 0,
-              "description": "Offset in (Wh) for net energy consumption (if needed)",
-              "required": false
+              "description": "Offset in (Wh) for net energy consumption (if needed)"
             },
             "energyConsumptionNetLevelSensors": {
               "title": "Sensors",
@@ -1178,6 +1276,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1203,16 +1302,16 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyConsumptionNetLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -1220,6 +1319,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -1258,8 +1358,9 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyConsumptionNetLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "energyLevel": {
                     "title": "Energy Level",
@@ -1267,16 +1368,24 @@
                     "minimum": 0,
                     "default": 0,
                     "description": "Here set energy level in (Wh) to compare at which the sensor fired.",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyConsumptionNetLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].energyConsumptionNetLevelSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareMode"
+                ]
               }
             },
             "gridConsumptionNetQualitySensors": {
@@ -1325,7 +1434,9 @@
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionNetQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareType": {
                     "title": "Comparison type",
@@ -1333,6 +1444,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Comparison type",
                     "oneOf": [
                       {
                         "title": "Current (A)",
@@ -1359,8 +1471,9 @@
                         ]
                       }
                     ],
-                    "description": "Comparison type",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionNetQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareMode": {
                     "title": "Comparison mode",
@@ -1368,6 +1481,7 @@
                     "minimum": 0,
                     "maximum": 5,
                     "default": 0,
+                    "description": "Comparison mode",
                     "oneOf": [
                       {
                         "title": ">",
@@ -1406,23 +1520,34 @@
                         ]
                       }
                     ],
-                    "description": "Comparison mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionNetQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "compareLevel": {
                     "title": "Comparison level",
                     "type": "number",
                     "default": 0,
-                    "description": "Here set level to compare at which the sensor fired."
+                    "description": "Here set level to compare at which the sensor fired.",
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionNetQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].gridConsumptionNetQualitySensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "compareType",
+                  "compareMode"
+                ]
               }
             },
             "qRelayStateSensor": {
@@ -1435,6 +1560,7 @@
                   "minimum": 0,
                   "maximum": 3,
                   "default": 0,
+                  "description": "Accessory type for Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1460,16 +1586,13 @@
                         3
                       ]
                     }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  ]
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].qRelayStateSensor.displayType > 0;"
                   }
@@ -1479,7 +1602,6 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].qRelayStateSensor.displayType > 0;"
                   }
@@ -1489,19 +1611,20 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Enables multiphase support, if present",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].qRelayStateSensor.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "acBatterieName": {
               "title": "Accessory name",
               "type": "string",
               "placeholder": "Accessory name",
-              "description": "Accessory name for Home app, if not set will use default name",
-              "required": false
+              "description": "Accessory name for Home app, if not set will use default name"
             },
             "acBatterieBackupLevelSummaryAccessory": {
               "title": "AC Baterry Summary Accessory",
@@ -1513,6 +1636,7 @@
                   "minimum": 0,
                   "maximum": 5,
                   "default": 0,
+                  "description": "Accessory type for Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1550,9 +1674,7 @@
                         5
                       ]
                     }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  ]
                 },
                 "minSoc": {
                   "title": "Minimum SoC",
@@ -1562,7 +1684,6 @@
                   "multipleOf": 1,
                   "default": 0,
                   "description": "Minimum SoC level in (%) for ac baterry backup level summary.",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelSummaryAccessory.displayType > 0"
                   }
@@ -1572,12 +1693,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelSummaryAccessory.displayType > 0"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "acBatterieBackupLevelAccessory": {
               "title": "AC Battery Accessory",
@@ -1589,6 +1712,7 @@
                   "minimum": 0,
                   "maximum": 1,
                   "default": 0,
+                  "description": "Accessory type for Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1602,9 +1726,7 @@
                         1
                       ]
                     }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  ]
                 },
                 "minSoc": {
                   "title": "Minimum SoC",
@@ -1614,7 +1736,6 @@
                   "multipleOf": 1,
                   "default": 0,
                   "description": "Minimum SoC level in (%) for ac battery backup level.",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelAccessory.displayType > 0"
                   }
@@ -1624,26 +1745,26 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].acBatterieBackupLevelAccessory.displayType > 0"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "enpowerDryContactsControl": {
               "title": "Dry Contacts Control",
               "type": "boolean",
               "default": false,
-              "description": "Enables control over dry contacts state",
-              "required": false
+              "description": "Enables control over dry contacts state"
             },
             "enpowerDryContactsSensor": {
               "title": "Dry Contacts Sensor",
               "type": "boolean",
               "default": false,
-              "description": "Enables monitoring of dry contacts state",
-              "required": false
+              "description": "Enables monitoring of dry contacts state"
             },
             "enpowerGridStateControl": {
               "title": "Grid State Control",
@@ -1655,6 +1776,7 @@
                   "minimum": 0,
                   "maximum": 3,
                   "default": 0,
+                  "description": "Accessory type in Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1680,16 +1802,13 @@
                         3
                       ]
                     }
-                  ],
-                  "description": "Accessory type in Home app",
-                  "required": true
+                  ]
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name for Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enpowerGridStateControl.displayType > 0;"
                   }
@@ -1699,12 +1818,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enpowerGridStateControl.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "enpowerGridStateSensor": {
               "title": "Grid State Sensor",
@@ -1716,6 +1837,7 @@
                   "minimum": 0,
                   "maximum": 3,
                   "default": 0,
+                  "description": "Accessory type for Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1741,16 +1863,13 @@
                         3
                       ]
                     }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  ]
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enpowerGridStateSensor.displayType > 0;"
                   }
@@ -1760,12 +1879,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enpowerGridStateSensor.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "enpowerGridModeSensors": {
               "title": "Enepower Grid Sensors",
@@ -1779,6 +1900,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -1804,21 +1926,22 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enpowerGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "gridMode": {
                     "title": "Mode",
                     "type": "string",
                     "default": "on-grid",
+                    "description": "Grid mode",
                     "oneOf": [
                       {
                         "title": "Grid On",
@@ -1857,25 +1980,31 @@
                         ]
                       }
                     ],
-                    "description": "Grid mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enpowerGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enpowerGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "gridMode"
+                ]
               }
             },
             "enchargeName": {
               "title": "Accessory name",
               "type": "string",
               "placeholder": "Accessory name",
-              "description": "Accessory name for Home app, if not set will use default name",
-              "required": false
+              "description": "Accessory name for Home app, if not set will use default name"
             },
             "enchargeBackupLevelSummaryAccessory": {
               "title": "Encharge Summary Accessory",
@@ -1887,6 +2016,7 @@
                   "minimum": 0,
                   "maximum": 5,
                   "default": 0,
+                  "description": "Accessory type for Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -1924,9 +2054,7 @@
                         5
                       ]
                     }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  ]
                 },
                 "minSoc": {
                   "title": "Minimum SoC",
@@ -1936,7 +2064,6 @@
                   "multipleOf": 1,
                   "default": 0,
                   "description": "Minimum SoC level in (%) for encharges backup level summary.",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelSummaryAccessory.displayType > 0"
                   }
@@ -1946,11 +2073,139 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelSummaryAccessory.displayType > 0"
                   }
                 }
+              },
+              "required": [
+                "displayType"
+              ]
+            },
+            "enchargeBackupLevelSummarySensors": {
+              "title": "Encharge Summary Backup Level Sensors",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "displayType": {
+                    "title": "Accessory type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "default": 0,
+                    "description": "Accessory type for Home app",
+                    "oneOf": [
+                      {
+                        "title": "None/Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Motion Sensor",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Occupancy Sensor",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "Contact Sensor",
+                        "enum": [
+                          3
+                        ]
+                      }
+                    ]
+                  },
+                  "name": {
+                    "title": "Accessory name",
+                    "type": "string",
+                    "placeholder": "Sensor name",
+                    "description": "Name for the sensor accessory in the Home app",
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeBackupLevelSummarySensors[arrayIndices[1]].displayType > 0;"
+                    }
+                  },
+                  "compareMode": {
+                    "title": "Comparison mode",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
+                    "default": 0,
+                    "description": "Comparison mode",
+                    "oneOf": [
+                      {
+                        "title": ">",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": ">=",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "==",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "<",
+                        "enum": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "<=",
+                        "enum": [
+                          4
+                        ]
+                      },
+                      {
+                        "title": "!=",
+                        "enum": [
+                          5
+                        ]
+                      }
+                    ],
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeBackupLevelSummarySensors[arrayIndices[1]].displayType > 0;"
+                    }
+                  },
+                  "backupLevel": {
+                    "title": "Level",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "multipleOf": 1,
+                    "default": 100,
+                    "description": "Backup level in (%) to compare to sensor that was triggered",
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeBackupLevelSummarySensors[arrayIndices[1]].displayType > 0;"
+                    }
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use the accessory name as a prefix",
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeBackupLevelSummarySensors[arrayIndices[1]].displayType > 0;"
+                    }
+                  }
+                },
+                "required": [
+                  "displayType",
+                  "compareMode"
+                ]
               }
             },
             "enchargeBackupLevelAccessory": {
@@ -1977,8 +2232,7 @@
                       ]
                     }
                   ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  "description": "Accessory type for Home app"
                 },
                 "minSoc": {
                   "title": "Minimum SoC",
@@ -1988,7 +2242,6 @@
                   "multipleOf": 1,
                   "default": 0,
                   "description": "Minimum SoC level in (%) for encharge backup level.",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelAccessory.displayType > 0"
                   }
@@ -1998,12 +2251,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeBackupLevelAccessory.displayType > 0"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "enchargeProfileControls": {
               "title": "Profile Control",
@@ -2017,6 +2272,7 @@
                     "minimum": 0,
                     "maximum": 1,
                     "default": 0,
+                    "description": "Accessory type in Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -2030,24 +2286,25 @@
                           1
                         ]
                       }
-                    ],
-                    "description": "Accessory type in Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Accessory name",
                     "description": "Accessory name for Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeProfileControls[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "profile": {
                     "title": "Profile",
                     "type": "string",
                     "default": "backup",
+                    "description": "Here select the profile.",
                     "oneOf": [
                       {
-                        "title": "Savings",
+                        "title": "Savings Mode",
                         "enum": [
                           "savings-mode"
                         ]
@@ -2069,31 +2326,35 @@
                         "enum": [
                           "self-consumption"
                         ]
-                      },
-                      {
-                        "title": "Grid Tied",
-                        "enum": [
-                          "grid-tied"
-                        ]
-                      },
-                      {
-                        "title": "Grid Forming",
-                        "enum": [
-                          "grid-forming"
-                        ]
                       }
                     ],
-                    "description": "Here select the profile.",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeProfileControls[arrayIndices[1]].displayType > 0;"
+                    }
+                  },
+                  "chargeFromGrid": {
+                    "title": "Charge From Grid",
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Here allow charge from grid",
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeProfileControls[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeProfileControls[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "profile"
+                ]
               }
             },
             "enchargeProfileSensors": {
@@ -2108,6 +2369,7 @@
                     "minimum": 0,
                     "maximum": 1,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -2133,24 +2395,25 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeProfileSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "profile": {
                     "title": "Profile",
                     "type": "string",
                     "default": "backup",
+                    "description": "Here select the profile.",
                     "oneOf": [
                       {
-                        "title": "Savings",
+                        "title": "Savings Mode",
                         "enum": [
                           "savings-mode"
                         ]
@@ -2172,31 +2435,26 @@
                         "enum": [
                           "self-consumption"
                         ]
-                      },
-                      {
-                        "title": "Grid Tied",
-                        "enum": [
-                          "grid-tied"
-                        ]
-                      },
-                      {
-                        "title": "Grid Forming",
-                        "enum": [
-                          "grid-forming"
-                        ]
                       }
                     ],
-                    "description": "Here select the profile.",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeProfileSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeProfileSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "profile"
+                ]
               }
             },
             "enchargeStateSensor": {
@@ -2235,15 +2493,13 @@
                       ]
                     }
                   ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  "description": "Accessory type for Home app"
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeStateSensor.displayType > 0;"
                   }
@@ -2253,12 +2509,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeStateSensor.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "enchargeGridStateSensor": {
               "title": "Grid State Sensor",
@@ -2296,15 +2554,13 @@
                       ]
                     }
                   ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  "description": "Accessory type for Home app"
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeGridStateSensor.displayType > 0;"
                   }
@@ -2314,12 +2570,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].enchargeGridStateSensor.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "enchargeGridModeSensors": {
               "title": "Encharge Grid Sensors",
@@ -2333,6 +2591,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -2358,21 +2617,22 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "gridMode": {
                     "title": "Mode",
                     "type": "string",
                     "default": "on-grid",
+                    "description": "Here select the grid mode.",
                     "oneOf": [
                       {
                         "title": "Grid On",
@@ -2411,132 +2671,24 @@
                         ]
                       }
                     ],
-                    "description": "Here select the grid mode.",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].enchargeGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
-              }
-            },
-            "enchargeBackupLevelSensors": {
-              "title": "Encharge Backup Level Sensors",
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "displayType": {
-                    "title": "Accessory type",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 3,
-                    "default": 0,
-                    "oneOf": [
-                      {
-                        "title": "None/Disabled",
-                        "enum": [
-                          0
-                        ]
-                      },
-                      {
-                        "title": "Motion Sensor",
-                        "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "Occupancy Sensor",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "Contact Sensor",
-                        "enum": [
-                          3
-                        ]
-                      }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
-                  },
-                  "name": {
-                    "title": "Accessory name",
-                    "type": "string",
-                    "placeholder": "Sensor name",
-                    "description": "Name for the sensor accessory in the Home app",
-                    "required": false
-                  },
-                  "compareMode": {
-                    "title": "Comparison mode",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 5,
-                    "default": 0,
-                    "oneOf": [
-                      {
-                        "title": ">",
-                        "enum": [
-                          0
-                        ]
-                      },
-                      {
-                        "title": ">=",
-                        "enum": [
-                          1
-                        ]
-                      },
-                      {
-                        "title": "==",
-                        "enum": [
-                          2
-                        ]
-                      },
-                      {
-                        "title": "<",
-                        "enum": [
-                          3
-                        ]
-                      },
-                      {
-                        "title": "<=",
-                        "enum": [
-                          4
-                        ]
-                      },
-                      {
-                        "title": "!=",
-                        "enum": [
-                          5
-                        ]
-                      }
-                    ],
-                    "description": "Comparison mode",
-                    "required": true
-                  },
-                  "backupLevel": {
-                    "title": "Level",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 100,
-                    "multipleOf": 1,
-                    "default": 100,
-                    "description": "Backup level in (%) to compare to sensor that was triggered",
-                    "required": false
-                  },
-                  "namePrefix": {
-                    "title": "Prefix",
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Use the accessory name as a prefix",
-                    "required": false
-                  }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "gridMode"
+                ]
               }
             },
             "solarGridStateSensor": {
@@ -2575,15 +2727,13 @@
                       ]
                     }
                   ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  "description": "Accessory type for Home app"
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].solarGridStateSensor.displayType > 0;"
                   }
@@ -2593,12 +2743,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].solarGridStateSensor.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "solarGridModeSensors": {
               "title": "Solar Grid Sensors",
@@ -2612,6 +2764,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -2637,21 +2790,22 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].solarGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "gridMode": {
                     "title": "Mode",
                     "type": "string",
                     "default": "on-grid",
+                    "description": "Grid mode",
                     "oneOf": [
                       {
                         "title": "Grid On",
@@ -2690,17 +2844,24 @@
                         ]
                       }
                     ],
-                    "description": "Grid mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].solarGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].solarGridModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "gridMode"
+                ]
               }
             },
             "generatorStateControl": {
@@ -2739,15 +2900,13 @@
                       ]
                     }
                   ],
-                  "description": "Accessory type in Home app",
-                  "required": true
+                  "description": "Accessory type in Home app"
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name for Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].generatorStateControl.displayType > 0;"
                   }
@@ -2757,12 +2916,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].generatorStateControl.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "generatorStateSensor": {
               "title": "State Sensor",
@@ -2800,15 +2961,13 @@
                       ]
                     }
                   ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  "description": "Accessory type for Home app"
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].generatorStateSensor.displayType > 0;"
                   }
@@ -2818,12 +2977,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].generatorStateSensor.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "generatorModeControls": {
               "title": "Mode Control",
@@ -2837,6 +2998,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type in Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -2862,21 +3024,22 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type in Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Mode name",
                     "description": "Accessory name for Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].generatorModeControls[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "mode": {
                     "title": "Mode",
                     "type": "string",
                     "default": "off",
+                    "description": "Mode",
                     "oneOf": [
                       {
                         "title": "Off",
@@ -2897,17 +3060,25 @@
                         ]
                       }
                     ],
-                    "description": "Mode",
-                    "required": true
+                    "required": true,
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].generatorModeControls[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].generatorModeControls[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "mode"
+                ]
               }
             },
             "generatorModeSensors": {
@@ -2922,6 +3093,7 @@
                     "minimum": 0,
                     "maximum": 3,
                     "default": 0,
+                    "description": "Accessory type for Home app",
                     "oneOf": [
                       {
                         "title": "None/Disabled",
@@ -2947,21 +3119,22 @@
                           3
                         ]
                       }
-                    ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    ]
                   },
                   "name": {
                     "title": "Accessory name",
                     "type": "string",
                     "placeholder": "Sensor name",
                     "description": "Name for the sensor accessory in the Home app",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].generatorModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "mode": {
                     "title": "Mode",
                     "type": "string",
                     "default": "off",
+                    "description": "Mode",
                     "oneOf": [
                       {
                         "title": "Off",
@@ -2982,17 +3155,24 @@
                         ]
                       }
                     ],
-                    "description": "Mode",
-                    "required": true
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].generatorModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   },
                   "namePrefix": {
                     "title": "Prefix",
                     "type": "boolean",
                     "default": false,
                     "description": "Use the accessory name as a prefix",
-                    "required": false
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].generatorModeSensors[arrayIndices[1]].displayType > 0;"
+                    }
                   }
-                }
+                },
+                "required": [
+                  "displayType",
+                  "mode"
+                ]
               }
             },
             "dataRefreshControl": {
@@ -3005,6 +3185,7 @@
                   "minimum": 0,
                   "maximum": 3,
                   "default": 0,
+                  "description": "Accessory type in Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -3030,16 +3211,13 @@
                         3
                       ]
                     }
-                  ],
-                  "description": "Accessory type in Home app",
-                  "required": true
+                  ]
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Accessory name",
                   "description": "Accessory name for Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].dataRefreshControl.displayType > 0;"
                   }
@@ -3049,12 +3227,14 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].dataRefreshControl.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "dataRefreshSensor": {
               "title": "Data Refresh Sensor",
@@ -3066,6 +3246,7 @@
                   "minimum": 0,
                   "maximum": 3,
                   "default": 0,
+                  "description": "Accessory type for Home app",
                   "oneOf": [
                     {
                       "title": "None/Disabled",
@@ -3091,16 +3272,13 @@
                         3
                       ]
                     }
-                  ],
-                  "description": "Accessory type for Home app",
-                  "required": true
+                  ]
                 },
                 "name": {
                   "title": "Accessory name",
                   "type": "string",
                   "placeholder": "Sensor name",
                   "description": "Name for the sensor accessory in the Home app",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].dataRefreshSensor.displayType > 0;"
                   }
@@ -3110,85 +3288,89 @@
                   "type": "boolean",
                   "default": false,
                   "description": "Use the accessory name as a prefix",
-                  "required": false,
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].dataRefreshSensor.displayType > 0;"
                   }
                 }
-              }
+              },
+              "required": [
+                "displayType"
+              ]
             },
             "productionDataRefreshTime": {
-              "title": "Production Refresh Time",
+              "title": "Production",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
               "default": 10,
-              "description": "Production data refresh time (seconds)",
-              "required": false
+              "description": "Production data refresh time (seconds)"
             },
             "liveDataRefreshTime": {
-              "title": "Live Data Refresh Time",
+              "title": "Live Data",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
               "default": 5,
               "description": "Live data refresh time (seconds)",
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode > 0;"
               }
             },
             "ensembleDataRefreshTime": {
-              "title": "Ensemble Refresh Time",
+              "title": "Ensemble",
               "type": "number",
               "minimum": 0.5,
               "maximum": 60,
               "multipleOf": 0.5,
               "default": 15,
               "description": "Ensemble data refresh time (seconds)",
-              "required": false,
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode > 0;"
               }
             },
-            "disableLogDeviceInfo": {
-              "title": "Disable Log Device Info",
-              "type": "boolean",
-              "default": false,
-              "description": "Disable logging device info for every connected device to the network",
-              "required": false
-            },
-            "disableLogInfo": {
-              "title": "Disable Log Info",
-              "type": "boolean",
-              "default": false,
-              "required": false
-            },
-            "disableLogSuccess": {
-              "title": "Disable Log Success",
-              "type": "boolean",
-              "default": false,
-              "required": false
-            },
-            "disableLogWarn": {
-              "title": "Disable Log Warn",
-              "type": "boolean",
-              "default": false,
-              "required": false
-            },
-            "disableLogError": {
-              "title": "Disable Log Error",
-              "type": "boolean",
-              "default": false,
-              "required": false
-            },
-            "enableDebugMode": {
-              "title": "Enable Log Debug",
-              "type": "boolean",
-              "default": false,
-              "required": false
+            "log": {
+              "title": "Log",
+              "type": "object",
+              "properties": {
+                "deviceInfo": {
+                  "title": "Device Info",
+                  "type": "boolean",
+                  "default": true,
+                  "description": "This enable log level device info, will display overall device info by every connect to the network"
+                },
+                "success": {
+                  "title": "Success",
+                  "type": "boolean",
+                  "default": true,
+                  "description": "This enable log level success"
+                },
+                "info": {
+                  "title": "Info",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "This enable log level info"
+                },
+                "warn": {
+                  "title": "Warn",
+                  "type": "boolean",
+                  "default": true,
+                  "description": "This enable log level warn"
+                },
+                "error": {
+                  "title": "Error",
+                  "type": "boolean",
+                  "default": true,
+                  "description": "This enable log level error"
+                },
+                "debug": {
+                  "title": "Debug",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "This enable log level debug"
+                }
+              }
             },
             "restFul": {
               "title": "RESTFul",
@@ -3200,16 +3382,6 @@
                   "default": false,
                   "description": "Enable REST service"
                 },
-                "debug": {
-                  "title": "Debug",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Enable debug mode for REST service",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].restFul.enable === true;"
-                  },
-                  "required": false
-                },
                 "port": {
                   "title": "TCP port",
                   "type": "integer",
@@ -3217,8 +3389,7 @@
                   "description": "TCP listening port for REST service",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].restFul.enable === true;"
-                  },
-                  "required": false
+                  }
                 }
               }
             },
@@ -3230,93 +3401,87 @@
                   "title": "Enable",
                   "type": "boolean",
                   "default": false,
-                  "description": "Enable MQTT broker"
-                },
-                "debug": {
-                  "title": "Debug",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Enable debug mode for MQTT broker",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
-                  },
-                  "required": false
+                  "description": "Enable MQTT service"
                 },
                 "host": {
-                  "title": "IP/hostname",
+                  "title": "IP/Hostname",
                   "type": "string",
-                  "placeholder": "IP or hostname",
+                  "placeholder": "ip or hostname",
                   "format": "hostname",
-                  "description": "IP or hostname of MQTT broker",
+                  "description": "Here set the IP/Hostname of MQTT Broker.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
-                  },
-                  "required": false
+                  }
                 },
                 "port": {
-                  "title": "TCP port",
+                  "title": "Port",
                   "type": "integer",
                   "placeholder": 1883,
-                  "description": "TCP port forf MQTT broker",
+                  "description": "Here set the port of MQTT Broker.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
-                  },
-                  "required": false
+                  }
                 },
                 "clientId": {
                   "title": "Client ID",
                   "type": "string",
-                  "placeholder": "Client ID",
-                  "description": "Optional Client ID for MQTT broker",
+                  "placeholder": "client id",
+                  "description": "Here optional set the Client ID of MQTT Broker.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true"
-                  },
-                  "required": false
+                  }
                 },
                 "prefix": {
                   "title": "Prefix",
                   "type": "string",
-                  "placeholder": "home/envoy",
-                  "description": "Prefix",
+                  "placeholder": "home",
+                  "description": "Here set the prefix.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
-                  },
-                  "required": false
+                  }
                 },
                 "auth": {
                   "title": "Authorization",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Enable authorization for MQTT broker",
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "title": "Enable",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "This enable authorization for MQTT Broker."
+                    },
+                    "user": {
+                      "title": "User",
+                      "type": "string",
+                      "placeholder": "user",
+                      "description": "Here set the user of MQTT Broker.",
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].mqtt.auth.enable === true;"
+                      }
+                    },
+                    "passwd": {
+                      "title": "Password",
+                      "type": "string",
+                      "placeholder": "password",
+                      "description": "Here set the password of MQTT Broker.",
+                      "format": "password",
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].mqtt.auth.enable === true;"
+                      }
+                    }
+                  },
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
-                  },
-                  "required": false
-                },
-                "user": {
-                  "title": "User",
-                  "type": "string",
-                  "placeholder": "user",
-                  "description": "User for MQTT broker",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].mqtt.enable === true && model.devices[arrayIndices].mqtt.auth === true;"
-                  },
-                  "required": false
-                },
-                "passwd": {
-                  "title": "Password",
-                  "type": "string",
-                  "placeholder": "password",
-                  "description": "Password for MQTT broker",
-                  "format": "password",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].mqtt.enable === true && model.devices[arrayIndices].mqtt.auth === true;"
-                  },
-                  "required": false
+                  }
                 }
               }
             }
-          }
+          },
+          "required": [
+            "name",
+            "displayType",
+            "envoyFirmware7xxTokenGenerationMode"
+          ]
         }
       }
     }
@@ -3373,7 +3538,7 @@
                   "key": "devices[]",
                   "title": "Envoy",
                   "items": [
-                    "devices[].lockControl",
+                    "devices[].energyMeter",
                     {
                       "key": "devices[]",
                       "type": "tabarray",
@@ -3417,6 +3582,52 @@
                                 "devices[].plcLevelControl.namePrefix"
                               ]
                             }
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "type": "section",
+                          "title": "Data Refresh",
+                          "items": [
+                            "devices[].productionDataRefreshTime",
+                            "devices[].liveDataRefreshTime",
+                            "devices[].ensembleDataRefreshTime",
+                            {
+                              "key": "devices[].dataRefreshControl",
+                              "type": "section",
+                              "title": "Control",
+                              "description": "Section for enabling additional accessory for data refresh control",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].dataRefreshControl.displayType",
+                                "devices[].dataRefreshControl.name",
+                                "devices[].dataRefreshControl.namePrefix"
+                              ]
+                            },
+                            {
+                              "key": "devices[].dataRefreshSensor",
+                              "type": "section",
+                              "title": "Sensor",
+                              "description": "Section for enabling sensor for data refresh monitoring",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].dataRefreshSensor.displayType",
+                                "devices[].dataRefreshSensor.name",
+                                "devices[].dataRefreshSensor.namePrefix"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "type": "section",
+                          "title": "System Control",
+                          "items": [
+                            "devices[].lockControl",
+                            "devices[].lockControlPrefix",
+                            "devices[].lockControlTime"
                           ]
                         }
                       ]
@@ -3949,15 +4160,15 @@
                                       "expanded": false,
                                       "items": [
                                         {
-                                          "key": "devices[].enchargeBackupLevelSensors",
+                                          "key": "devices[].enchargeBackupLevelSummarySensors",
                                           "type": "tabarray",
                                           "title": "{{ value.name || 'sensor' }}",
                                           "items": [
-                                            "devices[].enchargeBackupLevelSensors[].displayType",
-                                            "devices[].enchargeBackupLevelSensors[].name",
-                                            "devices[].enchargeBackupLevelSensors[].compareMode",
-                                            "devices[].enchargeBackupLevelSensors[].backupLevel",
-                                            "devices[].enchargeBackupLevelSensors[].namePrefix"
+                                            "devices[].enchargeBackupLevelSummarySensors[].displayType",
+                                            "devices[].enchargeBackupLevelSummarySensors[].name",
+                                            "devices[].enchargeBackupLevelSummarySensors[].compareMode",
+                                            "devices[].enchargeBackupLevelSummarySensors[].backupLevel",
+                                            "devices[].enchargeBackupLevelSummarySensors[].namePrefix"
                                           ]
                                         }
                                       ]
@@ -3978,14 +4189,15 @@
                                       "expanded": false,
                                       "items": [
                                         {
-                                          "key": "devices[].enchargeProfileControl",
+                                          "key": "devices[].enchargeProfileControls",
                                           "type": "tabarray",
                                           "title": "{{ value.name || 'control' }}",
                                           "items": [
-                                            "devices[].enchargeProfileControl[].displayType",
-                                            "devices[].enchargeProfileControl[].name",
-                                            "devices[].enchargeProfileControl[].profile",
-                                            "devices[].enchargeProfileControl[].namePrefix"
+                                            "devices[].enchargeProfileControls[].displayType",
+                                            "devices[].enchargeProfileControls[].name",
+                                            "devices[].enchargeProfileControls[].profile",
+                                            "devices[].enchargeProfileControls[].chargeFromGrid",
+                                            "devices[].enchargeProfileControls[].namePrefix"
                                           ]
                                         }
                                       ]
@@ -4224,68 +4436,17 @@
                   ]
                 },
                 {
-                  "key": "devices[]",
-                  "title": "System",
+                  "key": "devices[].log",
+                  "type": "section",
+                  "title": "Log",
+                  "description": "Section for enable/disable individual log.",
                   "items": [
-                    {
-                      "key": "devices[]",
-                      "type": "tabarray",
-                      "title": "{{ value.title }}",
-                      "items": [
-                        {
-                          "key": "devices[]",
-                          "type": "section",
-                          "title": "Log",
-                          "description": "Section for enable/disable individual log.",
-                          "expandable": true,
-                          "expanded": false,
-                          "items": [
-                            "devices[].disableLogDeviceInfo",
-                            "devices[].disableLogInfo",
-                            "devices[].disableLogSuccess",
-                            "devices[].disableLogWarn",
-                            "devices[].disableLogError",
-                            "devices[].enableDebugMode"
-                          ]
-                        },
-                        {
-                          "key": "devices[]",
-                          "type": "section",
-                          "title": "Data Refresh",
-                          "items": [
-                            "devices[].productionDataRefreshTime",
-                            "devices[].liveDataRefreshTime",
-                            "devices[].ensembleDataRefreshTime",
-                            {
-                              "key": "devices[].dataRefreshControl",
-                              "type": "section",
-                              "title": "Control",
-                              "description": "Section for enabling additional accessory for data refresh control",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].dataRefreshControl.displayType",
-                                "devices[].dataRefreshControl.name",
-                                "devices[].dataRefreshControl.namePrefix"
-                              ]
-                            },
-                            {
-                              "key": "devices[].dataRefreshSensor",
-                              "type": "section",
-                              "title": "Sensor",
-                              "description": "Section for enabling sensor for data refresh monitoring",
-                              "expandable": true,
-                              "expanded": false,
-                              "items": [
-                                "devices[].dataRefreshSensor.displayType",
-                                "devices[].dataRefreshSensor.name",
-                                "devices[].dataRefreshSensor.namePrefix"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
+                    "devices[].log.deviceInfo",
+                    "devices[].log.success",
+                    "devices[].log.info",
+                    "devices[].log.warn",
+                    "devices[].log.error",
+                    "devices[].log.debug"
                   ]
                 },
                 {
@@ -4302,7 +4463,6 @@
                           "title": "RESTFul",
                           "items": [
                             "devices[].restFul.enable",
-                            "devices[].restFul.debug",
                             "devices[].restFul.port"
                           ]
                         },
@@ -4311,16 +4471,21 @@
                           "title": "MQTT",
                           "items": [
                             "devices[].mqtt.enable",
-                            "devices[].mqtt.debug",
                             "devices[].mqtt.host",
                             "devices[].mqtt.port",
                             "devices[].mqtt.clientId",
                             "devices[].mqtt.prefix",
-                            "devices[].mqtt.auth",
-                            "devices[].mqtt.user",
                             {
-                              "key": "devices[].mqtt.passwd",
-                              "type": "password"
+                              "key": "devices[].mqtt.auth",
+                              "title": "Authorization",
+                              "items": [
+                                "devices[].mqtt.auth.enable",
+                                "devices[].mqtt.auth.user",
+                                {
+                                  "key": "devices[].mqtt.auth.passwd",
+                                  "type": "password"
+                                }
+                              ]
                             }
                           ]
                         }
