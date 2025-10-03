@@ -1184,7 +1184,7 @@ class EnvoyDevice extends EventEmitter {
                     set = this.feature.inventory.esubs.generator.installed ? await this.setGeneratorMode(value) : false;
                     break;
                 default:
-                    this.emit('warn', `${integration}, received key: ${key}, value: ${value}`);
+                    if (this.logWarn) this.emit('warn' `${integration}, received key: ${key}, value: ${value}`);
                     break;
             }
             return set;
@@ -1211,7 +1211,7 @@ class EnvoyDevice extends EventEmitter {
                         try {
                             await this.setOverExternalIntegration('RESTFul', key, value);
                         } catch (error) {
-                            this.emit('warn', `RESTFul set error: ${error}`);
+                            if (this.logWarn) this.emit('warn' `RESTFul set error: ${error}`);
                         };
                     })
                     .on('debug', (debug) => this.emit('debug', debug))
@@ -1242,7 +1242,7 @@ class EnvoyDevice extends EventEmitter {
                         try {
                             await this.setOverExternalIntegration('MQTT', key, value);
                         } catch (error) {
-                            this.emit('warn', `MQTT set, error: ${error}`);
+                            if (this.logWarn)  this.emit('warn' `MQTT set, error: ${error}`);
                         };
                     })
                     .on('debug', (debug) => this.emit('debug', debug))
@@ -1252,7 +1252,7 @@ class EnvoyDevice extends EventEmitter {
 
             return true;
         } catch (error) {
-            this.emit('warn', `External integration start error: ${error}`);
+            if (this.logWarn)  this.emit('warn' `External integration start error: ${error}`);
         }
     }
 

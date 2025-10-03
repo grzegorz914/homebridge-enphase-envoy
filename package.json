@@ -2,7 +2,7 @@
     "private": false,
     "displayName": "Enphase Envoy",
     "name": "homebridge-enphase-envoy",
-    "version": "10.2.0-beta.471",
+    "version": "10.2.0",
     "description": "Homebridge p7ugin for Photovoltaic Energy System manufactured by Enphase.",
     "license": "MIT",
     "author": "grzegorz914",
@@ -38,7 +38,7 @@
         "async-mqtt": "^2.6.3",
         "axios": "^1.12.2",
         "express": "^5.1.0",
-        "fast-xml-parser": "^5.2.5",
+        "fast-xml-parser": "^5.3.0",
         "fakegato-history": "^0.6.7"
     },
     "keywords": [

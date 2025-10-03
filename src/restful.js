@@ -6,7 +6,7 @@ const DEFAULT_MESSAGE = 'This data is not available in your system.';
 class RestFul extends EventEmitter {
     constructor(config) {
         super();
-        this.restFulPort = config.port;
+        this.port = config.port;
         this.logWarn = config.logWarn;
         this.logDebug = config.logDebug;
 
@@ -95,8 +95,8 @@ class RestFul extends EventEmitter {
                 }
             });
 
-            app.listen(this.restFulPort, () => {
-                this.emit('connected', `RESTful started on port: ${this.restFulPort}`);
+            app.listen(this.port, () => {
+                this.emit('connected', `RESTful started on port: ${this.port}`);
             });
         } catch (error) {
             if (this.logWarn) this.emit('warn', `RESTful Connect error: ${error}`);

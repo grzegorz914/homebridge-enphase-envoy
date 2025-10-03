@@ -13,19 +13,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changes
 
-- added encharge profile controls option to allow charge from grid
+- fix encharge profile control UI interface
+- fix [#205](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/205)
+- fix [#206](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/206)
+- fix [#207](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/207)
+- fix [#209](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/209)
+- fix [#211](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/211)
+- workaround for [#210](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/210), envoy firmware issue
+- prepare to add encharge profile controls option to allow charge from grid
 - added configurable system auto lock time
 - added EVE energy monitor option (need to be paired as a separate accessory)
 - added support for EVSE, PV3P, BackFeed meters
 - added support for C6 Combiner Controller, C6 RGM, IQ Meter Collar
-- fix encharge profile control UI interface
-- fix [#206](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/206)
-- fix [#205](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/205)
-- fix [#209](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/209)
-- workaround for [#210](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/210), envoy firmware issue
 - refactor code of ensemble section
 - stability and improvements
 - config UI updated
+- bump dependencies
+- redme updated
 - cleanup
 
 ## [10.1.0] - (01.07.2025)
