@@ -3382,15 +3382,6 @@
                   "default": false,
                   "description": "Enable REST service"
                 },
-                "debug": {
-                  "title": "Debug",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Enable debug mode for REST service",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].restFul.enable === true;"
-                  }
-                },
                 "port": {
                   "title": "TCP port",
                   "type": "integer",
@@ -3445,15 +3436,6 @@
                   "type": "string",
                   "placeholder": "home",
                   "description": "Here set the prefix.",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
-                  }
-                },
-                "debug": {
-                  "title": "Debug",
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Enable debug mode for MQTT service",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
                   }
@@ -4481,8 +4463,7 @@
                           "title": "RESTFul",
                           "items": [
                             "devices[].restFul.enable",
-                            "devices[].restFul.port",
-                            "devices[].restFul.debug"
+                            "devices[].restFul.port"
                           ]
                         },
                         {
@@ -4494,7 +4475,6 @@
                             "devices[].mqtt.port",
                             "devices[].mqtt.clientId",
                             "devices[].mqtt.prefix",
-                            "devices[].mqtt.debug",
                             {
                               "key": "devices[].mqtt.auth",
                               "title": "Authorization",

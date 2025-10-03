@@ -105,6 +105,7 @@ class EnvoyDevice extends EventEmitter {
         this.logDeviceInfo = device.log?.deviceInfo || true;
         this.logInfo = device.log?.info || false;
         this.logWarn = device.log?.warn || true;
+        this.logError = device.log?.error || true;
         this.logDebug = device.log?.debug || false;
 
         //external integrations
@@ -592,6 +593,7 @@ class EnvoyDevice extends EventEmitter {
         this.envoyIdFile = envoyIdFile;
         this.envoyTokenFile = envoyTokenFile;
         this.checkTokenRunning = false;
+        this.dataSampling = false;
 
         //url
         this.url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${this.host}` : `http://${this.host}`;
@@ -901,8 +903,7 @@ class EnvoyDevice extends EventEmitter {
             },
             backboneApp: {
                 supported: false
-            },
-            dataSampling: false
+            }
         };
 
         //pv object
@@ -1020,22 +1021,19 @@ class EnvoyDevice extends EventEmitter {
             }))
             .on('state', async (state) => {
                 this.emit(state ? 'success' : 'warn', `Impulse generator ${state ? 'started' : 'stopped'}`);
-                this.feature.dataSampling = state;
+                this.dataSampling = state;
 
                 if (this.dataRefreshActiveControl) {
                     this.dataRefreshActiveControl.state = state;
-                    this.dataRefreshControlService
-                        ?.updateCharacteristic(this.dataRefreshActiveControl.characteristicType, state);
+                    this.dataRefreshControlService?.updateCharacteristic(this.dataRefreshActiveControl.characteristicType, state);
                 }
 
                 if (this.dataRefreshActiveSensor) {
                     this.dataRefreshActiveSensor.state = state;
-                    this.dataRefreshSensorService
-                        ?.updateCharacteristic(this.dataRefreshActiveSensor.characteristicType, state);
+                    this.dataRefreshSensorService?.updateCharacteristic(this.dataRefreshActiveSensor.characteristicType, state);
                 }
 
-                this.envoyService
-                    ?.updateCharacteristic(Characteristic.DataSampling, state);
+                this.envoyService?.updateCharacteristic(Characteristic.DataSampling, state);
 
                 this.restFulConnected && this.restFul1.update('datasampling', { state });
                 this.mqttConnected && this.mqtt1.emit('publish', 'Data Sampling', { state });
@@ -1070,7 +1068,7 @@ class EnvoyDevice extends EventEmitter {
             this.feature.info.tokenValid = false;
             return;
         }
-        this.emit('error', `Impulse generator: ${error}`);
+        if (this.logError) this.emit('error', `Impulse generator: ${error}`);
     }
 
     isValidValue(v) {
@@ -1162,7 +1160,7 @@ class EnvoyDevice extends EventEmitter {
             let set = false
             switch (key) {
                 case 'DataSampling':
-                    set = value !== this.feature.dataSampling ? value ? await this.impulseGenerator.start(this.timers) : await this.impulseGenerator.stop() : false;
+                    set = value !== this.dataSampling ? value ? await this.impulseGenerator.start(this.timers) : await this.impulseGenerator.stop() : false;
                     break;
                 case 'ProductionState':
                     set = this.feature.productionState.supported ? await this.setProductionState(value) : false;
@@ -1202,7 +1200,8 @@ class EnvoyDevice extends EventEmitter {
             if (restFulEnabled) {
                 this.restFul1 = new RestFul({
                     port: this.restFul.port || 3000,
-                    debug: this.restFul.debug || false
+                    logWarn: this.logWarn,
+                    logDebug: this.logDebug,
                 })
                     .on('connected', (success) => {
                         this.restFulConnected = true;
@@ -1229,7 +1228,8 @@ class EnvoyDevice extends EventEmitter {
                     prefix: this.mqtt.prefix ? `enphase/${this.mqtt.prefix}/${this.name}` : `enphase/${this.name}`,
                     user: this.mqtt.auth?.user,
                     passwd: this.mqtt.auth?.passwd,
-                    debug: this.mqtt.debug || false
+                    logWarn: this.logWarn,
+                    logDebug: this.logDebug
                 })
                     .on('connected', (success) => {
                         this.mqttConnected = true;
@@ -1454,7 +1454,9 @@ class EnvoyDevice extends EventEmitter {
             const envoyToken = new EnvoyToken({
                 user: this.enlightenUser,
                 passwd: this.enlightenPassword,
-                serialNumber: this.pv.info.serialNumber
+                serialNumber: this.pv.info.serialNumber,
+                logWarn: this.logWarn,
+                logError: this.logError,
             })
                 .on('success', message => this.emit('success', message))
                 .on('warn', warn => this.emit('warn', warn))
@@ -1482,7 +1484,7 @@ class EnvoyDevice extends EventEmitter {
             try {
                 await this.saveData(this.envoyTokenFile, tokenData);
             } catch (error) {
-                this.emit('error', `Save token error: ${error}`);
+                if (this.logError) this.emit('error', `Save token error: ${error}`);
             }
 
             return true;
@@ -1641,7 +1643,7 @@ class EnvoyDevice extends EventEmitter {
             try {
                 await this.saveData(this.envoyIdFile, envoyDevId);
             } catch (error) {
-                this.emit('error', `Save envoy dev Id error: ${error}`);
+                if (this.logError) this.emit('error', `Save envoy dev Id error: ${error}`);
             }
 
             // Set in-memory values
@@ -5808,7 +5810,7 @@ class EnvoyDevice extends EventEmitter {
                 try {
                     await this.setLiveDataStream();
                 } catch (error) {
-                    this.emit('error', error);
+                    if (this.logError) this.emit('error', error);
                 }
             }
 
@@ -6300,7 +6302,7 @@ class EnvoyDevice extends EventEmitter {
                 sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                 sensorService.getCharacteristic(characteristicType)
                     .onGet(async () => {
-                        const state = this.feature.dataSampling;
+                        const state = this.dataSampling;
                         if (this.logInfo) this.emit('info', `Data refresh sensor: ${state ? 'Active' : 'Not active'}`);
                         return state;
                     });
@@ -6423,7 +6425,7 @@ class EnvoyDevice extends EventEmitter {
                 service.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${envoySerialNumber}`);
                 service.getCharacteristic(Characteristic.DataSampling)
                     .onGet(async () => {
-                        const state = this.feature.dataSampling;
+                        const state = this.dataSampling;
                         if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, data refresh control: ${state ? 'Enabled' : 'Disabled'}`);
                         return state;
                     })

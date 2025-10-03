@@ -39,6 +39,7 @@ class EnergyMeter extends EventEmitter {
         this.logDeviceInfo = device.log?.deviceInfo || true;
         this.logInfo = device.log?.info || false;
         this.logWarn = device.log?.warn || true;
+        this.logError = device.log?.error || true;
         this.logDebug = device.log?.debug || false;
 
         //setup variables
@@ -255,7 +256,7 @@ class EnergyMeter extends EventEmitter {
             this.feature.tokenValid = false;
             return;
         }
-        this.emit('error', `Impulse generator: ${error}`);
+        if (this.logError) this.emit('error', `Impulse generator: ${error}`);
     }
 
     scaleValue(value, inMin, inMax, outMin, outMax) {
@@ -501,7 +502,9 @@ class EnergyMeter extends EventEmitter {
             const envoyToken = new EnvoyToken({
                 user: this.enlightenUser,
                 passwd: this.enlightenPassword,
-                serialNumber: this.pv.info.serialNumber
+                serialNumber: this.pv.info.serialNumber,
+                logWarn: this.logWarn,
+                logError: this.logError,
             })
                 .on('success', message => this.emit('success', message))
                 .on('warn', warn => this.emit('warn', warn))
@@ -529,7 +532,7 @@ class EnergyMeter extends EventEmitter {
             try {
                 await this.saveData(this.envoyTokenFile, tokenData);
             } catch (error) {
-                this.emit('error', `Save token error: ${error}`);
+                if (this.logError) this.emit('error', `Save token error: ${error}`);
             }
 
             return true;

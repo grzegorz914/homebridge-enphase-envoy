@@ -7,7 +7,8 @@ class RestFul extends EventEmitter {
     constructor(config) {
         super();
         this.restFulPort = config.port;
-        this.restFulDebug = config.debug;
+        this.logWarn = config.logWarn;
+        this.logDebug = config.logDebug;
 
         this.restFulData = {
             token: DEFAULT_MESSAGE,
@@ -76,7 +77,7 @@ class RestFul extends EventEmitter {
                 try {
                     const obj = req.body;
                     if (!obj || typeof obj !== 'object' || Object.keys(obj).length === 0) {
-                        this.emit('warn', 'RESTFul Invalid JSON payload');
+                        if (this.logWarn) this.emit('warn', 'RESTFul Invalid JSON payload');
                         return res.status(400).json({ error: 'RESTFul Invalid JSON payload' });
                     }
 
@@ -85,11 +86,11 @@ class RestFul extends EventEmitter {
                     this.emit('set', key, value);
                     this.update(key, value);
 
-                    if (this.restFulDebug) this.emit('debug', `RESTFul post data: ${JSON.stringify(obj, null, 2)}`);
+                    if (this.logDebug) this.emit('debug', `RESTFul post data: ${JSON.stringify(obj, null, 2)}`);
 
                     res.json({ success: true, received: obj });
                 } catch (error) {
-                    this.emit('warn', `RESTFul Parse error: ${error}`);
+                    if (this.logWarn) this.emit('warn', `RESTFul Parse error: ${error}`);
                     res.status(500).json({ error: 'RESTFul Internal Server Error' });
                 }
             });
@@ -98,16 +99,16 @@ class RestFul extends EventEmitter {
                 this.emit('connected', `RESTful started on port: ${this.restFulPort}`);
             });
         } catch (error) {
-            this.emit('warn', `RESTful Connect error: ${error}`);
+            if (this.logWarn) this.emit('warn', `RESTful Connect error: ${error}`);
         }
     }
 
     update(path, data) {
         if (this.restFulData.hasOwnProperty(path)) {
             this.restFulData[path] = data;
-            if (this.restFulDebug) this.emit('debug', `RESTFul update path: ${path}, data: ${JSON.stringify(data, null, 2)}`);
+            if (this.logDebug) this.emit('debug', `RESTFul update path: ${path}, data: ${JSON.stringify(data, null, 2)}`);
         } else {
-            this.emit('warn', `RESTFul update failed. Unknown path: "${path}". Valid paths: ${Object.keys(this.restFulData).join(', ')}`);
+            if (this.logWarn) this.emit('warn', `RESTFul update failed. Unknown path: "${path}". Valid paths: ${Object.keys(this.restFulData).join(', ')}`);
         }
     }
 }

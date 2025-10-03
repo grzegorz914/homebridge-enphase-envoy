@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
-## [10.2.0] - (xx.08.2025)
+## [10.2.0] - (04.10.2025)
 
 ## Changes
 

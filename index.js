@@ -117,11 +117,11 @@ class EnvoyPlatform {
                     await envoyDevice.startImpulseGenerator();
                   }
                 } catch (error) {
-                  if (logLevel.error) log.error(`Device: ${host} ${accessoryName}, ${error}, retrying.`);
+                  if (logLevel.error) log.error(`Device: ${host} ${accessoryName}, Start impulse generator error: ${error}, retrying.`);
                 }
               })
               .on('state', state => {
-                if (logLevel.debug) log.info(`Device: ${host} ${accessoryName}, Impulse generator ${state ? 'started' : 'stopped'}.`);
+                if (logLevel.debug) log.info(`Device: ${host} ${accessoryName}, Start impulse generator ${state ? 'started' : 'stopped'}.`);
               });
 
             // start impulse generator

@@ -9,6 +9,8 @@ class EnvoyToken extends EventEmitter {
         this.user = config.user;
         this.passwd = config.passwd;
         this.serialNumber = config.serialNumber;
+        this.logWarn = config.warn;
+        this.logError = config.error;
     }
 
     async refreshToken() {
@@ -49,13 +51,13 @@ class EnvoyToken extends EventEmitter {
             });
 
             if (response.status !== 200) {
-                this.emit('error', `Login failed with status code: ${response.status}`);
+               if (this.logError)  this.emit('error', `Login failed with status code: ${response.status}`);
                 return null;
             }
 
             const cookie = response.headers['set-cookie'];
             if (!cookie) {
-                this.emit('warn', `No cookie returned from login. Response headers: ${JSON.stringify(response.headers)}`);
+               if (this.logWarn)  this.emit('warn', `No cookie returned from login. Response headers: ${JSON.stringify(response.headers)}`);
                 return null;
             }
 
@@ -84,7 +86,7 @@ class EnvoyToken extends EventEmitter {
             const tokenData = response.data;
 
             if (!tokenData.token || !tokenData.expires_at || !tokenData.generation_time) {
-                this.emit('warn', `Incomplete token data: ${JSON.stringify(tokenData)}`);
+               if (this.logWarn)  this.emit('warn', `Incomplete token data: ${JSON.stringify(tokenData)}`);
                 return null;
             }
 

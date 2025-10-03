@@ -295,7 +295,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `restFul` | | key | REST service |
 | | `enable` | boolean | Enables REST service to start automatically and respond to any request |
 | | `port` | number | `Port` for REST service |
-| | `debug` | boolean | Enables verbose logging to the Homebridge console for REST service |
 | `mqtt` | | key | MQTT broker |
 | | `enable` | boolean | Enables MQTT broker to start automatically and publish available data |
 | | `host` | string | `IP Address` or `Hostname` for MQTT Broker |
@@ -305,7 +304,6 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | | `auth` | boolean | Enables MQTT broker authorization credentials |
 | | `user` | string | MQTT broker user |
 | | `passwd` | string | MQTT Broker password |
-| | `debug` | boolean | Enables verbose logging to the Homebridge console for the MQTT broker |
 
 ### REST Integration
 
