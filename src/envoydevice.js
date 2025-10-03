@@ -1242,7 +1242,7 @@ class EnvoyDevice extends EventEmitter {
                         try {
                             await this.setOverExternalIntegration('MQTT', key, value);
                         } catch (error) {
-                            if (this.logWarn)  this.emit('warn' `MQTT set, error: ${error}`);
+                            if (this.logWarn) this.emit('warn' `MQTT set, error: ${error}`);
                         };
                     })
                     .on('debug', (debug) => this.emit('debug', debug))
@@ -1252,7 +1252,7 @@ class EnvoyDevice extends EventEmitter {
 
             return true;
         } catch (error) {
-            if (this.logWarn)  this.emit('warn' `External integration start error: ${error}`);
+            if (this.logWarn) this.emit('warn' `External integration start error: ${error}`);
         }
     }
 
@@ -4066,7 +4066,7 @@ class EnvoyDevice extends EventEmitter {
                 if (this.logInfo) {
                     this.emit('info', `Power And Energy, ${obj.measurementType}, power: ${obj.powerKw} kW`);
                     this.emit('info', `Power And Energy, ${obj.measurementType}, power peak: ${obj.powerPeakKw} kW`);
-                    const emit = !this.feature.liveData.supported ? this.emit('info', `Power And Energy, ${obj.measurementType}, power level: ${obj.powerLevel} %`) : false;
+                    if (!this.feature.liveData.supported || !this.feature.meters.production.enabled) this.emit('info', `Power And Energy, ${obj.measurementType}, power level: ${obj.powerLevel} %`);
                     this.emit('info', `Power And Energy, ${obj.measurementType}, energy today: ${obj.energyTodayKw} kWh`);
                     this.emit('info', `Power And Energy, ${obj.measurementType}, energy last seven days: ${obj.energyLastSevenDaysKw} kWh`);
                     this.emit('info', `Power And Energy, ${obj.measurementType}, energy lifetime: ${obj.energyLifetimeKw} kWh`);
@@ -4151,7 +4151,7 @@ class EnvoyDevice extends EventEmitter {
                 };
 
                 // Update system accessory service
-                if (key === 'production' && this.isValidValue(obj.powerLevel) && !this.feature.liveData.supported) {
+                if (key === 'production' && this.isValidValue(obj.powerLevel) && (!this.feature.liveData.supported || !this.feature.meters.production.enabled)) {
                     const accessory = this.systemAccessory;
                     const { characteristicType, characteristicType1 } = accessory;
                     accessory.state = obj.powerState;
@@ -5589,10 +5589,6 @@ class EnvoyDevice extends EventEmitter {
             if (this.feature.meters.consumptionNet.enabled) activeDevices.push({ type: 'Consumption Net', meter: meters.grid });
             if (this.feature.meters.consumptionTotal.enabled) activeDevices.push({ type: 'Consumption Total', meter: meters.load });
             if (this.feature.meters.storage.enabled || this.pv.inventory.esubs.encharges.installed) activeDevices.push({ type: 'Storage', meter: meters.storage });
-            if (this.feature.meters.backfeed.enabled) activeDevices.push({ type: 'Back Feed', meter: meters.backfeed });
-            if (this.feature.meters.load.enabled) activeDevices.push({ type: 'Load', meter: meters.load });
-            if (this.feature.meters.evse.enabled) activeDevices.push({ type: 'EV Charger', meter: meters.evse });
-            if (this.feature.meters.pv3p.enabled) activeDevices.push({ type: 'PV 3p', meter: meters.load });
             if (this.feature.meters.generator.enabled) activeDevices.push({ type: 'Generator', meter: meters.generator });
             for (const [index, { type, meter }] of activeDevices.entries()) {
                 if (!meter) {
