@@ -42,6 +42,7 @@ class RestFul extends EventEmitter {
             ensembledata: DEFAULT_MESSAGE,
             gridprofile: DEFAULT_MESSAGE,
             livedata: DEFAULT_MESSAGE,
+            livedatadata: DEFAULT_MESSAGE,
             productionstate: DEFAULT_MESSAGE,
             plclevel: DEFAULT_MESSAGE,
             datasampling: DEFAULT_MESSAGE

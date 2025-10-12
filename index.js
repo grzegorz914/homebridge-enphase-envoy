@@ -5,7 +5,6 @@ import EnergyMeter from './src/energymeter.js';
 import ImpulseGenerator from './src/impulsegenerator.js';
 import { PluginName, PlatformName } from './src/constants.js';
 import CustomCharacteristics from './src/customcharacteristics.js';
-import fakegato from 'fakegato-history';
 
 class EnvoyPlatform {
   constructor(log, config, api) {
@@ -16,7 +15,6 @@ class EnvoyPlatform {
 
     this.log = log;
     this.accessories = [];
-    this.FakeGatoHistoryService = fakegato(api);
 
     const prefDir = join(api.user.storagePath(), 'enphaseEnvoy');
     try {
@@ -80,7 +78,7 @@ class EnvoyPlatform {
         const postFix = host.split('.').join('');
         const envoyIdFile = join(prefDir, `envoyId_${postFix}`);
         const envoyTokenFile = join(prefDir, `envoyToken_${postFix}`);
-        const energyMeterHistory = join(prefDir, `energyMeterHistory_${postFix}`);
+        const energyMeterHistoryFileName = `energyMeterHistory_${postFix}.json`;
 
         try {
           [envoyIdFile, envoyTokenFile].forEach(file => {
@@ -100,21 +98,21 @@ class EnvoyPlatform {
             const impulseGenerator = new ImpulseGenerator()
               .on('start', async () => {
                 try {
-                  const envoyDevice = new DeviceClass(api, accessoryName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device, energyMeterHistory, index === 1 ? this.FakeGatoHistoryService : undefined)
+                  const envoyDevice = new DeviceClass(api, accessoryName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device, prefDir, energyMeterHistoryFileName)
                     .on('devInfo', (info) => logLevel.devInfo && log.info(info))
-                    .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${deviceName}, ${msg}`))
-                    .on('info', (msg) => logLevel.info && log.info(`Device: ${host} ${deviceName}, ${msg}`))
-                    .on('debug', (msg, data) => logLevel.debug && log.info(`Device: ${host} ${deviceName}, debug: ${data ? `${msg} ${JSON.stringify(data, null, 2)}` : msg}`))
-                    .on('warn', (msg) => logLevel.warn && log.warn(`Device: ${host} ${deviceName}, ${msg}`))
-                    .on('error', (msg) => logLevel.error && log.error(`Device: ${host} ${deviceName}, ${msg}`));
+                    .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${accessoryName}, ${msg}`))
+                    .on('info', (msg) => logLevel.info && log.info(`Device: ${host} ${accessoryName}, ${msg}`))
+                    .on('debug', (msg, data) => logLevel.debug && log.info(`Device: ${host} ${accessoryName}, debug: ${data ? `${msg} ${JSON.stringify(data, null, 2)}` : msg}`))
+                    .on('warn', (msg) => logLevel.warn && log.warn(`Device: ${host} ${accessoryName}, ${msg}`))
+                    .on('error', (msg) => logLevel.error && log.error(`Device: ${host} ${accessoryName}, ${msg}`));
 
                   const accessory = await envoyDevice.start();
                   if (accessory) {
                     api.publishExternalAccessories(PluginName, [accessory]);
-                    if (logLevel.success) log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
+                    if (logLevel.success) log.success(`Device: ${host} ${accessoryName}, Published as external accessory.`);
 
                     await impulseGenerator.stop();
-                    await envoyDevice.startImpulseGenerator();
+                    await envoyDevice.startStopImpulseGenerator(true);
                   }
                 } catch (error) {
                   if (logLevel.error) log.error(`Device: ${host} ${accessoryName}, Start impulse generator error: ${error}, retrying.`);
@@ -125,7 +123,7 @@ class EnvoyPlatform {
               });
 
             // start impulse generator
-            await impulseGenerator.start([{ name: 'start', sampling: 90000 }]);
+            await impulseGenerator.start([{ name: 'start', sampling: 120000 }]);
           }
         } catch (error) {
           if (logLevel.error) log.error(`Device: ${host} ${deviceName}, Did finish launching error: ${error}`);
@@ -136,7 +134,6 @@ class EnvoyPlatform {
 
   configureAccessory(accessory) {
     accessory.log = this.log;
-    this.loggingService = new fakegato('energy', accessory, 4032);
     this.accessories.push(accessory);
   }
 }

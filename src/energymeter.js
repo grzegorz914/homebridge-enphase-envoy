@@ -1,15 +1,16 @@
-import { promises as fsPromises } from 'fs';
 import axios from 'axios';
 import { Agent } from 'https';
 import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
 import EventEmitter from 'events';
 import EnvoyToken from './envoytoken.js';
 import ImpulseGenerator from './impulsegenerator.js';
+import Functions from './functions.js';
 import { ApiUrls, PartNumbers, ApiCodes, MetersKeyMap } from './constants.js';
+import FakeGatoHistory from 'fakegato-history';
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnergyMeter extends EventEmitter {
-    constructor(api, log, deviceName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device, energyMeterHistory, FakeGatoHistoryService) {
+    constructor(api, deviceName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device, prefDir, energyMeterHistoryFileName) {
         super();
 
         Accessory = api.platformAccessory;
@@ -19,8 +20,6 @@ class EnergyMeter extends EventEmitter {
         AccessoryUUID = api.hap.uuid;
 
         //device configuration
-        this.log = log;
-        this.api = api;
         this.name = deviceName;
         this.host = host;
 
@@ -43,10 +42,14 @@ class EnergyMeter extends EventEmitter {
         this.logDebug = device.log?.debug || false;
 
         //setup variables
+        this.functions = new Functions();
         this.envoyTokenFile = envoyTokenFile;
-        this.energyMeterHistory = energyMeterHistory;
-        this.FakeGatoHistoryService = FakeGatoHistoryService;
         this.checkTokenRunning = false;
+
+        //fakegato
+        this.fakegatoHistory = FakeGatoHistory(api);
+        this.prefDir = prefDir;
+        this.energyMeterHistoryFileName = energyMeterHistoryFileName;
 
         //url
         this.url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${this.host}` : `http://${this.host}`;
@@ -76,21 +79,41 @@ class EnergyMeter extends EventEmitter {
                     supported: false,
                     enabled: false
                 },
-                consumption: {
+                consumptionNet: {
                     supported: false,
-                    net: {
-                        supported: false,
-                        enabled: false
-                    },
-                    total: {
-                        supported: false,
-                        enabled: false
-                    }
+                    enabled: false
+                },
+                consumptionTotal: {
+                    supported: false,
+                    enabled: false
                 },
                 storage: {
                     supported: false,
                     enabled: false
-                }
+                },
+                backfeed: {
+                    supported: false,
+                    enabled: false
+                },
+                load: {
+                    supported: false,
+                    enabled: false
+                },
+                evse: {
+                    supported: false,
+                    enabled: false
+                },
+                pv3p: {
+                    supported: false,
+                    enabled: false
+                },
+                generator: {
+                    supported: false,
+                    enabled: false
+                },
+                detailedData: {
+                    supported: false
+                },
             },
             metersReading: {
                 supported: false,
@@ -100,25 +123,22 @@ class EnergyMeter extends EventEmitter {
                 supported: false,
                 installed: false
             },
-            metersData: {
-                supported: false
-            },
             production: {
                 supported: false
             },
             productionPdm: {
                 supported: false,
                 pcu: {
-                    installed: false
+                    supported: false
                 },
                 eim: {
-                    installed: false
+                    supported: false
                 },
                 rgm: {
-                    installed: false
+                    supported: false
                 },
                 pmu: {
-                    installed: false
+                    supported: false
                 }
             },
             energyPdm: {
@@ -126,28 +146,23 @@ class EnergyMeter extends EventEmitter {
                 production: {
                     supported: false,
                     pcu: {
-                        installed: false
+                        supported: false
                     },
                     eim: {
-                        installed: false
+                        supported: false
                     },
                     rgm: {
-                        installed: false
+                        supported: false
                     },
                     pmu: {
-                        installed: false
+                        supported: false
                     }
                 },
-                consumption: {
-                    supported: false,
-                    eim: {
-                        net: {
-                            installed: false
-                        },
-                        total: {
-                            installed: false
-                        }
-                    }
+                comsumptionNet: {
+                    supported: false
+                },
+                consumptionTotal: {
+                    supported: false
                 }
             },
             productionCt: {
@@ -161,16 +176,11 @@ class EnergyMeter extends EventEmitter {
                         supported: false
                     }
                 },
-                consumption: {
-                    supported: false,
-                    eim: {
-                        net: {
-                            supported: false
-                        },
-                        total: {
-                            supported: false
-                        }
-                    }
+                consumptionNet: {
+                    supported: false
+                },
+                consumptionTotal: {
+                    supported: false
                 },
                 storage: {
                     supported: false
@@ -186,41 +196,37 @@ class EnergyMeter extends EventEmitter {
             info: {},
             meters: [],
             powerAndEnergy: {
-                sources: [],
+                data: [],
                 production: {
                     pcu: {},
                     eim: {},
                     rgm: {},
                     pmu: {},
                 },
-                consumption: {
-                    eim: {
-                        net: {},
-                        total: {}
-                    }
-                }
-            }
+                consumptionNet: {},
+                consumptionTotal: {},
+            },
         };
 
         //lock flags
         this.locks = {
-            updateHome: false,
-            updatePowerandEnergy: false,
+            updatePowerAndEnergy: false
         };
 
         //impulse generator
         this.impulseGenerator = new ImpulseGenerator()
-            .on('updatePowerandEnergy', () => this.handleWithLock('updatePowerandEnergy', async () => {
-                const updateMeters = this.feature.meters.supported ? await this.updateMeters() : false;
-                if (updateMeters && this.feature.meters.installed && this.feature.metersReading.installed && !this.feature.metersReports.installed) await this.updateMetersReading(false);
-                if (updateMeters && this.feature.meters.installed && this.feature.metersReports.installed) await this.updateMetersReports(false);
-                if (updateMeters && this.feature.metersData.supported) await this.updateMetersData();
+            .on('updatePowerAndEnergy', () => this.handleWithLock('updatePowerAndEnergy', async () => {
+                if (this.feature.meters.supported) {
+                    await this.updateMeters();
+                    if (this.feature.metersReading.installed && !this.feature.metersReports.installed) await this.updateMetersReading(false);
+                    if (this.feature.metersReports.installed) await this.updateMetersReports(false);
+                }
 
                 if (this.feature.production.supported) await this.updateProduction();
                 if (this.feature.productionPdm.supported && !this.feature.energyPdm.supported) await this.updateProductionPdm();
                 if (this.feature.energyPdm.supported) await this.updateEnergyPdm();
                 if (this.feature.productionCt.supported) await this.updateProductionCt();
-                if (this.feature.powerAndEnergyData.supported) await this.updatePowerAndEnergyData();
+                await this.updatePowerAndEnergyData();
             }))
             .on('state', (state) => {
                 this.emit(state ? 'success' : 'warn', `Impulse generator ${state ? 'started' : 'stopped'}`);
@@ -229,19 +235,18 @@ class EnergyMeter extends EventEmitter {
 
     createAxiosInstance(authHeader = null, cookie = null) {
         return axios.create({
-            method: 'GET',
             baseURL: this.url,
             headers: {
                 Accept: 'application/json',
                 ...(authHeader ? { Authorization: authHeader } : {}),
-                ...(cookie ? { Cookie: cookie } : {})
+                ...(cookie ? { Cookie: cookie } : {}),
             },
             withCredentials: true,
             httpsAgent: new Agent({
                 keepAlive: true,
                 rejectUnauthorized: false
             }),
-            timeout: 40000
+            timeout: 60000
         });
     }
 
@@ -259,55 +264,10 @@ class EnergyMeter extends EventEmitter {
         if (this.logError) this.emit('error', `Impulse generator: ${error}`);
     }
 
-    scaleValue(value, inMin, inMax, outMin, outMax) {
-        if (inMax === inMin) return outMin;
-        const clamped = Math.max(inMin, Math.min(inMax, value));
-        const scaled = ((clamped - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
-        return scaled < 1 ? 0 : Math.round(scaled);
-    }
-
-    async getStatus(status) {
-        if (!Array.isArray(status) || status.length === 0) {
-            return 'OK';
-        }
-
-        const mapped = status.map(a => {
-            const value = ApiCodes[a];
-            return (typeof value === 'string' && value.trim() !== '') ? value.trim() : a;
-        }).filter(Boolean); // Remove any empty/null/undefined values
-
-        if (mapped.length === 0) {
-            return 'OK';
-        }
-
-        const result = mapped.join(', ');
-
-        // Add ellipsis only if result is actually truncated
-        return result.length > 64 ? result.slice(0, 61) + '…' : result;
-    }
-
-    async readData(path) {
-        try {
-            const data = await fsPromises.readFile(path, 'utf-8');
-            return data;
-        } catch (error) {
-            throw new Error(`Read data error: ${error}`);
-        }
-    }
-
-    async saveData(path, data) {
-        try {
-            await fsPromises.writeFile(path, JSON.stringify(data, null, 2));
-            return true;
-        } catch (error) {
-            throw new Error(`Save data error: ${error}`);
-        }
-    }
-
-    async startImpulseGenerator() {
+    async startStopImpulseGenerator(state) {
         try {
             //start impulse generator 
-            await this.impulseGenerator.start(this.timers);
+            const startStop = state ? await this.impulseGenerator.start(this.timers) : await this.impulseGenerator.stop();
             return true;
         } catch (error) {
             throw new Error(`Impulse generator start error: ${error}`);
@@ -334,7 +294,7 @@ class EnergyMeter extends EventEmitter {
         if (this.logDebug) this.emit('debug', 'Requesting info');
 
         try {
-            const response = await this.axiosInstance(ApiUrls.GetInfo);
+            const response = await this.axiosInstance.get(ApiUrls.GetInfo);
             const xmlString = response.data;
 
             // XML Parsing options
@@ -403,10 +363,6 @@ class EnergyMeter extends EventEmitter {
             this.feature.info.firmware = parsedFirmware;
             this.feature.info.tokenRequired = obj.webTokens;
 
-            // RESTFul + MQTT update
-            if (this.restFulConnected) this.restFul1.update('info', parsed);
-            if (this.mqttConnected) this.mqtt1.emit('publish', 'Info', parsed);
-
             return true;
         } catch (error) {
             throw new Error(`Update info error: ${error}`);
@@ -433,7 +389,7 @@ class EnergyMeter extends EventEmitter {
             // Load token from file on startup, only if mode is 1
             if (this.envoyFirmware7xxTokenGenerationMode === 1 && start) {
                 try {
-                    const data = await this.readData(this.envoyTokenFile);
+                    const data = await this.functions.readData(this.envoyTokenFile);
                     try {
                         const parsedData = JSON.parse(data);
                         const fileTokenExist = parsedData.token ? 'Exist' : 'Missing';
@@ -460,12 +416,8 @@ class EnergyMeter extends EventEmitter {
             const tokenValid = this.feature.info.tokenValid;
             if (this.logDebug) this.emit('debug', `Token: ${tokenValid ? 'Valid' : 'Not valid'}`);
 
-            // RESTFul and MQTT sync
-            if (this.restFulConnected) this.restFul1.update('token', jwt);
-            if (this.mqttConnected) this.mqtt1.emit('publish', 'Token', jwt);
-
             if (tokenExist && tokenValid) {
-                if (this.logDebug) this.emit('debug', 'Token check complete: Valid=true');
+                if (this.logDebug) this.emit('debug', 'Token check complete, state: Valid');
                 return true;
             }
 
@@ -501,7 +453,7 @@ class EnergyMeter extends EventEmitter {
             // Create EnvoyToken instance and attach log event handlers
             const envoyToken = new EnvoyToken({
                 user: this.enlightenUser,
-                passwd: this.enlightenPassword,
+                passwd: this.enlightenPasswd,
                 serialNumber: this.pv.info.serialNumber,
                 logWarn: this.logWarn,
                 logError: this.logError,
@@ -530,7 +482,7 @@ class EnergyMeter extends EventEmitter {
 
             // Persist token to disk
             try {
-                await this.saveData(this.envoyTokenFile, tokenData);
+                await this.functions.saveData(this.envoyTokenFile, tokenData);
             } catch (error) {
                 if (this.logError) this.emit('error', `Save token error: ${error}`);
             }
@@ -550,10 +502,10 @@ class EnergyMeter extends EventEmitter {
             const jwt = this.feature.info.jwtToken;
 
             // Create a token-authenticated Axios instance
-            const axiosInstance = this.createAxiosInstance(`Bearer ${jwt.token}`);
+            const axiosInstance = this.createAxiosInstance(`Bearer ${jwt.token}`, null);
 
             // Send validation request
-            const response = await axiosInstance(ApiUrls.CheckJwt);
+            const response = await axiosInstance.get(ApiUrls.CheckJwt);
             const responseBody = response.data;
 
             // Check for expected response string
@@ -589,7 +541,7 @@ class EnergyMeter extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Requesting meters info`);
 
         try {
-            const response = await this.axiosInstance(ApiUrls.InternalMeterInfo);
+            const response = await this.axiosInstance.get(ApiUrls.InternalMeterInfo);
             const responseData = response.data;
             if (this.logDebug) this.emit('debug', `Meters:`, responseData);
 
@@ -601,40 +553,32 @@ class EnergyMeter extends EventEmitter {
                     const measurementType = ApiCodes[meter.measurementType];
                     const key = MetersKeyMap[measurementType];
                     if (!key) {
-                        if (this.logDebug) this.emit('debug', `Unknown meter measurement type: ${measurementType}`);
+                        if (this.logDebug) this.emit('debug', `Unknown meter measurement type: ${meter.measurementType}`);
                         continue;
                     }
 
                     const phaseModeCode = ApiCodes[meter.phaseMode];
                     const meteringStatusCode = ApiCodes[meter.meteringStatus];
                     const voltageDivide = meter.phaseMode === 'split' ? 2 : meter.phaseMode === 'three' ? 3 : 1;
+                    const powerFactorDivide = meter.phaseMode === 'split' ? 2 : 1;
 
                     const obj = {
                         eid: meter.eid,
                         type: 'eim',
                         activeCount: 1,
-                        measurementType: measurementType,
+                        measurementType: meter.measurementType,
                         state: meter.state === 'enabled',
                         phaseMode: phaseModeCode,
                         phaseCount: meter.phaseCount ?? 1,
                         meteringStatus: meteringStatusCode,
                         statusFlags: meter.statusFlags,
                         voltageDivide: voltageDivide,
+                        powerFactorDivide: powerFactorDivide,
                     };
                     arr.push(obj);
-                    if (measurementType === 'Production') {
-                        this.feature.meters.production.supported = true;
-                        this.feature.meters.production.enabled = obj.state;
-                    }
-                    if (measurementType === 'Consumption Net') {
-                        this.feature.meters.consumption.supported = true;
-                        this.feature.meters.consumption.net.supported = true;
-                        this.feature.meters.consumption.net.enabled = obj.state;
-                    }
-                    if (measurementType === 'Storage') {
-                        this.feature.meters.storage.supported = true;
-                        this.feature.meters.storage.enabled = obj.state;
-                    }
+
+                    this.feature.meters[key].supported = true;
+                    this.feature.meters[key].enabled = obj.state;
                 }
                 this.pv.meters = arr;
                 this.feature.meters.installed = arr.some(m => m.state);
@@ -654,7 +598,7 @@ class EnergyMeter extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Requesting meters reading`);
 
         try {
-            const response = await this.axiosInstance(ApiUrls.InternalMeterReadings);
+            const response = await this.axiosInstance.get(ApiUrls.InternalMeterReadings);
             const responseData = response.data;
             if (this.logDebug) this.emit('debug', `Meters reading:`, responseData);
 
@@ -662,25 +606,24 @@ class EnergyMeter extends EventEmitter {
             const metersReadingInstalled = Array.isArray(responseData) && responseData.length > 0;
             if (metersReadingInstalled) {
                 for (const meter of responseData) {
-                    const index = this.pv.meters.findIndex(m => m.eid === meter.eid);
-                    if (index === -1) {
-                        if (this.logDebug) this.emit('debug', `Unknown meter readings EID: ${meter.eid}`);
-                        continue;
-                    }
+                    const meterConfig = this.pv.meters.find(m => m.eid === meter.eid && m.state === true);
+                    if (!meterConfig) continue;
 
-                    const meterConfig = this.pv.meters[index];
-                    const key = MetersKeyMap[meterConfig.measurementType];
-                    const state = meterConfig.state;
-                    if (key && state) {
-                        const obj = {
-                            readingTime: meter.timestamp,
-                            power: meter.activePower,
-                            energyLifetime: meter.actEnergyDlvd,
-                            current: meter.current,
-                            voltage: meter.voltage,
-                        };
-                        this.pv.meters[index] = { ...this.pv.meters[index], ...obj };
-                    }
+                    const obj = {
+                        readingTime: meter.timestamp,
+                        power: meter.activePower,
+                        apparentPower: meter.apparentPower,
+                        reactivePower: meter.reactivePower,
+                        energyLifetime: meter.actEnergyDlvd,
+                        energyLifetimeUpload: meter.actEnergyRcvd,
+                        apparentEnergy: meter.apparentEnergy,
+                        current: meter.current,
+                        voltage: meter.voltage / meterConfig.voltageDivide,
+                        pwrFactor: meter.pwrFactor / meterConfig.powerFactorDivide,
+                        frequency: meter.freq,
+                        channels: meter.channels ?? [],
+                    };
+                    Object.assign(meterConfig, obj);
                 }
                 this.feature.metersReading.installed = true;
             }
@@ -702,7 +645,7 @@ class EnergyMeter extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Requesting meters reports`);
 
         try {
-            const response = await this.axiosInstance(ApiUrls.InternalMetersReports);
+            const response = await this.axiosInstance.get(ApiUrls.InternalMetersReports);
             const responseData = response.data;
             if (this.logDebug) this.emit('debug', `Meters reports:`, responseData);
 
@@ -710,59 +653,55 @@ class EnergyMeter extends EventEmitter {
             const metersReportsInstalled = Array.isArray(responseData) && responseData.length > 0;
             if (metersReportsInstalled) {
                 for (const meter of responseData) {
-                    const measurementType = ApiCodes[meter.reportType];
+                    const measurementType = ApiCodes[meter.reportType] ?? meter.reportType;
                     const key = MetersKeyMap[measurementType];
                     if (!key) {
-                        if (this.logDebug) this.emit('debug', `Unknown meters reports type: ${measurementType}`);
+                        if (!this.logDebug) this.emit('debug', `Unknown meters reports type: ${measurementType}`);
                         continue;
                     }
 
-                    const index = this.pv.meters.findIndex(m => m.measurementType === measurementType);
-                    const cumulative = meter.cumulative;
+                    const meterConfig = key === 'consumptionTotal' ? this.pv.meters.find(m => m.measurementType === 'net-consumption' && m.state === true) : this.pv.meters.find(m => m.measurementType === meter.reportType && m.state === true);
+                    if (!meterConfig) continue;
 
+                    const cumulative = meter.cumulative;
                     const obj = {
                         readingTime: meter.createdAt,
                         power: cumulative.actPower,
+                        apparentPower: cumulative.apprntPwr,
+                        reactivePower: cumulative.reactPwr,
                         energyLifetime: cumulative.whDlvdCum,
+                        energyLifetimeUpload: cumulative.whRcvdCum,
+                        apparentEnergy: cumulative.vahCum,
                         current: cumulative.rmsCurrent,
-                        voltage: cumulative.rmsVoltage,
+                        voltage: cumulative.rmsVoltage / meterConfig.voltageDivide,
+                        pwrFactor: cumulative.pwrFactor / meterConfig.powerFactorDivide,
+                        frequency: cumulative.freqHz,
+                        channels: meter.lines ?? [],
                     };
 
                     // Handle each meter type
                     switch (key) {
-                        case 'production':
-                            if (this.feature.meters.production.enabled) {
-                                this.pv.meters[index] = { ...this.pv.meters[index], ...obj };
-                            }
+                        case 'consumptionTotal':
+                            const obj1 = {
+                                eid: meterConfig.eid,
+                                type: meterConfig.type,
+                                activeCount: meterConfig.activeCount,
+                                measurementType: 'total-consumption',
+                                readingTime: meterConfig.readingTime,
+                                state: meterConfig.state,
+                                phaseMode: meterConfig.phaseMode,
+                                phaseCount: meterConfig.phaseCount,
+                                meteringStatus: meterConfig.meteringStatus,
+                                statusFlags: meterConfig.statusFlags,
+                                voltageDivide: meterConfig.voltageDivide,
+                                powerFactorDivide: meterConfig.powerFactorDivide,
+                            };
+                            this.pv.meters = [...this.pv.meters, { ...obj1, ...obj }];
+                            this.feature.meters[key].supported = true;
+                            this.feature.meters[key].enabled = true;
                             break;
-                        case 'net':
-                            if (this.feature.meters.consumption.net.enabled) {
-                                this.pv.meters[index] = { ...this.pv.meters[index], ...obj };
-                            }
-                            break;
-                        case 'storage':
-                            if (this.feature.meters.storage.enabled) {
-                                this.pv.meters[index] = { ...this.pv.meters[index], ...obj };
-                            }
-                            break;
-                        case 'total':
-                            if (this.feature.meters.consumption.net.enabled) {
-                                const base = this.pv.meters.find(m => m.measurementType === 'Consumption Net');
-                                const obj1 = {
-                                    eid: base.eid,
-                                    type: base.type,
-                                    activeCount: base.activeCount,
-                                    measurementType: 'Consumption Total',
-                                    state: base.state,
-                                    phaseMode: base.phaseMode,
-                                    phaseCount: base.phaseCount,
-                                    meteringStatus: base.meteringStatus,
-                                    statusFlags: base.statusFlags,
-                                    voltageDivide: base.voltageDivide,
-                                };
-                                this.pv.meters = [...this.pv.meters, { ...obj1, ...obj }];
-                                this.feature.meters.consumption.total.enabled = true;
-                            }
+                        default:
+                            Object.assign(meterConfig, obj);
                             break;
                     }
                 }
@@ -782,77 +721,25 @@ class EnergyMeter extends EventEmitter {
         }
     }
 
-    async updateMetersData() {
-        if (this.logDebug) this.emit('debug', 'Requesting meters data');
-
-        try {
-            const meters = this.pv.meters ?? [];
-
-            // Process meters in parallel for async calls
-            const updatedMeters = await Promise.all(meters.map(async (meter, index) => {
-                if (!meter) return null;
-
-                // Await device status
-                const type = ApiCodes[meter.type] ?? meter.type;
-                const deviceStatus = await this.getStatus(meter.statusFlags);
-
-                const meterData = {
-                    type,
-                    eid: meter.eid,
-                    activeCount: meter.activeCount,
-                    measurementType: meter.measurementType,
-                    state: meter.state,
-                    phaseMode: meter.phaseMode,
-                    phaseCount: meter.phaseCount,
-                    meteringStatus: meter.meteringStatus,
-                    deviceStatus,
-                    voltageDivide: meter.voltageDivide,
-                };
-
-                // If meter has active state, extend with measurements
-                if (meterData.state) {
-                    Object.assign(meterData, {
-                        power: meter.power,
-                        powerKw: meter.power / 1000,
-                        energyLifetime: meter.energyLifetime,
-                        energyLifetimeKw: meter.energyLifetime / 1000,
-                        current: meter.current,
-                        voltage: meter.voltage / meterData.voltageDivide,
-                    });
-                }
-
-                return meterData;
-            }));
-
-            // Filter out any nulls from skipped meters and update inventory
-            this.pv.meters = updatedMeters.filter(Boolean);
-
-            // Mark feature supported
-            this.feature.metersData.supported = true;
-
-            return true;
-        } catch (error) {
-            throw new Error(`Update meters data error: ${error.message || error}`);
-        }
-    }
-
     async updateProduction() {
         if (this.logDebug) this.emit('debug', `Requesting production`);
 
         try {
-            const response = await this.axiosInstance(ApiUrls.Production);
+            const response = await this.axiosInstance.get(ApiUrls.Production);
             const production = response.data;
             if (this.logDebug) this.emit('debug', `Production:`, production);
 
             const productionSupported = Object.keys(production).length > 0;
-
             if (productionSupported) {
+                const readingTime = this.functions.formatTimestamp();
                 const obj = {
                     type: 'pcu',
-                    activeCount: 0,
+                    activeCount: this.feature.inventory.pcus.count,
                     measurementType: 'Production',
+                    readingTime,
                     power: production.wattsNow,
                     energyToday: production.wattHoursToday,
+                    energyLastSevenDays: production.wattHoursSevenDays,
                     energyLifetime: production.wattHoursLifetime
                 };
 
@@ -870,21 +757,25 @@ class EnergyMeter extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Requesting production pdm`);
 
         try {
-            const response = await this.axiosInstance(ApiUrls.ProductionPdm);
+            const response = await this.axiosInstance.get(ApiUrls.ProductionPdm);
             const data = response.data;
             if (this.logDebug) this.emit('debug', `Production pdm:`, data);
+
+            const readingTime = this.functions.formatTimestamp();
 
             // PCU
             const pcu = {
                 type: 'pcu',
                 measurementType: 'Production',
-                activeCount: 0,
+                activeCount: this.feature.inventory?.pcus?.count,
+                readingTime,
                 power: data.watts_now_pcu,
                 energyToday: data.joules_today_pcu / 3600,
+                energyLastSevenDays: data.pcu_joules_seven_days / 3600,
                 energyLifetime: data.joules_lifetime_pcu / 3600
             };
             this.pv.powerAndEnergy.production.pcu = pcu;
-            this.feature.productionPdm.pcu.installed = pcu.power > 0;
+            this.feature.productionPdm.pcu.supported = pcu.power > 0;
 
             // EIM
             const eimActive = !!data.there_is_an_active_eim;
@@ -892,13 +783,15 @@ class EnergyMeter extends EventEmitter {
                 type: 'eim',
                 measurementType: 'Production',
                 activeCount: 1,
+                readingTime,
                 active: eimActive,
                 power: data.watts_now_eim,
                 energyToday: data.watt_hours_today_eim?.aggregate,
+                energyLastSevenDays: data.eim_watt_hours_seven_days?.aggregate,
                 energyLifetime: data.watt_hours_lifetime_eim?.aggregate
             };
             this.pv.powerAndEnergy.production.eim = eim;
-            this.feature.productionPdm.eim.installed = eimActive;
+            this.feature.productionPdm.eim.supported = eimActive;
 
             // RGM
             const rgmActive = !!data.there_is_an_active_rgm;
@@ -906,13 +799,15 @@ class EnergyMeter extends EventEmitter {
                 type: 'rgm',
                 measurementType: 'Production',
                 activeCount: 1,
+                readingTime,
                 active: rgmActive,
                 power: data.watts_now_rgm,
                 energyToday: data.watt_hours_today_rgm,
+                energyLastSevenDays: data.rgm_watt_hours_seven_days,
                 energyLifetime: data.watt_hours_lifetime_rgm
             };
             this.pv.powerAndEnergy.production.rgm = rgm;
-            this.feature.productionPdm.rgm.installed = rgmActive;
+            this.feature.productionPdm.rgm.supported = rgmActive;
 
             // PMU
             const pmuActive = !!data.there_is_an_active_pmu;
@@ -920,13 +815,15 @@ class EnergyMeter extends EventEmitter {
                 type: 'pmu',
                 measurementType: 'Production',
                 activeCount: 1,
+                readingTime,
                 active: pmuActive,
                 power: data.watts_now_pmu,
                 energyToday: data.watt_hours_today_pmu,
+                energyLastSevenDays: data.pmu_watt_hours_seven_days,
                 energyLifetime: data.watt_hours_lifetime_pmu
             };
             this.pv.powerAndEnergy.production.pmu = pmu;
-            this.feature.productionPdm.pmu.installed = pmuActive;
+            this.feature.productionPdm.pmu.supported = pmuActive;
 
             // Mark as supported
             this.feature.productionPdm.supported = true;
@@ -941,9 +838,11 @@ class EnergyMeter extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Requesting energy pdm`);
 
         try {
-            const response = await this.axiosInstance(ApiUrls.EnergyPdm);
+            const response = await this.axiosInstance.get(ApiUrls.EnergyPdm);
             const energyPdm = response.data;
             if (this.logDebug) this.emit('debug', `Energy pdm: `, energyPdm);
+
+            const readingTime = this.functions.formatTimestamp();
 
             // Process production data
             if ('production' in energyPdm && energyPdm.production) {
@@ -953,12 +852,14 @@ class EnergyMeter extends EventEmitter {
                             type,
                             activeCount: 1,
                             measurementType: 'Production',
+                            readingTime,
                             power: data.wattsNow,
                             energyToday: data.wattHoursToday,
+                            energyLastSevenDays: data.wattHoursSevenDays,
                             energyLifetime: data.wattHoursLifetime
                         };
                         this.pv.powerAndEnergy.production[type] = obj;
-                        this.feature.energyPdm.production[type].installed = true;
+                        this.feature.energyPdm.production[type].supported = true;
                     }
                 }
                 this.feature.energyPdm.production.supported = true;
@@ -971,13 +872,14 @@ class EnergyMeter extends EventEmitter {
                     type: 'eim',
                     activeCount: 1,
                     measurementType: 'Consumption Net',
+                    readingTime,
                     power: data.wattsNow,
                     energyToday: data.wattHoursToday,
+                    energyLastSevenDays: data.wattHoursSevenDays,
                     energyLifetime: data.wattHoursLifetime
                 };
-                this.pv.powerAndEnergy.consumption.eim.net = obj;
-                this.feature.energyPdm.consumption.eim.net.installed = true;
-                this.feature.energyPdm.consumption.supported = true;
+                Object.assign(this.pv.powerAndEnergy.consumptionNet, obj);
+                this.feature.energyPdm.comsumptionNet.supported = true;
             }
 
             this.feature.energyPdm.supported = true;
@@ -992,7 +894,7 @@ class EnergyMeter extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Requesting production ct`);
 
         try {
-            const response = await this.axiosInstance(ApiUrls.SystemReadingStats);
+            const response = await this.axiosInstance.get(ApiUrls.SystemReadingStats);
             const data = response.data;
             if (this.logDebug) this.emit('debug', `Production ct:`, data);
 
@@ -1007,16 +909,23 @@ class EnergyMeter extends EventEmitter {
 
                 const productionEim = data.production[1];
                 if (productionEim) {
+                    const energyToday = (productionEim.lines[0]?.whToday || 0) + (productionEim.lines[1]?.whToday || 0) + (productionEim.lines[2]?.whToday || 0);
+                    const energyLastSevenDays = (productionEim.lines[0]?.whLastSevenDays || 0) + (productionEim.lines[1]?.whLastSevenDays || 0) + (productionEim.lines[2]?.whLastSevenDays || 0);
+                    const energyLifetime = (productionEim.lines[0]?.whLifetime || 0) + (productionEim.lines[1]?.whLifetime || 0) + (productionEim.lines[2]?.whLifetime || 0);
                     const obj = {
                         type: 'eim',
                         activeCount: 1,
                         measurementType: ApiCodes[productionEim.measurementType],
                         readingTime: productionEim.readingTime,
                         power: productionEim.wNow,
-                        energyToday: productionEim.whToday,
-                        energyLifetime: productionEim.whLifetime,
+                        energyToday,
+                        energyLastSevenDays,
+                        energyLifetime,
+                        reactivePower: productionEim.reactPwr,
+                        apparentPower: productionEim.apprntPwr,
                         current: productionEim.rmsCurrent,
                         voltage: productionEim.rmsVoltage,
+                        pwrFactor: productionEim.pwrFactor
                     };
                     this.pv.powerAndEnergy.production.eim = obj;
                     this.feature.productionCt.production.eim.supported = true;
@@ -1024,23 +933,30 @@ class EnergyMeter extends EventEmitter {
             }
 
             // --- Consumption: EIM ---
-            if (keys.includes('consumption') && Array.isArray(data.consumption) && this.feature.meters.consumption.net.enabled) {
+            if (keys.includes('consumption') && Array.isArray(data.consumption) && this.feature.meters.consumptionNet.enabled) {
                 for (const item of data.consumption) {
                     const type = ApiCodes[item.measurementType];
                     const key = MetersKeyMap[type];
+                    const energyToday = (item.lines[0]?.whToday || 0) + (item.lines[1]?.whToday || 0) + (item.lines[2]?.whToday || 0);
+                    const energyLastSevenDays = (item.lines[0]?.whLastSevenDays || 0) + (item.lines[1]?.whLastSevenDays || 0) + (item.lines[2]?.whLastSevenDays || 0);
+                    const energyLifetime = (item.lines[0]?.whLifetime || 0) + (item.lines[1]?.whLifetime || 0) + (item.lines[2]?.whLifetime || 0);
                     const obj = {
                         type: 'eim',
                         measurementType: type,
                         activeCount: 1,
                         readingTime: item.readingTime,
                         power: item.wNow,
-                        energyToday: item.whToday,
-                        energyLifetime: item.whLifetime,
+                        energyToday,
+                        energyLastSevenDays,
+                        energyLifetime,
+                        reactivePower: item.reactPwr,
+                        apparentPower: item.apprntPwr,
                         current: item.rmsCurrent,
                         voltage: item.rmsVoltage,
+                        pwrFactor: item.pwrFactor
                     };
-                    this.pv.powerAndEnergy.consumption.eim[key] = obj;
-                    this.feature.productionCt.consumption.eim[key].supported = true;
+                    Object.assign(this.pv.powerAndEnergy[key], obj);
+                    this.feature.productionCt[key].supported = true;
                 }
             }
 
@@ -1059,8 +975,8 @@ class EnergyMeter extends EventEmitter {
         try {
             const dataArr = [
                 { type: 'production', state: this.feature.meters.production.enabled },
-                { type: 'consumptionNet', state: this.feature.meters.consumption.net.enabled },
-                { type: 'consumptionTotal', state: this.feature.meters.consumption.total.enabled }
+                { type: 'consumptionNet', state: this.feature.meters.consumptionNet.enabled },
+                { type: 'consumptionTotal', state: this.feature.meters.consumptionTotal.enabled }
             ];
 
             for (const [index, data] of dataArr.entries()) {
@@ -1068,93 +984,96 @@ class EnergyMeter extends EventEmitter {
 
                 if (key !== 'production' && !meterEnabled) continue;
 
-                let sourceMeter, sourceEnergy;
-                let power = 0;
-                let energyToday = 0, energyLifetime = 0, energyLifetimeWithOffset = 0;
-
-                const powerAndEnergyData = this.pv.powerAndEnergy.sources[index] || [];
+                let sourceMeter, sourceEnergy, measurementType;
+                let power;
+                let energyToday, energyLifetime, energyLifetimeWithOffset;
 
                 switch (key) {
                     case 'production': {
-                        const sourcePcu = this.pv.powerAndEnergy.production.pcu;
-                        const sourceEim = this.pv.powerAndEnergy.production.eim;
-                        sourceMeter = meterEnabled ? this.pv.meters.find(m => m.measurementType === 'Production') : sourcePcu;
+                        measurementType = 'Production';
+                        const sourcePcu = this.pv.powerAndEnergy[key].pcu;
+                        const sourceEim = this.pv.powerAndEnergy[key].eim;
+                        sourceMeter = meterEnabled ? this.pv.meters.find(m => m.measurementType === 'production') : sourcePcu;
                         sourceEnergy = meterEnabled ? sourceEim : sourcePcu;
-                        power = Number.isFinite(sourceMeter?.power) ? sourceMeter.power : powerAndEnergyData.power;
-                        energyToday = Number.isFinite(sourceEnergy?.energyToday) ? sourceEnergy.energyToday : powerAndEnergyData.energyToday;
-                        energyLifetime = Number.isFinite(sourceMeter?.energyLifetime) ? sourceMeter.energyLifetime : powerAndEnergyData.energyLifetime;
-                        energyLifetimeWithOffset = Math.max(0, energyLifetime) + this.energyProductionLifetimeOffset;
+                        power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
+                        energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday : null;
+                        energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime : null;
+                        energyLifetimeWithOffset = this.functions.isValidValue(sourceMeter.energyLifetime) ? energyLifetime + this.energyProductionLifetimeOffset : null;
                         break;
                     }
                     case 'consumptionNet': {
-                        sourceMeter = this.pv.meters.find(m => m.measurementType === 'Consumption Net');
-                        sourceEnergy = this.pv.powerAndEnergy.consumption.eim.net;
-                        power = Number.isFinite(sourceMeter?.power) ? sourceMeter.power : powerAndEnergyData.power;
-                        energyToday = Number.isFinite(sourceEnergy?.energyToday) ? sourceEnergy.energyToday : powerAndEnergyData.energyToday;
-                        energyLifetime = Number.isFinite(sourceMeter?.energyLifetime) ? sourceMeter.energyLifetime : powerAndEnergyData.energyLifetime;
-                        energyLifetimeWithOffset = Math.max(0, energyLifetime) + this.energyConsumptionNetLifetimeOffset;
+                        measurementType = 'Consumption Net';
+                        sourceMeter = this.pv.meters.find(m => m.measurementType === 'net-consumption');
+                        sourceEnergy = this.pv.powerAndEnergy.consumptionNet;
+                        power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
+                        energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday : null;
+                        energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime : null;
+                        energyLifetimeWithOffset = this.functions.isValidValue(sourceMeter.energyLifetime) ? energyLifetime + this.energyConsumptionNetLifetimeOffset : null;
                         break;
                     }
                     case 'consumptionTotal': {
-                        sourceMeter = this.pv.meters.find(m => m.measurementType === 'Consumption Total');
-                        sourceEnergy = this.pv.powerAndEnergy.consumption.eim.total;
-                        power = Number.isFinite(sourceMeter?.power) ? sourceMeter.power : powerAndEnergyData.power;
-                        energyToday = Number.isFinite(sourceEnergy?.energyToday) ? sourceEnergy.energyToday : powerAndEnergyData.energyToday;
-                        energyLifetime = Number.isFinite(sourceMeter?.energyLifetime) ? sourceMeter.energyLifetime : powerAndEnergyData.energyLifetime;
-                        energyLifetimeWithOffset = Math.max(0, energyLifetime) + this.energyConsumptionTotalLifetimeOffset;
+                        measurementType = 'Consumption Total';
+                        sourceMeter = this.pv.meters.find(m => m.measurementType === 'total-consumption');
+                        sourceEnergy = this.pv.powerAndEnergy.consumptionTotal;
+                        power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
+                        energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday : null;
+                        energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime : null;
+                        energyLifetimeWithOffset = this.functions.isValidValue(sourceMeter.energyLifetime) ? energyLifetime + this.energyConsumptionTotalLifetimeOffset : null;
                         break;
                     }
                 }
 
                 if (!sourceMeter) continue;
-                const type = ApiCodes[sourceMeter.type] ?? sourceMeter.type;
-
-                const obj = {
-                    type,
-                    measurementType: sourceMeter?.measurementType,
-                    power,
-                    energyTodayKw: energyToday / 1000,
-                    energyLifetimeKw: energyLifetimeWithOffset / 1000,
-                    gridQualityState: meterEnabled,
-                };
-
-                if (meterEnabled) {
-                    Object.assign(obj, {
-                        current: sourceMeter?.current,
-                        voltage: sourceMeter?.voltage
-                    });
-                }
-
                 if (this.logDebug) {
-                    this.emit('debug', `${obj.measurementType} data source meter:`, sourceMeter);
-                    this.emit('debug', `${obj.measurementType} data source energy:`, sourceEnergy);
+                    this.emit('debug', `${measurementType} data source meter:`, sourceMeter);
+                    this.emit('debug', `${measurementType} data source energy:`, sourceEnergy);
                 }
 
-                //energy meter
-                this.energyMeterServices?.[index]
-                    ?.updateCharacteristic(Characteristic.EveCurrentConsumption, obj.power)
-                    .updateCharacteristic(Characteristic.EveTotalConsumption, obj.energyLifetimeKw);
+                if (key === 'production') {
+                    const type = ApiCodes[sourceMeter.type] ?? sourceMeter.type;
+                    const obj = {
+                        type,
+                        measurementType,
+                        power,
+                        energyTodayKw: energyToday / 1000,
+                        energyLifetimeKw: energyLifetimeWithOffset / 1000,
+                        gridQualityState: meterEnabled,
+                    };
 
-                // FakeGato history per energy meter service
-                if (this.fakeGatoHistoryService && key === 'production') {
-                    this.fakeGatoHistoryService.addEntry({
-                        time: Math.floor(Date.now() / 1000),
-                        power: obj.power,
-                        energy: obj.energyLifetimeKw
-                    });
-                }
+                    // Create characteristics energy meter
+                    const characteristics = [
+                        { type: Characteristic.EveCurrentConsumption, value: obj.power },
+                        { type: Characteristic.EveTotalConsumption, value: obj.energyLifetimeKw },
+                    ];
 
-                if (meterEnabled) {
-                    const metricsValid = [obj.current, obj.voltage]
-                        .every(v => typeof v === 'number' && isFinite(v));
+                    // Create characteristics energy meter
+                    if (meterEnabled) {
+                        Object.assign(obj, {
+                            current: sourceMeter.current,
+                            voltage: sourceMeter.voltage
+                        });
 
-                    if (metricsValid) {
-                        this.energyMeterServices?.[index]
-                            ?.updateCharacteristic(Characteristic.EveElectricCurrent, obj.current)
-                            .updateCharacteristic(Characteristic.EveVoltage, obj.voltage);
+                        characteristics.push([
+                            { type: Characteristic.EveCurrent, value: obj.current },
+                            { type: Characteristic.EveVoltage, value: obj.voltage },
+                        ]);
                     }
+
+                    // Update characteristics
+                    for (const { type, value } of characteristics) {
+                        if (!this.functions.isValidValue(value)) continue;
+                        this.energyMeterServices?.[index]?.updateCharacteristic(type, value);
+                    };
+
+                    // FakeGato history per energy meter service
+                    this.fakeGatoService?.addEntry({
+                        time: Math.floor(Date.now() / 1000),
+                        power: obj.power || 0,
+                        energy: obj.energyLifetimeKw || 0
+                    });
+
+                    this.pv.powerAndEnergy.data[index] = obj;
                 }
-                this.pv.powerAndEnergy.sources[index] = obj;
 
             }
             this.feature.powerAndEnergyData.supported = true;
@@ -1199,68 +1118,54 @@ class EnergyMeter extends EventEmitter {
                 .setCharacteristic(Characteristic.FirmwareRevision, this.pv.info.software?.replace(/[a-zA-Z]/g, '') ?? '0');
 
             // Create FakeGatoHistory
-            this.fakeGatoHistoryService = new this.FakeGatoHistoryService('energy', accessory, {
+            this.fakeGatoService = new this.fakegatoHistory(`energy`, accessory, {
                 storage: 'fs',
                 disableRepeatLastData: true,
-                disableTimer: false
+                disableTimer: false,
+                path: this.prefDir,
+                filename: this.energyMeterHistoryFileName
+            }).addEntry({
+                time: Math.floor(Date.now() / 1000),
+                power: this.pv.powerAndEnergy.data[0].power || 0,
+                energy: this.pv.powerAndEnergy.data[0].energyLifetimeKw || 0
             });
 
             // Energy Meter Service
             this.energyMeterServices = [];
-            this.fakeGatoHistoryServices = [];
-            const powerAndEnergyDataSource = this.pv.powerAndEnergy.sources;
 
-            for (const powerAndEnergyData of powerAndEnergyDataSource) {
-                const powerAndEnergy = powerAndEnergyData;
-                const measurementType = powerAndEnergy.measurementType;
-                const key = MetersKeyMap[measurementType];
-
+            for (const source of this.pv.powerAndEnergy.data) {
+                const measurementType = source.measurementType;
                 if (this.logDebug) this.emit('debug', `Prepare Meter ${measurementType} Service`);
 
-                const serviceName = `Energy Meter ${measurementType}`;
-                const energyMeterService = accessory.addService(Service.EvePowerMeter, serviceName, `energyMeterService${measurementType}`);
-                energyMeterService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                const energyMeterService = accessory.addService(Service.EvePowerMeter, `Energy Meter ${measurementType}`, `energyMeterService${measurementType}`);
+                energyMeterService.setCharacteristic(Characteristic.ConfiguredName, `Energy Meter ${measurementType}`);
 
-                energyMeterService.getCharacteristic(Characteristic.EveCurrentConsumption)
-                    .onGet(async () => {
-                        const value = powerAndEnergy.power;
-                        if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, power: ${value} W`);
-                        return value;
-                    });
+                // Create characteristics
+                const characteristics = [
+                    { type: Characteristic.EveCurrentConsumption, label: 'power', value: source.powerKw, unit: 'kW' },
+                    { type: Characteristic.EveTotalConsumption, label: 'energy lifetime', value: source.energyLifetimeKw, unit: 'kWh' },
+                ];
 
-                energyMeterService.getCharacteristic(Characteristic.EveTotalConsumption)
-                    .onGet(async () => {
-                        const value = powerAndEnergy.energyLifetimeKw;
-                        if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, energy lifetime: ${value} kWh`);
-                        return value;
-                    });
-                if (powerAndEnergy.gridQualityState) {
-                    energyMeterService.getCharacteristic(Characteristic.EveElectricCurrent)
-                        .onGet(async () => {
-                            const value = powerAndEnergy.current;
-                            if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, current: ${value} A`);
-                            return value;
-                        });
-
-                    energyMeterService.getCharacteristic(Characteristic.EveVoltage)
-                        .onGet(async () => {
-                            const value = powerAndEnergy.voltage;
-                            if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, voltage: ${value} V`);
-                            return value;
-                        });
+                if (source.gridQualityState) {
+                    characteristics.push(
+                        { type: Characteristic.EveCurrent, label: 'current', value: source.current, unit: 'A' },
+                        { type: Characteristic.EveVoltage, label: 'voltage', value: source.voltage, unit: 'V' }
+                    );
                 }
 
-                if (key === 'production') {
-                    this.fakeGatoHistoryService.addEntry({
-                        time: Math.floor(Date.now() / 1000),
-                        power: powerAndEnergy.power,
-                        energy: powerAndEnergy.energyLifetimeKw
-                    });
+                for (const { type, label, value, unit = '' } of characteristics) {
+                    if (!this.functions.isValidValue(value)) continue;
+
+                    energyMeterService.getCharacteristic(type)
+                        .onGet(async () => {
+                            const currentValue = value;
+                            if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, ${label}: ${currentValue} ${unit}`);
+                            return currentValue;
+                        });
                 }
 
                 this.energyMeterServices.push(energyMeterService);
             }
-
 
             return accessory;
         } catch (error) {
@@ -1288,17 +1193,16 @@ class EnergyMeter extends EventEmitter {
 
             // Meters
             const getMeters = this.feature.meters.supported ? await this.updateMeters() : false;
-            const getMetersReading = getMeters && this.feature.meters.installed ? await this.updateMetersReading(true) : false;
-            const getMetersReports = getMeters && this.feature.meters.installed ? await this.updateMetersReports(true) : false;
+            if (getMeters && this.feature.meters.installed) await this.updateMetersReading(true);
+            if (getMeters && this.feature.meters.installed) await this.updateMetersReports(true);
 
             // Production
-            const getProduction = this.feature.info.firmware < 824 ? await this.updateProduction() : false;
-            const getProductionPdm = this.feature.info.firmware >= 824 ? await this.updateProductionPdm() : false;
-            const getEnergyPdm = this.feature.info.firmware >= 824 ? await this.updateEnergyPdm() : false;
-            const getProductionCt = this.feature.meters.installed ? await this.updateProductionCt() : false;
+            if (this.feature.info.firmware < 824) await this.updateProduction();
+            if (this.feature.info.firmware >= 824) await this.updateProductionPdm();
+            if (this.feature.info.firmware >= 824) await this.updateEnergyPdm();
+            if (this.feature.meters.installed) await this.updateProductionCt();
 
             // Data
-            const getMetersData = getMeters ? await this.updateMetersData() : false;
             const getPowerAndEnergyData = await this.updatePowerAndEnergyData();
 
             // Success message
@@ -1309,7 +1213,7 @@ class EnergyMeter extends EventEmitter {
 
             // Setup timers
             this.timers = [];
-            if (getPowerAndEnergyData) this.timers.push({ name: 'updatePowerandEnergy', sampling: 10000 });
+            if (getPowerAndEnergyData) this.timers.push({ name: 'updatePowerAndEnergy', sampling: 10000 });
 
             // Prepare HomeKit accessory
             const accessory = await this.prepareAccessory();

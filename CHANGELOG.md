@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.2.2] - (12.10.2025)
+
+## Changes
+
+- fix power level not refresh if meter production not enabled [#213](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/213)
+- fix enable live data stream [#214](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/214)
+- changed OFF state to < 0.5% for power and backup level accessory, before was OFF if level < 1%
+- stability and performance improvements
+- other small fixes
+- redme updates
+- cleanup
+
 ## [10.2.1] - (03.10.2025)
 
 ## Changes

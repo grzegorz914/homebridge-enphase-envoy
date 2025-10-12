@@ -2279,7 +2279,7 @@ export default (api) => {
                 format: Formats.FLOAT,
                 unit: 'kWh',
                 maxValue: 4294967295,
-                minValue: 0,
+                minValue: -100000,
                 minStep: 0.001,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
@@ -2304,7 +2304,7 @@ export default (api) => {
     }
     Characteristic.EveVoltage = EveVoltage;
 
-    class EveElectricCurrent extends Characteristic {
+    class EveCurrent extends Characteristic {
         constructor() {
             super('Current', 'E863F126-079E-48FF-8F27-9C2605A29F52');
             this.setProps({
@@ -2318,7 +2318,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.EveElectricCurrent = EveElectricCurrent;
+    Characteristic.EveCurrent = EveCurrent;
 
     class EveResetTime extends Characteristic {
         constructor() {
@@ -2342,7 +2342,7 @@ export default (api) => {
             this.addCharacteristic(Characteristic.EveTotalConsumption);
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.EveVoltage);
-            this.addOptionalCharacteristic(Characteristic.EveElectricCurrent);
+            this.addOptionalCharacteristic(Characteristic.EveCurrent);
             this.addOptionalCharacteristic(Characteristic.EveResetTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
