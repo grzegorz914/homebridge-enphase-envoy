@@ -27,7 +27,7 @@ class EnergyMeter extends EventEmitter {
         this.envoyFirmware7xxTokenGenerationMode = envoyFirmware7xxTokenGenerationMode;
         this.envoyPasswd = envoyPasswd;
         this.enlightenUser = enlightenUser;
-        this.enlightenPassword = enlightenPasswd;
+        this.enlightenPasswd = enlightenPasswd;
         this.envoyToken = envoyToken;
         this.envoyTokenInstaller = envoyTokenInstaller;
         this.powerProductionSummary = device.powerProductionSummary || 1;
