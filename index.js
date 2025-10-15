@@ -98,7 +98,7 @@ class EnvoyPlatform {
             const impulseGenerator = new ImpulseGenerator()
               .on('start', async () => {
                 try {
-                  const envoyDevice = new DeviceClass(api, accessoryName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device, prefDir, energyMeterHistoryFileName)
+                  const envoyDevice = new DeviceClass(api, accessoryName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device, prefDir, energyMeterHistoryFileName, log)
                     .on('devInfo', (info) => logLevel.devInfo && log.info(info))
                     .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${accessoryName}, ${msg}`))
                     .on('info', (msg) => logLevel.info && log.info(`Device: ${host} ${accessoryName}, ${msg}`))
@@ -133,7 +133,6 @@ class EnvoyPlatform {
   }
 
   configureAccessory(accessory) {
-    accessory.log = this.log;
     this.accessories.push(accessory);
   }
 }

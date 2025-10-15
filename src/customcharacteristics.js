@@ -2256,7 +2256,7 @@ export default (api) => {
     Service.LiveDataService = LiveDataService;
 
     // EVE electric meter
-    class EveCurrentConsumption extends Characteristic {
+    class EvePower extends Characteristic {
         constructor() {
             super('Power', 'E863F10D-079E-48FF-8F27-9C2605A29F52');
             this.setProps({
@@ -2270,9 +2270,9 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.EveCurrentConsumption = EveCurrentConsumption;
+    Characteristic.EvePower = EvePower;
 
-    class EveTotalConsumption extends Characteristic {
+    class EveEnergyLifetime extends Characteristic {
         constructor() {
             super('Energy', 'E863F10C-079E-48FF-8F27-9C2605A29F52');
             this.setProps({
@@ -2286,7 +2286,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.EveTotalConsumption = EveTotalConsumption;
+    Characteristic.EveEnergyLifetime = EveEnergyLifetime;
 
     class EveVoltage extends Characteristic {
         constructor() {
@@ -2324,7 +2324,7 @@ export default (api) => {
         constructor() {
             super('Reset time', 'E863F112-079E-48FF-8F27-9C2605A29F52');
             this.setProps({
-                format: Formats.UInt32,
+                format: Formats.UINT32,
                 perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE, Perms.NOTIFY]
             });
             this.value = this.getDefaultValue();
@@ -2338,8 +2338,8 @@ export default (api) => {
         constructor(displayName, subtype) {
             super(displayName, 'E863F130-079E-48FF-8F27-9C2605A29F52', subtype);
             // Mandatory Characteristics
-            this.addCharacteristic(Characteristic.EveCurrentConsumption);
-            this.addCharacteristic(Characteristic.EveTotalConsumption);
+            this.addCharacteristic(Characteristic.EvePower);
+            this.addCharacteristic(Characteristic.EveEnergyLifetime);
             // Optional Characteristics
             this.addOptionalCharacteristic(Characteristic.EveVoltage);
             this.addOptionalCharacteristic(Characteristic.EveCurrent);

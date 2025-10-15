@@ -47,7 +47,7 @@ export const ApiUrls = {
     "EnsembleInventory": "/ivp/ensemble/inventory",
     "EnsembleSecctrl": "/ivp/ensemble/secctrl",
     "EnsembleStatus": "/ivp/ensemble/status",
-    'EnsemblePower': '/ivp/ensemble/power',
+    "EnsemblePower": "/ivp/ensemble/power",
     "EthernetConfigCheckNewIpGetPut": "/admin/lib/network_display.json",
     "EventsGet": "/datatab/event_dt.rb",
     "Generator": "/ivp/ensemble/generator",
@@ -218,6 +218,7 @@ export const ApiCodes = {
     "evse": "EV Charger",
     "flat": "Flat",
     "full": "Full",
+    "gen": "Generstor",
     "grid-forming": "Grid Forming",
     "grid-interactive": "Grid Interactive",
     "grid-tied": "Grid Tied",
@@ -387,29 +388,29 @@ export const ApiCodes = {
 };
 
 export const MetersKeyMap = {
-    'Production': 'production',
-    'Consumption Net': 'consumptionNet',
-    'Consumption Total': 'consumptionTotal',
-    'Storage': 'storage',
-    'Generator': 'gen',
-    'Back Feed': 'backfeed',
-    'EV Charger': 'evse',
-    'Load': 'load',
-    'PV 3 Phase': 'pv3p'
+    "production": "production",
+    "net-consumption": "consumptionNet",
+    "total-consumption": "consumptionTotal",
+    "storage": "storage",
+    "gen": "gen",
+    "backfeed": "backfeed",
+    "evse": "evse",
+    "load": "load",
+    "pv3p": "pv3p"
 };
 
 export const DeviceTypeMap = {
-    1: 'Microinverter',
-    12: 'Q-Relay',
-    13: 'Encharge',
-    14: 'Encharge Sub Module',
-    15: 'Encharge Control Module',
-    17: 'Enpower',
-    18: 'Enpower Sub Module',
-    20: 'Enpower Control Module',
-    19: 'Ensemble',
-    22: 'Ensemble Comm Module',
-    24: 'Ensemble Comm Control Module',
+    1: "Microinverter",
+    12: "Q-Relay",
+    13: "Encharge",
+    14: "Encharge Sub Module",
+    15: "Encharge Control Module",
+    17: "Enpower",
+    18: "Enpower Sub Module",
+    20: "Enpower Control Module",
+    19: "Ensemble",
+    22: "Ensemble Comm Module",
+    24: "Ensemble Comm Control Module",
 };
 
 export const LedStatus = {
@@ -437,89 +438,89 @@ export const LedStatus = {
 
 export const TimezoneLocaleMap = {
     // US / North America
-    'America/Los_Angeles': 'en-US', // Pacific Time
-    'US/Pacific': 'en-US',
-    'America/Denver': 'en-US',      // Mountain Time
-    'US/Mountain': 'en-US',
-    'America/Chicago': 'en-US',     // Central Time
-    'US/Central': 'en-US',
-    'America/New_York': 'en-US',    // Eastern Time
-    'US/Eastern': 'en-US',
-    'America/Anchorage': 'en-US',
-    'Pacific/Honolulu': 'en-US',
+    "America/Los_Angeles": "en-US", // Pacific Time
+    "US/Pacific": "en-US",
+    "America/Denver": "en-US",      // Mountain Time
+    "US/Mountain": "en-US",
+    "America/Chicago": "en-US",     // Central Time
+    "US/Central": "en-US",
+    "America/New_York": "en-US",    // Eastern Time
+    "US/Eastern": "en-US",
+    "America/Anchorage": "en-US",
+    "Pacific/Honolulu": "en-US",
 
-    'America/Vancouver': 'en-CA',
-    'Canada/Pacific': 'en-CA',
-    'America/Toronto': 'en-CA',
-    'Canada/Eastern': 'en-CA',
-    'America/Halifax': 'en-CA',
-    'Canada/Atlantic': 'en-CA',
+    "America/Vancouver": "en-CA",
+    "Canada/Pacific": "en-CA",
+    "America/Toronto": "en-CA",
+    "Canada/Eastern": "en-CA",
+    "America/Halifax": "en-CA",
+    "Canada/Atlantic": "en-CA",
 
-    'Mexico/BajaNorte': 'en-US',
-    'Mexico/BajaSur': 'en-US',
+    "Mexico/BajaNorte": "en-US",
+    "Mexico/BajaSur": "en-US",
 
     // Europe
-    'Europe/London': 'en-GB',
-    'Europe/Dublin': 'en-IE',
-    'Europe/Paris': 'fr-FR',
-    'Europe/Berlin': 'de-DE',
-    'Europe/Madrid': 'es-ES',
-    'Europe/Rome': 'it-IT',
-    'Europe/Warsaw': 'pl-PL',
-    'Europe/Amsterdam': 'nl-NL',
-    'Europe/Brussels': 'fr-BE',
-    'Europe/Zurich': 'de-CH',
-    'Europe/Vienna': 'de-AT',
-    'Europe/Stockholm': 'sv-SE',
-    'Europe/Helsinki': 'fi-FI',
-    'Europe/Athens': 'el-GR',
-    'Europe/Moscow': 'ru-RU',
+    "Europe/London": "en-GB",
+    "Europe/Dublin": "en-IE",
+    "Europe/Paris": "fr-FR",
+    "Europe/Berlin": "de-DE",
+    "Europe/Madrid": "es-ES",
+    "Europe/Rome": "it-IT",
+    "Europe/Warsaw": "pl-PL",
+    "Europe/Amsterdam": "nl-NL",
+    "Europe/Brussels": "fr-BE",
+    "Europe/Zurich": "de-CH",
+    "Europe/Vienna": "de-AT",
+    "Europe/Stockholm": "sv-SE",
+    "Europe/Helsinki": "fi-FI",
+    "Europe/Athens": "el-GR",
+    "Europe/Moscow": "ru-RU",
 
     // Asia
-    'Asia/Tokyo': 'ja-JP',
-    'Asia/Shanghai': 'zh-CN',
-    'Asia/Hong_Kong': 'zh-HK',
-    'Asia/Singapore': 'en-SG',
-    'Asia/Kolkata': 'hi-IN',
-    'Asia/Seoul': 'ko-KR',
-    'Asia/Bangkok': 'th-TH',
-    'Asia/Jakarta': 'id-ID',
-    'Asia/Dubai': 'ar-AE',
-    'Asia/Taipei': 'zh-TW',
+    "Asia/Tokyo": "ja-JP",
+    "Asia/Shanghai": "zh-CN",
+    "Asia/Hong_Kong": "zh-HK",
+    "Asia/Singapore": "en-SG",
+    "Asia/Kolkata": "hi-IN",
+    "Asia/Seoul": "ko-KR",
+    "Asia/Bangkok": "th-TH",
+    "Asia/Jakarta": "id-ID",
+    "Asia/Dubai": "ar-AE",
+    "Asia/Taipei": "zh-TW",
 
     // Australia & Oceania
-    'Australia/Sydney': 'en-AU',
-    'Australia/Melbourne': 'en-AU',
-    'Australia/Perth': 'en-AU',
-    'Pacific/Auckland': 'en-NZ',
+    "Australia/Sydney": "en-AU",
+    "Australia/Melbourne": "en-AU",
+    "Australia/Perth": "en-AU",
+    "Pacific/Auckland": "en-NZ",
 
     // South America
-    'America/Sao_Paulo': 'pt-BR',
-    'America/Buenos_Aires': 'es-AR',
-    'America/Bogota': 'es-CO',
-    'America/Mexico_City': 'es-MX',
+    "America/Sao_Paulo": "pt-BR",
+    "America/Buenos_Aires": "es-AR",
+    "America/Bogota": "es-CO",
+    "America/Mexico_City": "es-MX",
 
     // Africa
-    'Africa/Johannesburg': 'en-ZA',
-    'Africa/Cairo': 'ar-EG',
-    'Africa/Nairobi': 'en-KE',
+    "Africa/Johannesburg": "en-ZA",
+    "Africa/Cairo": "ar-EG",
+    "Africa/Nairobi": "en-KE",
 
     // Middle East
-    'Asia/Riyadh': 'ar-SA',
-    'Asia/Tehran': 'fa-IR',
-    'Asia/Jerusalem': 'he-IL',
+    "Asia/Riyadh": "ar-SA",
+    "Asia/Tehran": "fa-IR",
+    "Asia/Jerusalem": "he-IL",
 
     // Aliases (some European and Pacific examples)
-    'Europe/Belfast': 'en-GB',
-    'Europe/Guernsey': 'en-GB',
-    'Europe/Isle_of_Man': 'en-GB',
-    'Europe/Jersey': 'en-GB',
+    "Europe/Belfast": "en-GB",
+    "Europe/Guernsey": "en-GB",
+    "Europe/Isle_of_Man": "en-GB",
+    "Europe/Jersey": "en-GB",
 
-    'Pacific/Johnston': 'en-US',
-    'Pacific/Samoa': 'en-US',
+    "Pacific/Johnston": "en-US",
+    "Pacific/Samoa": "en-US",
 
     // UTC fallback
-    'UTC': 'en-US',
+    "UTC": "en-US",
 };
 
 

@@ -1144,8 +1144,7 @@ class EnvoyData extends EventEmitter {
             if (metersInstalled) {
                 const arr = [];
                 for (const meter of responseData) {
-                    const measurementType = ApiCodes[meter.measurementType];
-                    const key = MetersKeyMap[measurementType];
+                    const key = MetersKeyMap[meter.measurementType];
                     if (!key) {
                         if (this.logDebug) this.emit('debug', `Unknown meter measurement type: ${meter.measurementType}`);
                         continue;
@@ -1255,14 +1254,13 @@ class EnvoyData extends EventEmitter {
             const metersReportsInstalled = Array.isArray(responseData) && responseData.length > 0;
             if (metersReportsInstalled) {
                 for (const meter of responseData) {
-                    const measurementType = ApiCodes[meter.reportType] ?? meter.reportType;
-                    const key = MetersKeyMap[measurementType];
+                    const key = MetersKeyMap[meter.reportType];
                     if (!key) {
-                        if (!this.logDebug) this.emit('debug', `Unknown meters reports type: ${measurementType}`);
+                        if (!this.logDebug) this.emit('debug', `Unknown meters reports type: ${meter.reportType}`);
                         continue;
                     }
 
-                    const meterConfig = key === 'consumptionTotal' ? this.pv.meters.find(m => m.measurementType === 'net-consumption' && m.state === true) : this.pv.meters.find(m => m.measurementType === meter.reportType && m.state === true);
+                    const meterConfig = meter.reportType === 'total-consumption' ? this.pv.meters.find(m => m.measurementType === 'net-consumption' && m.state === true) : this.pv.meters.find(m => m.measurementType === meter.reportType && m.state === true);
                     if (!meterConfig) continue;
 
                     const cumulative = meter.cumulative;
@@ -1457,7 +1455,7 @@ class EnvoyData extends EventEmitter {
                 const obj = {
                     type: 'pcu',
                     activeCount: this.feature.inventory.pcus.count,
-                    measurementType: 'Production',
+                    measurementType: 'production',
                     readingTime,
                     power: production.wattsNow,
                     energyToday: production.wattHoursToday,
@@ -1491,7 +1489,7 @@ class EnvoyData extends EventEmitter {
             // PCU
             const pcu = {
                 type: 'pcu',
-                measurementType: 'Production',
+                measurementType: 'production',
                 activeCount: this.feature.inventory?.pcus?.count,
                 readingTime,
                 power: data.watts_now_pcu,
@@ -1506,7 +1504,7 @@ class EnvoyData extends EventEmitter {
             const eimActive = !!data.there_is_an_active_eim;
             const eim = {
                 type: 'eim',
-                measurementType: 'Production',
+                measurementType: 'production',
                 activeCount: 1,
                 readingTime,
                 active: eimActive,
@@ -1522,7 +1520,7 @@ class EnvoyData extends EventEmitter {
             const rgmActive = !!data.there_is_an_active_rgm;
             const rgm = {
                 type: 'rgm',
-                measurementType: 'Production',
+                measurementType: 'production',
                 activeCount: 1,
                 readingTime,
                 active: rgmActive,
@@ -1538,7 +1536,7 @@ class EnvoyData extends EventEmitter {
             const pmuActive = !!data.there_is_an_active_pmu;
             const pmu = {
                 type: 'pmu',
-                measurementType: 'Production',
+                measurementType: 'production',
                 activeCount: 1,
                 readingTime,
                 active: pmuActive,
@@ -1580,7 +1578,7 @@ class EnvoyData extends EventEmitter {
                         const obj = {
                             type,
                             activeCount: 1,
-                            measurementType: 'Production',
+                            measurementType: 'production',
                             readingTime,
                             power: data.wattsNow,
                             energyToday: data.wattHoursToday,
@@ -1600,7 +1598,7 @@ class EnvoyData extends EventEmitter {
                 const obj = {
                     type: 'eim',
                     activeCount: 1,
-                    measurementType: 'Consumption Net',
+                    measurementType: 'net-consumption',
                     readingTime,
                     power: data.wattsNow,
                     energyToday: data.wattHoursToday,
@@ -1647,7 +1645,7 @@ class EnvoyData extends EventEmitter {
                     const obj = {
                         type: 'eim',
                         activeCount: 1,
-                        measurementType: ApiCodes[productionEim.measurementType],
+                        measurementType: productionEim.measurementType,
                         readingTime: productionEim.readingTime,
                         power: productionEim.wNow,
                         energyToday,
@@ -1667,14 +1665,13 @@ class EnvoyData extends EventEmitter {
             // --- Consumption: EIM ---
             if (keys.includes('consumption') && Array.isArray(data.consumption) && this.feature.meters.consumptionNet.enabled) {
                 for (const item of data.consumption) {
-                    const type = ApiCodes[item.measurementType];
-                    const key = MetersKeyMap[type];
+                    const key = MetersKeyMap[item.measurementType];
                     const energyToday = (item.lines[0]?.whToday || 0) + (item.lines[1]?.whToday || 0) + (item.lines[2]?.whToday || 0);
                     const energyLastSevenDays = (item.lines[0]?.whLastSevenDays || 0) + (item.lines[1]?.whLastSevenDays || 0) + (item.lines[2]?.whLastSevenDays || 0);
                     const energyLifetime = (item.lines[0]?.whLifetime || 0) + (item.lines[1]?.whLifetime || 0) + (item.lines[2]?.whLifetime || 0);
                     const obj = {
                         type: 'eim',
-                        measurementType: type,
+                        measurementType: item.measurementType,
                         activeCount: 1,
                         readingTime: item.readingTime,
                         power: item.wNow,
@@ -1698,7 +1695,7 @@ class EnvoyData extends EventEmitter {
                 if (summary) {
                     const obj = {
                         type: 'acb',
-                        measurementType: 'Storage',
+                        measurementType: 'storage',
                         activeCount: summary.activeCount,
                         readingTime: summary.readingTime,
                         powerSum: summary.wNow,

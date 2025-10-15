@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.2.3] - (15.10.2025)
+
+## Changes
+
+- fix [#215](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/215)
+- epdate EVE Energy monitor
+- other small fixes
+- cleanup
+
 ## [10.2.2] - (12.10.2025)
 
 ## Changes

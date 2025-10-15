@@ -63,30 +63,30 @@ class EnvoyDevice extends EventEmitter {
         this.acBatterieBackupLevelAccessory = device.acBatterieBackupLevelAccessory || {};
 
         //enpower
-        this.enpowerDryContactsControl = envoyFirmware7xxTokenGenerationMode > 0 ? device.enpowerDryContactsControl || false : false;
-        this.enpowerDryContactsSensor = envoyFirmware7xxTokenGenerationMode > 0 ? device.enpowerDryContactsSensor || false : false;
-        this.enpowerGridStateControl = envoyFirmware7xxTokenGenerationMode > 0 ? device.enpowerGridStateControl || {} : {};
-        this.enpowerGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? device.enpowerGridStateSensor || {} : {};
+        this.enpowerDryContactsControl = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerDryContactsControl || false) : false;
+        this.enpowerDryContactsSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerDryContactsSensor || false) : false;
+        this.enpowerGridStateControl = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridStateControl || {}) : {};
+        this.enpowerGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridStateSensor || {}) : {};
         this.enpowerGridModeSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //encharge
         this.enchargeName = device.enchargeName || 'Encharge';
-        this.enchargeBackupLevelSummaryAccessory = envoyFirmware7xxTokenGenerationMode > 0 ? device.enchargeBackupLevelSummaryAccessory || {} : {};
+        this.enchargeBackupLevelSummaryAccessory = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummaryAccessory || {}) : {};
         this.enchargeBackupLevelSummarySensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummarySensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
-        this.enchargeBackupLevelAccessory = envoyFirmware7xxTokenGenerationMode > 0 ? device.enchargeBackupLevelAccessory || {} : {};
-        this.enchargeStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? device.enchargeStateSensor || {} : {};
+        this.enchargeBackupLevelAccessory = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelAccessory || {}) : {};
+        this.enchargeStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeStateSensor || {}) : {};
         this.enchargeProfileControls = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeProfileControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
         this.enchargeProfileSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeProfileSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
-        this.enchargeGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? device.enchargeGridStateSensor || {} : {};
+        this.enchargeGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeGridStateSensor || {}) : {};
         this.enchargeGridModeSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //solar
-        this.solarGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? device.solarGridStateSensor || {} : {};
+        this.solarGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.solarGridStateSensor || {}) : {};
         this.solarGridModeSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.solarGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //generator
-        this.generatorStateControl = envoyFirmware7xxTokenGenerationMode > 0 ? device.generatorStateControl || {} : {};
-        this.generatorStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? device.generatorStateSensor || {} : {};
+        this.generatorStateControl = envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateControl || {}) : {};
+        this.generatorStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateSensor || {}) : {};
         this.generatorModeContols = envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
         this.generatorModeSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
@@ -108,14 +108,14 @@ class EnvoyDevice extends EventEmitter {
         this.mqtt = device.mqtt ?? {};
         this.mqttConnected = false;
 
-        //system
-        const systemAccessory = {};
-        systemAccessory.serviceType = ['', Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor][displayType];
-        systemAccessory.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected][displayType];
-        systemAccessory.characteristicType1 = ['', Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel][displayType];
-        systemAccessory.state = false;
-        systemAccessory.level = 0;
-        this.systemAccessory = systemAccessory;
+        //system accessoty
+        this.systemAccessory = {
+            serviceType: ['', Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor][displayType],
+            characteristicType: ['', Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected][displayType],
+            characteristicType1: ['', Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel][displayType],
+            state: false,
+            level: 0
+        }
 
         //production state sensor
         if (this.productionStateSensor.displayType > 0) {
@@ -151,104 +151,59 @@ class EnvoyDevice extends EventEmitter {
 
         //power production sensors
         for (const sensor of this.powerProductionLevelSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
         for (const sensor of this.energyProductionLevelSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
         //power consumption total sensor
         for (const sensor of this.powerConsumptionTotalLevelSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
         for (const sensor of this.energyConsumptionTotalLevelSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
         //power consumption net sensor
         for (const sensor of this.powerConsumptionNetLevelSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
         for (const sensor of this.energyConsumptionNetLevelSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            }
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
         //grid quality sensors
         for (const sensor of this.gridProductionQualitySensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            }
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
         for (const sensor of this.gridConsumptionTotalQualitySensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            }
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
         for (const sensor of this.gridConsumptionNetQualitySensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            }
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
@@ -300,13 +255,8 @@ class EnvoyDevice extends EventEmitter {
         }
 
         for (const sensor of this.enpowerGridModeSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
@@ -321,13 +271,8 @@ class EnvoyDevice extends EventEmitter {
         }
 
         for (const sensor of this.enchargeBackupLevelSummarySensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            }
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
@@ -350,26 +295,16 @@ class EnvoyDevice extends EventEmitter {
         }
 
         for (const tile of this.enchargeProfileControls) {
-            const displayType = tile.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            }
-
-            tile.serviceType = ['', Service.Lightbulb][displayType];
-            tile.characteristicType = ['', Characteristic.On][displayType];
+            tile.serviceType = ['', Service.Lightbulb][tile.displayType];
+            tile.characteristicType = ['', Characteristic.On][tile.displayType];
             tile.state = false;
             tile.reservedSoc = 0;
             tile.previousState = null;
         }
 
         for (const sensor of this.enchargeProfileSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
@@ -381,13 +316,8 @@ class EnvoyDevice extends EventEmitter {
         }
 
         for (const sensor of this.enchargeGridModeSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
@@ -400,13 +330,8 @@ class EnvoyDevice extends EventEmitter {
         }
 
         for (const sensor of this.solarGridModeSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
@@ -426,25 +351,15 @@ class EnvoyDevice extends EventEmitter {
         }
 
         for (const tile of this.generatorModeContols) {
-            const displayType = tile.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][displayType];
-            tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][displayType];
+            tile.serviceType = ['', Service.Switch, Service.Outlet, Service.Lightbulb][tile.displayType];
+            tile.characteristicType = ['', Characteristic.On, Characteristic.On, Characteristic.On][tile.displayType];
             tile.state = false;
             tile.previousState = null;
         }
 
         for (const sensor of this.generatorModeSensors) {
-            const displayType = sensor.displayType ?? 0;
-            if (displayType === 0) {
-                continue;
-            };
-
-            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][displayType];
-            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][displayType];
+            sensor.serviceType = ['', Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][sensor.displayType];
+            sensor.characteristicType = ['', Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][sensor.displayType];
             sensor.state = false;
         }
 
@@ -3363,7 +3278,7 @@ class EnvoyDevice extends EventEmitter {
                                     { type: Characteristic.Frequency, value: meterData.frequency }
                                 );
 
-                                if (meterData.measurementType !== 'Consumption Total') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, value: meterData.energyLifetimeUploadKw });
+                                if (measurementType !== 'Consumption Total') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, value: meterData.energyLifetimeUploadKw });
                             }
 
                             // Emit info logs if enabled
@@ -3751,11 +3666,12 @@ class EnvoyDevice extends EventEmitter {
 
                             // Add summary fields for first ACB if supported
                             if (productionCtSupported && index === 0) {
+                                const measurementType = ApiCodes[acb.measurementType];
                                 const percentFullSum = this.functions.scaleValue(acb.energySum, 0, acb.activeCount * 1.5, 0, 100);
                                 const chargeStateSum = ApiCodes[acb.chargeStatusSum];
 
                                 Object.assign(acbData, {
-                                    measurementType: acb.measurementType,
+                                    measurementType,
                                     activeCount: acb.activeCount,
                                     powerSum: acb.powerSum,
                                     powerSumKw: acb.powerSum != null ? acb.energySum / 1000 : null,
@@ -3835,27 +3751,28 @@ class EnvoyDevice extends EventEmitter {
                     if (this.logDebug) this.emit('debug', `Update power and energy data`);
 
                     try {
-                        const powerAndEnergyArr = [
+                        const powerAndEnergyData = [];
+                        const powerAndEnergyTypeArr = [
                             { type: 'production', state: this.feature.meters.production.enabled },
-                            { type: 'consumptionNet', state: this.feature.meters.consumptionNet.enabled },
-                            { type: 'consumptionTotal', state: this.feature.meters.consumptionTotal.enabled }
+                            { type: 'net-consumption', state: this.feature.meters.consumptionNet.enabled },
+                            { type: 'total-consumption', state: this.feature.meters.consumptionTotal.enabled }
                         ];
 
-                        for (const [index, data] of powerAndEnergyArr.entries()) {
-                            const { type: key, state: meterEnabled } = data;
+                        for (const [index, data] of powerAndEnergyTypeArr.entries()) {
+                            const { type: meterType, state: meterEnabled } = data;
+                            if (meterType !== 'production' && !meterEnabled) continue;
 
-                            if (key !== 'production' && !meterEnabled) continue;
+                            const key = MetersKeyMap[meterType];
+                            const measurementType = ApiCodes[meterType];
+                            const powerPeakStored = this.pv.powerAndEnergyData[key].powerPeak;
 
-                            let sourceMeter, sourceEnergy, measurementType;
+                            let sourceMeter, sourceEnergy;
                             let power, powerPeak, powerPeakDetected;
                             let energyToday, energyLastSevenDays, energyLifetime, energyLifetimeUpload, energyLifetimeWithOffset;
-                            const powerPeakStored = this.pv.powerAndEnergyData[key].powerPeak
-
                             switch (key) {
                                 case 'production': {
                                     const sourcePcu = powerAndEnergy[key].pcu;
                                     const sourceEim = powerAndEnergy[key].eim;
-                                    measurementType = 'Production';
                                     sourceMeter = meterEnabled ? meters.find(m => m.measurementType === 'production') : sourcePcu;
                                     sourceEnergy = meterEnabled ? sourceEim : sourcePcu;
                                     power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
@@ -3869,7 +3786,6 @@ class EnvoyDevice extends EventEmitter {
                                     break;
                                 }
                                 case 'consumptionNet': {
-                                    measurementType = 'Consumption Net';
                                     sourceMeter = meters.find(m => m.measurementType === 'net-consumption');
                                     sourceEnergy = powerAndEnergy[key];
                                     power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
@@ -3883,7 +3799,6 @@ class EnvoyDevice extends EventEmitter {
                                     break;
                                 }
                                 case 'consumptionTotal': {
-                                    measurementType = 'Consumption Total';
                                     sourceMeter = meters.find(m => m.measurementType === 'total-consumption');
                                     sourceEnergy = powerAndEnergy[key];
                                     power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
@@ -4005,7 +3920,7 @@ class EnvoyDevice extends EventEmitter {
                                 );
 
                                 // Add characteristics
-                                if (key !== 'consumptionTotal') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, value: obj1.energyLifetimeUploadKw });
+                                if (meterType !== 'total-consumption') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, value: obj1.energyLifetimeUploadKw });
 
                                 const gridQualitySensorsMap = {
                                     production: [{ sensors: this.gridProductionQualitySensors, services: this.gridProductionQualityActiveSensorServices }],
@@ -4063,9 +3978,10 @@ class EnvoyDevice extends EventEmitter {
                                 }
                             }
 
-                            this.pv.powerAndEnergyData.data[index] = obj;
+                            powerAndEnergyData.push(obj);
                         }
 
+                        this.pv.powerAndEnergyData.data = powerAndEnergyData.filter(Boolean);
                         this.feature.powerAndEnergy.supported = true;
 
                         if (this.restFulConnected) this.restFul1.update('powerandenergydata', this.pv.powerAndEnergyData);
