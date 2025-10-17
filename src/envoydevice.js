@@ -7,7 +7,7 @@ import { PartNumbers, ApiCodes, MetersKeyMap, DeviceTypeMap, LedStatus } from '.
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, deviceName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device) {
+    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile) {
         super();
 
         Accessory = api.platformAccessory;
@@ -17,17 +17,11 @@ class EnvoyDevice extends EventEmitter {
         AccessoryUUID = api.hap.uuid;
 
         //device configuration
+        this.url = url;
         this.device = device;
         this.name = deviceName;
-        this.host = host;
-        this.displayType = displayType;
-
-        this.envoyFirmware7xxTokenGenerationMode = envoyFirmware7xxTokenGenerationMode;
-        this.envoyPasswd = envoyPasswd;
-        this.enlightenUser = enlightenUser;
-        this.enlightenPasswd = enlightenPasswd;
-        this.envoyToken = envoyToken;
-        this.envoyTokenInstaller = envoyTokenInstaller;
+        this.host = device.host;
+        this.displayType = device.displayType;
 
         this.lockControl = device.lockControl || false;
         this.lockControlPrefix = device.lockControlPrefix || false;
@@ -63,32 +57,32 @@ class EnvoyDevice extends EventEmitter {
         this.acBatterieBackupLevelAccessory = device.acBatterieBackupLevelAccessory || {};
 
         //enpower
-        this.enpowerDryContactsControl = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerDryContactsControl || false) : false;
-        this.enpowerDryContactsSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerDryContactsSensor || false) : false;
-        this.enpowerGridStateControl = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridStateControl || {}) : {};
-        this.enpowerGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridStateSensor || {}) : {};
-        this.enpowerGridModeSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
+        this.enpowerDryContactsControl = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerDryContactsControl || false) : false;
+        this.enpowerDryContactsSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerDryContactsSensor || false) : false;
+        this.enpowerGridStateControl = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridStateControl || {}) : {};
+        this.enpowerGridStateSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridStateSensor || {}) : {};
+        this.enpowerGridModeSensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //encharge
         this.enchargeName = device.enchargeName || 'Encharge';
-        this.enchargeBackupLevelSummaryAccessory = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummaryAccessory || {}) : {};
-        this.enchargeBackupLevelSummarySensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummarySensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
-        this.enchargeBackupLevelAccessory = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelAccessory || {}) : {};
-        this.enchargeStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeStateSensor || {}) : {};
-        this.enchargeProfileControls = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeProfileControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
-        this.enchargeProfileSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeProfileSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
-        this.enchargeGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeGridStateSensor || {}) : {};
-        this.enchargeGridModeSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
+        this.enchargeBackupLevelSummaryAccessory = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummaryAccessory || {}) : {};
+        this.enchargeBackupLevelSummarySensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummarySensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
+        this.enchargeBackupLevelAccessory = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelAccessory || {}) : {};
+        this.enchargeStateSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeStateSensor || {}) : {};
+        this.enchargeProfileControls = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeProfileControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
+        this.enchargeProfileSensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeProfileSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
+        this.enchargeGridStateSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeGridStateSensor || {}) : {};
+        this.enchargeGridModeSensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //solar
-        this.solarGridStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.solarGridStateSensor || {}) : {};
-        this.solarGridModeSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.solarGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
+        this.solarGridStateSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.solarGridStateSensor || {}) : {};
+        this.solarGridModeSensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.solarGridModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //generator
-        this.generatorStateControl = envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateControl || {}) : {};
-        this.generatorStateSensor = envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateSensor || {}) : {};
-        this.generatorModeContols = envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
-        this.generatorModeSensors = envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
+        this.generatorStateControl = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateControl || {}) : {};
+        this.generatorStateSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateSensor || {}) : {};
+        this.generatorModeContols = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
+        this.generatorModeSensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //data refresh
         this.dataSamplingControl = device.dataRefreshControl || {};
@@ -110,9 +104,9 @@ class EnvoyDevice extends EventEmitter {
 
         //system accessoty
         this.systemAccessory = {
-            serviceType: ['', Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor][displayType],
-            characteristicType: ['', Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected][displayType],
-            characteristicType1: ['', Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel][displayType],
+            serviceType: ['', Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor][device.displayType],
+            characteristicType: ['', Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected][device.displayType],
+            characteristicType1: ['', Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel][device.displayType],
             state: false,
             level: 0
         }
@@ -367,9 +361,6 @@ class EnvoyDevice extends EventEmitter {
         this.functions = new Functions();
         this.envoyIdFile = envoyIdFile;
         this.envoyTokenFile = envoyTokenFile;
-
-        //url
-        this.url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${this.host}` : `http://${this.host}`;
 
         //supported functions
         this.feature = {
@@ -2969,7 +2960,7 @@ class EnvoyDevice extends EventEmitter {
 
         try {
             // Envoy Data
-            this.envoyData = new EnvoyData(this.host, this.envoyFirmware7xxTokenGenerationMode, this.envoyPasswd, this.envoyToken, this.envoyTokenInstaller, this.enlightenUser, this.enlightenPasswd, this.envoyIdFile, this.envoyTokenFile, this.device)
+            this.envoyData = new EnvoyData(this.url, this.device, this.envoyIdFile, this.envoyTokenFile)
                 .on('deviceInfo', (feature, info, timeZone) => {
                     this.feature = Object.assign(this.feature, feature);
                     this.pv.info = info;

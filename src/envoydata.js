@@ -1,5 +1,3 @@
-import axios from 'axios';
-import { Agent } from 'https';
 import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
 import EventEmitter from 'events';
 import EnvoyToken from './envoytoken.js';
@@ -10,17 +8,16 @@ import Functions from './functions.js';
 import { ApiUrls, PartNumbers, Authorization, ApiCodes, MetersKeyMap } from './constants.js';
 
 class EnvoyData extends EventEmitter {
-    constructor(host, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device) {
+    constructor(url, device, envoyIdFile, envoyTokenFile) {
         super();
 
         //device configuration
-        this.host = host;
-        this.envoyFirmware7xxTokenGenerationMode = envoyFirmware7xxTokenGenerationMode;
-        this.envoyPasswd = envoyPasswd;
-        this.enlightenUser = enlightenUser;
-        this.enlightenPasswd = enlightenPasswd;
-        this.envoyToken = envoyToken;
-        this.envoyTokenInstaller = envoyTokenInstaller;
+        this.url = url;
+        this.host = device.host;
+        this.envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode;
+        this.envoyPasswd = device.envoyPasswd;
+        this.enlightenUser = device.enlightenUser;
+        this.enlightenPasswd = device.enlightenPasswd;
         this.envoyIdFile = envoyIdFile;
         this.envoyTokenFile = envoyTokenFile;
 
@@ -40,9 +37,6 @@ class EnvoyData extends EventEmitter {
         this.functions = new Functions();
         this.checkTokenRunning = false;
 
-        //url
-        this.url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${this.host}` : `http://${this.host}`;
-
         //supported functions
         this.feature = {
             info: {
@@ -55,9 +49,9 @@ class EnvoyData extends EventEmitter {
                 cookie: '',
                 jwtToken: {
                     generation_time: 0,
-                    token: envoyToken,
+                    token: device.envoyToken,
                     expires_at: 0,
-                    installer: this.envoyFirmware7xxTokenGenerationMode === 2 ? this.envoyTokenInstaller : false
+                    installer: device.envoyFirmware7xxTokenGenerationMode === 2 ? device.envoyTokenInstaller : false
                 }
             },
             backboneApp: {
@@ -454,23 +448,6 @@ class EnvoyData extends EventEmitter {
             });
     }
 
-    createAxiosInstance(authHeader = null, cookie = null) {
-        return axios.create({
-            baseURL: this.url,
-            headers: {
-                Accept: 'application/json',
-                ...(authHeader ? { Authorization: authHeader } : {}),
-                ...(cookie ? { Cookie: cookie } : {}),
-            },
-            withCredentials: true,
-            httpsAgent: new Agent({
-                keepAlive: false,
-                rejectUnauthorized: false
-            }),
-            timeout: 60000
-        });
-    }
-
     handleError(error) {
         const errorString = error.toString();
         const tokenNotValid = errorString.includes('status code 401');
@@ -488,7 +465,8 @@ class EnvoyData extends EventEmitter {
     async startStopImpulseGenerator(state) {
         try {
             //start impulse generator 
-            const startStop = state ? await this.impulseGenerator.start(this.timers) : await this.impulseGenerator.stop();
+            const timers = state ? this.timers : [];
+            await this.impulseGenerator.state(state, timers)
             return true;
         } catch (error) {
             throw new Error(`Impulse generator start error: ${error}`);
@@ -731,7 +709,7 @@ class EnvoyData extends EventEmitter {
             const jwt = this.feature.info.jwtToken;
 
             // Create a token-authenticated Axios instance
-            const axiosInstance = this.createAxiosInstance(`Bearer ${jwt.token}`, null);
+            const axiosInstance = this.functions.createAxiosInstance(this.url, `Bearer ${jwt.token}`, null);
 
             // Send validation request
             const response = await axiosInstance.get(ApiUrls.CheckJwt);
@@ -752,7 +730,7 @@ class EnvoyData extends EventEmitter {
             }
 
             // Replace axios instance with cookie-authenticated one
-            this.axiosInstance = this.createAxiosInstance(null, cookie);
+            this.axiosInstance = this.functions.createAxiosInstance(this.url, null, cookie);
 
             // Update internal state
             this.feature.info.tokenValid = true;
@@ -2750,7 +2728,7 @@ class EnvoyData extends EventEmitter {
 
         try {
             // Create axios instance
-            this.axiosInstance = this.createAxiosInstance();
+            this.axiosInstance = this.functions.createAxiosInstance(this.url);
 
             // Get basic PV info
             const getInfo = await this.getInfo();

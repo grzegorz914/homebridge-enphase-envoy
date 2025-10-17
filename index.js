@@ -90,6 +90,7 @@ class EnvoyPlatform {
         }
 
         try {
+          const url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${host}` : `http://${host}`;
           const devicesClass = device.energyMeter ? [EnvoyDevice, EnergyMeter] : [EnvoyDevice];
           for (const [index, DeviceClass] of devicesClass.entries()) {
             const accessoryName = index === 0 ? deviceName : 'Energy Meter';
@@ -98,7 +99,7 @@ class EnvoyPlatform {
             const impulseGenerator = new ImpulseGenerator()
               .on('start', async () => {
                 try {
-                  const envoyDevice = new DeviceClass(api, accessoryName, host, displayType, envoyFirmware7xxTokenGenerationMode, envoyPasswd, envoyToken, envoyTokenInstaller, enlightenUser, enlightenPasswd, envoyIdFile, envoyTokenFile, device, prefDir, energyMeterHistoryFileName, log)
+                  const envoyDevice = new DeviceClass(api, log, url, accessoryName, device, envoyIdFile, envoyTokenFile, prefDir, energyMeterHistoryFileName)
                     .on('devInfo', (info) => logLevel.devInfo && log.info(info))
                     .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${accessoryName}, ${msg}`))
                     .on('info', (msg) => logLevel.info && log.info(`Device: ${host} ${accessoryName}, ${msg}`))
@@ -111,7 +112,7 @@ class EnvoyPlatform {
                     api.publishExternalAccessories(PluginName, [accessory]);
                     if (logLevel.success) log.success(`Device: ${host} ${accessoryName}, Published as external accessory.`);
 
-                    await impulseGenerator.stop();
+                    await impulseGenerator.state(false);
                     await envoyDevice.startStopImpulseGenerator(true);
                   }
                 } catch (error) {
@@ -123,7 +124,7 @@ class EnvoyPlatform {
               });
 
             // start impulse generator
-            await impulseGenerator.start([{ name: 'start', sampling: 120000 }]);
+            await impulseGenerator.state(true, [{ name: 'start', sampling: 120000 }]);
           }
         } catch (error) {
           if (logLevel.error) log.error(`Device: ${host} ${deviceName}, Did finish launching error: ${error}`);

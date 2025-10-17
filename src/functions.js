@@ -1,4 +1,6 @@
 import { promises as fsPromises } from 'fs';
+import axios from 'axios';
+import { Agent } from 'https';
 import { ApiCodes, TimezoneLocaleMap } from './constants.js';
 
 class Functions {
@@ -110,6 +112,23 @@ class Functions {
         if (power < 0 && power < powerPeakStored) return power;
 
         return powerPeakStored;
+    }
+
+    createAxiosInstance(url, authHeader = null, cookie = null) {
+        return axios.create({
+            baseURL: url,
+            headers: {
+                Accept: 'application/json',
+                ...(authHeader ? { Authorization: authHeader } : {}),
+                ...(cookie ? { Cookie: cookie } : {}),
+            },
+            withCredentials: true,
+            httpsAgent: new Agent({
+                keepAlive: true,
+                rejectUnauthorized: false
+            }),
+            timeout: 60000
+        });
     }
 
 }
