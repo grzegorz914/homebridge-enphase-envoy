@@ -21,8 +21,6 @@ class EnergyMeter extends EventEmitter {
         this.log = log;
         this.url = url;
         this.name = deviceName;
-        this.host = device.host;
-
         this.envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode;
         this.enlightenUser = device.enlightenUser;
         this.enlightenPasswd = device.enlightenPasswd;
@@ -962,8 +960,8 @@ class EnergyMeter extends EventEmitter {
                 const key = MetersKeyMap[meterType];
                 const measurementType = ApiCodes[meterType];
 
-                let sourceMeter, sourceEnergy, energyLifetimeWithOffset;
-                let power, energyLifetime;
+                let sourceMeter, sourceEnergy;
+                let power, energyLifetime, energyLifetimeWithOffset;
                 switch (key) {
                     case 'production': {
                         const sourcePcu = this.pv.powerAndEnergy[key].pcu;
@@ -972,7 +970,7 @@ class EnergyMeter extends EventEmitter {
                         sourceEnergy = meterEnabled ? sourceEim : sourcePcu;
                         power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
                         energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime / 1000 : null;
-                        energyLifetimeWithOffset = this.functions.isValidValue(sourceMeter.energyLifetime) ? energyLifetime + this.energyProductionLifetimeOffset : null;
+                        energyLifetimeWithOffset = this.functions.isValidValue(energyLifetime) ? energyLifetime + this.energyProductionLifetimeOffset : null;
                         break;
                     }
                     case 'consumptionNet': {
@@ -980,7 +978,7 @@ class EnergyMeter extends EventEmitter {
                         sourceEnergy = this.pv.powerAndEnergy.consumptionNet;
                         power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
                         energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime / 1000 : null;
-                        energyLifetimeWithOffset = this.functions.isValidValue(sourceMeter.energyLifetime) ? energyLifetime + this.energyConsumptionNetLifetimeOffset : null;
+                        energyLifetimeWithOffset = this.functions.isValidValue(energyLifetime) ? energyLifetime + this.energyConsumptionNetLifetimeOffset : null;
                         break;
                     }
                     case 'consumptionTotal': {
@@ -988,7 +986,7 @@ class EnergyMeter extends EventEmitter {
                         sourceEnergy = this.pv.powerAndEnergy.consumptionTotal;
                         power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
                         energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime / 1000 : null;
-                        energyLifetimeWithOffset = this.functions.isValidValue(sourceMeter.energyLifetime) ? energyLifetime + this.energyConsumptionTotalLifetimeOffset : null;
+                        energyLifetimeWithOffset = this.functions.isValidValue(energyLifetime) ? energyLifetime + this.energyConsumptionTotalLifetimeOffset : null;
                         break;
                     }
                 }
@@ -1017,8 +1015,8 @@ class EnergyMeter extends EventEmitter {
 
                     // Create characteristics energy meter
                     const characteristics = [
-                        { type: Characteristic.EvePower, value: obj.power },
-                        { type: Characteristic.EveEnergyLifetime, value: obj.energyLifetimeWithOffset },
+                        { type: Characteristic.EvePower, value: power },
+                        { type: Characteristic.EveEnergyLifetime, value: energyLifetimeWithOffset },
                     ];
 
                     // Create characteristics energy meter

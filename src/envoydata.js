@@ -13,7 +13,6 @@ class EnvoyData extends EventEmitter {
 
         //device configuration
         this.url = url;
-        this.host = device.host;
         this.envoyFirmware7xxTokenGenerationMode = device.envoyFirmware7xxTokenGenerationMode;
         this.envoyPasswd = device.envoyPasswd;
         this.enlightenUser = device.enlightenUser;
@@ -27,8 +26,6 @@ class EnvoyData extends EventEmitter {
         this.ensembleDataRefreshTime = (device.ensembleDataRefreshTime || 15) * 1000;
 
         //log
-        this.logDeviceInfo = device.log?.deviceInfo || true;
-        this.logInfo = device.log?.info || false;
         this.logWarn = device.log?.warn || true;
         this.logError = device.log?.error || true;
         this.logDebug = device.log?.debug || false;
@@ -936,7 +933,7 @@ class EnvoyData extends EventEmitter {
             this.feature.home.networkInterfaces.count = networkInterfaces.length;
 
             this.feature.home.wirelessConnections.supported = wirelessConnections.length > 0;
-            this.feature.home.wirelessConnections.installed = wirelessConnections.some(w => w.connected && w.signal_strength > 0);
+            this.feature.home.wirelessConnections.installed = wirelessConnections.some(w => w.connected);
             this.feature.home.wirelessConnections.count = wirelessConnections.length;
             this.feature.home.supported = true;
 
@@ -2043,18 +2040,18 @@ class EnvoyData extends EventEmitter {
 
         try {
             const response = await this.axiosInstance.get(ApiUrls.EnsemblePower);
-            const devices = response.data.devices || [];
-            if (this.logDebug) this.emit('debug', `Ensemble power response:`, devices);
+            const responseData = response.data;
+            if (this.logDebug) this.emit('debug', `Ensemble power response:`, responseData);
 
-            const devicesSupported = devices.length > 0;
-            if (!devicesSupported) return false;
+            const devices = responseData.devices ?? [];
+            if (!devices.length === 0) return false;
 
             // update encharges
             const enchargesRealPowerSummary = [];
             const encharges = this.pv.inventory.esubs.encharges.devices || [];
-            for (const encharge of encharges) {
-                const serialNumber = encharge.serialNumber;
-                const device = devices.find(device => device.serial_num === serialNumber);
+            for (const device of devices) {
+                const serialNumber = device.serial_num;
+                const encharge = encharges.find(device => device.serialNumber === serialNumber);
                 if (this.logDebug) this.emit('debug', `Ensemble device power:`, device);
                 if (!device) continue;
 
