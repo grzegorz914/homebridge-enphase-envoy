@@ -16,14 +16,10 @@ class DigestAuth {
             return await axios.request(url, options);
         } catch (error) {
             const resError = error.response;
-            if (!resError || resError.status !== 401) {
-                throw new Error(`Digest authentication response error: ${resError ? resError.status : 'Unknown error'}`);
-            }
+            if (!resError || resError.status !== 401) throw new Error(`Digest authentication response error: ${resError ? resError.status : 'Unknown error'}`);
 
             const resHeaders = resError.headers["www-authenticate"];
-            if (!resHeaders || !resHeaders.includes('nonce')) {
-                throw new Error(`Digest authentication headers error: ${resHeaders || 'Header not found'}`);
-            }
+            if (!resHeaders || !resHeaders.includes('nonce')) throw new Error(`Digest authentication headers error: ${resHeaders || 'Header not found'}`);
 
             try {
                 const authDetails = {};

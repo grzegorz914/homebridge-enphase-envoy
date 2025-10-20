@@ -124,7 +124,7 @@ class Functions {
             },
             withCredentials: true,
             httpsAgent: new Agent({
-                keepAlive: true,
+                keepAlive: false,
                 rejectUnauthorized: false
             }),
             timeout: 60000

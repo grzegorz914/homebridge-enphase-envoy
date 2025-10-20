@@ -1,7 +1,6 @@
 import { join } from 'path';
 import { mkdirSync, existsSync, writeFileSync } from 'fs';
 import EnvoyDevice from './src/envoydevice.js';
-import EnergyMeter from './src/energymeter.js';
 import ImpulseGenerator from './src/impulsegenerator.js';
 import { PluginName, PlatformName } from './src/constants.js';
 import CustomCharacteristics from './src/customcharacteristics.js';
@@ -32,7 +31,7 @@ class EnvoyPlatform {
 
         const deviceName = device.name;
         const host = device.host || (i === 0 ? 'envoy.local' : `envoy-${i + 1}.local`);
-        const { envoyFirmware7xxTokenGenerationMode = 0, envoyPasswd, envoyToken, envoyTokenInstaller = false, enlightenUser, enlightenPasswd } = device;
+        const { envoyFirmware7xxTokenGenerationMode = 0, envoyToken, enlightenUser, enlightenPasswd } = device;
 
         const logLevel = {
           devInfo: device.log?.deviceInfo || true,
@@ -78,7 +77,7 @@ class EnvoyPlatform {
         const postFix = host.split('.').join('');
         const envoyIdFile = join(prefDir, `envoyId_${postFix}`);
         const envoyTokenFile = join(prefDir, `envoyToken_${postFix}`);
-        const energyMeterHistoryFileName = `energyMeterHistory_${postFix}.json`;
+        const energyMeterHistoryFileName = `energyMeterHistory_${postFix}`;
 
         try {
           [envoyIdFile, envoyTokenFile].forEach(file => {
@@ -91,41 +90,37 @@ class EnvoyPlatform {
 
         try {
           const url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${host}` : `http://${host}`;
-          const devicesClass = device.energyMeter ? [EnvoyDevice, EnergyMeter] : [EnvoyDevice];
-          for (const [index, DeviceClass] of devicesClass.entries()) {
-            const accessoryName = index === 0 ? deviceName : 'Energy Meter';
 
-            // create impulse generator
-            const impulseGenerator = new ImpulseGenerator()
-              .on('start', async () => {
-                try {
-                  const envoyDevice = new DeviceClass(api, log, url, accessoryName, device, envoyIdFile, envoyTokenFile, prefDir, energyMeterHistoryFileName)
-                    .on('devInfo', (info) => logLevel.devInfo && log.info(info))
-                    .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${accessoryName}, ${msg}`))
-                    .on('info', (msg) => logLevel.info && log.info(`Device: ${host} ${accessoryName}, ${msg}`))
-                    .on('debug', (msg, data) => logLevel.debug && log.info(`Device: ${host} ${accessoryName}, debug: ${data ? `${msg} ${JSON.stringify(data, null, 2)}` : msg}`))
-                    .on('warn', (msg) => logLevel.warn && log.warn(`Device: ${host} ${accessoryName}, ${msg}`))
-                    .on('error', (msg) => logLevel.error && log.error(`Device: ${host} ${accessoryName}, ${msg}`));
+          // create impulse generator
+          const impulseGenerator = new ImpulseGenerator()
+            .on('start', async () => {
+              try {
+                const envoyDevice = new EnvoyDevice(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyMeterHistoryFileName)
+                  .on('devInfo', (info) => logLevel.devInfo && log.info(info))
+                  .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${deviceName}, ${msg}`))
+                  .on('info', (msg) => logLevel.info && log.info(`Device: ${host} ${deviceName}, ${msg}`))
+                  .on('debug', (msg, data) => logLevel.debug && log.info(`Device: ${host} ${deviceName}, debug: ${data ? `${msg} ${JSON.stringify(data, null, 2)}` : msg}`))
+                  .on('warn', (msg) => logLevel.warn && log.warn(`Device: ${host} ${deviceName}, ${msg}`))
+                  .on('error', (msg) => logLevel.error && log.error(`Device: ${host} ${deviceName}, ${msg}`));
 
-                  const accessory = await envoyDevice.start();
-                  if (accessory) {
-                    api.publishExternalAccessories(PluginName, [accessory]);
-                    if (logLevel.success) log.success(`Device: ${host} ${accessoryName}, Published as external accessory.`);
+                const accessories = await envoyDevice.start();
+                if (accessories) {
+                  api.publishExternalAccessories(PluginName, accessories);
+                  if (logLevel.success) log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
 
-                    await impulseGenerator.state(false);
-                    await envoyDevice.startStopImpulseGenerator(true);
-                  }
-                } catch (error) {
-                  if (logLevel.error) log.error(`Device: ${host} ${accessoryName}, Start impulse generator error: ${error}, retrying.`);
+                  await impulseGenerator.state(false);
+                  await envoyDevice.startStopImpulseGenerator(true);
                 }
-              })
-              .on('state', state => {
-                if (logLevel.debug) log.info(`Device: ${host} ${accessoryName}, Start impulse generator ${state ? 'started' : 'stopped'}.`);
-              });
+              } catch (error) {
+                if (logLevel.error) log.error(`Device: ${host} ${deviceName}, Start impulse generator error: ${error}, retrying.`);
+              }
+            })
+            .on('state', state => {
+              if (logLevel.debug) log.info(`Device: ${host} ${deviceName}, Start impulse generator ${state ? 'started' : 'stopped'}.`);
+            });
 
-            // start impulse generator
-            await impulseGenerator.state(true, [{ name: 'start', sampling: 120000 }]);
-          }
+          // start impulse generator
+          await impulseGenerator.state(true, [{ name: 'start', sampling: 120000 }]);
         } catch (error) {
           if (logLevel.error) log.error(`Device: ${host} ${deviceName}, Did finish launching error: ${error}`);
         }

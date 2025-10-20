@@ -174,10 +174,13 @@ export const ApiCodes = {
     "ENCHG_STATE_DISCHARGING": "Encharge state discharging",
     "ENCHG_STATE_IDLE": "Encharge state idle",
     "ENCHG_STATE_READY": "Encharge state ready",
+    "ENCMN_MDE_BMU_READY": "Encharge BMU ready",
     "ENCMN_MDE_ENCHARGE_READY": "Encharge mode ready",
     "ENCMN_MDE_ON_GRID": "Encharge mode on grid",
     "ENCMN_MDE_OFF_GRID": "Encharge mode off grid",
+    "ENCMN_MDE_PCU_READY": "Encharge Microinverter ready",
     "ENCMN_C6_CC_READY": "C6 Combiner Controller ready",
+    "ENCMN_C6_RGM_DEV_CONNECTED": "C6 Revenue Grade Meter connected",
     "ENPOWER": "Enpower",
     "ENS_DEVICE_STATE_READY": "Ensemble state ready",
     "ENPWR_STATE_GRIDMODE_CONFIRM": "Enpower state grid mode confirm",
@@ -202,6 +205,7 @@ export const ApiCodes = {
     "check-wiring": "Check Wiring",
     "close": "Close",
     "closed": "Closed",
+    "configured": "Configured",
     "connected": "Connected",
     "consumption": "Consumption Net",
     "discharging": "Discharging",
@@ -397,6 +401,14 @@ export const MetersKeyMap = {
     "evse": "evse",
     "load": "load",
     "pv3p": "pv3p"
+};
+
+export const MetersKeyMap1 = {
+    "Production": "production",
+    "Consumption Net": "consumptionNet",
+    "Consumption Total": "consumptionTotal",
+    "Storage": "storage",
+    "Generator": "generator",
 };
 
 export const DeviceTypeMap = {

@@ -28,7 +28,11 @@
                     "enlightenPasswd": "",
                     "envoyToken": "",
                     "envoyTokenInstaller": false,
-                    "lockControl": true,
+                    "lockControl": {
+                        "enable": true,
+                        "time": 30,
+                        "namePrefix": false
+                    },
                     "productionStateSensor": {
                         "name": "Sensor name",
                         "displayType": 0,

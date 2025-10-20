@@ -108,9 +108,10 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | `enlightenPasswd` | | string | Enlighten password |
 | `envoyToken` | | string | Token if you selected `2 - Your Own Generated Token` for envoyFirmware7xxTokenGenerationMode |
 | `envoyTokenInstaller` | | boolean | Enable if you are using the installer token |
-| `lockControl` | | boolean | Enables system control auto lock accessory |
-| `lockControlPrefix` | | boolean | Use accessory name for prefix |
-| `lockControlTime` | | number | `System Auto Lock Control` time (seconds) |
+| `lockControl` | | key | `Lock Control` for enable?disable system control |
+| | `lockControl.enable` | boolean | Enables system control auto lock accessory |
+| | `lockControl.time` | number | `System Auto Lock Control` time (seconds) |
+| | `lockControl.namePrefix` | boolean | Use accessory name for prefix |
 | `energyMeter` | | boolean | Enables energy meter as a axtra accessory to display charts in EVE app |
 | `productionStateSensor` | | key | `Production State Sensor` for production state monitoring |
 | | `name` | string | Accessory name for Home app |

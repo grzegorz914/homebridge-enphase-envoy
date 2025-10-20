@@ -3,11 +3,12 @@ import EnvoyData from './envoydata.js';
 import RestFul from './restful.js';
 import Mqtt from './mqtt.js';
 import Functions from './functions.js';
-import { PartNumbers, ApiCodes, MetersKeyMap, DeviceTypeMap, LedStatus } from './constants.js';
+import fakegato from 'fakegato-history';
+import { PartNumbers, ApiCodes, MetersKeyMap, MetersKeyMap1, DeviceTypeMap, LedStatus } from './constants.js';
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile) {
+    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyMeterHistoryFileName) {
         super();
 
         Accessory = api.platformAccessory;
@@ -17,14 +18,16 @@ class EnvoyDevice extends EventEmitter {
         AccessoryUUID = api.hap.uuid;
 
         //device configuration
+        this.log = log;
         this.url = url;
         this.device = device;
         this.name = deviceName;
         this.displayType = device.displayType;
+        this.energyMeter = device.energyMeter || false;
 
-        this.lockControl = device.lockControl || false;
-        this.lockControlPrefix = device.lockControlPrefix || false;
-        this.lockControTime = (device.lockControlTime || 30) * 1000;
+        this.lockControl = device.lockControl?.enable || false;
+        this.lockControlPrefix = device.lockControl?.prefix || false;
+        this.lockControTime = (device.lockControl?.time || 30) * 1000;
         this.productionStateSensor = device.productionStateSensor || {};
         this.plcLevelCheckControl = device.plcLevelControl || {};
 
@@ -52,8 +55,8 @@ class EnvoyDevice extends EventEmitter {
 
         //ac battery
         this.acBatterieName = device.acBatterieName || 'AC Batterie';
-        this.acBatterieBackupLevelSummaryAccessory = device.acBatterieBackupLevelSummaryAccessory || {};
-        this.acBatterieBackupLevelAccessory = device.acBatterieBackupLevelAccessory || {};
+        this.acBatterieBackupLevelSummaryControl = device.acBatterieBackupLevelSummaryAccessory || {};
+        this.acBatterieBackupLevelControl = device.acBatterieBackupLevelAccessory || {};
 
         //enpower
         this.enpowerDryContactsControl = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enpowerDryContactsControl || false) : false;
@@ -64,9 +67,9 @@ class EnvoyDevice extends EventEmitter {
 
         //encharge
         this.enchargeName = device.enchargeName || 'Encharge';
-        this.enchargeBackupLevelSummaryAccessory = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummaryAccessory || {}) : {};
+        this.enchargeBackupLevelSummaryControl = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummaryAccessory || {}) : {};
         this.enchargeBackupLevelSummarySensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelSummarySensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
-        this.enchargeBackupLevelAccessory = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelAccessory || {}) : {};
+        this.enchargeBackupLevelControl = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeBackupLevelAccessory || {}) : {};
         this.enchargeStateSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeStateSensor || {}) : {};
         this.enchargeProfileControls = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeProfileControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
         this.enchargeProfileSensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.enchargeProfileSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
@@ -120,18 +123,18 @@ class EnvoyDevice extends EventEmitter {
 
         //plc level check control
         if (this.plcLevelCheckControl.displayType > 0) {
-            const tile = this.plcLevelCheckControl;
-            tile.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][tile.displayType];
-            tile.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][tile.displayType];
-            tile.state = false;
+            const control = this.plcLevelCheckControl;
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
+            control.state = false;
         }
 
         //data sampling control
         if (this.dataSamplingControl.displayType > 0) {
-            const tile = this.dataSamplingControl;
-            tile.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][tile.displayType];
-            tile.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][tile.displayType];
-            tile.state = false;
+            const control = this.dataSamplingControl;
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
+            control.state = false;
         }
 
         //data sampling sensor
@@ -212,32 +215,32 @@ class EnvoyDevice extends EventEmitter {
         }
 
         //ac battery
-        if (this.acBatterieBackupLevelSummaryAccessory.displayType > 0) {
-            const tile = this.acBatterieBackupLevelSummaryAccessory;
-            tile.serviceType = [null, Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor, Service.Battery][tile.displayType];
-            tile.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected, Characteristic.StatusLowBattery][tile.displayType];
-            tile.characteristicType1 = [null, Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel, Characteristic.BatteryLevel][tile.displayType];
-            tile.state = false;
-            tile.backupLevel = 0;
+        if (this.acBatterieBackupLevelSummaryControl.displayType > 0) {
+            const control = this.acBatterieBackupLevelSummaryControl;
+            control.serviceType = [null, Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor, Service.Battery][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected, Characteristic.StatusLowBattery][control.displayType];
+            control.characteristicType1 = [null, Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel, Characteristic.BatteryLevel][control.displayType];
+            control.state = false;
+            control.backupLevel = 0;
         }
 
-        if (this.acBatterieBackupLevelAccessory.displayType > 0) {
-            const tile = this.acBatterieBackupLevelAccessory;
-            tile.serviceType = [null, Service.Battery][tile.displayType];
-            tile.characteristicType = [null, Characteristic.StatusLowBattery][tile.displayType];
-            tile.characteristicType1 = [null, Characteristic.BatteryLevel][tile.displayType];
-            tile.characteristicType2 = [null, Characteristic.ChargingState][tile.displayType];
-            tile.state = false;
-            tile.backupLevel = 0;
-            tile.chargeState = 0;
+        if (this.acBatterieBackupLevelControl.displayType > 0) {
+            const control = this.acBatterieBackupLevelControl;
+            control.serviceType = [null, Service.Battery][control.displayType];
+            control.characteristicType = [null, Characteristic.StatusLowBattery][control.displayType];
+            control.characteristicType1 = [null, Characteristic.BatteryLevel][control.displayType];
+            control.characteristicType2 = [null, Characteristic.ChargingState][control.displayType];
+            control.state = false;
+            control.backupLevel = 0;
+            control.chargeState = 0;
         }
 
         //enpower
         if (this.enpowerGridStateControl.displayType > 0) {
-            const tile = this.enpowerGridStateControl;
-            tile.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][tile.displaqyType];
-            tile.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][tile.displaqyType];
-            tile.state = false;
+            const control = this.enpowerGridStateControl;
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displaqyType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displaqyType];
+            control.state = false;
         }
 
         if (this.enpowerGridStateSensor.displayType > 0) {
@@ -254,13 +257,13 @@ class EnvoyDevice extends EventEmitter {
         }
 
         //encharge
-        if (this.enchargeBackupLevelSummaryAccessory.displayType > 0) {
-            const tile = this.enchargeBackupLevelSummaryAccessory;
-            tile.serviceType = [null, Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor, Service.Battery][tile.displayType];
-            tile.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected, Characteristic.StatusLowBattery][tile.displayType];
-            tile.characteristicType1 = [null, Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel, Characteristic.BatteryLevel][tile.displayType];
-            tile.state = false;
-            tile.backupLevel = 0;
+        if (this.enchargeBackupLevelSummaryControl.displayType > 0) {
+            const control = this.enchargeBackupLevelSummaryControl;
+            control.serviceType = [null, Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor, Service.Battery][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected, Characteristic.StatusLowBattery][control.displayType];
+            control.characteristicType1 = [null, Characteristic.Brightness, Characteristic.RotationSpeed, Characteristic.CurrentRelativeHumidity, Characteristic.CarbonMonoxideLevel, Characteristic.BatteryLevel][control.displayType];
+            control.state = false;
+            control.backupLevel = 0;
         }
 
         for (const sensor of this.enchargeBackupLevelSummarySensors) {
@@ -269,15 +272,15 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
         }
 
-        if (this.enchargeBackupLevelAccessory.displayType > 0) {
-            const tile = this.enchargeBackupLevelAccessory;
-            tile.serviceType = [null, Service.Battery][tile.displayType];
-            tile.characteristicType1 = [null, Characteristic.StatusLowBattery][tile.displayType];
-            tile.characteristicType = [null, Characteristic.BatteryLevel][tile.displayType];
-            tile.characteristicType2 = [null, Characteristic.ChargingState][tile.displayType];
-            tile.state = false;
-            tile.backupLevel = 0;
-            tile.chargeState = 0;
+        if (this.enchargeBackupLevelControl.displayType > 0) {
+            const control = this.enchargeBackupLevelControl;
+            control.serviceType = [null, Service.Battery][control.displayType];
+            control.characteristicType1 = [null, Characteristic.StatusLowBattery][control.displayType];
+            control.characteristicType = [null, Characteristic.BatteryLevel][control.displayType];
+            control.characteristicType2 = [null, Characteristic.ChargingState][control.displayType];
+            control.state = false;
+            control.backupLevel = 0;
+            control.chargeState = 0;
         }
 
         if (this.enchargeStateSensor.displayType > 0) {
@@ -287,12 +290,12 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
         }
 
-        for (const tile of this.enchargeProfileControls) {
-            tile.serviceType = [null, Service.Lightbulb][tile.displayType];
-            tile.characteristicType = [null, Characteristic.On][tile.displayType];
-            tile.state = false;
-            tile.reservedSoc = 0;
-            tile.previousState = null;
+        for (const control of this.enchargeProfileControls) {
+            control.serviceType = [null, Service.Lightbulb][control.displayType];
+            control.characteristicType = [null, Characteristic.On][control.displayType];
+            control.state = false;
+            control.reservedSoc = 0;
+            control.previousState = null;
         }
 
         for (const sensor of this.enchargeProfileSensors) {
@@ -330,10 +333,10 @@ class EnvoyDevice extends EventEmitter {
 
         //generator
         if (this.generatorStateControl.displayType > 0) {
-            const tile = this.generatorStateControl;
-            tile.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][tile.displaqyType];
-            tile.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][tile.displaqyType];
-            tile.state = false;
+            const control = this.generatorStateControl;
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displaqyType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displaqyType];
+            control.state = false;
         }
 
         if (this.generatorStateSensor.displayType > 0) {
@@ -343,11 +346,11 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
         }
 
-        for (const tile of this.generatorModeContols) {
-            tile.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][tile.displayType];
-            tile.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][tile.displayType];
-            tile.state = false;
-            tile.previousState = null;
+        for (const control of this.generatorModeContols) {
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
+            control.state = false;
+            control.previousState = null;
         }
 
         for (const sensor of this.generatorModeSensors) {
@@ -360,6 +363,12 @@ class EnvoyDevice extends EventEmitter {
         this.functions = new Functions();
         this.envoyIdFile = envoyIdFile;
         this.envoyTokenFile = envoyTokenFile;
+
+        //fakegato
+        this.fakegatoHistory = fakegato(api);
+        this.prefDir = prefDir;
+        this.energyMeterHistoryFileName = energyMeterHistoryFileName;
+        this.lastReset = 0;
 
         //supported functions
         this.feature = {
@@ -733,7 +742,6 @@ class EnvoyDevice extends EventEmitter {
         try {
             //suppored feature
             let pvControl = true;
-            const envoySerialNumber = this.pv.info.serialNumber;
             const productionStateSupported = this.feature.productionState.supported;
             const gridProfileSupported = this.feature.gridProfile.supported;
             const plcLevelSupported = this.feature.plcLevel.supported;
@@ -774,1813 +782,96 @@ class EnvoyDevice extends EventEmitter {
             const generatorInstalled = this.feature.inventory.esubs.generator.installed;
             const liveDataSupported = this.feature.liveData.supported;
 
-            //accessory
-            if (this.logDebug) this.emit('debug', `Prepare accessory`);
-            const accessoryName = this.name;
-            const accessoryUUID = AccessoryUUID.generate(envoySerialNumber);
-            const accessoryCategory = [Categories.OTHER, Categories.LIGHTBULB, Categories.FAN, Categories.SENSOR, Categories.SENSOR][this.displayType];
-            const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
+            const accessories = [];
+            const devices = this.energyMeter ? 2 : 1;
+            for (let i = 0; i < devices; i++) {
+                switch (i) {
+                    case 0: //PV System
+                        const envoySerialNumber = this.pv.info.serialNumber;
+                        const accessoryName = this.name;
 
-            //information service
-            if (this.logDebug) this.emit('debug', `Prepare Information Service`);
-            accessory.getService(Service.AccessoryInformation)
-                .setCharacteristic(Characteristic.Manufacturer, 'Enphase')
-                .setCharacteristic(Characteristic.Model, this.pv.info.modelName ?? 'Model Name')
-                .setCharacteristic(Characteristic.SerialNumber, envoySerialNumber ?? 'Serial Number')
-                .setCharacteristic(Characteristic.FirmwareRevision, this.pv.info.software.replace(/[a-zA-Z]/g, '') ?? '0');
+                        //accessory
+                        if (this.logDebug) this.emit('debug', `Prepare ${accessoryName} accessory`);
+                        const accessoryUUID = AccessoryUUID.generate(envoySerialNumber);
+                        const accessoryCategory = [Categories.OTHER, Categories.LIGHTBULB, Categories.FAN, Categories.SENSOR, Categories.SENSOR][this.displayType];
+                        const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
 
-            //system
-            if (this.systemAccessory) {
-                if (this.logDebug) this.emit('debug', `Prepare System Service`);
-                const systemAccessory = this.systemAccessory;
-                const { serviceType, characteristicType, characteristicType1 } = systemAccessory;
+                        //information service
+                        if (this.logDebug) this.emit('debug', `Prepare Information Service`);
+                        accessory.getService(Service.AccessoryInformation)
+                            .setCharacteristic(Characteristic.Manufacturer, 'Enphase')
+                            .setCharacteristic(Characteristic.Model, this.pv.info.modelName ?? 'Model Name')
+                            .setCharacteristic(Characteristic.SerialNumber, envoySerialNumber ?? 'Serial Number')
+                            .setCharacteristic(Characteristic.FirmwareRevision, this.pv.info.software.replace(/[a-zA-Z]/g, '') ?? '0');
+                        //system
+                        if (this.systemAccessory) {
+                            if (this.logDebug) this.emit('debug', `Prepare System Service`);
+                            const systemAccessory = this.systemAccessory;
+                            const { serviceType, characteristicType, characteristicType1 } = systemAccessory;
 
-                const systemService = accessory.addService(serviceType, accessoryName, `systemService`);
-                systemService.setPrimaryService(true);
-                systemService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                systemService.setCharacteristic(Characteristic.ConfiguredName, accessoryName);
+                            const systemService = accessory.addService(serviceType, accessoryName, `systemService`);
+                            systemService.setPrimaryService(true);
+                            systemService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            systemService.setCharacteristic(Characteristic.ConfiguredName, accessoryName);
 
-                // Handle production state characteristic
-                systemService.getCharacteristic(characteristicType)
-                    .onGet(async () => {
-                        const currentState = systemAccessory.state;
-                        if (this.logInfo) this.emit('info', `Production state: ${currentState ? 'Enabled' : 'Disabled'}`);
-                        return currentState;
-                    })
-                    .onSet(async (value) => {
-                        if (!productionStateSupported || !pvControl) {
-                            if (this.logWarn) this.emit('warn', !productionStateSupported ? `Production state control not supported` : `System control is locked`);
-                            setTimeout(() => systemService.updateCharacteristic(characteristicType, !value), 250);
-                            return;
-                        }
-
-                        try {
-                            const tokenValid = await this.checkToken();
-                            if (!tokenValid || value === this.pv.productionState) {
-                                setTimeout(() => systemService.updateCharacteristic(characteristicType, !value), 250);
-                                return;
-                            }
-
-                            await this.envoyData.setProductionState(value);
-                            if (this.logDebug) this.emit('debug', `Set production state: ${value ? 'Enabled' : 'Disabled'}`);
-                        } catch (error) {
-                            if (this.logWarn) this.emit('warn', `Set production state error: ${error}`);
-                        }
-                    });
-
-                // Handle production level characteristic
-                systemService.getCharacteristic(characteristicType1)
-                    .onGet(async () => {
-                        const powerLevel = systemAccessory.level;
-                        if (this.logInfo) this.emit('info', `Production level: ${powerLevel} %`);
-                        return powerLevel;
-                    });
-
-                this.systemService = systemService;
-            }
-
-            //data refresh control
-            if (this.dataSamplingControl.displayType > 0) {
-                if (this.logDebug) this.emit('debug', `Prepare Data Refresh Control Service`);
-
-                const control = this.dataSamplingControl;
-                const { name, namePrefix, serviceType, characteristicType } = control;
-                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                const controlService = accessory.addService(serviceType, serviceName, `dataSamplingControlService`);
-                controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                controlService.getCharacteristic(characteristicType)
-                    .onGet(async () => {
-                        const currentState = control.state;
-                        if (this.logInfo) this.emit('info', `Data refresh control: ${currentState ? 'Enabled' : 'Disabled'}`);
-                        return currentState;
-                    })
-
-                    // SET handler
-                    .onSet(async (value) => {
-                        if (!pvControl) {
-                            if (this.logWarn) this.emit('warn', `System control is locked`);
-                            setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                            return;
-                        }
-
-                        try {
-                            await this.envoyData.startStopImpulseGenerator(value);
-                            if (this.logInfo) this.emit('info', `Set data refresh control to: ${value ? 'Enable' : 'Disable'}`);
-                        } catch (error) {
-                            if (this.logWarn) this.emit('warn', `Set data refresh control error: ${error}`);
-                        }
-                    });
-
-                this.dataSamplingControlService = controlService;
-            }
-
-            //data refresh sensor
-            if (this.dataSamplingSensor.displayType > 0) {
-                if (this.logDebug) this.emit('debug', `Prepare Data Refresh Sensor Service`);
-
-                const sensor = this.dataSamplingSensor;
-                const { name, namePrefix, serviceType, characteristicType } = sensor;
-                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                const sensorService = accessory.addService(serviceType, serviceName, `dataSamplingSensorService`);
-                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                sensorService.getCharacteristic(characteristicType)
-                    .onGet(async () => {
-                        const currentState = sensor.state;
-                        if (this.logInfo) this.emit('info', `Data refresh sensor: ${currentState ? 'Active' : 'Not active'}`);
-                        return currentState;
-                    });
-
-                this.dataSamplingSensorService = sensorService;
-            }
-
-            //production state sensor
-            if (this.productionStateSensor.displayType > 0 && productionStateSupported) {
-                if (this.logDebug) this.emit('debug', `Prepare Production State Sensor Service`);
-
-                const sensor = this.productionStateSensor;
-                const { name, namePrefix, serviceType, characteristicType } = sensor;
-                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                const sensorService = accessory.addService(serviceType, serviceName, `productionStateSensorService`);
-                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                sensorService.getCharacteristic(characteristicType)
-                    .onGet(async () => {
-                        const currentState = sensor.state;
-                        if (this.logInfo) this.emit('info', `Production state sensor: ${currentState ? 'Active' : 'Not active'}`);
-                        return currentState;
-                    });
-
-                this.productionStateSensorService = sensorService;
-            }
-
-            //plc level control
-            if (this.plcLevelCheckControl.displayType > 0 && plcLevelSupported) {
-                if (this.logDebug) this.emit('debug', `Prepare Plc Level Control Service`);
-
-                const sensor = this.plcLevelCheckControl;
-                const { name, namePrefix, serviceType, characteristicType } = sensor;
-                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                const controlService = accessory.addService(serviceType, serviceName, `plcLevelCheckControlService`);
-                controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                controlService.getCharacteristic(characteristicType)
-                    .onGet(async () => {
-                        const currentState = sensor.state;
-                        if (this.logInfo) this.emit('info', `Plc level control state: ${currentState ? 'ON' : 'OFF'}`);
-                        return currentState;
-                    })
-                    .onSet(async (value) => {
-                        if (!pvControl) {
-                            if (this.logWarn) this.emit('warn', `System control is locked`);
-                            setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                            return;
-                        }
-
-                        try {
-                            const tokenValid = await this.checkToken();
-                            if (!tokenValid || !value) {
-                                setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                                return;
-                            }
-
-                            await this.updatePlcLevel(false);
-                            if (this.logInfo) this.emit('info', `Set plc level control state to: ${value ? 'ON' : 'OFF'}`);
-                        } catch (error) {
-                            if (this.logWarn) this.emit('warn', `Set plc level control state error: ${error}`);
-                        }
-                    });
-
-                this.plcLevelCheckControlService = controlService;
-            }
-
-            //system control lock service
-            if (this.lockControl) {
-                if (this.logDebug) this.emit('debug', `Prepare System Control Lock Service`);
-
-                pvControl = false; // initially locked
-                const serviceName = this.lockControlPrefix ? `${accessoryName} System control` : 'System control';
-
-                const lockService = accessory.addService(Service.LockMechanism, serviceName, `lockService`);
-                lockService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                lockService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                lockService.getCharacteristic(Characteristic.LockCurrentState)
-                    .onGet(async () => {
-                        const state = pvControl ? Characteristic.LockCurrentState.UNSECURED : Characteristic.LockCurrentState.SECURED;
-                        if (this.logInfo) this.emit('info', `System Control: ${state === Characteristic.LockCurrentState.UNSECURED ? 'Unlocked' : 'Locked'}`);
-                        return state;
-                    });
-                lockService.getCharacteristic(Characteristic.LockTargetState)
-                    .onGet(async () => {
-                        return pvControl ? Characteristic.LockTargetState.UNSECURED : Characteristic.LockTargetState.SECURED;
-                    })
-                    .onSet(async (value) => {
-                        if (value === Characteristic.LockTargetState.UNSECURED) {
-                            this.emit('success', `System control unlocked`);
-                            pvControl = true;
-                            lockService.updateCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.UNSECURED);
-                            this.envoyService.updateCharacteristic(Characteristic.SystemControl, true);
-
-                            if (this.unlockTimeout) clearTimeout(this.unlockTimeout);
-                            this.unlockTimeout = setTimeout(() => {
-                                pvControl = false;
-                                lockService.updateCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.SECURED);
-                                lockService.updateCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
-                                this.envoyService.updateCharacteristic(Characteristic.SystemControl, false);
-                                this.emit('success', `System control locked`);
-                            }, this.lockControTime);
-                        } else {
-                            this.emit('success', `System control locked`);
-                            pvControl = false;
-                            if (this.unlockTimeout) clearTimeout(this.unlockTimeout);
-                            lockService.updateCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.SECURED);
-                            lockService.updateCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
-                            this.envoyService.updateCharacteristic(Characteristic.SystemControl, false);
-                        }
-                    });
-
-                this.lockService = lockService;
-            }
-
-            //envoy
-            if (envoySupported) {
-                if (this.logDebug) this.emit('debug', `Prepare Envoy ${envoySerialNumber} Service`);
-
-                const home = this.pv.homeData;
-                const service = accessory.addService(Service.EnvoyService, `Envoy ${envoySerialNumber}`, `envoyService`);
-                service.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${envoySerialNumber}`);
-                service.getCharacteristic(Characteristic.DataSampling)
-                    .onGet(async () => {
-                        const state = this.pv.dataSampling;
-                        if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, data refresh control: ${state ? 'Enabled' : 'Disabled'}`);
-                        return state;
-                    })
-                    .onSet(async (value) => {
-                        if (!pvControl) {
-                            if (this.logWarn) this.emit('warn', `System control is locked`);
-                            setTimeout(() => {
-                                service.updateCharacteristic(Characteristic.DataSampling, !value);
-                            }, 250);
-                            return;
-                        }
-
-                        try {
-                            await this.envoyData.startStopImpulseGenerator(value);
-                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set data refresh control to: ${value ? `Enable` : `Disable`}`);
-                        } catch (error) {
-                            if (this.logWarn) this.emit('warn', `Envoy: ${envoySerialNumber}, set data refresh control error: ${error}`);
-                        }
-                    });
-
-                // Create characteristics
-                const characteristics = [
-                    { type: Characteristic.Alerts, label: 'alerts', value: home.alerts },
-                    { type: Characteristic.CommInterface, label: 'comm interface', value: home.network.primaryInterface },
-                    { type: Characteristic.NetworkWebComm, label: 'web communication', value: home.network.webComm, postfix: home.network.webComm ? 'Yes' : 'No' },
-                    { type: Characteristic.EverReportedToEnlighten, label: 'report to enlighten', value: home.network.everReportedToEnlighten, postfix: home.network.everReportedToEnlighten ? 'Yes' : 'No' },
-                    { type: Characteristic.DbSize, label: 'data base size', value: home.dbSize, unit: 'MB' },
-                    { type: Characteristic.DbPercentFull, label: 'data base percent full', value: home.dbPercentFull, unit: '%' },
-                    { type: Characteristic.CommNumAndLevel, label: 'communication devices and level', value: `${home.comm.num} / ${home.comm.level}`, unit: '%' },
-                    { type: Characteristic.CommNumPcuAndLevel, label: 'communication Microinverters and level', value: `${home.comm.pcuNum} / ${home.comm.pcuLevel}`, unit: '%' },
-                    { type: Characteristic.Tariff, label: 'tariff', value: home.tariff },
-                    { type: Characteristic.Firmware, label: 'firmware', value: this.pv.info.software },
-                    { type: Characteristic.TimeZone, label: 'time zone', value: home.timeZone },
-                    { type: Characteristic.CurrentDateTime, label: 'current date and time', value: home.currentDateTime },
-                    { type: Characteristic.LastEnlightenReporDate, label: 'report time to enlighten', value: home.network.lastEnlightenReporDate },
-                    { type: Characteristic.UpdateStatus, label: 'update status', value: home.updateStatus }
-                ];
-
-                if (nsrbsInstalled) characteristics.push({ type: Characteristic.CommNumNsrbAndLevel, label: 'communication qRelays and level', value: `${home.comm.nsrbNum} / ${home.comm.nsrbLevel}`, unit: '%' });
-                if (acbsInstalled) characteristics.push({ type: Characteristic.CommNumAcbAndLevel, label: `communication ${acBatterieName} and level`, value: `${home.comm.acbNum} / ${home.comm.acbLevel}`, unit: '%' });
-                if (enchargesInstalled) characteristics.push({ type: Characteristic.CommNumEnchgAndLevel, label: `communication ${enchargeName} and level`, value: `${home.comm.encharges[0].num} / ${home.comm.encharges[0].level}`, unit: '%' });
-                if (gridProfileSupported) characteristics.push({ type: Characteristic.GridProfile, label: 'grid profile', value: home.gridProfile });
-
-                // Control characteristics array (with get/set)
-                if (this.lockControl) {
-                    service.getCharacteristic(Characteristic.SystemControl)
-                        .onGet(async () => {
-                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, system control: ${pvControl ? 'Enabled' : 'Disabled'}`);
-                            return pvControl;
-                        })
-                        .onSet(async (value) => {
-                            try {
-                                await this.lockService.setCharacteristic(Characteristic.LockTargetState, !value);
-                                if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set system control to: ${value ? 'Enable' : 'Disable'}`);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `Envoy: ${envoySerialNumber}, set system control error: ${error}`);
-                            }
-                        });
-                }
-
-                if (productionStateSupported) {
-                    service.getCharacteristic(Characteristic.ProductionState)
-                        .onGet(async () => {
-                            const state = this.pv.productionState;
-                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, production state: ${state ? 'Enabled' : 'Disabled'}`);
-                            return state;
-                        })
-                        .onSet(async (value) => {
-                            if (!pvControl) {
-                                if (this.logWarn) this.emit('warn', `System control is locked`);
-                                setTimeout(() => service.updateCharacteristic(Characteristic.ProductionState, !value), 250);
-                                return;
-                            }
-
-                            try {
-                                const tokenValid = await this.checkToken();
-                                if (!tokenValid || value === this.pv.productionState) {
-                                    setTimeout(() => service.updateCharacteristic(Characteristic.ProductionState, !value), 250);
-                                    return;
-                                }
-
-                                await this.envoyData.setProductionState(value);
-                                if (!this.logDebug) this.emit('debug', `Envoy: ${envoySerialNumber}, set production state: ${value ? 'Enabled' : 'Disabled'}`);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `Envoy: ${envoySerialNumber}, set production state error: ${error}`);
-                            }
-                        });
-                }
-
-                if (plcLevelSupported) {
-                    service.getCharacteristic(Characteristic.PlcLevelCheck)
-                        .onGet(async () => {
-                            const state = this.pv.plcLevelCheck;
-                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, checking plc level: ${state ? `Yes` : `No`}`);
-                            return state;
-                        })
-                        .onSet(async (value) => {
-                            if (!pvControl) {
-                                if (this.logWarn) this.emit('warn', `System control is locked`);
-                                setTimeout(() => service.updateCharacteristic(Characteristic.PlcLevelCheck, !value), 250);
-                                return;
-                            }
-
-                            try {
-                                const tokenValid = await this.checkToken();
-                                if (!tokenValid) {
-                                    setTimeout(() => service.updateCharacteristic(Characteristic.PlcLevelCheck, !value), 250);
-                                    return;
-                                }
-
-                                await this.updatePlcLevel(false);
-                                if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set check plc level: ${value ? `Yes` : `No`}`);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `Envoy: ${envoySerialNumber}, set check plc level error: ${error}`);
-                            }
-                        });
-                }
-
-                if (enpowersInstalled) {
-                    const enpowerState = this.pv.inventoryData.esubs.enpowers[0].mainsAdminStateBool;
-                    characteristics.push({ type: Characteristic.EnpowerGridMode, label: 'enpower grid mode', value: this.pv.inventoryData.esubs.enpowers[0].enpwrGridModeTranslated });
-                    service.getCharacteristic(Characteristic.EnpowerGridState)
-                        .onGet(async () => {
-                            const state = enpowerState;
-                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, enpower grid state: ${state ? 'Grid ON' : 'Grid OFF'}`);
-                            return state;
-                        })
-                        .onSet(async (value) => {
-                            if (!pvControl) {
-                                if (this.logWarn) this.emit('warn', `System control is locked`);
-                                setTimeout(() => service.updateCharacteristic(Characteristic.EnpowerGridState, !value), 250);
-                                return;
-                            }
-
-                            try {
-                                const tokenValid = await this.checkToken();
-                                if (!tokenValid) {
-                                    setTimeout(() => service.updateCharacteristic(Characteristic.EnpowerGridState, !value), 250);
-                                    return;
-                                }
-
-                                await this.envoyData.setEnpowerGridState(value);
-                                if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set enpower grid state to: ${value ? `Grid ON` : `Grid OFF`}`);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `Set enpower grid state error: ${error}`);
-                            }
-                        });
-                }
-
-                if (generatorInstalled) {
-                    const generatorState = this.pv.inventoryData.esubs.generator.adminModeOnBool || this.pv.inventoryData.esubs.generator.adminModeAutoBool;
-                    characteristics.push({ type: Characteristic.GeneratorMode, label: 'generator mode', value: this.pv.inventoryData.esubs.generator.adminMode });
-                    service.getCharacteristic(Characteristic.State)
-                        .onGet(async () => {
-                            const state = generatorState;
-                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, generator state: ${state ? 'ON' : 'OFF'}`);
-                            return state;
-                        })
-                        .onSet(async (value) => {
-                            if (!pvControl) {
-                                if (this.logWarn) this.emit('warn', `System control is locked`);
-                                setTimeout(() => service.updateCharacteristic(Characteristic.State, !value), 250);
-                                return;
-                            }
-
-                            try {
-                                const tokenValid = await this.checkToken();
-                                if (!tokenValid) {
-                                    setTimeout(() => service.updateCharacteristic(Characteristic.State, !value), 250);
-                                    return;
-                                }
-
-                                const genMode = value ? 'on' : 'off';
-                                await this.envoyData.setGeneratorMode(genMode);
-                                if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set generator state to: ${value ? `ON` : `OFF`}`);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `Set generator state error: ${error}`);
-                            }
-                        });
-                }
-
-                // Add all read-only characteristics
-                for (const { type, value, label, unit = '', postfix = '' } of characteristics) {
-                    if (!this.functions.isValidValue(value)) continue;
-
-                    service.getCharacteristic(type)
-                        .onGet(async () => {
-                            const currentValue = value;
-                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                            return currentValue;
-                        });
-                }
-
-                this.envoyService = service;
-
-                // Network Interfaces
-                if (networkInterfacesInstalled) {
-                    this.networkInterfacesServices = [];
-
-                    for (const networkInterface of home.network.interfaces) {
-                        const interfaceType = networkInterface.type;
-                        if (this.logDebug) this.emit('debug', `Prepare Network Interface ${interfaceType} Service`);
-
-                        const networkInterfaceService = accessory.addService(Service.NetworkInterfaceService, `Network Interface ${interfaceType}`, `networkInterfaceService${interfaceType}`);
-                        networkInterfaceService.setCharacteristic(Characteristic.ConfiguredName, `Network Interface ${interfaceType}`);
-
-                        const Characteristics1 = [
-                            { type: Characteristic.Type, label: 'type', value: networkInterface.type },
-                            { type: Characteristic.AddressIp, label: 'address IP ', value: networkInterface.ip },
-                            { type: Characteristic.SignalStrength, label: 'signal strength', value: networkInterface.signalStrength, unit: '%' }
-                        ];
-
-                        for (const { type, value, label, unit = '', postfix = '' } of Characteristics1) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            networkInterfaceService.getCharacteristic(type)
+                            // Handle production state characteristic
+                            systemService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `Network Interface ${interfaceType}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
+                                    const currentState = systemAccessory.state;
+                                    if (this.logInfo) this.emit('info', `Production state: ${currentState ? 'Enabled' : 'Disabled'}`);
+                                    return currentState;
+                                })
+                                .onSet(async (value) => {
+                                    if (!productionStateSupported || !pvControl) {
+                                        if (this.logWarn) this.emit('warn', !productionStateSupported ? `Production state control not supported` : `System control is locked`);
+                                        setTimeout(() => systemService.updateCharacteristic(characteristicType, !value), 250);
+                                        return;
+                                    }
 
-                        this.networkInterfacesServices.push(networkInterfaceService);
-                    }
-                }
+                                    try {
+                                        const tokenValid = await this.checkToken();
+                                        if (!tokenValid || value === this.pv.productionState) {
+                                            setTimeout(() => systemService.updateCharacteristic(characteristicType, !value), 250);
+                                            return;
+                                        }
 
-                // Wireless connection kits
-                if (wirelessConnectionsInstalled) {
-                    this.wirelessConnectionsKitServices = [];
-
-                    for (const wirelessConnection of home.wirelessKits) {
-                        const connectionType = wirelessConnection.type;
-                        if (this.logDebug) this.emit('debug', `Prepare Wireless Connection ${connectionType} Service`);
-
-                        const wirelessService = accessory.addService(Service.WirelessConnectionKitService, `Wireless connection ${connectionType}`, `wirelessConnectionKitService${connectionType}`);
-                        wirelessService.setCharacteristic(Characteristic.ConfiguredName, `Wireless connection ${connectionType}`);
-
-                        const wirelessCharacteristics = [
-                            { type: Characteristic.Type, label: 'type', value: wirelessConnection.type },
-                            { type: Characteristic.Connected, label: 'state', value: wirelessConnection.connected, postfix: `${wirelessConnection.connected ? 'Connected' : 'Disconnected'}` },
-                            { type: Characteristic.SignalStrength, label: 'signal strength', value: wirelessConnection.signalStrength, unit: '%' }
-                        ];
-
-                        for (const { type, value, label, unit = '', postfix = '' } of wirelessCharacteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            wirelessService.getCharacteristic(type)
-                                .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `Wireless connection: ${connectionType}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
-
-                        this.wirelessConnectionsKitServices.push(wirelessService);
-                    }
-                }
-            }
-
-            //meters
-            if (metersInstalled) {
-                this.meterServices = [];
-
-                for (const meter of this.pv.metersData) {
-                    const measurementType = meter.measurementType;
-                    if (this.logDebug) this.emit('debug', `Prepare Meter ${measurementType} Service`);
-
-                    const serviceName = `Meter ${measurementType}`;
-                    const service = accessory.addService(Service.MeterService, serviceName, `meterService${measurementType}`);
-                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                    // Create characteristics
-                    const characteristics = [
-                        { type: Characteristic.State, label: 'state', value: meter.state, postfix: meter.state ? 'Enabled' : 'Disabled' },
-                        { type: Characteristic.PhaseMode, label: 'phase mode', value: meter.phaseMode },
-                        { type: Characteristic.PhaseCount, label: 'phase count', value: meter.phaseCount },
-                        { type: Characteristic.MeteringStatus, label: 'metering status', value: meter.meteringStatus },
-                        { type: Characteristic.Status, label: 'status', value: meter.deviceStatus },
-                        { type: Characteristic.ReadingTime, label: 'reading time', value: meter.readingTime }
-                    ];
-
-                    if (meter.state) {
-                        characteristics.push(
-                            { type: Characteristic.Power, label: 'power', value: meter.powerKw, unit: 'kW' },
-                            { type: Characteristic.ApparentPower, label: 'apparent power', value: meter.apparentPowerKw, unit: 'kVA' },
-                            { type: Characteristic.ReactivePower, label: 'reactive power', value: meter.reactivePowerKw, unit: 'kVAr' },
-                            { type: Characteristic.EnergyLifetime, label: 'energy lifetime', value: meter.energyLifetimeKw, unit: 'kWh' },
-                            { type: Characteristic.Current, label: 'current', value: meter.current, unit: 'A' },
-                            { type: Characteristic.Voltage, label: 'voltage', value: meter.voltage, unit: 'V' },
-                            { type: Characteristic.Frequency, label: 'frequency', value: meter.frequency, unit: 'Hz' },
-                            { type: Characteristic.PwrFactor, label: 'power factor', value: meter.pwrFactor, unit: 'cos φ' }
-                        );
-
-                        if (measurementType !== 'Consumption Total') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, label: 'energy lifetime upload', value: meter.energyLifetimeUploadKw, unit: 'kW' });
-                    }
-
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
-
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `${serviceName}: ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
-                            });
-                    }
-
-                    this.meterServices.push(service);
-                }
-            }
-
-            //pcu
-            if (pcuInstalled) {
-                this.pcuServices = [];
-
-                for (const pcu of this.pv.inventoryData.pcus) {
-                    const serialNumber = pcu.serialNumber;
-                    if (this.logDebug) this.emit('debug', `Prepare Microinverter ${serialNumber} Service`);
-
-                    const service = accessory.addService(Service.MicroinverterService, `Microinverter ${serialNumber}`, `pcuService${serialNumber}`);
-                    service.setCharacteristic(Characteristic.ConfiguredName, `Microinverter ${serialNumber}`);
-
-                    // Create characteristics
-                    const characteristics = [
-                        { type: Characteristic.Producing, label: 'producing', value: pcu.producing, postfix: pcu.producing ? 'Yes' : 'No' },
-                        { type: Characteristic.Communicating, label: 'communicating', value: pcu.communicating, postfix: pcu.communicating ? 'Yes' : 'No' },
-                        { type: Characteristic.Provisioned, label: 'provisioned', value: pcu.provisioned, postfix: pcu.provisioned ? 'Yes' : 'No' },
-                        { type: Characteristic.Operating, label: 'operating', value: pcu.operating, postfix: pcu.operating ? 'Yes' : 'No' },
-                        { type: Characteristic.Phase, label: 'phase', value: pcu.phase },
-                        { type: Characteristic.GfiClear, label: 'gfi clear', value: pcu.deviceControl },
-                        { type: Characteristic.Status, label: 'status', value: pcu.deviceStatus },
-                        { type: Characteristic.Firmware, label: 'firmware', value: pcu.firmware },
-                        { type: Characteristic.ReadingTime, label: 'reading time', value: pcu.readingTime },
-                    ];
-
-                    if (gridProfileSupported) characteristics.push({ type: Characteristic.GridProfile, label: 'grid profile', value: pcu.gridProfile });
-                    if (plcLevelPcusSupported) characteristics.push({ type: Characteristic.PlcLevel, label: 'plc level', value: pcu.plcLevel, unit: '%' });
-
-                    if (pcusStatusDataSupported || pcusDetailedDataSupported) {
-                        characteristics.push(
-                            { type: Characteristic.PowerW, label: 'power', value: pcu.power, unit: 'W' },
-                            { type: Characteristic.PowerPeakW, label: 'power peak', value: pcu.powerPeak, unit: 'W' }
-                        );
-                    }
-
-                    if (pcusDetailedDataSupported) {
-                        characteristics.push(
-                            { type: Characteristic.EnergyTodayWh, label: 'energy today', value: pcu.energyToday, unit: 'Wh' },
-                            { type: Characteristic.EnergyYesterdayWh, label: 'energy yesterday', value: pcu.energyYesterday, unit: 'Wh' },
-                            { type: Characteristic.EnergyLastSevenDays, label: 'energy last seven days', value: pcu.energyLastSevenDaysKw, unit: 'kWh' },
-                            { type: Characteristic.EnergyLifetime, label: 'energy lifetime', value: pcu.energyLifetimeKw, unit: 'kWh' },
-                            { type: Characteristic.Voltage, label: 'voltage', value: pcu.voltage, unit: 'V' },
-                            { type: Characteristic.Frequency, label: 'frequency', value: pcu.frequency, unit: 'Hz' },
-                            { type: Characteristic.VoltageDc, label: 'voltage dc', value: pcu.voltageDc, unit: 'V' },
-                            { type: Characteristic.CurrentDc, label: 'current dc', value: pcu.currentDc, unit: 'A' },
-                            { type: Characteristic.Temperature, label: 'temperature', value: pcu.temperature, unit: '°C' }
-                        );
-                    }
-
-                    // Add characteristics with async getters and info logging
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
-
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `Microinverter: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
-                            });
-                    }
-
-                    this.pcuServices.push(service);
-                }
-            }
-
-            //qrelays
-            if (nsrbsInstalled) {
-                this.nsrbServices = [];
-                this.nsrbStateSensorServices = [];
-
-                for (const nsrb of this.pv.inventoryData.nsrbs) {
-                    const serialNumber = nsrb.serialNumber;
-
-                    if (this.logDebug) this.emit('debug', `Prepare Q-Relay ${serialNumber} Service`);
-
-                    const service = accessory.addService(Service.QrelayService, `QRelay ${serialNumber}`, `nsrbService${serialNumber}`);
-                    service.setCharacteristic(Characteristic.ConfiguredName, `QRelay ${serialNumber}`);
-
-                    // Create characteristics
-                    const characteristics = [
-                        { type: Characteristic.State, label: 'state', value: nsrb.relayState, postfix: nsrb.relayState ? 'Closed' : 'Open' },
-                        { type: Characteristic.LinesCount, label: 'lines', value: nsrb.linesCount },
-                        { type: Characteristic.Communicating, label: 'communicating', value: nsrb.communicating, postfix: nsrb.communicating ? 'Yes' : 'No' },
-                        { type: Characteristic.Provisioned, label: 'provisioned', value: nsrb.provisioned, postfix: nsrb.provisioned ? 'Yes' : 'No' },
-                        { type: Characteristic.Operating, label: 'operating', value: nsrb.operating, postfix: nsrb.operating ? 'Yes' : 'No' },
-                        { type: Characteristic.GfiClear, label: 'gfi clear', value: nsrb.deviceControl },
-                        { type: Characteristic.Status, label: 'status', value: nsrb.deviceStatus },
-                        { type: Characteristic.Firmware, label: 'firmware', value: nsrb.firmware },
-                        { type: Characteristic.ReadingTime, label: 'reading time', value: nsrb.readingTime },
-                        { type: Characteristic.Line1Connected, label: 'line 1', value: nsrb.line1Connected, postfix: nsrb.line1Connected ? 'Closed' : 'Open' },
-                        { type: Characteristic.Line2Connected, label: 'line 2', value: nsrb.line2Connected, postfix: nsrb.line2Connected ? 'Closed' : 'Open' },
-                        { type: Characteristic.Line3Connected, label: 'line 3', value: nsrb.line3Connected, postfix: nsrb.line3Connected ? 'Closed' : 'Open' },
-                    ];
-
-                    if (gridProfileSupported) characteristics.push({ type: Characteristic.GridProfile, label: 'grid profile', value: nsrb.gridProfile });
-                    if (plcLevelNrsbsSupported) characteristics.push({ type: Characteristic.PlcLevel, label: 'plc level', value: nsrb.plcLevel, unit: '%' });
-
-                    if (nsrbsDetailedDataSupported) {
-                        characteristics.push(
-                            { type: Characteristic.AcOffset, label: 'voltage offset', value: nsrb.acOffset, unit: 'V' },
-                            { type: Characteristic.VoltageL1, label: 'voltage L1', value: nsrb.voltageL1, unit: 'V' },
-                            { type: Characteristic.VoltageL2, label: 'voltage L2', value: nsrb.voltageL2, unit: 'V' },
-                            { type: Characteristic.VoltageL3, label: 'voltage L3', value: nsrb.voltageL3, unit: 'V' },
-                            { type: Characteristic.Frequency, label: 'frequency', value: nsrb.frequency, unit: 'Hz' },
-                            { type: Characteristic.Temperature, label: 'temperature', value: nsrb.temperature, unit: '°C' }
-                        );
-                    }
-
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
-
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `Q-Relay: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
-                            });
-                    }
-
-                    this.nsrbServices.push(service);
-
-                    // State sensors setup
-                    if (this.qRelayStateSensor.displayType > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare Q-Relay ${serialNumber} State Sensor Service`);
-
-                        const sensorServices = [];
-                        const sensor = this.qRelayStateSensor;
-                        const sensorCount = sensor.multiphase && nsrb.linesCount > 1 ? nsrb.linesCount + 1 : 1;
-
-                        for (let i = 0; i < sensorCount; i++) {
-                            if (i > 0 && nsrb.linesCount < i) continue;
-
-                            const { namePrefix, name, serviceType, characteristicType } = sensor;
-                            const serviceName = namePrefix ? `${accessoryName} ${i === 0 ? name : `${name} L${i}`}` : (i === 0 ? name : `${name} L${i}`);
-
-                            const sensorService = accessory.addService(serviceType, serviceName, `nsrbStateSensorService${serialNumber}${i}`);
-                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                            sensorService.getCharacteristic(characteristicType)
-                                .onGet(async () => {
-                                    const state = sensor[`state${i}`];
-                                    if (this.logInfo) this.emit('info', `Q-Relay: ${serialNumber}, sensor: ${serviceName}, state: ${state ? 'Active' : 'Not Active'}`);
-                                    return state;
+                                        await this.envoyData.setProductionState(value);
+                                        if (this.logDebug) this.emit('debug', `Set production state: ${value ? 'Enabled' : 'Disabled'}`);
+                                    } catch (error) {
+                                        if (this.logWarn) this.emit('warn', `Set production state error: ${error}`);
+                                    }
                                 });
 
-                            sensorServices.push(sensorService);
-                        }
-                        this.nsrbStateSensorServices.push(sensorServices);
-                    }
-
-                }
-            }
-
-            //ac batteries
-            if (acbsInstalled) {
-                if (acbsSupported) {
-
-                    // --- AC Battery Backup Level and State Summary Service ---
-                    if (this.acBatterieBackupLevelSummaryAccessory.displayType > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} Backup Level Summary Service`);
-
-                        const control = this.acBatterieBackupLevelSummaryAccessory;
-                        const { namePrefix, serviceType, characteristicType, characteristicType1 } = control;
-                        const serviceName = namePrefix ? `${accessoryName} ${acBatterieName}` : acBatterieName;
-
-                        const controlService = accessory.addService(serviceType, serviceName, `acbSummaryLevelAndStateService`);
-                        controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                        // Create characteristics
-                        const characteristics = [
-                            { type: characteristicType, label: 'state', value: control.state, postfix: control.state ? 'Discharged' : 'Charged' },
-                            { type: characteristicType1, label: 'backup level', value: control.backupLevel, unit: '%' },
-                        ];
-
-                        for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            controlService.getCharacteristic(type)
+                            // Handle production level characteristic
+                            systemService.getCharacteristic(characteristicType1)
                                 .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `${acBatterieName}: ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
+                                    const powerLevel = systemAccessory.level;
+                                    if (this.logInfo) this.emit('info', `Production level: ${powerLevel} %`);
+                                    return powerLevel;
                                 });
+
+                            this.systemService = systemService;
                         }
 
-                        this.acbSummaryLevelAndStateService = controlService;
-                    }
-
-                    // --- AC Batteries Summary Service ---
-                    if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} Summary Service`);
-
-                    const storageSumm = this.pv.inventoryData.acbs[0];
-                    const service = accessory.addService(Service.AcBatterieSummaryService, `${acBatterieName} Summary`, 'acbSummaryService');
-                    service.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} Summary`);
-
-                    // Create characteristics
-                    const characteristics = [
-                        { type: Characteristic.ChargeState, label: 'charge state', value: storageSumm.chargeStateSum },
-                        { type: Characteristic.Power, label: 'power', value: storageSumm.powerSumKw, unit: 'kW' },
-                        { type: Characteristic.Energy, label: 'energy', value: storageSumm.energySumKw, unit: 'kWh' },
-                        { type: Characteristic.PercentFull, label: 'percent full', value: storageSumm.percentFullSum, unit: '%' },
-                        { type: Characteristic.ActiveCount, label: 'active count', value: storageSumm.activeCount },
-                        { type: Characteristic.ReadingTime, label: 'reading time', value: storageSumm.readingTime },
-                    ];
-
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
-
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `${acBatterieName}: ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
-                            });
-                    }
-
-                    this.acbSummaryService = service;
-                }
-
-                // --- Individual AC Batteries ---
-                this.acbServices = [];
-                this.acbLevelAndStateServices = [];
-
-                for (const storage of this.pv.inventoryData.acbs) {
-                    const serialNumber = storage.serialNumber;
-
-                    // Backup Level and State individual service
-                    if (this.acBatterieBackupLevelAccessory.displayType > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} Backup Level Summary Service`);
-
-                        const control = this.acBatterieBackupLevelAccessory;
-                        const { namePrefix, serviceType, characteristicType, characteristicType1, characteristicType2 } = control;
-                        const serviceName = namePrefix ? `${accessoryName} ${acBatterieName}` : acBatterieName;
-
-                        const controlService = accessory.addService(serviceType, serviceName, `acBatterieLevelAndStateService${serialNumber}`);
-                        controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                        // Create characteristics
-                        const characteristics = [
-                            { type: characteristicType, label: 'state', value: control.state, postfix: `${control.state ? 'Discharged' : 'Charged'}` },
-                            { type: characteristicType1, label: 'backup level', value: control.backupLevel, unit: '%' },
-                            { type: characteristicType2, label: 'charging state', value: control.chargeState, postfix: `${control.chargeState === 0 ? 'Discharging' : control.chargeState === 1 ? 'Charging' : 'Ready'}` },
-                        ];
-
-                        for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            controlService.getCharacteristic(type)
-                                .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `${acBatterieName} ${serialNumber}: ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
-
-                        this.acbLevelAndStateServices.push(controlService);
-                    }
-
-                    if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} ${serialNumber} Service`);
-                    const service = accessory.addService(Service.AcBatterieService, `${acBatterieName} ${serialNumber}`, `acbService${serialNumber}`);
-                    service.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} ${serialNumber}`);
-
-                    // Create characteristics
-                    const characteristics = [
-                        { type: Characteristic.ChargeState, label: 'charge state', value: storage.chargeState },
-                        { type: Characteristic.Status, label: 'status', value: storage.deviceStatus },
-                        { type: Characteristic.Producing, label: 'producing', value: storage.producing, postfix: storage.producing ? 'Yes' : 'No' },
-                        { type: Characteristic.Communicating, label: 'communicating', value: storage.communicating, postfix: storage.communicating ? 'Yes' : 'No' },
-                        { type: Characteristic.Provisioned, label: 'provisioned', value: storage.provisioned, postfix: storage.provisioned ? 'Yes' : 'No' },
-                        { type: Characteristic.Operating, label: 'operating', value: storage.operating, postfix: storage.operating ? 'Yes' : 'No' },
-                        { type: Characteristic.GfiClear, label: 'gfi clear', value: storage.deviceControl },
-                        { type: Characteristic.SleepEnabled, label: 'sleep', value: storage.sleepEnabled, postfix: storage.sleepEnabled ? 'Yes' : 'No' },
-                        { type: Characteristic.PercentFull, label: 'percent full', value: storage.percentFull, unit: '%' },
-                        { type: Characteristic.MaxCellTemp, label: 'max cell temperature', value: storage.maxCellTemp, unit: '°C' },
-                        { type: Characteristic.SleepMinSoc, label: 'sleep min soc', value: storage.sleepMinSoc, unit: 'min' },
-                        { type: Characteristic.SleepMaxSoc, label: 'sleep max soc', value: storage.sleepMaxSoc, unit: 'min' },
-                        { type: Characteristic.Firmware, label: 'firmware', value: storage.firmware },
-                        { type: Characteristic.ReadingTime, label: 'reading time', value: storage.readingTime },
-                    ];
-
-                    if (gridProfileSupported) {
-                        characteristics.push(
-                            { type: Characteristic.GridProfile, label: 'grid profile', value: storage.gridProfile }
-                        );
-                    }
-
-                    if (plcLevelAcbsSupported) {
-                        characteristics.push(
-                            { type: Characteristic.PlcLevel, label: 'plc level', value: storage.plcLevel, unit: '%' }
-                        );
-                    }
-
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
-
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `${acBatterieName}: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
-                            });
-                    };
-
-                    this.acbServices.push(service);
-                }
-            }
-
-            //power and energy data
-            if (powerAndEnergySupported) {
-                this.powerAndEnergyServices = [];
-                for (const source of this.pv.powerAndEnergyData.data) {
-                    const measurementType = source.measurementType;
-                    const key = MetersKeyMap[measurementType];
-                    if (this.logDebug) this.emit('debug', `Prepare Power And Energy ${measurementType} Service`);
-
-                    const service = accessory.addService(Service.PowerAndEnergyService, `Power And Energy ${measurementType}`, `powerAndEnergyService${measurementType}`);
-                    service.setCharacteristic(Characteristic.ConfiguredName, `Power And Energy ${measurementType}`);
-
-                    // Create characteristics
-                    const characteristics = [
-                        { type: Characteristic.Power, label: 'power', value: source.powerKw, unit: 'kW' },
-                        { type: Characteristic.PowerPeak, label: 'power peak', value: source.powerPeakKw, unit: 'kW' },
-                        { type: Characteristic.PowerPeakDetected, label: 'power peak detected', value: source.powerPeakDetected, postfix: source.powerPeakDetected ? 'Yes' : 'No' },
-                        { type: Characteristic.EnergyToday, label: 'energy today', value: source.energyTodayKw, unit: 'kWh' },
-                        { type: Characteristic.EnergyLastSevenDays, label: 'energy last seven days', value: source.energyLastSevenDaysKw, unit: 'kWh' },
-                        { type: Characteristic.EnergyLifetime, label: 'energy lifetime', value: source.energyLifetimeKw, unit: 'kWh' },
-                        { type: Characteristic.ReadingTime, label: 'reading time', value: source.readingTime },
-                    ];
-
-                    if (source.gridQualityState) {
-                        if (measurementType !== 'Consumption Total') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, label: 'energy lifetime upload', value: source.energyLifetimeUploadKw, unit: 'kW' });
-
-                        characteristics.push(
-                            { type: Characteristic.ReactivePower, label: 'reactive power', value: source.reactivePowerKw, unit: 'kVAr' },
-                            { type: Characteristic.ApparentPower, label: 'apparent power', value: source.apparentPowerKw, unit: 'kVA' },
-                            { type: Characteristic.Current, label: 'current', value: source.current, unit: 'A' },
-                            { type: Characteristic.Voltage, label: 'voltage', value: source.voltage, unit: 'V' },
-                            { type: Characteristic.Frequency, label: 'frequency', value: source.frequency, unit: 'Hz' },
-                            { type: Characteristic.PwrFactor, label: 'power factor', value: source.pwrFactor, unit: 'cos ϕ' },
-                        );
-                    }
-
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
-
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `${measurementType}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
-                            });
-                    }
-
-                    service.getCharacteristic(Characteristic.PowerPeakReset)
-                        .onGet(async () => {
-                            if (this.logInfo) this.emit('info', `${measurementType}, power peak reset: Off`);
-                            return false;
-                        })
-                        .onSet(async (value) => {
-                            if (!pvControl) {
-                                if (this.logWarn) this.emit('warn', `System control is locked`);
-                                setTimeout(() => service.updateCharacteristic(Characteristic.PowerPeakReset, !value), 250);
-                                return;
-                            }
-
-                            try {
-                                if (!value) {
-                                    setTimeout(() => service.updateCharacteristic(Characteristic.PowerPeakReset, value), 250);
-                                    return;
-                                }
-
-                                this.pv.powerAndEnergyData[key].powerPeak = null;
-                                if (this.logInfo) this.emit('info', `${measurementType}, power peak reset: Done`);
-                                setTimeout(() => service.updateCharacteristic(Characteristic.PowerPeakReset, false), 250);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `${measurementType}, Power Peak reset error: ${error}`);
-                            }
-                        });
-
-                    this.powerAndEnergyServices.push(service);
-
-                    switch (measurementType) {
-                        case 'Production':
-                            //power level sensors
-                            if (this.powerProductionLevelSensors.length > 0) {
-                                if (this.logDebug) this.emit('debug', `Prepare Production Power Level Sensor Services`);
-                                this.powerProductionLevelSensorServices = [];
-                                for (let i = 0; i < this.powerProductionLevelSensors.length; i++) {
-                                    const sensor = this.powerProductionLevelSensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorService = accessory.addService(serviceType, serviceName, `powerProductionLevelSensorService${i}`);
-                                    sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorService.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Power Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.powerProductionLevelSensorServices.push(sensorService);
-                                }
-                            }
-
-                            //energy level sensors
-                            if (this.energyProductionLevelSensors.length > 0) {
-                                if (this.logDebug) this.emit('debug', `Prepare Production Energy Level Sensor Services`);
-                                this.energyProductionLevelSensorServices = [];
-                                for (let i = 0; i < this.energyProductionLevelSensors.length; i++) {
-                                    const sensor = this.energyProductionLevelSensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorService = accessory.addService(serviceType, serviceName, `energyProductionLevelSensorService${i}`);
-                                    sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorService.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Energy Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.energyProductionLevelSensorServices.push(sensorService);
-                                }
-                            }
-
-                            //grid quality sensors
-                            if (this.gridProductionQualitySensors.length > 0 && source.gridQualityState) {
-                                if (this.logDebug) this.emit('debug', `Prepare Grid Quality Sensor Services`);
-                                this.gridProductionQualityActiveSensorServices = [];
-                                for (let i = 0; i < this.gridProductionQualitySensors.length; i++) {
-                                    const sensor = this.gridProductionQualitySensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorService = accessory.addService(serviceType, serviceName, `gridProductionQualityActiveSensorService${i}`);
-                                    sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorService.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Grid Quality: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.gridProductionQualityActiveSensorServices.push(sensorService);
-                                }
-                            }
-                            break;
-                        case 'Consumption Net':
-                            //power level sensors 
-                            if (this.powerConsumptionNetLevelSensors.length > 0) {
-                                if (this.logDebug) this.emit('debug', `Prepare ${measurementType} Power Level Sensor Services`);
-                                this.powerConsumptionNetLevelSensorServices = [];
-                                for (let i = 0; i < this.powerConsumptionNetLevelSensors.length; i++) {
-                                    const sensor = this.powerConsumptionNetLevelSensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorService = accessory.addService(serviceType, serviceName, `powerConsumptionNetLevelSensorService${i}`);
-                                    sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorService.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Power Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.powerConsumptionNetLevelSensorServices.push(sensorService);
-                                }
-                            }
-
-                            //energy level sensors 
-                            if (this.energyConsumptionNetLevelSensors.length > 0) {
-                                if (this.logDebug) this.emit('debug', `Prepare ${measurementType} Energy Level Sensor Services`);
-                                this.energyConsumptionNetLevelSensorServices = [];
-                                for (let i = 0; i < this.energyConsumptionNetLevelSensors.length; i++) {
-                                    const sensor = this.energyConsumptionNetLevelSensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorServicee = accessory.addService(serviceType, serviceName, `energyConsumptionNetLevelSensorService${i}`);
-                                    sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorServicee.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Energy Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.energyConsumptionNetLevelSensorServices.push(sensorServicee);
-                                }
-                            }
-
-                            //grid quality sensors
-                            if (this.gridConsumptionNetQualitySensors.length > 0) {
-                                if (this.logDebug) this.emit('debug', `Prepare Grid Quality Sensor Services`);
-                                this.gridConsumptionNetQualityActiveSensorServices = [];
-                                for (let i = 0; i < this.gridConsumptionNetQualitySensors.length; i++) {
-                                    const sensor = this.gridConsumptionNetQualitySensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorServicee = accessory.addService(serviceType, serviceName, `gridConsumptionNetQualityActiveSensorService${i}`);
-                                    sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorServicee.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Grid Quality: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.gridConsumptionNetQualityActiveSensorServices.push(sensorServicee);
-                                }
-                            }
-                            break;
-                        case 'Consumption Total':
-                            //power level sensors 
-                            if (this.powerConsumptionTotalLevelSensors.length > 0) {
-                                if (this.logDebug) this.emit('debug', `Prepare ${measurementType} Power Level Sensor Services`);
-                                this.powerConsumptionTotalLevelSensorServices = [];
-                                for (let i = 0; i < this.powerConsumptionTotalLevelSensors.length; i++) {
-                                    const sensor = this.powerConsumptionTotalLevelSensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorServicee = accessory.addService(serviceType, serviceName, `powerConsumptionTotalLevelSensorService${i}`);
-                                    sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorServicee.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Power Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.powerConsumptionTotalLevelSensorServices.push(sensorServicee);
-                                }
-                            }
-
-                            //energy level sensors 
-                            if (this.energyConsumptionTotalLevelSensors.length > 0) {
-                                if (this.logDebug) this.emit('debug', `Prepare ${measurementType} Energy Level Sensor Services`);
-                                this.energyConsumptionTotalLevelSensorServices = [];
-                                for (let i = 0; i < this.energyConsumptionTotalLevelSensors.length; i++) {
-                                    const sensor = this.energyConsumptionTotalLevelSensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorServicee = accessory.addService(serviceType, serviceName, `energyConsumptionTotalLevelSensorService${i}`);
-                                    sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorServicee.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Energy Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.energyConsumptionTotalLevelSensorServices.push(sensorServicee);
-                                }
-                            }
-
-                            //grid quality sensors
-                            if (this.gridConsumptionTotalQualitySensors.length > 0) {
-                                if (this.logDebug) this.emit('debug', `Prepare Grid Quality Sensor Services`);
-                                this.gridConsumptionTotalQualityActiveSensorServices = [];
-                                for (let i = 0; i < this.gridConsumptionTotalQualitySensors.length; i++) {
-                                    const sensor = this.gridConsumptionTotalQualitySensors[i];
-                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                                    const sensorServicee = accessory.addService(serviceType, serviceName, `gridConsumptionTotalQualityActiveSensorService${i}`);
-                                    sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                    sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                    sensorServicee.getCharacteristic(characteristicType)
-                                        .onGet(async () => {
-                                            const currentState = sensor.state;
-                                            if (this.logInfo) this.emit('info', `Grid Quality: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
-                                            return currentState;
-                                        });
-                                    this.gridConsumptionTotalQualityActiveSensorServices.push(sensorServicee);
-                                }
-                            }
-                            break;
-                    }
-                }
-            }
-
-            //ensemble data
-            if (ensemblesSupported) {
-
-                //summary
-                if (ensemblesCountersSupported || ensemblesSecCtrlSupported) {
-                    const secctrl = this.pv.inventoryData.esubs.secctrl;
-                    const counters = this.pv.inventoryData.esubs.counters;
-
-                    if (this.logDebug) this.emit('debug', `Prepare Ensemble Summary Service`);
-
-                    const serviceName = 'Ensemble Summary';
-                    const service = accessory.addService(Service.EnsembleSummaryService, serviceName, 'ensembleSummaryService');
-                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                    // Create characteristics
-                    const characteristics = [];
-                    if (ensemblesSecCtrlSupported) {
-                        characteristics.push(
-                            { type: Characteristic.AggSoc, label: 'agg SoC', value: secctrl.aggSoc, unit: '%' },
-                            { type: Characteristic.AggMaxEnergy, label: 'agg max energy', value: secctrl.aggMaxEnergyKw, unit: 'kWh' },
-                            { type: Characteristic.EncAggSoc, label: `${enchargeName} agg SoC`, value: secctrl.encAggSoc, unit: '%' },
-                            { type: Characteristic.EncAggBackupEnergy, label: `${enchargeName} agg backup energy`, value: secctrl.encAggBackupEnergy, unit: 'kWh' },
-                            { type: Characteristic.EncAggAvailEnergy, label: `${enchargeName} agg available energy`, value: secctrl.encAggAvailEnergy, unit: 'kWh' },
-                            { type: Characteristic.ConfiguredBackupSoc, label: `configured backup SoC`, value: secctrl.configuredBackupSoc, unit: '%' },
-                            { type: Characteristic.AdjustedBackupSoc, label: `adjusted backup SoC`, value: secctrl.adjustedBackupSoc, unit: '%' },
-                        );
-
-                        if (secctrl.phaseA) {
-                            characteristics.push(
-                                { type: Characteristic.FrequencyBiasHz, label: 'L1 bias frequency', value: secctrl.freqBiasHz, unit: 'Hz' },
-                                { type: Characteristic.VoltageBiasV, label: 'L1 bias voltage', value: secctrl.voltageBiasV, unit: 'V' },
-                                { type: Characteristic.FrequencyBiasHzQ8, label: 'L1 bias q8 frequency', value: secctrl.freqBiasHzQ8, unit: 'Hz' },
-                                { type: Characteristic.VoltageBiasVQ5, label: 'L1 bias q5 voltage', value: secctrl.voltageBiasVQ5, unit: 'V' }
-                            );
-                        }
-
-                        if (secctrl.phaseB) {
-                            characteristics.push(
-                                { type: Characteristic.FrequencyBiasHzPhaseB, label: 'L2 bias frequency', value: secctrl.freqBiasHzPhaseB, unit: 'Hz' },
-                                { type: Characteristic.VoltageBiasVPhaseB, label: 'L2 bias voltage', value: secctrl.voltageBiasVPhaseB, unit: 'V' },
-                                { type: Characteristic.FrequencyBiasHzQ8PhaseB, label: 'L2 bias q8 frequency', value: secctrl.freqBiasHzQ8PhaseB, unit: 'Hz' },
-                                { type: Characteristic.VoltageBiasVQ5PhaseB, label: 'L2 bias q5 voltage', value: secctrl.voltageBiasVQ5PhaseB, unit: 'V' }
-                            );
-                        }
-
-                        if (secctrl.phaseC) {
-                            characteristics.push(
-                                { type: Characteristic.FrequencyBiasHzPhaseC, label: 'L3 bias frequency', value: secctrl.freqBiasHzPhaseC, unit: 'Hz' },
-                                { type: Characteristic.VoltageBiasVPhaseC, label: 'L3 bias voltage', value: secctrl.voltageBiasVPhaseC, unit: 'V' },
-                                { type: Characteristic.FrequencyBiasHzQ8PhaseC, label: 'L3 bias q8 frequency', value: secctrl.freqBiasHzQ8PhaseC, unit: 'Hz' },
-                                { type: Characteristic.VoltageBiasVQ5PhaseC, label: 'L3 bias q5 voltage', value: secctrl.voltageBiasVQ5PhaseC, unit: 'V' }
-                            );
-                        }
-                    }
-
-                    if (ensemblesCountersSupported) characteristics.push({ type: Characteristic.RestPower, label: 'rest power', value: counters.restPowerKw, unit: 'kW' });
-                    if (enchargesStatusSupported) characteristics.push({ type: Characteristic.RatedPower, label: 'rated power', value: this.pv.inventoryData.esubs.ratedPowerSumKw, unit: 'kW' });
-                    if (enchargesPowerSupported) characteristics.push({ type: Characteristic.RealPower, label: 'real power', value: this.pv.inventoryData.esubs.realPowerSumKw, unit: 'kW' });
-
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
-
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `Ensemble Summary, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
-                            });
-                    }
-
-                    this.ensembleSummaryService = service;
-                }
-
-                //devices
-                if (ensemblesInstalled) {
-                    this.ensembleServices = [];
-
-                    for (const ensemble of this.pv.inventoryData.esubs.devices) {
-                        const serialNumber = ensemblesInstalled ? ensemble.serialNumber : ensemble.status.deviceType;
-                        if (this.logDebug) this.emit('debug', `Prepare Ensemble ${serialNumber} Service`);
-
-                        const service = accessory.addService(Service.EnsembleService, 'Ensemble', `ensembleService${serialNumber}`);
-                        service.setCharacteristic(Characteristic.ConfiguredName, 'Ensemble');
-
-                        // Create characteristics
-                        const characteristics = [];
-                        if (ensemblesInstalled) {
-                            characteristics.push(
-                                { type: Characteristic.Status, label: 'status', value: ensemble.deviceStatus },
-                                { type: Characteristic.Communicating, label: 'communicating', value: ensemble.communicating, postfix: ensemble.communicating ? 'Yes' : 'No' },
-                                { type: Characteristic.Operating, label: 'operating', value: ensemble.operating, postfix: ensemble.operating ? 'Yes' : 'No' },
-                                { type: Characteristic.GfiClear, label: 'gfi clear', value: ensemble.deviceControl, postfix: ensemble.deviceControl ? 'Yes' : 'No' },
-                                { type: Characteristic.Firmware, label: 'firmware', value: ensemble.firmware },
-                                { type: Characteristic.ReadingTime, label: 'reading time', value: ensemble.readingTime }
-                            );
-                        }
-
-                        if (ensemblesStatusSupported && ensemble.status) {
-                            characteristics.push(
-                                { type: Characteristic.CommInterface, label: 'comm interface', value: ensemble.status.commInterfaceStr },
-                                { type: Characteristic.AdminState, label: 'admin state', value: ensemble.status.adminStateStr }
-                            );
-                        }
-
-                        for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            service.getCharacteristic(type)
-                                .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `Ensemble: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
-
-                        this.ensembleServices.push(service);
-                    }
-                }
-
-                //grid sensors by relay
-                if (ensemblesRelaySupported) {
-                    //solar grid state sensor
-                    if (this.solarGridStateSensor.displayType > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare Solar Grid State Sensor Service`);
-                        const serialNumber = this.pv.info.serialNumber;
-                        const sensor = this.solarGridStateSensor;
-                        const { namePrefix, name, serviceType, characteristicType } = sensor;
-                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                        const sensorService = accessory.addService(serviceType, serviceName, `solarGridStateSensorService`);
-                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                        sensorService.getCharacteristic(characteristicType)
-                            .onGet(async () => {
-                                const currentState = sensor.state;
-                                if (this.logInfo) this.emit('info', `solar: ${serialNumber}, grid state sensor: ${serviceName}, state: ${currentState ? 'Grid ON' : 'Grid Off'}`);
-                                return currentState;
-                            });
-                        this.solarGridStateSensorService = sensorService;
-                    }
-
-                    //solar grid mode sensor services
-                    if (this.solarGridModeSensors.length > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare Solar Grid Mode Sensor Services`);
-
-                        this.solarGridModeSensorServices = [];
-                        for (let i = 0; i < this.solarGridModeSensors.length; i++) {
-                            const sensor = this.solarGridModeSensors[i];
-                            const { namePrefix, name, serviceType, characteristicType } = sensor;
+                        //data refresh control
+                        if (this.dataSamplingControl.displayType > 0) {
+                            if (this.logDebug) this.emit('debug', `Prepare Data Refresh Control Service`);
+
+                            const control = this.dataSamplingControl;
+                            const { name, namePrefix, serviceType, characteristicType } = control;
                             const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
 
-                            const sensorService = accessory.addService(serviceType, serviceName, `solarGridModeSensorService${i}`);
-                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                            sensorService.getCharacteristic(characteristicType)
-                                .onGet(async () => {
-                                    const currentState = sensor.state;
-                                    if (this.logInfo) this.emit('info', `Solar grid mode sensor: ${serviceName}, state: ${currentState ? 'Active' : 'Not active'}`);
-                                    return currentState;
-                                });
-
-                            this.solarGridModeSensorServices.push(sensorService);
-                        }
-                    }
-                }
-
-                //encharges
-                if (enchargesInstalled) {
-
-                    //backup level and state summary control
-                    if (this.enchargeBackupLevelSummaryAccessory.displayType > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Backup Level Summary Service`);
-
-                        const control = this.enchargeBackupLevelSummaryAccessory;
-                        const { namePrefix, serviceType, characteristicType, characteristicType1 } = control;
-                        const serviceName = namePrefix ? `${accessoryName} ${enchargeName}` : enchargeName;
-
-                        const controlService = accessory.addService(serviceType, serviceName, `enchargeBackupLevelSummaryAccessoryService`);
-                        controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                        controlService.getCharacteristic(characteristicType)
-                            .onGet(async () => {
-                                const currentState = control.state;
-                                if (this.logInfo) this.emit('info', `${enchargeName} state: ${currentState ? 'Charged' : 'Discharged'}`);
-                                return currentState;
-                            })
-                            .onSet(async (value) => {
-                                if (!pvControl) {
-                                    if (this.logWarn) this.emit('warn', `System control is locked`);
-                                    setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                                    return;
-                                }
-
-                                try {
-                                    // Your set handler logic here (if any)
-                                } catch (error) {
-                                    if (this.logWarn) this.emit('warn', `${enchargeName}, Set state error: ${error}`);
-                                }
-                            });
-                        controlService.getCharacteristic(characteristicType1)
-                            .onGet(async () => {
-                                const currentBackupLevel = control.backupLevel;
-                                if (this.logInfo) this.emit('info', `${enchargeName} backup level: ${currentBackupLevel} %`);
-                                return currentBackupLevel;
-                            })
-                            .onSet(async (value) => {
-                                if (!pvControl) {
-                                    if (this.logWarn) this.emit('warn', `System control is locked`);
-                                    setTimeout(() => controlService.updateCharacteristic(characteristicType1, backupLevel), 250);
-                                    return;
-                                }
-
-                                try {
-                                    // Your set handler logic here (if any)
-                                } catch (error) {
-                                    if (this.logWarn) this.emit('warn', `${enchargeName}, Set backup level error: ${error}`);
-                                }
-                            });
-
-                        this.enchargeBackupLevelSummaryAccessoryService = controlService;
-                    }
-
-                    //backup level summary sensors
-                    if (this.enchargeBackupLevelSummarySensors.length > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Backup Level Sensor Services`);
-
-                        this.enchargeBackupLevelSummarySensorServices = [];
-                        for (let i = 0; i < this.enchargeBackupLevelSummarySensors.length; i++) {
-                            const sensor = this.enchargeBackupLevelSummarySensors[i];
-                            const { namePrefix, name, serviceType, characteristicType } = sensor;
-                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                            const sensorService = accessory.addService(serviceType, serviceName, `enchargeBackupLevelSensorService${i}`);
-                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                            sensorService.getCharacteristic(characteristicType)
-                                .onGet(async () => {
-                                    const currentState = sensor.state;
-                                    if (this.logInfo) this.emit('info', `${enchargeName} Backup Level sensor: ${serviceName}, state: ${currentState ? 'Active' : 'Not active'}`);
-                                    return currentState;
-                                });
-
-                            this.enchargeBackupLevelSummarySensorServices.push(sensorService);
-                        }
-                    }
-
-                    //devices
-                    this.enchargeServices = [];
-                    this.enchargeBackupLevelAndStatServices = [];
-
-                    for (const encharge of this.pv.inventoryData.esubs.encharges.devices) {
-                        const serialNumber = encharge.serialNumber;
-
-                        // Backup level and state (individual)
-                        if (this.enchargeBackupLevelAccessory.displayType > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} ${serialNumber} Backup Level Service`);
-
-                            const control = this.enchargeBackupLevelAccessory;
-                            const { namePrefix, serviceType, characteristicType, characteristicType1, characteristicType2 } = control;
-                            const serviceName = namePrefix ? `${accessoryName} ${enchargeName}` : enchargeName;
-
-                            const controlService = accessory.addService(serviceType, serviceName, `enchargeLevelAndStateService${serialNumber}`);
+                            const controlService = accessory.addService(serviceType, serviceName, `dataSamplingControlService`);
                             controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                             controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                             controlService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
                                     const currentState = control.state;
-                                    if (this.logInfo) this.emit('info', `${enchargeName} ${serialNumber}, backup level state: ${currentState ? 'Low' : 'Normal'}`);
+                                    if (this.logInfo) this.emit('info', `Data refresh control: ${currentState ? 'Enabled' : 'Disabled'}`);
                                     return currentState;
                                 })
-                                .onSet(async (value) => {
-                                    if (!pvControl) {
-                                        if (this.logWarn) this.emit('warn', `System control is locked`);
-                                        setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                                        return;
-                                    }
-                                    // Add actual control logic here if needed
-                                });
-                            controlService.getCharacteristic(characteristicType1)
-                                .onGet(async () => {
-                                    const currentLevel = control.backupLevel;
-                                    if (this.logInfo) this.emit('info', `${enchargeName} ${serialNumber}, backup level: ${currentLevel} %`);
-                                    return currentLevel;
-                                })
-                                .onSet(async (value) => {
-                                    if (!pvControl) {
-                                        if (this.logWarn) this.emit('warn', `System control is locked`);
-                                        setTimeout(() => controlService.updateCharacteristic(characteristicType1, backupLevel), 250);
-                                        return;
-                                    }
-                                    // Add actual control logic here if needed
-                                });
-                            controlService.getCharacteristic(characteristicType2)
-                                .onGet(async () => {
-                                    const currentChargeState = control.chargeState;
-                                    if (this.logInfo) this.emit('info', `${enchargeName} ${serialNumber}, state: ${currentChargeState === 0 ? 'Discharging' : currentChargeState === 1 ? 'Charging' : 'Ready'}`);
-                                    return currentChargeState;
-                                });
 
-                            this.enchargeBackupLevelAndStatServices.push(controlService);
-                        }
-
-                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} ${serialNumber} Service`);
-
-                        const service = accessory.addService(Service.EnchargeService, `${enchargeName} ${serialNumber}`, `enchargeService${serialNumber}`);
-                        service.setCharacteristic(Characteristic.ConfiguredName, `${enchargeName} ${serialNumber}`);
-
-                        // Create characteristics
-                        const characteristics = [
-                            { type: Characteristic.ChargeState, label: 'charge state', value: encharge.chargeState },
-                            { type: Characteristic.AdminState, label: 'admin state', value: encharge.adminStateStr },
-                            { type: Characteristic.Communicating, label: 'communicating', value: encharge.communicating, postfix: encharge.communicating ? 'Yes' : 'No' },
-                            { type: Characteristic.CommLevelSubGhz, label: 'sub GHz level', value: encharge.commLevelSubGhz, unit: '%' },
-                            { type: Characteristic.CommLevel24Ghz, label: '2.4GHz level', value: encharge.commLevel24Ghz, unit: '%' },
-                            { type: Characteristic.SleepEnabled, label: 'sleep', value: encharge.sleepEnabled, postfix: encharge.sleepEnabled ? 'Yes' : 'No' },
-                            { type: Characteristic.PercentFull, label: 'percent full', value: encharge.percentFull, unit: '%' },
-                            { type: Characteristic.Temperature, label: 'temperature', value: encharge.temperature, unit: '°C' },
-                            { type: Characteristic.MaxCellTemp, label: 'max cell temperature', value: encharge.maxCellTemp, unit: '°C' },
-                            { type: Characteristic.LedStatus, label: 'LED status', value: encharge.ledStatus },
-                            { type: Characteristic.Capacity, label: 'capacity', value: encharge.capacity, unit: 'kWh' },
-                            { type: Characteristic.DcSwitchOff, label: 'dc switch', value: encharge.dcSwitchOff, postfix: encharge.dcSwitchOff ? 'Off' : 'On' },
-                            { type: Characteristic.Revision, label: 'revision', value: encharge.rev },
-                            { type: Characteristic.ReadingTime, label: 'reading time', value: encharge.readingTime },
-                        ];
-
-                        if (gridProfileSupported) {
-                            characteristics.push(
-                                { type: Characteristic.GridProfile, label: 'grid profile', value: encharge.gridProfile }
-                            );
-                        }
-
-                        if (enchargesStatusSupported && encharge.status) {
-                            characteristics.push(
-                                { type: Characteristic.CommInterface, label: 'comm interface', value: encharge.status.commInterfaceStr },
-                                { type: Characteristic.RatedPower, label: 'rated power', value: encharge.status.ratedPowerKw, unit: 'kW' }
-                            );
-                        }
-
-                        if (enchargesPowerSupported && encharge.power) {
-                            characteristics.push({ type: Characteristic.RealPower, label: 'real power', value: encharge.power.realPowerKw, unit: 'kW' });
-                        }
-
-                        for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            service.getCharacteristic(type)
-                                .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `${enchargeName}: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
-
-                        this.enchargeServices.push(service);
-                    }
-
-                    //state sensor by settings
-                    if (enchargesSettingsSupported) {
-                        if (this.enchargeStateSensor.displayType > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} State Sensor Service`);
-
-                            const sensor = this.enchargeStateSensor;
-                            const { namePrefix, name, serviceType, characteristicType, state } = sensor;
-                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                            const sensorService = accessory.addService(serviceType, serviceName, `enchargeStateSensorService`);
-                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                            sensorService.getCharacteristic(characteristicType)
-                                .onGet(async () => {
-                                    const currentState = state;
-                                    if (this.logInfo) this.emit('info', `${enchargeName} state sensor: ${serviceName}, state: ${currentState ? 'Active' : 'Not Active'}`);
-                                    return currentState;
-                                });
-
-                            this.enchargeStateSensorService = sensorService;
-                        }
-                    }
-
-                    //profile controls and sensors by tariff
-                    if (enchargesTariffSupported) {
-                        //controls
-                        if (this.enchargeProfileControls.length > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Profile Control Services`);
-
-                            const enchargeSettings = this.pv.inventoryData.esubs.encharges.tariff.storageSettings;
-                            this.enchargeProfileControlsServices = [];
-
-                            for (let i = 0; i < this.enchargeProfileControls.length; i++) {
-                                const control = this.enchargeProfileControls[i];
-                                const { profile, namePrefix, name, serviceType, characteristicType } = control;
-                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                                const controlService = accessory.addService(serviceType, serviceName, `enchargeProfileControlService${i}`);
-                                controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                controlService.getCharacteristic(characteristicType)
-                                    .onGet(async () => {
-                                        const currentState = control.state;
-                                        if (this.logInfo) this.emit('info', `${enchargeName} profile: ${name}, state: ${currentState ? 'ON' : 'OFF'}`);
-                                        return currentState;
-                                    })
-                                    .onSet(async (value) => {
-                                        if (!pvControl) {
-                                            if (this.logWarn) this.emit('warn', `System control is locked`);
-                                            setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                                            return;
-                                        }
-
-                                        try {
-                                            const tokenValid = await this.checkToken();
-                                            if (!tokenValid || !value) {
-                                                setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                                                return;
-                                            }
-
-                                            await this.envoyData.setEnchargeProfile(profile, enchargeSettings.reservedSoc, control.chargeFromGrid);
-                                            if (this.logDebug) this.emit('debug', `${enchargeName} set profile: ${name}, charge from grid: ${control.chargeFromGrid ? 'ON' : 'OFF'}`);
-                                        } catch (error) {
-                                            if (this.logWarn) this.emit('warn', `${enchargeName} set profile: ${profile}, error: ${error}`);
-                                        }
-                                    });
-
-                                if (profile !== 'backup') {
-                                    controlService.getCharacteristic(Characteristic.Brightness)
-                                        .onGet(async () => {
-                                            const value = control.reservedSoc;
-                                            if (this.logInfo) this.emit('info', `${enchargeName} profile: ${name}, reserved soc: ${value} %`);
-                                            return value;
-                                        })
-                                        .onSet(async (value) => {
-                                            if (!pvControl) {
-                                                if (this.logWarn) this.emit('warn', `System control is locked`);
-                                                setTimeout(() => controlService.updateCharacteristic(Characteristic.Brightness, control.reservedSoc), 250);
-                                                return;
-                                            }
-
-                                            if (value === 0 || value === 100) {
-                                                if (this.logWarn) this.emit('warn', `reserved soc: ${value} out of range`);
-                                                setTimeout(() => controlService.updateCharacteristic(Characteristic.Brightness, control.reservedSoc), 250);
-                                                return;
-                                            }
-
-                                            try {
-                                                const tokenValid = await this.checkToken();
-                                                if (!tokenValid) {
-                                                    setTimeout(() => controlService.updateCharacteristic(Characteristic.Brightness, control.reservedSoc), 250);
-                                                    return;
-                                                }
-
-                                                await this.envoyData.setEnchargeProfile(profile, value, control.chargeFromGrid);
-                                                if (this.logDebug) this.emit('debug', `${enchargeName} set profile: ${name}, reserved soc: ${value} %`);
-                                            } catch (error) {
-                                                if (this.logWarn) this.emit('warn', `${enchargeName} set profile: ${profile} reserve, error: ${error}`);
-                                            }
-                                        });
-                                }
-
-                                this.enchargeProfileControlsServices.push(controlService);
-                            }
-                        }
-
-                        //sensors
-                        if (this.enchargeProfileSensors.length > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Profile Sensor Services`);
-
-                            this.enchargeProfileSensorsServices = [];
-
-                            for (let i = 0; i < this.enchargeProfileSensors.length; i++) {
-                                const sensor = this.enchargeProfileSensors[i];
-                                const { namePrefix, name, serviceType, characteristicType } = sensor;
-                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                                const service = accessory.addService(serviceType, serviceName, `enchargeProfileSensorService${i}`);
-                                service.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                                service.getCharacteristic(characteristicType)
-                                    .onGet(async () => {
-                                        const currentState = sensor.state;
-                                        if (this.logInfo) this.emit('info', `${enchargeName} profile: ${name}, state: ${currentState ? 'Active' : 'Not Active'}`);
-                                        return currentState;
-                                    });
-
-                                this.enchargeProfileSensorsServices.push(service);
-                            }
-                        }
-                    }
-
-                    //grid sensors by relay
-                    if (ensemblesRelaySupported) {
-                        //encharge grid state sensor
-                        if (this.enchargeGridStateSensor.displayType > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Grid State Sensor Service`);
-
-                            const sensor = this.enchargeGridStateSensor;
-                            const { namePrefix, name, serviceType, characteristicType } = sensor;
-                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                            const sensorService = accessory.addService(serviceType, serviceName, 'enchargeGridStateSensorService');
-                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                            sensorService.getCharacteristic(characteristicType)
-                                .onGet(async () => {
-                                    const currentState = sensor.state;
-                                    if (this.logInfo) this.emit('info', `${enchargeName}, grid state sensor: ${serviceName}, state: ${currentState ? 'Grid ON' : 'Grid Off'}`);
-                                    return currentState;
-                                });
-
-                            this.enchargeGridStateSensorService = sensorService;
-                        }
-
-                        //encharge grid mode sensor services
-                        if (this.enchargeGridModeSensors.length > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Grid Mode Sensor Services`);
-                            this.enchargeGridModeSensorServices = [];
-
-                            for (let i = 0; i < this.enchargeGridModeSensors.length; i++) {
-                                const sensor = this.enchargeGridModeSensors[i];
-                                const { namePrefix, name, serviceType, characteristicType, state } = sensor;
-                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                                const sensorService = accessory.addService(serviceType, serviceName, `enchargeGridModeSensorService${i}`);
-                                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                                sensorService.getCharacteristic(characteristicType)
-                                    .onGet(async () => {
-                                        if (this.logInfo) this.emit('info', `${enchargeName} grid mode sensor: ${serviceName}, state: ${state ? 'Active' : 'Not active'}`);
-                                        return state
-                                    });
-
-                                this.enchargeGridModeSensorServices.push(sensorService);
-                            }
-                        }
-                    }
-                }
-
-                //enpowers
-                if (enpowersInstalled) {
-                    this.enpowerServices = [];
-                    this.enpowerDryContactControlServices = [];
-                    this.enpowerDryContactSensorServices = [];
-                    this.enpowerGridStateControlServices = [];
-                    this.enpowerGridStateSensorServices = [];
-                    this.enpowerGridModeSensorServices = [];
-
-                    //devices
-                    for (const enpower of this.pv.inventoryData.esubs.enpowers) {
-                        const serialNumber = enpower.serialNumber;
-
-                        if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Service`);
-
-                        const serviceName = `Enpower ${serialNumber}`;
-                        const service = accessory.addService(Service.EnpowerService, serviceName, `enpowerService${serialNumber}`);
-                        service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                        // Create characteristics
-                        const characteristics = [
-                            { type: Characteristic.AdminState, label: 'admin state', value: enpower.adminStateStr },
-                            { type: Characteristic.Communicating, label: 'communicating', value: enpower.communicating, postfix: enpower.communicating ? 'Yes' : 'No' },
-                            { type: Characteristic.CommLevelSubGhz, label: 'sub GHz level', value: enpower.commLevelSubGhz, unit: '%' },
-                            { type: Characteristic.CommLevel24Ghz, label: '2.4GHz level', value: enpower.commLevel24Ghz, unit: '%' },
-                            { type: Characteristic.Temperature, label: 'temperature', value: enpower.temperature, unit: '°C' },
-                            { type: Characteristic.OperatingState, label: 'mains operating state', value: enpower.mainsOperState },
-                            { type: Characteristic.GridMode, label: 'grid mode', value: enpower.enpwrGridModeTranslated },
-                            { type: Characteristic.EnchgGridMode, label: 'encharge grid mode', value: enpower.enchgGridModeTranslated },
-                            { type: Characteristic.Status, label: 'status', value: enpower.deviceStatus },
-                            { type: Characteristic.ReadingTime, label: 'reading time', value: enpower.readingTime },
-                        ];
-
-                        if (gridProfileSupported) characteristics.push({ type: Characteristic.GridProfile, label: 'grid profile', value: enpower.gridProfile });
-                        if (enpowersStatusSupported && enpower.status) characteristics.push({ type: Characteristic.CommInterface, label: 'comm interface', value: enpower.status.commInterfaceStr });
-
-                        for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            service.getCharacteristic(type)
-                                .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
-
-                        this.enpowerServices.push(service);
-
-                        // Dry Contact Controls
-                        if (enpowersDryContactsInstalled && this.enpowerDryContactsControl) {
-                            if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Dry Contact Control Services`);
-                            const enpowerDryContactControlServices = [];
-
-                            enpower.dryContacts.forEach((contact, i) => {
-                                const serviceName = contact.settings.loadName;
-
-                                const controlService = accessory.addService(Service.Switch, serviceName, `dryContactControlService${serialNumber}${i}`);
-                                controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                                controlService.getCharacteristic(Characteristic.On)
-                                    .onGet(async () => {
-                                        const state = contact.stateBool;
-                                        if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, grid state control: ${serviceName}, state: ${state ? 'ON' : 'OFF'}`);
-                                        return state;
-                                    })
-                                    .onSet(async (value) => {
-                                        if (!pvControl) {
-                                            if (this.logWarn) this.emit('warn', `System control is locked`);
-                                            setTimeout(() => controlService.updateCharacteristic(Characteristic.On, !value), 250);
-                                            return;
-                                        }
-
-                                        try {
-                                            const tokenValid = await this.checkToken();
-                                            if (!tokenValid) {
-                                                setTimeout(() => controlService.updateCharacteristic(Characteristic.On, !value), 250);
-                                                return;
-                                            }
-
-                                            await this.envoyData.setDryContactState(contact.settings.id, value);
-                                            if (this.logInfo) this.emit('info', `Set Enpower: ${serialNumber}, grid state control: ${serviceName}, state: ${value ? 'Manual' : 'Soc'}`);
-                                        } catch (error) {
-                                            if (this.logWarn) this.emit('warn', `Set ${serviceName}, grid state control: ${serviceName}, error: ${error}`);
-                                        }
-                                    });
-
-                                enpowerDryContactControlServices.push(controlService);
-                            });
-                            this.enpowerDryContactControlServices.push(enpowerDryContactControlServices);
-                        }
-
-                        // Dry Contact Sensors
-                        if (enpowersDryContactsInstalled && this.enpowerDryContactsSensor) {
-                            if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Dry Contact Sensor Services`);
-                            const enpowerDryContactSensorServices = [];
-
-                            enpower.dryContacts.forEach((contact, i) => {
-                                const serviceName = contact.settings.loadName;
-
-                                const sensorService = accessory.addService(Service.ContactSensor, serviceName, `dryContactSensorService${serialNumber}${i}`);
-                                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                                sensorService.getCharacteristic(Characteristic.ContactSensorState)
-                                    .onGet(async () => {
-                                        const state = contact.stateBool;
-                                        if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, dry contact: ${serviceName}, sensor state: ${state ? 'Active' : 'Not Active'}`);
-                                        return state;
-                                    });
-
-                                enpowerDryContactSensorServices.push(sensorService);
-                            });
-                            this.enpowerDryContactSensorServices.push(enpowerDryContactSensorServices);
-                        }
-
-                        // Grid state control
-                        if (this.enpowerGridStateControl.displayType > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Grid State Control Service`);
-
-                            const control = this.enpowerGridStateControl;
-                            const { namePrefix, name, serviceType, characteristicType, state } = control;
-                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                            const controlService = accessory.addService(serviceType, serviceName, `enpowerGridStateControlService${serialNumber}`);
-                            controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                            controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                            controlService.getCharacteristic(characteristicType)
-                                .onGet(async () => {
-                                    const curentState = state;
-                                    if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, dry contact control: ${serviceName}, state: ${curentState ? 'Grid ON' : 'Grid OFF'}`);
-                                    return curentState;
-                                })
+                                // SET handler
                                 .onSet(async (value) => {
                                     if (!pvControl) {
                                         if (this.logWarn) this.emit('warn', `System control is locked`);
@@ -2589,301 +880,74 @@ class EnvoyDevice extends EventEmitter {
                                     }
 
                                     try {
-                                        const tokenValid = await this.checkToken();
-                                        if (!tokenValid) {
-                                            setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                                            return;
-                                        }
-
-                                        await this.envoyData.setEnpowerGridState(value);
-                                        if (this.logInfo) this.emit('info', `Set Enpower: ${serialNumber}, dry contact control: ${serviceName}, state: ${value ? 'Grid ON' : 'Grid OFF'}`);
+                                        await this.envoyData.startStopImpulseGenerator(value);
+                                        if (this.logInfo) this.emit('info', `Set data refresh control to: ${value ? 'Enable' : 'Disable'}`);
                                     } catch (error) {
-                                        if (this.logWarn) this.emit('warn', `Set Enpower: ${serialNumber}, dry contact control: ${serviceName}, error: ${error}`);
+                                        if (this.logWarn) this.emit('warn', `Set data refresh control error: ${error}`);
                                     }
                                 });
 
-                            this.enpowerGridStateControlServices.push(controlService);
+                            this.dataSamplingControlService = controlService;
                         }
 
-                        // Grid state sensor
-                        if (this.enpowerGridStateSensor.displayType > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Grid State Sensor Service`);
+                        //data refresh sensor
+                        if (this.dataSamplingSensor.displayType > 0) {
+                            if (this.logDebug) this.emit('debug', `Prepare Data Refresh Sensor Service`);
 
-                            const sensor = this.enpowerGridStateSensor;
-                            const { namePrefix, name, serviceType, characteristicType, state } = sensor;
+                            const sensor = this.dataSamplingSensor;
+                            const { name, namePrefix, serviceType, characteristicType } = sensor;
                             const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
 
-                            const sensorService = accessory.addService(serviceType, serviceName, `enpowerGridStateSensorService${serialNumber}`);
+                            const sensorService = accessory.addService(serviceType, serviceName, `dataSamplingSensorService`);
                             sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                             sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
                             sensorService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
-                                    const curentState = state;
-                                    if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, grid state sensor: ${serviceName}, state: ${curentState ? 'Grid ON' : 'Grid Off'}`);
-                                    return curentState;
+                                    const currentState = sensor.state;
+                                    if (this.logInfo) this.emit('info', `Data refresh sensor: ${currentState ? 'Active' : 'Not active'}`);
+                                    return currentState;
                                 });
 
-                            this.enpowerGridStateSensorServices.push(sensorService);
+                            this.dataSamplingSensorService = sensorService;
                         }
 
-                        // Grid mode sensors
-                        if (this.enpowerGridModeSensors.length > 0) {
-                            if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Grid Mode Sensor Services`);
-                            const enpowerGridModeSensorServices = [];
+                        //production state sensor
+                        if (this.productionStateSensor.displayType > 0 && productionStateSupported) {
+                            if (this.logDebug) this.emit('debug', `Prepare Production State Sensor Service`);
 
-                            for (let i = 0; i < this.enpowerGridModeSensors.length; i++) {
-                                const sensor = this.enpowerGridModeSensors[i];
-                                const { namePrefix, name, serviceType, characteristicType, state } = sensor;
-                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                                const sensorService = accessory.addService(serviceType, serviceName, `enpowerGridModeSensorService${serialNumber}${i}`);
-                                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                                sensorService.getCharacteristic(characteristicType)
-                                    .onGet(async () => {
-                                        const curentState = state;
-                                        if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, grid mode sensor: ${serviceName}, state: ${curentState ? 'Active' : 'Not active'}`);
-                                        return curentState;
-                                    });
-
-                                enpowerGridModeSensorServices.push(sensorService);
-                            }
-                            this.enpowerGridModeSensorServices.push(enpowerGridModeSensorServices);
-                        }
-                    }
-                }
-
-                //collars
-                if (collarsInstalled) {
-                    this.collarServices = [];
-
-                    for (const collar of this.pv.inventoryData.esubs.collars) {
-                        const serialNumber = collar.serialNumber;
-                        if (this.logDebug) this.emit('debug', `Prepare Collar ${serialNumber} Service`);
-
-                        const serviceName = `Collar ${serialNumber}`;
-                        const service = accessory.addService(Service.CollarService, serviceName, `collarService${serialNumber}`);
-                        service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                        // Create characteristics
-                        const characteristics = [
-                            { type: Characteristic.AdminState, label: 'admin state', value: collar.adminStateStr },
-                            { type: Characteristic.Status, label: 'status', value: collar.deviceStatus },
-                            { type: Characteristic.MidState, label: 'mid state', value: collar.midState },
-                            { type: Characteristic.GridState, label: 'mid state', value: collar.gridState },
-                            { type: Characteristic.Communicating, label: 'communicating', value: collar.communicating, postfix: collar.communicating ? 'Yes' : 'No' },
-                            { type: Characteristic.Temperature, label: 'temperature', value: collar.temperature, unit: '°C' },
-                            { type: Characteristic.ReadingTime, label: 'reading time', value: collar.readingTime }
-                        ];
-
-                        for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            service.getCharacteristic(type)
-                                .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `Collar: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
-
-                        this.collarServices.push(service);
-                    }
-                }
-
-                //c6 combiner controllers
-                if (c6CombinerControllersInstalled) {
-                    this.c6CombinerControllerServices = [];
-
-                    for (const c6CombinerController of this.pv.inventoryData.esubs.c6CombinerControllers) {
-                        const serialNumber = c6CombinerController.serialNumber;
-                        if (this.logDebug) this.emit('debug', `Prepare C6 Combiner Controller ${serialNumber} Service`);
-
-                        const serviceName = `C6 Combiner Controller ${serialNumber}`;
-                        const service = accessory.addService(Service.C6CombinerControlerService, serviceName, `c6CombinerControllerService${serialNumber}`);
-                        service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                        // Create characteristics
-                        const characteristics = [
-                            { type: Characteristic.AdminState, label: 'admin state', value: c6CombinerController.adminStateStr },
-                            { type: Characteristic.Communicating, label: 'communicating', value: c6CombinerController.communicating, postfix: c6CombinerController.communicating ? 'Yes' : 'No' },
-                            { type: Characteristic.Firmware, label: 'firmware', value: c6CombinerController.firmware },
-                            { type: Characteristic.ReadingTime, label: 'reading time', value: c6CombinerController.readingTime }
-                        ];
-
-                        for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            service.getCharacteristic(type)
-                                .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `C6 Combiner Controller: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
-
-                        this.c6CombinerControllerServices.push(service);
-                    }
-                }
-
-                //c6 rgms
-                if (c6RgmsInstalled) {
-                    this.c6RgmServices = [];
-
-                    for (const c6Rgm of this.pv.inventoryData.esubs.c6Rgms) {
-                        const serialNumber = c6Rgm.serialNumber;
-                        if (this.logDebug) this.emit('debug', `Prepare C6 Rgm ${serialNumber} Service`);
-
-                        const serviceName = `C6 Rgm ${serialNumber}`;
-                        const service = accessory.addService(Service.C6RgmService, serviceName, `c6RgmService${serialNumber}`);
-                        service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                        // Create characteristics
-                        const characteristics = [
-                            { type: Characteristic.Status, label: 'status', value: c6Rgm.deviceStatus },
-                            { type: Characteristic.Firmware, label: 'firmware', value: c6Rgm.firmware },
-                            { type: Characteristic.ReadingTime, label: 'reading time', value: c6Rgm.readingTime }
-                        ];
-
-                        for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                            if (!this.functions.isValidValue(value)) continue;
-
-                            service.getCharacteristic(type)
-                                .onGet(async () => {
-                                    const currentValue = value;
-                                    if (this.logInfo) this.emit('info', `C6 Rgm: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                    return currentValue;
-                                });
-                        }
-
-                        this.c6RgmServices.push(service);
-                    }
-                }
-
-                //generator
-                if (generatorInstalled) {
-                    const generator = this.pv.inventoryData.esubs.generator;
-                    const generatorType = generator.type;
-
-                    if (this.logDebug) this.emit('debug', `Prepare Generator ${type} Service`);
-
-                    const serviceName = `Generator ${generatorType}`;
-                    const service = accessory.addService(Service.GerneratorService, serviceName, `generatorService`);
-                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                    // Create characteristics
-                    const characteristics = [
-                        { type: Characteristic.AdminMode, label: 'admin mode', value: generator.adminMode },
-                        { type: Characteristic.AdminState, label: 'admin state', value: generator.adminState },
-                        { type: Characteristic.OperatingState, label: 'operation state', value: generator.operState },
-                        { type: Characteristic.StartSoc, label: 'start soc', value: generator.startSoc },
-                        { type: Characteristic.StopSoc, label: 'stop soc', value: generator.stopSoc },
-                        { type: Characteristic.ExexOn, label: 'exec on', value: generator.excOn },
-                        { type: Characteristic.Shedule, label: 'schedule', value: generator.schedule },
-                        { type: Characteristic.Present, label: 'present', value: generator.present },
-                        { type: Characteristic.ReadingTime, label: 'reading time', value: generator.readingTime }
-                    ];
-
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
-
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `Generator: ${generatorType},  ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
-                            });
-                    }
-
-                    this.generatorService = service;
-
-                    //state control 
-                    if (this.generatorStateControl.displayType > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare Generator ${generatorType} Control Service`);
-
-                        const control = this.generatorStateControl;
-                        const { namePrefix, name, serviceType, characteristicType } = control;
-                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                        const controlService = accessory.addService(serviceType, serviceName, `generatorStateControlService`);
-                        controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                        controlService.getCharacteristic(characteristicType)
-                            .onGet(async () => {
-                                const state = control.state;
-                                if (this.logInfo) this.emit('info', `Generator: ${generatorType}, state: ${state ? 'ON' : 'OFF'}`);
-                                return state;
-                            })
-                            .onSet(async (value) => {
-                                if (!pvControl) {
-                                    if (this.logWarn) this.emit('warn', `System control is locked`);
-                                    setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                                    return;
-                                }
-
-                                try {
-                                    const tokenValid = await this.checkToken();
-                                    if (!tokenValid) {
-                                        setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
-                                        return;
-                                    }
-
-                                    const genMode = value ? 'on' : 'off';
-                                    await this.envoyData.setGeneratorMode(genMode);
-                                    if (this.logInfo) this.emit('info', `Set Generator: ${generatorType}, state to: ${value ? 'ON' : 'OFF'}`);
-                                } catch (error) {
-                                    if (this.logWarn) this.emit('warn', `Set Generator: ${generatorType}, state error: ${error}`);
-                                }
-                            });
-
-                        this.generatorStateControlService = controlService;
-                    }
-
-                    //state sensor
-                    if (this.generatorStateSensor.displayType > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare Generator ${type} State Sensor Service`);
-
-                        const sensor = this.generatorStateSensor;
-                        const { namePrefix, name, serviceType, characteristicType } = sensor;
-                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                        const sensorService = accessory.addService(serviceType, serviceName, `generatorStateSensorService`);
-                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                        sensorService.getCharacteristic(characteristicType)
-                            .onGet(async () => {
-                                const state = sensor.state;
-                                if (this.logInfo) this.emit('info', `Generator: ${type}, state sensor: ${serviceName}, state: ${state ? 'Grid ON' : 'Grid Off'}`);
-                                return state;
-                            });
-
-                        this.generatorStateSensorService = sensorService;
-                    }
-
-                    //mode controls
-                    if (this.generatorModeContols.length > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare Generator ${type} Mode Control Services`);
-
-                        this.generatorModeControlServices = [];
-
-                        for (let i = 0; i < this.generatorModeContols.length; i++) {
-                            const control = this.generatorModeContols[i];
-                            const { namePrefix, name, serviceType, characteristicType } = control;
+                            const sensor = this.productionStateSensor;
+                            const { name, namePrefix, serviceType, characteristicType } = sensor;
                             const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
 
-                            const controlService = accessory.addService(serviceType, serviceName, `generatorModeControlService${i}`);
+                            const sensorService = accessory.addService(serviceType, serviceName, `productionStateSensorService`);
+                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                            sensorService.getCharacteristic(characteristicType)
+                                .onGet(async () => {
+                                    const currentState = sensor.state;
+                                    if (this.logInfo) this.emit('info', `Production state sensor: ${currentState ? 'Active' : 'Not active'}`);
+                                    return currentState;
+                                });
+
+                            this.productionStateSensorService = sensorService;
+                        }
+
+                        //plc level control
+                        if (this.plcLevelCheckControl.displayType > 0 && plcLevelSupported) {
+                            if (this.logDebug) this.emit('debug', `Prepare Plc Level Control Service`);
+
+                            const sensor = this.plcLevelCheckControl;
+                            const { name, namePrefix, serviceType, characteristicType } = sensor;
+                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                            const controlService = accessory.addService(serviceType, serviceName, `plcLevelCheckControlService`);
                             controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                             controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
                             controlService.getCharacteristic(characteristicType)
                                 .onGet(async () => {
-                                    const state = control.state;
-                                    if (this.logInfo) this.emit('info', `Generator: ${type}, mode control: ${serviceName}, state: ${state ? 'ON' : 'OFF'}`);
-                                    return state;
+                                    const currentState = sensor.state;
+                                    if (this.logInfo) this.emit('info', `Plc level control state: ${currentState ? 'ON' : 'OFF'}`);
+                                    return currentState;
                                 })
                                 .onSet(async (value) => {
                                     if (!pvControl) {
@@ -2899,87 +963,2133 @@ class EnvoyDevice extends EventEmitter {
                                             return;
                                         }
 
-                                        const genMode = control.mode;
-                                        await this.envoyData.setGeneratorMode(genMode);
-                                        if (this.logInfo) this.emit('info', `Set Generator: ${type}, mode to: ${genMode}`);
+                                        await this.updatePlcLevel(false);
+                                        if (this.logInfo) this.emit('info', `Set plc level control state to: ${value ? 'ON' : 'OFF'}`);
                                     } catch (error) {
-                                        if (this.logWarn) this.emit('warn', `Set Generator: ${type}, state error: ${error}`);
+                                        if (this.logWarn) this.emit('warn', `Set plc level control state error: ${error}`);
                                     }
                                 });
 
-                            this.generatorModeControlServices.push(controlService);
+                            this.plcLevelCheckControlService = controlService;
                         }
-                    }
 
-                    //mode sensors
-                    if (this.generatorModeSensors.length > 0) {
-                        if (this.logDebug) this.emit('debug', `Prepare Generator ${type} Mode Sensor Services`);
+                        //system control lock service
+                        if (this.lockControl) {
+                            if (this.logDebug) this.emit('debug', `Prepare System Control Lock Service`);
 
-                        this.generatorModeSensorServices = [];
+                            pvControl = false; // initially locked
+                            const serviceName = this.lockControlPrefix ? `${accessoryName} System control` : 'System control';
 
-                        for (let i = 0; i < this.generatorModeSensors.length; i++) {
-                            const sensor = this.generatorModeSensors[i];
-                            const { namePrefix, name, serviceType, characteristicType } = sensor;
-                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-
-                            const sensorService = accessory.addService(serviceType, serviceName, `generatorModeSensorService${i}`);
-                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-
-                            sensorService.getCharacteristic(characteristicType)
+                            const lockService = accessory.addService(Service.LockMechanism, serviceName, `lockService`);
+                            lockService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                            lockService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                            lockService.getCharacteristic(Characteristic.LockCurrentState)
                                 .onGet(async () => {
-                                    const state = sensor.state;
-                                    if (this.logInfo) this.emit('info', `Generator: ${type}, mode sensor: ${serviceName}, state: ${state ? 'Active' : 'Not active'}`);
+                                    const state = pvControl ? Characteristic.LockCurrentState.UNSECURED : Characteristic.LockCurrentState.SECURED;
+                                    if (this.logInfo) this.emit('info', `System Control: ${state === Characteristic.LockCurrentState.UNSECURED ? 'Unlocked' : 'Locked'}`);
                                     return state;
                                 });
+                            lockService.getCharacteristic(Characteristic.LockTargetState)
+                                .onGet(async () => {
+                                    return pvControl ? Characteristic.LockTargetState.UNSECURED : Characteristic.LockTargetState.SECURED;
+                                })
+                                .onSet(async (value) => {
+                                    if (value === Characteristic.LockTargetState.UNSECURED) {
+                                        this.emit('success', `System control unlocked`);
+                                        pvControl = true;
+                                        lockService.updateCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.UNSECURED);
+                                        this.envoyService.updateCharacteristic(Characteristic.SystemControl, true);
 
-                            this.generatorModeSensorServices.push(sensorService);
+                                        if (this.unlockTimeout) clearTimeout(this.unlockTimeout);
+                                        this.unlockTimeout = setTimeout(() => {
+                                            pvControl = false;
+                                            lockService.updateCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.SECURED);
+                                            lockService.updateCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
+                                            this.envoyService.updateCharacteristic(Characteristic.SystemControl, false);
+                                            this.emit('success', `System control locked`);
+                                        }, this.lockControTime);
+                                    } else {
+                                        this.emit('success', `System control locked`);
+                                        pvControl = false;
+                                        if (this.unlockTimeout) clearTimeout(this.unlockTimeout);
+                                        lockService.updateCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.SECURED);
+                                        lockService.updateCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
+                                        this.envoyService.updateCharacteristic(Characteristic.SystemControl, false);
+                                    }
+                                });
+
+                            this.lockService = lockService;
                         }
-                    }
-                }
-            }
 
-            //live data
-            if (liveDataSupported) {
-                this.liveDataServices = [];
+                        //envoy
+                        if (envoySupported) {
+                            if (this.logDebug) this.emit('debug', `Prepare Envoy ${envoySerialNumber} Service`);
 
-                for (const liveData of this.pv.liveData.devices) {
-                    const liveDataType = liveData.type;
-                    if (this.logDebug) this.emit('debug', `Prepare Live Data ${liveDataType} Service`);
+                            const home = this.pv.homeData;
+                            const service = accessory.addService(Service.EnvoyService, `Envoy ${envoySerialNumber}`, `envoyService`);
+                            service.setCharacteristic(Characteristic.ConfiguredName, `Envoy ${envoySerialNumber}`);
+                            service.getCharacteristic(Characteristic.DataSampling)
+                                .onGet(async () => {
+                                    const state = this.pv.dataSampling;
+                                    if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, data refresh control: ${state ? 'Enabled' : 'Disabled'}`);
+                                    return state;
+                                })
+                                .onSet(async (value) => {
+                                    if (!pvControl) {
+                                        if (this.logWarn) this.emit('warn', `System control is locked`);
+                                        setTimeout(() => {
+                                            service.updateCharacteristic(Characteristic.DataSampling, !value);
+                                        }, 250);
+                                        return;
+                                    }
 
-                    const serviceName = `Live Data ${liveDataType}`;
-                    const service = accessory.addService(Service.LiveDataService, serviceName, `liveDataService${liveDataType}`);
-                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                    try {
+                                        await this.envoyData.startStopImpulseGenerator(value);
+                                        if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set data refresh control to: ${value ? `Enable` : `Disable`}`);
+                                    } catch (error) {
+                                        if (this.logWarn) this.emit('warn', `Envoy: ${envoySerialNumber}, set data refresh control error: ${error}`);
+                                    }
+                                });
 
-                    // Create characteristics
-                    const characteristics = [
-                        { type: Characteristic.Power, label: 'power', value: liveData.powerKw, unit: 'kW' },
-                        { type: Characteristic.PowerL1, label: 'power L1', value: liveData.powerL1Kw, unit: 'kW' },
-                        { type: Characteristic.PowerL2, label: 'power L2', value: liveData.powerL2Kw, unit: 'kW' },
-                        { type: Characteristic.PowerL3, label: 'power L3', value: liveData.powerL3Kw, unit: 'kW' },
-                        { type: Characteristic.ApparentPower, label: 'apparent power', value: liveData.apparentPowerKw, unit: 'kVA' },
-                        { type: Characteristic.ApparentPowerL1, label: 'apparent power L1', value: liveData.apparentPowerL1Kw, unit: 'kVA' },
-                        { type: Characteristic.ApparentPowerL2, label: 'apparent power L2', value: liveData.apparentPowerL2Kw, unit: 'kVA' },
-                        { type: Characteristic.ApparentPowerL3, label: 'apparent power L3', value: liveData.apparentPowerL3Kw, unit: 'kVA' },
-                        { type: Characteristic.ReadingTime, label: 'reading time', value: liveData.readingTime }
-                    ];
+                            // Create characteristics
+                            const characteristics = [
+                                { type: Characteristic.Alerts, label: 'alerts', value: home.alerts },
+                                { type: Characteristic.CommInterface, label: 'comm interface', value: home.network.primaryInterface },
+                                { type: Characteristic.NetworkWebComm, label: 'web communication', value: home.network.webComm, postfix: home.network.webComm ? 'Yes' : 'No' },
+                                { type: Characteristic.EverReportedToEnlighten, label: 'report to enlighten', value: home.network.everReportedToEnlighten, postfix: home.network.everReportedToEnlighten ? 'Yes' : 'No' },
+                                { type: Characteristic.DbSize, label: 'data base size', value: home.dbSize, unit: 'MB' },
+                                { type: Characteristic.DbPercentFull, label: 'data base percent full', value: home.dbPercentFull, unit: '%' },
+                                { type: Characteristic.CommNumAndLevel, label: 'communication devices and level', value: `${home.comm.num} / ${home.comm.level}`, unit: '%' },
+                                { type: Characteristic.CommNumPcuAndLevel, label: 'communication Microinverters and level', value: `${home.comm.pcuNum} / ${home.comm.pcuLevel}`, unit: '%' },
+                                { type: Characteristic.Tariff, label: 'tariff', value: home.tariff },
+                                { type: Characteristic.Firmware, label: 'firmware', value: this.pv.info.software },
+                                { type: Characteristic.TimeZone, label: 'time zone', value: home.timeZone },
+                                { type: Characteristic.CurrentDateTime, label: 'current date and time', value: home.currentDateTime },
+                                { type: Characteristic.LastEnlightenReporDate, label: 'report time to enlighten', value: home.network.lastEnlightenReporDate },
+                                { type: Characteristic.UpdateStatus, label: 'update status', value: home.updateStatus }
+                            ];
 
-                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
-                        if (!this.functions.isValidValue(value)) continue;
+                            if (nsrbsInstalled) characteristics.push({ type: Characteristic.CommNumNsrbAndLevel, label: 'communication qRelays and level', value: `${home.comm.nsrbNum} / ${home.comm.nsrbLevel}`, unit: '%' });
+                            if (acbsInstalled) characteristics.push({ type: Characteristic.CommNumAcbAndLevel, label: `communication ${acBatterieName} and level`, value: `${home.comm.acbNum} / ${home.comm.acbLevel}`, unit: '%' });
+                            if (enchargesInstalled) characteristics.push({ type: Characteristic.CommNumEnchgAndLevel, label: `communication ${enchargeName} and level`, value: `${home.comm.encharges[0].num} / ${home.comm.encharges[0].level}`, unit: '%' });
+                            if (gridProfileSupported) characteristics.push({ type: Characteristic.GridProfile, label: 'grid profile', value: home.gridProfile });
 
-                        service.getCharacteristic(type)
-                            .onGet(async () => {
-                                const currentValue = value;
-                                if (this.logInfo) this.emit('info', `Live Data: ${liveDataType}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
-                                return currentValue;
+                            // Control characteristics array (with get/set)
+                            if (this.lockControl) {
+                                service.getCharacteristic(Characteristic.SystemControl)
+                                    .onGet(async () => {
+                                        if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, system control: ${pvControl ? 'Enabled' : 'Disabled'}`);
+                                        return pvControl;
+                                    })
+                                    .onSet(async (value) => {
+                                        try {
+                                            await this.lockService.setCharacteristic(Characteristic.LockTargetState, !value);
+                                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set system control to: ${value ? 'Enable' : 'Disable'}`);
+                                        } catch (error) {
+                                            if (this.logWarn) this.emit('warn', `Envoy: ${envoySerialNumber}, set system control error: ${error}`);
+                                        }
+                                    });
+                            }
+
+                            if (productionStateSupported) {
+                                service.getCharacteristic(Characteristic.ProductionState)
+                                    .onGet(async () => {
+                                        const state = this.pv.productionState;
+                                        if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, production state: ${state ? 'Enabled' : 'Disabled'}`);
+                                        return state;
+                                    })
+                                    .onSet(async (value) => {
+                                        if (!pvControl) {
+                                            if (this.logWarn) this.emit('warn', `System control is locked`);
+                                            setTimeout(() => service.updateCharacteristic(Characteristic.ProductionState, !value), 250);
+                                            return;
+                                        }
+
+                                        try {
+                                            const tokenValid = await this.checkToken();
+                                            if (!tokenValid || value === this.pv.productionState) {
+                                                setTimeout(() => service.updateCharacteristic(Characteristic.ProductionState, !value), 250);
+                                                return;
+                                            }
+
+                                            await this.envoyData.setProductionState(value);
+                                            if (!this.logDebug) this.emit('debug', `Envoy: ${envoySerialNumber}, set production state: ${value ? 'Enabled' : 'Disabled'}`);
+                                        } catch (error) {
+                                            if (this.logWarn) this.emit('warn', `Envoy: ${envoySerialNumber}, set production state error: ${error}`);
+                                        }
+                                    });
+                            }
+
+                            if (plcLevelSupported) {
+                                service.getCharacteristic(Characteristic.PlcLevelCheck)
+                                    .onGet(async () => {
+                                        const state = this.pv.plcLevelCheck;
+                                        if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, checking plc level: ${state ? `Yes` : `No`}`);
+                                        return state;
+                                    })
+                                    .onSet(async (value) => {
+                                        if (!pvControl) {
+                                            if (this.logWarn) this.emit('warn', `System control is locked`);
+                                            setTimeout(() => service.updateCharacteristic(Characteristic.PlcLevelCheck, !value), 250);
+                                            return;
+                                        }
+
+                                        try {
+                                            const tokenValid = await this.checkToken();
+                                            if (!tokenValid) {
+                                                setTimeout(() => service.updateCharacteristic(Characteristic.PlcLevelCheck, !value), 250);
+                                                return;
+                                            }
+
+                                            await this.updatePlcLevel(false);
+                                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set check plc level: ${value ? `Yes` : `No`}`);
+                                        } catch (error) {
+                                            if (this.logWarn) this.emit('warn', `Envoy: ${envoySerialNumber}, set check plc level error: ${error}`);
+                                        }
+                                    });
+                            }
+
+                            if (enpowersInstalled) {
+                                const enpowerState = this.pv.inventoryData.esubs.enpowers[0].mainsAdminStateBool;
+                                characteristics.push({ type: Characteristic.EnpowerGridMode, label: 'enpower grid mode', value: this.pv.inventoryData.esubs.enpowers[0].enpwrGridModeTranslated });
+                                service.getCharacteristic(Characteristic.EnpowerGridState)
+                                    .onGet(async () => {
+                                        const state = enpowerState;
+                                        if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, enpower grid state: ${state ? 'Grid ON' : 'Grid OFF'}`);
+                                        return state;
+                                    })
+                                    .onSet(async (value) => {
+                                        if (!pvControl) {
+                                            if (this.logWarn) this.emit('warn', `System control is locked`);
+                                            setTimeout(() => service.updateCharacteristic(Characteristic.EnpowerGridState, !value), 250);
+                                            return;
+                                        }
+
+                                        try {
+                                            const tokenValid = await this.checkToken();
+                                            if (!tokenValid) {
+                                                setTimeout(() => service.updateCharacteristic(Characteristic.EnpowerGridState, !value), 250);
+                                                return;
+                                            }
+
+                                            await this.envoyData.setEnpowerGridState(value);
+                                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set enpower grid state to: ${value ? `Grid ON` : `Grid OFF`}`);
+                                        } catch (error) {
+                                            if (this.logWarn) this.emit('warn', `Set enpower grid state error: ${error}`);
+                                        }
+                                    });
+                            }
+
+                            if (generatorInstalled) {
+                                const generatorState = this.pv.inventoryData.esubs.generator.adminModeOnBool || this.pv.inventoryData.esubs.generator.adminModeAutoBool;
+                                characteristics.push({ type: Characteristic.GeneratorMode, label: 'generator mode', value: this.pv.inventoryData.esubs.generator.adminMode });
+                                service.getCharacteristic(Characteristic.State)
+                                    .onGet(async () => {
+                                        const state = generatorState;
+                                        if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, generator state: ${state ? 'ON' : 'OFF'}`);
+                                        return state;
+                                    })
+                                    .onSet(async (value) => {
+                                        if (!pvControl) {
+                                            if (this.logWarn) this.emit('warn', `System control is locked`);
+                                            setTimeout(() => service.updateCharacteristic(Characteristic.State, !value), 250);
+                                            return;
+                                        }
+
+                                        try {
+                                            const tokenValid = await this.checkToken();
+                                            if (!tokenValid) {
+                                                setTimeout(() => service.updateCharacteristic(Characteristic.State, !value), 250);
+                                                return;
+                                            }
+
+                                            const genMode = value ? 'on' : 'off';
+                                            await this.envoyData.setGeneratorMode(genMode);
+                                            if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, set generator state to: ${value ? `ON` : `OFF`}`);
+                                        } catch (error) {
+                                            if (this.logWarn) this.emit('warn', `Set generator state error: ${error}`);
+                                        }
+                                    });
+                            }
+
+                            // Add all read-only characteristics
+                            for (const { type, value, label, unit = '', postfix = '' } of characteristics) {
+                                if (!this.functions.isValidValue(value)) continue;
+
+                                service.getCharacteristic(type)
+                                    .onGet(async () => {
+                                        const currentValue = value;
+                                        if (this.logInfo) this.emit('info', `Envoy: ${envoySerialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                        return currentValue;
+                                    });
+                            }
+
+                            this.envoyService = service;
+
+                            // Network Interfaces
+                            if (networkInterfacesInstalled) {
+                                this.networkInterfacesServices = [];
+
+                                for (const networkInterface of home.network.interfaces) {
+                                    const interfaceType = networkInterface.type;
+                                    if (this.logDebug) this.emit('debug', `Prepare Network Interface ${interfaceType} Service`);
+
+                                    const networkInterfaceService = accessory.addService(Service.NetworkInterfaceService, `Network Interface ${interfaceType}`, `networkInterfaceService${interfaceType}`);
+                                    networkInterfaceService.setCharacteristic(Characteristic.ConfiguredName, `Network Interface ${interfaceType}`);
+
+                                    const Characteristics1 = [
+                                        { type: Characteristic.Type, label: 'type', value: networkInterface.type },
+                                        { type: Characteristic.AddressIp, label: 'address IP ', value: networkInterface.ip },
+                                        { type: Characteristic.SignalStrength, label: 'signal strength', value: networkInterface.signalStrength, unit: '%' }
+                                    ];
+
+                                    for (const { type, value, label, unit = '', postfix = '' } of Characteristics1) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        networkInterfaceService.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `Network Interface ${interfaceType}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.networkInterfacesServices.push(networkInterfaceService);
+                                }
+                            }
+
+                            // Wireless connection kits
+                            if (wirelessConnectionsInstalled) {
+                                this.wirelessConnectionsKitServices = [];
+
+                                for (const wirelessConnection of home.wirelessKits) {
+                                    const connectionType = wirelessConnection.type;
+                                    if (this.logDebug) this.emit('debug', `Prepare Wireless Connection ${connectionType} Service`);
+
+                                    const wirelessService = accessory.addService(Service.WirelessConnectionKitService, `Wireless connection ${connectionType}`, `wirelessConnectionKitService${connectionType}`);
+                                    wirelessService.setCharacteristic(Characteristic.ConfiguredName, `Wireless connection ${connectionType}`);
+
+                                    const wirelessCharacteristics = [
+                                        { type: Characteristic.Type, label: 'type', value: wirelessConnection.type },
+                                        { type: Characteristic.Connected, label: 'state', value: wirelessConnection.connected, postfix: `${wirelessConnection.connected ? 'Connected' : 'Disconnected'}` },
+                                        { type: Characteristic.SignalStrength, label: 'signal strength', value: wirelessConnection.signalStrength, unit: '%' }
+                                    ];
+
+                                    for (const { type, value, label, unit = '', postfix = '' } of wirelessCharacteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        wirelessService.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `Wireless connection: ${connectionType}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.wirelessConnectionsKitServices.push(wirelessService);
+                                }
+                            }
+                        }
+
+                        //meters
+                        if (metersInstalled) {
+                            this.meterServices = [];
+
+                            for (const meter of this.pv.metersData) {
+                                const measurementType = meter.measurementType;
+                                if (this.logDebug) this.emit('debug', `Prepare Meter ${measurementType} Service`);
+
+                                const serviceName = `Meter ${measurementType}`;
+                                const service = accessory.addService(Service.MeterService, serviceName, `meterService${measurementType}`);
+                                service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.State, label: 'state', value: meter.state, postfix: meter.state ? 'Enabled' : 'Disabled' },
+                                    { type: Characteristic.PhaseMode, label: 'phase mode', value: meter.phaseMode },
+                                    { type: Characteristic.PhaseCount, label: 'phase count', value: meter.phaseCount },
+                                    { type: Characteristic.MeteringStatus, label: 'metering status', value: meter.meteringStatus },
+                                    { type: Characteristic.Status, label: 'status', value: meter.deviceStatus },
+                                    { type: Characteristic.ReadingTime, label: 'reading time', value: meter.readingTime }
+                                ];
+
+                                if (meter.state) {
+                                    characteristics.push(
+                                        { type: Characteristic.Power, label: 'power', value: meter.powerKw, unit: 'kW' },
+                                        { type: Characteristic.ApparentPower, label: 'apparent power', value: meter.apparentPowerKw, unit: 'kVA' },
+                                        { type: Characteristic.ReactivePower, label: 'reactive power', value: meter.reactivePowerKw, unit: 'kVAr' },
+                                        { type: Characteristic.EnergyLifetime, label: 'energy lifetime', value: meter.energyLifetimeKw, unit: 'kWh' },
+                                        { type: Characteristic.Current, label: 'current', value: meter.current, unit: 'A' },
+                                        { type: Characteristic.Voltage, label: 'voltage', value: meter.voltage, unit: 'V' },
+                                        { type: Characteristic.Frequency, label: 'frequency', value: meter.frequency, unit: 'Hz' },
+                                        { type: Characteristic.PwrFactor, label: 'power factor', value: meter.pwrFactor, unit: 'cos φ' }
+                                    );
+
+                                    if (measurementType !== 'Consumption Total') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, label: 'energy lifetime upload', value: meter.energyLifetimeUploadKw, unit: 'kW' });
+                                }
+
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `${serviceName}: ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                }
+
+                                this.meterServices.push(service);
+                            }
+                        }
+
+                        //pcu
+                        if (pcuInstalled) {
+                            this.pcuServices = [];
+
+                            for (const pcu of this.pv.inventoryData.pcus) {
+                                const serialNumber = pcu.serialNumber;
+                                if (this.logDebug) this.emit('debug', `Prepare Microinverter ${serialNumber} Service`);
+
+                                const service = accessory.addService(Service.MicroinverterService, `Microinverter ${serialNumber}`, `pcuService${serialNumber}`);
+                                service.setCharacteristic(Characteristic.ConfiguredName, `Microinverter ${serialNumber}`);
+
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.Producing, label: 'producing', value: pcu.producing, postfix: pcu.producing ? 'Yes' : 'No' },
+                                    { type: Characteristic.Communicating, label: 'communicating', value: pcu.communicating, postfix: pcu.communicating ? 'Yes' : 'No' },
+                                    { type: Characteristic.Provisioned, label: 'provisioned', value: pcu.provisioned, postfix: pcu.provisioned ? 'Yes' : 'No' },
+                                    { type: Characteristic.Operating, label: 'operating', value: pcu.operating, postfix: pcu.operating ? 'Yes' : 'No' },
+                                    { type: Characteristic.Phase, label: 'phase', value: pcu.phase },
+                                    { type: Characteristic.GfiClear, label: 'gfi clear', value: pcu.deviceControl },
+                                    { type: Characteristic.Status, label: 'status', value: pcu.deviceStatus },
+                                    { type: Characteristic.Firmware, label: 'firmware', value: pcu.firmware },
+                                    { type: Characteristic.ReadingTime, label: 'reading time', value: pcu.readingTime },
+                                ];
+
+                                if (gridProfileSupported) characteristics.push({ type: Characteristic.GridProfile, label: 'grid profile', value: pcu.gridProfile });
+                                if (plcLevelPcusSupported) characteristics.push({ type: Characteristic.PlcLevel, label: 'plc level', value: pcu.plcLevel, unit: '%' });
+
+                                if (pcusStatusDataSupported || pcusDetailedDataSupported) {
+                                    characteristics.push(
+                                        { type: Characteristic.PowerW, label: 'power', value: pcu.power, unit: 'W' },
+                                        { type: Characteristic.PowerPeakW, label: 'power peak', value: pcu.powerPeak, unit: 'W' }
+                                    );
+                                }
+
+                                if (pcusDetailedDataSupported) {
+                                    characteristics.push(
+                                        { type: Characteristic.EnergyTodayWh, label: 'energy today', value: pcu.energyToday, unit: 'Wh' },
+                                        { type: Characteristic.EnergyYesterdayWh, label: 'energy yesterday', value: pcu.energyYesterday, unit: 'Wh' },
+                                        { type: Characteristic.EnergyLastSevenDays, label: 'energy last seven days', value: pcu.energyLastSevenDaysKw, unit: 'kWh' },
+                                        { type: Characteristic.EnergyLifetime, label: 'energy lifetime', value: pcu.energyLifetimeKw, unit: 'kWh' },
+                                        { type: Characteristic.Voltage, label: 'voltage', value: pcu.voltage, unit: 'V' },
+                                        { type: Characteristic.Frequency, label: 'frequency', value: pcu.frequency, unit: 'Hz' },
+                                        { type: Characteristic.VoltageDc, label: 'voltage dc', value: pcu.voltageDc, unit: 'V' },
+                                        { type: Characteristic.CurrentDc, label: 'current dc', value: pcu.currentDc, unit: 'A' },
+                                        { type: Characteristic.Temperature, label: 'temperature', value: pcu.temperature, unit: '°C' }
+                                    );
+                                }
+
+                                // Add characteristics with async getters and info logging
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `Microinverter: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                }
+
+                                this.pcuServices.push(service);
+                            }
+                        }
+
+                        //qrelays
+                        if (nsrbsInstalled) {
+                            this.nsrbServices = [];
+                            this.nsrbStateSensorServices = [];
+
+                            for (const nsrb of this.pv.inventoryData.nsrbs) {
+                                const serialNumber = nsrb.serialNumber;
+
+                                if (this.logDebug) this.emit('debug', `Prepare Q-Relay ${serialNumber} Service`);
+
+                                const service = accessory.addService(Service.QrelayService, `QRelay ${serialNumber}`, `nsrbService${serialNumber}`);
+                                service.setCharacteristic(Characteristic.ConfiguredName, `QRelay ${serialNumber}`);
+
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.State, label: 'state', value: nsrb.relayState, postfix: nsrb.relayState ? 'Closed' : 'Open' },
+                                    { type: Characteristic.LinesCount, label: 'lines', value: nsrb.linesCount },
+                                    { type: Characteristic.Communicating, label: 'communicating', value: nsrb.communicating, postfix: nsrb.communicating ? 'Yes' : 'No' },
+                                    { type: Characteristic.Provisioned, label: 'provisioned', value: nsrb.provisioned, postfix: nsrb.provisioned ? 'Yes' : 'No' },
+                                    { type: Characteristic.Operating, label: 'operating', value: nsrb.operating, postfix: nsrb.operating ? 'Yes' : 'No' },
+                                    { type: Characteristic.GfiClear, label: 'gfi clear', value: nsrb.deviceControl },
+                                    { type: Characteristic.Status, label: 'status', value: nsrb.deviceStatus },
+                                    { type: Characteristic.Firmware, label: 'firmware', value: nsrb.firmware },
+                                    { type: Characteristic.ReadingTime, label: 'reading time', value: nsrb.readingTime },
+                                    { type: Characteristic.Line1Connected, label: 'line 1', value: nsrb.line1Connected, postfix: nsrb.line1Connected ? 'Closed' : 'Open' },
+                                    { type: Characteristic.Line2Connected, label: 'line 2', value: nsrb.line2Connected, postfix: nsrb.line2Connected ? 'Closed' : 'Open' },
+                                    { type: Characteristic.Line3Connected, label: 'line 3', value: nsrb.line3Connected, postfix: nsrb.line3Connected ? 'Closed' : 'Open' },
+                                ];
+
+                                if (gridProfileSupported) characteristics.push({ type: Characteristic.GridProfile, label: 'grid profile', value: nsrb.gridProfile });
+                                if (plcLevelNrsbsSupported) characteristics.push({ type: Characteristic.PlcLevel, label: 'plc level', value: nsrb.plcLevel, unit: '%' });
+
+                                if (nsrbsDetailedDataSupported) {
+                                    characteristics.push(
+                                        { type: Characteristic.AcOffset, label: 'voltage offset', value: nsrb.acOffset, unit: 'V' },
+                                        { type: Characteristic.VoltageL1, label: 'voltage L1', value: nsrb.voltageL1, unit: 'V' },
+                                        { type: Characteristic.VoltageL2, label: 'voltage L2', value: nsrb.voltageL2, unit: 'V' },
+                                        { type: Characteristic.VoltageL3, label: 'voltage L3', value: nsrb.voltageL3, unit: 'V' },
+                                        { type: Characteristic.Frequency, label: 'frequency', value: nsrb.frequency, unit: 'Hz' },
+                                        { type: Characteristic.Temperature, label: 'temperature', value: nsrb.temperature, unit: '°C' }
+                                    );
+                                }
+
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `Q-Relay: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                }
+
+                                this.nsrbServices.push(service);
+
+                                // State sensors setup
+                                if (this.qRelayStateSensor.displayType > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare Q-Relay ${serialNumber} State Sensor Service`);
+
+                                    const sensorServices = [];
+                                    const sensor = this.qRelayStateSensor;
+                                    const sensorCount = sensor.multiphase && nsrb.linesCount > 1 ? nsrb.linesCount + 1 : 1;
+
+                                    for (let i = 0; i < sensorCount; i++) {
+                                        if (i > 0 && nsrb.linesCount < i) continue;
+
+                                        const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                        const serviceName = namePrefix ? `${accessoryName} ${i === 0 ? name : `${name} L${i}`}` : (i === 0 ? name : `${name} L${i}`);
+
+                                        const sensorService = accessory.addService(serviceType, serviceName, `nsrbStateSensorService${serialNumber}${i}`);
+                                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                        sensorService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const state = sensor[`state${i}`];
+                                                if (this.logInfo) this.emit('info', `Q-Relay: ${serialNumber}, sensor: ${serviceName}, state: ${state ? 'Active' : 'Not Active'}`);
+                                                return state;
+                                            });
+
+                                        sensorServices.push(sensorService);
+                                    }
+                                    this.nsrbStateSensorServices.push(sensorServices);
+                                }
+
+                            }
+                        }
+
+                        //ac batteries
+                        if (acbsInstalled) {
+                            if (acbsSupported) {
+
+                                // --- AC Battery Backup Level and State Summary Service ---
+                                if (this.acBatterieBackupLevelSummaryControl.displayType > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} Backup Level Summary Service`);
+
+                                    const control = this.acBatterieBackupLevelSummaryControl;
+                                    const { namePrefix, serviceType, characteristicType, characteristicType1 } = control;
+                                    const serviceName = namePrefix ? `${accessoryName} ${acBatterieName}` : acBatterieName;
+
+                                    const controlService = accessory.addService(serviceType, serviceName, `acbSummaryLevelAndStateService`);
+                                    controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                    // Create characteristics
+                                    const characteristics = [
+                                        { type: characteristicType, label: 'state', value: control.state, postfix: control.state ? 'Discharged' : 'Charged' },
+                                        { type: characteristicType1, label: 'backup level', value: control.backupLevel, unit: '%' },
+                                    ];
+
+                                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        controlService.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `${acBatterieName}: ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.acbSummaryLevelAndStateService = controlService;
+                                }
+
+                                // --- AC Batteries Summary Service ---
+                                if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} Summary Service`);
+
+                                const storageSumm = this.pv.inventoryData.acbs[0];
+                                const service = accessory.addService(Service.AcBatterieSummaryService, `${acBatterieName} Summary`, 'acbSummaryService');
+                                service.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} Summary`);
+
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.ChargeState, label: 'charge state', value: storageSumm.chargeStateSum },
+                                    { type: Characteristic.Power, label: 'power', value: storageSumm.powerSumKw, unit: 'kW' },
+                                    { type: Characteristic.Energy, label: 'energy', value: storageSumm.energySumKw, unit: 'kWh' },
+                                    { type: Characteristic.PercentFull, label: 'percent full', value: storageSumm.percentFullSum, unit: '%' },
+                                    { type: Characteristic.ActiveCount, label: 'active count', value: storageSumm.activeCount },
+                                    { type: Characteristic.ReadingTime, label: 'reading time', value: storageSumm.readingTime },
+                                ];
+
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `${acBatterieName}: ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                }
+
+                                this.acbSummaryService = service;
+                            }
+
+                            // --- Individual AC Batteries ---
+                            this.acbServices = [];
+                            this.acbLevelAndStateServices = [];
+
+                            for (const storage of this.pv.inventoryData.acbs) {
+                                const serialNumber = storage.serialNumber;
+
+                                // Backup Level and State individual service
+                                if (this.acBatterieBackupLevelControl.displayType > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} Backup Level Summary Service`);
+
+                                    const control = this.acBatterieBackupLevelControl;
+                                    const { namePrefix, serviceType, characteristicType, characteristicType1, characteristicType2 } = control;
+                                    const serviceName = namePrefix ? `${accessoryName} ${acBatterieName}` : acBatterieName;
+
+                                    const controlService = accessory.addService(serviceType, serviceName, `acBatterieLevelAndStateService${serialNumber}`);
+                                    controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                    // Create characteristics
+                                    const characteristics = [
+                                        { type: characteristicType, label: 'state', value: control.state, postfix: `${control.state ? 'Discharged' : 'Charged'}` },
+                                        { type: characteristicType1, label: 'backup level', value: control.backupLevel, unit: '%' },
+                                        { type: characteristicType2, label: 'charging state', value: control.chargeState, postfix: `${control.chargeState === 0 ? 'Discharging' : control.chargeState === 1 ? 'Charging' : 'Ready'}` },
+                                    ];
+
+                                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        controlService.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `${acBatterieName} ${serialNumber}: ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.acbLevelAndStateServices.push(controlService);
+                                }
+
+                                if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} ${serialNumber} Service`);
+                                const service = accessory.addService(Service.AcBatterieService, `${acBatterieName} ${serialNumber}`, `acbService${serialNumber}`);
+                                service.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} ${serialNumber}`);
+
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.ChargeState, label: 'charge state', value: storage.chargeState },
+                                    { type: Characteristic.Status, label: 'status', value: storage.deviceStatus },
+                                    { type: Characteristic.Producing, label: 'producing', value: storage.producing, postfix: storage.producing ? 'Yes' : 'No' },
+                                    { type: Characteristic.Communicating, label: 'communicating', value: storage.communicating, postfix: storage.communicating ? 'Yes' : 'No' },
+                                    { type: Characteristic.Provisioned, label: 'provisioned', value: storage.provisioned, postfix: storage.provisioned ? 'Yes' : 'No' },
+                                    { type: Characteristic.Operating, label: 'operating', value: storage.operating, postfix: storage.operating ? 'Yes' : 'No' },
+                                    { type: Characteristic.GfiClear, label: 'gfi clear', value: storage.deviceControl },
+                                    { type: Characteristic.SleepEnabled, label: 'sleep', value: storage.sleepEnabled, postfix: storage.sleepEnabled ? 'Yes' : 'No' },
+                                    { type: Characteristic.PercentFull, label: 'percent full', value: storage.percentFull, unit: '%' },
+                                    { type: Characteristic.MaxCellTemp, label: 'max cell temperature', value: storage.maxCellTemp, unit: '°C' },
+                                    { type: Characteristic.SleepMinSoc, label: 'sleep min soc', value: storage.sleepMinSoc, unit: 'min' },
+                                    { type: Characteristic.SleepMaxSoc, label: 'sleep max soc', value: storage.sleepMaxSoc, unit: 'min' },
+                                    { type: Characteristic.Firmware, label: 'firmware', value: storage.firmware },
+                                    { type: Characteristic.ReadingTime, label: 'reading time', value: storage.readingTime },
+                                ];
+
+                                if (gridProfileSupported) {
+                                    characteristics.push(
+                                        { type: Characteristic.GridProfile, label: 'grid profile', value: storage.gridProfile }
+                                    );
+                                }
+
+                                if (plcLevelAcbsSupported) {
+                                    characteristics.push(
+                                        { type: Characteristic.PlcLevel, label: 'plc level', value: storage.plcLevel, unit: '%' }
+                                    );
+                                }
+
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `${acBatterieName}: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                };
+
+                                this.acbServices.push(service);
+                            }
+                        }
+
+                        //power and energy data
+                        if (powerAndEnergySupported) {
+                            this.powerAndEnergyServices = [];
+                            for (const source of this.pv.powerAndEnergyData.data) {
+                                const measurementType = source.measurementType;
+                                const key = MetersKeyMap[measurementType];
+                                if (this.logDebug) this.emit('debug', `Prepare Power And Energy ${measurementType} Service`);
+
+                                const service = accessory.addService(Service.PowerAndEnergyService, `Power And Energy ${measurementType}`, `powerAndEnergyService${measurementType}`);
+                                service.setCharacteristic(Characteristic.ConfiguredName, `Power And Energy ${measurementType}`);
+
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.Power, label: 'power', value: source.powerKw, unit: 'kW' },
+                                    { type: Characteristic.PowerPeak, label: 'power peak', value: source.powerPeakKw, unit: 'kW' },
+                                    { type: Characteristic.PowerPeakDetected, label: 'power peak detected', value: source.powerPeakDetected, postfix: source.powerPeakDetected ? 'Yes' : 'No' },
+                                    { type: Characteristic.EnergyToday, label: 'energy today', value: source.energyTodayKw, unit: 'kWh' },
+                                    { type: Characteristic.EnergyLastSevenDays, label: 'energy last seven days', value: source.energyLastSevenDaysKw, unit: 'kWh' },
+                                    { type: Characteristic.EnergyLifetime, label: 'energy lifetime', value: source.energyLifetimeKw, unit: 'kWh' },
+                                    { type: Characteristic.ReadingTime, label: 'reading time', value: source.readingTime },
+                                ];
+
+                                if (source.gridQualityState) {
+                                    if (measurementType !== 'Consumption Total') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, label: 'energy lifetime upload', value: source.energyLifetimeUploadKw, unit: 'kW' });
+
+                                    characteristics.push(
+                                        { type: Characteristic.ReactivePower, label: 'reactive power', value: source.reactivePowerKw, unit: 'kVAr' },
+                                        { type: Characteristic.ApparentPower, label: 'apparent power', value: source.apparentPowerKw, unit: 'kVA' },
+                                        { type: Characteristic.Current, label: 'current', value: source.current, unit: 'A' },
+                                        { type: Characteristic.Voltage, label: 'voltage', value: source.voltage, unit: 'V' },
+                                        { type: Characteristic.Frequency, label: 'frequency', value: source.frequency, unit: 'Hz' },
+                                        { type: Characteristic.PwrFactor, label: 'power factor', value: source.pwrFactor, unit: 'cos ϕ' },
+                                    );
+                                }
+
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `${measurementType}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                }
+
+                                service.getCharacteristic(Characteristic.PowerPeakReset)
+                                    .onGet(async () => {
+                                        if (this.logInfo) this.emit('info', `${measurementType}, power peak reset: Off`);
+                                        return false;
+                                    })
+                                    .onSet(async (value) => {
+                                        if (!pvControl) {
+                                            if (this.logWarn) this.emit('warn', `System control is locked`);
+                                            setTimeout(() => service.updateCharacteristic(Characteristic.PowerPeakReset, !value), 250);
+                                            return;
+                                        }
+
+                                        try {
+                                            if (!value) {
+                                                setTimeout(() => service.updateCharacteristic(Characteristic.PowerPeakReset, value), 250);
+                                                return;
+                                            }
+
+                                            this.pv.powerAndEnergyData[key].powerPeak = null;
+                                            if (this.logInfo) this.emit('info', `${measurementType}, power peak reset: Done`);
+                                            setTimeout(() => service.updateCharacteristic(Characteristic.PowerPeakReset, false), 250);
+                                        } catch (error) {
+                                            if (this.logWarn) this.emit('warn', `${measurementType}, Power Peak reset error: ${error}`);
+                                        }
+                                    });
+
+                                this.powerAndEnergyServices.push(service);
+
+                                switch (measurementType) {
+                                    case 'Production':
+                                        //power level sensors
+                                        if (this.powerProductionLevelSensors.length > 0) {
+                                            if (this.logDebug) this.emit('debug', `Prepare Production Power Level Sensor Services`);
+
+                                            this.powerProductionLevelSensorServices = [];
+                                            for (let i = 0; i < this.powerProductionLevelSensors.length; i++) {
+                                                const sensor = this.powerProductionLevelSensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorService = accessory.addService(serviceType, serviceName, `powerProductionLevelSensorService${i}`);
+                                                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorService.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Power Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.powerProductionLevelSensorServices.push(sensorService);
+                                            }
+                                        }
+
+                                        //energy level sensors
+                                        if (this.energyProductionLevelSensors.length > 0) {
+                                            if (this.logDebug) this.emit('debug', `Prepare Production Energy Level Sensor Services`);
+
+                                            this.energyProductionLevelSensorServices = [];
+                                            for (let i = 0; i < this.energyProductionLevelSensors.length; i++) {
+                                                const sensor = this.energyProductionLevelSensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorService = accessory.addService(serviceType, serviceName, `energyProductionLevelSensorService${i}`);
+                                                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorService.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Energy Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.energyProductionLevelSensorServices.push(sensorService);
+                                            }
+                                        }
+
+                                        //grid quality sensors
+                                        if (this.gridProductionQualitySensors.length > 0 && source.gridQualityState) {
+                                            if (this.logDebug) this.emit('debug', `Prepare Grid Quality Sensor Services`);
+
+                                            this.gridProductionQualityActiveSensorServices = [];
+                                            for (let i = 0; i < this.gridProductionQualitySensors.length; i++) {
+                                                const sensor = this.gridProductionQualitySensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorService = accessory.addService(serviceType, serviceName, `gridProductionQualityActiveSensorService${i}`);
+                                                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorService.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Grid Quality: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.gridProductionQualityActiveSensorServices.push(sensorService);
+                                            }
+                                        }
+                                        break;
+                                    case 'Consumption Net':
+                                        //power level sensors 
+                                        if (this.powerConsumptionNetLevelSensors.length > 0) {
+                                            if (this.logDebug) this.emit('debug', `Prepare ${measurementType} Power Level Sensor Services`);
+
+                                            this.powerConsumptionNetLevelSensorServices = [];
+                                            for (let i = 0; i < this.powerConsumptionNetLevelSensors.length; i++) {
+                                                const sensor = this.powerConsumptionNetLevelSensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorService = accessory.addService(serviceType, serviceName, `powerConsumptionNetLevelSensorService${i}`);
+                                                sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorService.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Power Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.powerConsumptionNetLevelSensorServices.push(sensorService);
+                                            }
+                                        }
+
+                                        //energy level sensors 
+                                        if (this.energyConsumptionNetLevelSensors.length > 0) {
+                                            if (this.logDebug) this.emit('debug', `Prepare ${measurementType} Energy Level Sensor Services`);
+
+                                            this.energyConsumptionNetLevelSensorServices = [];
+                                            for (let i = 0; i < this.energyConsumptionNetLevelSensors.length; i++) {
+                                                const sensor = this.energyConsumptionNetLevelSensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorServicee = accessory.addService(serviceType, serviceName, `energyConsumptionNetLevelSensorService${i}`);
+                                                sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorServicee.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Energy Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.energyConsumptionNetLevelSensorServices.push(sensorServicee);
+                                            }
+                                        }
+
+                                        //grid quality sensors
+                                        if (this.gridConsumptionNetQualitySensors.length > 0) {
+                                            if (this.logDebug) this.emit('debug', `Prepare Grid Quality Sensor Services`);
+
+                                            this.gridConsumptionNetQualityActiveSensorServices = [];
+                                            for (let i = 0; i < this.gridConsumptionNetQualitySensors.length; i++) {
+                                                const sensor = this.gridConsumptionNetQualitySensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorServicee = accessory.addService(serviceType, serviceName, `gridConsumptionNetQualityActiveSensorService${i}`);
+                                                sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorServicee.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Grid Quality: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.gridConsumptionNetQualityActiveSensorServices.push(sensorServicee);
+                                            }
+                                        }
+                                        break;
+                                    case 'Consumption Total':
+                                        //power level sensors 
+                                        if (this.powerConsumptionTotalLevelSensors.length > 0) {
+                                            if (this.logDebug) this.emit('debug', `Prepare ${measurementType} Power Level Sensor Services`);
+
+                                            this.powerConsumptionTotalLevelSensorServices = [];
+                                            for (let i = 0; i < this.powerConsumptionTotalLevelSensors.length; i++) {
+                                                const sensor = this.powerConsumptionTotalLevelSensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorServicee = accessory.addService(serviceType, serviceName, `powerConsumptionTotalLevelSensorService${i}`);
+                                                sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorServicee.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Power Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.powerConsumptionTotalLevelSensorServices.push(sensorServicee);
+                                            }
+                                        }
+
+                                        //energy level sensors 
+                                        if (this.energyConsumptionTotalLevelSensors.length > 0) {
+                                            if (this.logDebug) this.emit('debug', `Prepare ${measurementType} Energy Level Sensor Services`);
+
+                                            this.energyConsumptionTotalLevelSensorServices = [];
+                                            for (let i = 0; i < this.energyConsumptionTotalLevelSensors.length; i++) {
+                                                const sensor = this.energyConsumptionTotalLevelSensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorServicee = accessory.addService(serviceType, serviceName, `energyConsumptionTotalLevelSensorService${i}`);
+                                                sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorServicee.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Energy Level: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.energyConsumptionTotalLevelSensorServices.push(sensorServicee);
+                                            }
+                                        }
+
+                                        //grid quality sensors
+                                        if (this.gridConsumptionTotalQualitySensors.length > 0) {
+                                            if (this.logDebug) this.emit('debug', `Prepare Grid Quality Sensor Services`);
+
+                                            this.gridConsumptionTotalQualityActiveSensorServices = [];
+                                            for (let i = 0; i < this.gridConsumptionTotalQualitySensors.length; i++) {
+                                                const sensor = this.gridConsumptionTotalQualitySensors[i];
+                                                const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                                const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                                                const sensorServicee = accessory.addService(serviceType, serviceName, `gridConsumptionTotalQualityActiveSensorService${i}`);
+                                                sensorServicee.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                                sensorServicee.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                                sensorServicee.getCharacteristic(characteristicType)
+                                                    .onGet(async () => {
+                                                        const currentState = sensor.state;
+                                                        if (this.logInfo) this.emit('info', `Grid Quality: ${measurementType}, sensor: ${serviceName}: ${currentState ? 'Active' : 'Not active'}`);
+                                                        return currentState;
+                                                    });
+                                                this.gridConsumptionTotalQualityActiveSensorServices.push(sensorServicee);
+                                            }
+                                        }
+                                        break;
+                                }
+                            }
+                        }
+
+                        //ensemble data
+                        if (ensemblesSupported) {
+
+                            //summary
+                            if (ensemblesCountersSupported || ensemblesSecCtrlSupported) {
+                                const secctrl = this.pv.inventoryData.esubs.secctrl;
+                                const counters = this.pv.inventoryData.esubs.counters;
+
+                                if (this.logDebug) this.emit('debug', `Prepare Ensemble Summary Service`);
+
+                                const serviceName = 'Ensemble Summary';
+                                const service = accessory.addService(Service.EnsembleSummaryService, serviceName, 'ensembleSummaryService');
+                                service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                // Create characteristics
+                                const characteristics = [];
+                                if (ensemblesSecCtrlSupported) {
+                                    characteristics.push(
+                                        { type: Characteristic.AggSoc, label: 'agg SoC', value: secctrl.aggSoc, unit: '%' },
+                                        { type: Characteristic.AggMaxEnergy, label: 'agg max energy', value: secctrl.aggMaxEnergyKw, unit: 'kWh' },
+                                        { type: Characteristic.EncAggSoc, label: `${enchargeName} agg SoC`, value: secctrl.encAggSoc, unit: '%' },
+                                        { type: Characteristic.EncAggBackupEnergy, label: `${enchargeName} agg backup energy`, value: secctrl.encAggBackupEnergy, unit: 'kWh' },
+                                        { type: Characteristic.EncAggAvailEnergy, label: `${enchargeName} agg available energy`, value: secctrl.encAggAvailEnergy, unit: 'kWh' },
+                                        { type: Characteristic.ConfiguredBackupSoc, label: `configured backup SoC`, value: secctrl.configuredBackupSoc, unit: '%' },
+                                        { type: Characteristic.AdjustedBackupSoc, label: `adjusted backup SoC`, value: secctrl.adjustedBackupSoc, unit: '%' },
+                                    );
+
+                                    if (secctrl.phaseA) {
+                                        characteristics.push(
+                                            { type: Characteristic.FrequencyBiasHz, label: 'L1 bias frequency', value: secctrl.freqBiasHz, unit: 'Hz' },
+                                            { type: Characteristic.VoltageBiasV, label: 'L1 bias voltage', value: secctrl.voltageBiasV, unit: 'V' },
+                                            { type: Characteristic.FrequencyBiasHzQ8, label: 'L1 bias q8 frequency', value: secctrl.freqBiasHzQ8, unit: 'Hz' },
+                                            { type: Characteristic.VoltageBiasVQ5, label: 'L1 bias q5 voltage', value: secctrl.voltageBiasVQ5, unit: 'V' }
+                                        );
+                                    }
+
+                                    if (secctrl.phaseB) {
+                                        characteristics.push(
+                                            { type: Characteristic.FrequencyBiasHzPhaseB, label: 'L2 bias frequency', value: secctrl.freqBiasHzPhaseB, unit: 'Hz' },
+                                            { type: Characteristic.VoltageBiasVPhaseB, label: 'L2 bias voltage', value: secctrl.voltageBiasVPhaseB, unit: 'V' },
+                                            { type: Characteristic.FrequencyBiasHzQ8PhaseB, label: 'L2 bias q8 frequency', value: secctrl.freqBiasHzQ8PhaseB, unit: 'Hz' },
+                                            { type: Characteristic.VoltageBiasVQ5PhaseB, label: 'L2 bias q5 voltage', value: secctrl.voltageBiasVQ5PhaseB, unit: 'V' }
+                                        );
+                                    }
+
+                                    if (secctrl.phaseC) {
+                                        characteristics.push(
+                                            { type: Characteristic.FrequencyBiasHzPhaseC, label: 'L3 bias frequency', value: secctrl.freqBiasHzPhaseC, unit: 'Hz' },
+                                            { type: Characteristic.VoltageBiasVPhaseC, label: 'L3 bias voltage', value: secctrl.voltageBiasVPhaseC, unit: 'V' },
+                                            { type: Characteristic.FrequencyBiasHzQ8PhaseC, label: 'L3 bias q8 frequency', value: secctrl.freqBiasHzQ8PhaseC, unit: 'Hz' },
+                                            { type: Characteristic.VoltageBiasVQ5PhaseC, label: 'L3 bias q5 voltage', value: secctrl.voltageBiasVQ5PhaseC, unit: 'V' }
+                                        );
+                                    }
+                                }
+
+                                if (ensemblesCountersSupported) characteristics.push({ type: Characteristic.RestPower, label: 'rest power', value: counters.restPowerKw, unit: 'kW' });
+                                if (enchargesStatusSupported) characteristics.push({ type: Characteristic.RatedPower, label: 'rated power', value: this.pv.inventoryData.esubs.encharges.ratedPowerSumKw, unit: 'kW' });
+                                if (enchargesPowerSupported) characteristics.push({ type: Characteristic.RealPower, label: 'real power', value: this.pv.inventoryData.esubs.encharges.realPowerSumKw, unit: 'kW' });
+
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `Ensemble Summary, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                }
+
+                                this.ensembleSummaryService = service;
+                            }
+
+                            //devices
+                            if (ensemblesInstalled) {
+                                this.ensembleServices = [];
+
+                                for (const ensemble of this.pv.inventoryData.esubs.devices) {
+                                    const serialNumber = ensemblesInstalled ? ensemble.serialNumber : ensemble.status.deviceType;
+                                    if (this.logDebug) this.emit('debug', `Prepare Ensemble ${serialNumber} Service`);
+
+                                    const service = accessory.addService(Service.EnsembleService, 'Ensemble', `ensembleService${serialNumber}`);
+                                    service.setCharacteristic(Characteristic.ConfiguredName, 'Ensemble');
+
+                                    // Create characteristics
+                                    const characteristics = [];
+                                    if (ensemblesInstalled) {
+                                        characteristics.push(
+                                            { type: Characteristic.Status, label: 'status', value: ensemble.deviceStatus },
+                                            { type: Characteristic.Communicating, label: 'communicating', value: ensemble.communicating, postfix: ensemble.communicating ? 'Yes' : 'No' },
+                                            { type: Characteristic.Operating, label: 'operating', value: ensemble.operating, postfix: ensemble.operating ? 'Yes' : 'No' },
+                                            { type: Characteristic.GfiClear, label: 'gfi clear', value: ensemble.deviceControl, postfix: ensemble.deviceControl ? 'Yes' : 'No' },
+                                            { type: Characteristic.Firmware, label: 'firmware', value: ensemble.firmware },
+                                            { type: Characteristic.ReadingTime, label: 'reading time', value: ensemble.readingTime }
+                                        );
+                                    }
+
+                                    if (ensemblesStatusSupported && ensemble.status) {
+                                        characteristics.push(
+                                            { type: Characteristic.CommInterface, label: 'comm interface', value: ensemble.status.commInterfaceStr },
+                                            { type: Characteristic.AdminState, label: 'admin state', value: ensemble.status.adminStateStr }
+                                        );
+                                    }
+
+                                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        service.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `Ensemble: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.ensembleServices.push(service);
+                                }
+                            }
+
+                            //grid sensors by relay
+                            if (ensemblesRelaySupported) {
+                                //solar grid state sensor
+                                if (this.solarGridStateSensor.displayType > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare Solar Grid State Sensor Service`);
+                                    const serialNumber = this.pv.info.serialNumber;
+                                    const sensor = this.solarGridStateSensor;
+                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                    const sensorService = accessory.addService(serviceType, serviceName, `solarGridStateSensorService`);
+                                    sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                    sensorService.getCharacteristic(characteristicType)
+                                        .onGet(async () => {
+                                            const currentState = sensor.state;
+                                            if (this.logInfo) this.emit('info', `solar: ${serialNumber}, grid state sensor: ${serviceName}, state: ${currentState ? 'Grid ON' : 'Grid Off'}`);
+                                            return currentState;
+                                        });
+                                    this.solarGridStateSensorService = sensorService;
+                                }
+
+                                //solar grid mode sensor services
+                                if (this.solarGridModeSensors.length > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare Solar Grid Mode Sensor Services`);
+
+                                    this.solarGridModeSensorServices = [];
+                                    for (let i = 0; i < this.solarGridModeSensors.length; i++) {
+                                        const sensor = this.solarGridModeSensors[i];
+                                        const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                        const sensorService = accessory.addService(serviceType, serviceName, `solarGridModeSensorService${i}`);
+                                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                        sensorService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const currentState = sensor.state;
+                                                if (this.logInfo) this.emit('info', `Solar grid mode sensor: ${serviceName}, state: ${currentState ? 'Active' : 'Not active'}`);
+                                                return currentState;
+                                            });
+
+                                        this.solarGridModeSensorServices.push(sensorService);
+                                    }
+                                }
+                            }
+
+                            //encharges
+                            if (enchargesInstalled) {
+
+                                //backup level and state summary control
+                                if (this.enchargeBackupLevelSummaryControl.displayType > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Backup Level Summary Service`);
+
+                                    const control = this.enchargeBackupLevelSummaryControl;
+                                    const { namePrefix, serviceType, characteristicType, characteristicType1 } = control;
+                                    const serviceName = namePrefix ? `${accessoryName} ${enchargeName}` : enchargeName;
+
+                                    const controlService = accessory.addService(serviceType, serviceName, `enchargeBackupLevelSummaryControlService`);
+                                    controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                    controlService.getCharacteristic(characteristicType)
+                                        .onGet(async () => {
+                                            const currentState = control.state;
+                                            if (this.logInfo) this.emit('info', `${enchargeName} state: ${currentState ? 'Charged' : 'Discharged'}`);
+                                            return currentState;
+                                        })
+                                        .onSet(async (value) => {
+                                            if (!pvControl) {
+                                                if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                return;
+                                            }
+
+                                            try {
+                                                // Your set handler logic here (if any)
+                                            } catch (error) {
+                                                if (this.logWarn) this.emit('warn', `${enchargeName}, Set state error: ${error}`);
+                                            }
+                                        });
+                                    controlService.getCharacteristic(characteristicType1)
+                                        .onGet(async () => {
+                                            const currentBackupLevel = control.backupLevel;
+                                            if (this.logInfo) this.emit('info', `${enchargeName} backup level: ${currentBackupLevel} %`);
+                                            return currentBackupLevel;
+                                        })
+                                        .onSet(async (value) => {
+                                            if (!pvControl) {
+                                                if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                setTimeout(() => controlService.updateCharacteristic(characteristicType1, backupLevel), 250);
+                                                return;
+                                            }
+
+                                            try {
+                                                // Your set handler logic here (if any)
+                                            } catch (error) {
+                                                if (this.logWarn) this.emit('warn', `${enchargeName}, Set backup level error: ${error}`);
+                                            }
+                                        });
+
+                                    this.enchargeBackupLevelSummaryControlService = controlService;
+                                }
+
+                                //backup level summary sensors
+                                if (this.enchargeBackupLevelSummarySensors.length > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Backup Level Sensor Services`);
+
+                                    this.enchargeBackupLevelSummarySensorsServices = [];
+                                    for (let i = 0; i < this.enchargeBackupLevelSummarySensors.length; i++) {
+                                        const sensor = this.enchargeBackupLevelSummarySensors[i];
+                                        const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                        const sensorService = accessory.addService(serviceType, serviceName, `enchargeBackupLevelSensorService${i}`);
+                                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                        sensorService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const currentState = sensor.state;
+                                                if (this.logInfo) this.emit('info', `${enchargeName} Backup Level sensor: ${serviceName}, state: ${currentState ? 'Active' : 'Not active'}`);
+                                                return currentState;
+                                            });
+
+                                        this.enchargeBackupLevelSummarySensorsServices.push(sensorService);
+                                    }
+                                }
+
+                                //devices
+                                this.enchargeServices = [];
+                                this.enchargeBackupLevelControlServices = [];
+
+                                for (const encharge of this.pv.inventoryData.esubs.encharges.devices) {
+                                    const serialNumber = encharge.serialNumber;
+
+                                    // Backup level and state (individual)
+                                    if (this.enchargeBackupLevelControl.displayType > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} ${serialNumber} Backup Level Service`);
+
+                                        const control = this.enchargeBackupLevelControl;
+                                        const { namePrefix, serviceType, characteristicType, characteristicType1, characteristicType2 } = control;
+                                        const serviceName = namePrefix ? `${accessoryName} ${enchargeName}` : enchargeName;
+
+                                        const controlService = accessory.addService(serviceType, serviceName, `enchargeLevelAndStateService${serialNumber}`);
+                                        controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                        controlService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const currentState = control.state;
+                                                if (this.logInfo) this.emit('info', `${enchargeName} ${serialNumber}, backup level state: ${currentState ? 'Low' : 'Normal'}`);
+                                                return currentState;
+                                            })
+                                            .onSet(async (value) => {
+                                                if (!pvControl) {
+                                                    if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                    setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                    return;
+                                                }
+                                                // Add actual control logic here if needed
+                                            });
+                                        controlService.getCharacteristic(characteristicType1)
+                                            .onGet(async () => {
+                                                const currentLevel = control.backupLevel;
+                                                if (this.logInfo) this.emit('info', `${enchargeName} ${serialNumber}, backup level: ${currentLevel} %`);
+                                                return currentLevel;
+                                            })
+                                            .onSet(async (value) => {
+                                                if (!pvControl) {
+                                                    if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                    setTimeout(() => controlService.updateCharacteristic(characteristicType1, backupLevel), 250);
+                                                    return;
+                                                }
+                                                // Add actual control logic here if needed
+                                            });
+                                        controlService.getCharacteristic(characteristicType2)
+                                            .onGet(async () => {
+                                                const currentChargeState = control.chargeState;
+                                                if (this.logInfo) this.emit('info', `${enchargeName} ${serialNumber}, state: ${currentChargeState === 0 ? 'Discharging' : currentChargeState === 1 ? 'Charging' : 'Ready'}`);
+                                                return currentChargeState;
+                                            });
+
+                                        this.enchargeBackupLevelControlServices.push(controlService);
+                                    }
+
+                                    if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} ${serialNumber} Service`);
+
+                                    const service = accessory.addService(Service.EnchargeService, `${enchargeName} ${serialNumber}`, `enchargeService${serialNumber}`);
+                                    service.setCharacteristic(Characteristic.ConfiguredName, `${enchargeName} ${serialNumber}`);
+
+                                    // Create characteristics
+                                    const characteristics = [
+                                        { type: Characteristic.ChargeState, label: 'charge state', value: encharge.chargeState },
+                                        { type: Characteristic.AdminState, label: 'admin state', value: encharge.adminStateStr },
+                                        { type: Characteristic.Communicating, label: 'communicating', value: encharge.communicating, postfix: encharge.communicating ? 'Yes' : 'No' },
+                                        { type: Characteristic.CommLevelSubGhz, label: 'sub GHz level', value: encharge.commLevelSubGhz, unit: '%' },
+                                        { type: Characteristic.CommLevel24Ghz, label: '2.4GHz level', value: encharge.commLevel24Ghz, unit: '%' },
+                                        { type: Characteristic.SleepEnabled, label: 'sleep', value: encharge.sleepEnabled, postfix: encharge.sleepEnabled ? 'Yes' : 'No' },
+                                        { type: Characteristic.PercentFull, label: 'percent full', value: encharge.percentFull, unit: '%' },
+                                        { type: Characteristic.Temperature, label: 'temperature', value: encharge.temperature, unit: '°C' },
+                                        { type: Characteristic.MaxCellTemp, label: 'max cell temperature', value: encharge.maxCellTemp, unit: '°C' },
+                                        { type: Characteristic.LedStatus, label: 'LED status', value: encharge.ledStatus },
+                                        { type: Characteristic.Capacity, label: 'capacity', value: encharge.capacity, unit: 'kWh' },
+                                        { type: Characteristic.DcSwitchOff, label: 'dc switch', value: encharge.dcSwitchOff, postfix: encharge.dcSwitchOff ? 'Off' : 'On' },
+                                        { type: Characteristic.Revision, label: 'revision', value: encharge.rev },
+                                        { type: Characteristic.ReadingTime, label: 'reading time', value: encharge.readingTime },
+                                    ];
+
+                                    if (gridProfileSupported) {
+                                        characteristics.push(
+                                            { type: Characteristic.GridProfile, label: 'grid profile', value: encharge.gridProfile }
+                                        );
+                                    }
+
+                                    if (enchargesStatusSupported && encharge.status) {
+                                        characteristics.push(
+                                            { type: Characteristic.CommInterface, label: 'comm interface', value: encharge.status.commInterfaceStr },
+                                            { type: Characteristic.RatedPower, label: 'rated power', value: encharge.status.ratedPowerKw, unit: 'kW' }
+                                        );
+                                    }
+
+                                    if (enchargesPowerSupported && encharge.power) {
+                                        characteristics.push({ type: Characteristic.RealPower, label: 'real power', value: encharge.power.realPowerKw, unit: 'kW' });
+                                    }
+
+                                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        service.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `${enchargeName}: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.enchargeServices.push(service);
+                                }
+
+                                //state sensor by settings
+                                if (enchargesSettingsSupported) {
+                                    if (this.enchargeStateSensor.displayType > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} State Sensor Service`);
+
+                                        const sensor = this.enchargeStateSensor;
+                                        const { namePrefix, name, serviceType, characteristicType, state } = sensor;
+                                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                        const sensorService = accessory.addService(serviceType, serviceName, `enchargeStateSensorService`);
+                                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                        sensorService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const currentState = state;
+                                                if (this.logInfo) this.emit('info', `${enchargeName} state sensor: ${serviceName}, state: ${currentState ? 'Active' : 'Not Active'}`);
+                                                return currentState;
+                                            });
+
+                                        this.enchargeStateSensorService = sensorService;
+                                    }
+                                }
+
+                                //profile controls and sensors by tariff
+                                if (enchargesTariffSupported) {
+                                    //controls
+                                    if (this.enchargeProfileControls.length > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Profile Control Services`);
+
+                                        const enchargeSettings = this.pv.inventoryData.esubs.encharges.tariff.storageSettings;
+                                        this.enchargeProfileControlsServices = [];
+
+                                        for (let i = 0; i < this.enchargeProfileControls.length; i++) {
+                                            const control = this.enchargeProfileControls[i];
+                                            const { profile, namePrefix, name, serviceType, characteristicType } = control;
+                                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                            const controlService = accessory.addService(serviceType, serviceName, `enchargeProfileControlService${i}`);
+                                            controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                            controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                            controlService.getCharacteristic(characteristicType)
+                                                .onGet(async () => {
+                                                    const currentState = control.state;
+                                                    if (this.logInfo) this.emit('info', `${enchargeName} profile: ${name}, state: ${currentState ? 'ON' : 'OFF'}`);
+                                                    return currentState;
+                                                })
+                                                .onSet(async (value) => {
+                                                    if (!pvControl) {
+                                                        if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                        setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                        return;
+                                                    }
+
+                                                    try {
+                                                        const tokenValid = await this.checkToken();
+                                                        if (!tokenValid || !value) {
+                                                            setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                            return;
+                                                        }
+
+                                                        await this.envoyData.setEnchargeProfile(profile, enchargeSettings.reservedSoc, control.chargeFromGrid);
+                                                        if (this.logDebug) this.emit('debug', `${enchargeName} set profile: ${name}, charge from grid: ${control.chargeFromGrid ? 'ON' : 'OFF'}`);
+                                                    } catch (error) {
+                                                        if (this.logWarn) this.emit('warn', `${enchargeName} set profile: ${profile}, error: ${error}`);
+                                                    }
+                                                });
+
+                                            if (profile !== 'backup') {
+                                                controlService.getCharacteristic(Characteristic.Brightness)
+                                                    .onGet(async () => {
+                                                        const value = control.reservedSoc;
+                                                        if (this.logInfo) this.emit('info', `${enchargeName} profile: ${name}, reserved soc: ${value} %`);
+                                                        return value;
+                                                    })
+                                                    .onSet(async (value) => {
+                                                        if (!pvControl) {
+                                                            if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                            setTimeout(() => controlService.updateCharacteristic(Characteristic.Brightness, control.reservedSoc), 250);
+                                                            return;
+                                                        }
+
+                                                        if (value === 0 || value === 100) {
+                                                            if (this.logWarn) this.emit('warn', `reserved soc: ${value} out of range`);
+                                                            setTimeout(() => controlService.updateCharacteristic(Characteristic.Brightness, control.reservedSoc), 250);
+                                                            return;
+                                                        }
+
+                                                        try {
+                                                            const tokenValid = await this.checkToken();
+                                                            if (!tokenValid) {
+                                                                setTimeout(() => controlService.updateCharacteristic(Characteristic.Brightness, control.reservedSoc), 250);
+                                                                return;
+                                                            }
+
+                                                            await this.envoyData.setEnchargeProfile(profile, value, control.chargeFromGrid);
+                                                            if (this.logDebug) this.emit('debug', `${enchargeName} set profile: ${name}, reserved soc: ${value} %`);
+                                                        } catch (error) {
+                                                            if (this.logWarn) this.emit('warn', `${enchargeName} set profile: ${profile} reserve, error: ${error}`);
+                                                        }
+                                                    });
+                                            }
+
+                                            this.enchargeProfileControlsServices.push(controlService);
+                                        }
+                                    }
+
+                                    //sensors
+                                    if (this.enchargeProfileSensors.length > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Profile Sensor Services`);
+
+                                        this.enchargeProfileSensorsServices = [];
+                                        for (let i = 0; i < this.enchargeProfileSensors.length; i++) {
+                                            const sensor = this.enchargeProfileSensors[i];
+                                            const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                            const sensorService = accessory.addService(serviceType, serviceName, `enchargeProfileSensorService${i}`);
+                                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                            sensorService.getCharacteristic(characteristicType)
+                                                .onGet(async () => {
+                                                    const currentState = sensor.state;
+                                                    if (this.logInfo) this.emit('info', `${enchargeName} profile: ${name}, state: ${currentState ? 'Active' : 'Not Active'}`);
+                                                    return currentState;
+                                                });
+
+                                            this.enchargeProfileSensorsServices.push(sensorService);
+                                        }
+                                    }
+                                }
+
+                                //grid sensors by relay
+                                if (ensemblesRelaySupported) {
+                                    //encharge grid state sensor
+                                    if (this.enchargeGridStateSensor.displayType > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Grid State Sensor Service`);
+
+                                        const sensor = this.enchargeGridStateSensor;
+                                        const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                        const sensorService = accessory.addService(serviceType, serviceName, 'enchargeGridStateSensorService');
+                                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                        sensorService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const currentState = sensor.state;
+                                                if (this.logInfo) this.emit('info', `${enchargeName}, grid state sensor: ${serviceName}, state: ${currentState ? 'Grid ON' : 'Grid Off'}`);
+                                                return currentState;
+                                            });
+
+                                        this.enchargeGridStateSensorService = sensorService;
+                                    }
+
+                                    //encharge grid mode sensor services
+                                    if (this.enchargeGridModeSensors.length > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Grid Mode Sensor Services`);
+
+                                        this.enchargeGridModeSensorServices = [];
+                                        for (let i = 0; i < this.enchargeGridModeSensors.length; i++) {
+                                            const sensor = this.enchargeGridModeSensors[i];
+                                            const { namePrefix, name, serviceType, characteristicType, state } = sensor;
+                                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                            const sensorService = accessory.addService(serviceType, serviceName, `enchargeGridModeSensorService${i}`);
+                                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                            sensorService.getCharacteristic(characteristicType)
+                                                .onGet(async () => {
+                                                    if (this.logInfo) this.emit('info', `${enchargeName} grid mode sensor: ${serviceName}, state: ${state ? 'Active' : 'Not active'}`);
+                                                    return state
+                                                });
+
+                                            this.enchargeGridModeSensorServices.push(sensorService);
+                                        }
+                                    }
+                                }
+                            }
+
+                            //enpowers
+                            if (enpowersInstalled) {
+                                this.enpowerServices = [];
+                                this.enpowerDryContactControlServices = [];
+                                this.enpowerDryContactSensorServices = [];
+                                this.enpowerGridStateControlServices = [];
+                                this.enpowerGridStateSensorServices = [];
+                                this.enpowerGridModeSensorServices = [];
+
+                                //devices
+                                for (const enpower of this.pv.inventoryData.esubs.enpowers) {
+                                    const serialNumber = enpower.serialNumber;
+
+                                    if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Service`);
+
+                                    const serviceName = `Enpower ${serialNumber}`;
+                                    const service = accessory.addService(Service.EnpowerService, serviceName, `enpowerService${serialNumber}`);
+                                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                    // Create characteristics
+                                    const characteristics = [
+                                        { type: Characteristic.AdminState, label: 'admin state', value: enpower.adminStateStr },
+                                        { type: Characteristic.Communicating, label: 'communicating', value: enpower.communicating, postfix: enpower.communicating ? 'Yes' : 'No' },
+                                        { type: Characteristic.CommLevelSubGhz, label: 'sub GHz level', value: enpower.commLevelSubGhz, unit: '%' },
+                                        { type: Characteristic.CommLevel24Ghz, label: '2.4GHz level', value: enpower.commLevel24Ghz, unit: '%' },
+                                        { type: Characteristic.Temperature, label: 'temperature', value: enpower.temperature, unit: '°C' },
+                                        { type: Characteristic.OperatingState, label: 'mains operating state', value: enpower.mainsOperState },
+                                        { type: Characteristic.GridMode, label: 'grid mode', value: enpower.enpwrGridModeTranslated },
+                                        { type: Characteristic.EnchgGridMode, label: 'encharge grid mode', value: enpower.enchgGridModeTranslated },
+                                        { type: Characteristic.Status, label: 'status', value: enpower.deviceStatus },
+                                        { type: Characteristic.ReadingTime, label: 'reading time', value: enpower.readingTime },
+                                    ];
+
+                                    if (gridProfileSupported) characteristics.push({ type: Characteristic.GridProfile, label: 'grid profile', value: enpower.gridProfile });
+                                    if (enpowersStatusSupported && enpower.status) characteristics.push({ type: Characteristic.CommInterface, label: 'comm interface', value: enpower.status.commInterfaceStr });
+
+                                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        service.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.enpowerServices.push(service);
+
+                                    // Dry Contact Controls
+                                    if (enpowersDryContactsInstalled && this.enpowerDryContactsControl) {
+                                        if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Dry Contact Control Services`);
+                                        const enpowerDryContactControlServices = [];
+
+                                        enpower.dryContacts.forEach((contact, i) => {
+                                            const serviceName = contact.settings.loadName;
+
+                                            const controlService = accessory.addService(Service.Switch, serviceName, `dryContactControlService${serialNumber}${i}`);
+                                            controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                            controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                            controlService.getCharacteristic(Characteristic.On)
+                                                .onGet(async () => {
+                                                    const state = contact.stateBool;
+                                                    if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, grid state control: ${serviceName}, state: ${state ? 'ON' : 'OFF'}`);
+                                                    return state;
+                                                })
+                                                .onSet(async (value) => {
+                                                    if (!pvControl) {
+                                                        if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                        setTimeout(() => controlService.updateCharacteristic(Characteristic.On, !value), 250);
+                                                        return;
+                                                    }
+
+                                                    try {
+                                                        const tokenValid = await this.checkToken();
+                                                        if (!tokenValid) {
+                                                            setTimeout(() => controlService.updateCharacteristic(Characteristic.On, !value), 250);
+                                                            return;
+                                                        }
+
+                                                        await this.envoyData.setDryContactState(contact.settings.id, value);
+                                                        if (this.logInfo) this.emit('info', `Set Enpower: ${serialNumber}, grid state control: ${serviceName}, state: ${value ? 'Manual' : 'Soc'}`);
+                                                    } catch (error) {
+                                                        if (this.logWarn) this.emit('warn', `Set ${serviceName}, grid state control: ${serviceName}, error: ${error}`);
+                                                    }
+                                                });
+
+                                            enpowerDryContactControlServices.push(controlService);
+                                        });
+                                        this.enpowerDryContactControlServices.push(enpowerDryContactControlServices);
+                                    }
+
+                                    // Dry Contact Sensors
+                                    if (enpowersDryContactsInstalled && this.enpowerDryContactsSensor) {
+                                        if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Dry Contact Sensor Services`);
+                                        const enpowerDryContactSensorServices = [];
+
+                                        enpower.dryContacts.forEach((contact, i) => {
+                                            const serviceName = contact.settings.loadName;
+
+                                            const sensorService = accessory.addService(Service.ContactSensor, serviceName, `dryContactSensorService${serialNumber}${i}`);
+                                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                            sensorService.getCharacteristic(Characteristic.ContactSensorState)
+                                                .onGet(async () => {
+                                                    const state = contact.stateBool;
+                                                    if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, dry contact: ${serviceName}, sensor state: ${state ? 'Active' : 'Not Active'}`);
+                                                    return state;
+                                                });
+
+                                            enpowerDryContactSensorServices.push(sensorService);
+                                        });
+                                        this.enpowerDryContactSensorServices.push(enpowerDryContactSensorServices);
+                                    }
+
+                                    // Grid state control
+                                    if (this.enpowerGridStateControl.displayType > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Grid State Control Service`);
+
+                                        const control = this.enpowerGridStateControl;
+                                        const { namePrefix, name, serviceType, characteristicType, state } = control;
+                                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                        const controlService = accessory.addService(serviceType, serviceName, `enpowerGridStateControlService${serialNumber}`);
+                                        controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                        controlService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const curentState = state;
+                                                if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, dry contact control: ${serviceName}, state: ${curentState ? 'Grid ON' : 'Grid OFF'}`);
+                                                return curentState;
+                                            })
+                                            .onSet(async (value) => {
+                                                if (!pvControl) {
+                                                    if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                    setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                    return;
+                                                }
+
+                                                try {
+                                                    const tokenValid = await this.checkToken();
+                                                    if (!tokenValid) {
+                                                        setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                        return;
+                                                    }
+
+                                                    await this.envoyData.setEnpowerGridState(value);
+                                                    if (this.logInfo) this.emit('info', `Set Enpower: ${serialNumber}, dry contact control: ${serviceName}, state: ${value ? 'Grid ON' : 'Grid OFF'}`);
+                                                } catch (error) {
+                                                    if (this.logWarn) this.emit('warn', `Set Enpower: ${serialNumber}, dry contact control: ${serviceName}, error: ${error}`);
+                                                }
+                                            });
+
+                                        this.enpowerGridStateControlServices.push(controlService);
+                                    }
+
+                                    // Grid state sensor
+                                    if (this.enpowerGridStateSensor.displayType > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Grid State Sensor Service`);
+
+                                        const sensor = this.enpowerGridStateSensor;
+                                        const { namePrefix, name, serviceType, characteristicType, state } = sensor;
+                                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                        const sensorService = accessory.addService(serviceType, serviceName, `enpowerGridStateSensorService${serialNumber}`);
+                                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                        sensorService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const curentState = state;
+                                                if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, grid state sensor: ${serviceName}, state: ${curentState ? 'Grid ON' : 'Grid Off'}`);
+                                                return curentState;
+                                            });
+
+                                        this.enpowerGridStateSensorServices.push(sensorService);
+                                    }
+
+                                    // Grid mode sensors
+                                    if (this.enpowerGridModeSensors.length > 0) {
+                                        if (this.logDebug) this.emit('debug', `Prepare Enpower ${serialNumber} Grid Mode Sensor Services`);
+
+                                        const enpowerGridModeSensorServices = [];
+                                        for (let i = 0; i < this.enpowerGridModeSensors.length; i++) {
+                                            const sensor = this.enpowerGridModeSensors[i];
+                                            const { namePrefix, name, serviceType, characteristicType, state } = sensor;
+                                            const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                            const sensorService = accessory.addService(serviceType, serviceName, `enpowerGridModeSensorService${serialNumber}${i}`);
+                                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                            sensorService.getCharacteristic(characteristicType)
+                                                .onGet(async () => {
+                                                    const curentState = state;
+                                                    if (this.logInfo) this.emit('info', `Enpower: ${serialNumber}, grid mode sensor: ${serviceName}, state: ${curentState ? 'Active' : 'Not active'}`);
+                                                    return curentState;
+                                                });
+
+                                            enpowerGridModeSensorServices.push(sensorService);
+                                        }
+                                        this.enpowerGridModeSensorServices.push(enpowerGridModeSensorServices);
+                                    }
+                                }
+                            }
+
+                            //collars
+                            if (collarsInstalled) {
+                                this.collarServices = [];
+
+                                for (const collar of this.pv.inventoryData.esubs.collars) {
+                                    const serialNumber = collar.serialNumber;
+                                    if (this.logDebug) this.emit('debug', `Prepare Collar ${serialNumber} Service`);
+
+                                    const serviceName = `Collar ${serialNumber}`;
+                                    const service = accessory.addService(Service.CollarService, serviceName, `collarService${serialNumber}`);
+                                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                    // Create characteristics
+                                    const characteristics = [
+                                        { type: Characteristic.AdminState, label: 'admin state', value: collar.adminStateStr },
+                                        { type: Characteristic.Status, label: 'status', value: collar.deviceStatus },
+                                        { type: Characteristic.MidState, label: 'mid state', value: collar.midState },
+                                        { type: Characteristic.GridState, label: 'grid state', value: collar.gridState },
+                                        { type: Characteristic.Communicating, label: 'communicating', value: collar.communicating, postfix: collar.communicating ? 'Yes' : 'No' },
+                                        { type: Characteristic.Temperature, label: 'temperature', value: collar.temperature, unit: '°C' },
+                                        { type: Characteristic.ReadingTime, label: 'reading time', value: collar.readingTime }
+                                    ];
+
+                                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        service.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `Collar: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.collarServices.push(service);
+                                }
+                            }
+
+                            //c6 combiner controllers
+                            if (c6CombinerControllersInstalled) {
+                                this.c6CombinerControllerServices = [];
+
+                                for (const c6CombinerController of this.pv.inventoryData.esubs.c6CombinerControllers) {
+                                    const serialNumber = c6CombinerController.serialNumber;
+                                    if (this.logDebug) this.emit('debug', `Prepare C6 Combiner Controller ${serialNumber} Service`);
+
+                                    const serviceName = `C6 Combiner Controller ${serialNumber}`;
+                                    const service = accessory.addService(Service.C6CombinerControlerService, serviceName, `c6CombinerControllerService${serialNumber}`);
+                                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                    // Create characteristics
+                                    const characteristics = [
+                                        { type: Characteristic.AdminState, label: 'admin state', value: c6CombinerController.adminStateStr },
+                                        { type: Characteristic.Communicating, label: 'communicating', value: c6CombinerController.communicating, postfix: c6CombinerController.communicating ? 'Yes' : 'No' },
+                                        { type: Characteristic.Firmware, label: 'firmware', value: c6CombinerController.firmware },
+                                        { type: Characteristic.ReadingTime, label: 'reading time', value: c6CombinerController.readingTime }
+                                    ];
+
+                                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        service.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `C6 Combiner Controller: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.c6CombinerControllerServices.push(service);
+                                }
+                            }
+
+                            //c6 rgms
+                            if (c6RgmsInstalled) {
+                                this.c6RgmServices = [];
+
+                                for (const c6Rgm of this.pv.inventoryData.esubs.c6Rgms) {
+                                    const serialNumber = c6Rgm.serialNumber;
+                                    if (this.logDebug) this.emit('debug', `Prepare C6 Rgm ${serialNumber} Service`);
+
+                                    const serviceName = `C6 Rgm ${serialNumber}`;
+                                    const service = accessory.addService(Service.C6RgmService, serviceName, `c6RgmService${serialNumber}`);
+                                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                    // Create characteristics
+                                    const characteristics = [
+                                        { type: Characteristic.Status, label: 'status', value: c6Rgm.deviceStatus },
+                                        { type: Characteristic.Firmware, label: 'firmware', value: c6Rgm.firmware },
+                                        { type: Characteristic.ReadingTime, label: 'reading time', value: c6Rgm.readingTime }
+                                    ];
+
+                                    for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+
+                                        service.getCharacteristic(type)
+                                            .onGet(async () => {
+                                                const currentValue = value;
+                                                if (this.logInfo) this.emit('info', `C6 Rgm: ${serialNumber}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                                return currentValue;
+                                            });
+                                    }
+
+                                    this.c6RgmServices.push(service);
+                                }
+                            }
+
+                            //generator
+                            if (generatorInstalled) {
+                                const generator = this.pv.inventoryData.esubs.generator;
+                                const generatorType = generator.type;
+
+                                if (this.logDebug) this.emit('debug', `Prepare Generator ${type} Service`);
+
+                                const serviceName = `Generator ${generatorType}`;
+                                const service = accessory.addService(Service.GerneratorService, serviceName, `generatorService`);
+                                service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.AdminMode, label: 'admin mode', value: generator.adminMode },
+                                    { type: Characteristic.AdminState, label: 'admin state', value: generator.adminState },
+                                    { type: Characteristic.OperatingState, label: 'operation state', value: generator.operState },
+                                    { type: Characteristic.StartSoc, label: 'start soc', value: generator.startSoc },
+                                    { type: Characteristic.StopSoc, label: 'stop soc', value: generator.stopSoc },
+                                    { type: Characteristic.ExexOn, label: 'exec on', value: generator.excOn },
+                                    { type: Characteristic.Shedule, label: 'schedule', value: generator.schedule },
+                                    { type: Characteristic.Present, label: 'present', value: generator.present },
+                                    { type: Characteristic.ReadingTime, label: 'reading time', value: generator.readingTime }
+                                ];
+
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `Generator: ${generatorType},  ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                }
+
+                                this.generatorService = service;
+
+                                //state control 
+                                if (this.generatorStateControl.displayType > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare Generator ${generatorType} Control Service`);
+
+                                    const control = this.generatorStateControl;
+                                    const { namePrefix, name, serviceType, characteristicType } = control;
+                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                    const controlService = accessory.addService(serviceType, serviceName, `generatorStateControlService`);
+                                    controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                    controlService.getCharacteristic(characteristicType)
+                                        .onGet(async () => {
+                                            const state = control.state;
+                                            if (this.logInfo) this.emit('info', `Generator: ${generatorType}, state: ${state ? 'ON' : 'OFF'}`);
+                                            return state;
+                                        })
+                                        .onSet(async (value) => {
+                                            if (!pvControl) {
+                                                if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                return;
+                                            }
+
+                                            try {
+                                                const tokenValid = await this.checkToken();
+                                                if (!tokenValid) {
+                                                    setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                    return;
+                                                }
+
+                                                const genMode = value ? 'on' : 'off';
+                                                await this.envoyData.setGeneratorMode(genMode);
+                                                if (this.logInfo) this.emit('info', `Set Generator: ${generatorType}, state to: ${value ? 'ON' : 'OFF'}`);
+                                            } catch (error) {
+                                                if (this.logWarn) this.emit('warn', `Set Generator: ${generatorType}, state error: ${error}`);
+                                            }
+                                        });
+
+                                    this.generatorStateControlService = controlService;
+                                }
+
+                                //state sensor
+                                if (this.generatorStateSensor.displayType > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare Generator ${type} State Sensor Service`);
+
+                                    const sensor = this.generatorStateSensor;
+                                    const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                    const sensorService = accessory.addService(serviceType, serviceName, `generatorStateSensorService`);
+                                    sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                    sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                    sensorService.getCharacteristic(characteristicType)
+                                        .onGet(async () => {
+                                            const state = sensor.state;
+                                            if (this.logInfo) this.emit('info', `Generator: ${type}, state sensor: ${serviceName}, state: ${state ? 'Grid ON' : 'Grid Off'}`);
+                                            return state;
+                                        });
+
+                                    this.generatorStateSensorService = sensorService;
+                                }
+
+                                //mode controls
+                                if (this.generatorModeContols.length > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare Generator ${type} Mode Control Services`);
+
+                                    this.generatorModeControlServices = [];
+                                    for (let i = 0; i < this.generatorModeContols.length; i++) {
+                                        const control = this.generatorModeContols[i];
+                                        const { namePrefix, name, serviceType, characteristicType } = control;
+                                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                        const controlService = accessory.addService(serviceType, serviceName, `generatorModeControlService${i}`);
+                                        controlService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        controlService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                        controlService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const state = control.state;
+                                                if (this.logInfo) this.emit('info', `Generator: ${type}, mode control: ${serviceName}, state: ${state ? 'ON' : 'OFF'}`);
+                                                return state;
+                                            })
+                                            .onSet(async (value) => {
+                                                if (!pvControl) {
+                                                    if (this.logWarn) this.emit('warn', `System control is locked`);
+                                                    setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                    return;
+                                                }
+
+                                                try {
+                                                    const tokenValid = await this.checkToken();
+                                                    if (!tokenValid || !value) {
+                                                        setTimeout(() => controlService.updateCharacteristic(characteristicType, !value), 250);
+                                                        return;
+                                                    }
+
+                                                    const genMode = control.mode;
+                                                    await this.envoyData.setGeneratorMode(genMode);
+                                                    if (this.logInfo) this.emit('info', `Set Generator: ${type}, mode to: ${genMode}`);
+                                                } catch (error) {
+                                                    if (this.logWarn) this.emit('warn', `Set Generator: ${type}, state error: ${error}`);
+                                                }
+                                            });
+
+                                        this.generatorModeControlServices.push(controlService);
+                                    }
+                                }
+
+                                //mode sensors
+                                if (this.generatorModeSensors.length > 0) {
+                                    if (this.logDebug) this.emit('debug', `Prepare Generator ${type} Mode Sensor Services`);
+
+                                    this.generatorModeSensorServices = [];
+                                    for (let i = 0; i < this.generatorModeSensors.length; i++) {
+                                        const sensor = this.generatorModeSensors[i];
+                                        const { namePrefix, name, serviceType, characteristicType } = sensor;
+                                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+
+                                        const sensorService = accessory.addService(serviceType, serviceName, `generatorModeSensorService${i}`);
+                                        sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                        sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                        sensorService.getCharacteristic(characteristicType)
+                                            .onGet(async () => {
+                                                const state = sensor.state;
+                                                if (this.logInfo) this.emit('info', `Generator: ${type}, mode sensor: ${serviceName}, state: ${state ? 'Active' : 'Not active'}`);
+                                                return state;
+                                            });
+
+                                        this.generatorModeSensorServices.push(sensorService);
+                                    }
+                                }
+                            }
+                        }
+
+                        //live data
+                        if (liveDataSupported) {
+                            this.liveDataServices = [];
+
+                            for (const liveData of this.pv.liveData.devices) {
+                                const liveDataType = liveData.type;
+                                if (this.logDebug) this.emit('debug', `Prepare Live Data ${liveDataType} Service`);
+
+                                const serviceName = `Live Data ${liveDataType}`;
+                                const service = accessory.addService(Service.LiveDataService, serviceName, `liveDataService${liveDataType}`);
+                                service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.Power, label: 'power', value: liveData.powerKw, unit: 'kW' },
+                                    { type: Characteristic.PowerL1, label: 'power L1', value: liveData.powerL1Kw, unit: 'kW' },
+                                    { type: Characteristic.PowerL2, label: 'power L2', value: liveData.powerL2Kw, unit: 'kW' },
+                                    { type: Characteristic.PowerL3, label: 'power L3', value: liveData.powerL3Kw, unit: 'kW' },
+                                    { type: Characteristic.ApparentPower, label: 'apparent power', value: liveData.apparentPowerKw, unit: 'kVA' },
+                                    { type: Characteristic.ApparentPowerL1, label: 'apparent power L1', value: liveData.apparentPowerL1Kw, unit: 'kVA' },
+                                    { type: Characteristic.ApparentPowerL2, label: 'apparent power L2', value: liveData.apparentPowerL2Kw, unit: 'kVA' },
+                                    { type: Characteristic.ApparentPowerL3, label: 'apparent power L3', value: liveData.apparentPowerL3Kw, unit: 'kVA' },
+                                    { type: Characteristic.ReadingTime, label: 'reading time', value: liveData.readingTime }
+                                ];
+
+                                for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+
+                                    service.getCharacteristic(type)
+                                        .onGet(async () => {
+                                            const currentValue = value;
+                                            if (this.logInfo) this.emit('info', `Live Data: ${liveDataType}, ${label}: ${unit !== '' ? `${currentValue} ${unit}` : postfix !== '' ? `${postfix}` : `${currentValue}`}`);
+                                            return currentValue;
+                                        });
+                                }
+
+                                this.liveDataServices.push(service);
+                            }
+                        }
+
+                        accessories.push(accessory);
+                        break;
+                    case 1: //EVE Energy Meter
+                        this.fakegatoHistoryServices = [];
+                        this.energyMeterServices = [];
+                        for (const source of this.pv.powerAndEnergyData.data) {
+                            const measurementType = source.measurementType;
+                            const envoySerialNumber = `${this.pv.info.serialNumber}${measurementType}`;
+                            const accessoryName = `${this.name} Energy Meter ${measurementType}`;
+                            const power = source.power > 0 ? source.power : 0;
+
+                            //accessory
+                            if (this.logDebug) this.emit('debug', `Prepare ${accessoryName} accessory`);
+                            const accessoryUUID = AccessoryUUID.generate(envoySerialNumber);
+                            const accessoryCategory = Categories.SENSOR;
+                            const accessory = new Accessory(accessoryName, accessoryUUID, accessoryCategory);
+
+                            //information service
+                            if (this.logDebug) this.emit('debug', `Prepare Information Service`);
+                            accessory.getService(Service.AccessoryInformation)
+                                .setCharacteristic(Characteristic.Manufacturer, 'Enphase')
+                                .setCharacteristic(Characteristic.Model, this.pv.info.modelName ?? 'Model Name')
+                                .setCharacteristic(Characteristic.SerialNumber, envoySerialNumber ?? 'Serial Number')
+                                .setCharacteristic(Characteristic.FirmwareRevision, this.pv.info.software.replace(/[a-zA-Z]/g, '') ?? '0');
+
+                            if (this.logDebug) this.emit('debug', `Prepare Fakegato ${measurementType} Service`);
+                            const fakegatoHistoryService = new this.fakegatoHistory(`energy`, accessory, {
+                                storage: 'fs',
+                                disableRepeatLastData: true,
+                                disableTimer: false,
+                                path: this.prefDir,
+                                filename: `${this.energyMeterHistoryFileName}_${MetersKeyMap1[measurementType]}.json`
+                            })
+                            fakegatoHistoryService.addEntry({
+                                time: Math.floor(Date.now() / 1000),
+                                power: power ?? 0
                             });
-                    }
 
-                    this.liveDataServices.push(service);
+                            this.fakegatoHistoryServices.push(fakegatoHistoryService);
+
+                            // Energy Meter Service
+                            if (this.logDebug) this.emit('debug', `Prepare Energy Meter ${measurementType} Service`);
+                            const energyMeterService = accessory.addService(Service.EvePowerMeter, `Energy Meter ${measurementType}`, `energyMeterService${measurementType}`);
+                            energyMeterService.setCharacteristic(Characteristic.ConfiguredName, `Energy Meter ${measurementType}`);
+
+                            // Create characteristics
+                            const characteristics = [
+                                { type: Characteristic.EvePower, label: 'power', value: power, unit: 'W' },
+                                { type: Characteristic.EveEnergyLifetime, label: 'energy lifetime', value: source.energyLifetimeWithOffset, unit: 'kWh' },
+                            ];
+
+                            if (source.gridQualityState) {
+                                characteristics.push(
+                                    { type: Characteristic.EveCurrent, label: 'current', value: source.current, unit: 'A' },
+                                    { type: Characteristic.EveVoltage, label: 'voltage', value: source.voltage, unit: 'V' }
+                                );
+                            }
+
+                            for (const { type, label, value, unit = '' } of characteristics) {
+                                if (!this.functions.isValidValue(value)) continue;
+
+                                energyMeterService.getCharacteristic(type)
+                                    .onGet(async () => {
+                                        const currentValue = value;
+                                        if (this.logInfo) this.emit('info', `Energy Meter: ${measurementType}, ${label}: ${currentValue} ${unit}`);
+                                        return currentValue;
+                                    });
+                            }
+
+                            energyMeterService.getCharacteristic(Characteristic.EveResetTime)
+                                .onGet(async () => {
+                                    const resetTime = this.lastReset;
+                                    if (this.logInfo) this.emit('info', `${measurementType}, reset time: ${resetTime}`);
+                                    return resetTime;
+                                })
+                                .onSet(async (value) => {
+                                    try {
+                                        this.lastReset = value;
+                                    } catch (error) {
+                                        if (this.logWarn) this.emit('warn', `${measurementType}, Reset time error: ${error}`);
+                                    }
+                                });
+
+                            this.energyMeterServices.push(energyMeterService);
+                            accessories.push(accessory);
+                        }
+                        break;
                 }
             }
 
-            return accessory;
+            return accessories;
         } catch (error) {
             throw new Error(`Prepare accessory error: ${error}`)
         }
@@ -3006,6 +3116,7 @@ class EnvoyDevice extends EventEmitter {
                     this.emit('devInfo', `Firmware: ${info.software}`);
                     this.emit('devInfo', `SerialNr: ${info.serialNumber}`);
                     this.emit('devInfo', `Time: ${this.functions.formatTimestamp(info.time, timeZone)}`);
+                    this.emit('devInfo', `Energy Meter: ${this.energyMeter ? 'Enabled' : 'Disabled'}`);
                     this.emit('devInfo', `------------------------------`);
 
                     // Inventory
@@ -3656,10 +3767,10 @@ class EnvoyDevice extends EventEmitter {
                                 plcLevel: acb.plcLevel
                             };
 
-                            // Update storage backup accessory level and state
-                            if (this.acBatterieBackupLevelAccessory.displayType > 0) {
-                                const accessory = this.acBatterieBackupLevelAccessory;
-                                const { minSoc, characteristicType, characteristicType1, characteristicType2 } = accessory;
+                            // Update storage backup control level and state
+                            if (this.acBatterieBackupLevelControl.displayType > 0) {
+                                const control = this.acBatterieBackupLevelControl;
+                                const { minSoc, characteristicType, characteristicType1, characteristicType2 } = control;
 
                                 // Create characteristics
                                 const characteristics = [
@@ -3671,7 +3782,7 @@ class EnvoyDevice extends EventEmitter {
                                 // Update acbs services
                                 for (const { type, value, valueKey } of characteristics) {
                                     if (!this.functions.isValidValue(value)) continue;
-                                    accessory[valueKey] = value;
+                                    control[valueKey] = value;
                                     this.acbLevelAndStateServices?.[index]?.updateCharacteristic(type, value);
                                 }
                             }
@@ -3742,16 +3853,16 @@ class EnvoyDevice extends EventEmitter {
                                     this.acbSummaryService?.updateCharacteristic(type, value);
                                 }
 
-                                // Updatestorage backup summary accessory level and state
-                                if (this.acBatterieBackupLevelSummaryAccessory.displayType > 0 && (!this.feature.liveData.supported || !this.feature.meters.storage.enabled)) {
+                                // Updatestorage backup summary control level and state
+                                if (this.acBatterieBackupLevelSummaryControl.displayType > 0 && (!this.feature.liveData.supported || !this.feature.meters.storage.enabled)) {
 
                                     if (this.logInfo) {
                                         this.emit('info', `Acb Data, ${this.acBatterieName}, backup energy: ${acbData.energySumKw} kW`);
                                         this.emit('info', `Acb Data, ${this.acBatterieName}, backup level: ${percentFullSum} %`);
                                     }
 
-                                    const accessory = this.acBatterieBackupLevelSummaryAccessory;
-                                    const { minSoc, displayType, characteristicType, characteristicType1 } = accessory;
+                                    const control = this.acBatterieBackupLevelSummaryControl;
+                                    const { minSoc, displayType, characteristicType, characteristicType1 } = control;
                                     const isServiceBattery = displayType === 5;
                                     const isAboveMinSoc = percentFullSum > minSoc;
                                     const backupLevel = isAboveMinSoc ? percentFullSum : 0;
@@ -3766,7 +3877,7 @@ class EnvoyDevice extends EventEmitter {
                                     // Update storage summary services
                                     for (const { type, value, valueKey } of characteristics) {
                                         if (!this.functions.isValidValue(value)) continue;
-                                        accessory[valueKey] = value;
+                                        control[valueKey] = value;
                                         this.acbSummaryLevelAndStateService?.updateCharacteristic(type, value);
                                     }
                                 }
@@ -3885,7 +3996,7 @@ class EnvoyDevice extends EventEmitter {
                                 this.emit('info', `Power And Energy, ${measurementType}, energy lifetime: ${obj.energyLifetimeKw} kWh`);
                             }
 
-                            // Update system accessory service
+                            // Update system control service
                             if (key === 'production' && (!this.feature.liveData.supported || !meterEnabled)) {
                                 const powerLevel = this.functions.scaleValue(obj.power, 0, this.powerProductionSummary, 0, 100);
                                 const powerState = powerLevel > 0;
@@ -3895,8 +4006,8 @@ class EnvoyDevice extends EventEmitter {
                                     this.emit('info', `Power And Energy, ${measurementType}, power state: ${powerState ? 'On' : 'Off'}`);
                                 }
 
-                                const accessory = this.systemAccessory;
-                                const { characteristicType, characteristicType1 } = accessory;
+                                const control = this.systemAccessory;
+                                const { characteristicType, characteristicType1 } = control;
 
                                 const characteristics1 = [
                                     { type: characteristicType, value: powerState, valueKey: 'state' },
@@ -3907,7 +4018,7 @@ class EnvoyDevice extends EventEmitter {
                                 for (const { type, value, valueKey } of characteristics1) {
                                     if (!this.functions.isValidValue(value)) continue;
                                     this.emit('debug', `Power And Energy, ${measurementType}, power ${valueKey}: ${value}`);
-                                    accessory[valueKey] = value;
+                                    control[valueKey] = value;
                                     this.systemService?.updateCharacteristic(type, value);
                                 };
                             }
@@ -4014,6 +4125,36 @@ class EnvoyDevice extends EventEmitter {
                                         group.services?.[index]?.updateCharacteristic(sensor.characteristicType, state);
                                     }
                                 }
+                            }
+
+                            // Energy meter
+                            if (this.energyMeter) {
+                                const power = obj.power > 0 ? obj.power : 0;
+                                // Add to fakegato history
+                                this.fakegatoHistoryServices?.[index]?.addEntry({
+                                    time: Math.floor(Date.now() / 1000),
+                                    power: power ?? 0
+                                });
+
+                                // Create characteristics energy meter
+                                const characteristics2 = [
+                                    { type: Characteristic.EvePower, value: power },
+                                    { type: Characteristic.EveEnergyLifetime, value: obj.energyLifetimeKw },
+                                ];
+
+                                // Create characteristics energy meter
+                                if (meterEnabled) {
+                                    characteristics2.push([
+                                        { type: Characteristic.EveCurrent, value: obj.current },
+                                        { type: Characteristic.EveVoltage, value: obj.voltage },
+                                    ]);
+                                }
+
+                                // Update characteristics
+                                for (const { type, value } of characteristics2) {
+                                    if (!this.functions.isValidValue(value)) continue;
+                                    this.energyMeterServices?.[index]?.updateCharacteristic(type, value);
+                                };
                             }
 
                             powerAndEnergyData.push(obj);
@@ -4183,35 +4324,6 @@ class EnvoyDevice extends EventEmitter {
                                 phaseC
                             };
 
-                            if (phaseA) {
-                                Object.assign(secctrl, {
-                                    freqBiasHz: secctrlData.freq_bias_hz,
-                                    voltageBiasV: secctrlData.voltage_bias_v,
-                                    freqBiasHzQ8: secctrlData.freq_bias_hz_q8,
-                                    voltageBiasVQ5: secctrlData.voltage_bias_v_q5,
-                                });
-                            }
-
-                            if (phaseB) {
-                                Object.assign(secctrl, {
-                                    freqBiasHzPhaseB: secctrlData.freq_bias_hz_phaseb,
-                                    voltageBiasVPhaseB: secctrlData.voltage_bias_v_phaseb,
-                                    freqBiasHzQ8PhaseB: secctrlData.freq_bias_hz_q8_phaseb,
-                                    voltageBiasVQ5PhaseB: secctrlData.voltage_bias_v_q5_phaseb
-                                });
-                            }
-
-                            if (phaseC) {
-                                Object.assign(secctrl, {
-                                    freqBiasHzPhaseC: secctrlData.freq_bias_hz_phasec,
-                                    voltageBiasVPhaseC: secctrlData.voltage_bias_v_phasec,
-                                    freqBiasHzQ8PhaseC: secctrlData.freq_bias_hz_q8_phasec,
-                                    voltageBiasVQ5PhaseC: secctrlData.voltage_bias_v_q5_phasec
-                                });
-                            }
-
-                            this.pv.inventoryData.esubs.secctrl = secctrl;
-
                             // Add to ensemble summary characteristics
                             ensembleSummaryCharacteristics.push(
                                 { type: Characteristic.EncAggAvailEnergy, value: secctrl.encAggAvailEnergy },
@@ -4222,13 +4334,20 @@ class EnvoyDevice extends EventEmitter {
                             // Add to ensemble summary characteristics if live data not supported
                             if (!this.feature.liveData.supported || !this.feature.meters.storage.enabled) {
                                 ensembleSummaryCharacteristics.push(
-                                    { type: Characteristic.AggMaxEnergy, value: secctrl.aggMaxEnergyKw },
-                                    { type: Characteristic.EncAggBackupEnergy, value: secctrl.encAggBackupEnergy },
                                     { type: Characteristic.AggSoc, value: secctrl.aggSoc },
-                                    { type: Characteristic.encAggSoc, value: secctrl.encAggSoc });
+                                    { type: Characteristic.AggMaxEnergy, value: secctrl.aggMaxEnergyKw },
+                                    { type: Characteristic.EncAggSoc, value: secctrl.encAggSoc },
+                                    { type: Characteristic.EncAggBackupEnergy, value: secctrl.encAggBackupEnergy });
                             }
 
                             if (phaseA) {
+                                Object.assign(secctrl, {
+                                    freqBiasHz: secctrlData.freq_bias_hz,
+                                    voltageBiasV: secctrlData.voltage_bias_v,
+                                    freqBiasHzQ8: secctrlData.freq_bias_hz_q8,
+                                    voltageBiasVQ5: secctrlData.voltage_bias_v_q5,
+                                });
+
                                 ensembleSummaryCharacteristics.push(
                                     { type: Characteristic.FrequencyBiasHz, value: secctrl.freqBiasHz },
                                     { type: Characteristic.VoltageBiasV, value: secctrl.voltageBiasV },
@@ -4238,6 +4357,13 @@ class EnvoyDevice extends EventEmitter {
                             }
 
                             if (phaseB) {
+                                Object.assign(secctrl, {
+                                    freqBiasHzPhaseB: secctrlData.freq_bias_hz_phaseb,
+                                    voltageBiasVPhaseB: secctrlData.voltage_bias_v_phaseb,
+                                    freqBiasHzQ8PhaseB: secctrlData.freq_bias_hz_q8_phaseb,
+                                    voltageBiasVQ5PhaseB: secctrlData.voltage_bias_v_q5_phaseb
+                                });
+
                                 ensembleSummaryCharacteristics.push(
                                     { type: Characteristic.FrequencyBiasHzPhaseB, value: secctrl.freqBiasHzPhaseB },
                                     { type: Characteristic.VoltageBiasVPhaseB, value: secctrl.voltageBiasVPhaseB },
@@ -4247,6 +4373,13 @@ class EnvoyDevice extends EventEmitter {
                             }
 
                             if (phaseC) {
+                                Object.assign(secctrl, {
+                                    freqBiasHzPhaseC: secctrlData.freq_bias_hz_phasec,
+                                    voltageBiasVPhaseC: secctrlData.voltage_bias_v_phasec,
+                                    freqBiasHzQ8PhaseC: secctrlData.freq_bias_hz_q8_phasec,
+                                    voltageBiasVQ5PhaseC: secctrlData.voltage_bias_v_q5_phasec
+                                });
+
                                 ensembleSummaryCharacteristics.push(
                                     { type: Characteristic.FrequencyBiasHzPhaseC, value: secctrl.freqBiasHzPhaseC },
                                     { type: Characteristic.VoltageBiasVPhaseC, value: secctrl.voltageBiasVPhaseC },
@@ -4255,7 +4388,9 @@ class EnvoyDevice extends EventEmitter {
                                 );
                             }
 
-                            // Update encharge summary accessory
+                            this.pv.inventoryData.esubs.secctrl = secctrl;
+
+                            // Update encharge summary control
                             if (enchargesInstalled && (!this.feature.liveData.supported || !this.feature.meters.storage.enabled)) {
 
                                 if (this.logInfo) {
@@ -4263,10 +4398,10 @@ class EnvoyDevice extends EventEmitter {
                                     this.emit('info', `Ensemble Data, ${this.enchargeName}, backup level: ${secctrl.encAggSoc} %`);
                                 }
 
-                                // Update encharges summary accessory
-                                if (this.enchargeBackupLevelSummaryAccessory.displayType > 0) {
-                                    const accessory = this.enchargeBackupLevelSummaryAccessory;
-                                    const { minSoc, displayType, characteristicType, characteristicType1 } = accessory;
+                                // Update encharges summary control
+                                if (this.enchargeBackupLevelSummaryControl.displayType > 0) {
+                                    const control = this.enchargeBackupLevelSummaryControl;
+                                    const { minSoc, displayType, characteristicType, characteristicType1 } = control;
                                     const serviceBattery = displayType === 5;
                                     const backupLevel = secctrl.encAggSoc > minSoc ? secctrl.encAggSoc : 0;
                                     const state = serviceBattery ? backupLevel < minSoc : backupLevel > minSoc;
@@ -4280,29 +4415,27 @@ class EnvoyDevice extends EventEmitter {
                                     // Update storage summary services
                                     for (const { type, value, valueKey } of characteristics) {
                                         if (!this.functions.isValidValue(value)) continue;
-                                        accessory[valueKey] = value;
-                                        this.enchargeBackupLevelSummaryAccessoryService?.updateCharacteristic(type, value);
+                                        control[valueKey] = value;
+                                        this.enchargeBackupLevelSummaryControlService?.updateCharacteristic(type, value);
                                     }
                                 }
 
                                 // Update encharge summary backup level sensors
-                                if (this.enchargeBackupLevelSummarySensors.length > 0) {
-                                    for (let i = 0; i < this.enchargeBackupLevelSummarySensors.length; i++) {
-                                        const sensor = this.enchargeBackupLevelSummarySensors[i];
-                                        const { backupLevel, compareMode, characteristicType } = sensor;
-                                        const state = this.functions.evaluateCompareMode(secctrl.encAggSoc, backupLevel, compareMode);
+                                for (let i = 0; i < this.enchargeBackupLevelSummarySensors.length; i++) {
+                                    const sensor = this.enchargeBackupLevelSummarySensors[i];
+                                    const { backupLevel, compareMode, characteristicType } = sensor;
+                                    const state = this.functions.evaluateCompareMode(secctrl.encAggSoc, backupLevel, compareMode);
 
-                                        const characteristics = [
-                                            { type: characteristicType, value: state, valueKey: 'state' }
-                                        ];
+                                    const characteristics = [
+                                        { type: characteristicType, value: state, valueKey: 'state' }
+                                    ];
 
-                                        // Update system services
-                                        for (const { type, value, valueKey } of characteristics) {
-                                            if (!this.functions.isValidValue(value)) continue;
-                                            sensor[valueKey] = value;
-                                            this.enchargeBackupLevelSummarySensorServices?.[i]?.updateCharacteristic(type, value);
-                                        };
-                                    }
+                                    // Update system services
+                                    for (const { type, value, valueKey } of characteristics) {
+                                        if (!this.functions.isValidValue(value)) continue;
+                                        sensor[valueKey] = value;
+                                        this.enchargeBackupLevelSummarySensorsServices?.[i]?.updateCharacteristic(type, value);
+                                    };
                                 }
                             }
                         }
@@ -4452,23 +4585,21 @@ class EnvoyDevice extends EventEmitter {
                             }
 
                             // encharge grid mode sensors
-                            if (this.enchargeGridModeSensors.length > 0) {
-                                for (let i = 0; i < this.enchargeGridModeSensors.length; i++) {
-                                    const sensor = this.enchargeGridModeSensors[i];
-                                    const { characteristicType } = sensor;
-                                    const state = sensor.gridMode === relay.enchgGridMode;
+                            for (let i = 0; i < this.enchargeGridModeSensors.length; i++) {
+                                const sensor = this.enchargeGridModeSensors[i];
+                                const { characteristicType, gridMode } = sensor;
+                                const state = gridMode === relay.enchgGridMode;
 
-                                    // Create characteristics
-                                    const characteristics = [
-                                        { type: characteristicType, value: state, valueKey: 'state' },
-                                    ];
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: characteristicType, value: state, valueKey: 'state' },
+                                ];
 
-                                    // Update characteristics
-                                    for (const { type, value, valueKey } of characteristics) {
-                                        if (!this.functions.isValidValue(value)) continue;
-                                        sensor[valueKey] = value;
-                                        this.enchargeGridModeSensorServices?.[i]?.updateCharacteristic(type, value);
-                                    }
+                                // Update characteristics
+                                for (const { type, value, valueKey } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+                                    sensor[valueKey] = value;
+                                    this.enchargeGridModeSensorServices?.[i]?.updateCharacteristic(type, value);
                                 }
                             }
 
@@ -4492,23 +4623,21 @@ class EnvoyDevice extends EventEmitter {
                             }
 
                             // solar grid mode sensors
-                            if (this.solarGridModeSensors.length > 0) {
-                                for (let i = 0; i < this.solarGridModeSensors.length; i++) {
-                                    const sensor = this.enchargeGridModeSensors[i];
-                                    const { characteristicType } = sensor;
-                                    const state = sensor.gridMode === relay.solarGridMode;
+                            for (let i = 0; i < this.solarGridModeSensors.length; i++) {
+                                const sensor = this.solarGridModeSensors[i];
+                                const { characteristicType, gridMode } = sensor;
+                                const state = gridMode === relay.solarGridMode;
 
-                                    // Create characteristics
-                                    const characteristics = [
-                                        { type: characteristicType, value: state, valueKey: 'state' },
-                                    ];
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: characteristicType, value: state, valueKey: 'state' },
+                                ];
 
-                                    // Update characteristics
-                                    for (const { type, value, valueKey } of characteristics) {
-                                        if (!this.functions.isValidValue(value)) continue;
-                                        sensor[valueKey] = value;
-                                        this.solarGridModeSensorServices?.[i]?.updateCharacteristic(type, value);
-                                    }
+                                // Update characteristics
+                                for (const { type, value, valueKey } of characteristics) {
+                                    if (!this.functions.isValidValue(value)) continue;
+                                    sensor[valueKey] = value;
+                                    this.solarGridModeSensorServices?.[i]?.updateCharacteristic(type, value);
                                 }
                             }
                         }
@@ -4559,6 +4688,24 @@ class EnvoyDevice extends EventEmitter {
                                     gridProfile: encharge.gridProfile
                                 };
 
+                                // Create characteristics
+                                const characteristics = [
+                                    { type: Characteristic.ChargeState, value: enchargeData.chargeState },
+                                    { type: Characteristic.AdminState, value: enchargeData.adminStateStr },
+                                    { type: Characteristic.Communicating, value: enchargeData.communicating },
+                                    { type: Characteristic.CommLevelSubGhz, value: enchargeData.commLevelSubGhz },
+                                    { type: Characteristic.CommLevel24Ghz, value: enchargeData.commLevel24Ghz },
+                                    { type: Characteristic.SleepEnabled, value: enchargeData.sleepEnabled },
+                                    { type: Characteristic.PercentFull, value: enchargeData.percentFull },
+                                    { type: Characteristic.Temperature, value: enchargeData.temperature },
+                                    { type: Characteristic.MaxCellTemp, value: enchargeData.maxCellTemp },
+                                    { type: Characteristic.LedStatus, value: enchargeData.ledStatus },
+                                    { type: Characteristic.Capacity, value: enchargeData.capacity },
+                                    { type: Characteristic.DcSwitchOff, value: enchargeData.dcSwitchOff },
+                                    { type: Characteristic.Revision, value: enchargeData.rev },
+                                    { type: Characteristic.ReadingTime, value: enchargeData.readingTime }
+                                ];
+
                                 // Add status field
                                 if (enchargesStatusSupported && encharge.status) {
                                     if (this.logDebug) this.emit('debug', `Requesting encharge ${enchargeData.serialNumber} status data`);
@@ -4590,6 +4737,8 @@ class EnvoyDevice extends EventEmitter {
                                         submodulesCount: status.submodulesCount,
                                         submodules: status.submodules
                                     };
+
+                                    characteristics.push({ type: Characteristic.CommInterface, value: enchargeData.status.commInterfaceStr }, { type: Characteristic.RatedPower, value: enchargeData.status.ratedPowerKw })
                                 }
 
                                 // Add power field
@@ -4605,55 +4754,38 @@ class EnvoyDevice extends EventEmitter {
                                         apparentPowerKw: power.apparentPower / 1000000,
                                         soc: power.soc,
                                     };
+
+                                    characteristics.push({ type: Characteristic.RealPower, value: enchargeData.power.realPowerKw });
                                 }
 
-                                // Update encharge backup level accessory characteristics
-                                if (this.enchargeBackupLevelAccessory.displayType > 0) {
-                                    const accessory = this.enchargeBackupLevelAccessory;
-                                    const { minSoc, characteristicType, characteristicType1, characteristicType2 } = accessory;
-                                    const state = enchargeData.percentFull < minSoc;
-
-                                    // Create characteristics
-                                    const characteristics = [
-                                        { type: characteristicType, value: state, valueKey: 'state' },
-                                        { type: characteristicType1, value: enchargeData.percentFull, valueKey: 'backupLevel' },
-                                        { type: characteristicType2, value: enchargeData.chargeStateNum, valueKey: 'chargeState' },
-                                    ];
-
-                                    // Update acbs services
-                                    for (const { type, value, valueKey } of characteristics) {
-                                        if (!this.functions.isValidValue(value)) continue;
-                                        accessory[valueKey] = value;
-                                        this.enchargeBackupLevelAndStatServices?.[index]?.updateCharacteristic(type, value);
-                                    }
-                                }
-
-                                // Create characteristics
-                                const characteristics = [
-                                    { type: Characteristic.ChargeState, value: enchargeData.chargeState },
-                                    { type: Characteristic.AdminState, value: enchargeData.adminStateStr },
-                                    { type: Characteristic.Communicating, value: enchargeData.communicating },
-                                    { type: Characteristic.CommLevelSubGhz, value: enchargeData.commLevelSubGhz },
-                                    { type: Characteristic.CommLevel24Ghz, value: enchargeData.commLevel24Ghz },
-                                    { type: Characteristic.SleepEnabled, value: enchargeData.sleepEnabled },
-                                    { type: Characteristic.PercentFull, value: enchargeData.percentFull },
-                                    { type: Characteristic.Temperature, value: enchargeData.temperature },
-                                    { type: Characteristic.MaxCellTemp, value: enchargeData.maxCellTemp },
-                                    { type: Characteristic.LedStatus, value: enchargeData.ledStatus },
-                                    { type: Characteristic.Capacity, value: enchargeData.capacity },
-                                    { type: Characteristic.DcSwitchOff, value: enchargeData.dcSwitchOff },
-                                    { type: Characteristic.Revision, value: enchargeData.rev },
-                                    { type: Characteristic.ReadingTime, value: enchargeData.readingTime }
-                                ];
-
-                                if (enchargesStatusSupported && enchargeData.status) characteristics.push({ type: Characteristic.CommInterface, value: enchargeData.status.commInterfaceStr }, { type: Characteristic.RatedPower, value: enchargeData.status.ratedPowerKw });
-                                if (enchargesPowerSupported && enchargeData.power) characteristics.push({ type: Characteristic.RealPower, value: enchargeData.power.realPowerKw });
+                                // Add grid profile characteristic
                                 if (this.feature.gridProfile.supported) characteristics.push({ type: Characteristic.GridProfile, value: enchargeData.gridProfile });
 
                                 for (const { type, value } of characteristics) {
                                     if (!this.functions.isValidValue(value)) continue;
                                     this.enchargeServices?.[index]?.updateCharacteristic(type, value);
                                 };
+
+                                // Update encharge backup level control
+                                if (this.enchargeBackupLevelControl.displayType > 0) {
+                                    const control = this.enchargeBackupLevelControl;
+                                    const { minSoc, characteristicType, characteristicType1, characteristicType2 } = control;
+                                    const state = enchargeData.percentFull < minSoc;
+
+                                    // Create characteristics
+                                    const characteristics1 = [
+                                        { type: characteristicType, value: state, valueKey: 'state' },
+                                        { type: characteristicType1, value: enchargeData.percentFull, valueKey: 'backupLevel' },
+                                        { type: characteristicType2, value: enchargeData.chargeStateNum, valueKey: 'chargeState' },
+                                    ];
+
+                                    // Update acbs services
+                                    for (const { type, value, valueKey } of characteristics1) {
+                                        if (!this.functions.isValidValue(value)) continue;
+                                        control[valueKey] = value;
+                                        this.enchargeBackupLevelControlServices?.[index]?.updateCharacteristic(type, value);
+                                    }
+                                }
 
                                 return enchargeData;
                             }));
@@ -4703,8 +4835,8 @@ class EnvoyDevice extends EventEmitter {
                                 const info = tariffData.tariff ?? {};
                                 const tariff = {};
                                 tariff.info = {
-                                    currencyCode: info.currency.code ?? '',
-                                    logger: info.logger ?? '',
+                                    currencyCode: info.currency.code,
+                                    logger: info.logger,
                                     date: this.functions.formatTimestamp(info.date, this.pv.homeData.timeZone),
                                 };
 
@@ -4712,7 +4844,7 @@ class EnvoyDevice extends EventEmitter {
                                 const s = info.storage_settings ?? {};
                                 tariff.storageSettings = {
                                     mode: s.mode,
-                                    operationModeSubType: s.operation_mode_sub_type ?? '',
+                                    operationModeSubType: s.operation_mode_sub_type,
                                     reservedSoc: s.reserved_soc,
                                     veryLowSoc: s.very_low_soc,
                                     chargeFromGrid: !!s.charge_from_grid,
@@ -4759,16 +4891,16 @@ class EnvoyDevice extends EventEmitter {
                                 // Schedule
                                 const sched = tariffData.schedule ?? {};
                                 tariff.schedule = {
-                                    fileName: sched.filename ?? '',
-                                    source: sched.source ?? '',
+                                    fileName: sched.filename,
+                                    source: sched.source,
                                     date: this.functions.formatTimestamp(sched.date, this.pv.homeData.timeZone),
-                                    version: sched.version ?? '',
+                                    version: sched.version,
                                     reservedSoc: sched.reserved_soc,
                                     veryLowSoc: sched.very_low_soc,
                                     chargeFromGrid: !!sched.charge_from_grid,
-                                    battMode: sched.batt_mode ?? '',
-                                    batteryMode: sched.battery_mode ?? '',
-                                    operationModeSubType: sched.operation_mode_sub_type ?? '',
+                                    battMode: sched.batt_mode,
+                                    batteryMode: sched.battery_mode,
+                                    operationModeSubType: sched.operation_mode_sub_type,
                                     override: !!sched.override,
                                     overrideBackupSoc: sched.override_backup_soc,
                                     overrideChgDischargeRate: sched.override_chg_discharge_rate,
@@ -4778,25 +4910,25 @@ class EnvoyDevice extends EventEmitter {
 
                                 // Encharge profile control updates
                                 for (let i = 0; i < this.enchargeProfileControls.length; i++) {
-                                    const accessory = this.enchargeProfileControls[i];
-                                    const { characteristicType } = accessory;
-                                    const profile = control.profile === tariff.storageSettings.mode;
-                                    const chargeFromGrid = control.chargeFromGrid === tariff.storageSettings.chargeFromGrid;
-                                    const state = profile && chargeFromGrid;
+                                    const control = this.enchargeProfileControls[i];
+                                    const { characteristicType, profile, chargeFromGrid } = control;
+                                    const profileState = profile === tariff.storageSettings.mode;
+                                    const chargeFromGridState = chargeFromGrid === tariff.storageSettings.chargeFromGrid;
+                                    const state = profileState && chargeFromGridState;
 
                                     // Create characteristics
                                     const characteristics = [
                                         { type: characteristicType, value: state, valueKey: 'state' },
                                     ];
 
-                                    if (accessory.profile !== 'backup') {
+                                    if (profile !== 'backup') {
                                         characteristics.push({ type: Characteristic.Brightness, value: tariff.storageSettings.reservedSoc, valueKey: 'reservedSoc' });
                                     }
 
                                     // Update storage summary services
                                     for (const { type, value, valueKey } of characteristics) {
                                         if (!this.functions.isValidValue(value)) continue;
-                                        accessory[valueKey] = value;
+                                        control[valueKey] = value;
                                         this.enchargeProfileControlsServices?.[i]?.updateCharacteristic(type, value);
                                     }
                                 }
@@ -4804,8 +4936,8 @@ class EnvoyDevice extends EventEmitter {
                                 // Encharge profile sensors update
                                 for (let i = 0; i < this.enchargeProfileSensors.length; i++) {
                                     const sensor = this.enchargeProfileSensors[i];
-                                    const { characteristicType } = sensor;
-                                    const state = tariff.storageSettings.mode === sensor.profile;
+                                    const { characteristicType, profile } = sensor;
+                                    const state = profile === tariff.storageSettings.mode;
 
                                     // Create characteristics
                                     const characteristics = [
@@ -4941,8 +5073,8 @@ class EnvoyDevice extends EventEmitter {
                                                 gridActionBool: settings.gridAction !== 'none',
                                                 microGridAction: settings.microGridAction,
                                                 genAction: settings.genAction,
-                                                essentialStartTime: settings.essentialStartTime ?? '',
-                                                essentialEndTime: settings.essentialEndTime ?? '',
+                                                essentialStartTime: settings.essentialStartTime,
+                                                essentialEndTime: settings.essentialEndTime,
                                                 priority: settings.priority,
                                                 blackSStart: settings.blackSStart,
                                                 override: settings.override ?? 'false',
@@ -4996,8 +5128,8 @@ class EnvoyDevice extends EventEmitter {
 
                                 // Update enpower grid control
                                 if (this.enpowerGridStateControl.displayType > 0) {
-                                    const accessory = this.enpowerGridStateControl;
-                                    const { characteristicType } = accessory;
+                                    const control = this.enpowerGridStateControl;
+                                    const { characteristicType } = control;
                                     const state = enpowerData.mainsAdminStateBool;
 
                                     // Create characteristics
@@ -5008,7 +5140,7 @@ class EnvoyDevice extends EventEmitter {
                                     // Update characteristics
                                     for (const { type, value, valueKey } of characteristics) {
                                         if (!this.functions.isValidValue(value)) continue;
-                                        accessory[valueKey] = value;
+                                        control[valueKey] = value;
                                         this.enpowerGridStateControlServices?.[index]?.updateCharacteristic(type, value);
                                     }
                                 }
@@ -5035,8 +5167,8 @@ class EnvoyDevice extends EventEmitter {
                                 // Update enpower grid mode sensors
                                 for (let i = 0; i < (this.enpowerGridModeSensors?.length ?? 0); i++) {
                                     const sensor = this.enpowerGridModeSensors[i];
-                                    const { characteristicType } = sensor;
-                                    const state = sensor.gridMode === enpowerData.enpwrGridMode;
+                                    const { characteristicType, gridMode } = sensor;
+                                    const state = gridMode === enpowerData.enpwrGridMode;
 
                                     // Create characteristics
                                     const characteristics = [
@@ -5273,8 +5405,8 @@ class EnvoyDevice extends EventEmitter {
 
                                 // Update generator admin mode ON/OFF control
                                 if (this.generatorStateControl.displayType > 0) {
-                                    const accessory = this.generatorStateControl;
-                                    const { characteristicType } = accessory;
+                                    const control = this.generatorStateControl;
+                                    const { characteristicType } = control;
                                     const state = generatorData.adminModeBool;
 
                                     // Create characteristics
@@ -5285,7 +5417,7 @@ class EnvoyDevice extends EventEmitter {
                                     // Update characteristics
                                     for (const { type, value, valueKey } of characteristics2) {
                                         if (!this.functions.isValidValue(value)) continue;
-                                        accessory[valueKey] = value;
+                                        control[valueKey] = value;
                                         this.generatorStateControlService?.updateCharacteristic(type, value);
                                     }
                                 }
@@ -5311,8 +5443,8 @@ class EnvoyDevice extends EventEmitter {
 
                                 // Update generator mode toggle controls
                                 for (let i = 0; i < (this.generatorModeContols?.length ?? 0); i++) {
-                                    const accessory = this.generatorModeContols[i];
-                                    const { mode, characteristicType } = accessory;
+                                    const control = this.generatorModeContols[i];
+                                    const { mode, characteristicType } = control;
                                     const state = mode === generatorData.adminMode;
 
                                     // Create characteristics
@@ -5323,7 +5455,7 @@ class EnvoyDevice extends EventEmitter {
                                     // Update characteristics
                                     for (const { type, value, valueKey } of characteristics2) {
                                         if (!this.functions.isValidValue(value)) continue;
-                                        accessory[valueKey] = value;
+                                        control[valueKey] = value;
                                         this.generatorModeControlServices?.[i]?.updateCharacteristic(type, value);
                                     }
                                 }
@@ -5423,7 +5555,7 @@ class EnvoyDevice extends EventEmitter {
 
                             if (this.logDebug) this.emit('debug', `Updated device: ${type}`, deviceData);
 
-                            // Update system accessory
+                            // Update system control
                             if (type === 'Production' && deviceData.power) {
                                 const powerLevel = this.functions.scaleValue(deviceData.power, 0, this.powerProductionSummary, 0, 100);
                                 const powerState = powerLevel > 0;
@@ -5434,9 +5566,9 @@ class EnvoyDevice extends EventEmitter {
                                     this.emit('info', `Live Data, ${type}, power state: ${powerState ? 'On' : 'Off'}`);
                                 }
 
-                                // Update system accessory
-                                const accessory = this.systemAccessory;
-                                const { characteristicType, characteristicType1 } = accessory;
+                                // Update system control
+                                const control = this.systemAccessory;
+                                const { characteristicType, characteristicType1 } = control;
 
                                 // Create characteristics
                                 const characteristics = [
@@ -5447,7 +5579,7 @@ class EnvoyDevice extends EventEmitter {
                                 // Update system services
                                 for (const { type, value, valueKey } of characteristics) {
                                     if (!this.functions.isValidValue(value)) continue;
-                                    accessory[valueKey] = value;
+                                    control[valueKey] = value;
                                     this.systemService?.updateCharacteristic(type, value);
                                 };
                             }
@@ -5460,8 +5592,8 @@ class EnvoyDevice extends EventEmitter {
 
                                     // Agg Energy and Soc
                                     const characteristics = [
-                                        { type: Characteristic.AggMaxEnergy, value: energySumKw, valueKey: 'aggMaxEnergyKw' },
                                         { type: Characteristic.AggSoc, value: percentFullSum, valueKey: 'aggSoc' },
+                                        { type: Characteristic.AggMaxEnergy, value: energySumKw, valueKey: 'aggMaxEnergyKw' },
                                     ];
 
                                     // Update storage summary services
@@ -5495,10 +5627,10 @@ class EnvoyDevice extends EventEmitter {
                                         }
                                     }
 
-                                    // Update acbs summary accessory
-                                    if (this.acBatterieBackupLevelSummaryAccessory.displayType > 0) {
-                                        const accessory = this.acBatterieBackupLevelSummaryAccessory;
-                                        const { minSoc, displayType, characteristicType, characteristicType1 } = accessory;
+                                    // Update acbs summary control
+                                    if (this.acBatterieBackupLevelSummaryControl.displayType > 0) {
+                                        const control = this.acBatterieBackupLevelSummaryControl;
+                                        const { minSoc, displayType, characteristicType, characteristicType1 } = control;
                                         const isServiceBattery = displayType === 5;
                                         const isAboveMinSoc = percentFullSumAcb > minSoc;
                                         const backupLevel = isAboveMinSoc ? percentFullSumAcb : 0;
@@ -5513,7 +5645,7 @@ class EnvoyDevice extends EventEmitter {
                                         // Update storage summary services
                                         for (const { type, value, valueKey } of characteristics) {
                                             if (!this.functions.isValidValue(value)) continue;
-                                            accessory[valueKey] = value;
+                                            control[valueKey] = value;
                                             this.acbSummaryLevelAndStateService?.updateCharacteristic(type, value);
                                         }
                                     }
@@ -5530,8 +5662,8 @@ class EnvoyDevice extends EventEmitter {
                                     // Update ensemble summary service
                                     if (this.feature.inventory.esubs.secctrl.supported) {
                                         const characteristics = [
-                                            { type: Characteristic.EncAggBackupEnergy, value: energySumEncKw, valueKey: 'encAggBackupEnergy' },
                                             { type: Characteristic.EncAggSoc, value: percentFullSumEnc, valueKey: 'encAggSoc' },
+                                            { type: Characteristic.EncAggBackupEnergy, value: energySumEncKw, valueKey: 'encAggBackupEnergy' },
                                         ];
 
                                         // Update storage summary services
@@ -5542,10 +5674,10 @@ class EnvoyDevice extends EventEmitter {
                                         }
                                     }
 
-                                    // Update encharges summary accessory
-                                    if (this.enchargeBackupLevelSummaryAccessory.displayType > 0) {
-                                        const accessory = this.enchargeBackupLevelSummaryAccessory;
-                                        const { minSoc, displayType, characteristicType, characteristicType1 } = accessory;
+                                    // Update encharges summary control
+                                    if (this.enchargeBackupLevelSummaryControl.displayType > 0) {
+                                        const control = this.enchargeBackupLevelSummaryControl;
+                                        const { minSoc, displayType, characteristicType, characteristicType1 } = control;
                                         const serviceBattery = displayType === 5;
                                         const backupLevel = percentFullSumEnc > minSoc ? percentFullSumEnc : 0;
                                         const state = serviceBattery ? backupLevel < minSoc : backupLevel > minSoc;
@@ -5559,29 +5691,27 @@ class EnvoyDevice extends EventEmitter {
                                         // Update storage summary services
                                         for (const { type, value, valueKey } of characteristics) {
                                             if (!this.functions.isValidValue(value)) continue;
-                                            accessory[valueKey] = value;
-                                            this.enchargeBackupLevelSummaryAccessoryService?.updateCharacteristic(type, value);
+                                            control[valueKey] = value;
+                                            this.enchargeBackupLevelSummaryControlService?.updateCharacteristic(type, value);
                                         }
                                     }
 
                                     // Update encharges summary backup level sensors
-                                    if (this.enchargeBackupLevelSummarySensors.length > 0) {
-                                        for (let i = 0; i < this.enchargeBackupLevelSummarySensors.length; i++) {
-                                            const sensor = this.enchargeBackupLevelSummarySensors[i];
-                                            const { backupLevel, compareMode, characteristicType } = sensor;
-                                            const state = this.functions.evaluateCompareMode(percentFullSumEnc, backupLevel, compareMode);
+                                    for (let i = 0; i < this.enchargeBackupLevelSummarySensors.length; i++) {
+                                        const sensor = this.enchargeBackupLevelSummarySensors[i];
+                                        const { backupLevel, compareMode, characteristicType } = sensor;
+                                        const state = this.functions.evaluateCompareMode(percentFullSumEnc, backupLevel, compareMode);
 
-                                            const characteristics = [
-                                                { type: characteristicType, value: state, valueKey: 'state' }
-                                            ];
+                                        const characteristics = [
+                                            { type: characteristicType, value: state, valueKey: 'state' }
+                                        ];
 
-                                            // Update system services
-                                            for (const { type, value, valueKey } of characteristics) {
-                                                if (!this.functions.isValidValue(value)) continue;
-                                                sensor[valueKey] = value;
-                                                this.enchargeBackupLevelSummarySensorServices?.[i]?.updateCharacteristic(type, value);
-                                            };
-                                        }
+                                        // Update system services
+                                        for (const { type, value, valueKey } of characteristics) {
+                                            if (!this.functions.isValidValue(value)) continue;
+                                            sensor[valueKey] = value;
+                                            this.enchargeBackupLevelSummarySensorsServices?.[i]?.updateCharacteristic(type, value);
+                                        };
                                     }
                                 }
                             }
@@ -5654,8 +5784,8 @@ class EnvoyDevice extends EventEmitter {
             if (this.restFul.enable || this.mqtt.enable) await this.externalIntegrations();
 
             // Prepare HomeKit accessory
-            const accessory = await this.prepareAccessory();
-            return accessory;
+            const accessories = await this.prepareAccessory();
+            return accessories;
         } catch (error) {
             throw new Error(`Start error: ${error}`);
         }

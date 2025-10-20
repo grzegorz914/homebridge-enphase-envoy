@@ -2291,7 +2291,7 @@ export default (api) => {
                 format: Formats.FLOAT,
                 unit: 'W',
                 maxValue: 1000000,
-                minValue: -1000000,
+                minValue: 0,
                 minStep: 0.001,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });

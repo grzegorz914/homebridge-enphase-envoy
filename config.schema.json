@@ -145,30 +145,36 @@
               }
             },
             "lockControl": {
-              "title": "Control",
-              "type": "boolean",
-              "default": true,
-              "description": "Enables system control auto lock accessory"
-            },
-            "lockControlPrefix": {
-              "title": "Prefix",
-              "type": "boolean",
-              "default": false,
-              "description": "Use accessory name as a prefix",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].lockControl === true"
-              }
-            },
-            "lockControlTime": {
-              "title": "Auto Lock Time",
-              "type": "number",
-              "minimum": 1,
-              "maximum": 60,
-              "multipleOf": 1,
-              "default": 30,
-              "description": "System control auto lock time (seconds)",
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].lockControl === true"
+              "title": "Lock Control",
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Enables system control auto lock accessory"
+                },
+                "time": {
+                  "title": "Auto Lock Time",
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 60,
+                  "multipleOf": 1,
+                  "default": 30,
+                  "description": "System control auto lock time (seconds)",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].lockControl.enable === true"
+                  }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Use accessory name as a prefix",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].lockControl.enable === true"
+                  }
+                }
               }
             },
             "energyMeter": {
@@ -3625,9 +3631,19 @@
                           "type": "section",
                           "title": "System Control",
                           "items": [
-                            "devices[].lockControl",
-                            "devices[].lockControlPrefix",
-                            "devices[].lockControlTime"
+                            {
+                              "key": "devices[].lockControl",
+                              "type": "section",
+                              "title": "Lock Control",
+                              "description": "Section for enabling additional accessory for System control",
+                              "expandable": true,
+                              "expanded": false,
+                              "items": [
+                                "devices[].lockControl.enable",
+                                "devices[].lockControl.time",
+                                "devices[].lockControl.namePrefix"
+                              ]
+                            }
                           ]
                         }
                       ]
