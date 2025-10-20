@@ -90,7 +90,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 ### Configuration
 
 * Running this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) is **highly recommended**. This prevents Homebridge from crashing if the plugin crashes.
-* Installation and use of [Homebridge Config UI X](https://github.com/homebridge/homebridge-config-ui-x) to configure this plugin is **highly recommended**.
+* Installation and use of [Homebridge UI](https://github.com/homebridge/homebridge-config-ui-x) to configure this plugin is **highly recommended**.
 * The `sample-config.json` can be edited and used as an alternative for advanced users.
 
 <p align="center">
