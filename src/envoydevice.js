@@ -1988,8 +1988,8 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 if (ensemblesCountersSupported) characteristics.push({ type: Characteristic.RestPower, label: 'rest power', value: counters.restPowerKw, unit: 'kW' });
-                                if (enchargesStatusSupported) characteristics.push({ type: Characteristic.RatedPower, label: 'rated power', value: this.pv.inventoryData.esubs.encharges.ratedPowerSumKw, unit: 'kW' });
-                                if (enchargesPowerSupported) characteristics.push({ type: Characteristic.RealPower, label: 'real power', value: this.pv.inventoryData.esubs.encharges.realPowerSumKw, unit: 'kW' });
+                                if (enchargesStatusSupported) characteristics.push({ type: Characteristic.RatedPower, label: 'rated power', value: this.pv.inventoryData.esubs.ratedPowerSumKw, unit: 'kW' });
+                                if (enchargesPowerSupported) characteristics.push({ type: Characteristic.RealPower, label: 'real power', value: this.pv.inventoryData.esubs.realPowerSumKw, unit: 'kW' });
 
                                 for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
                                     if (!this.functions.isValidValue(value)) continue;
@@ -2399,23 +2399,24 @@ class EnvoyDevice extends EventEmitter {
                                         if (this.logDebug) this.emit('debug', `Prepare ${enchargeName} Profile Sensor Services`);
 
                                         this.enchargeProfileSensorsServices = [];
+
                                         for (let i = 0; i < this.enchargeProfileSensors.length; i++) {
                                             const sensor = this.enchargeProfileSensors[i];
                                             const { namePrefix, name, serviceType, characteristicType } = sensor;
                                             const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
 
-                                            const sensorService = accessory.addService(serviceType, serviceName, `enchargeProfileSensorService${i}`);
-                                            sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                                            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                                            const service = accessory.addService(serviceType, serviceName, `enchargeProfileSensorService${i}`);
+                                            service.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                                            service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
 
-                                            sensorService.getCharacteristic(characteristicType)
+                                            service.getCharacteristic(characteristicType)
                                                 .onGet(async () => {
                                                     const currentState = sensor.state;
                                                     if (this.logInfo) this.emit('info', `${enchargeName} profile: ${name}, state: ${currentState ? 'Active' : 'Not Active'}`);
                                                     return currentState;
                                                 });
 
-                                            this.enchargeProfileSensorsServices.push(sensorService);
+                                            this.enchargeProfileSensorsServices.push(service);
                                         }
                                     }
                                 }
@@ -2694,7 +2695,7 @@ class EnvoyDevice extends EventEmitter {
                                         { type: Characteristic.AdminState, label: 'admin state', value: collar.adminStateStr },
                                         { type: Characteristic.Status, label: 'status', value: collar.deviceStatus },
                                         { type: Characteristic.MidState, label: 'mid state', value: collar.midState },
-                                        { type: Characteristic.GridState, label: 'grid state', value: collar.gridState },
+                                        { type: Characteristic.GridState, label: 'mid state', value: collar.gridState },
                                         { type: Characteristic.Communicating, label: 'communicating', value: collar.communicating, postfix: collar.communicating ? 'Yes' : 'No' },
                                         { type: Characteristic.Temperature, label: 'temperature', value: collar.temperature, unit: '°C' },
                                         { type: Characteristic.ReadingTime, label: 'reading time', value: collar.readingTime }
@@ -4334,10 +4335,10 @@ class EnvoyDevice extends EventEmitter {
                             // Add to ensemble summary characteristics if live data not supported
                             if (!this.feature.liveData.supported || !this.feature.meters.storage.enabled) {
                                 ensembleSummaryCharacteristics.push(
-                                    { type: Characteristic.AggSoc, value: secctrl.aggSoc },
                                     { type: Characteristic.AggMaxEnergy, value: secctrl.aggMaxEnergyKw },
-                                    { type: Characteristic.EncAggSoc, value: secctrl.encAggSoc },
-                                    { type: Characteristic.EncAggBackupEnergy, value: secctrl.encAggBackupEnergy });
+                                    { type: Characteristic.EncAggBackupEnergy, value: secctrl.encAggBackupEnergy },
+                                    { type: Characteristic.AggSoc, value: secctrl.aggSoc },
+                                    { type: Characteristic.encAggSoc, value: secctrl.encAggSoc });
                             }
 
                             if (phaseA) {
@@ -4835,8 +4836,8 @@ class EnvoyDevice extends EventEmitter {
                                 const info = tariffData.tariff ?? {};
                                 const tariff = {};
                                 tariff.info = {
-                                    currencyCode: info.currency.code,
-                                    logger: info.logger,
+                                    currencyCode: info.currency.code ?? '',
+                                    logger: info.logger ?? '',
                                     date: this.functions.formatTimestamp(info.date, this.pv.homeData.timeZone),
                                 };
 
@@ -4844,7 +4845,7 @@ class EnvoyDevice extends EventEmitter {
                                 const s = info.storage_settings ?? {};
                                 tariff.storageSettings = {
                                     mode: s.mode,
-                                    operationModeSubType: s.operation_mode_sub_type,
+                                    operationModeSubType: s.operation_mode_sub_type ?? '',
                                     reservedSoc: s.reserved_soc,
                                     veryLowSoc: s.very_low_soc,
                                     chargeFromGrid: !!s.charge_from_grid,
@@ -4891,16 +4892,16 @@ class EnvoyDevice extends EventEmitter {
                                 // Schedule
                                 const sched = tariffData.schedule ?? {};
                                 tariff.schedule = {
-                                    fileName: sched.filename,
-                                    source: sched.source,
+                                    fileName: sched.filename ?? '',
+                                    source: sched.source ?? '',
                                     date: this.functions.formatTimestamp(sched.date, this.pv.homeData.timeZone),
-                                    version: sched.version,
+                                    version: sched.version ?? '',
                                     reservedSoc: sched.reserved_soc,
                                     veryLowSoc: sched.very_low_soc,
                                     chargeFromGrid: !!sched.charge_from_grid,
-                                    battMode: sched.batt_mode,
-                                    batteryMode: sched.battery_mode,
-                                    operationModeSubType: sched.operation_mode_sub_type,
+                                    battMode: sched.batt_mode ?? '',
+                                    batteryMode: sched.battery_mode ?? '',
+                                    operationModeSubType: sched.operation_mode_sub_type ?? '',
                                     override: !!sched.override,
                                     overrideBackupSoc: sched.override_backup_soc,
                                     overrideChgDischargeRate: sched.override_chg_discharge_rate,
@@ -5073,8 +5074,8 @@ class EnvoyDevice extends EventEmitter {
                                                 gridActionBool: settings.gridAction !== 'none',
                                                 microGridAction: settings.microGridAction,
                                                 genAction: settings.genAction,
-                                                essentialStartTime: settings.essentialStartTime,
-                                                essentialEndTime: settings.essentialEndTime,
+                                                essentialStartTime: settings.essentialStartTime ?? '',
+                                                essentialEndTime: settings.essentialEndTime ?? '',
                                                 priority: settings.priority,
                                                 blackSStart: settings.blackSStart,
                                                 override: settings.override ?? 'false',
@@ -5592,8 +5593,8 @@ class EnvoyDevice extends EventEmitter {
 
                                     // Agg Energy and Soc
                                     const characteristics = [
-                                        { type: Characteristic.AggSoc, value: percentFullSum, valueKey: 'aggSoc' },
                                         { type: Characteristic.AggMaxEnergy, value: energySumKw, valueKey: 'aggMaxEnergyKw' },
+                                        { type: Characteristic.AggSoc, value: percentFullSum, valueKey: 'aggSoc' },
                                     ];
 
                                     // Update storage summary services
@@ -5662,8 +5663,8 @@ class EnvoyDevice extends EventEmitter {
                                     // Update ensemble summary service
                                     if (this.feature.inventory.esubs.secctrl.supported) {
                                         const characteristics = [
-                                            { type: Characteristic.EncAggSoc, value: percentFullSumEnc, valueKey: 'encAggSoc' },
                                             { type: Characteristic.EncAggBackupEnergy, value: energySumEncKw, valueKey: 'encAggBackupEnergy' },
+                                            { type: Characteristic.EncAggSoc, value: percentFullSumEnc, valueKey: 'encAggSoc' },
                                         ];
 
                                         // Update storage summary services

@@ -1432,8 +1432,7 @@
                         ]
                       }
                     ],
-                    "description": "Accessory type for Home app",
-                    "required": true
+                    "description": "Accessory type for Home app"
                   },
                   "name": {
                     "title": "Accessory name",
@@ -3066,7 +3065,6 @@
                         ]
                       }
                     ],
-                    "required": true,
                     "condition": {
                       "functionBody": "return model.devices[arrayIndices[0]].generatorModeControls[arrayIndices[1]].displayType > 0;"
                     }

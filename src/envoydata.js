@@ -338,6 +338,7 @@ class EnvoyData extends EventEmitter {
                         devices: [],
                         settings: {},
                         tariff: {},
+                        tariffRaw: {},
                         ratedPowerSumKw: null,
                         realPowerSumKw: null,
                         phaseA: false,
@@ -587,13 +588,12 @@ class EnvoyData extends EventEmitter {
             // Load token from file on startup, only if mode is 1
             if (this.envoyFirmware7xxTokenGenerationMode === 1 && start) {
                 try {
-                    const data = await this.functions.readData(this.envoyTokenFile);
+                    const data = await this.functions.readData(this.envoyTokenFile, true);
                     try {
-                        const parsedData = JSON.parse(data);
-                        const fileTokenExist = parsedData.token ? 'Exist' : 'Missing';
+                        const fileTokenExist = data.token ? 'Exist' : 'Missing';
                         if (this.logDebug) this.emit('debug', `Token from file: ${fileTokenExist}`);
-                        if (parsedData.token) {
-                            this.feature.info.jwtToken = parsedData;
+                        if (data.token) {
+                            this.feature.info.jwtToken = data;
                         }
                     } catch (error) {
                         if (this.logWarn) this.emit('warn', `Token parse error: ${error}`);
@@ -1962,7 +1962,7 @@ class EnvoyData extends EventEmitter {
                 };
 
                 // Calculate encharges rated power summary in kW
-                this.pv.inventory.esubs.encharges.ratedPowerSumKw = enchargesRatedPowerSummary.length > 0 ? enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000 : null;
+                this.pv.inventory.esubs.encharges.ratedPowerSumKw = enchargesRatedPowerSummary.length > 0 ? (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / enchargesRatedPowerSummary.length) / 1000 : null;
             }
 
             // Update enpowers statuses if installed
@@ -2042,7 +2042,7 @@ class EnvoyData extends EventEmitter {
             if (this.logDebug) this.emit('debug', `Ensemble power response:`, responseData);
 
             const devices = responseData.devices ?? [];
-            if (devices.length === 0) return false;
+            if (!devices.length === 0) return false;
 
             // update encharges
             const enchargesRealPowerSummary = [];
@@ -2051,7 +2051,7 @@ class EnvoyData extends EventEmitter {
                 const serialNumber = device.serial_num;
                 const encharge = encharges.find(device => device.serialNumber === serialNumber);
                 if (this.logDebug) this.emit('debug', `Ensemble device power:`, device);
-                if (!encharge) continue;
+                if (!device) continue;
 
                 encharge.power = {
                     serialNumber: device.serial_num,
@@ -2065,7 +2065,7 @@ class EnvoyData extends EventEmitter {
             }
 
             // Calculate encharges real power summary in kW
-            this.pv.inventory.esubs.encharges.realPowerSumKw = enchargesRealPowerSummary.length > 0 ? enchargesRealPowerSummary.reduce((total, num) => total + num, 0) / 1000000 : null;
+            this.pv.inventory.esubs.encharges.realPowerSumKw = enchargesRealPowerSummary.length > 0 ? (enchargesRealPowerSummary.reduce((total, num) => total + num, 0) / enchargesRealPowerSummary.length) / 1000 : null;
 
             // ensemble power supported
             this.feature.ensemble.power.supported = true;
@@ -2091,14 +2091,15 @@ class EnvoyData extends EventEmitter {
             const enchargesSettingsSupported = 'enc_settings' in enchargesSettings;
             if (!enchargesSettingsSupported) return false;
 
-            const settings  = {
-                enable: enchargesSettings.enc_settings.enable,                 // boolean
-                country: enchargesSettings.enc_settings.country,               // string
-                currentLimit: enchargesSettings.enc_settings.current_limit,    // float
-                perPhase: enchargesSettings.enc_settings.per_phase             // boolean
+            const settings = enchargesSettings.enc_settings;
+            const encharges = this.pv.inventory.esubs.encharges;
+            encharges.settings = {
+                enable: settings.enable,                 // boolean
+                country: settings.country,               // string
+                currentLimit: settings.current_limit,    // float
+                perPhase: settings.per_phase             // boolean
             };
 
-            this.pv.inventory.esubs.encharges.settings = settings;
             this.feature.inventory.esubs.encharges.settings.supported = true;
 
             // RESTFul and MQTT update
@@ -2117,11 +2118,12 @@ class EnvoyData extends EventEmitter {
         try {
             const response = await this.axiosInstance.get(ApiUrls.TariffSettingsGetPut);
             const tariffSettings = response.data;
+
             if (this.logDebug) this.emit('debug', 'Tariff:', tariffSettings);
 
             const enchargesTariffSupported = 'tariff' in tariffSettings;
             if (!enchargesTariffSupported) return false;
-
+            this.pv.inventory.esubs.encharges.tariffRaw = tariffSettings;
             this.pv.inventory.esubs.encharges.tariff = tariffSettings;
             this.feature.inventory.esubs.encharges.tariff.supported = true;
 
@@ -2546,7 +2548,7 @@ class EnvoyData extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Requesting set encharge settings`);
 
         try {
-            const tariff = this.pv.inventory.esubs.encharges.tariff.tariff;
+            const tariff = this.pv.inventory.esubs.encharges.tariffRaw.tariff;
             tariff.storage_settings.mode = profile;
             tariff.storage_settings.reserved_soc = reservedSoc;
             tariff.storage_settings.charge_from_grid = chargeFromGrid;
