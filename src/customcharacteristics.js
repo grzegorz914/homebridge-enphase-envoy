@@ -1085,8 +1085,8 @@ export default (api) => {
             this.setProps({
                 format: Formats.FLOAT,
                 unit: 'A',
-                maxValue: 1000000,
-                minValue: -1000000,
+                maxValue: 10000000,
+                minValue: -10000000,
                 minStep: 0.1,
                 perms: [Perms.PAIRED_READ, Perms.NOTIFY]
             });
