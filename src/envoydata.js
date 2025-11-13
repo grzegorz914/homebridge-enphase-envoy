@@ -1741,9 +1741,9 @@ class EnvoyData extends EventEmitter {
                 }));
 
                 this.pv.inventory.esubs.encharges.devices = arr;
-                this.pv.inventory.esubs.encharges.phaseA = arr.some(d => d.phase === 'ph-a');
-                this.pv.inventory.esubs.encharges.phaseB = arr.some(d => d.phase === 'ph-b');
-                this.pv.inventory.esubs.encharges.phaseC = arr.some(d => d.phase === 'ph-c');
+                this.pv.inventory.esubs.encharges.phaseA = arr.some(d => d.phase === 'ph-a' || d.phase === 'ph-all');
+                this.pv.inventory.esubs.encharges.phaseB = arr.some(d => d.phase === 'ph-b' || d.phase === 'ph-all');
+                this.pv.inventory.esubs.encharges.phaseC = arr.some(d => d.phase === 'ph-c' || d.phase === 'ph-all');
 
                 this.feature.inventory.esubs.encharges.supported = true;
                 this.feature.inventory.esubs.encharges.installed = true;
