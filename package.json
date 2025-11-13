@@ -2,7 +2,7 @@
     "private": false,
     "displayName": "Enphase Envoy",
     "name": "homebridge-enphase-envoy",
-    "version": "10.3.3",
+    "version": "10.3.4",
     "description": "Homebridge p7ugin for Photovoltaic Energy System manufactured by Enphase.",
     "license": "MIT",
     "author": "grzegorz914",
@@ -31,14 +31,14 @@
         "LICENSE"
     ],
     "engines": {
-        "homebridge": "^1.9.0 || ^2.0.0 || ^2.0.0-beta.30 || ^2.0.0-alpha.60",
-        "node": "^20 || ^22  || ^24"
+        "homebridge": "^1.9.0 || ^2.0.0 || ^2.0.0-beta.40 || ^2.0.0-alpha.60",
+        "node": "^20 || ^22  || ^24 || ^25"
     },
     "dependencies": {
         "async-mqtt": "^2.6.3",
-        "axios": "^1.13.1",
+        "axios": "^1.13.2",
         "express": "^5.1.0",
-        "fast-xml-parser": "^5.3.0",
+        "fast-xml-parser": "^5.3.1",
         "fakegato-history": "^0.6.7"
     },
     "keywords": [

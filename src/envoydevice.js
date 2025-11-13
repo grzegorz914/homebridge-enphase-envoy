@@ -1988,8 +1988,8 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 if (ensemblesCountersSupported) characteristics.push({ type: Characteristic.RestPower, label: 'rest power', value: counters.restPowerKw, unit: 'kW' });
-                                if (enchargesStatusSupported) characteristics.push({ type: Characteristic.RatedPower, label: 'rated power', value: this.pv.inventoryData.esubs.ratedPowerSumKw, unit: 'kW' });
-                                if (enchargesPowerSupported) characteristics.push({ type: Characteristic.RealPower, label: 'real power', value: this.pv.inventoryData.esubs.realPowerSumKw, unit: 'kW' });
+                                if (enchargesStatusSupported) characteristics.push({ type: Characteristic.RatedPower, label: 'rated power', value: this.pv.inventoryData.esubs.encharges.ratedPowerSumKw, unit: 'kW' });
+                                if (enchargesPowerSupported) characteristics.push({ type: Characteristic.RealPower, label: 'real power', value: this.pv.inventoryData.esubs.encharges.realPowerSumKw, unit: 'kW' });
 
                                 for (const { type, label, value, unit = '', postfix = '' } of characteristics) {
                                     if (!this.functions.isValidValue(value)) continue;
@@ -4338,7 +4338,7 @@ class EnvoyDevice extends EventEmitter {
                                     { type: Characteristic.AggMaxEnergy, value: secctrl.aggMaxEnergyKw },
                                     { type: Characteristic.EncAggBackupEnergy, value: secctrl.encAggBackupEnergy },
                                     { type: Characteristic.AggSoc, value: secctrl.aggSoc },
-                                    { type: Characteristic.encAggSoc, value: secctrl.encAggSoc });
+                                    { type: Characteristic.EncAggSoc, value: secctrl.encAggSoc });
                             }
 
                             if (phaseA) {
@@ -4480,7 +4480,7 @@ class EnvoyDevice extends EventEmitter {
                                 restRelayPost: counterData.rest_RelayPost,
                                 restCommCheckGet: counterData.rest_CommCheckGet,
                                 restPower: counterData.rest_Power,
-                                restPowerKw: counterData.rest_Power != null ? counterData.rest_Power / 1000 : null,
+                                restPowerKw: counterData.rest_Power !== null ? counterData.rest_Power / 1000 : null,
                                 extZbRemove: counterData.ext_zb_remove,
                                 extZbRemoveErr: counterData.ext_zb_remove_err,
                                 extCfgSaveDevice: counterData.ext_cfg_save_device,

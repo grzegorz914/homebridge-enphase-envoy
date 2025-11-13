@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.3.4] - (12.11.2025)
+
+## Changes
+
+- fix [#221](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/221)
+- bump dependencies
+- cleanup
+
 ## [10.3.2] - (30.10.2025)
 
 ## Changes

@@ -1962,7 +1962,7 @@ class EnvoyData extends EventEmitter {
                 };
 
                 // Calculate encharges rated power summary in kW
-                this.pv.inventory.esubs.encharges.ratedPowerSumKw = enchargesRatedPowerSummary.length > 0 ? (enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / enchargesRatedPowerSummary.length) / 1000 : null;
+                this.pv.inventory.esubs.encharges.ratedPowerSumKw = enchargesRatedPowerSummary.length > 0 ? enchargesRatedPowerSummary.reduce((total, num) => total + num, 0) / 1000 : null;
             }
 
             // Update enpowers statuses if installed
@@ -2051,7 +2051,7 @@ class EnvoyData extends EventEmitter {
                 const serialNumber = device.serial_num;
                 const encharge = encharges.find(device => device.serialNumber === serialNumber);
                 if (this.logDebug) this.emit('debug', `Ensemble device power:`, device);
-                if (!device) continue;
+                if (!encharge) continue;
 
                 encharge.power = {
                     serialNumber: device.serial_num,
@@ -2065,7 +2065,7 @@ class EnvoyData extends EventEmitter {
             }
 
             // Calculate encharges real power summary in kW
-            this.pv.inventory.esubs.encharges.realPowerSumKw = enchargesRealPowerSummary.length > 0 ? (enchargesRealPowerSummary.reduce((total, num) => total + num, 0) / enchargesRealPowerSummary.length) / 1000 : null;
+            this.pv.inventory.esubs.encharges.realPowerSumKw = enchargesRealPowerSummary.length > 0 ? enchargesRealPowerSummary.reduce((total, num) => total + num, 0) / 1000000 : null;
 
             // ensemble power supported
             this.feature.ensemble.power.supported = true;
