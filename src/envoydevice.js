@@ -665,10 +665,10 @@ class EnvoyDevice extends EventEmitter {
     }
 
     async externalIntegrations() {
-        try {
-            //RESTFul server
-            const restFulEnabled = this.restFul.enable || false;
-            if (restFulEnabled) {
+        //RESTFul server
+        const restFulEnabled = this.restFul.enable || false;
+        if (restFulEnabled) {
+            try {
                 this.restFul1 = new RestFul({
                     port: this.restFul.port || 3000,
                     logWarn: this.logWarn,
@@ -688,10 +688,14 @@ class EnvoyDevice extends EventEmitter {
                     .on('debug', (debug) => this.emit('debug', debug))
                     .on('warn', (warn) => this.emit('warn', warn))
                     .on('error', (error) => this.emit('error', error));
+            } catch (error) {
+                this.emit('warn', `RESTFul integration start error: ${error}`);
             }
+        }
 
-            const mqttEnabled = this.mqtt.enable || false;
-            if (mqttEnabled) {
+        const mqttEnabled = this.mqtt.enable || false;
+        if (mqttEnabled) {
+            try {
                 this.mqtt1 = new Mqtt({
                     host: this.mqtt.host,
                     port: this.mqtt.port || 1883,
@@ -719,12 +723,12 @@ class EnvoyDevice extends EventEmitter {
                     .on('debug', (debug) => this.emit('debug', debug))
                     .on('warn', (warn) => this.emit('warn', warn))
                     .on('error', (error) => this.emit('error', error));
-            };
+            } catch (error) {
+                this.emit('warn', `MQTT integration start error: ${error}`);
+            }
+        };
 
-            return true;
-        } catch (error) {
-            if (this.logWarn) this.emit('warn' `External integration start error: ${error}`);
-        }
+        return true;
     }
 
     async startStopImpulseGenerator(state) {
@@ -3109,6 +3113,7 @@ class EnvoyDevice extends EventEmitter {
 
                     if (this.logDebug) this.emit('debug', `Requesting device info`);
                     if (this.logSuccess) this.emit('success', `Connect Success`);
+                    if (!this.logDeviceInfo) return;
 
                     // Device basic info
                     this.emit('devInfo', `-------- ${this.name} --------`);
