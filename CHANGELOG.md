@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.3.7] - (09.12.2025)
+
+## Changes
+
+- moved MQTT to v5
+- cleanup
+
 ## [10.3.5] - (13.11.2025)
 
 ## Changes
