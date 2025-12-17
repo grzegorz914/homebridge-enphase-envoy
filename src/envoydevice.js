@@ -4023,7 +4023,6 @@ class EnvoyDevice extends EventEmitter {
                                 // Update system services
                                 for (const { type, value, valueKey } of characteristics1) {
                                     if (!this.functions.isValidValue(value)) continue;
-                                    this.emit('debug', `Power And Energy, ${measurementType}, power ${valueKey}: ${value}`);
                                     control[valueKey] = value;
                                     this.systemService?.updateCharacteristic(type, value);
                                 };
