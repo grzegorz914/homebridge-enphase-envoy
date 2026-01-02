@@ -3013,7 +3013,6 @@ class EnvoyDevice extends EventEmitter {
                             const measurementType = source.measurementType;
                             const envoySerialNumber = `${this.pv.info.serialNumber}${measurementType}`;
                             const accessoryName = `${this.name} Energy Meter ${measurementType}`;
-                            const power = source.power > 0 ? source.power : 0;
 
                             //accessory
                             if (this.logDebug) this.emit('debug', `Prepare ${accessoryName} accessory`);
@@ -3029,7 +3028,10 @@ class EnvoyDevice extends EventEmitter {
                                 .setCharacteristic(Characteristic.SerialNumber, envoySerialNumber ?? 'Serial Number')
                                 .setCharacteristic(Characteristic.FirmwareRevision, this.pv.info.software.replace(/[a-zA-Z]/g, '') ?? '0');
 
+                            // Energy Meter Fakegato
                             if (this.logDebug) this.emit('debug', `Prepare Fakegato ${measurementType} Service`);
+
+                            const power = source.power > 0 ? source.power : 0;
                             const fakegatoHistoryService = new this.fakegatoHistory(`energy`, accessory, {
                                 storage: 'fs',
                                 disableRepeatLastData: true,
@@ -3039,7 +3041,7 @@ class EnvoyDevice extends EventEmitter {
                             })
                             fakegatoHistoryService.addEntry({
                                 time: Math.floor(Date.now() / 1000),
-                                power: power ?? 0
+                                power: power
                             });
 
                             this.fakegatoHistoryServices.push(fakegatoHistoryService);
@@ -3105,8 +3107,12 @@ class EnvoyDevice extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Start`);
 
         try {
+
+            // External integrations
+            if (this.restFul.enable || this.mqtt.enable) await this.externalIntegrations();
+
             // Envoy Data
-            this.envoyData = new EnvoyData(this.url, this.device, this.envoyIdFile, this.envoyTokenFile)
+            this.envoyData = new EnvoyData(this.url, this.device, this.envoyIdFile, this.envoyTokenFile, this.restFul.enable, this.mqtt.enable)
                 .on('deviceInfo', (feature, info, timeZone) => {
                     this.feature = Object.assign(this.feature, feature);
                     this.pv.info = info;
@@ -4138,7 +4144,7 @@ class EnvoyDevice extends EventEmitter {
                                 // Add to fakegato history
                                 this.fakegatoHistoryServices?.[index]?.addEntry({
                                     time: Math.floor(Date.now() / 1000),
-                                    power: power ?? 0
+                                    power: power
                                 });
 
                                 // Create characteristics energy meter
@@ -5784,9 +5790,6 @@ class EnvoyDevice extends EventEmitter {
             // Get basic PV info
             const connect = await this.envoyData.connect();
             if (!connect) return null;
-
-            // External integrations
-            if (this.restFul.enable || this.mqtt.enable) await this.externalIntegrations();
 
             // Prepare HomeKit accessory
             const accessories = await this.prepareAccessory();

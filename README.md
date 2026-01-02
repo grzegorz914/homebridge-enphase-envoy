@@ -24,8 +24,13 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 | Package | Installation | Role | Required |
 | --- | --- | --- | --- |
 | [Homebridge v2.0.0](https://github.com/homebridge/homebridge) | [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) | HomeKit Bridge | Required |
-| [Homebridge UI <= v5.5.0](https://github.com/homebridge/homebridge-config-ui-x) | [Homebridge UI Wiki](https://github.com/homebridge/homebridge-config-ui-x/wiki) | Homebridge Web User Interface | Required |
+| [Homebridge UI](https://github.com/homebridge/homebridge-config-ui-x) | [Homebridge UI Wiki](https://github.com/homebridge/homebridge-config-ui-x/wiki) | Homebridge Web User Interface | Required |
 | [Enphase Envoy](https://www.npmjs.com/package/homebridge-enphase-envoy) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-enphase-envoy/wiki) | Homebridge Plug-In | Required |
+
+## Warning
+
+* For plugin < v10.4.0 use Homebridge UI <= v5.5.0.
+* For plugin >= v10.4.0 use Homebridge UI >= v5.13.0.
 
 ## Supported hardware
 
@@ -90,7 +95,7 @@ The `homebridge-enphase-envoy` plugin integrates Enphase Envoy solar energy moni
 ### Configuration
 
 * Running this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) is **highly recommended**. This prevents Homebridge from crashing if the plugin crashes.
-* Installation and use of [Homebridge UI <= v5.5.0](https://github.com/homebridge/homebridge-config-ui-x) to configure this plugin.
+* Installation and use of [Homebridge UI](https://github.com/homebridge/homebridge-config-ui-x) to configure this plugin.
 * The `sample-config.json` can be edited and used as an alternative for advanced users.
 
 <p align="center">

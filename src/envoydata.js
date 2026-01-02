@@ -8,7 +8,7 @@ import Functions from './functions.js';
 import { ApiUrls, PartNumbers, Authorization, ApiCodes, MetersKeyMap } from './constants.js';
 
 class EnvoyData extends EventEmitter {
-    constructor(url, device, envoyIdFile, envoyTokenFile) {
+    constructor(url, device, envoyIdFile, envoyTokenFile, restFulEnabled, mqttEnabled) {
         super();
 
         //device configuration
@@ -29,6 +29,10 @@ class EnvoyData extends EventEmitter {
         this.logWarn = device.log?.warn || true;
         this.logError = device.log?.error || true;
         this.logDebug = device.log?.debug || false;
+
+        //external integrations
+        this.restFulEnabled = restFulEnabled;
+        this.mqttEnabled = mqttEnabled;
 
         //setup variables
         this.functions = new Functions();
@@ -440,8 +444,8 @@ class EnvoyData extends EventEmitter {
                 this.emit(state ? 'success' : 'warn', `Impulse generator ${state ? 'started' : 'stopped'}`);
 
                 this.emit('updateDataSampling', state);
-                this.emit('restFul', 'dataSampling', state);
-                this.emit('mqtt', 'Data Sampling', state);
+                if (this.restFulEnabled) this.emit('restFul', 'dataSampling', state);
+                if (this.mqttEnabled) this.emit('mqtt', 'Data Sampling', state);
             });
     }
 
@@ -559,8 +563,8 @@ class EnvoyData extends EventEmitter {
             this.feature.info.tokenRequired = obj.webTokens;
 
             // RESTFul + MQTT update
-            this.emit('restFul', 'info', parsed);
-            this.emit('mqtt', 'Info', parsed);
+            if (this.restFulEnabled) this.emit('restFul', 'info', parsed);
+            if (this.mqttEnabled) this.emit('mqtt', 'Info', parsed);
 
             return true;
         } catch (error) {
@@ -615,8 +619,8 @@ class EnvoyData extends EventEmitter {
             if (this.logDebug) this.emit('debug', `Token: ${tokenValid ? 'Valid' : 'Not valid'}`);
 
             // RESTFul and MQTT sync
-            this.emit('restFul', 'token', jwt);
-            this.emit('mqtt', 'Token', jwt);
+            if (this.restFulEnabled) this.emit('restFul', 'token', jwt);
+            if (this.mqttEnabled) this.emit('mqtt', 'Token', jwt);
 
             if (tokenExist && tokenValid) {
                 if (this.logDebug) this.emit('debug', 'Token check complete, state: Valid');
@@ -885,8 +889,8 @@ class EnvoyData extends EventEmitter {
             }
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'productionstate', productionState);
-            this.emit('mqtt', 'Production State', productionState);
+            if (this.restFulEnabled) this.emit('restFul', 'productionstate', productionState);
+            if (this.mqttEnabled) this.emit('mqtt', 'Production State', productionState);
 
             return true;
         } catch (error) {
@@ -936,8 +940,8 @@ class EnvoyData extends EventEmitter {
             this.feature.home.supported = true;
 
             // RESTful + MQTT
-            this.emit('restFul', 'home', home);
-            this.emit('mqtt', 'Home', home);
+            if (this.restFulEnabled) this.emit('restFul', 'home', home);
+            if (this.mqttEnabled) this.emit('mqtt', 'Home', home);
 
             return true;
         } catch (error) {
@@ -1050,8 +1054,8 @@ class EnvoyData extends EventEmitter {
             this.feature.inventory.supported = true;
 
             // RESTful & MQTT publishing
-            this.emit('restFul', 'inventory', inventory);
-            this.emit('mqtt', 'Inventory', inventory);
+            if (this.restFulEnabled) this.emit('restFul', 'inventory', inventory);
+            if (this.mqttEnabled) this.emit('mqtt', 'Inventory', inventory);
 
             return true;
         } catch (error) {
@@ -1095,8 +1099,8 @@ class EnvoyData extends EventEmitter {
             this.feature.inventory.pcus.status.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'microinvertersstatus', pcus)
-            this.emit('mqtt', 'Microinverters Status', pcus);
+            if (this.restFulEnabled) this.emit('restFul', 'microinvertersstatus', pcus)
+            if (this.mqttEnabled) this.emit('mqtt', 'Microinverters Status', pcus);
 
             return true;
         } catch (error) {
@@ -1155,8 +1159,8 @@ class EnvoyData extends EventEmitter {
             this.feature.meters.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'meters', responseData);
-            this.emit('mqtt', 'Meters', responseData);
+            if (this.restFulEnabled) this.emit('restFul', 'meters', responseData);
+            if (this.mqttEnabled) this.emit('mqtt', 'Meters', responseData);
 
             return true;
         } catch (error) {
@@ -1202,8 +1206,8 @@ class EnvoyData extends EventEmitter {
             this.feature.metersReading.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'metersreading', responseData);
-            this.emit('mqtt', 'Meters Reading', responseData);
+            if (this.restFulEnabled) this.emit('restFul', 'metersreading', responseData);
+            if (this.mqttEnabled) this.emit('mqtt', 'Meters Reading', responseData);
 
             return true;
         } catch (error) {
@@ -1285,8 +1289,8 @@ class EnvoyData extends EventEmitter {
             this.feature.metersReports.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'metersreports', responseData);
-            this.emit('mqtt', 'Meters Reports', responseData);
+            if (this.restFulEnabled) this.emit('restFul', 'metersreports', responseData);
+            if (this.mqttEnabled) this.emit('mqtt', 'Meters Reports', responseData);
 
             return true;
         } catch (error) {
@@ -1401,8 +1405,8 @@ class EnvoyData extends EventEmitter {
             this.feature.detailedDevicesData.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'detaileddevicesdata', devicesData);
-            this.emit('mqtt', 'Detailed Devices Data', devicesData);
+            if (this.restFulEnabled) this.emit('restFul', 'detaileddevicesdata', devicesData);
+            if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data', devicesData);
 
             return true;
         } catch (error) {
@@ -1440,8 +1444,8 @@ class EnvoyData extends EventEmitter {
                 this.feature.production.supported = true;
             }
 
-            this.emit('restFul', 'production', production);
-            this.emit('mqtt', 'Production', production);
+            if (this.restFulEnabled) this.emit('restFul', 'production', production);
+            if (this.mqttEnabled) this.emit('mqtt', 'Production', production);
 
             return true;
         } catch (error) {
@@ -1525,8 +1529,8 @@ class EnvoyData extends EventEmitter {
             this.feature.productionPdm.supported = true;
 
             // External integrations
-            this.emit('restFul', 'productionpdm', data);
-            this.emit('mqtt', 'Production Pdm', data);
+            if (this.restFulEnabled) this.emit('restFul', 'productionpdm', data);
+            if (this.mqttEnabled) this.emit('mqtt', 'Production Pdm', data);
 
             return true;
         } catch (error) {
@@ -1584,8 +1588,8 @@ class EnvoyData extends EventEmitter {
 
             this.feature.energyPdm.supported = true;
 
-            this.emit('restFul', 'energypdm', energyPdm);
-            this.emit('mqtt', 'Energy Pdm', energyPdm);
+            if (this.restFulEnabled) this.emit('restFul', 'energypdm', energyPdm);
+            if (this.mqttEnabled) this.emit('mqtt', 'Energy Pdm', energyPdm);
 
             return true;
         } catch (error) {
@@ -1686,8 +1690,8 @@ class EnvoyData extends EventEmitter {
             // --- Finalize ---
             this.feature.productionCt.supported = true;
 
-            this.emit('restFul', 'productionct', data);
-            this.emit('mqtt', 'Production CT', data);
+            if (this.restFulEnabled) this.emit('restFul', 'productionct', data);
+            if (this.mqttEnabled) this.emit('mqtt', 'Production CT', data);
 
             return true;
         } catch (error) {
@@ -1867,8 +1871,8 @@ class EnvoyData extends EventEmitter {
             this.feature.ensemble.inventory.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'ensembleinventory', ensembleInventory);
-            this.emit('mqtt', 'Ensemble Inventory', ensembleInventory);
+            if (this.restFulEnabled) this.emit('restFul', 'ensembleinventory', ensembleInventory);
+            if (this.mqttEnabled) this.emit('mqtt', 'Ensemble Inventory', ensembleInventory);
 
             return true;
         } catch (error) {
@@ -2024,8 +2028,8 @@ class EnvoyData extends EventEmitter {
             this.feature.ensemble.status.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'ensemblestatus', ensembleStatus);
-            this.emit('mqtt', 'Ensemble Status', ensembleStatus);
+            if (this.restFulEnabled) this.emit('restFul', 'ensemblestatus', ensembleStatus);
+            if (this.mqttEnabled) this.emit('mqtt', 'Ensemble Status', ensembleStatus);
 
             return true;
         } catch (error) {
@@ -2071,8 +2075,8 @@ class EnvoyData extends EventEmitter {
             this.feature.ensemble.power.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'ensemblepower', devices);
-            this.emit('mqtt', 'Ensemble Power', devices);
+            if (this.restFulEnabled) this.emit('restFul', 'ensemblepower', devices);
+            if (this.mqttEnabled) this.emit('mqtt', 'Ensemble Power', devices);
 
             return true;
         } catch (error) {
@@ -2103,8 +2107,8 @@ class EnvoyData extends EventEmitter {
             this.feature.inventory.esubs.encharges.settings.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'enchargesettings', enchargesSettings);
-            this.emit('mqtt', 'Encharge Settings', enchargesSettings);
+            if (this.restFulEnabled) this.emit('restFul', 'enchargesettings', enchargesSettings);
+            if (this.mqttEnabled) this.emit('mqtt', 'Encharge Settings', enchargesSettings);
 
             return true;
         } catch (error) {
@@ -2127,8 +2131,8 @@ class EnvoyData extends EventEmitter {
             this.pv.inventory.esubs.encharges.tariff = tariffSettings;
             this.feature.inventory.esubs.encharges.tariff.supported = true;
 
-            this.emit('restFul', 'tariff', tariffSettings);
-            this.emit('mqtt', 'Tariff', tariffSettings);
+            if (this.restFulEnabled) this.emit('restFul', 'tariff', tariffSettings);
+            if (this.mqttEnabled) this.emit('mqtt', 'Tariff', tariffSettings);
 
             return true;
         } catch (error) {
@@ -2165,8 +2169,8 @@ class EnvoyData extends EventEmitter {
 
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'drycontacts', ensembleDryContacts);
-            this.emit('mqtt', 'Dry Contacts', ensembleDryContacts);
+            if (this.restFulEnabled) this.emit('restFul', 'drycontacts', ensembleDryContacts);
+            if (this.mqttEnabled) this.emit('mqtt', 'Dry Contacts', ensembleDryContacts);
 
             return true;
         } catch (error) {
@@ -2221,8 +2225,8 @@ class EnvoyData extends EventEmitter {
             });
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'drycontactssettings', ensembleDryContactsSettings);
-            this.emit('mqtt', 'Dry Contacts Settings', ensembleDryContactsSettings);
+            if (this.restFulEnabled) this.emit('restFul', 'drycontactssettings', ensembleDryContactsSettings);
+            if (this.mqttEnabled) this.emit('mqtt', 'Dry Contacts Settings', ensembleDryContactsSettings);
 
             return true;
         } catch (error) {
@@ -2265,8 +2269,8 @@ class EnvoyData extends EventEmitter {
             }
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'generator', generator);
-            this.emit('mqtt', 'Generator', generator);
+            if (this.restFulEnabled) this.emit('restFul', 'generator', generator);
+            if (this.mqttEnabled) this.emit('mqtt', 'Generator', generator);
 
             return true;
         } catch (error) {
@@ -2311,8 +2315,8 @@ class EnvoyData extends EventEmitter {
             }
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'generatorsettings', generatorSettings);
-            this.emit('mqtt', 'Generator Settings', generatorSettings);
+            if (this.restFulEnabled) this.emit('restFul', 'generatorsettings', generatorSettings);
+            if (this.mqttEnabled) this.emit('mqtt', 'Generator Settings', generatorSettings);
 
             return true;
         } catch (error) {
@@ -2364,8 +2368,8 @@ class EnvoyData extends EventEmitter {
             this.feature.gridProfile.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'gridprofile', profile);
-            this.emit('mqtt', 'Grid Profile', profile);
+            if (this.restFulEnabled) this.emit('restFul', 'gridprofile', profile);
+            if (this.mqttEnabled) this.emit('mqtt', 'Grid Profile', profile);
 
             return true;
         } catch (error) {
@@ -2423,8 +2427,8 @@ class EnvoyData extends EventEmitter {
             this.emit('updatePlcLevelCheck', false);
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'plclevel', plcLevel);
-            this.emit('mqtt', 'PLC Level', plcLevel);
+            if (this.restFulEnabled) this.emit('restFul', 'plclevel', plcLevel);
+            if (this.mqttEnabled) this.emit('mqtt', 'PLC Level', plcLevel);
 
             return true;
         } catch (error) {
@@ -2507,8 +2511,8 @@ class EnvoyData extends EventEmitter {
             this.feature.liveData.supported = true;
 
             // RESTFul and MQTT update
-            this.emit('restFul', 'livedata', liveData);
-            this.emit('mqtt', 'Live Data', liveData);
+            if (this.restFulEnabled) this.emit('restFul', 'livedata', liveData);
+            if (this.mqttEnabled) this.emit('mqtt', 'Live Data', liveData);
 
             return true;
         } catch (error) {
