@@ -1385,7 +1385,6 @@
             "energyConsumptionNetLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "default": 0,
               "description": "Offset in (Wh) for net energy consumption (if needed)"
             },
             "energyConsumptionNetLevelSensors": {
