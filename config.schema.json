@@ -138,7 +138,6 @@
             "envoyTokenInstaller": {
               "title": "Installer",
               "type": "boolean",
-              "default": false,
               "description": "Enable for installer-provided token",
               "condition": {
                 "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 2;"
@@ -147,7 +146,6 @@
             "energyMeter": {
               "title": "Energy Meter",
               "type": "boolean",
-              "default": false,
               "description": "Enables energy meter as a axtra accessory to display charts in EVE app"
             },
             "lockControl": {
@@ -309,8 +307,6 @@
             "powerProductionSummary": {
               "title": "Power Summary",
               "type": "integer",
-              "minimum": 1,
-              "default": 1000,
               "description": "Using the Enphase app, provide the total (W) of all microinverters (used to calculate percentage)"
             },
             "powerProductionLevelSensors": {
@@ -610,38 +606,7 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareMode",
                         "energyLevel"
                       ]
                     }
@@ -652,7 +617,6 @@
             "energyProductionLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "default": 0,
               "description": "Here set offset in (Wh) for energy production (if needed)"
             },
             "gridProductionQualitySensors": {
@@ -819,77 +783,8 @@
                     },
                     "then": {
                       "required": [
-                        "compareType"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareType"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareType": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
                         "compareType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareType": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareMode",
                         "compareLevel"
                       ]
                     }
@@ -1026,38 +921,7 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareMode",
                         "powerLevel"
                       ]
                     }
@@ -1068,7 +932,6 @@
             "energyConsumptionTotalLifetimeOffset": {
               "title": "Energy Lifetime Offset",
               "type": "integer",
-              "default": 0,
               "description": "Offset in (Wh) for energy consumption total (if needed)"
             },
             "energyConsumptionTotalLevelSensors": {
@@ -1200,38 +1063,8 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareType",
+                        "compareMode",
                         "energyLevel"
                       ]
                     }
@@ -1403,38 +1236,8 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareType",
+                        "compareMode",
                         "compareLevel"
                       ]
                     }
@@ -1570,38 +1373,8 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareType",
+                        "compareMode",
                         "powerLevel"
                       ]
                     }
@@ -1744,38 +1517,8 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareType",
+                        "compareMode",
                         "energyLevel"
                       ]
                     }
@@ -1947,38 +1690,8 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareType",
+                        "compareMode",
                         "compareLevel"
                       ]
                     }
@@ -2221,13 +1934,11 @@
             "enpowerDryContactsControl": {
               "title": "Dry Contacts Control",
               "type": "boolean",
-              "default": false,
               "description": "Enables control over dry contacts state"
             },
             "enpowerDryContactsSensor": {
               "title": "Dry Contacts Sensor",
               "type": "boolean",
-              "default": false,
               "description": "Enables monitoring of dry contacts state"
             },
             "enpowerGridStateControl": {
@@ -2699,38 +2410,7 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareMode",
                         "backupLevel"
                       ]
                     }
@@ -4060,8 +3740,70 @@
           },
           "required": [
             "name",
-            "displayType",
-            "envoyFirmware7xxTokenGenerationMode"
+            "displayType"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "required": [
+                  "displayType"
+                ],
+                "properties": {
+                  "displayType": {
+                    "enum": [
+                      1,
+                      2,
+                      3,
+                      4
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "envoyFirmware7xxTokenGenerationMode"
+                ]
+              }
+            },
+            {
+              "if": {
+                "required": [
+                  "envoyFirmware7xxTokenGenerationMode"
+                ],
+                "properties": {
+                  "envoyFirmware7xxTokenGenerationMode": {
+                    "enum": [
+                      1
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "enlightenUser",
+                  "enlightenPasswd"
+                ]
+              }
+            },
+            {
+              "if": {
+                "required": [
+                  "envoyFirmware7xxTokenGenerationMode"
+                ],
+                "properties": {
+                  "envoyFirmware7xxTokenGenerationMode": {
+                    "enum": [
+                      2
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "envoyToken"
+                ]
+              }
+            }
           ]
         }
       }
@@ -4071,7 +3813,7 @@
     {
       "key": "devices",
       "type": "tabarray",
-      "title": "{{ value.name || 'system' }}",
+      "title": "{{ value.name || 'System' }}",
       "items": [
         "devices[].name",
         "devices[].host",
@@ -4098,10 +3840,7 @@
               "type": "password"
             },
             "devices[].envoyTokenInstaller"
-          ],
-          "condition": {
-            "functionBody": "return model.devices[arrayIndices].displayType > 0;"
-          }
+          ]
         },
         {
           "key": "devices[]",
@@ -5010,19 +4749,7 @@
                             }
                           ]
                         }
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode > 0;"
-                      }
-                    },
-                    {
-                      "key": "devices[]",
-                      "type": "tabarray",
-                      "title": "{{ value.title }}",
-                      "items": [],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].envoyFirmware7xxTokenGenerationMode === 0;"
-                      }
+                      ]
                     }
                   ]
                 },
