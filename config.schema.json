@@ -180,8 +180,13 @@
               "allOf": [
                 {
                   "if": {
-                    "enable": {
-                      "const": true
+                    "required": [
+                      "enable"
+                    ],
+                    "properties": {
+                      "enable": {
+                        "const": true
+                      }
                     }
                   },
                   "then": {

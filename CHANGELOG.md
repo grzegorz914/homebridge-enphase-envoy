@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.4.2] - (09.01.2026)
+
+## Changes
+
+- fix [#224](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/224)
+- fix [#223](https://github.com/grzegorz914/homebridge-enphase-envoy/issues/223)
+- fix hide log success
+- cleanup
+
 ## [10.4.1] - (03.01.2026)
 
 ## Changes

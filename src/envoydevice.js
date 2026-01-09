@@ -91,8 +91,6 @@ class EnvoyDevice extends EventEmitter {
         this.dataSamplingSensor = device.dataRefreshSensor || {};
 
         //log
-        this.logDeviceInfo = device.log?.deviceInfo || true;
-        this.logSuccess = device.log?.logSuccess || false;
         this.logInfo = device.log?.info || false;
         this.logWarn = device.log?.warn || true;
         this.logError = device.log?.error || true;
@@ -3119,7 +3117,6 @@ class EnvoyDevice extends EventEmitter {
 
                     if (this.logDebug) this.emit('debug', `Requesting device info`);
                     if (this.logSuccess) this.emit('success', `Connect Success`);
-                    if (!this.logDeviceInfo) return;
 
                     // Device basic info
                     this.emit('devInfo', `-------- ${this.name} --------`);

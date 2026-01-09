@@ -96,8 +96,8 @@ class EnvoyPlatform {
             .on('start', async () => {
               try {
                 const envoyDevice = new EnvoyDevice(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyMeterHistoryFileName)
-                  .on('devInfo', (info) => log.info(info))
-                  .on('success', (msg) => log.success(`Device: ${host} ${deviceName}, ${msg}`))
+                  .on('devInfo', (info) => logLevel.devInfo && log.info(info))
+                  .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${deviceName}, ${msg}`))
                   .on('info', (msg) => log.info(`Device: ${host} ${deviceName}, ${msg}`))
                   .on('debug', (msg, data) => log.info(`Device: ${host} ${deviceName}, debug: ${data ? `${msg} ${JSON.stringify(data, null, 2)}` : msg}`))
                   .on('warn', (msg) => log.warn(`Device: ${host} ${deviceName}, ${msg}`))
