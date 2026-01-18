@@ -9,6 +9,11 @@
   "schema": {
     "type": "object",
     "properties": {
+      "name": {
+        "title": "Platform",
+        "type": "string",
+        "default": "Enphase Envoy"
+      },
       "devices": {
         "title": "Devices",
         "type": "array",
