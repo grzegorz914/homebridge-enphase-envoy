@@ -4,6 +4,7 @@ import EventEmitter from 'events';
 class Mqtt extends EventEmitter {
     constructor(config) {
         super();
+        this.config = config;
 
         const url = `mqtt://${config.host}:${config.port}`;
         const subscribeTopic = `${config.prefix}/Set`;
@@ -15,7 +16,7 @@ class Mqtt extends EventEmitter {
             protocolVersion: 5,
             clean: false,
             properties: {
-                sessionExpiryInterval: 60 * 60, // 1 hour
+                sessionExpiryInterval: 60 * 60,
                 userProperties: {
                     source: 'node-client'
                 }
@@ -23,67 +24,82 @@ class Mqtt extends EventEmitter {
         };
 
         this.mqttClient = connect(url, options)
-            .on('connect', async (packet) => {
+            .on('connect', async () => {
                 this.emit('connected', 'MQTT v5 connected.');
 
                 try {
-                    const result = await this.mqttClient.subscribeAsync(subscribeTopic, {
-                        qos: 1,
-                        properties: {
-                            userProperties: {
-                                type: 'subscription'
+                    await new Promise((resolve, reject) => {
+                        this.mqttClient.subscribe(subscribeTopic,
+                            {
+                                qos: 1,
+                                properties: {
+                                    userProperties: {
+                                        type: 'subscription'
+                                    }
+                                }
+                            },
+                            (error) => {
+                                if (error) return reject(error);
+                                resolve();
                             }
-                        }
+                        );
                     });
 
-                    /// MQTT v5 subscription results
                     this.emit('connected', `MQTT Subscribe topic: ${subscribeTopic}`);
                 } catch (error) {
-                    if (config.logWarn) this.emit('warn', `MQTT Subscribe error: ${error}`);
+                    if (config.logWarn) this.emit('warn', `MQTT Subscribe error: ${error.message}`);
                 }
-            }).on('message', (topic, payload, packet) => {
+            })
+            .on('message', (topic, payload, packet) => {
                 try {
-                    const obj = JSON.parse(payload.toString());
-                    if (config.logDebug) this.emit('debug', `MQTT Received:\nTopic: ${topic}\nPayload: ${JSON.stringify(obj, null, 2)}\nProperties: ${JSON.stringify(packet.properties, null, 2)}`);
+                    const parsedMessage = JSON.parse(payload.toString());
+                    if (config.logDebug) this.emit('debug', `MQTT Received Topic: ${topic}, Payload: ${JSON.stringify(parsedMessage, null, 2)}`);
 
-                    const key = Object.keys(obj)[0];
-                    const value = Object.values(obj)[0];
-                    this.emit('set', key, value);
-
+                    for (const [key, value] of Object.entries(parsedMessage)) {
+                        this.emit('set', key, value);
+                    }
                 } catch (error) {
-                    if (config.logWarn) this.emit('warn', `MQTT Parse error: ${error}`);
+                    if (config.logWarn) this.emit('warn', `MQTT Parse error: ${error.message}`);
                 }
-            }).on('error', (err) => {
-                this.emit('warn', `MQTT Error: ${err.message}`);
-            }).on('reconnect', () => {
+            })
+            .on('error', (error) => {
+                this.emit('warn', `MQTT Error: ${error.message}`);
+            })
+            .on('reconnect', () => {
                 if (config.logDebug) this.emit('debug', 'MQTT Reconnecting...');
-            }).on('close', () => {
+            })
+            .on('close', () => {
                 if (config.logDebug) this.emit('debug', 'MQTT Connection closed.');
             });
     }
 
-    async publish(topic, message) {
-        try {
-            const fullTopic = `${config.prefix}/${topic}`;
+    publish(topic, message) {
+        return new Promise((resolve, reject) => {
+            const fullTopic = `${this.config.prefix}/${topic}`;
             const publishMessage = JSON.stringify(message);
 
-            await this.mqttClient.publishAsync(fullTopic, publishMessage, {
-                qos: 1,
-                properties: {
-                    contentType: 'application/json',
-                    userProperties: {
-                        source: 'node',
-                        action: 'set'
+            this.mqttClient.publish(fullTopic, publishMessage,
+                {
+                    qos: 1,
+                    properties: {
+                        contentType: 'application/json',
+                        userProperties: {
+                            source: 'node',
+                            action: 'set'
+                        }
                     }
+                },
+                (error) => {
+                    if (error) {
+                        if (this.config.logWarn) this.emit('warn', `MQTT Publish error: ${error.message}`);
+                        return reject(error);
+                    }
+
+                    if (this.config.logDebug) this.emit('debug', `MQTT Publish Topic: ${fullTopic}, Payload: ${publishMessage}`);
+                    resolve();
                 }
-            });
-
-            if (config.logDebug) this.emit('debug', `MQTT Publish:\nTopic: ${fullTopic}\nPayload: ${publishMessage}`);
-
-            return;
-        } catch (error) {
-            if (config.logWarn) this.emit('warn', `MQTT Publish error: ${error}`);
-        }
+            );
+        });
     }
 }
 
