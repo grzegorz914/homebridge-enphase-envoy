@@ -17,11 +17,7 @@
 
 </span>
 
-## About The Plugin
-
-The plugin integrates Enphase Envoy solar energy monitoring systems with Homebridge, allowing HomeKit users to track solar production, consumption, and battery status directly in the Apple Home app. With real-time energy insights, automation possibilities, and Siri voice control, this plugin enhances smart home energy management by seamlessly connecting your Enphase Envoy system to the HomeKit ecosystem.
-
-## Requirements
+## Package Requirements
 
 | Package | Installation | Role | Required |
 | --- | --- | --- | --- |
@@ -33,6 +29,10 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 
 * For plugin < v10.4.0 use Homebridge UI <= v5.5.0.
 * For plugin >= v10.4.0 use Homebridge UI >= v5.13.0.
+
+## About The Plugin
+
+The plugin integrates Enphase Envoy solar energy monitoring systems with Homebridge, allowing HomeKit users to track solar production, consumption, and battery status directly in the Apple Home app. With real-time energy insights, automation possibilities, and Siri voice control, this plugin enhances smart home energy management by seamlessly connecting your Enphase Envoy system to the HomeKit ecosystem.
 
 ## Supported hardware
 
