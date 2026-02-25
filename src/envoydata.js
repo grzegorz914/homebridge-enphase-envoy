@@ -1,4 +1,5 @@
 import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
+import cron from 'node-cron';
 import EventEmitter from 'events';
 import EnvoyToken from './envoytoken.js';
 import DigestAuth from './digestauth.js';
@@ -447,6 +448,24 @@ class EnvoyData extends EventEmitter {
                 if (this.restFulEnabled) this.emit('restFul', 'dataSampling', state);
                 if (this.mqttEnabled) this.emit('mqtt', 'Data Sampling', state);
             });
+
+        // 23:00
+        cron.schedule('0 23 * * *', async () => {
+            try {
+                await this.impulseGenerator.state(false, []);
+            } catch (error) {
+                if (this.logError) this.emit('error', `Cron 23:00 error: ${error}`);
+            }
+        });
+
+        // 23:05
+        cron.schedule('5 23 * * *', async () => {
+            try {
+                await this.impulseGenerator.state(true, this.timers);
+            } catch (error) {
+                if (this.logError) this.emit('error', `Cron 23:05 error: ${error}`);
+            }
+        });
     }
 
     handleError(error) {
