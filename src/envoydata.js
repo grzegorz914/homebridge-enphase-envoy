@@ -450,11 +450,11 @@ class EnvoyData extends EventEmitter {
             });
 
         // 23:00
-        cron.schedule('0 23 * * *', async () => {
+        cron.schedule('55 22 * * *', async () => {
             try {
                 await this.impulseGenerator.state(false, []);
             } catch (error) {
-                if (this.logError) this.emit('error', `Cron 23:00 error: ${error}`);
+                if (this.logError) this.emit('error', `Cron 22:55 error: ${error}`);
             }
         });
 
