@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.5.0] - (01.03.2026)
+
+## Changes
+
+- added energy history stored
+- stability and performance improvements
+- RESTFul and MQTT:
+  - added detailed devices data transformed (json objects by serial number)
+  - added more statistics outputs to the power and energy data
+
+- bump dependencies
+- redme updated
+- cleanup
+
 ## [10.4.9] - (24.02.2026)
 
 ## Changes

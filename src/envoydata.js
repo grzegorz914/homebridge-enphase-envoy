@@ -404,7 +404,7 @@ class EnvoyData extends EventEmitter {
             .on('updatePowerAndEnergy', () => this.handleWithLock('updatePowerAndEnergy', async () => {
                 if (this.feature.meters.supported) {
                     await this.updateMeters();
-                    if (this.feature.meters.installed && this.feature.metersReading.installed && !this.feature.metersReports.installed) await this.updateMetersReading(false);
+                    if (this.feature.meters.installed && this.feature.metersReading.installed) await this.updateMetersReading(false);
                     if (this.feature.meters.installed && this.feature.metersReports.installed) await this.updateMetersReports(false);
                     this.emit('updateMetersData', this.pv.meters);
                 }
@@ -445,13 +445,14 @@ class EnvoyData extends EventEmitter {
                 this.emit(state ? 'success' : 'warn', `Impulse generator ${state ? 'started' : 'stopped'}`);
 
                 this.emit('updateDataSampling', state);
-                if (this.restFulEnabled) this.emit('restFul', 'dataSampling', state);
+                if (this.restFulEnabled) this.emit('restFul', 'datasampling', state);
                 if (this.mqttEnabled) this.emit('mqtt', 'Data Sampling', state);
             });
 
-        // 23:00
+        // 22:55
         cron.schedule('55 22 * * *', async () => {
             try {
+                // Stop impulse generator before daily reset
                 await this.impulseGenerator.state(false, []);
             } catch (error) {
                 if (this.logError) this.emit('error', `Cron 22:55 error: ${error}`);
@@ -461,6 +462,7 @@ class EnvoyData extends EventEmitter {
         // 23:05
         cron.schedule('5 23 * * *', async () => {
             try {
+                // Start impulse generator after daily reset
                 await this.impulseGenerator.state(true, this.timers);
             } catch (error) {
                 if (this.logError) this.emit('error', `Cron 23:05 error: ${error}`);
@@ -1266,7 +1268,7 @@ class EnvoyData extends EventEmitter {
                         apparentPower: cumulative.apprntPwr,
                         reactivePower: cumulative.reactPwr,
                         energyLifetime: cumulative.whDlvdCum,
-                        energyLifetimeUpload: cumulative.whRcvdCum,
+                        //energyLifetimeUpload: cumulative.whRcvdCum, get from meters reading, because in reports is always 0
                         apparentEnergy: cumulative.vahCum,
                         current: cumulative.rmsCurrent,
                         voltage: cumulative.rmsVoltage / meterConfig.voltageDivide,
@@ -1329,6 +1331,7 @@ class EnvoyData extends EventEmitter {
             const devicesData = response.data;
             if (this.logDebug) this.emit('debug', `Detailed devices data:`, devicesData);
 
+            let transformed = {};
             if (devicesData) {
                 // PCUs
                 if (this.feature.inventory.pcus.installed) {
@@ -1418,6 +1421,18 @@ class EnvoyData extends EventEmitter {
 
                 // detailed devices data installed
                 this.feature.detailedDevicesData.installed = this.feature.inventory.pcus.detailedData.supported || this.feature.meters.detailedData.supported || this.feature.inventory.nsrbs.detailedData.supported;
+
+                // Transform devices data to be indexed by serial number for easier access
+                for (const key in devicesData) {
+                    if (devicesData.hasOwnProperty(key)) {
+                        const entry = devicesData[key];
+                        if (!isNaN(key) && entry && typeof entry === "object" && entry.sn) {
+                            transformed[entry.sn] = entry;
+                        } else {
+                            transformed[key] = entry;
+                        }
+                    }
+                }
             }
 
             // detailed devices data supported
@@ -1425,7 +1440,9 @@ class EnvoyData extends EventEmitter {
 
             // RESTFul and MQTT update
             if (this.restFulEnabled) this.emit('restFul', 'detaileddevicesdata', devicesData);
+            if (this.restFulEnabled) this.emit('restFul', 'detaileddevicesdatatransformed', transformed);
             if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data', devicesData);
+            if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data Transformed', transformed);
 
             return true;
         } catch (error) {

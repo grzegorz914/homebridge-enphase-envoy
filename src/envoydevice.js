@@ -8,7 +8,7 @@ import { PartNumbers, ApiCodes, MetersKeyMap, MetersKeyMap1, DeviceTypeMap, LedS
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyMeterHistoryFileName) {
+    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName) {
         super();
 
         Accessory = api.platformAccessory;
@@ -361,6 +361,8 @@ class EnvoyDevice extends EventEmitter {
         this.functions = new Functions();
         this.envoyIdFile = envoyIdFile;
         this.envoyTokenFile = envoyTokenFile;
+        this.energyLifetimeHistoryFile = energyLifetimeHistoryFile;
+        this.savedHistory = false;
 
         //fakegato
         this.fakegatoHistory = fakegato(api);
@@ -609,13 +611,24 @@ class EnvoyDevice extends EventEmitter {
             powerAndEnergyData: {
                 data: [],
                 production: {
-                    powerPeak: null
+                    powerPeak: null,
+                    energyToday: null,
+                    energyLifetime: null,
+                    energyLifetimeUpload: null
                 },
                 consumptionNet: {
-                    powerPeak: null
+                    powerPeak: null,
+                    energyToday: null,
+                    energyTodayUpload: null,
+                    energyLifetime: null,
+                    energyLifetimeUpload: null
                 },
                 consumptionTotal: {
-                    powerPeak: null
+                    powerPeak: null,
+                    energyToday: null,
+                    energyLifetime: null,
+                    energyLifetimeUpload: null,
+                    energyLifetimeFromPv: null
                 },
             },
             liveData: {},
@@ -3905,8 +3918,47 @@ class EnvoyDevice extends EventEmitter {
                         throw new Error(`Update acbs data error: ${error.message || error}`);
                     }
                 })
-                .on('updatePowerAndEnergyData', (powerAndEnergy, meters) => {
+                .on('updatePowerAndEnergyData', async (powerAndEnergy, meters) => {
                     if (this.logDebug) this.emit('debug', `Update power and energy data`);
+
+                    let energyLifetimeHistory = { pr: 0, cn: 0, ct: 0 };
+                    let history = [];
+
+                    try {
+                        history = await this.functions.readData(this.energyLifetimeHistoryFile, true) || [];
+
+                        if (Array.isArray(history) && history.length > 0) {
+
+                            const now = new Date();
+
+                            const yesterdayStart = new Date(now);
+                            yesterdayStart.setDate(now.getDate() - 1);
+                            yesterdayStart.setHours(0, 0, 0, 0);
+
+                            const yesterdayEnd = new Date(now);
+                            yesterdayEnd.setDate(now.getDate() - 1);
+                            yesterdayEnd.setHours(23, 59, 59, 999);
+
+                            const startUnix = Math.floor(yesterdayStart.getTime() / 1000);
+                            const endUnix = Math.floor(yesterdayEnd.getTime() / 1000);
+
+                            const yesterdayEntries = history.filter(
+                                item => item.ts >= startUnix && item.ts <= endUnix
+                            );
+
+                            energyLifetimeHistory = yesterdayEntries.length > 0
+                                ? yesterdayEntries[yesterdayEntries.length - 1]
+                                : energyLifetimeHistory;
+
+                            if (!energyLifetimeHistory && this.logWarn)
+                                this.emit('warn', 'No energy lifetime data found for previous day');
+                        }
+
+                    } catch (error) {
+                        if (this.logWarn)
+                            this.emit('warn', `Error fetching previous day snapshot: ${error.message}`);
+                    }
+
 
                     try {
                         const powerAndEnergyData = [];
@@ -3926,7 +3978,7 @@ class EnvoyDevice extends EventEmitter {
 
                             let sourceMeter, sourceEnergy;
                             let power, powerPeak, powerPeakDetected;
-                            let energyToday, energyLastSevenDays, energyLifetime, energyLifetimeUpload, energyLifetimeWithOffset;
+                            let energyToday, energyTodayUpload, energyLastSevenDays, energyLifetime, energyLifetimeFromPv, energyLifetimeUpload, energyLifetimeWithOffset;
                             switch (key) {
                                 case 'production': {
                                     const sourcePcu = powerAndEnergy[key].pcu;
@@ -3949,7 +4001,8 @@ class EnvoyDevice extends EventEmitter {
                                     power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
                                     powerPeak = this.functions.powerPeak(sourceMeter.power, powerPeakStored);
                                     powerPeakDetected = power < 0 ? power < powerPeak : power > powerPeak;
-                                    energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday : null;
+                                    energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday - energyLifetimeHistory.cn : null;
+                                    energyTodayUpload = this.functions.isValidValue(energyToday) ? this.pv.powerAndEnergyData.production.energyToday - (this.pv.powerAndEnergyData.consumptionTotal.energyToday - energyToday) : null;
                                     energyLastSevenDays = this.functions.isValidValue(sourceEnergy.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : null;
                                     energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime : null;
                                     energyLifetimeUpload = this.functions.isValidValue(sourceMeter.energyLifetimeUpload) ? sourceMeter.energyLifetimeUpload : null;
@@ -3965,6 +4018,7 @@ class EnvoyDevice extends EventEmitter {
                                     energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday : null;
                                     energyLastSevenDays = this.functions.isValidValue(sourceEnergy.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : null;
                                     energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime : null;
+                                    energyLifetimeFromPv = energyLifetime - (this.pv.powerAndEnergyData.production.energyLifetime - this.pv.powerAndEnergyData.consumptionNet.energyLifetimeUpload) // Calculate lifetime energy consumed from PV production
                                     energyLifetimeWithOffset = this.functions.isValidValue(energyLifetime) ? energyLifetime + this.energyConsumptionTotalLifetimeOffset : null;
                                     break;
                                 }
@@ -3972,6 +4026,11 @@ class EnvoyDevice extends EventEmitter {
                             if (!sourceMeter) continue;
 
                             if (this.functions.isValidValue(powerPeak)) this.pv.powerAndEnergyData[key].powerPeak = powerPeak;
+                            if (this.functions.isValidValue(energyToday)) this.pv.powerAndEnergyData[key].energyToday = energyToday;
+                            if (this.functions.isValidValue(energyTodayUpload) && key === 'consumptionNet') this.pv.powerAndEnergyData[key].energyTodayUpload = energyTodayUpload;
+                            if (this.functions.isValidValue(energyLifetime)) this.pv.powerAndEnergyData[key].energyLifetime = energyLifetime;
+                            if (this.functions.isValidValue(energyLifetimeUpload) && key !== 'consumptionTotal') this.pv.powerAndEnergyData[key].energyLifetimeUpload = energyLifetime;
+                            if (this.functions.isValidValue(energyLifetimeFromPv) && key === 'consumptionTotal') this.pv.powerAndEnergyData[key].energyLifetimeFromPv = energyLifetimeFromPv;
                             if (this.logDebug) {
                                 this.emit('debug', `${measurementType} data source meter:`, sourceMeter);
                                 this.emit('debug', `${measurementType} data source energy:`, sourceEnergy);
@@ -3990,10 +4049,14 @@ class EnvoyDevice extends EventEmitter {
                                 powerPeakDetected,
                                 energyToday,
                                 energyTodayKw: energyToday != null ? energyToday / 1000 : null,
+                                energyTodayUpload,
+                                energyTodayUploadKw: energyTodayUpload != null ? energyTodayUpload / 1000 : null,
                                 energyLastSevenDays,
                                 energyLastSevenDaysKw: energyLastSevenDays != null ? energyLastSevenDays / 1000 : null,
                                 energyLifetime: energyLifetimeWithOffset,
                                 energyLifetimeKw: energyLifetimeWithOffset != null ? energyLifetimeWithOffset / 1000 : null,
+                                energyLifetimeFromPv: energyLifetimeFromPv,
+                                energyLifetimeFromPvKw: energyLifetimeFromPv != null ? energyLifetimeFromPv / 1000 : null,
                                 energyState: energyToday > 0,
                                 gridQualityState: meterEnabled,
                             };
@@ -4041,6 +4104,7 @@ class EnvoyDevice extends EventEmitter {
                                 { type: Characteristic.EnergyLastSevenDays, value: obj.energyLastSevenDaysKw },
                                 { type: Characteristic.EnergyLifetime, value: obj.energyLifetimeKw }
                             ];
+
 
                             // Add meter data
                             if (meterEnabled) {
@@ -4170,6 +4234,36 @@ class EnvoyDevice extends EventEmitter {
 
                         this.pv.powerAndEnergyData.data = powerAndEnergyData.filter(Boolean);
                         this.feature.powerAndEnergy.supported = true;
+
+                        const powerAndEnergyDataObj = this.pv.powerAndEnergyData;
+                        if (powerAndEnergyDataObj.production.energyLifetime != null && powerAndEnergyDataObj.consumptionNet.energyLifetime != null && powerAndEnergyDataObj.consumptionTotal.energyLifetime != null) {
+                            try {
+                                const energyLifetimeHistoryData = {
+                                    ts: Math.floor(Date.now() / 1000), // unix time (seconds)
+                                    pr: powerAndEnergyDataObj.production.energyLifetime,
+                                    cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
+                                    ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime
+                                };
+
+                                if (!this._saving) {
+                                    this._saving = true;
+                                    try {
+                                        history.push(energyLifetimeHistoryData);
+                                        await this.functions.saveData(this.energyLifetimeHistoryFile, history);
+                                    } catch (error) {
+                                        if (this.logWarn)
+                                            this.emit('warn', `Save energy lifetime history snapshot error: ${error.message}`);
+                                    } finally {
+                                        this._saving = false;
+                                    }
+                                }
+                            } catch (error) {
+                                if (this.logWarn)
+                                    this.emit('warn', `Save energy lifetime history snapshot error: ${error.message}`);
+                            } finally {
+                                this._saving = false;
+                            }
+                        }
 
                         if (this.restFulConnected) this.restFul1.update('powerandenergydata', this.pv.powerAndEnergyData);
                         if (this.mqttConnected) this.mqtt1.emit('publish', 'Power And Energy Data', this.pv.powerAndEnergyData);

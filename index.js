@@ -77,10 +77,11 @@ class EnvoyPlatform {
         const postFix = host.split('.').join('');
         const envoyIdFile = join(prefDir, `envoyId_${postFix}`);
         const envoyTokenFile = join(prefDir, `envoyToken_${postFix}`);
+        const energyLifetimeHistoryFile = join(prefDir, `energyLifetimeHistory_${postFix}`);
         const energyMeterHistoryFileName = `energyMeterHistory_${postFix}`;
 
         try {
-          [envoyIdFile, envoyTokenFile].forEach(file => {
+          [envoyIdFile, envoyTokenFile, energyLifetimeHistoryFile].forEach(file => {
             if (!existsSync(file)) writeFileSync(file, '0');
           });
         } catch (error) {
@@ -95,7 +96,7 @@ class EnvoyPlatform {
           const impulseGenerator = new ImpulseGenerator()
             .on('start', async () => {
               try {
-                const envoyDevice = new EnvoyDevice(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyMeterHistoryFileName)
+                const envoyDevice = new EnvoyDevice(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName)
                   .on('devInfo', (info) => logLevel.devInfo && log.info(info))
                   .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${deviceName}, ${msg}`))
                   .on('info', (msg) => log.info(`Device: ${host} ${deviceName}, ${msg}`))
