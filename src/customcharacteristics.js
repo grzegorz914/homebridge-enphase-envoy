@@ -844,6 +844,54 @@ export default (api) => {
     }
     Characteristic.EnergyLifetimeUpload = EnergyLifetimeUpload;
 
+    class EnergyTodayUpload extends Characteristic {
+        constructor() {
+            super('Energy today upload', '00000087-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'kWh',
+                maxValue: 100000000,
+                minValue: -100000000,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EnergyTodayUpload = EnergyTodayUpload;
+
+    class EnergyLifetimeFromPv extends Characteristic {
+        constructor() {
+            super('Energy lifetime from p.v.', '00000088-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'kWh',
+                maxValue: 100000000,
+                minValue: -100000000,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EnergyLifetimeFromPv = EnergyLifetimeFromPv;
+
+    class EnergyTodayFromPv extends Characteristic {
+        constructor() {
+            super('Energy today from p.v.', '00000089-000B-1000-8000-0026BB765291');
+            this.setProps({
+                format: Formats.FLOAT,
+                unit: 'kWh',
+                maxValue: 100000000,
+                minValue: -100000000,
+                minStep: 0.001,
+                perms: [Perms.PAIRED_READ, Perms.NOTIFY]
+            });
+            this.value = this.getDefaultValue();
+        }
+    }
+    Characteristic.EnergyTodayFromPv = EnergyTodayFromPv;
+
     //AC Batterie
     class Energy extends Characteristic {
         constructor() {
@@ -1967,6 +2015,9 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.EnergyLastSevenDays);
             this.addOptionalCharacteristic(Characteristic.EnergyLifetime);
             this.addOptionalCharacteristic(Characteristic.EnergyLifetimeUpload);
+            this.addOptionalCharacteristic(Characteristic.EnergyTodayUpload);
+            this.addOptionalCharacteristic(Characteristic.EnergyLifetimeFromPv);
+            this.addOptionalCharacteristic(Characteristic.EnergyTodayFromPv);
             this.addOptionalCharacteristic(Characteristic.Current);
             this.addOptionalCharacteristic(Characteristic.Voltage);
             this.addOptionalCharacteristic(Characteristic.Frequency);

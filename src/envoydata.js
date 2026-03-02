@@ -1267,8 +1267,6 @@ class EnvoyData extends EventEmitter {
                         power: cumulative.actPower,
                         apparentPower: cumulative.apprntPwr,
                         reactivePower: cumulative.reactPwr,
-                        energyLifetime: cumulative.whDlvdCum,
-                        //energyLifetimeUpload: cumulative.whRcvdCum, get from meters reading, because in reports is always 0
                         apparentEnergy: cumulative.vahCum,
                         current: cumulative.rmsCurrent,
                         voltage: cumulative.rmsVoltage / meterConfig.voltageDivide,
@@ -1280,6 +1278,9 @@ class EnvoyData extends EventEmitter {
                     // Handle each meter type
                     switch (key) {
                         case 'consumptionTotal':
+                            obj.energyLifetime = cumulative.whDlvdCum; // get from meters reading, because in reports is reports netto 
+                            obj.energyLifetimeUpload = cumulative.whRcvdCum; // get from meters reading, because in reports is always 0
+
                             const obj1 = {
                                 eid: meterConfig.eid,
                                 type: meterConfig.type,

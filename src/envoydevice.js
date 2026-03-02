@@ -613,6 +613,7 @@ class EnvoyDevice extends EventEmitter {
                 production: {
                     powerPeak: null,
                     energyToday: null,
+                    energyTodayUpload: null,
                     energyLifetime: null,
                     energyLifetimeUpload: null
                 },
@@ -626,8 +627,8 @@ class EnvoyDevice extends EventEmitter {
                 consumptionTotal: {
                     powerPeak: null,
                     energyToday: null,
+                    energyTodayFromPv: null,
                     energyLifetime: null,
-                    energyLifetimeUpload: null,
                     energyLifetimeFromPv: null
                 },
             },
@@ -1690,6 +1691,9 @@ class EnvoyDevice extends EventEmitter {
                                 ];
 
                                 if (source.gridQualityState) {
+                                    if (measurementType === 'Consumption Total') characteristics.push({ type: Characteristic.EnergyTodayFromPv, label: 'energy today from p.v.', value: source.energyTodayFromPvKw, unit: 'kW' });
+                                    if (measurementType === 'Consumption Total') characteristics.push({ type: Characteristic.EnergyLifetimeFromPv, label: 'energy lifetime from p.v.', value: source.energyLifetimeFromPvKw, unit: 'kW' });
+                                    if (measurementType !== 'Consumption Total') characteristics.push({ type: Characteristic.EnergyTodayUpload, label: 'energy today upload', value: source.energyTodayUploadKw, unit: 'kW' });
                                     if (measurementType !== 'Consumption Total') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, label: 'energy lifetime upload', value: source.energyLifetimeUploadKw, unit: 'kW' });
 
                                     characteristics.push(
@@ -3921,12 +3925,11 @@ class EnvoyDevice extends EventEmitter {
                 .on('updatePowerAndEnergyData', async (powerAndEnergy, meters) => {
                     if (this.logDebug) this.emit('debug', `Update power and energy data`);
 
-                    let energyLifetimeHistory = { pr: 0, cn: 0, ct: 0 };
+                    let energyLifetimeHistory = { ts: null, pr: 0, pru: 0, cn: 0, cnu: 0, ct: 0, ctp: 0 };
                     let history = [];
 
                     try {
                         history = await this.functions.readData(this.energyLifetimeHistoryFile, true) || [];
-
                         if (Array.isArray(history) && history.length > 0) {
 
                             const now = new Date();
@@ -3939,26 +3942,55 @@ class EnvoyDevice extends EventEmitter {
                             yesterdayEnd.setDate(now.getDate() - 1);
                             yesterdayEnd.setHours(23, 59, 59, 999);
 
-                            const startUnix = Math.floor(yesterdayStart.getTime() / 1000);
-                            const endUnix = Math.floor(yesterdayEnd.getTime() / 1000);
+                            const todayStart = new Date(now);
+                            todayStart.setHours(0, 0, 0, 0);
 
-                            const yesterdayEntries = history.filter(
-                                item => item.ts >= startUnix && item.ts <= endUnix
-                            );
+                            const yesterdayStartUnix = Math.floor(yesterdayStart.getTime() / 1000);
+                            const yesterdayEndUnix = Math.floor(yesterdayEnd.getTime() / 1000);
+                            const todayStartUnix = Math.floor(todayStart.getTime() / 1000);
 
-                            energyLifetimeHistory = yesterdayEntries.length > 0
-                                ? yesterdayEntries[yesterdayEntries.length - 1]
-                                : energyLifetimeHistory;
+                            let yesterdaySnapshot = null;
+                            let todaySnapshot = null;
 
-                            if (!energyLifetimeHistory && this.logWarn)
-                                this.emit('warn', 'No energy lifetime data found for previous day');
+                            for (const item of history) {
+
+                                if (!item || typeof item.ts !== 'number') continue;
+
+                                // OSTATNI z wczoraj (max ts)
+                                if (item.ts >= yesterdayStartUnix && item.ts <= yesterdayEndUnix) {
+                                    if (!yesterdaySnapshot || item.ts > yesterdaySnapshot.ts) {
+                                        yesterdaySnapshot = item;
+                                    }
+                                }
+
+                                // PIERWSZY z dzisiaj (min ts)
+                                if (item.ts >= todayStartUnix) {
+                                    if (!todaySnapshot || item.ts < todaySnapshot.ts) {
+                                        todaySnapshot = item;
+                                    }
+                                }
+                            }
+
+                            if (yesterdaySnapshot || todaySnapshot) {
+
+                                energyLifetimeHistory = {
+                                    ts: yesterdaySnapshot?.ts ?? todaySnapshot?.ts ?? null,
+                                    pr: yesterdaySnapshot?.pr ?? todaySnapshot?.pr ?? energyLifetimeHistory.pr,
+                                    pru: yesterdaySnapshot?.pru ?? todaySnapshot?.pru ?? energyLifetimeHistory.pru,
+                                    cn: yesterdaySnapshot?.cn ?? todaySnapshot?.cn ?? energyLifetimeHistory.cn,
+                                    cnu: yesterdaySnapshot?.cnu ?? todaySnapshot?.cnu ?? energyLifetimeHistory.cnu,
+                                    ct: yesterdaySnapshot?.ct ?? todaySnapshot?.ct ?? energyLifetimeHistory.ct,
+                                    ctp: yesterdaySnapshot?.ctp ?? todaySnapshot?.ctp ?? energyLifetimeHistory.ctp
+                                };
+                            }
+
+                            if (!yesterdaySnapshot && !todaySnapshot && this.logWarn) this.emit('warn', 'No energy lifetime data found for previous day or today');
                         }
 
                     } catch (error) {
                         if (this.logWarn)
                             this.emit('warn', `Error fetching previous day snapshot: ${error.message}`);
                     }
-
 
                     try {
                         const powerAndEnergyData = [];
@@ -3978,7 +4010,7 @@ class EnvoyDevice extends EventEmitter {
 
                             let sourceMeter, sourceEnergy;
                             let power, powerPeak, powerPeakDetected;
-                            let energyToday, energyTodayUpload, energyLastSevenDays, energyLifetime, energyLifetimeFromPv, energyLifetimeUpload, energyLifetimeWithOffset;
+                            let energyToday, energyTodayUpload, energyTodayFromPv, energyLastSevenDays, energyLifetime, energyLifetimeFromPv, energyLifetimeUpload;
                             switch (key) {
                                 case 'production': {
                                     const sourcePcu = powerAndEnergy[key].pcu;
@@ -3988,11 +4020,11 @@ class EnvoyDevice extends EventEmitter {
                                     power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
                                     powerPeak = this.functions.powerPeak(sourceMeter.power, powerPeakStored);
                                     powerPeakDetected = power > powerPeak;
-                                    energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday : null;
+                                    energyToday = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime - energyLifetimeHistory.pr : null;
+                                    energyTodayUpload = this.functions.isValidValue(sourceMeter.energyLifetimeUpload) ? sourceMeter.energyLifetimeUpload - energyLifetimeHistory.pru : null;
                                     energyLastSevenDays = this.functions.isValidValue(sourceEnergy.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : null;
-                                    energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime : null;
+                                    energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime + this.energyProductionLifetimeOffset : null;
                                     energyLifetimeUpload = this.functions.isValidValue(sourceMeter.energyLifetimeUpload) ? sourceMeter.energyLifetimeUpload : null;
-                                    energyLifetimeWithOffset = this.functions.isValidValue(energyLifetime) ? energyLifetime + this.energyProductionLifetimeOffset : null;
                                     break;
                                 }
                                 case 'consumptionNet': {
@@ -4001,12 +4033,11 @@ class EnvoyDevice extends EventEmitter {
                                     power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
                                     powerPeak = this.functions.powerPeak(sourceMeter.power, powerPeakStored);
                                     powerPeakDetected = power < 0 ? power < powerPeak : power > powerPeak;
-                                    energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday - energyLifetimeHistory.cn : null;
-                                    energyTodayUpload = this.functions.isValidValue(energyToday) ? this.pv.powerAndEnergyData.production.energyToday - (this.pv.powerAndEnergyData.consumptionTotal.energyToday - energyToday) : null;
+                                    energyToday = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime - energyLifetimeHistory.cn : null;
+                                    energyTodayUpload = this.functions.isValidValue(sourceMeter.energyLifetimeUpload) ? sourceMeter.energyLifetimeUpload - energyLifetimeHistory.cnu : null;
                                     energyLastSevenDays = this.functions.isValidValue(sourceEnergy.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : null;
-                                    energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime : null;
+                                    energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime + this.energyConsumptionNetLifetimeOffset : null;
                                     energyLifetimeUpload = this.functions.isValidValue(sourceMeter.energyLifetimeUpload) ? sourceMeter.energyLifetimeUpload : null;
-                                    energyLifetimeWithOffset = this.functions.isValidValue(energyLifetime) ? energyLifetime + this.energyConsumptionNetLifetimeOffset : null;
                                     break;
                                 }
                                 case 'consumptionTotal': {
@@ -4015,11 +4046,11 @@ class EnvoyDevice extends EventEmitter {
                                     power = this.functions.isValidValue(sourceMeter.power) ? sourceMeter.power : null;
                                     powerPeak = this.functions.powerPeak(sourceMeter.power, powerPeakStored);
                                     powerPeakDetected = power > powerPeak;
-                                    energyToday = this.functions.isValidValue(sourceEnergy.energyToday) ? sourceEnergy.energyToday : null;
+                                    energyToday = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime - energyLifetimeHistory.ct : null;
+                                    energyTodayFromPv = this.functions.isValidValue(this.pv.powerAndEnergyData.consumptionTotal.energyLifetimeFromPv) ? this.pv.powerAndEnergyData.consumptionTotal.energyLifetimeFromPv - energyLifetimeHistory.ctp : null;
                                     energyLastSevenDays = this.functions.isValidValue(sourceEnergy.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : null;
-                                    energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime : null;
-                                    energyLifetimeFromPv = energyLifetime - (this.pv.powerAndEnergyData.production.energyLifetime - this.pv.powerAndEnergyData.consumptionNet.energyLifetimeUpload) // Calculate lifetime energy consumed from PV production
-                                    energyLifetimeWithOffset = this.functions.isValidValue(energyLifetime) ? energyLifetime + this.energyConsumptionTotalLifetimeOffset : null;
+                                    energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime + this.energyConsumptionTotalLifetimeOffset : null;
+                                    energyLifetimeFromPv = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime - this.pv.powerAndEnergyData.consumptionNet.energyLifetime : null; // Calculate lifetime energy consumed from PV production
                                     break;
                                 }
                             }
@@ -4027,10 +4058,12 @@ class EnvoyDevice extends EventEmitter {
 
                             if (this.functions.isValidValue(powerPeak)) this.pv.powerAndEnergyData[key].powerPeak = powerPeak;
                             if (this.functions.isValidValue(energyToday)) this.pv.powerAndEnergyData[key].energyToday = energyToday;
-                            if (this.functions.isValidValue(energyTodayUpload) && key === 'consumptionNet') this.pv.powerAndEnergyData[key].energyTodayUpload = energyTodayUpload;
+                            if (this.functions.isValidValue(energyTodayUpload) && key !== 'consumptionTotal') this.pv.powerAndEnergyData[key].energyTodayUpload = energyTodayUpload;
+                            if (this.functions.isValidValue(energyTodayFromPv) && key === 'consumptionTotal') this.pv.powerAndEnergyData[key].energyTodayFromPv = energyTodayFromPv;
                             if (this.functions.isValidValue(energyLifetime)) this.pv.powerAndEnergyData[key].energyLifetime = energyLifetime;
-                            if (this.functions.isValidValue(energyLifetimeUpload) && key !== 'consumptionTotal') this.pv.powerAndEnergyData[key].energyLifetimeUpload = energyLifetime;
+                            if (this.functions.isValidValue(energyLifetimeUpload) && key !== 'consumptionTotal') this.pv.powerAndEnergyData[key].energyLifetimeUpload = energyLifetimeUpload;
                             if (this.functions.isValidValue(energyLifetimeFromPv) && key === 'consumptionTotal') this.pv.powerAndEnergyData[key].energyLifetimeFromPv = energyLifetimeFromPv;
+
                             if (this.logDebug) {
                                 this.emit('debug', `${measurementType} data source meter:`, sourceMeter);
                                 this.emit('debug', `${measurementType} data source energy:`, sourceEnergy);
@@ -4051,11 +4084,15 @@ class EnvoyDevice extends EventEmitter {
                                 energyTodayKw: energyToday != null ? energyToday / 1000 : null,
                                 energyTodayUpload,
                                 energyTodayUploadKw: energyTodayUpload != null ? energyTodayUpload / 1000 : null,
+                                energyTodayFromPv,
+                                energyTodayFromPvKw: energyTodayFromPv != null ? energyTodayFromPv / 1000 : null,
                                 energyLastSevenDays,
                                 energyLastSevenDaysKw: energyLastSevenDays != null ? energyLastSevenDays / 1000 : null,
-                                energyLifetime: energyLifetimeWithOffset,
-                                energyLifetimeKw: energyLifetimeWithOffset != null ? energyLifetimeWithOffset / 1000 : null,
-                                energyLifetimeFromPv: energyLifetimeFromPv,
+                                energyLifetime,
+                                energyLifetimeKw: energyLifetime != null ? energyLifetime / 1000 : null,
+                                energyLifetimeUpload,
+                                energyLifetimeUploadKw: energyLifetimeUpload != null ? energyLifetimeUpload / 1000 : null,
+                                energyLifetimeFromPv,
                                 energyLifetimeFromPvKw: energyLifetimeFromPv != null ? energyLifetimeFromPv / 1000 : null,
                                 energyState: energyToday > 0,
                                 gridQualityState: meterEnabled,
@@ -4109,8 +4146,6 @@ class EnvoyDevice extends EventEmitter {
                             // Add meter data
                             if (meterEnabled) {
                                 const obj1 = {
-                                    energyLifetimeUpload,
-                                    energyLifetimeUploadKw: energyLifetimeUpload != null ? energyLifetimeUpload / 1000 : null,
                                     reactivePower: sourceMeter?.reactivePower,
                                     reactivePowerKw: sourceMeter?.reactivePower != null ? sourceMeter.reactivePower / 1000 : null,
                                     apparentPower: sourceMeter?.apparentPower,
@@ -4141,7 +4176,10 @@ class EnvoyDevice extends EventEmitter {
                                 );
 
                                 // Add characteristics
-                                if (meterType !== 'total-consumption') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, value: obj1.energyLifetimeUploadKw });
+                                if (meterType === 'total-consumption') characteristics.push({ type: Characteristic.EnergyTodayFromPv, value: obj.energyTodayFromPvKw });
+                                if (meterType === 'total-consumption') characteristics.push({ type: Characteristic.EnergyLifetimeFromPv, value: obj.energyLifetimeFromPvKw });
+                                if (meterType !== 'total-consumption') characteristics.push({ type: Characteristic.EnergyTodayUpload, value: obj.energyTodayUploadKw });
+                                if (meterType !== 'total-consumption') characteristics.push({ type: Characteristic.EnergyLifetimeUpload, value: obj.energyLifetimeUploadKw });
 
                                 const gridQualitySensorsMap = {
                                     production: [{ sensors: this.gridProductionQualitySensors, services: this.gridProductionQualityActiveSensorServices }],
@@ -4237,31 +4275,37 @@ class EnvoyDevice extends EventEmitter {
 
                         const powerAndEnergyDataObj = this.pv.powerAndEnergyData;
                         if (powerAndEnergyDataObj.production.energyLifetime != null && powerAndEnergyDataObj.consumptionNet.energyLifetime != null && powerAndEnergyDataObj.consumptionTotal.energyLifetime != null) {
-                            try {
-                                const energyLifetimeHistoryData = {
-                                    ts: Math.floor(Date.now() / 1000), // unix time (seconds)
-                                    pr: powerAndEnergyDataObj.production.energyLifetime,
-                                    cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
-                                    ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime
-                                };
+                            const nowUnix = Math.floor(Date.now() / 1000);
+                            const currentMinute = Math.floor(nowUnix / 60);
 
-                                if (!this._saving) {
-                                    this._saving = true;
-                                    try {
-                                        history.push(energyLifetimeHistoryData);
-                                        await this.functions.saveData(this.energyLifetimeHistoryFile, history);
-                                    } catch (error) {
-                                        if (this.logWarn)
-                                            this.emit('warn', `Save energy lifetime history snapshot error: ${error.message}`);
-                                    } finally {
-                                        this._saving = false;
-                                    }
+                            // zapis tylko jeśli zmieniła się minuta
+                            if (this._lastSavedMinute === currentMinute) {
+                                return;
+                            }
+
+                            this._lastSavedMinute = currentMinute;
+
+                            const energyLifetimeHistoryData = {
+                                ts: nowUnix,
+                                pr: powerAndEnergyDataObj.production.energyLifetime,
+                                pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
+                                cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
+                                cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
+                                ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime,
+                                ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
+                            };
+
+                            if (!this._saving) {
+                                this._saving = true;
+                                try {
+                                    history.push(energyLifetimeHistoryData);
+                                    await this.functions.saveData(this.energyLifetimeHistoryFile, history);
+                                } catch (error) {
+                                    if (this.logWarn)
+                                        this.emit('warn', `Save energy lifetime history snapshot error: ${error.message}`);
+                                } finally {
+                                    this._saving = false;
                                 }
-                            } catch (error) {
-                                if (this.logWarn)
-                                    this.emit('warn', `Save energy lifetime history snapshot error: ${error.message}`);
-                            } finally {
-                                this._saving = false;
                             }
                         }
 
