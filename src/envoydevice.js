@@ -3972,7 +3972,6 @@ class EnvoyDevice extends EventEmitter {
                             }
 
                             if (yesterdaySnapshot || todaySnapshot) {
-
                                 energyLifetimeHistory = {
                                     ts: yesterdaySnapshot?.ts ?? todaySnapshot?.ts ?? null,
                                     pr: yesterdaySnapshot?.pr ?? todaySnapshot?.pr ?? energyLifetimeHistory.pr,
@@ -4279,32 +4278,30 @@ class EnvoyDevice extends EventEmitter {
                             const currentMinute = Math.floor(nowUnix / 60);
 
                             // zapis tylko jeśli zmieniła się minuta
-                            if (this._lastSavedMinute === currentMinute) {
-                                return;
-                            }
+                            if (this._lastSavedMinute !== currentMinute) {
+                                this._lastSavedMinute = currentMinute;
 
-                            this._lastSavedMinute = currentMinute;
+                                const energyLifetimeHistoryData = {
+                                    ts: nowUnix,
+                                    pr: powerAndEnergyDataObj.production.energyLifetime,
+                                    pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
+                                    cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
+                                    cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
+                                    ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime,
+                                    ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
+                                };
 
-                            const energyLifetimeHistoryData = {
-                                ts: nowUnix,
-                                pr: powerAndEnergyDataObj.production.energyLifetime,
-                                pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
-                                cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
-                                cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
-                                ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime,
-                                ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
-                            };
-
-                            if (!this._saving) {
-                                this._saving = true;
-                                try {
-                                    history.push(energyLifetimeHistoryData);
-                                    await this.functions.saveData(this.energyLifetimeHistoryFile, history);
-                                } catch (error) {
-                                    if (this.logWarn)
-                                        this.emit('warn', `Save energy lifetime history snapshot error: ${error.message}`);
-                                } finally {
-                                    this._saving = false;
+                                if (!this._saving) {
+                                    this._saving = true;
+                                    try {
+                                        history.push(energyLifetimeHistoryData);
+                                        await this.functions.saveData(this.energyLifetimeHistoryFile, history);
+                                    } catch (error) {
+                                        if (this.logWarn)
+                                            this.emit('warn', `Save energy lifetime history snapshot error: ${error.message}`);
+                                    } finally {
+                                        this._saving = false;
+                                    }
                                 }
                             }
                         }
