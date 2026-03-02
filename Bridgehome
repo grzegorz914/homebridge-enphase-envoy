@@ -1,0 +1,9 @@
+For any branch you want to require a PR on you'd target that branch or any branches that you'd like to protect.
+
+For example if you were to target **/* you could protect every branch recursively and then define the setting in Require a pull request before merging that are relevant for you.
+
+If you only wanted to protect develop and no other branch create one branch protection rule for that branch and define the relevant PR rules.
+
+To have multiple rules on one branch they are exclusive of each other, so if you have rules for * and develop they will not overlap.
+
+Hope this helps! And thanks for being patient we get tons of questions here and sometimes they slip by @mmu094
