@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `cn - consumption net lifetime`
   - `cnu - consumption net lifetime upload`
   - `ct - consumption total lifetime`
-  - `ctp - consumption total lifetime fom pv`
+  - `ctp - consumption total lifetime from pv`
 
 - bump deependencies
 - redme updated
