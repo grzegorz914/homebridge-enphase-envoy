@@ -317,7 +317,7 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 
 REST POST calls must include a content-type header of `application/json`.
 Path `status` response all available paths.
-Energy history contain `ts - timestamp`, `pr - production lifetime`, `pru - production lifetime upload`, `cn - consumption net lifetime`, `cnu - consumption net lifetime upload`, `ct - consumption total lifetime`, `ctp - consumption total lifetime fom pv`
+Energy history contain `ts - timestamp`, `pr - production lifetime`, `pru - production lifetime upload`, `cn - consumption net lifetime`, `cnu - consumption net lifetime upload`, `ct - consumption total lifetime`, `ctp - consumption total lifetime from pv`
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
@@ -337,7 +337,7 @@ Energy history contain `ts - timestamp`, `pr - production lifetime`, `pru - prod
 ### MQTT Integration
 
 Subscribe using JSON `{ "EnchargeProfile": "savings" }`
-Energy history contain `ts - timestamp`, `pr - production lifetime`, `pru - production lifetime upload`, `cn - consumption net lifetime`, `cnu - consumption net lifetime upload`, `ct - consumption total lifetime`, `ctp - consumption total lifetime fom pv`
+Energy history contain `ts - timestamp`, `pr - production lifetime`, `pru - production lifetime upload`, `cn - consumption net lifetime`, `cnu - consumption net lifetime upload`, `ct - consumption total lifetime`, `ctp - consumption total lifetime from pv`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
