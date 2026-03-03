@@ -15,7 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changes
 
-- RESTFul and MQTT added energy history
+- RESTFul and MQTT added energy history, stored every minute
+- Energy history contain:
+  - `ts - timestamp`
+  - `pr - production lifetime`
+  - `pru - production lifetime upload`
+  - `cn - consumption net lifetime`
+  - `cnu - consumption net lifetime upload`
+  - `ct - consumption total lifetime`
+  - `ctp - consumption total lifetime fom pv`
+
 - bump deependencies
 - redme updated
 - cleanup
