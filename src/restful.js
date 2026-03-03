@@ -30,6 +30,7 @@ class RestFul extends EventEmitter {
             energypdm: DEFAULT_MESSAGE,
             productionct: DEFAULT_MESSAGE,
             powerandenergydata: DEFAULT_MESSAGE,
+            energyhistory: DEFAULT_MESSAGE,
             acbatterydata: DEFAULT_MESSAGE,
             ensembleinventory: DEFAULT_MESSAGE,
             ensemblestatus: DEFAULT_MESSAGE,

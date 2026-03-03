@@ -4307,7 +4307,9 @@ class EnvoyDevice extends EventEmitter {
                         }
 
                         if (this.restFulConnected) this.restFul1.update('powerandenergydata', this.pv.powerAndEnergyData);
+                        if (this.restFulConnected) this.restFul1.update('energyhistory', history);
                         if (this.mqttConnected) this.mqtt1.emit('publish', 'Power And Energy Data', this.pv.powerAndEnergyData);
+                        if (this.mqttConnected) this.mqtt1.emit('publish', 'Energy History', history);
                     } catch (error) {
                         throw new Error(`Update power and energy data error: ${error.message || error}`);
                     }
