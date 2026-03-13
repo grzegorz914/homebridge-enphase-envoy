@@ -4273,34 +4273,81 @@ class EnvoyDevice extends EventEmitter {
                         this.feature.powerAndEnergy.supported = true;
 
                         const powerAndEnergyDataObj = this.pv.powerAndEnergyData;
-                        if (powerAndEnergyDataObj.production.energyLifetime != null && powerAndEnergyDataObj.consumptionNet.energyLifetime != null && powerAndEnergyDataObj.consumptionTotal.energyLifetime != null) {
+
+                        if (
+                            powerAndEnergyDataObj.production.energyLifetime != null &&
+                            powerAndEnergyDataObj.consumptionNet.energyLifetime != null &&
+                            powerAndEnergyDataObj.consumptionTotal.energyLifetime != null
+                        ) {
+
                             const nowUnix = Math.floor(Date.now() / 1000);
                             const currentMinute = Math.floor(nowUnix / 60);
 
-                            // zapis tylko jeśli zmieniła się minuta
                             if (this._lastSavedMinute !== currentMinute) {
+
                                 this._lastSavedMinute = currentMinute;
 
-                                const energyLifetimeHistoryData = {
+                                const record = {
                                     ts: nowUnix,
+                                    prt: powerAndEnergyDataObj.production.energyToday,
                                     pr: powerAndEnergyDataObj.production.energyLifetime,
+                                    prut: powerAndEnergyDataObj.production.energyTodayUpload,
                                     pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
+                                    cnt: powerAndEnergyDataObj.consumptionNet.energyToday,
                                     cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
+                                    cntu: powerAndEnergyDataObj.consumptionNet.energyTodayUpload,
                                     cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
+                                    ctp: powerAndEnergyDataObj.consumptionTotal.energyToday,
                                     ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime,
-                                    ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
+                                    ctpt: powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv,
+                                    ctpv: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
                                 };
 
-                                if (!this._saving) {
+                                const last = history[history.length - 1];
+
+                                const changed =
+                                    !last ||
+                                    last.prt !== record.prt ||
+                                    last.pr !== record.pr ||
+                                    last.prut !== record.prut ||
+                                    last.pru !== record.pru ||
+                                    last.cnt !== record.cnt ||
+                                    last.cn !== record.cn ||
+                                    last.cntu !== record.cntu ||
+                                    last.cnu !== record.cnu ||
+                                    last.ctp !== record.ctp ||
+                                    last.ct !== record.ct ||
+                                    last.ctpt !== record.ctpt ||
+                                    last.ctpv !== record.ctpv;
+
+                                if (changed && !this._saving) {
+
                                     this._saving = true;
+
                                     try {
-                                        history.push(energyLifetimeHistoryData);
+
+                                        history.push(record);
+
+                                        // usuń dane starsze niż 7 dni
+                                        const sevenDaysAgo = nowUnix - 604800;
+
+                                        history = history.filter(item =>
+                                            item &&
+                                            typeof item.ts === 'number' &&
+                                            item.ts >= sevenDaysAgo
+                                        );
+
                                         await this.functions.saveData(this.energyLifetimeHistoryFile, history);
+
                                     } catch (error) {
+
                                         if (this.logWarn)
-                                            this.emit('warn', `Save energy lifetime history snapshot error: ${error.message}`);
+                                            this.emit('warn', `Save energy history error: ${error.message}`);
+
                                     } finally {
+
                                         this._saving = false;
+
                                     }
                                 }
                             }
