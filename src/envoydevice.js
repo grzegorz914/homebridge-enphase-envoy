@@ -3925,7 +3925,7 @@ class EnvoyDevice extends EventEmitter {
                 .on('updatePowerAndEnergyData', async (powerAndEnergy, meters) => {
                     if (this.logDebug) this.emit('debug', `Update power and energy data`);
 
-                    let energyLifetimeHistory = { ts: null, pr: 0, pru: 0, cn: 0, cnu: 0, ct: 0, ctp: 0 };
+                    let energyLifetimeHistory = { ts: null, pr: 0, prt: 0, pru: 0, prut: 0, cn: 0, cnt: 0, cnu: 0, cnut: 0, ct: 0, ctt: 0, ctp: 0, ctpt: 0 };
                     let history = [];
 
                     try {
@@ -3975,11 +3975,17 @@ class EnvoyDevice extends EventEmitter {
                                 energyLifetimeHistory = {
                                     ts: yesterdaySnapshot?.ts ?? todaySnapshot?.ts ?? null,
                                     pr: yesterdaySnapshot?.pr ?? todaySnapshot?.pr ?? energyLifetimeHistory.pr,
+                                    prt: yesterdaySnapshot?.prt ?? todaySnapshot?.prt ?? energyLifetimeHistory.prt,
                                     pru: yesterdaySnapshot?.pru ?? todaySnapshot?.pru ?? energyLifetimeHistory.pru,
+                                    prut: yesterdaySnapshot?.prut ?? todaySnapshot?.prut ?? energyLifetimeHistory.prut,
                                     cn: yesterdaySnapshot?.cn ?? todaySnapshot?.cn ?? energyLifetimeHistory.cn,
+                                    cnt: yesterdaySnapshot?.cnt ?? todaySnapshot?.cnt ?? energyLifetimeHistory.cnt,
                                     cnu: yesterdaySnapshot?.cnu ?? todaySnapshot?.cnu ?? energyLifetimeHistory.cnu,
+                                    cnut: yesterdaySnapshot?.cnut ?? todaySnapshot?.cnut ?? energyLifetimeHistory.cnut,
                                     ct: yesterdaySnapshot?.ct ?? todaySnapshot?.ct ?? energyLifetimeHistory.ct,
-                                    ctp: yesterdaySnapshot?.ctp ?? todaySnapshot?.ctp ?? energyLifetimeHistory.ctp
+                                    ctt: yesterdaySnapshot?.ctt ?? todaySnapshot?.ctt ?? energyLifetimeHistory.ctt,
+                                    ctp: yesterdaySnapshot?.ctp ?? todaySnapshot?.ctp ?? energyLifetimeHistory.ctp,
+                                    cttp: yesterdaySnapshot?.ctpt ?? todaySnapshot?.cptp ?? energyLifetimeHistory.ctpt
                                 };
                             }
 
@@ -4049,7 +4055,7 @@ class EnvoyDevice extends EventEmitter {
                                     energyTodayFromPv = this.functions.isValidValue(this.pv.powerAndEnergyData.consumptionTotal.energyLifetimeFromPv) ? this.pv.powerAndEnergyData.consumptionTotal.energyLifetimeFromPv - energyLifetimeHistory.ctp : null;
                                     energyLastSevenDays = this.functions.isValidValue(sourceEnergy.energyLastSevenDays) ? sourceEnergy.energyLastSevenDays : null;
                                     energyLifetime = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime + this.energyConsumptionTotalLifetimeOffset : null;
-                                    energyLifetimeFromPv = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime - this.pv.powerAndEnergyData.consumptionNet.energyLifetime : null; // Calculate lifetime energy consumed from PV production
+                                    energyLifetimeFromPv = this.functions.isValidValue(sourceMeter.energyLifetime) ? sourceMeter.energyLifetime - this.pv.powerAndEnergyData.consumptionNet.energyLifetime : null;
                                     break;
                                 }
                             }
@@ -4295,12 +4301,12 @@ class EnvoyDevice extends EventEmitter {
                                     pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
                                     cnt: powerAndEnergyDataObj.consumptionNet.energyToday,
                                     cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
-                                    cntu: powerAndEnergyDataObj.consumptionNet.energyTodayUpload,
+                                    cnut: powerAndEnergyDataObj.consumptionNet.energyTodayUpload,
                                     cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
-                                    ctp: powerAndEnergyDataObj.consumptionTotal.energyToday,
+                                    ctt: powerAndEnergyDataObj.consumptionTotal.energyToday,
                                     ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime,
                                     ctpt: powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv,
-                                    ctpv: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
+                                    ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
                                 };
 
                                 const last = history[history.length - 1];
@@ -4313,12 +4319,12 @@ class EnvoyDevice extends EventEmitter {
                                     last.pru !== record.pru ||
                                     last.cnt !== record.cnt ||
                                     last.cn !== record.cn ||
-                                    last.cntu !== record.cntu ||
+                                    last.cnut !== record.cnut ||
                                     last.cnu !== record.cnu ||
-                                    last.ctp !== record.ctp ||
+                                    last.ctt !== record.ctt ||
                                     last.ct !== record.ct ||
                                     last.ctpt !== record.ctpt ||
-                                    last.ctpv !== record.ctpv;
+                                    last.ctp !== record.ctp;
 
                                 if (changed && !this._saving) {
 
