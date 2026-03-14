@@ -3985,7 +3985,7 @@ class EnvoyDevice extends EventEmitter {
                                     ct: yesterdaySnapshot?.ct ?? todaySnapshot?.ct ?? energyLifetimeHistory.ct,
                                     ctt: yesterdaySnapshot?.ctt ?? todaySnapshot?.ctt ?? energyLifetimeHistory.ctt,
                                     ctp: yesterdaySnapshot?.ctp ?? todaySnapshot?.ctp ?? energyLifetimeHistory.ctp,
-                                    cttp: yesterdaySnapshot?.ctpt ?? todaySnapshot?.cptp ?? energyLifetimeHistory.ctpt
+                                    ctpt: yesterdaySnapshot?.ctpt ?? todaySnapshot?.ctpt ?? energyLifetimeHistory.ctpt
                                 };
                             }
 
