@@ -317,7 +317,8 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 
 REST POST calls must include a content-type header of `application/json`.
 Path `status` response all available paths.
-Energy history last 7 days: `ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
+Energy history last 7 days, stored every 1 minute:
+`ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
@@ -337,7 +338,8 @@ Energy history last 7 days: `ts - timestamp`, `pr - production lifetime`,  `prt 
 ### MQTT Integration
 
 Subscribe using JSON `{ "EnchargeProfile": "savings" }`
-Energy history last 7 days: `ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
+Energy history last 7 days, stored every 1 minute:
+`ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
