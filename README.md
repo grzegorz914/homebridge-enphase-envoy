@@ -317,11 +317,11 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 
 REST POST calls must include a content-type header of `application/json`.
 Path `status` response all available paths.
-Energy history contain last 7 days data: `ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
+Energy history last 7 days: `ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `token`, `info`, `home`, `homedata`, `inventory`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `detaileddevicesdatatransformed`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`, `powerandenergydata`, ,`energyhistory`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `livedatadata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
+| GET | `http//ip:port` | `token`, `info`, `home`, `homedata`, `inventory`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `detaileddevicesdatatransformed`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`, `powerandenergydata`, `energyhistory`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `livedatadata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -337,7 +337,7 @@ Energy history contain last 7 days data: `ts - timestamp`, `pr - production life
 ### MQTT Integration
 
 Subscribe using JSON `{ "EnchargeProfile": "savings" }`
-Energy history contain last 7 days data: `ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
+Energy history last 7 days: `ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
