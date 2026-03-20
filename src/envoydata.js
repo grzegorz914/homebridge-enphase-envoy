@@ -1079,7 +1079,7 @@ class EnvoyData extends EventEmitter {
             if (this.mqttEnabled) this.emit('mqtt', 'Inventory', inventory);
 
             try {
-                const inventoryBySerialNumber = await this.functions.mapDevicesBySerial(inventory);
+                const inventoryBySerialNumber = await this.functions.mapInventoryBySerial(inventory);
 
                 // RESTful & MQTT publishing
                 if (this.restFulEnabled) this.emit('restFul', 'inventorybyserialnumber', inventoryBySerialNumber);
