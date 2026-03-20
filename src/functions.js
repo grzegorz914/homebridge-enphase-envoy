@@ -67,7 +67,7 @@ class Functions {
         return result.length > 64 ? result.slice(0, 61) + '…' : result;
     }
 
-    async mapDevicesBySerial(data) {
+    async mapInventoryBySerial(data) {
         const result = {};
         data.forEach(group => {
             const { type, devices } = group;
