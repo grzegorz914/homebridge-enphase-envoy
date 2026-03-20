@@ -1078,6 +1078,16 @@ class EnvoyData extends EventEmitter {
             if (this.restFulEnabled) this.emit('restFul', 'inventory', inventory);
             if (this.mqttEnabled) this.emit('mqtt', 'Inventory', inventory);
 
+            try {
+                const inventoryBySerialNumber = await this.functions.mapDevicesBySerial(inventory);
+
+                // RESTful & MQTT publishing
+                if (this.restFulEnabled) this.emit('restFul', 'inventorybyserialnumber', inventoryBySerialNumber);
+                if (this.mqttEnabled) this.emit('mqtt', 'Inventory By Serial Number', inventoryBySerialNumber);
+            } catch (error) {
+                if (this.logError) this.emit('error', `Get inventory by serial error: ${error}`);
+            }
+
             return true;
         } catch (error) {
             throw new Error(`Update inventory error: ${error}`);
@@ -1332,118 +1342,113 @@ class EnvoyData extends EventEmitter {
             const devicesData = response.data;
             if (this.logDebug) this.emit('debug', `Detailed devices data:`, devicesData);
 
-            let transformed = {};
-            if (devicesData) {
-                // PCUs
-                if (this.feature.inventory.pcus.installed) {
-                    this.pv.inventory.pcus.forEach((pcu) => {
-                        const device = Object.values(devicesData).find(d => d.sn === pcu.serialNumber);
-                        if (!device) return;
+            if (!devicesData) return true;
 
-                        const deviceData = device.channels[0];
-                        const obj = {
-                            active: deviceData.active,
-                            power: deviceData.watts.now,
-                            powerUsed: deviceData.watts.nowUsed,
-                            powerPeak: deviceData.watts.max,
-                            energyToday: deviceData.wattHours.today,
-                            energyYesterday: deviceData.wattHours.yesterday,
-                            energyLastSevenDays: deviceData.wattHours.week,
-                            energyLifetime: deviceData.lifetime.joulesProduced / 3600,
-                            voltage: deviceData.lastReading.acVoltageINmV,
-                            frequency: deviceData.lastReading.acFrequencyINmHz,
-                            currentDc: deviceData.lastReading.dcCurrentINmA,
-                            voltageDc: deviceData.lastReading.dcVoltageINmV,
-                            temperature: deviceData.lastReading.channelTemp,
-                            readingTime: deviceData.lastReading.endDate,
-                        };
+            // PCUs
+            if (this.feature.inventory.pcus.installed) {
+                this.pv.inventory.pcus.forEach((pcu) => {
+                    const device = Object.values(devicesData).find(d => d.sn === pcu.serialNumber);
+                    if (!device) return;
 
-                        Object.assign(pcu, obj);
-                        this.feature.inventory.pcus.detailedData.supported = true;
-                    });
-                }
+                    const deviceData = device.channels[0];
+                    const obj = {
+                        active: deviceData.active,
+                        power: deviceData.watts.now,
+                        powerUsed: deviceData.watts.nowUsed,
+                        powerPeak: deviceData.watts.max,
+                        energyToday: deviceData.wattHours.today,
+                        energyYesterday: deviceData.wattHours.yesterday,
+                        energyLastSevenDays: deviceData.wattHours.week,
+                        energyLifetime: deviceData.lifetime.joulesProduced / 3600,
+                        voltage: deviceData.lastReading.acVoltageINmV,
+                        frequency: deviceData.lastReading.acFrequencyINmHz,
+                        currentDc: deviceData.lastReading.dcCurrentINmA,
+                        voltageDc: deviceData.lastReading.dcVoltageINmV,
+                        temperature: deviceData.lastReading.channelTemp,
+                        readingTime: deviceData.lastReading.endDate,
+                    };
 
-                // Meters
-                if (this.feature.meters.installed) {
-                    this.pv.meters.forEach((meter) => {
-                        const device = devicesData[meter.eid];
-                        if (!device) {
-                            return;
-                        }
-
-                        const channels = device.channels;
-                        for (const [channelIndex, channel] of channels.entries()) {
-                            const obj = {
-                                serialNumber: channel.sn,
-                                active: channel.active,
-                                power: channel.watts.now,
-                                powerUsed: channel.watts.nowUsed,
-                                powerPeak: channel.watts.max,
-                                energyToday: channel.wattHours.today,
-                                energyYesterday: channel.wattHours.yesterday,
-                                energyLastSevenDays: channel.wattHours.week,
-                                energyLifetime: channel.lifetime.wh_dlvd_cum,
-                                current: channel.lastReading.rms_mamp != null ? channel.lastReading.rms_mamp / 1000 : null,
-                                voltage: channel.lastReading.rms_mvolt != null ? channel.lastReading.rms_mvolt / 1000 : null,
-                                frequency: channel.lastReading.freq_mhz != null ? channel.lastReading.freq_mhz / 1000 : null,
-                                readingTime: channel.lastReading.endDate,
-                            };
-
-                            //Object.assign(meter, obj);
-                        }
-                        this.feature.meters.detailedData.supported = true;
-                    });
-                }
-
-                // NSRBs
-                if (this.feature.inventory.nsrbs.installed) {
-                    this.pv.inventory.nsrbs.forEach((nsrb) => {
-                        const device = Object.values(devicesData).find(d => d.sn === nsrb.serialNumber);
-                        if (!device) {
-                            return;
-                        }
-
-                        const deviceData = device.channels[0];
-                        const obj = {
-                            active: deviceData.active,
-                            acOffset: deviceData.lastReading.acCurrOffset,
-                            voltageL1: deviceData.lastReading.VrmsL1N,
-                            voltageL2: deviceData.lastReading.VrmsL2N,
-                            voltageL3: deviceData.lastReading.VrmsL3N,
-                            frequency: deviceData.lastReading.freqInmHz,
-                            temperature: deviceData.lastReading.temperature,
-                            readingTime: deviceData.lastReading.endDate,
-                        };
-
-                        Object.assign(nsrb, obj);
-                        this.feature.inventory.nsrbs.detailedData.supported = true;
-                    });
-                }
-
-                // detailed devices data installed
-                this.feature.detailedDevicesData.installed = this.feature.inventory.pcus.detailedData.supported || this.feature.meters.detailedData.supported || this.feature.inventory.nsrbs.detailedData.supported;
-
-                // Transform devices data to be indexed by serial number for easier access
-                for (const key in devicesData) {
-                    if (devicesData.hasOwnProperty(key)) {
-                        const entry = devicesData[key];
-                        if (!isNaN(key) && entry && typeof entry === "object" && entry.sn) {
-                            transformed[entry.sn] = entry;
-                        } else {
-                            transformed[key] = entry;
-                        }
-                    }
-                }
+                    Object.assign(pcu, obj);
+                    this.feature.inventory.pcus.detailedData.supported = true;
+                });
             }
+
+            // Meters
+            if (this.feature.meters.installed) {
+                this.pv.meters.forEach((meter) => {
+                    const device = devicesData[meter.eid];
+                    if (!device) {
+                        return;
+                    }
+
+                    const channels = device.channels;
+                    for (const [channelIndex, channel] of channels.entries()) {
+                        const obj = {
+                            serialNumber: channel.sn,
+                            active: channel.active,
+                            power: channel.watts.now,
+                            powerUsed: channel.watts.nowUsed,
+                            powerPeak: channel.watts.max,
+                            energyToday: channel.wattHours.today,
+                            energyYesterday: channel.wattHours.yesterday,
+                            energyLastSevenDays: channel.wattHours.week,
+                            energyLifetime: channel.lifetime.wh_dlvd_cum,
+                            current: channel.lastReading.rms_mamp != null ? channel.lastReading.rms_mamp / 1000 : null,
+                            voltage: channel.lastReading.rms_mvolt != null ? channel.lastReading.rms_mvolt / 1000 : null,
+                            frequency: channel.lastReading.freq_mhz != null ? channel.lastReading.freq_mhz / 1000 : null,
+                            readingTime: channel.lastReading.endDate,
+                        };
+
+                        //Object.assign(meter, obj);
+                    }
+                    this.feature.meters.detailedData.supported = true;
+                });
+            }
+
+            // NSRBs
+            if (this.feature.inventory.nsrbs.installed) {
+                this.pv.inventory.nsrbs.forEach((nsrb) => {
+                    const device = Object.values(devicesData).find(d => d.sn === nsrb.serialNumber);
+                    if (!device) {
+                        return;
+                    }
+
+                    const deviceData = device.channels[0];
+                    const obj = {
+                        active: deviceData.active,
+                        acOffset: deviceData.lastReading.acCurrOffset,
+                        voltageL1: deviceData.lastReading.VrmsL1N,
+                        voltageL2: deviceData.lastReading.VrmsL2N,
+                        voltageL3: deviceData.lastReading.VrmsL3N,
+                        frequency: deviceData.lastReading.freqInmHz,
+                        temperature: deviceData.lastReading.temperature,
+                        readingTime: deviceData.lastReading.endDate,
+                    };
+
+                    Object.assign(nsrb, obj);
+                    this.feature.inventory.nsrbs.detailedData.supported = true;
+                });
+            }
+
+            // detailed devices data installed
+            this.feature.detailedDevicesData.installed = this.feature.inventory.pcus.detailedData.supported || this.feature.meters.detailedData.supported || this.feature.inventory.nsrbs.detailedData.supported;
 
             // detailed devices data supported
             this.feature.detailedDevicesData.supported = true;
 
             // RESTFul and MQTT update
             if (this.restFulEnabled) this.emit('restFul', 'detaileddevicesdata', devicesData);
-            if (this.restFulEnabled) this.emit('restFul', 'detaileddevicesdatatransformed', transformed);
             if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data', devicesData);
-            if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data Transformed', transformed);
+
+            try {
+                const devicesDataBySerialNumber = await this.functions.mapDevicesDataBySerial(devicesData);
+
+                // RESTFul and MQTT update
+                if (this.restFulEnabled) this.emit('restFul', 'detaileddevicesdatabyserialnumber', devicesDataBySerialNumber);
+                if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data By Serial Number', devicesDataBySerialNumber);
+            } catch (error) {
+                if (this.logError) this.emit('error', `Get detailed devices data by serial error: ${error}`);
+            }
 
             return true;
         } catch (error) {

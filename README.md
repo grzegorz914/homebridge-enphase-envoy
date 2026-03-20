@@ -322,7 +322,7 @@ Energy history last 7 days, stored every 1 minute:
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `token`, `info`, `home`, `homedata`, `inventory`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `detaileddevicesdatatransformed`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`, `powerandenergydata`, `energyhistory`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `livedatadata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
+| GET | `http//ip:port` | `token`, `info`, `home`, `homedata`, `inventory`, `inventorybyserialnumber`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `detaileddevicesdatabyserialnumber`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`, `powerandenergydata`, `energyhistory`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `livedatadata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -343,7 +343,7 @@ Energy history last 7 days, stored every 1 minute:
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-| Publish | `Token`, `Info`, `Home`, `Home Data`, `Inventory`, `Microinverters Status`, `Meters`, `Meters Reading`, `Meters Reports`, `Detailed Devices Data`, `Detailed Devices Data Transformed`, `Microinverters Data`, `Q-Relays Data`, `Meters Data`, `Production`, `Production Pdm`, `Energy Pdm`, `Production CT`, `Power And Energy Data`, `Energy History`, `AC Battery Data`, `Ensemble Inventory`, `Ensemble Status`, `Ensemble Status`, `Encharge Power`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Ensemble Data`, `Grid Profile`, `Live Data`, `Live Data Data`, `Production State`, `PLC Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
+| Publish | `Token`, `Info`, `Home`, `Home Data`, `Inventory`, `Inventory By Serial Number`, `Microinverters Status`, `Meters`, `Meters Reading`, `Meters Reports`, `Detailed Devices Data`, `Detailed Devices Data By Serial Number`, `Microinverters Data`, `Q-Relays Data`, `Meters Data`, `Production`, `Production Pdm`, `Energy Pdm`, `Production CT`, `Power And Energy Data`, `Energy History`, `AC Battery Data`, `Ensemble Inventory`, `Ensemble Status`, `Ensemble Status`, `Encharge Power`, `Tariff`, `Dry Contacts`, `Dry Contacts Settings`, `Generator`, `Generator Settings`, `Ensemble Data`, `Grid Profile`, `Live Data`, `Live Data Data`, `Production State`, `PLC Level`, `Data Sampling` | `{wNow: 2353}` | JSON |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |

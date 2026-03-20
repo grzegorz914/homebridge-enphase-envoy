@@ -67,6 +67,36 @@ class Functions {
         return result.length > 64 ? result.slice(0, 61) + '…' : result;
     }
 
+    async mapDevicesBySerial(data) {
+        const result = {};
+        data.forEach(group => {
+            const { type, devices } = group;
+
+            devices.forEach(device => {
+                result[device.serial_num] = {
+                    type,
+                    ...device
+                };
+            });
+        });
+
+        return result;
+    }
+
+    async mapDevicesDataBySerial(data) {
+        const result = {};
+        for (const key in data) {
+            const item = data[key];
+
+            if (!item || typeof item !== "object") continue;
+            if (!item.sn) continue;
+
+            result[item.sn] = item;
+        }
+
+        return result;
+    }
+
     isValidValue(v) {
         return v !== undefined && v !== null && !(typeof v === 'number' && Number.isNaN(v));
     }
@@ -151,6 +181,5 @@ class Functions {
             timeout: 60000
         });
     }
-
 }
 export default Functions
