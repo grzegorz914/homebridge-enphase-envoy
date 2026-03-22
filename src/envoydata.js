@@ -1085,7 +1085,7 @@ class EnvoyData extends EventEmitter {
                 if (this.restFulEnabled) this.emit('restFul', 'inventorybyserialnumber', inventoryBySerialNumber);
                 if (this.mqttEnabled) this.emit('mqtt', 'Inventory By Serial Number', inventoryBySerialNumber);
             } catch (error) {
-                if (this.logError) this.emit('error', `Get inventory by serial error: ${error}`);
+                if (this.logError) this.emit('error', `Map inventory by serial error: ${error}`);
             }
 
             return true;
@@ -1441,13 +1441,13 @@ class EnvoyData extends EventEmitter {
             if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data', devicesData);
 
             try {
-                const devicesDataBySerialNumber = await this.functions.mapDevicesDataBySerial(devicesData);
+                const detailedDevicesDataBySerialNumber = await this.functions.mapDevicesDataBySerial(devicesData);
 
                 // RESTFul and MQTT update
-                if (this.restFulEnabled) this.emit('restFul', 'detaileddevicesdatabyserialnumber', devicesDataBySerialNumber);
-                if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data By Serial Number', devicesDataBySerialNumber);
+                if (this.restFulEnabled) this.emit('restFul', 'detaileddevicesdatabyserialnumber', detailedDevicesDataBySerialNumber);
+                if (this.mqttEnabled) this.emit('mqtt', 'Detailed Devices Data By Serial Number', detailedDevicesDataBySerialNumber);
             } catch (error) {
-                if (this.logError) this.emit('error', `Get detailed devices data by serial error: ${error}`);
+                if (this.logError) this.emit('error', `Map detailed devices data by serial error: ${error}`);
             }
 
             return true;
