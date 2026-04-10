@@ -450,7 +450,7 @@ class EnvoyData extends EventEmitter {
             });
 
         // 22:55
-        cron.schedule('55 22 * * *', async () => {
+        cron.schedule('57 22 * * *', async () => {
             try {
                 // Stop impulse generator before daily reset
                 await this.impulseGenerator.state(false, []);
@@ -460,7 +460,7 @@ class EnvoyData extends EventEmitter {
         });
 
         // 23:05
-        cron.schedule('5 23 * * *', async () => {
+        cron.schedule('7 23 * * *', async () => {
             try {
                 // Start impulse generator after daily reset
                 await this.impulseGenerator.state(true, this.timers);
