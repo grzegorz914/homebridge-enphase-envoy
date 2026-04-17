@@ -9,16 +9,17 @@ class DigestAuth {
     }
 
     async request(path, options) {
+        // Fix: axios.request takes a single config object, not (url, config)
         const url = `${options.baseURL}${path}`;
         options.headers = options.headers || {};
 
         try {
-            return await axios.request(url, options);
+            return await axios.request({ url, ...options });
         } catch (error) {
             const resError = error.response;
             if (!resError || resError.status !== 401) throw new Error(`Digest authentication response error: ${resError ? resError.status : 'Unknown error'}`);
 
-            const resHeaders = resError.headers["www-authenticate"];
+            const resHeaders = resError.headers['www-authenticate'];
             if (!resHeaders || !resHeaders.includes('nonce')) throw new Error(`Digest authentication headers error: ${resHeaders || 'Header not found'}`);
 
             try {
@@ -38,9 +39,10 @@ class DigestAuth {
                 const HA2 = md5(`${options.method}:${path}`);
                 const response = md5(`${HA1}:${nonce}:${nonceCount}:${cnonce}:auth:${HA2}`);
                 const authHeader = `Digest username="${this.user}", realm="${realm}", nonce="${nonce}", uri="${path}", qop=auth, algorithm=MD5, response="${response}", nc=${nonceCount}, cnonce="${cnonce}"`;
-                options.headers["authorization"] = authHeader;
+                options.headers['authorization'] = authHeader;
 
-                return await axios.request(url, options);
+                // Fix: axios.request takes a single config object
+                return await axios.request({ url, ...options });
             } catch (error) {
                 throw new Error(`Digest authentication error: ${error}`);
             }
@@ -49,4 +51,3 @@ class DigestAuth {
 }
 
 export default DigestAuth;
-

@@ -91,10 +91,10 @@ class EnvoyDevice extends EventEmitter {
         this.dataSamplingSensor = device.dataRefreshSensor || {};
 
         //log
-        this.logInfo = device.log?.info || false;
-        this.logWarn = device.log?.warn || true;
-        this.logError = device.log?.error || true;
-        this.logDebug = device.log?.debug || false;
+        this.logInfo = device.log?.info ?? false;
+        this.logWarn = device.log?.warn ?? true;
+        this.logError = device.log?.error ?? true;
+        this.logDebug = device.log?.debug ?? false;
 
         //external integrations
         this.restFul = device.restFul ?? {};
@@ -236,8 +236,8 @@ class EnvoyDevice extends EventEmitter {
         //enpower
         if (this.enpowerGridStateControl.displayType > 0) {
             const control = this.enpowerGridStateControl;
-            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displaqyType];
-            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displaqyType];
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
             control.state = false;
         }
 
@@ -273,8 +273,8 @@ class EnvoyDevice extends EventEmitter {
         if (this.enchargeBackupLevelControl.displayType > 0) {
             const control = this.enchargeBackupLevelControl;
             control.serviceType = [null, Service.Battery][control.displayType];
-            control.characteristicType1 = [null, Characteristic.StatusLowBattery][control.displayType];
             control.characteristicType = [null, Characteristic.BatteryLevel][control.displayType];
+            control.characteristicType1 = [null, Characteristic.StatusLowBattery][control.displayType];
             control.characteristicType2 = [null, Characteristic.ChargingState][control.displayType];
             control.state = false;
             control.backupLevel = 0;
@@ -332,8 +332,8 @@ class EnvoyDevice extends EventEmitter {
         //generator
         if (this.generatorStateControl.displayType > 0) {
             const control = this.generatorStateControl;
-            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displaqyType];
-            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displaqyType];
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
             control.state = false;
         }
 
@@ -667,7 +667,7 @@ class EnvoyDevice extends EventEmitter {
                     if (this.feature.inventory.esubs.generator.installed) await this.envoyData.setGeneratorMode(value);
                     break;
                 default:
-                    if (this.logWarn) this.emit('warn' `${integration}, received key: ${key}, value: ${value}`);
+                    if (this.logWarn) this.emit('warn', `${integration}, received key: ${key}, value: ${value}`);
                     break;
             }
             return;
@@ -694,7 +694,7 @@ class EnvoyDevice extends EventEmitter {
                         try {
                             await this.setOverExternalIntegration('RESTFul', key, value);
                         } catch (error) {
-                            if (this.logWarn) this.emit('warn' `RESTFul set error: ${error}`);
+                            if (this.logWarn) this.emit('warn', `RESTFul set error: ${error}`);
                         };
                     })
                     .on('debug', (debug) => this.emit('debug', debug))
@@ -729,7 +729,7 @@ class EnvoyDevice extends EventEmitter {
                         try {
                             await this.setOverExternalIntegration('MQTT', key, value);
                         } catch (error) {
-                            if (this.logWarn) this.emit('warn' `MQTT set, error: ${error}`);
+                            if (this.logWarn) this.emit('warn', `MQTT set, error: ${error}`);
                         };
                     })
                     .on('debug', (debug) => this.emit('debug', debug))
@@ -5535,9 +5535,9 @@ class EnvoyDevice extends EventEmitter {
                                 installed: adminModeMap.includes(generator?.adminState),
                                 operState: ApiCodes?.[generator.operState] ?? generator.operState,
                                 adminMode,
-                                adminModeOffBool: adminModeValue === 'Off',
-                                adminModeOnBool: adminModeValue === 'On',
-                                adminModeAutoBool: adminModeValue === 'Auto',
+                                adminModeOffBool: adminMode === 'Off',
+                                adminModeOnBool: adminMode === 'On',
+                                adminModeAutoBool: adminMode === 'Auto',
                                 adminModeBool,
                                 schedule: generator.schedule,
                                 startSoc: generator.startSoc,
@@ -5590,7 +5590,7 @@ class EnvoyDevice extends EventEmitter {
                                     { type: Characteristic.Shedule, value: generatorData.schedule },
                                     { type: Characteristic.StartSoc, value: generatorData.startSoc },
                                     { type: Characteristic.StopSoc, value: generatorData.stopSoc },
-                                    { type: Characteristic.ExcOn, value: generatorData.excOn },
+                                    { type: Characteristic.ExexOn, value: generatorData.excOn },
                                     { type: Characteristic.Present, value: generatorData.present },
                                     { type: Characteristic.ReadingTime, value: generatorData.readingTime }
                                 ];
@@ -5821,7 +5821,7 @@ class EnvoyDevice extends EventEmitter {
                                         for (const { type, value, valueKey } of characteristics) {
                                             if (!this.functions.isValidValue(value)) continue;
                                             this.pv.inventoryData.acbs[0][valueKey] = value;
-                                            this.acbSummaryService?.[0]?.updateCharacteristic(type, value);
+                                            this.acbSummaryService?.updateCharacteristic(type, value);
                                         }
                                     }
 

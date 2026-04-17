@@ -27,9 +27,9 @@ class EnvoyData extends EventEmitter {
         this.ensembleDataRefreshTime = (device.ensembleDataRefreshTime || 15) * 1000;
 
         //log
-        this.logWarn = device.log?.warn || true;
-        this.logError = device.log?.error || true;
-        this.logDebug = device.log?.debug || false;
+        this.logWarn = device.log?.warn ?? true;
+        this.logError = device.log?.error ?? true;
+        this.logDebug = device.log?.debug ?? false;
 
         //external integrations
         this.restFulEnabled = restFulEnabled;
@@ -449,7 +449,7 @@ class EnvoyData extends EventEmitter {
                 if (this.mqttEnabled) this.emit('mqtt', 'Data Sampling', state);
             });
 
-        // 22:55
+        // 22:57
         cron.schedule('57 22 * * *', async () => {
             try {
                 // Stop impulse generator before daily reset
@@ -459,7 +459,7 @@ class EnvoyData extends EventEmitter {
             }
         });
 
-        // 23:05
+        // 23:07
         cron.schedule('7 23 * * *', async () => {
             try {
                 // Start impulse generator after daily reset
@@ -1264,7 +1264,7 @@ class EnvoyData extends EventEmitter {
                 for (const meter of responseData) {
                     const key = MetersKeyMap[meter.reportType];
                     if (!key) {
-                        if (!this.logDebug) this.emit('debug', `Unknown meters reports type: ${meter.reportType}`);
+                        if (this.logDebug) this.emit('debug', `Unknown meters reports type: ${meter.reportType}`);
                         continue;
                     }
 
@@ -2088,7 +2088,7 @@ class EnvoyData extends EventEmitter {
             if (this.logDebug) this.emit('debug', `Ensemble power response:`, responseData);
 
             const devices = responseData.devices ?? [];
-            if (!devices.length === 0) return false;
+            if (devices.length === 0) return false;
 
             // update encharges
             const enchargesRealPowerSummary = [];
