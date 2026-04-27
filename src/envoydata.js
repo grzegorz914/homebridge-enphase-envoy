@@ -449,23 +449,23 @@ class EnvoyData extends EventEmitter {
                 if (this.mqttEnabled) this.emit('mqtt', 'Data Sampling', state);
             });
 
-        // 22:57
-        cron.schedule('57 22 * * *', async () => {
+        // 22:58
+        cron.schedule('58 22 * * *', async () => {
             try {
                 // Stop impulse generator before daily reset
                 await this.impulseGenerator.state(false, []);
             } catch (error) {
-                if (this.logError) this.emit('error', `Cron 22:55 error: ${error}`);
+                if (this.logError) this.emit('error', `Cron 22:58 error: ${error}`);
             }
         });
 
-        // 23:07
-        cron.schedule('7 23 * * *', async () => {
+        // 23:09
+        cron.schedule('9 23 * * *', async () => {
             try {
                 // Start impulse generator after daily reset
                 await this.impulseGenerator.state(true, this.timers);
             } catch (error) {
-                if (this.logError) this.emit('error', `Cron 23:05 error: ${error}`);
+                if (this.logError) this.emit('error', `Cron 23:09 error: ${error}`);
             }
         });
     }
