@@ -316,13 +316,14 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 ### REST Integration
 
 REST POST calls must include a content-type header of `application/json`.
+Path `pv` response all available data.
 Path `status` response all available paths.
 Energy history last 7 days, stored every 1 minute:
 `ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `token`, `info`, `home`, `homedata`, `inventory`, `inventorybyserialnumber`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `detaileddevicesdatabyserialnumber`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`, `powerandenergydata`, `energyhistory`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `livedatadata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
+| GET | `http//ip:port` | `pv`, `token`, `info`, `home`, `homedata`, `inventory`, `inventorybyserialnumber`, `microinvertersstatus`, `meters`, `metersreading`, `metersreports`, `detaileddevicesdata`, `detaileddevicesdatabyserialnumber`, `microinvertersdata`, `qrelaysdata`, `metersdata`, `production`, `productionpdm`, `energypdm`, `productionct`, `powerandenergydata`, `energyhistory`, `acbatterydata`, `ensembleinventory`, `ensemblestatus`, `ensemblepower`, `enchargesettings`, `tariff`, `drycontacts`, `drycontactssettings`, `generator`, `generatorsettings`, `ensembledata`, `gridprofile`, `livedata`, `livedatadata`, `productionstate`, `plclevel`, `datasampling`. | `{wNow: 2353}` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |

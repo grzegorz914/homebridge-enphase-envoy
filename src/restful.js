@@ -67,6 +67,11 @@ class RestFul extends EventEmitter {
                 });
             }
 
+            // PV
+            app.get('/pv', (req, res) => {
+                res.json(this.restFulData);
+            });
+
             // Health check route
             app.get('/status', (req, res) => {
                 res.json({
