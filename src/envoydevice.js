@@ -681,25 +681,30 @@ class EnvoyDevice extends EventEmitter {
         const restFulEnabled = this.restFul.enable || false;
         if (restFulEnabled) {
             try {
-                this.restFul1 = new RestFul({
-                    port: this.restFul.port || 3000,
-                    logWarn: this.logWarn,
-                    logDebug: this.logDebug,
-                })
-                    .on('connected', (success) => {
-                        this.restFulConnected = true;
-                        this.emit('success', success);
+                await new Promise((resolve) => {
+                    const timer = setTimeout(resolve, 5000);
+                    this.restFul1 = new RestFul({
+                        port: this.restFul.port || 3000,
+                        logWarn: this.logWarn,
+                        logDebug: this.logDebug,
                     })
-                    .on('set', async (key, value) => {
-                        try {
-                            await this.setOverExternalIntegration('RESTFul', key, value);
-                        } catch (error) {
-                            if (this.logWarn) this.emit('warn', `RESTFul set error: ${error}`);
-                        };
-                    })
-                    .on('debug', (debug) => this.emit('debug', debug))
-                    .on('warn', (warn) => this.emit('warn', warn))
-                    .on('error', (error) => this.emit('error', error));
+                        .once('connected', (success) => {
+                            clearTimeout(timer);
+                            this.restFulConnected = true;
+                            this.emit('success', success);
+                            resolve();
+                        })
+                        .on('set', async (key, value) => {
+                            try {
+                                await this.setOverExternalIntegration('RESTFul', key, value);
+                            } catch (error) {
+                                if (this.logWarn) this.emit('warn', `RESTFul set error: ${error}`);
+                            };
+                        })
+                        .on('debug', (debug) => this.emit('debug', debug))
+                        .on('warn', (warn) => this.emit('warn', warn))
+                        .on('error', (error) => this.emit('error', error));
+                });
             } catch (error) {
                 this.emit('warn', `RESTFul integration start error: ${error}`);
             }
@@ -708,33 +713,38 @@ class EnvoyDevice extends EventEmitter {
         const mqttEnabled = this.mqtt.enable || false;
         if (mqttEnabled) {
             try {
-                this.mqtt1 = new Mqtt({
-                    host: this.mqtt.host,
-                    port: this.mqtt.port || 1883,
-                    clientId: this.mqtt.clientId ? `enphase_${this.mqtt.clientId}_${Math.random().toString(16).slice(3)}` : `enphase_${Math.random().toString(16).slice(3)}`,
-                    prefix: this.mqtt.prefix ? `enphase/${this.mqtt.prefix}/${this.name}` : `enphase/${this.name}`,
-                    user: this.mqtt.auth?.user,
-                    passwd: this.mqtt.auth?.passwd,
-                    logWarn: this.logWarn,
-                    logDebug: this.logDebug
-                })
-                    .on('connected', (success) => {
-                        this.mqttConnected = true;
-                        this.emit('success', success);
+                await new Promise((resolve) => {
+                    const timer = setTimeout(resolve, 10000);
+                    this.mqtt1 = new Mqtt({
+                        host: this.mqtt.host,
+                        port: this.mqtt.port || 1883,
+                        clientId: this.mqtt.clientId ? `enphase_${this.mqtt.clientId}_${Math.random().toString(16).slice(3)}` : `enphase_${Math.random().toString(16).slice(3)}`,
+                        prefix: this.mqtt.prefix ? `enphase/${this.mqtt.prefix}/${this.name}` : `enphase/${this.name}`,
+                        user: this.mqtt.auth?.user,
+                        passwd: this.mqtt.auth?.passwd,
+                        logWarn: this.logWarn,
+                        logDebug: this.logDebug
                     })
-                    .on('subscribed', (success) => {
-                        this.emit('success', success);
-                    })
-                    .on('set', async (key, value) => {
-                        try {
-                            await this.setOverExternalIntegration('MQTT', key, value);
-                        } catch (error) {
-                            if (this.logWarn) this.emit('warn', `MQTT set, error: ${error}`);
-                        };
-                    })
-                    .on('debug', (debug) => this.emit('debug', debug))
-                    .on('warn', (warn) => this.emit('warn', warn))
-                    .on('error', (error) => this.emit('error', error));
+                        .once('connected', (success) => {
+                            clearTimeout(timer);
+                            this.mqttConnected = true;
+                            this.emit('success', success);
+                            resolve();
+                        })
+                        .on('subscribed', (success) => {
+                            this.emit('success', success);
+                        })
+                        .on('set', async (key, value) => {
+                            try {
+                                await this.setOverExternalIntegration('MQTT', key, value);
+                            } catch (error) {
+                                if (this.logWarn) this.emit('warn', `MQTT set, error: ${error}`);
+                            };
+                        })
+                        .on('debug', (debug) => this.emit('debug', debug))
+                        .on('warn', (warn) => this.emit('warn', warn))
+                        .on('error', (error) => this.emit('error', error));
+                });
             } catch (error) {
                 this.emit('warn', `MQTT integration start error: ${error}`);
             }

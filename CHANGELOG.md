@@ -11,9 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.6.12] - (08.05.2026)
+
+### Fixed
+
+- RESTFul / MQTT data not updating after plugin restart: `externalIntegrations()` was returning before `app.listen()` had finished binding the port, so `restFulConnected` / `mqttConnected` were still `false` when the first data events arrived; both integrations are now awaited via `Promise` that resolves on the `connected` event (5 s timeout for RESTFul, 10 s for MQTT)
+
 ## [10.6.11] - (08.05.2026)
 
-## Fixed
+### Fixed
 
 - RESTFul / MQTT data not updating after nightly Envoy reset (22:57–23:10 window):
   - `handleError` was clearing `jwtToken.token` on every 401 response, forcing a 30-second delay and a full JWT re-fetch from the Enlighten API even when only the session cookie had expired; now only `tokenValid` is invalidated — `checkToken` already checks `expires_at` independently
