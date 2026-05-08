@@ -27,7 +27,7 @@ class EnvoyDevice extends EventEmitter {
 
         this.lockControl = device.lockControl?.enable || false;
         this.lockControlPrefix = device.lockControl?.prefix || false;
-        this.lockControTime = (device.lockControl?.time || 30) * 1000;
+        this.lockControlTime = (device.lockControl?.time || 30) * 1000;
         this.productionStateSensor = device.productionStateSensor || {};
         this.plcLevelCheckControl = device.plcLevelControl || {};
 
@@ -54,7 +54,7 @@ class EnvoyDevice extends EventEmitter {
         this.qRelayStateSensor = device.qRelayStateSensor || {};
 
         //ac battery
-        this.acBatterieName = device.acBatterieName || 'AC Batterie';
+        this.acBatterieName = device.acBatterieName || 'AC Battery';
         this.acBatterieBackupLevelSummaryControl = device.acBatterieBackupLevelSummaryAccessory || {};
         this.acBatterieBackupLevelControl = device.acBatterieBackupLevelAccessory || {};
 
@@ -83,7 +83,7 @@ class EnvoyDevice extends EventEmitter {
         //generator
         this.generatorStateControl = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateControl || {}) : {};
         this.generatorStateSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateSensor || {}) : {};
-        this.generatorModeContols = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
+        this.generatorModeControls = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
         this.generatorModeSensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //data refresh
@@ -102,7 +102,7 @@ class EnvoyDevice extends EventEmitter {
         this.mqtt = device.mqtt ?? {};
         this.mqttConnected = false;
 
-        //system accessoty
+        //system accessory
         this.systemAccessory = {
             serviceType: [null, Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor][device.displayType],
             characteristicType: [null, Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected][device.displayType],
@@ -344,7 +344,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
         }
 
-        for (const control of this.generatorModeContols) {
+        for (const control of this.generatorModeControls) {
             control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
             control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
             control.state = false;
@@ -756,7 +756,7 @@ class EnvoyDevice extends EventEmitter {
     // Prepare accessory
     async prepareAccessory() {
         try {
-            //suppored feature
+            //supported feature
             let pvControl = true;
             const productionStateSupported = this.feature.productionState.supported;
             const gridProfileSupported = this.feature.gridProfile.supported;
@@ -1023,7 +1023,7 @@ class EnvoyDevice extends EventEmitter {
                                             lockService.updateCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
                                             this.envoyService.updateCharacteristic(Characteristic.SystemControl, false);
                                             this.emit('success', `System control locked`);
-                                        }, this.lockControTime);
+                                        }, this.lockControlTime);
                                     } else {
                                         this.emit('success', `System control locked`);
                                         pvControl = false;
@@ -1552,7 +1552,7 @@ class EnvoyDevice extends EventEmitter {
                                 if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} Summary Service`);
 
                                 const storageSumm = this.pv.inventoryData.acbs[0];
-                                const service = accessory.addService(Service.AcBatterieSummaryService, `${acBatterieName} Summary`, 'acbSummaryService');
+                                const service = accessory.addService(Service.AcBatterySummaryService, `${acBatterieName} Summary`, 'acbSummaryService');
                                 service.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} Summary`);
 
                                 // Create characteristics
@@ -1620,7 +1620,7 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} ${serialNumber} Service`);
-                                const service = accessory.addService(Service.AcBatterieService, `${acBatterieName} ${serialNumber}`, `acbService${serialNumber}`);
+                                const service = accessory.addService(Service.AcBatteryService, `${acBatterieName} ${serialNumber}`, `acbService${serialNumber}`);
                                 service.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} ${serialNumber}`);
 
                                 // Create characteristics
@@ -2823,7 +2823,7 @@ class EnvoyDevice extends EventEmitter {
                                     { type: Characteristic.StartSoc, label: 'start soc', value: generator.startSoc },
                                     { type: Characteristic.StopSoc, label: 'stop soc', value: generator.stopSoc },
                                     { type: Characteristic.ExexOn, label: 'exec on', value: generator.excOn },
-                                    { type: Characteristic.Shedule, label: 'schedule', value: generator.schedule },
+                                    { type: Characteristic.Schedule, label: 'schedule', value: generator.schedule },
                                     { type: Characteristic.Present, label: 'present', value: generator.present },
                                     { type: Characteristic.ReadingTime, label: 'reading time', value: generator.readingTime }
                                 ];
@@ -2907,12 +2907,12 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 //mode controls
-                                if (this.generatorModeContols.length > 0) {
+                                if (this.generatorModeControls.length > 0) {
                                     if (this.logDebug) this.emit('debug', `Prepare Generator ${type} Mode Control Services`);
 
                                     this.generatorModeControlServices = [];
-                                    for (let i = 0; i < this.generatorModeContols.length; i++) {
-                                        const control = this.generatorModeContols[i];
+                                    for (let i = 0; i < this.generatorModeControls.length; i++) {
+                                        const control = this.generatorModeControls[i];
                                         const { namePrefix, name, serviceType, characteristicType } = control;
                                         const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
 
@@ -5587,7 +5587,7 @@ class EnvoyDevice extends EventEmitter {
                                     { type: Characteristic.AdminState, value: generatorData.adminState },
                                     { type: Characteristic.OperatingState, value: generatorData.operState },
                                     { type: Characteristic.AdminMode, value: generatorData.adminMode },
-                                    { type: Characteristic.Shedule, value: generatorData.schedule },
+                                    { type: Characteristic.Schedule, value: generatorData.schedule },
                                     { type: Characteristic.StartSoc, value: generatorData.startSoc },
                                     { type: Characteristic.StopSoc, value: generatorData.stopSoc },
                                     { type: Characteristic.ExexOn, value: generatorData.excOn },
@@ -5640,8 +5640,8 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 // Update generator mode toggle controls
-                                for (let i = 0; i < (this.generatorModeContols?.length ?? 0); i++) {
-                                    const control = this.generatorModeContols[i];
+                                for (let i = 0; i < (this.generatorModeControls?.length ?? 0); i++) {
+                                    const control = this.generatorModeControls[i];
                                     const { mode, characteristicType } = control;
                                     const state = mode === generatorData.adminMode;
 

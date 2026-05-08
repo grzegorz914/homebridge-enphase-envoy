@@ -1,4 +1,4 @@
-import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
+import { XMLParser } from 'fast-xml-parser';
 import cron from 'node-cron';
 import EventEmitter from 'events';
 import EnvoyToken from './envoytoken.js';
@@ -266,7 +266,7 @@ class EnvoyData extends EventEmitter {
                         supported: false
                     }
                 },
-                comsumptionNet: {
+                consumptionNet: {
                     supported: false
                 },
                 consumptionTotal: {
@@ -449,23 +449,27 @@ class EnvoyData extends EventEmitter {
                 if (this.mqttEnabled) this.emit('mqtt', 'Data Sampling', state);
             });
 
-        // 22:58
-        cron.schedule('58 22 * * *', async () => {
+        // 22:57
+        cron.schedule('57 22 * * *', async () => {
             try {
                 // Stop impulse generator before daily reset
                 await this.impulseGenerator.state(false, []);
             } catch (error) {
-                if (this.logError) this.emit('error', `Cron 22:58 error: ${error}`);
+                if (this.logError) this.emit('error', `Cron 22:57 error: ${error}`);
             }
         });
 
-        // 23:09
-        cron.schedule('9 23 * * *', async () => {
+        // 23:10
+        cron.schedule('10 23 * * *', async () => {
             try {
-                // Start impulse generator after daily reset
-                await this.impulseGenerator.state(true, this.timers);
+                // Start impulse generator after daily reset.
+                // runOnStart=false: let the first natural interval fire each handler
+                // one at a time instead of blasting all requests simultaneously right
+                // after Envoy has finished its own reset sequence.
+                if (!this.timers) return;
+                await this.impulseGenerator.state(true, this.timers, false);
             } catch (error) {
-                if (this.logError) this.emit('error', `Cron 23:09 error: ${error}`);
+                if (this.logError) this.emit('error', `Cron 23:10 error: ${error}`);
             }
         });
     }
@@ -476,7 +480,10 @@ class EnvoyData extends EventEmitter {
         if (tokenNotValid) {
             if (this.checkTokenRunning) return;
 
-            this.feature.info.jwtToken.token = '';
+            // Only invalidate the session cookie — do NOT clear jwtToken.token.
+            // Clearing the JWT forces the slow 30-second re-fetch path even when
+            // the JWT itself is still valid and only the cookie has expired.
+            // checkToken already checks jwt.expires_at independently.
             this.feature.info.tokenValid = false;
             return;
         }
@@ -487,7 +494,7 @@ class EnvoyData extends EventEmitter {
         try {
             //start impulse generator 
             const timers = state ? this.timers : [];
-            await this.impulseGenerator.state(state, timers)
+            await this.impulseGenerator.state(state, timers);
             return true;
         } catch (error) {
             throw new Error(`Impulse generator start error: ${error}`);
@@ -497,7 +504,13 @@ class EnvoyData extends EventEmitter {
     async handleWithLock(lockKey, fn) {
         if (this.locks[lockKey]) return;
 
-        const tokenValid = await this.checkToken();
+        let tokenValid;
+        try {
+            tokenValid = await this.checkToken();
+        } catch (error) {
+            if (this.logError) this.emit('error', `Check token error in ${lockKey}: ${error}`);
+            return;
+        }
         if (!tokenValid) return;
 
         this.locks[lockKey] = true;
@@ -1338,7 +1351,7 @@ class EnvoyData extends EventEmitter {
         if (this.logDebug) this.emit('debug', `Requesting detailed devices data`);
 
         try {
-            const response = await this.axiosInstance.get(ApiUrls.DevicesData)
+            const response = await this.axiosInstance.get(ApiUrls.DevicesData);
             const devicesData = response.data;
             if (this.logDebug) this.emit('debug', `Detailed devices data:`, devicesData);
 
@@ -1625,7 +1638,7 @@ class EnvoyData extends EventEmitter {
                     energyLifetime: data.wattHoursLifetime
                 };
                 Object.assign(this.pv.powerAndEnergy.consumptionNet, obj);
-                this.feature.energyPdm.comsumptionNet.supported = true;
+                this.feature.energyPdm.consumptionNet.supported = true;
             }
 
             this.feature.energyPdm.supported = true;
@@ -2668,7 +2681,7 @@ class EnvoyData extends EventEmitter {
 
             if (this.logDebug) this.emit('debug', `Prepared encharge settings:`, tariff);
 
-            const response = this.axiosInstance.put(ApiUrls.TariffSettingsGetPut, tariff);
+            const response = await this.axiosInstance.put(ApiUrls.TariffSettingsGetPut, tariff);
             if (this.logDebug) this.emit('debug', `Set encharge settings:`, response.data);
 
             return true;
@@ -2782,7 +2795,7 @@ class EnvoyData extends EventEmitter {
             const tokenValid = tokenRequired ? await this.checkToken(true) : true;
             if (tokenRequired && !tokenValid) return null;
 
-            // Legacy auth (Legacy auth))
+            // Legacy auth
             const digestAuthorizationEnvoy = !tokenRequired ? await this.digestAuthorizationEnvoy() : false;
             const digestAuthorizationInstaller = !tokenRequired ? await this.digestAuthorizationInstaller() : false;
 

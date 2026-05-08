@@ -11,6 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.6.11] - (08.05.2026)
+
+## Fixed
+
+- RESTFul / MQTT data not updating after nightly Envoy reset (22:57–23:10 window):
+  - `handleError` was clearing `jwtToken.token` on every 401 response, forcing a 30-second delay and a full JWT re-fetch from the Enlighten API even when only the session cookie had expired; now only `tokenValid` is invalidated — `checkToken` already checks `expires_at` independently
+  - cron 23:10 restart changed to `runOnStart=false` to prevent all update handlers firing simultaneously right after the Envoy reset, which caused cascading 401 errors
+  - `handleWithLock` now catches exceptions thrown by `checkToken` (e.g. from `validateToken`) instead of leaking unhandled promise rejections
+
+## Changed
+
+- `Characteristic.Shedule` → `Characteristic.Schedule` (class name corrected; UUID unchanged)
+- `Service.AcBatterieService` → `Service.AcBatteryService`, `Service.AcBatterieSummaryService` → `Service.AcBatterySummaryService` (class names corrected; UUIDs unchanged)
+- `ApiUrls.EnchrgeStatus` → `ApiUrls.EnchargeStatus`, `ApiUrls.InternalMeterRevelsalEid` → `ApiUrls.InternalMeterReversalEid`
+- corrected display strings: `"Generstor"` → `"Generator"`, `"Powwr on unused phase"` → `"Power on unused phase"`, `"State oF Charge"` → `"State of Charge"`, `"AC Batterie"` → `"AC Battery"`, `"Shedule"` → `"Schedule"`, `acvoltagehighline2` / `acvoltagelowline2` descriptions fixed
+- removed unused imports `XMLBuilder`, `XMLValidator` from `envoydata.js`
+- internal variable renames: `lockControTime` → `lockControlTime`, `generatorModeContols` → `generatorModeControls`, `comsumptionNet` → `consumptionNet`
+- missing `await` added to `axiosInstance.put` in `setEnchargeSettings`
+
 ## [10.6.0] - (20.03.2026)
 
 ## Changes
