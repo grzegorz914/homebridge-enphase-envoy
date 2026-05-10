@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.6.13] - (10.05.2026)
+
+### Fixed
+
+- Config schema: `powerConsumptionNetLevelSensors`, `energyConsumptionTotalLevelSensors` and `energyConsumptionNetLevelSensors` had `compareType` listed as a required field in `allOf` validation rules, but the property was not defined in the schema — the Homebridge UI could never set it, so saving the config always failed when any of these sensors had `displayType > 0`; `compareType` removed from `required` in all three sensors (they are level sensors, not quality sensors)
+
 ## [10.6.12] - (08.05.2026)
 
 ### Fixed

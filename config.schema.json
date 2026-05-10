@@ -1073,7 +1073,6 @@
                     },
                     "then": {
                       "required": [
-                        "compareType",
                         "compareMode",
                         "energyLevel"
                       ]
@@ -1383,7 +1382,6 @@
                     },
                     "then": {
                       "required": [
-                        "compareType",
                         "compareMode",
                         "powerLevel"
                       ]
@@ -1526,7 +1524,6 @@
                     },
                     "then": {
                       "required": [
-                        "compareType",
                         "compareMode",
                         "energyLevel"
                       ]
