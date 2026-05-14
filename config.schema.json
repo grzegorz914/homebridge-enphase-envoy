@@ -153,6 +153,18 @@
               "type": "boolean",
               "description": "Enables energy meter as a axtra accessory to display charts in EVE app"
             },
+            "energyHistoryTime": {
+              "title": "Energy History Time",
+              "type": "integer",
+              "default": 0,
+              "description": "Here set the time (in years) for which the energy history data should be saved. Setting this to 0 will save all data without deleting any (not recommended)."
+            },
+            "energyHistoryReserveSpace": {
+              "title": "Energy History Reserve Space",
+              "type": "integer",
+              "default": 1,
+              "description": "Here set the reserve space (in GB) after which the plugin will start deleting old energy history data to prevent storage from being full. Setting this to 0 will disable this functionality (not recommended)."
+            },
             "lockControl": {
               "title": "Lock Control",
               "type": "object",
@@ -448,38 +460,7 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareMode",
                         "powerLevel"
                       ]
                     }
@@ -3904,6 +3885,8 @@
                   "title": "Envoy",
                   "items": [
                     "devices[].energyMeter",
+                    "devices[].energyHistoryTime",
+                    "devices[].energyHistoryReserveSpace",
                     {
                       "key": "devices[]",
                       "type": "tabarray",

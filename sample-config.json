@@ -28,6 +28,9 @@
                     "enlightenPasswd": "",
                     "envoyToken": "",
                     "envoyTokenInstaller": false,
+                    "energyMeter": false,
+                    "energyHistoryTime": 0,
+                    "energyHistoryReserveSpace": 1,
                     "lockControl": {
                         "enable": true,
                         "time": 30,

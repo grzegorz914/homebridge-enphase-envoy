@@ -1,4 +1,6 @@
 import EventEmitter from 'events';
+import { statfs, stat } from 'fs/promises';
+import { dirname } from 'path';
 import EnvoyData from './envoydata.js';
 import RestFul from './restful.js';
 import Mqtt from './mqtt.js';
@@ -24,6 +26,8 @@ class EnvoyDevice extends EventEmitter {
         this.name = deviceName;
         this.displayType = device.displayType;
         this.energyMeter = device.energyMeter || false;
+        this.energyHistoryTime = device.energyHistoryTime || 0;
+        this.energyHistoryReserveSpace = device.energyHistoryReserveSpace || 1;
 
         this.lockControl = device.lockControl?.enable || false;
         this.lockControlPrefix = device.lockControl?.prefix || false;
@@ -3936,11 +3940,11 @@ class EnvoyDevice extends EventEmitter {
                     if (this.logDebug) this.emit('debug', `Update power and energy data`);
 
                     let energyLifetimeHistory = { ts: null, pr: 0, prt: 0, pru: 0, prut: 0, cn: 0, cnt: 0, cnu: 0, cnut: 0, ct: 0, ctt: 0, ctp: 0, ctpt: 0 };
-                    let history = [];
+                    let energyHistory = [];
 
                     try {
-                        history = await this.functions.readData(this.energyLifetimeHistoryFile, true) || [];
-                        if (Array.isArray(history) && history.length > 0) {
+                        energyHistory = await this.functions.readData(this.energyLifetimeHistoryFile, true) || [];
+                        if (Array.isArray(energyHistory) && energyHistory.length > 0) {
 
                             const now = new Date();
 
@@ -3962,7 +3966,7 @@ class EnvoyDevice extends EventEmitter {
                             let yesterdaySnapshot = null;
                             let todaySnapshot = null;
 
-                            for (const item of history) {
+                            for (const item of energyHistory) {
 
                                 if (!item || typeof item.ts !== 'number') continue;
 
@@ -4297,82 +4301,146 @@ class EnvoyDevice extends EventEmitter {
                         ) {
 
                             const nowUnix = Math.floor(Date.now() / 1000);
-                            const currentMinute = Math.floor(nowUnix / 60);
+                            const minuteTs = Math.floor(nowUnix / 60) * 60;
 
-                            if (this._lastSavedMinute !== currentMinute) {
+                            const now = new Date();
+                            const endOfDayTs = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).getTime() / 1000);
+                            const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 
-                                this._lastSavedMinute = currentMinute;
+                            const needsMinuteSave = minuteTs > (this._lastSavedMinuteTs ?? 0);
+                            const needsEndOfDaySave = nowUnix >= endOfDayTs && this._lastSavedEndOfDayDate !== todayStr;
 
-                                const record = {
-                                    ts: nowUnix,
-                                    prt: powerAndEnergyDataObj.production.energyToday,
-                                    pr: powerAndEnergyDataObj.production.energyLifetime,
-                                    prut: powerAndEnergyDataObj.production.energyTodayUpload,
-                                    pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
-                                    cnt: powerAndEnergyDataObj.consumptionNet.energyToday,
-                                    cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
-                                    cnut: powerAndEnergyDataObj.consumptionNet.energyTodayUpload,
-                                    cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
-                                    ctt: powerAndEnergyDataObj.consumptionTotal.energyToday,
-                                    ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime,
-                                    ctpt: powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv,
-                                    ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
-                                };
+                            if ((needsMinuteSave || needsEndOfDaySave) && !this._saving) {
 
-                                const last = history[history.length - 1];
+                                this._saving = true;
 
-                                const changed =
-                                    !last ||
-                                    last.prt !== record.prt ||
-                                    last.pr !== record.pr ||
-                                    last.prut !== record.prut ||
-                                    last.pru !== record.pru ||
-                                    last.cnt !== record.cnt ||
-                                    last.cn !== record.cn ||
-                                    last.cnut !== record.cnut ||
-                                    last.cnu !== record.cnu ||
-                                    last.ctt !== record.ctt ||
-                                    last.ct !== record.ct ||
-                                    last.ctpt !== record.ctpt ||
-                                    last.ctp !== record.ctp;
+                                try {
 
-                                if (changed && !this._saving) {
+                                    const lastRealRecord = energyHistory.reduce((last, item) => item?.pr != null ? item : last, null);
 
-                                    this._saving = true;
+                                    const nullRecord = (ts) => ({
+                                        ts, prt: null, pr: null, prit: null, prut: null, pru: null,
+                                        cnt: null, cn: null, cnit: null, cnut: null, cnu: null,
+                                        ctt: null, ct: null, ctit: null, ctpt: null, ctp: null
+                                    });
 
-                                    try {
+                                    const makeRecord = (ts) => {
+                                        const pr = powerAndEnergyDataObj.production.energyLifetime;
+                                        const cn = powerAndEnergyDataObj.consumptionNet.energyLifetime;
+                                        const ct = powerAndEnergyDataObj.consumptionTotal.energyLifetime;
+                                        const tsDay = new Date(ts * 1000).setHours(0, 0, 0, 0);
+                                        const prevDay = lastRealRecord ? new Date(lastRealRecord.ts * 1000).setHours(0, 0, 0, 0) : null;
+                                        const sameDay = tsDay === prevDay;
+                                        return {
+                                            ts,
+                                            prt: powerAndEnergyDataObj.production.energyToday,
+                                            pr,
+                                            prit: sameDay && pr != null && lastRealRecord.pr != null ? pr - lastRealRecord.pr : null,
+                                            prut: powerAndEnergyDataObj.production.energyTodayUpload,
+                                            pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
+                                            cnt: powerAndEnergyDataObj.consumptionNet.energyToday,
+                                            cn,
+                                            cnit: sameDay && cn != null && lastRealRecord.cn != null ? cn - lastRealRecord.cn : null,
+                                            cnut: powerAndEnergyDataObj.consumptionNet.energyTodayUpload,
+                                            cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
+                                            ctt: powerAndEnergyDataObj.consumptionTotal.energyToday,
+                                            ct,
+                                            ctit: sameDay && ct != null && lastRealRecord.ct != null ? ct - lastRealRecord.ct : null,
+                                            ctpt: powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv,
+                                            ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
+                                        };
+                                    };
 
-                                        history.push(record);
+                                    const lastTs = energyHistory.reduce((max, item) => (item?.ts > max ? item.ts : max), 0);
+                                    const targetTs = needsEndOfDaySave ? Math.max(minuteTs, endOfDayTs) : minuteTs;
 
-                                        // usuń dane starsze niż 7 dni
-                                        const sevenDaysAgo = nowUnix - 604800;
+                                    if (lastTs > 0) {
 
-                                        history = history.filter(item =>
-                                            item &&
-                                            typeof item.ts === 'number' &&
-                                            item.ts >= sevenDaysAgo
-                                        );
+                                        const effectiveLastTs = lastTs;
+                                        const existingTs = new Set(energyHistory.map(item => item?.ts).filter(t => t != null));
+                                        const expectedTs = new Set();
 
-                                        await this.functions.saveData(this.energyLifetimeHistoryFile, history);
+                                        const firstMinute = Math.floor(effectiveLastTs / 60) * 60 + 60;
+                                        for (let t = firstMinute; t <= targetTs; t += 60) {
+                                            expectedTs.add(t);
+                                        }
 
-                                    } catch (error) {
+                                        const startDate = new Date(effectiveLastTs * 1000);
+                                        const endDate = new Date(targetTs * 1000);
+                                        for (
+                                            let d = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+                                            d <= endDate;
+                                            d.setDate(d.getDate() + 1)
+                                        ) {
+                                            const eodTs = Math.floor(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).getTime() / 1000);
+                                            if (eodTs > effectiveLastTs && eodTs <= targetTs) {
+                                                expectedTs.add(eodTs);
+                                            }
+                                        }
 
-                                        if (this.logWarn)
-                                            this.emit('warn', `Save energy history error: ${error.message}`);
+                                        for (const ts of [...expectedTs].sort((a, b) => a - b)) {
+                                            if (!existingTs.has(ts)) {
+                                                const isActual = (ts === minuteTs && needsMinuteSave) || (ts === endOfDayTs && needsEndOfDaySave);
+                                                energyHistory.push(isActual ? makeRecord(ts) : nullRecord(ts));
+                                                existingTs.add(ts);
+                                            }
+                                        }
 
-                                    } finally {
+                                    } else {
 
-                                        this._saving = false;
+                                        if (needsMinuteSave) energyHistory.push(makeRecord(minuteTs));
+                                        if (needsEndOfDaySave) energyHistory.push(makeRecord(endOfDayTs));
 
                                     }
+
+                                    if (needsMinuteSave) this._lastSavedMinuteTs = minuteTs;
+                                    if (needsEndOfDaySave) this._lastSavedEndOfDayDate = todayStr;
+
+                                    if (this.energyHistoryTime > 0) {
+                                        const cutoff = nowUnix - this.energyHistoryTime * 31536000;
+                                        energyHistory = energyHistory.filter(item =>
+                                            item &&
+                                            typeof item.ts === 'number' &&
+                                            item.ts >= cutoff
+                                        );
+                                    }
+
+                                    if (this.energyHistoryReserveSpace > 0 && energyHistory.length > 1) {
+                                        try {
+                                            const spaceStats = await statfs(dirname(this.energyLifetimeHistoryFile));
+                                            const freeGB = (spaceStats.bavail * spaceStats.bsize) / 1073741824;
+                                            if (freeGB < this.energyHistoryReserveSpace) {
+                                                const deficitBytes = (this.energyHistoryReserveSpace - freeGB) * 1073741824;
+                                                const fileStats = await stat(this.energyLifetimeHistoryFile).catch(() => null);
+                                                const bytesPerRecord = fileStats && energyHistory.length > 0 ? fileStats.size / energyHistory.length : 200;
+                                                const toRemove = Math.min(Math.max(1, Math.ceil(deficitBytes / bytesPerRecord)), energyHistory.length - 1);
+                                                energyHistory.splice(0, toRemove);
+                                                if (this.logWarn) this.emit('warn', `Energy history pruned ${toRemove} oldest records (free: ${freeGB.toFixed(2)} GB < reserve: ${this.energyHistoryReserveSpace} GB)`);
+                                            }
+                                        } catch (e) {
+                                            if (this.logWarn) this.emit('warn', `Energy history space check error: ${e.message}`);
+                                        }
+                                    }
+
+                                    await this.functions.saveData(this.energyLifetimeHistoryFile, energyHistory);
+
+                                } catch (error) {
+
+                                    if (this.logWarn)
+                                        this.emit('warn', `Save energy history error: ${error.message}`);
+
+                                } finally {
+
+                                    this._saving = false;
+
                                 }
                             }
                         }
 
                         if (this.restFulConnected) this.restFul1.update('powerandenergydata', this.pv.powerAndEnergyData);
-                        if (this.restFulConnected) this.restFul1.update('energyhistory', history);
+                        if (this.restFulConnected) this.restFul1.update('energyhistory', energyHistory);
                         if (this.mqttConnected) this.mqtt1.emit('publish', 'Power And Energy Data', this.pv.powerAndEnergyData);
-                        if (this.mqttConnected) this.mqtt1.emit('publish', 'Energy History', history);
+                        if (this.mqttConnected) this.mqtt1.emit('publish', 'Energy History', energyHistory);
                     } catch (error) {
                         throw new Error(`Update power and energy data error: ${error.message || error}`);
                     }

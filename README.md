@@ -120,6 +120,8 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 | | `lockControl.time` | number | `System Auto Lock Control` time (seconds) |
 | | `lockControl.namePrefix` | boolean | Use accessory name for prefix |
 | `energyMeter` | | boolean | Enables energy meter as a axtra accessory to display charts in EVE app |
+| `energyHistoryTime` | | number | Time in years for which energy history data is retained. `0` - no time limit, all data is saved |
+| `energyHistoryReserveSpace` | | number | Minimum free disk space in `GB` to maintain. When free space falls below this value, the oldest history records are deleted to free up storage. `0` - disable |
 | `productionStateSensor` | | key | `Production State Sensor` for production state monitoring |
 | | `name` | string | Accessory name for Home app |
 | | `displayType` | number | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor |
@@ -318,8 +320,8 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 REST POST calls must include a content-type header of `application/json`.
 Path `pv` response all available data.
 Path `status` response all available paths.
-Energy history last 7 days, stored every 1 minute:
-`ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
+Energy history stored every 1 minute at `:00` second and at `23:59:59` each day. Missing records are filled with `null` values. Retention is controlled by `energyHistoryTime` and `energyHistoryReserveSpace` settings:
+`ts - timestamp`, `pr - production lifetime`, `prit - production interval Wh (same day only)`, `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnit - net consumption interval Wh (same day only)`, `cnt - consumption net today`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctit - total consumption interval Wh (same day only)`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
@@ -339,8 +341,8 @@ Energy history last 7 days, stored every 1 minute:
 ### MQTT Integration
 
 Subscribe using JSON `{ "EnchargeProfile": "savings" }`
-Energy history last 7 days, stored every 1 minute:
-`ts - timestamp`, `pr - production lifetime`,  `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnt - consumption net todaz`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
+Energy history stored every 1 minute at `:00` second and at `23:59:59` each day. Missing records are filled with `null` values. Retention is controlled by `energyHistoryTime` and `energyHistoryReserveSpace` settings:
+`ts - timestamp`, `pr - production lifetime`, `prit - production interval Wh (same day only)`, `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnit - net consumption interval Wh (same day only)`, `cnt - consumption net today`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctit - total consumption interval Wh (same day only)`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |

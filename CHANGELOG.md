@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.0] - (14.05.2026)
+
+### Changed
+
+- Energy history saving reworked:
+  - Records are now saved every minute at the `:00` second and additionally at `23:59:59` each day
+  - Timestamps are aligned to the start of each minute (`HH:MM:00`) instead of the actual poll time
+  - Missing records (plugin offline, save error) are automatically backfilled with `null` values to maintain a continuous timeline
+  - Added new record keys:
+    - `prit` — production energy interval in `Wh` between consecutive saved points (same day only, `null` on day boundary)
+    - `cnit` — net consumption energy interval in `Wh` between consecutive saved points (same day only, `null` on day boundary)
+    - `ctit` — total consumption energy interval in `Wh` between consecutive saved points (same day only, `null` on day boundary)
+  - Removed fixed 7-day retention limit; retention is now controlled by configuration
+- Added `energyHistoryTime` config option: time in years for which history is retained; `0` — no time limit (keep all data)
+- Added `energyHistoryReserveSpace` config option: minimum free disk space in `GB` to maintain; when free space falls below this value the oldest records are deleted to free storage; `0` — disable
+- README and sample-config.json updated
+
 ## [10.6.13] - (10.05.2026)
 
 ### Fixed
