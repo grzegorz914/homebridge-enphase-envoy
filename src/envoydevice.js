@@ -7,6 +7,24 @@ import Mqtt from './mqtt.js';
 import Functions from './functions.js';
 import fakegato from 'fakegato-history';
 import { PartNumbers, ApiCodes, MetersKeyMap, MetersKeyMap1, DeviceTypeMap, LedStatus } from './constants.js';
+
+const HISTORY_KEYS = ['ts', 'prt', 'pr', 'prit', 'prut', 'pru', 'cnt', 'cn', 'cnit', 'cnut', 'cnu', 'ctt', 'ct', 'ctit', 'ctpt', 'ctp'];
+const toColumnar = (records) => {
+    const col = {};
+    for (const k of HISTORY_KEYS) col[k] = records.map(r => r?.[k] ?? null);
+    return col;
+};
+const fromColumnar = (data) => {
+    if (Array.isArray(data)) return data;
+    const keys = Object.keys(data);
+    const len = data[keys[0]]?.length ?? 0;
+    return Array.from({ length: len }, (_, i) => {
+        const obj = {};
+        for (const k of keys) obj[k] = data[k]?.[i] ?? null;
+        return obj;
+    });
+};
+
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
@@ -3943,7 +3961,7 @@ class EnvoyDevice extends EventEmitter {
                     let energyHistory = [];
 
                     try {
-                        energyHistory = await this.functions.readData(this.energyLifetimeHistoryFile, true) || [];
+                        energyHistory = fromColumnar(await this.functions.readData(this.energyLifetimeHistoryFile, true) || []);
                         if (Array.isArray(energyHistory) && energyHistory.length > 0) {
 
                             const now = new Date();
@@ -4324,30 +4342,32 @@ class EnvoyDevice extends EventEmitter {
                                         ctt: null, ct: null, ctit: null, ctpt: null, ctp: null
                                     });
 
+                                    const r3 = (v) => v != null ? Math.round(v * 1000) / 1000 : null;
+
                                     const makeRecord = (ts) => {
-                                        const pr = powerAndEnergyDataObj.production.energyLifetime;
-                                        const cn = powerAndEnergyDataObj.consumptionNet.energyLifetime;
-                                        const ct = powerAndEnergyDataObj.consumptionTotal.energyLifetime;
+                                        const pr = r3(powerAndEnergyDataObj.production.energyLifetime);
+                                        const cn = r3(powerAndEnergyDataObj.consumptionNet.energyLifetime);
+                                        const ct = r3(powerAndEnergyDataObj.consumptionTotal.energyLifetime);
                                         const tsDay = new Date(ts * 1000).setHours(0, 0, 0, 0);
                                         const prevDay = lastRealRecord ? new Date(lastRealRecord.ts * 1000).setHours(0, 0, 0, 0) : null;
                                         const sameDay = tsDay === prevDay;
                                         return {
                                             ts,
-                                            prt: powerAndEnergyDataObj.production.energyToday,
+                                            prt: r3(powerAndEnergyDataObj.production.energyToday),
                                             pr,
-                                            prit: sameDay && pr != null && lastRealRecord.pr != null ? pr - lastRealRecord.pr : null,
-                                            prut: powerAndEnergyDataObj.production.energyTodayUpload,
-                                            pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
-                                            cnt: powerAndEnergyDataObj.consumptionNet.energyToday,
+                                            prit: sameDay && pr != null && lastRealRecord.pr != null ? r3(pr - lastRealRecord.pr) : null,
+                                            prut: r3(powerAndEnergyDataObj.production.energyTodayUpload),
+                                            pru: r3(powerAndEnergyDataObj.production.energyLifetimeUpload),
+                                            cnt: r3(powerAndEnergyDataObj.consumptionNet.energyToday),
                                             cn,
-                                            cnit: sameDay && cn != null && lastRealRecord.cn != null ? cn - lastRealRecord.cn : null,
-                                            cnut: powerAndEnergyDataObj.consumptionNet.energyTodayUpload,
-                                            cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
-                                            ctt: powerAndEnergyDataObj.consumptionTotal.energyToday,
+                                            cnit: sameDay && cn != null && lastRealRecord.cn != null ? r3(cn - lastRealRecord.cn) : null,
+                                            cnut: r3(powerAndEnergyDataObj.consumptionNet.energyTodayUpload),
+                                            cnu: r3(powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload),
+                                            ctt: r3(powerAndEnergyDataObj.consumptionTotal.energyToday),
                                             ct,
-                                            ctit: sameDay && ct != null && lastRealRecord.ct != null ? ct - lastRealRecord.ct : null,
-                                            ctpt: powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv,
-                                            ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
+                                            ctit: sameDay && ct != null && lastRealRecord.ct != null ? r3(ct - lastRealRecord.ct) : null,
+                                            ctpt: r3(powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv),
+                                            ctp: r3(powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv)
                                         };
                                     };
 
@@ -4422,7 +4442,7 @@ class EnvoyDevice extends EventEmitter {
                                         }
                                     }
 
-                                    await this.functions.saveData(this.energyLifetimeHistoryFile, energyHistory);
+                                    await this.functions.saveData(this.energyLifetimeHistoryFile, JSON.stringify(toColumnar(energyHistory)), false);
 
                                 } catch (error) {
 

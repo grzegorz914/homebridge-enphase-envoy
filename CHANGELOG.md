@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.1] - (14.05.2026)
+
+### Changed
+
+- Energy history file format optimized: switched from pretty-printed array-of-objects to compact columnar JSON (object of arrays); key names appear once instead of per record; reduces file size by ~80% (e.g. 10 000 records: ~7 MB → ~1.3 MB); backward-compatible — existing files in old format are automatically migrated on first save; REST and MQTT output unchanged (still array-of-objects)
+- All numeric values in energy history records rounded to 3 decimal places
+
 ## [10.7.0] - (14.05.2026)
 
 ### Changed
