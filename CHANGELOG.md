@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.2] - (14.05.2026)
+
+### Fixed
+
+- Energy meter (`energyMeter`) with meters enabled: `EveCurrent` and `EveVoltage` characteristics were never updated because `characteristics2.push([...])` inserted a nested array instead of two separate objects; changed to `push(item1, item2)`
+- Energy history: `prit`, `cnit`, `ctit` returned `null` for the first record of each day (when previous record is from a different day or history is empty); changed to `0`
+- Energy history: `r3()` rounding helper now strictly checks `typeof v === 'number' && isFinite(v)` to prevent `NaN` or `Infinity` from being serialised as string `"null"` by `JSON.stringify`
+
 ## [10.7.1] - (14.05.2026)
 
 ### Changed

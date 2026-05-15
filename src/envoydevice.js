@@ -4291,10 +4291,10 @@ class EnvoyDevice extends EventEmitter {
 
                                 // Create characteristics energy meter
                                 if (meterEnabled) {
-                                    characteristics2.push([
+                                    characteristics2.push(
                                         { type: Characteristic.EveCurrent, value: obj.current },
                                         { type: Characteristic.EveVoltage, value: obj.voltage },
-                                    ]);
+                                    );
                                 }
 
                                 // Update characteristics
@@ -4337,12 +4337,12 @@ class EnvoyDevice extends EventEmitter {
                                     const lastRealRecord = energyHistory.reduce((last, item) => item?.pr != null ? item : last, null);
 
                                     const nullRecord = (ts) => ({
-                                        ts, prt: null, pr: null, prit: null, prut: null, pru: null,
-                                        cnt: null, cn: null, cnit: null, cnut: null, cnu: null,
-                                        ctt: null, ct: null, ctit: null, ctpt: null, ctp: null
+                                        ts, prt: null, pr: null, prit: 0, prut: null, pru: null,
+                                        cnt: null, cn: null, cnit: 0, cnut: null, cnu: null,
+                                        ctt: null, ct: null, ctit: 0, ctpt: null, ctp: null
                                     });
 
-                                    const r3 = (v) => v != null ? Math.round(v * 1000) / 1000 : null;
+                                    const r3 = (v) => (typeof v === 'number' && isFinite(v)) ? Math.round(v * 1000) / 1000 : null;
 
                                     const makeRecord = (ts) => {
                                         const pr = r3(powerAndEnergyDataObj.production.energyLifetime);
@@ -4355,17 +4355,17 @@ class EnvoyDevice extends EventEmitter {
                                             ts,
                                             prt: r3(powerAndEnergyDataObj.production.energyToday),
                                             pr,
-                                            prit: sameDay && pr != null && lastRealRecord.pr != null ? r3(pr - lastRealRecord.pr) : null,
+                                            prit: sameDay && pr != null && lastRealRecord.pr != null ? r3(pr - lastRealRecord.pr) : 0,
                                             prut: r3(powerAndEnergyDataObj.production.energyTodayUpload),
                                             pru: r3(powerAndEnergyDataObj.production.energyLifetimeUpload),
                                             cnt: r3(powerAndEnergyDataObj.consumptionNet.energyToday),
                                             cn,
-                                            cnit: sameDay && cn != null && lastRealRecord.cn != null ? r3(cn - lastRealRecord.cn) : null,
+                                            cnit: sameDay && cn != null && lastRealRecord.cn != null ? r3(cn - lastRealRecord.cn) : 0,
                                             cnut: r3(powerAndEnergyDataObj.consumptionNet.energyTodayUpload),
                                             cnu: r3(powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload),
                                             ctt: r3(powerAndEnergyDataObj.consumptionTotal.energyToday),
                                             ct,
-                                            ctit: sameDay && ct != null && lastRealRecord.ct != null ? r3(ct - lastRealRecord.ct) : null,
+                                            ctit: sameDay && ct != null && lastRealRecord.ct != null ? r3(ct - lastRealRecord.ct) : 0,
                                             ctpt: r3(powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv),
                                             ctp: r3(powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv)
                                         };
