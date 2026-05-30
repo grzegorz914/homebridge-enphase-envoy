@@ -4373,6 +4373,7 @@ class EnvoyDevice extends EventEmitter {
 
                                     const lastTs = energyHistory.reduce((max, item) => (item?.ts > max ? item.ts : max), 0);
                                     const targetTs = needsEndOfDaySave ? Math.max(minuteTs, endOfDayTs) : minuteTs;
+                                    const historyLengthBeforeAdding = energyHistory.length;
 
                                     if (lastTs > 0) {
 
@@ -4411,6 +4412,33 @@ class EnvoyDevice extends EventEmitter {
                                         if (needsMinuteSave) energyHistory.push(makeRecord(minuteTs));
                                         if (needsEndOfDaySave) energyHistory.push(makeRecord(endOfDayTs));
 
+                                    }
+
+                                    // Distribute interval spike evenly across preceding gap records
+                                    for (let i = historyLengthBeforeAdding; i < energyHistory.length; i++) {
+                                        const rec = energyHistory[i];
+                                        if (!rec || rec.pr === null) continue;
+
+                                        const gapIndices = [];
+                                        for (let j = i - 1; j >= 0 && energyHistory[j]?.pr === null; j--) {
+                                            gapIndices.unshift(j);
+                                        }
+
+                                        if (gapIndices.length === 0) continue;
+
+                                        const slots = gapIndices.length + 1;
+                                        const pritSlot = r3(rec.prit / slots);
+                                        const cnitSlot = r3(rec.cnit / slots);
+                                        const ctitSlot = r3(rec.ctit / slots);
+
+                                        for (const idx of gapIndices) {
+                                            energyHistory[idx].prit = pritSlot;
+                                            energyHistory[idx].cnit = cnitSlot;
+                                            energyHistory[idx].ctit = ctitSlot;
+                                        }
+                                        rec.prit = pritSlot;
+                                        rec.cnit = cnitSlot;
+                                        rec.ctit = ctitSlot;
                                     }
 
                                     if (needsMinuteSave) this._lastSavedMinuteTs = minuteTs;

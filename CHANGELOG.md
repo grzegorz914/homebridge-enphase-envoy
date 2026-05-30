@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.3] - (14.05.2026)
+
+### Changed
+
+- Energy history: `prit`, `cnit`, `ctit` spike after a connection gap is now distributed evenly across all preceding null records and the first real record; when data resumes after N missing minutes, each slot receives `delta / (N + 1)` instead of all accumulation appearing in one record; previously saved null records on disk are also retroactively backfilled when a real record finally follows them
+
 ## [10.7.2] - (14.05.2026)
 
 ### Fixed
