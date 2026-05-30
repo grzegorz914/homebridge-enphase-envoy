@@ -320,8 +320,9 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 REST POST calls must include a content-type header of `application/json`.
 Path `pv` response all available data.
 Path `status` response all available paths.
-Energy history stored every 1 minute at `:00` second and at `23:59:59` each day. 
-Missing records are filled with `null` values; interval fields (`prit`, `cnit`, `ctit`) for gap records are distributed evenly across the gap when data resumes. 
+
+Energy history stored every 1 minute at `:00` second and at `23:59:59` each day.
+Missing records are filled with `null` values; interval fields (`prit`, `cnit`, `ctit`) for gap records are distributed evenly across the gap when data resumes.
 Retention is controlled by `energyHistoryTime` and `energyHistoryReserveSpace` settings:
 `ts - timestamp`, `pr - production lifetime`, `prit - production interval Wh between records (same day only, evenly distributed across gaps)`, `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnit - net consumption interval Wh between records (same day only, evenly distributed across gaps)`, `cnt - consumption net today`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctit - total consumption interval Wh between records (same day only, evenly distributed across gaps)`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
@@ -343,8 +344,8 @@ Retention is controlled by `energyHistoryTime` and `energyHistoryReserveSpace` s
 ### MQTT Integration
 
 Subscribe using JSON `{ "EnchargeProfile": "savings" }`
-Energy history stored every 1 minute at `:00` second and at `23:59:59` each day. 
-Missing records are filled with `null` values; interval fields (`prit`, `cnit`, `ctit`) for gap records are distributed evenly across the gap when data resumes. 
+Energy history stored every 1 minute at `:00` second and at `23:59:59` each day.
+Missing records are filled with `null` values; interval fields (`prit`, `cnit`, `ctit`) for gap records are distributed evenly across the gap when data resumes.
 Retention is controlled by `energyHistoryTime` and `energyHistoryReserveSpace` settings:
 `ts - timestamp`, `pr - production lifetime`, `prit - production interval Wh between records (same day only, evenly distributed across gaps)`, `prt - production today`, `pru - production lifetime upload`, `prut - production today upload`, `cn - consumption net lifetime`, `cnit - net consumption interval Wh between records (same day only, evenly distributed across gaps)`, `cnt - consumption net today`, `cnu - consumption net lifetime upload`, `cnut - consumption net today upload`, `ct - consumption total lifetime`, `ctit - total consumption interval Wh between records (same day only, evenly distributed across gaps)`, `ctt - consumption total today`, `ctp - consumption total lifetime from pv`, `ctpt - consumption total today from pv`
 
