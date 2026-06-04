@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.4] - (04.06.2026)
+
+### Fixed
+
+- RESTful / MQTT: after a power restart, when the Envoy gateway took several minutes to come back online, the REST server returned `"This data is not available in your system."` for all endpoints and never recovered without a manual plugin restart; root cause: each retry attempt created a new Express server on the same port — the second and subsequent servers silently failed to bind (port already in use, no error handler), leaving `restFulConnected = false`, so all `update()` calls were skipped even after the device successfully reconnected; fixed by creating the RESTful and MQTT instances once before the retry loop so the port is bound a single time and survives all connect attempts; the `'set'` (POST/MQTT command) handler is attached once via an `activeDevice` reference that is updated to the current `EnvoyDevice` instance only after a successful connect
+
 ## [10.7.3] - (14.05.2026)
 
 ### Changed

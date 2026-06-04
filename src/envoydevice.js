@@ -2,8 +2,6 @@ import EventEmitter from 'events';
 import { statfs, stat } from 'fs/promises';
 import { dirname } from 'path';
 import EnvoyData from './envoydata.js';
-import RestFul from './restful.js';
-import Mqtt from './mqtt.js';
 import Functions from './functions.js';
 import fakegato from 'fakegato-history';
 import { PartNumbers, ApiCodes, MetersKeyMap, MetersKeyMap1, DeviceTypeMap, LedStatus } from './constants.js';
@@ -28,7 +26,7 @@ const fromColumnar = (data) => {
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName) {
+    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName, restFul1 = null, restFulConnected = false, mqtt1 = null, mqttConnected = false) {
         super();
 
         Accessory = api.platformAccessory;
@@ -120,9 +118,11 @@ class EnvoyDevice extends EventEmitter {
 
         //external integrations
         this.restFul = device.restFul ?? {};
-        this.restFulConnected = false;
+        this.restFul1 = restFul1;
+        this.restFulConnected = restFulConnected;
         this.mqtt = device.mqtt ?? {};
-        this.mqttConnected = false;
+        this.mqtt1 = mqtt1;
+        this.mqttConnected = mqttConnected;
 
         //system accessory
         this.systemAccessory = {
@@ -696,83 +696,6 @@ class EnvoyDevice extends EventEmitter {
         } catch (error) {
             throw new Error(`${integration} set key: ${key}, value: ${value}, error: ${error}`);
         }
-    }
-
-    async externalIntegrations() {
-        //RESTFul server
-        const restFulEnabled = this.restFul.enable || false;
-        if (restFulEnabled) {
-            try {
-                await new Promise((resolve) => {
-                    const timer = setTimeout(resolve, 5000);
-                    this.restFul1 = new RestFul({
-                        port: this.restFul.port || 3000,
-                        logWarn: this.logWarn,
-                        logDebug: this.logDebug,
-                    })
-                        .once('connected', (success) => {
-                            clearTimeout(timer);
-                            this.restFulConnected = true;
-                            this.emit('success', success);
-                            resolve();
-                        })
-                        .on('set', async (key, value) => {
-                            try {
-                                await this.setOverExternalIntegration('RESTFul', key, value);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `RESTFul set error: ${error}`);
-                            };
-                        })
-                        .on('debug', (debug) => this.emit('debug', debug))
-                        .on('warn', (warn) => this.emit('warn', warn))
-                        .on('error', (error) => this.emit('error', error));
-                });
-            } catch (error) {
-                this.emit('warn', `RESTFul integration start error: ${error}`);
-            }
-        }
-
-        const mqttEnabled = this.mqtt.enable || false;
-        if (mqttEnabled) {
-            try {
-                await new Promise((resolve) => {
-                    const timer = setTimeout(resolve, 10000);
-                    this.mqtt1 = new Mqtt({
-                        host: this.mqtt.host,
-                        port: this.mqtt.port || 1883,
-                        clientId: this.mqtt.clientId ? `enphase_${this.mqtt.clientId}_${Math.random().toString(16).slice(3)}` : `enphase_${Math.random().toString(16).slice(3)}`,
-                        prefix: this.mqtt.prefix ? `enphase/${this.mqtt.prefix}/${this.name}` : `enphase/${this.name}`,
-                        user: this.mqtt.auth?.user,
-                        passwd: this.mqtt.auth?.passwd,
-                        logWarn: this.logWarn,
-                        logDebug: this.logDebug
-                    })
-                        .once('connected', (success) => {
-                            clearTimeout(timer);
-                            this.mqttConnected = true;
-                            this.emit('success', success);
-                            resolve();
-                        })
-                        .on('subscribed', (success) => {
-                            this.emit('success', success);
-                        })
-                        .on('set', async (key, value) => {
-                            try {
-                                await this.setOverExternalIntegration('MQTT', key, value);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `MQTT set, error: ${error}`);
-                            };
-                        })
-                        .on('debug', (debug) => this.emit('debug', debug))
-                        .on('warn', (warn) => this.emit('warn', warn))
-                        .on('error', (error) => this.emit('error', error));
-                });
-            } catch (error) {
-                this.emit('warn', `MQTT integration start error: ${error}`);
-            }
-        };
-
-        return true;
     }
 
     async startStopImpulseGenerator(state) {
@@ -3155,8 +3078,7 @@ class EnvoyDevice extends EventEmitter {
 
         try {
 
-            // External integrations
-            if (this.restFul.enable || this.mqtt.enable) await this.externalIntegrations();
+
 
             // Envoy Data
             this.envoyData = new EnvoyData(this.url, this.device, this.envoyIdFile, this.envoyTokenFile, this.restFul.enable, this.mqtt.enable)

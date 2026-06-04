@@ -2,6 +2,8 @@ import { join } from 'path';
 import { mkdirSync, existsSync, writeFileSync } from 'fs';
 import EnvoyDevice from './src/envoydevice.js';
 import ImpulseGenerator from './src/impulsegenerator.js';
+import RestFul from './src/restful.js';
+import Mqtt from './src/mqtt.js';
 import { PluginName, PlatformName } from './src/constants.js';
 import CustomCharacteristics from './src/customcharacteristics.js';
 
@@ -107,6 +109,81 @@ class EnvoyPlatform {
 
     const url = envoyFirmware7xxTokenGenerationMode > 0 ? `https://${host}` : `http://${host}`;
 
+    // Create RestFul and MQTT once — before the retry loop — so the port/connection
+    // is established a single time and survives across all connect attempts.
+    // The 'set' handler uses activeDevice so it always routes to the current instance.
+    let activeDevice = null;
+    let restFul1 = null;
+    let restFulConnected = false;
+    if (device.restFul?.enable) {
+      try {
+        await new Promise((resolve) => {
+          const timer = setTimeout(resolve, 5000);
+          restFul1 = new RestFul({
+            port: device.restFul.port || 3000,
+            logWarn: logLevel.warn,
+            logDebug: logLevel.debug,
+          })
+            .once('connected', (msg) => {
+              clearTimeout(timer);
+              restFulConnected = true;
+              if (logLevel.success) log.success(`Device: ${host} ${deviceName}, ${msg}`);
+              resolve();
+            })
+            .on('set', async (key, value) => {
+              try {
+                if (activeDevice) await activeDevice.setOverExternalIntegration('RESTFul', key, value);
+              } catch (error) {
+                if (logLevel.warn) log.warn(`Device: ${host} ${deviceName}, RESTFul set error: ${error.message ?? error}`);
+              }
+            })
+            .on('debug', (msg) => logLevel.debug && log.info(`Device: ${host} ${deviceName}, debug: ${msg}`))
+            .on('warn', (msg) => logLevel.warn && log.warn(`Device: ${host} ${deviceName}, ${msg}`))
+            .on('error', (msg) => logLevel.error && log.error(`Device: ${host} ${deviceName}, ${msg}`));
+        });
+      } catch (error) {
+        if (logLevel.warn) log.warn(`Device: ${host} ${deviceName}, RESTFul start error: ${error.message ?? error}`);
+      }
+    }
+
+    let mqtt1 = null;
+    let mqttConnected = false;
+    if (device.mqtt?.enable) {
+      try {
+        await new Promise((resolve) => {
+          const timer = setTimeout(resolve, 10000);
+          mqtt1 = new Mqtt({
+            host: device.mqtt.host,
+            port: device.mqtt.port || 1883,
+            clientId: device.mqtt.clientId ? `enphase_${device.mqtt.clientId}_${Math.random().toString(16).slice(3)}` : `enphase_${Math.random().toString(16).slice(3)}`,
+            prefix: device.mqtt.prefix ? `enphase/${device.mqtt.prefix}/${deviceName}` : `enphase/${deviceName}`,
+            user: device.mqtt.auth?.user,
+            passwd: device.mqtt.auth?.passwd,
+            logWarn: logLevel.warn,
+            logDebug: logLevel.debug,
+          })
+            .once('connected', (msg) => {
+              clearTimeout(timer);
+              mqttConnected = true;
+              if (logLevel.success) log.success(`Device: ${host} ${deviceName}, ${msg}`);
+              resolve();
+            })
+            .on('set', async (key, value) => {
+              try {
+                if (activeDevice) await activeDevice.setOverExternalIntegration('MQTT', key, value);
+              } catch (error) {
+                if (logLevel.warn) log.warn(`Device: ${host} ${deviceName}, MQTT set error: ${error.message ?? error}`);
+              }
+            })
+            .on('debug', (msg) => logLevel.debug && log.info(`Device: ${host} ${deviceName}, debug: ${msg}`))
+            .on('warn', (msg) => logLevel.warn && log.warn(`Device: ${host} ${deviceName}, ${msg}`))
+            .on('error', (msg) => logLevel.error && log.error(`Device: ${host} ${deviceName}, ${msg}`));
+        });
+      } catch (error) {
+        if (logLevel.warn) log.warn(`Device: ${host} ${deviceName}, MQTT start error: ${error.message ?? error}`);
+      }
+    }
+
     // The startup impulse generator retries the full connect+start cycle
     // every 120 s until it succeeds, then hands off to the device's own
     // impulse generator and stops itself.
@@ -118,6 +195,8 @@ class EnvoyPlatform {
             envoyIdFile, envoyTokenFile, prefDir,
             energyLifetimeHistoryFile, energyMeterHistoryFileName,
             logLevel, log, api, impulseGenerator,
+            restFul1, restFulConnected, mqtt1, mqttConnected,
+            onDeviceReady: (d) => { activeDevice = d; },
           });
         } catch (error) {
           if (logLevel.error) log.error(`Device: ${host} ${deviceName}, Start impulse generator error: ${error.message ?? error}, retrying.`);
@@ -132,8 +211,8 @@ class EnvoyPlatform {
 
   // ── Connect and register accessories for one device ────────────────────────
 
-  async startDevice({ device, deviceName, host, url, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName, logLevel, log, api, impulseGenerator }) {
-    const envoyDevice = new EnvoyDevice(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName)
+  async startDevice({ device, deviceName, host, url, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName, logLevel, log, api, impulseGenerator, restFul1, restFulConnected, mqtt1, mqttConnected, onDeviceReady }) {
+    const envoyDevice = new EnvoyDevice(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName, restFul1, restFulConnected, mqtt1, mqttConnected)
       .on('devInfo', (info) => logLevel.devInfo && log.info(info))
       .on('success', (msg) => logLevel.success && log.success(`Device: ${host} ${deviceName}, ${msg}`))
       .on('info', (msg) => logLevel.info && log.info(`Device: ${host} ${deviceName}, ${msg}`))
@@ -144,6 +223,7 @@ class EnvoyPlatform {
     const accessories = await envoyDevice.start();
     if (!accessories) return;
 
+    onDeviceReady(envoyDevice);
     api.publishExternalAccessories(PluginName, accessories);
     if (logLevel.success) log.success(`Device: ${host} ${deviceName}, Published as external accessory.`);
 
