@@ -892,7 +892,7 @@ export default (api) => {
     }
     Characteristic.EnergyTodayFromPv = EnergyTodayFromPv;
 
-    //AC Batterie
+    //AC Battery
     class Energy extends Characteristic {
         constructor() {
             super('Energy', '00000092-000B-1000-8000-0026BB765291');
@@ -941,7 +941,7 @@ export default (api) => {
     }
     Characteristic.ActiveCount = ActiveCount;
 
-    //AC Batterie
+    //AC Battery
     class ChargeState extends Characteristic {
         constructor() {
             super('Charge state', '00000111-000B-1000-8000-0026BB765291');
@@ -1855,7 +1855,7 @@ export default (api) => {
     }
     Characteristic.ExexOn = ExexOn;
 
-    class Shedule extends Characteristic {
+    class Schedule extends Characteristic {
         constructor() {
             super('Schedule', '00000257-000B-1000-8000-0026BB765291');
             this.setProps({
@@ -1865,7 +1865,7 @@ export default (api) => {
             this.value = this.getDefaultValue();
         }
     }
-    Characteristic.Shedule = Shedule;
+    Characteristic.Schedule = Schedule;
 
     class Present extends Characteristic {
         constructor() {
@@ -2028,8 +2028,8 @@ export default (api) => {
     }
     Service.PowerAndEnergyService = PowerAndEnergyService;
 
-    //AC Batterie summary service
-    class AcBatterieSummaryService extends Service {
+    //AC Battery summary service
+    class AcBatterySummaryService extends Service {
         constructor(displayName, subtype) {
             super(displayName, '00000005-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
@@ -2044,10 +2044,10 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
-    Service.AcBatterieSummaryService = AcBatterieSummaryService;
+    Service.AcBatterySummaryService = AcBatterySummaryService;
 
-    //AC Batterie service
-    class AcBatterieService extends Service {
+    //AC Battery service
+    class AcBatteryService extends Service {
         constructor(displayName, subtype) {
             super(displayName, '00000006-000A-1000-8000-0026BB765291', subtype);
             // Mandatory Characteristics
@@ -2071,7 +2071,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);
         }
     }
-    Service.AcBatterieService = AcBatterieService;
+    Service.AcBatteryService = AcBatteryService;
 
 
     //Microinverter service
@@ -2231,7 +2231,7 @@ export default (api) => {
             this.addOptionalCharacteristic(Characteristic.StartSoc);
             this.addOptionalCharacteristic(Characteristic.StopSoc);
             this.addOptionalCharacteristic(Characteristic.ExexOn);
-            this.addOptionalCharacteristic(Characteristic.Shedule);
+            this.addOptionalCharacteristic(Characteristic.Schedule);
             this.addOptionalCharacteristic(Characteristic.Present);
             this.addOptionalCharacteristic(Characteristic.ReadingTime);
             this.addOptionalCharacteristic(Characteristic.ConfiguredName);

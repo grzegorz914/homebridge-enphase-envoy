@@ -11,6 +11,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.4] - (04.06.2026)
+
+### Fixed
+
+- RESTful / MQTT: after a power restart, when the Envoy gateway took several minutes to come back online, the REST server returned `"This data is not available in your system."` for all endpoints and never recovered without a manual plugin restart; root cause: each retry attempt created a new Express server on the same port — the second and subsequent servers silently failed to bind (port already in use, no error handler), leaving `restFulConnected = false`, so all `update()` calls were skipped even after the device successfully reconnected; fixed by creating the RESTful and MQTT instances once before the retry loop so the port is bound a single time and survives all connect attempts; the `'set'` (POST/MQTT command) handler is attached once via an `activeDevice` reference that is updated to the current `EnvoyDevice` instance only after a successful connect
+
+## [10.7.3] - (14.05.2026)
+
+### Changed
+
+- Energy history: `prit`, `cnit`, `ctit` spike after a connection gap is now distributed evenly across all preceding null records and the first real record; when data resumes after N missing minutes, each slot receives `delta / (N + 1)` instead of all accumulation appearing in one record; previously saved null records on disk are also retroactively backfilled when a real record finally follows them
+
+## [10.7.2] - (14.05.2026)
+
+### Fixed
+
+- Energy meter (`energyMeter`) with meters enabled: `EveCurrent` and `EveVoltage` characteristics were never updated because `characteristics2.push([...])` inserted a nested array instead of two separate objects; changed to `push(item1, item2)`
+- Energy history: `prit`, `cnit`, `ctit` returned `null` for the first record of each day (when previous record is from a different day or history is empty); changed to `0`
+- Energy history: `r3()` rounding helper now strictly checks `typeof v === 'number' && isFinite(v)` to prevent `NaN` or `Infinity` from being serialised as string `"null"` by `JSON.stringify`
+
+## [10.7.1] - (14.05.2026)
+
+### Changed
+
+- Energy history file format optimized: switched from pretty-printed array-of-objects to compact columnar JSON (object of arrays); key names appear once instead of per record; reduces file size by ~80% (e.g. 10 000 records: ~7 MB → ~1.3 MB); backward-compatible — existing files in old format are automatically migrated on first save; REST and MQTT output unchanged (still array-of-objects)
+- All numeric values in energy history records rounded to 3 decimal places
+
+## [10.7.0] - (14.05.2026)
+
+### Changed
+
+- Energy history saving reworked:
+  - Records are now saved every minute at the `:00` second and additionally at `23:59:59` each day
+  - Timestamps are aligned to the start of each minute (`HH:MM:00`) instead of the actual poll time
+  - Missing records (plugin offline, save error) are automatically backfilled with `null` values to maintain a continuous timeline
+  - Added new record keys:
+    - `prit` — production energy interval in `Wh` between consecutive saved points (same day only, `null` on day boundary)
+    - `cnit` — net consumption energy interval in `Wh` between consecutive saved points (same day only, `null` on day boundary)
+    - `ctit` — total consumption energy interval in `Wh` between consecutive saved points (same day only, `null` on day boundary)
+  - Removed fixed 7-day retention limit; retention is now controlled by configuration
+- Added `energyHistoryTime` config option: time in years for which history is retained; `0` — no time limit (keep all data)
+- Added `energyHistoryReserveSpace` config option: minimum free disk space in `GB` to maintain; when free space falls below this value the oldest records are deleted to free storage; `0` — disable
+- README and sample-config.json updated
+
+## [10.6.13] - (10.05.2026)
+
+### Fixed
+
+- Config schema: `powerConsumptionNetLevelSensors`, `energyConsumptionTotalLevelSensors` and `energyConsumptionNetLevelSensors` had `compareType` listed as a required field in `allOf` validation rules, but the property was not defined in the schema — the Homebridge UI could never set it, so saving the config always failed when any of these sensors had `displayType > 0`; `compareType` removed from `required` in all three sensors (they are level sensors, not quality sensors)
+
+## [10.6.12] - (08.05.2026)
+
+### Fixed
+
+- RESTFul / MQTT data not updating after plugin restart: `externalIntegrations()` was returning before `app.listen()` had finished binding the port, so `restFulConnected` / `mqttConnected` were still `false` when the first data events arrived; both integrations are now awaited via `Promise` that resolves on the `connected` event (5 s timeout for RESTFul, 10 s for MQTT)
+
+## [10.6.11] - (08.05.2026)
+
+### Fixed
+
+- RESTFul / MQTT data not updating after nightly Envoy reset (22:57–23:10 window):
+  - `handleError` was clearing `jwtToken.token` on every 401 response, forcing a 30-second delay and a full JWT re-fetch from the Enlighten API even when only the session cookie had expired; now only `tokenValid` is invalidated — `checkToken` already checks `expires_at` independently
+  - cron 23:10 restart changed to `runOnStart=false` to prevent all update handlers firing simultaneously right after the Envoy reset, which caused cascading 401 errors
+  - `handleWithLock` now catches exceptions thrown by `checkToken` (e.g. from `validateToken`) instead of leaking unhandled promise rejections
+
+## Changed
+
+- `Characteristic.Shedule` → `Characteristic.Schedule` (class name corrected; UUID unchanged)
+- `Service.AcBatterieService` → `Service.AcBatteryService`, `Service.AcBatterieSummaryService` → `Service.AcBatterySummaryService` (class names corrected; UUIDs unchanged)
+- `ApiUrls.EnchrgeStatus` → `ApiUrls.EnchargeStatus`, `ApiUrls.InternalMeterRevelsalEid` → `ApiUrls.InternalMeterReversalEid`
+- corrected display strings: `"Generstor"` → `"Generator"`, `"Powwr on unused phase"` → `"Power on unused phase"`, `"State oF Charge"` → `"State of Charge"`, `"AC Batterie"` → `"AC Battery"`, `"Shedule"` → `"Schedule"`, `acvoltagehighline2` / `acvoltagelowline2` descriptions fixed
+- removed unused imports `XMLBuilder`, `XMLValidator` from `envoydata.js`
+- internal variable renames: `lockControTime` → `lockControlTime`, `generatorModeContols` → `generatorModeControls`, `comsumptionNet` → `consumptionNet`
+- missing `await` added to `axiosInstance.put` in `setEnchargeSettings`
+
 ## [10.6.0] - (20.03.2026)
 
 ## Changes

@@ -98,5 +98,3 @@ class EnvoyToken extends EventEmitter {
 }
 
 export default EnvoyToken;
-
-

@@ -153,6 +153,18 @@
               "type": "boolean",
               "description": "Enables energy meter as a axtra accessory to display charts in EVE app"
             },
+            "energyHistoryTime": {
+              "title": "Energy History Save Time",
+              "type": "integer",
+              "default": 0,
+              "description": "Here set the time (in years) for which the energy history data should be saved. Setting this to 0 will save all data without deleting old records (not recommended)"
+            },
+            "energyHistoryReserveSpace": {
+              "title": "Energy History Reserve Space",
+              "type": "integer",
+              "default": 1,
+              "description": "Here set the reserve space (in GB) after which the plugin will start deleting old records to prevent storage from being full. Setting this to 0 will disable this functionality (not recommended)"
+            },
             "lockControl": {
               "title": "Lock Control",
               "type": "object",
@@ -448,38 +460,7 @@
                     },
                     "then": {
                       "required": [
-                        "compareMode"
-                      ]
-                    }
-                  },
-                  {
-                    "if": {
-                      "required": [
-                        "displayType",
-                        "compareMode"
-                      ],
-                      "properties": {
-                        "displayType": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
-                        },
-                        "compareMode": {
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                          ]
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
+                        "compareMode",
                         "powerLevel"
                       ]
                     }
@@ -1073,7 +1054,6 @@
                     },
                     "then": {
                       "required": [
-                        "compareType",
                         "compareMode",
                         "energyLevel"
                       ]
@@ -1383,7 +1363,6 @@
                     },
                     "then": {
                       "required": [
-                        "compareType",
                         "compareMode",
                         "powerLevel"
                       ]
@@ -1526,7 +1505,6 @@
                     },
                     "then": {
                       "required": [
-                        "compareType",
                         "compareMode",
                         "energyLevel"
                       ]
@@ -3906,7 +3884,6 @@
                   "key": "devices[]",
                   "title": "Envoy",
                   "items": [
-                    "devices[].energyMeter",
                     {
                       "key": "devices[]",
                       "type": "tabarray",
@@ -4006,6 +3983,17 @@
                                 "devices[].lockControl.namePrefix"
                               ]
                             }
+                          ]
+                        },
+                        {
+                          "key": "devices[]",
+                          "type": "section",
+                          "title": "Energy Management",
+                          "description": "Section for enabling energy meter monitoring and management of energy history data",
+                          "items": [
+                            "devices[].energyMeter",
+                            "devices[].energyHistoryTime",
+                            "devices[].energyHistoryReserveSpace"
                           ]
                         }
                       ]

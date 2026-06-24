@@ -1,14 +1,32 @@
 import EventEmitter from 'events';
+import { statfs, stat } from 'fs/promises';
+import { dirname } from 'path';
 import EnvoyData from './envoydata.js';
-import RestFul from './restful.js';
-import Mqtt from './mqtt.js';
 import Functions from './functions.js';
 import fakegato from 'fakegato-history';
 import { PartNumbers, ApiCodes, MetersKeyMap, MetersKeyMap1, DeviceTypeMap, LedStatus } from './constants.js';
+
+const HISTORY_KEYS = ['ts', 'prt', 'pr', 'prit', 'prut', 'pru', 'cnt', 'cn', 'cnit', 'cnut', 'cnu', 'ctt', 'ct', 'ctit', 'ctpt', 'ctp'];
+const toColumnar = (records) => {
+    const col = {};
+    for (const k of HISTORY_KEYS) col[k] = records.map(r => r?.[k] ?? null);
+    return col;
+};
+const fromColumnar = (data) => {
+    if (Array.isArray(data)) return data;
+    const keys = Object.keys(data);
+    const len = data[keys[0]]?.length ?? 0;
+    return Array.from({ length: len }, (_, i) => {
+        const obj = {};
+        for (const k of keys) obj[k] = data[k]?.[i] ?? null;
+        return obj;
+    });
+};
+
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
 class EnvoyDevice extends EventEmitter {
-    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName) {
+    constructor(api, log, url, deviceName, device, envoyIdFile, envoyTokenFile, prefDir, energyLifetimeHistoryFile, energyMeterHistoryFileName, restFul1 = null, restFulConnected = false, mqtt1 = null, mqttConnected = false) {
         super();
 
         Accessory = api.platformAccessory;
@@ -24,10 +42,12 @@ class EnvoyDevice extends EventEmitter {
         this.name = deviceName;
         this.displayType = device.displayType;
         this.energyMeter = device.energyMeter || false;
+        this.energyHistoryTime = device.energyHistoryTime || 0;
+        this.energyHistoryReserveSpace = device.energyHistoryReserveSpace || 1;
 
         this.lockControl = device.lockControl?.enable || false;
         this.lockControlPrefix = device.lockControl?.prefix || false;
-        this.lockControTime = (device.lockControl?.time || 30) * 1000;
+        this.lockControlTime = (device.lockControl?.time || 30) * 1000;
         this.productionStateSensor = device.productionStateSensor || {};
         this.plcLevelCheckControl = device.plcLevelControl || {};
 
@@ -54,7 +74,7 @@ class EnvoyDevice extends EventEmitter {
         this.qRelayStateSensor = device.qRelayStateSensor || {};
 
         //ac battery
-        this.acBatterieName = device.acBatterieName || 'AC Batterie';
+        this.acBatterieName = device.acBatterieName || 'AC Battery';
         this.acBatterieBackupLevelSummaryControl = device.acBatterieBackupLevelSummaryAccessory || {};
         this.acBatterieBackupLevelControl = device.acBatterieBackupLevelAccessory || {};
 
@@ -83,7 +103,7 @@ class EnvoyDevice extends EventEmitter {
         //generator
         this.generatorStateControl = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateControl || {}) : {};
         this.generatorStateSensor = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorStateSensor || {}) : {};
-        this.generatorModeContols = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
+        this.generatorModeControls = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeControls || []).filter(control => (control.displayType ?? 0) > 0) : [];
         this.generatorModeSensors = device.envoyFirmware7xxTokenGenerationMode > 0 ? (device.generatorModeSensors || []).filter(sensor => (sensor.displayType ?? 0) > 0) : [];
 
         //data refresh
@@ -91,18 +111,20 @@ class EnvoyDevice extends EventEmitter {
         this.dataSamplingSensor = device.dataRefreshSensor || {};
 
         //log
-        this.logInfo = device.log?.info || false;
-        this.logWarn = device.log?.warn || true;
-        this.logError = device.log?.error || true;
-        this.logDebug = device.log?.debug || false;
+        this.logInfo = device.log?.info ?? false;
+        this.logWarn = device.log?.warn ?? true;
+        this.logError = device.log?.error ?? true;
+        this.logDebug = device.log?.debug ?? false;
 
         //external integrations
         this.restFul = device.restFul ?? {};
-        this.restFulConnected = false;
+        this.restFul1 = restFul1;
+        this.restFulConnected = restFulConnected;
         this.mqtt = device.mqtt ?? {};
-        this.mqttConnected = false;
+        this.mqtt1 = mqtt1;
+        this.mqttConnected = mqttConnected;
 
-        //system accessoty
+        //system accessory
         this.systemAccessory = {
             serviceType: [null, Service.Lightbulb, Service.Fan, Service.HumiditySensor, Service.CarbonMonoxideSensor][device.displayType],
             characteristicType: [null, Characteristic.On, Characteristic.On, Characteristic.StatusActive, Characteristic.CarbonMonoxideDetected][device.displayType],
@@ -236,8 +258,8 @@ class EnvoyDevice extends EventEmitter {
         //enpower
         if (this.enpowerGridStateControl.displayType > 0) {
             const control = this.enpowerGridStateControl;
-            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displaqyType];
-            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displaqyType];
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
             control.state = false;
         }
 
@@ -273,8 +295,8 @@ class EnvoyDevice extends EventEmitter {
         if (this.enchargeBackupLevelControl.displayType > 0) {
             const control = this.enchargeBackupLevelControl;
             control.serviceType = [null, Service.Battery][control.displayType];
-            control.characteristicType1 = [null, Characteristic.StatusLowBattery][control.displayType];
             control.characteristicType = [null, Characteristic.BatteryLevel][control.displayType];
+            control.characteristicType1 = [null, Characteristic.StatusLowBattery][control.displayType];
             control.characteristicType2 = [null, Characteristic.ChargingState][control.displayType];
             control.state = false;
             control.backupLevel = 0;
@@ -332,8 +354,8 @@ class EnvoyDevice extends EventEmitter {
         //generator
         if (this.generatorStateControl.displayType > 0) {
             const control = this.generatorStateControl;
-            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displaqyType];
-            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displaqyType];
+            control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
+            control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
             control.state = false;
         }
 
@@ -344,7 +366,7 @@ class EnvoyDevice extends EventEmitter {
             sensor.state = false;
         }
 
-        for (const control of this.generatorModeContols) {
+        for (const control of this.generatorModeControls) {
             control.serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][control.displayType];
             control.characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][control.displayType];
             control.state = false;
@@ -667,80 +689,13 @@ class EnvoyDevice extends EventEmitter {
                     if (this.feature.inventory.esubs.generator.installed) await this.envoyData.setGeneratorMode(value);
                     break;
                 default:
-                    if (this.logWarn) this.emit('warn' `${integration}, received key: ${key}, value: ${value}`);
+                    if (this.logWarn) this.emit('warn', `${integration}, received key: ${key}, value: ${value}`);
                     break;
             }
             return;
         } catch (error) {
             throw new Error(`${integration} set key: ${key}, value: ${value}, error: ${error}`);
         }
-    }
-
-    async externalIntegrations() {
-        //RESTFul server
-        const restFulEnabled = this.restFul.enable || false;
-        if (restFulEnabled) {
-            try {
-                this.restFul1 = new RestFul({
-                    port: this.restFul.port || 3000,
-                    logWarn: this.logWarn,
-                    logDebug: this.logDebug,
-                })
-                    .on('connected', (success) => {
-                        this.restFulConnected = true;
-                        this.emit('success', success);
-                    })
-                    .on('set', async (key, value) => {
-                        try {
-                            await this.setOverExternalIntegration('RESTFul', key, value);
-                        } catch (error) {
-                            if (this.logWarn) this.emit('warn' `RESTFul set error: ${error}`);
-                        };
-                    })
-                    .on('debug', (debug) => this.emit('debug', debug))
-                    .on('warn', (warn) => this.emit('warn', warn))
-                    .on('error', (error) => this.emit('error', error));
-            } catch (error) {
-                this.emit('warn', `RESTFul integration start error: ${error}`);
-            }
-        }
-
-        const mqttEnabled = this.mqtt.enable || false;
-        if (mqttEnabled) {
-            try {
-                this.mqtt1 = new Mqtt({
-                    host: this.mqtt.host,
-                    port: this.mqtt.port || 1883,
-                    clientId: this.mqtt.clientId ? `enphase_${this.mqtt.clientId}_${Math.random().toString(16).slice(3)}` : `enphase_${Math.random().toString(16).slice(3)}`,
-                    prefix: this.mqtt.prefix ? `enphase/${this.mqtt.prefix}/${this.name}` : `enphase/${this.name}`,
-                    user: this.mqtt.auth?.user,
-                    passwd: this.mqtt.auth?.passwd,
-                    logWarn: this.logWarn,
-                    logDebug: this.logDebug
-                })
-                    .on('connected', (success) => {
-                        this.mqttConnected = true;
-                        this.emit('success', success);
-                    })
-                    .on('subscribed', (success) => {
-                        this.emit('success', success);
-                    })
-                    .on('set', async (key, value) => {
-                        try {
-                            await this.setOverExternalIntegration('MQTT', key, value);
-                        } catch (error) {
-                            if (this.logWarn) this.emit('warn' `MQTT set, error: ${error}`);
-                        };
-                    })
-                    .on('debug', (debug) => this.emit('debug', debug))
-                    .on('warn', (warn) => this.emit('warn', warn))
-                    .on('error', (error) => this.emit('error', error));
-            } catch (error) {
-                this.emit('warn', `MQTT integration start error: ${error}`);
-            }
-        };
-
-        return true;
     }
 
     async startStopImpulseGenerator(state) {
@@ -756,7 +711,7 @@ class EnvoyDevice extends EventEmitter {
     // Prepare accessory
     async prepareAccessory() {
         try {
-            //suppored feature
+            //supported feature
             let pvControl = true;
             const productionStateSupported = this.feature.productionState.supported;
             const gridProfileSupported = this.feature.gridProfile.supported;
@@ -1023,7 +978,7 @@ class EnvoyDevice extends EventEmitter {
                                             lockService.updateCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
                                             this.envoyService.updateCharacteristic(Characteristic.SystemControl, false);
                                             this.emit('success', `System control locked`);
-                                        }, this.lockControTime);
+                                        }, this.lockControlTime);
                                     } else {
                                         this.emit('success', `System control locked`);
                                         pvControl = false;
@@ -1552,7 +1507,7 @@ class EnvoyDevice extends EventEmitter {
                                 if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} Summary Service`);
 
                                 const storageSumm = this.pv.inventoryData.acbs[0];
-                                const service = accessory.addService(Service.AcBatterieSummaryService, `${acBatterieName} Summary`, 'acbSummaryService');
+                                const service = accessory.addService(Service.AcBatterySummaryService, `${acBatterieName} Summary`, 'acbSummaryService');
                                 service.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} Summary`);
 
                                 // Create characteristics
@@ -1620,7 +1575,7 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 if (this.logDebug) this.emit('debug', `Prepare ${acBatterieName} ${serialNumber} Service`);
-                                const service = accessory.addService(Service.AcBatterieService, `${acBatterieName} ${serialNumber}`, `acbService${serialNumber}`);
+                                const service = accessory.addService(Service.AcBatteryService, `${acBatterieName} ${serialNumber}`, `acbService${serialNumber}`);
                                 service.setCharacteristic(Characteristic.ConfiguredName, `${acBatterieName} ${serialNumber}`);
 
                                 // Create characteristics
@@ -2823,7 +2778,7 @@ class EnvoyDevice extends EventEmitter {
                                     { type: Characteristic.StartSoc, label: 'start soc', value: generator.startSoc },
                                     { type: Characteristic.StopSoc, label: 'stop soc', value: generator.stopSoc },
                                     { type: Characteristic.ExexOn, label: 'exec on', value: generator.excOn },
-                                    { type: Characteristic.Shedule, label: 'schedule', value: generator.schedule },
+                                    { type: Characteristic.Schedule, label: 'schedule', value: generator.schedule },
                                     { type: Characteristic.Present, label: 'present', value: generator.present },
                                     { type: Characteristic.ReadingTime, label: 'reading time', value: generator.readingTime }
                                 ];
@@ -2907,12 +2862,12 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 //mode controls
-                                if (this.generatorModeContols.length > 0) {
+                                if (this.generatorModeControls.length > 0) {
                                     if (this.logDebug) this.emit('debug', `Prepare Generator ${type} Mode Control Services`);
 
                                     this.generatorModeControlServices = [];
-                                    for (let i = 0; i < this.generatorModeContols.length; i++) {
-                                        const control = this.generatorModeContols[i];
+                                    for (let i = 0; i < this.generatorModeControls.length; i++) {
+                                        const control = this.generatorModeControls[i];
                                         const { namePrefix, name, serviceType, characteristicType } = control;
                                         const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
 
@@ -3123,8 +3078,7 @@ class EnvoyDevice extends EventEmitter {
 
         try {
 
-            // External integrations
-            if (this.restFul.enable || this.mqtt.enable) await this.externalIntegrations();
+
 
             // Envoy Data
             this.envoyData = new EnvoyData(this.url, this.device, this.envoyIdFile, this.envoyTokenFile, this.restFul.enable, this.mqtt.enable)
@@ -3926,11 +3880,11 @@ class EnvoyDevice extends EventEmitter {
                     if (this.logDebug) this.emit('debug', `Update power and energy data`);
 
                     let energyLifetimeHistory = { ts: null, pr: 0, prt: 0, pru: 0, prut: 0, cn: 0, cnt: 0, cnu: 0, cnut: 0, ct: 0, ctt: 0, ctp: 0, ctpt: 0 };
-                    let history = [];
+                    let energyHistory = [];
 
                     try {
-                        history = await this.functions.readData(this.energyLifetimeHistoryFile, true) || [];
-                        if (Array.isArray(history) && history.length > 0) {
+                        energyHistory = fromColumnar(await this.functions.readData(this.energyLifetimeHistoryFile, true) || []);
+                        if (Array.isArray(energyHistory) && energyHistory.length > 0) {
 
                             const now = new Date();
 
@@ -3952,7 +3906,7 @@ class EnvoyDevice extends EventEmitter {
                             let yesterdaySnapshot = null;
                             let todaySnapshot = null;
 
-                            for (const item of history) {
+                            for (const item of energyHistory) {
 
                                 if (!item || typeof item.ts !== 'number') continue;
 
@@ -4260,10 +4214,10 @@ class EnvoyDevice extends EventEmitter {
 
                                 // Create characteristics energy meter
                                 if (meterEnabled) {
-                                    characteristics2.push([
+                                    characteristics2.push(
                                         { type: Characteristic.EveCurrent, value: obj.current },
                                         { type: Characteristic.EveVoltage, value: obj.voltage },
-                                    ]);
+                                    );
                                 }
 
                                 // Update characteristics
@@ -4289,82 +4243,176 @@ class EnvoyDevice extends EventEmitter {
                         ) {
 
                             const nowUnix = Math.floor(Date.now() / 1000);
-                            const currentMinute = Math.floor(nowUnix / 60);
+                            const minuteTs = Math.floor(nowUnix / 60) * 60;
 
-                            if (this._lastSavedMinute !== currentMinute) {
+                            const now = new Date();
+                            const endOfDayTs = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).getTime() / 1000);
+                            const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 
-                                this._lastSavedMinute = currentMinute;
+                            const needsMinuteSave = minuteTs > (this._lastSavedMinuteTs ?? 0);
+                            const needsEndOfDaySave = nowUnix >= endOfDayTs && this._lastSavedEndOfDayDate !== todayStr;
 
-                                const record = {
-                                    ts: nowUnix,
-                                    prt: powerAndEnergyDataObj.production.energyToday,
-                                    pr: powerAndEnergyDataObj.production.energyLifetime,
-                                    prut: powerAndEnergyDataObj.production.energyTodayUpload,
-                                    pru: powerAndEnergyDataObj.production.energyLifetimeUpload,
-                                    cnt: powerAndEnergyDataObj.consumptionNet.energyToday,
-                                    cn: powerAndEnergyDataObj.consumptionNet.energyLifetime,
-                                    cnut: powerAndEnergyDataObj.consumptionNet.energyTodayUpload,
-                                    cnu: powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload,
-                                    ctt: powerAndEnergyDataObj.consumptionTotal.energyToday,
-                                    ct: powerAndEnergyDataObj.consumptionTotal.energyLifetime,
-                                    ctpt: powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv,
-                                    ctp: powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv
-                                };
+                            if ((needsMinuteSave || needsEndOfDaySave) && !this._saving) {
 
-                                const last = history[history.length - 1];
+                                this._saving = true;
 
-                                const changed =
-                                    !last ||
-                                    last.prt !== record.prt ||
-                                    last.pr !== record.pr ||
-                                    last.prut !== record.prut ||
-                                    last.pru !== record.pru ||
-                                    last.cnt !== record.cnt ||
-                                    last.cn !== record.cn ||
-                                    last.cnut !== record.cnut ||
-                                    last.cnu !== record.cnu ||
-                                    last.ctt !== record.ctt ||
-                                    last.ct !== record.ct ||
-                                    last.ctpt !== record.ctpt ||
-                                    last.ctp !== record.ctp;
+                                try {
 
-                                if (changed && !this._saving) {
+                                    const lastRealRecord = energyHistory.reduce((last, item) => item?.pr != null ? item : last, null);
 
-                                    this._saving = true;
+                                    const nullRecord = (ts) => ({
+                                        ts, prt: null, pr: null, prit: 0, prut: null, pru: null,
+                                        cnt: null, cn: null, cnit: 0, cnut: null, cnu: null,
+                                        ctt: null, ct: null, ctit: 0, ctpt: null, ctp: null
+                                    });
 
-                                    try {
+                                    const r3 = (v) => (typeof v === 'number' && isFinite(v)) ? Math.round(v * 1000) / 1000 : null;
 
-                                        history.push(record);
+                                    const makeRecord = (ts) => {
+                                        const pr = r3(powerAndEnergyDataObj.production.energyLifetime);
+                                        const cn = r3(powerAndEnergyDataObj.consumptionNet.energyLifetime);
+                                        const ct = r3(powerAndEnergyDataObj.consumptionTotal.energyLifetime);
+                                        const tsDay = new Date(ts * 1000).setHours(0, 0, 0, 0);
+                                        const prevDay = lastRealRecord ? new Date(lastRealRecord.ts * 1000).setHours(0, 0, 0, 0) : null;
+                                        const sameDay = tsDay === prevDay;
+                                        return {
+                                            ts,
+                                            prt: r3(powerAndEnergyDataObj.production.energyToday),
+                                            pr,
+                                            prit: sameDay && pr != null && lastRealRecord.pr != null ? r3(pr - lastRealRecord.pr) : 0,
+                                            prut: r3(powerAndEnergyDataObj.production.energyTodayUpload),
+                                            pru: r3(powerAndEnergyDataObj.production.energyLifetimeUpload),
+                                            cnt: r3(powerAndEnergyDataObj.consumptionNet.energyToday),
+                                            cn,
+                                            cnit: sameDay && cn != null && lastRealRecord.cn != null ? r3(cn - lastRealRecord.cn) : 0,
+                                            cnut: r3(powerAndEnergyDataObj.consumptionNet.energyTodayUpload),
+                                            cnu: r3(powerAndEnergyDataObj.consumptionNet.energyLifetimeUpload),
+                                            ctt: r3(powerAndEnergyDataObj.consumptionTotal.energyToday),
+                                            ct,
+                                            ctit: sameDay && ct != null && lastRealRecord.ct != null ? r3(ct - lastRealRecord.ct) : 0,
+                                            ctpt: r3(powerAndEnergyDataObj.consumptionTotal.energyTodayFromPv),
+                                            ctp: r3(powerAndEnergyDataObj.consumptionTotal.energyLifetimeFromPv)
+                                        };
+                                    };
 
-                                        // usuń dane starsze niż 7 dni
-                                        const sevenDaysAgo = nowUnix - 604800;
+                                    const lastTs = energyHistory.reduce((max, item) => (item?.ts > max ? item.ts : max), 0);
+                                    const targetTs = needsEndOfDaySave ? Math.max(minuteTs, endOfDayTs) : minuteTs;
+                                    const historyLengthBeforeAdding = energyHistory.length;
 
-                                        history = history.filter(item =>
-                                            item &&
-                                            typeof item.ts === 'number' &&
-                                            item.ts >= sevenDaysAgo
-                                        );
+                                    if (lastTs > 0) {
 
-                                        await this.functions.saveData(this.energyLifetimeHistoryFile, history);
+                                        const effectiveLastTs = lastTs;
+                                        const existingTs = new Set(energyHistory.map(item => item?.ts).filter(t => t != null));
+                                        const expectedTs = new Set();
 
-                                    } catch (error) {
+                                        const firstMinute = Math.floor(effectiveLastTs / 60) * 60 + 60;
+                                        for (let t = firstMinute; t <= targetTs; t += 60) {
+                                            expectedTs.add(t);
+                                        }
 
-                                        if (this.logWarn)
-                                            this.emit('warn', `Save energy history error: ${error.message}`);
+                                        const startDate = new Date(effectiveLastTs * 1000);
+                                        const endDate = new Date(targetTs * 1000);
+                                        for (
+                                            let d = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+                                            d <= endDate;
+                                            d.setDate(d.getDate() + 1)
+                                        ) {
+                                            const eodTs = Math.floor(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).getTime() / 1000);
+                                            if (eodTs > effectiveLastTs && eodTs <= targetTs) {
+                                                expectedTs.add(eodTs);
+                                            }
+                                        }
 
-                                    } finally {
+                                        for (const ts of [...expectedTs].sort((a, b) => a - b)) {
+                                            if (!existingTs.has(ts)) {
+                                                const isActual = (ts === minuteTs && needsMinuteSave) || (ts === endOfDayTs && needsEndOfDaySave);
+                                                energyHistory.push(isActual ? makeRecord(ts) : nullRecord(ts));
+                                                existingTs.add(ts);
+                                            }
+                                        }
 
-                                        this._saving = false;
+                                    } else {
+
+                                        if (needsMinuteSave) energyHistory.push(makeRecord(minuteTs));
+                                        if (needsEndOfDaySave) energyHistory.push(makeRecord(endOfDayTs));
 
                                     }
+
+                                    // Distribute interval spike evenly across preceding gap records
+                                    for (let i = historyLengthBeforeAdding; i < energyHistory.length; i++) {
+                                        const rec = energyHistory[i];
+                                        if (!rec || rec.pr === null) continue;
+
+                                        const gapIndices = [];
+                                        for (let j = i - 1; j >= 0 && energyHistory[j]?.pr === null; j--) {
+                                            gapIndices.unshift(j);
+                                        }
+
+                                        if (gapIndices.length === 0) continue;
+
+                                        const slots = gapIndices.length + 1;
+                                        const pritSlot = r3(rec.prit / slots);
+                                        const cnitSlot = r3(rec.cnit / slots);
+                                        const ctitSlot = r3(rec.ctit / slots);
+
+                                        for (const idx of gapIndices) {
+                                            energyHistory[idx].prit = pritSlot;
+                                            energyHistory[idx].cnit = cnitSlot;
+                                            energyHistory[idx].ctit = ctitSlot;
+                                        }
+                                        rec.prit = pritSlot;
+                                        rec.cnit = cnitSlot;
+                                        rec.ctit = ctitSlot;
+                                    }
+
+                                    if (needsMinuteSave) this._lastSavedMinuteTs = minuteTs;
+                                    if (needsEndOfDaySave) this._lastSavedEndOfDayDate = todayStr;
+
+                                    if (this.energyHistoryTime > 0) {
+                                        const cutoff = nowUnix - this.energyHistoryTime * 31536000;
+                                        energyHistory = energyHistory.filter(item =>
+                                            item &&
+                                            typeof item.ts === 'number' &&
+                                            item.ts >= cutoff
+                                        );
+                                    }
+
+                                    if (this.energyHistoryReserveSpace > 0 && energyHistory.length > 1) {
+                                        try {
+                                            const spaceStats = await statfs(dirname(this.energyLifetimeHistoryFile));
+                                            const freeGB = (spaceStats.bavail * spaceStats.bsize) / 1073741824;
+                                            if (freeGB < this.energyHistoryReserveSpace) {
+                                                const deficitBytes = (this.energyHistoryReserveSpace - freeGB) * 1073741824;
+                                                const fileStats = await stat(this.energyLifetimeHistoryFile).catch(() => null);
+                                                const bytesPerRecord = fileStats && energyHistory.length > 0 ? fileStats.size / energyHistory.length : 200;
+                                                const toRemove = Math.min(Math.max(1, Math.ceil(deficitBytes / bytesPerRecord)), energyHistory.length - 1);
+                                                energyHistory.splice(0, toRemove);
+                                                if (this.logWarn) this.emit('warn', `Energy history pruned ${toRemove} oldest records (free: ${freeGB.toFixed(2)} GB < reserve: ${this.energyHistoryReserveSpace} GB)`);
+                                            }
+                                        } catch (e) {
+                                            if (this.logWarn) this.emit('warn', `Energy history space check error: ${e.message}`);
+                                        }
+                                    }
+
+                                    await this.functions.saveData(this.energyLifetimeHistoryFile, JSON.stringify(toColumnar(energyHistory)), false);
+
+                                } catch (error) {
+
+                                    if (this.logWarn)
+                                        this.emit('warn', `Save energy history error: ${error.message}`);
+
+                                } finally {
+
+                                    this._saving = false;
+
                                 }
                             }
                         }
 
                         if (this.restFulConnected) this.restFul1.update('powerandenergydata', this.pv.powerAndEnergyData);
-                        if (this.restFulConnected) this.restFul1.update('energyhistory', history);
+                        if (this.restFulConnected) this.restFul1.update('energyhistory', energyHistory);
                         if (this.mqttConnected) this.mqtt1.emit('publish', 'Power And Energy Data', this.pv.powerAndEnergyData);
-                        if (this.mqttConnected) this.mqtt1.emit('publish', 'Energy History', history);
+                        if (this.mqttConnected) this.mqtt1.emit('publish', 'Energy History', energyHistory);
                     } catch (error) {
                         throw new Error(`Update power and energy data error: ${error.message || error}`);
                     }
@@ -5537,9 +5585,9 @@ class EnvoyDevice extends EventEmitter {
                                 installed: adminModeMap.includes(generator?.adminState),
                                 operState: ApiCodes?.[generator.operState] ?? generator.operState,
                                 adminMode,
-                                adminModeOffBool: adminModeValue === 'Off',
-                                adminModeOnBool: adminModeValue === 'On',
-                                adminModeAutoBool: adminModeValue === 'Auto',
+                                adminModeOffBool: adminMode === 'Off',
+                                adminModeOnBool: adminMode === 'On',
+                                adminModeAutoBool: adminMode === 'Auto',
                                 adminModeBool,
                                 schedule: generator.schedule,
                                 startSoc: generator.startSoc,
@@ -5589,10 +5637,10 @@ class EnvoyDevice extends EventEmitter {
                                     { type: Characteristic.AdminState, value: generatorData.adminState },
                                     { type: Characteristic.OperatingState, value: generatorData.operState },
                                     { type: Characteristic.AdminMode, value: generatorData.adminMode },
-                                    { type: Characteristic.Shedule, value: generatorData.schedule },
+                                    { type: Characteristic.Schedule, value: generatorData.schedule },
                                     { type: Characteristic.StartSoc, value: generatorData.startSoc },
                                     { type: Characteristic.StopSoc, value: generatorData.stopSoc },
-                                    { type: Characteristic.ExcOn, value: generatorData.excOn },
+                                    { type: Characteristic.ExexOn, value: generatorData.excOn },
                                     { type: Characteristic.Present, value: generatorData.present },
                                     { type: Characteristic.ReadingTime, value: generatorData.readingTime }
                                 ];
@@ -5642,8 +5690,8 @@ class EnvoyDevice extends EventEmitter {
                                 }
 
                                 // Update generator mode toggle controls
-                                for (let i = 0; i < (this.generatorModeContols?.length ?? 0); i++) {
-                                    const control = this.generatorModeContols[i];
+                                for (let i = 0; i < (this.generatorModeControls?.length ?? 0); i++) {
+                                    const control = this.generatorModeControls[i];
                                     const { mode, characteristicType } = control;
                                     const state = mode === generatorData.adminMode;
 
@@ -5823,7 +5871,7 @@ class EnvoyDevice extends EventEmitter {
                                         for (const { type, value, valueKey } of characteristics) {
                                             if (!this.functions.isValidValue(value)) continue;
                                             this.pv.inventoryData.acbs[0][valueKey] = value;
-                                            this.acbSummaryService?.[0]?.updateCharacteristic(type, value);
+                                            this.acbSummaryService?.updateCharacteristic(type, value);
                                         }
                                     }
 
