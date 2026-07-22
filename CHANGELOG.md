@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.5] - (22.07.2026)
+
+### Fixed
+
+- Energy history: reserve-space pruning (`energyHistoryReserveSpace`) could delete yesterday's and today's records when free disk space stayed below the configured reserve; since the daily energy diff (`prit`/`cnit`/`ctit`) baseline is anchored to the last record of the previous day, losing it caused today's energy values to be computed incorrectly after a prune; pruning now always keeps yesterday's and today's records intact and only removes older history, logging a warning instead of pruning when no removable records remain outside that protected window
+
 ## [10.7.4] - (04.06.2026)
 
 ### Fixed

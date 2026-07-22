@@ -4383,9 +4383,21 @@ class EnvoyDevice extends EventEmitter {
                                                 const deficitBytes = (this.energyHistoryReserveSpace - freeGB) * 1073741824;
                                                 const fileStats = await stat(this.energyLifetimeHistoryFile).catch(() => null);
                                                 const bytesPerRecord = fileStats && energyHistory.length > 0 ? fileStats.size / energyHistory.length : 200;
-                                                const toRemove = Math.min(Math.max(1, Math.ceil(deficitBytes / bytesPerRecord)), energyHistory.length - 1);
-                                                energyHistory.splice(0, toRemove);
-                                                if (this.logWarn) this.emit('warn', `Energy history pruned ${toRemove} oldest records (free: ${freeGB.toFixed(2)} GB < reserve: ${this.energyHistoryReserveSpace} GB)`);
+
+                                                // Never prune yesterday's/today's records, they anchor the daily energy diff baseline (see yesterdaySnapshot/todaySnapshot lookup above)
+                                                const protectedFromTs = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 1000) - 86400;
+                                                const firstProtectedIdx = energyHistory.findIndex(item => item && typeof item.ts === 'number' && item.ts >= protectedFromTs);
+                                                const maxRemovable = firstProtectedIdx === -1 ? energyHistory.length - 1 : Math.min(energyHistory.length - 1, firstProtectedIdx);
+
+                                                const wanted = Math.max(1, Math.ceil(deficitBytes / bytesPerRecord));
+                                                const toRemove = Math.min(wanted, maxRemovable);
+
+                                                if (toRemove > 0) {
+                                                    energyHistory.splice(0, toRemove);
+                                                    if (this.logWarn) this.emit('warn', `Energy history pruned ${toRemove} oldest records (free: ${freeGB.toFixed(2)} GB < reserve: ${this.energyHistoryReserveSpace} GB)`);
+                                                } else if (this.logWarn) {
+                                                    this.emit('warn', `Energy history low disk space (free: ${freeGB.toFixed(2)} GB < reserve: ${this.energyHistoryReserveSpace} GB) but no prunable records remain outside yesterday/today`);
+                                                }
                                             }
                                         } catch (e) {
                                             if (this.logWarn) this.emit('warn', `Energy history space check error: ${e.message}`);
