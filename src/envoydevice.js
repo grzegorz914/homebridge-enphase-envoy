@@ -3959,6 +3959,7 @@ class EnvoyDevice extends EventEmitter {
                             { type: 'total-consumption', state: this.feature.meters.consumptionTotal.enabled }
                         ];
 
+                        let serviceIndex = 0;
                         for (const [index, data] of powerAndEnergyTypeArr.entries()) {
                             const { type: meterType, state: meterEnabled } = data;
                             if (meterType !== 'production' && !meterEnabled) continue;
@@ -4165,7 +4166,7 @@ class EnvoyDevice extends EventEmitter {
                             // Update power and energy services
                             for (const { type, value } of characteristics) {
                                 if (!this.functions.isValidValue(value)) continue;
-                                this.powerAndEnergyServices?.[index]?.updateCharacteristic(type, value);
+                                this.powerAndEnergyServices?.[serviceIndex]?.updateCharacteristic(type, value);
                             };
 
                             // Power and energy level sensors
@@ -4200,7 +4201,7 @@ class EnvoyDevice extends EventEmitter {
                             if (this.energyMeter) {
                                 const power = obj.power > 0 ? obj.power : 0;
                                 // Add to fakegato history
-                                this.fakegatoHistoryServices?.[index]?.addEntry({
+                                this.fakegatoHistoryServices?.[serviceIndex]?.addEntry({
                                     time: Math.floor(Date.now() / 1000),
                                     power: power
                                 });
@@ -4222,11 +4223,12 @@ class EnvoyDevice extends EventEmitter {
                                 // Update characteristics
                                 for (const { type, value } of characteristics2) {
                                     if (!this.functions.isValidValue(value)) continue;
-                                    this.energyMeterServices?.[index]?.updateCharacteristic(type, value);
+                                    this.energyMeterServices?.[serviceIndex]?.updateCharacteristic(type, value);
                                 };
                             }
 
                             powerAndEnergyData.push(obj);
+                            serviceIndex++;
                         }
 
                         this.pv.powerAndEnergyData.data = powerAndEnergyData.filter(Boolean);
