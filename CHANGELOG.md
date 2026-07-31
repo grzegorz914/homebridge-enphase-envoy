@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.6] - (31.07.2026)
+
+### Fixed
+
+- Power And Energy / Energy Meter services: `powerAndEnergyServices`, `fakegatoHistoryServices` and `energyMeterServices` were plain arrays built once at startup from only the supported/enabled meters, while the periodic refresh looked services up by a fixed positional index taken from a separate, always-3-element `[production, net-consumption, total-consumption]` array; whenever net-consumption or total-consumption was disabled or not installed, that fixed index no longer lined up with the shorter services array, so consumption meter characteristics silently stopped refreshing after the first update; services are now stored in an object keyed by meter (`production`/`consumptionNet`/`consumptionTotal`) and looked up by that key instead of by position, so refreshes stay correct for any combination of installed/enabled CTs
+- `PowerPeakReset`: resolved the meter key with the wrong lookup map (`MetersKeyMap` instead of `MetersKeyMap1`), so `key` was always `undefined` and resetting the power peak from the Home app silently failed
+
 ## [10.7.5] - (22.07.2026)
 
 ### Fixed

@@ -1625,10 +1625,10 @@ class EnvoyDevice extends EventEmitter {
 
                         //power and energy data
                         if (powerAndEnergySupported) {
-                            this.powerAndEnergyServices = [];
+                            this.powerAndEnergyServices = {};
                             for (const source of this.pv.powerAndEnergyData.data) {
                                 const measurementType = source.measurementType;
-                                const key = MetersKeyMap[measurementType];
+                                const key = MetersKeyMap1[measurementType];
                                 if (this.logDebug) this.emit('debug', `Prepare Power And Energy ${measurementType} Service`);
 
                                 const service = accessory.addService(Service.PowerAndEnergyService, `Power And Energy ${measurementType}`, `powerAndEnergyService${measurementType}`);
@@ -1698,7 +1698,7 @@ class EnvoyDevice extends EventEmitter {
                                         }
                                     });
 
-                                this.powerAndEnergyServices.push(service);
+                                this.powerAndEnergyServices[key] = service;
 
                                 switch (measurementType) {
                                     case 'Production':
@@ -2977,10 +2977,11 @@ class EnvoyDevice extends EventEmitter {
                         accessories.push(accessory);
                         break;
                     case 1: //EVE Energy Meter
-                        this.fakegatoHistoryServices = [];
-                        this.energyMeterServices = [];
+                        this.fakegatoHistoryServices = {};
+                        this.energyMeterServices = {};
                         for (const source of this.pv.powerAndEnergyData.data) {
                             const measurementType = source.measurementType;
+                            const key = MetersKeyMap1[measurementType];
                             const envoySerialNumber = `${this.pv.info.serialNumber}${measurementType}`;
                             const accessoryName = `${this.name} Energy Meter ${measurementType}`;
 
@@ -3014,7 +3015,7 @@ class EnvoyDevice extends EventEmitter {
                                 power: power
                             });
 
-                            this.fakegatoHistoryServices.push(fakegatoHistoryService);
+                            this.fakegatoHistoryServices[key] = fakegatoHistoryService;
 
                             // Energy Meter Service
                             if (this.logDebug) this.emit('debug', `Prepare Energy Meter ${measurementType} Service`);
@@ -3059,7 +3060,7 @@ class EnvoyDevice extends EventEmitter {
                                     }
                                 });
 
-                            this.energyMeterServices.push(energyMeterService);
+                            this.energyMeterServices[key] = energyMeterService;
                             accessories.push(accessory);
                         }
                         break;
@@ -3959,7 +3960,7 @@ class EnvoyDevice extends EventEmitter {
                             { type: 'total-consumption', state: this.feature.meters.consumptionTotal.enabled }
                         ];
 
-                        for (const [index, data] of powerAndEnergyTypeArr.entries()) {
+                        for (const data of powerAndEnergyTypeArr) {
                             const { type: meterType, state: meterEnabled } = data;
                             if (meterType !== 'production' && !meterEnabled) continue;
 
@@ -4165,7 +4166,7 @@ class EnvoyDevice extends EventEmitter {
                             // Update power and energy services
                             for (const { type, value } of characteristics) {
                                 if (!this.functions.isValidValue(value)) continue;
-                                this.powerAndEnergyServices?.[index]?.updateCharacteristic(type, value);
+                                this.powerAndEnergyServices?.[key]?.updateCharacteristic(type, value);
                             };
 
                             // Power and energy level sensors
@@ -4200,7 +4201,7 @@ class EnvoyDevice extends EventEmitter {
                             if (this.energyMeter) {
                                 const power = obj.power > 0 ? obj.power : 0;
                                 // Add to fakegato history
-                                this.fakegatoHistoryServices?.[index]?.addEntry({
+                                this.fakegatoHistoryServices?.[key]?.addEntry({
                                     time: Math.floor(Date.now() / 1000),
                                     power: power
                                 });
@@ -4222,7 +4223,7 @@ class EnvoyDevice extends EventEmitter {
                                 // Update characteristics
                                 for (const { type, value } of characteristics2) {
                                     if (!this.functions.isValidValue(value)) continue;
-                                    this.energyMeterServices?.[index]?.updateCharacteristic(type, value);
+                                    this.energyMeterServices?.[key]?.updateCharacteristic(type, value);
                                 };
                             }
 
