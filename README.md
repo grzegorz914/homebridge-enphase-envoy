@@ -305,6 +305,7 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 | `restFul` | | key | REST service |
 | | `enable` | boolean | Enables REST service to start automatically and respond to any request |
 | | `port` | number | `Port` for REST service |
+| | `token` | string | Optional access token. When set, every request must send the header `Authorization: Bearer <token>`, otherwise the service responds `401` |
 | `mqtt` | | key | MQTT broker |
 | | `enable` | boolean | Enables MQTT broker to start automatically and publish available data |
 | | `host` | string | `IP Address` or `Hostname` for MQTT Broker |
@@ -318,6 +319,7 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 ### REST Integration
 
 REST POST calls must include a content-type header of `application/json`.
+If `Token` is set, every request (GET and POST) must send the header `Authorization: Bearer <token>`.
 Path `pv` response all available data.
 Path `status` response all available paths.
 

@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.9] - (23.09.2026)
+
+### Added
+
+- optional RESTful access `Token`. When set, every request (GET and POST) must send the header `Authorization: Bearer <token>`, otherwise the server responds `401`. Leaving it empty keeps the previous behaviour, so existing configs keep working
+- this also protects the `token` path, which exposes the Envoy access token
+- readme update
+
 ## [10.7.7] - (14.08.2026)
 
 ### Fixed
