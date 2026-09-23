@@ -312,6 +312,7 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 | | `port` | number | `Port` for MQTT broker (default to 1883) |
 | | `clientId` | string | `Client Id` of MQTT broker (optional) |
 | | `prefix` | string | `Prefix` for `Topic` (optional) |
+| | `protocolVersion` | number | MQTT protocol version, `5` (5.0, default) or `4` (3.1.1) for brokers that only support 3.1.1 |
 | | `auth` | boolean | Enables MQTT broker authorization credentials |
 | | `user` | string | MQTT broker user |
 | | `passwd` | string | MQTT Broker password |

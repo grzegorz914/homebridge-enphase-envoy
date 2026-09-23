@@ -158,6 +158,7 @@ class EnvoyPlatform {
             port: device.mqtt.port || 1883,
             clientId: device.mqtt.clientId ? `enphase_${device.mqtt.clientId}_${Math.random().toString(16).slice(3)}` : `enphase_${Math.random().toString(16).slice(3)}`,
             prefix: device.mqtt.prefix ? `enphase/${device.mqtt.prefix}/${deviceName}` : `enphase/${deviceName}`,
+            protocolVersion: device.mqtt.protocolVersion,
             user: device.mqtt.auth?.user,
             passwd: device.mqtt.auth?.passwd,
             logWarn: logLevel.warn,
