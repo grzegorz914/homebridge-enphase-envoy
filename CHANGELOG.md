@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.11] - (24.09.2026)
+
+### Changes
+
+- added: RESTFul request rate limit, 600 requests per minute per client and at most 1000 clients per minute, answered with `429` and `Retry-After`, one log warning per client and minute.
+
 ## [10.7.10] - (23.09.2026)
 
 ### Changes
