@@ -123,6 +123,8 @@ class EnvoyDevice extends EventEmitter {
         this.mqtt = device.mqtt ?? {};
         this.mqtt1 = mqtt1;
         this.mqttConnected = mqttConnected;
+        // The broker may come online after the start, the device then publishes
+        this.mqtt1?.on('online', () => { this.mqttConnected = true; });
 
         //system accessory
         this.systemAccessory = {

@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.7.12] - (29.09.2026)
+
+### Changes
+
+- fixed: MQTT, when the broker was not running yet at the start of Homebridge the device never published over MQTT until a restart. The device now starts publishing as soon as the broker comes online
+
 ## [10.7.11] - (24.09.2026)
 
 ### Changes
