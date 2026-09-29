@@ -301,6 +301,7 @@
                         "clientId": "",
                         "prefix": "",
                         "protocolVersion": 5,
+                        "haDiscovery": false,
                         "auth": {
                             "enable": false,
                             "user": "",
