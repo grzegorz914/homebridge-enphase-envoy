@@ -347,19 +347,16 @@ Retention is controlled by `energyHistoryTime` and `energyHistoryReserveSpace` s
 
 ### Home Assistant
 
-With `mqtt.haDiscovery` the Envoy appears in Home Assistant through the built-in MQTT integration, no custom integration is needed. A sensor is created when the Envoy reports its value, so the list follows the installed meters and batteries.
+With `mqtt.haDiscovery` the Envoy appears in Home Assistant through the built-in MQTT integration, no custom integration is needed. Every value of the power and energy data of the meters becomes a sensor when the Envoy reports it, so the list follows the installed meters and batteries.
 
-| Sensor | Unit | Energy dashboard |
-| --- | --- | --- |
-| Production power, Grid power (positive import, negative export), Consumption power, Battery power (positive discharge, negative charge) | W | |
-| Production energy today / lifetime | kWh | Solar production (lifetime) |
-| Grid import today / lifetime | kWh | Grid consumption (lifetime) |
-| Grid export today / lifetime | kWh | Return to grid (lifetime) |
-| Consumption energy today / lifetime | kWh | |
-| Battery level | % | |
-| Battery energy | kWh | |
+| Meter | Sensors |
+| --- | --- |
+| `Production`, `Consumption Net`, `Consumption Total` | power, power peak (W), energy today, energy today upload, energy today from PV, energy last seven days, energy lifetime, energy lifetime upload, energy lifetime from PV (kWh), reactive power (var), apparent power (VA), current (A), voltage (V), power factor, frequency (Hz) |
+| Battery | battery level (%), battery power (W, positive discharge, negative charge), battery energy (kWh) |
 
-The grid sensors need the net consumption meter (CT), the consumption sensors the total consumption meter, the battery sensors live data with IQ Batteries or AC Batteries. The sensors are unavailable while Homebridge or the plugin is offline.
+Home Assistant Energy dashboard: solar production `Production energy lifetime`, grid consumption `Consumption Net energy lifetime`, return to grid `Consumption Net energy lifetime upload`.
+
+The consumption sensors need the consumption meters (CT), the grid quality sensors (current, voltage, power factor, frequency, reactive and apparent power) the meters, the battery sensors live data with IQ Batteries or AC Batteries. The sensors are unavailable while Homebridge or the plugin is offline.
 
 ### MQTT Integration
 

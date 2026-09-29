@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
-- added: Home Assistant MQTT discovery (`mqtt.haDiscovery`), sensors of production, grid, consumption and battery power and energy through the built-in MQTT integration. The lifetime energy sensors (production, grid import, grid export) fit the Home Assistant Energy dashboard. A sensor is created when the Envoy reports its value
+- added: Home Assistant MQTT discovery (`mqtt.haDiscovery`), every value of the power and energy data of the Production, Consumption Net and Consumption Total meters as a sensor (power, power peak, energy today, last seven days and lifetime with upload and from PV, reactive and apparent power, current, voltage, power factor, frequency) and the battery level, power and energy, through the built-in MQTT integration. The lifetime energy sensors fit the Home Assistant Energy dashboard. A sensor is created when the Envoy reports its value
 - the discovery is published again after a restart of the broker
 - readme update
 
