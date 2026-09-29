@@ -2,6 +2,7 @@ import EventEmitter from 'events';
 import { statfs, stat } from 'fs/promises';
 import { dirname } from 'path';
 import EnvoyData from './envoydata.js';
+import HaDiscovery from './hadiscovery.js';
 import Functions from './functions.js';
 import fakegato from 'fakegato-history';
 import { PartNumbers, ApiCodes, MetersKeyMap, MetersKeyMap1, DeviceTypeMap, LedStatus } from './constants.js';
@@ -123,8 +124,8 @@ class EnvoyDevice extends EventEmitter {
         this.mqtt = device.mqtt ?? {};
         this.mqtt1 = mqtt1;
         this.mqttConnected = mqttConnected;
-        // The broker may come online after the start, the device then publishes
-        this.mqtt1?.on('online', () => { this.mqttConnected = true; });
+        // The broker may come online after the start or restart, the device then publishes again
+        this.mqtt1?.on('online', () => this.mqttOnline().catch((error) => this.emit('warn', `MQTT online error: ${error}`)));
 
         //system accessory
         this.systemAccessory = {
@@ -3075,6 +3076,31 @@ class EnvoyDevice extends EventEmitter {
     }
 
     // Start
+    // MQTT connected, at start when the broker was not running yet or after a restart of the broker
+    async mqttOnline() {
+        this.mqttConnected = true;
+        this.ha?.reset();
+        await this.haPublish();
+    }
+
+    // Home Assistant discovery, sensors of power and energy, published with every power and energy update
+    async haPublish() {
+        if (!this.mqttConnected || !this.mqtt.haDiscovery || !this.pv.info?.serialNumber) return;
+
+        try {
+            this.ha ??= new HaDiscovery(this.mqtt1, {
+                serialNumber: this.pv.info.serialNumber,
+                name: this.name,
+                model: this.pv.info.modelName,
+                swVersion: this.pv.info.software
+            });
+            await this.ha.publish(HaDiscovery.state(this.pv));
+        } catch (error) {
+            if (!this.haErrorLogged && this.logWarn) this.emit('warn', `HA Discovery error: ${error.message ?? error}`);
+            this.haErrorLogged = true;
+        }
+    }
+
     async start() {
         if (this.logDebug) this.emit('debug', `Start`);
 
@@ -4425,6 +4451,7 @@ class EnvoyDevice extends EventEmitter {
                         if (this.restFulConnected) this.restFul1.update('energyhistory', energyHistory);
                         if (this.mqttConnected) this.mqtt1.emit('publish', 'Power And Energy Data', this.pv.powerAndEnergyData);
                         if (this.mqttConnected) this.mqtt1.emit('publish', 'Energy History', energyHistory);
+                        await this.haPublish();
                     } catch (error) {
                         throw new Error(`Update power and energy data error: ${error.message || error}`);
                     }

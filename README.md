@@ -313,6 +313,7 @@ The plugin integrates Enphase Envoy solar energy monitoring systems with Homebri
 | | `clientId` | string | `Client Id` of MQTT broker (optional) |
 | | `prefix` | string | `Prefix` for `Topic` (optional) |
 | | `protocolVersion` | number | MQTT protocol version, `5` (5.0, default) or `4` (3.1.1) for brokers that only support 3.1.1 |
+| | `haDiscovery` | boolean | Publishes Home Assistant MQTT discovery, power and energy sensors, see [Home Assistant](#home-assistant) |
 | | `auth` | boolean | Enables MQTT broker authorization credentials |
 | | `user` | string | MQTT broker user |
 | | `passwd` | string | MQTT Broker password |
@@ -343,6 +344,22 @@ Retention is controlled by `energyHistoryTime` and `energyHistoryReserveSpace` s
 |      | `http//ip:port` | `EnchargeChargeFromGrid` | `true`, `false` | boolean | Set encharge charge from grid On/Off |
 |      | `http//ip:port` | `EnpowerGridState` | `true`, `false` | boolean | Grid state On/Off |
 |      | `http//ip:port` | `GeneratorMode` | `off`, `on`, `auto` | string | Generator mode Off/On/Auto |
+
+### Home Assistant
+
+With `mqtt.haDiscovery` the Envoy appears in Home Assistant through the built-in MQTT integration, no custom integration is needed. A sensor is created when the Envoy reports its value, so the list follows the installed meters and batteries.
+
+| Sensor | Unit | Energy dashboard |
+| --- | --- | --- |
+| Production power, Grid power (positive import, negative export), Consumption power, Battery power (positive discharge, negative charge) | W | |
+| Production energy today / lifetime | kWh | Solar production (lifetime) |
+| Grid import today / lifetime | kWh | Grid consumption (lifetime) |
+| Grid export today / lifetime | kWh | Return to grid (lifetime) |
+| Consumption energy today / lifetime | kWh | |
+| Battery level | % | |
+| Battery energy | kWh | |
+
+The grid sensors need the net consumption meter (CT), the consumption sensors the total consumption meter, the battery sensors live data with IQ Batteries or AC Batteries. The sensors are unavailable while Homebridge or the plugin is offline.
 
 ### MQTT Integration
 

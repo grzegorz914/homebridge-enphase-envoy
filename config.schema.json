@@ -3718,6 +3718,15 @@
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
                   }
                 },
+                "haDiscovery": {
+                  "title": "HA Discovery",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Publish Home Assistant MQTT discovery messages. Power and energy of production, grid import and export, consumption and batteries as sensors, the lifetime energy sensors fit the Home Assistant Energy dashboard. Uses the built-in Home Assistant MQTT integration.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
+                  }
+                },
                 "auth": {
                   "title": "Authorization",
                   "type": "object",
@@ -4860,6 +4869,7 @@
                             "devices[].mqtt.clientId",
                             "devices[].mqtt.prefix",
                             "devices[].mqtt.protocolVersion",
+                            "devices[].mqtt.haDiscovery",
                             {
                               "key": "devices[].mqtt.auth",
                               "title": "Authorization",

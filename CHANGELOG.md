@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.8.0] - (29.09.2026)
+
+### Changes
+
+- added: Home Assistant MQTT discovery (`mqtt.haDiscovery`), sensors of production, grid, consumption and battery power and energy through the built-in MQTT integration. The lifetime energy sensors (production, grid import, grid export) fit the Home Assistant Energy dashboard. A sensor is created when the Envoy reports its value
+- the discovery is published again after a restart of the broker
+- readme update
+
 ## [10.7.12] - (29.09.2026)
 
 ### Changes
