@@ -43,6 +43,13 @@ Object.assign(Sensors, {
     battery_energy: { name: 'Battery energy', device_class: 'energy_storage', state_class: 'measurement', unit_of_measurement: 'kWh', suggested_display_precision: 2, icon: 'mdi:home-battery' }
 });
 
+// Sensors of the first test version, named after the grid instead of the meters, their retained discovery is removed
+const LegacySensors = [
+    'grid_power', 'grid_voltage', 'grid_frequency', 'grid_current', 'grid_power_factor', 'grid_reactive_power', 'grid_apparent_power',
+    'grid_import_today', 'grid_export_today', 'grid_import_lifetime', 'grid_export_lifetime',
+    'consumption_power', 'consumption_energy_today', 'consumption_energy_lifetime'
+];
+
 const number = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 // Wh to kWh with Wh precision
 const kWh = (value) => number(value) === null ? null : Math.round(value) / 1000;
@@ -79,6 +86,14 @@ class HaDiscovery {
 
     // Sensors with a value get their discovery message, then the state of all of them
     async publish(state) {
+        // Once per start, an empty retained message removes the entity from Home Assistant
+        if (!this.legacyRemoved) {
+            this.legacyRemoved = true;
+            for (const key of LegacySensors) {
+                await this.mqtt.publishRetained(`${this.mqtt.haPrefix}/sensor/${this.baseId}_${key}/config`, '');
+            }
+        }
+
         for (const [key, sensor] of Object.entries(Sensors)) {
             if (state[key] === null || state[key] === undefined) continue;
             await this.publishSensor(key, sensor);

@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.8.1] - (29.09.2026)
+
+### Changes
+
+- fixed: Home Assistant discovery, the sensors of the test version named after the grid (Grid power, Grid import, Consumption power...) stayed in Home Assistant, the plugin now removes them at start
+
 ## [10.8.0] - (29.09.2026)
 
 ### Changes
