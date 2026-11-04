@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.8.3] - (04.11.2026)
+
+### Changes
+
+- updated: dependencies, axios, express, fast-xml-parser and mqtt to the latest versions
+
 ## [10.8.2] - (29.10.2026)
 
 ### Changes
