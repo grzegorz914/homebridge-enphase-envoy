@@ -1212,6 +1212,21 @@ class EnvoyData extends EventEmitter {
         }
     }
 
+    // The gateway reports the sum of the phase voltages in the production.json for a split and three phase installation
+    countPhases(lines) {
+        return (lines ?? []).filter(line => line.rmsVoltage > 0).length || 1;
+    }
+
+    // For a three phase installation the gateway (firmware D8.3.6022 and newer) reports the sum of the phase power factors, so the value
+    // is above 1, the power factor of the installation is the ratio of the active power to the apparent power
+    calculatePowerFactor(pwrFactor, divide, phases, activePower, apparentPower) {
+        if (phases >= 3 && apparentPower > 0) {
+            const value = Math.round(activePower / apparentPower * 1000) / 1000;
+            return Math.max(-1, Math.min(1, value));
+        }
+        return pwrFactor / divide;
+    }
+
     async updateMetersReading(start) {
         if (this.logDebug) this.emit('debug', `Requesting meters reading`);
 
@@ -1237,7 +1252,7 @@ class EnvoyData extends EventEmitter {
                         apparentEnergy: meter.apparentEnergy,
                         current: meter.current,
                         voltage: meter.voltage / meterConfig.voltageDivide,
-                        pwrFactor: meter.pwrFactor / meterConfig.powerFactorDivide,
+                        pwrFactor: this.calculatePowerFactor(meter.pwrFactor, meterConfig.powerFactorDivide, meterConfig.phaseCount, meter.activePower, meter.apparentPower),
                         frequency: meter.freq,
                         channels: meter.channels ?? [],
                     };
@@ -1293,7 +1308,7 @@ class EnvoyData extends EventEmitter {
                         apparentEnergy: cumulative.vahCum,
                         current: cumulative.rmsCurrent,
                         voltage: cumulative.rmsVoltage / meterConfig.voltageDivide,
-                        pwrFactor: cumulative.pwrFactor / meterConfig.powerFactorDivide,
+                        pwrFactor: this.calculatePowerFactor(cumulative.pwrFactor, meterConfig.powerFactorDivide, meterConfig.phaseCount, cumulative.actPower, cumulative.apprntPwr),
                         frequency: cumulative.freqHz,
                         channels: meter.lines ?? [],
                     };
@@ -1686,8 +1701,8 @@ class EnvoyData extends EventEmitter {
                         reactivePower: productionEim.reactPwr,
                         apparentPower: productionEim.apprntPwr,
                         current: productionEim.rmsCurrent,
-                        voltage: productionEim.rmsVoltage,
-                        pwrFactor: productionEim.pwrFactor
+                        voltage: productionEim.rmsVoltage / this.countPhases(productionEim.lines),
+                        pwrFactor: this.calculatePowerFactor(productionEim.pwrFactor, 1, this.countPhases(productionEim.lines), productionEim.wNow, productionEim.apprntPwr)
                     };
                     this.pv.powerAndEnergy.production.eim = obj;
                     this.feature.productionCt.production.eim.supported = true;
@@ -1713,8 +1728,8 @@ class EnvoyData extends EventEmitter {
                         reactivePower: item.reactPwr,
                         apparentPower: item.apprntPwr,
                         current: item.rmsCurrent,
-                        voltage: item.rmsVoltage,
-                        pwrFactor: item.pwrFactor
+                        voltage: item.rmsVoltage / this.countPhases(item.lines),
+                        pwrFactor: this.calculatePowerFactor(item.pwrFactor, 1, this.countPhases(item.lines), item.wNow, item.apprntPwr)
                     };
                     Object.assign(this.pv.powerAndEnergy[key], obj);
                     this.feature.productionCt[key].supported = true;

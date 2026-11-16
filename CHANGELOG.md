@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For plugin >= v10.4.0 use Homebridge UI >= v5.13.0
 - after update to v10.0.0 and above the accessory and bridge need to be removed from the homebridge / Home.app and added again
 
+## [10.8.4] - (16.11.2026)
+
+### Changes
+
+- fixed: the power factor was above 1 (about 2.9) and the voltage about 710 V for a three phase installation after the update of the gateway to D8.3.6022, the gateway reports the sum of the phases, the power factor is now calculated as the active power to the apparent power, and the voltage of the production.json is divided by the number of the phases
+
 ## [10.8.3] - (04.11.2026)
 
 ### Changes
